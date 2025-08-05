@@ -10,8 +10,7 @@
     "lint": "next lint --max-warnings 0",
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --",
-    "build-vercel": "pnpm with-env-vercel next build",
-    "with-env-vercel": "dotenv -e .env --"
+    "build-vercel": "pnpm dotenv -e .env -- next build"
   },
   "dependencies": {
     "@repo/env": "workspace:*",
