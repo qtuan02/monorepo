@@ -1,6 +1,6 @@
 {
-  "buildCommand": "cd ../.. && pnpm run build:vercel",
-  "outputDirectory": "apps/portfolio/.next",
+  "buildCommand": "cd ../.. && pnpm run build:vercel --filter=@portfolio",
+  "outputDirectory": ".next",
   "installCommand": "pnpm install",
   "framework": "nextjs"
 }
