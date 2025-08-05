@@ -10,6 +10,15 @@ import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { Provider } from "./provider";
 import RootLayout from "~/features/layout/templates";
+import { Inter_Tight } from "next/font/google";
+
+const inter = Inter_Tight({
+  subsets: ["latin"],
+  adjustFontFallback: true,
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-inter-tight",
+});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -78,7 +87,7 @@ export default async function Layout({
   setRequestLocale(locale);
 
   return (
-    <html suppressHydrationWarning lang={locale}>
+    <html suppressHydrationWarning lang={locale} className={inter.className}>
       <body suppressHydrationWarning>
         <NextIntlClientProvider locale={locale}>
           <Provider>

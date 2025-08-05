@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import AboutTemplate from "~/features/about/templates/about.template";
 import { NextParams } from "~/types/common";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 
@@ -12,7 +11,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "About",
+    namespace: "Docs",
   });
 
   return getMetadataDefault(locale, {
@@ -29,8 +28,6 @@ export async function generateMetadata({
   });
 }
 
-export default async function AboutPage({ params }: { params: NextParams }) {
-  const { locale } = await params;
-
-  return <AboutTemplate locale={locale} />;
+export default function DocsPage() {
+  return <div>DocsPage</div>;
 }

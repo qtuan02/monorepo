@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Navbar from "./navbar";
 import { ErrorBoundary } from "react-error-boundary";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -15,7 +15,9 @@ export default function RootLayout({
     <ErrorBoundary fallback={null}>
       <main className="relative min-h-screen w-full bg-white dark:bg-black">
         <HydrationBoundary state={dehydrate(queryClient)}>
-          <Navbar />
+          <Suspense fallback={null}>
+            <Navbar />
+          </Suspense>
           <div className="pt-15">{children}</div>
         </HydrationBoundary>
       </main>

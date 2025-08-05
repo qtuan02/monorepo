@@ -1,7 +1,8 @@
 {
   "portfolio": "Portfolio",
   "Exception": {
-    "back": "Quay lại"
+    "back": "Quay lại",
+    "not_found": "Không tìm thấy trang"
   },
   "Navbar": {
     "about": "Giới thiệu",
@@ -9,7 +10,7 @@
     "vi_language": "Tiếng Việt",
     "en_language": "Tiếng Anh (US)"
   },
-  "home": {
+  "Home": {
     "title": "Xin chào, mình là Developer Frontend",
     "subtitle": "Bạn có thể gọi mình là Tuấn",
     "about": "Tìm hiểu về tôi",
@@ -38,6 +39,12 @@
     "travel": "Du lịch",
     "listen_music": "Nghe nhạc",
     "watch_movie": "Xem phim",
-    "overview": "Tổng quan"
+    "overview": "Tổng quan",
+    "title": "Giới thiệu",
+    "description": "Giới thiệu"
+  },
+  "Docs": {
+    "title": "Thành phần",
+    "description": "Thành phần"
   }
 }

@@ -4,7 +4,8 @@
 declare const messages: {
   "portfolio": "Portfolio",
   "Exception": {
-    "back": "Come back"
+    "back": "Come back",
+    "not_found": "Page Not Found"
   },
   "Navbar": {
     "about": "About",
@@ -12,7 +13,7 @@ declare const messages: {
     "vi_language": "Vietnamese",
     "en_language": "English (US)"
   },
-  "home": {
+  "Home": {
     "title": "Hello, I'm Developer Frontend",
     "subtitle": "You can call me Tuan",
     "about": "About me",
@@ -41,7 +42,13 @@ declare const messages: {
     "listen_music": "Listening to music",
     "watch_movie": "Watch a movie",
     "overview": "Overview",
-    "skills": "Skills"
+    "skills": "Skills",
+    "title": "About",
+    "description": "About"
+  },
+  "Docs": {
+    "title": "Component",
+    "description": "Component"
   }
 };
 export default messages;

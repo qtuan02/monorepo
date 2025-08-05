@@ -4,8 +4,11 @@ import CardExperience from "./card-experience";
 import { Book, Film, Medal, Music, Plane } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
-const ContentRight = async () => {
-  const t = await getTranslations("About");
+const ContentRight = async ({ locale }: { locale: string }) => {
+  const t = await getTranslations({
+    locale,
+    namespace: "About",
+  });
 
   return (
     <CardSection className="flex flex-col gap-y-6">

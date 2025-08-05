@@ -18,7 +18,7 @@ const Menu = () => {
       },
       {
         label: t("component"),
-        href: "/component",
+        href: "/docs",
       },
     ],
     [t]
@@ -33,8 +33,10 @@ const Menu = () => {
           key={`MENU_ITEM-${index}`}
           href={item.href}
           className={cn(
-            "px-2 font-medium hover:scale-105",
-            isActiveRoute(item.href) && "underline underline-offset-4"
+            "px-2 font-medium hover:scale-105 ",
+            isActiveRoute(item.href)
+              ? "underline underline-offset-4 text-black dark:text-white"
+              : "text-gray-500"
           )}
         >
           {item.label}

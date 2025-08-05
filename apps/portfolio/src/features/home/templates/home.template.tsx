@@ -2,8 +2,11 @@ import NextLink from "~/components/next-link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 
-export default async function HomeTemplate() {
-  const t = await getTranslations("home");
+export default async function HomeTemplate({ locale }: { locale: string }) {
+  const t = await getTranslations({
+    locale,
+    namespace: "Home",
+  });
 
   return (
     <main className="py-16 space-y-8">
@@ -17,14 +20,14 @@ export default async function HomeTemplate() {
       <div className="flex justify-center gap-x-6">
         <NextLink
           href="/about"
-          className="text-xl font-medium px-4 py-2 bg-orange-500 rounded-lg transition-all duration-500 text-white hover:bg-orange-600 flex items-center gap-x-1"
+          className="text-xl font-medium px-4 py-2 bg-orange-500 rounded-lg transition-all duration-400 text-white hover:bg-orange-600 flex items-center gap-x-1"
         >
           {t("about")}
           <ArrowRight className="size-6" />
         </NextLink>
         <NextLink
-          href="/component"
-          className="text-xl font-medium px-4 py-2 bg-orange-500 rounded-lg transition-all duration-500 text-white hover:bg-orange-600 flex items-center gap-x-1"
+          href="/docs"
+          className="text-xl font-medium px-4 py-2 bg-orange-500 rounded-lg transition-all duration-400 text-white hover:bg-orange-600 flex items-center gap-x-1"
         >
           {t("explore")}
           <ArrowRight className="size-6" />

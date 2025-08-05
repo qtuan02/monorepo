@@ -4,13 +4,8 @@ import NextLink from "~/components/next-link";
 import Language from "../components/navbar/language";
 import Theme from "../components/navbar/theme";
 import Menu from "../components/navbar/menu";
-import { cookies } from "next/headers";
-import { THEME_COOKIE_NAME } from "~/constants/common";
 
 export default async function Navbar() {
-  const cookieStore = await cookies();
-  const defaultTheme = cookieStore.get(THEME_COOKIE_NAME)?.value || "light";
-
   return (
     <nav className="fixed z-50 w-full shadow-sm bg-white dark:bg-gray-900 select-none">
       <div className="flex items-center h-15 px-3 justify-between">
@@ -30,7 +25,7 @@ export default async function Navbar() {
         </section>
 
         <section className="flex items-center gap-x-1">
-          <Theme defaultTheme={defaultTheme} />
+          <Theme />
           <Language />
         </section>
       </div>

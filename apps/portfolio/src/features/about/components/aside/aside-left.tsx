@@ -10,8 +10,11 @@ import {
 import NextLink from "~/components/next-link";
 import { getTranslations } from "next-intl/server";
 
-const AsideLeft = async () => {
-  const t = await getTranslations("About");
+const AsideLeft = async ({ locale }: { locale: string }) => {
+  const t = await getTranslations({
+    locale,
+    namespace: "About",
+  });
 
   return (
     <>
@@ -21,7 +24,7 @@ const AsideLeft = async () => {
         </div>
         <p className="text-2xl font-bold">Huỳnh Quốc Tuấn</p>
         <p className=" text-gray-600">Developer Frontend</p>
-        <button className="flex items-center gap-x-2 bg-orange-500 text-white px-4 py-1 rounded-lg cursor-pointer hover:bg-orange-600 transition-all duration-500">
+        <button className="flex items-center gap-x-2 bg-orange-500 text-white px-4 py-1 rounded-lg cursor-pointer hover:bg-orange-600 transition-all duration-400">
           <Download className="size-4" />
           <span>{t("download_cv")}</span>
         </button>
