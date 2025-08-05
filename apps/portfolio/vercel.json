@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm run dotenv -e .env -- && next build",
+  "buildCommand": "cd ../.. && pnpm run with-env-vercel next build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
   "framework": "nextjs"
