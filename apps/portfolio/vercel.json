@@ -1,11 +1,6 @@
 {
-  "buildCommand": "cd ../.. && pnpm run build-vercel:portfolio",
+  "buildCommand": "cd ../.. && pnpm build:portfolio",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
-  "framework": "nextjs",
-  "functions": {
-    "app/**/*.js": {
-      "maxDuration": 30
-    }
-  }
+  "framework": "nextjs"
 }
