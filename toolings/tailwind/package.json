@@ -1,0 +1,20 @@
+{
+  "name": "@repo/tailwind",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./styles.css": "./styles.css"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore"
+  },
+  "devDependencies": {
+    "@repo/typescript": "workspace:*",
+    "@types/node": "^22.15.3",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
+}

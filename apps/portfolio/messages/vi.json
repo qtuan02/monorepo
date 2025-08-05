@@ -1,0 +1,43 @@
+{
+  "portfolio": "Portfolio",
+  "Exception": {
+    "back": "Quay lại"
+  },
+  "Navbar": {
+    "about": "Giới thiệu",
+    "component": "Thành phần",
+    "vi_language": "Tiếng Việt",
+    "en_language": "Tiếng Anh (US)"
+  },
+  "home": {
+    "title": "Xin chào, mình là Developer Frontend",
+    "subtitle": "Bạn có thể gọi mình là Tuấn",
+    "about": "Tìm hiểu về tôi",
+    "explore": "Khám phá"
+  },
+  "About": {
+    "about_me": "Về tôi",
+    "about_me_description": "Với niềm đam mê lập trình, tôi luôn tìm kiếm cơ hội để học hỏi, thử nghiệm và ứng dụng những xu hướng công nghệ mới vào sản phẩm web",
+    "download_cv": "Tải CV",
+    "contact_info": "Thông tin liên hệ",
+    "address": "Quận 7, TP.Hồ Chí Minh, Việt Nam",
+    "overview_description_1": "Xin chào! Tôi là Tuấn, một Frontend Developer với hơn 1.5 năm kinh nghiệm trong việc phát triển các ứng dụng web hiện đại. Tôi đam mê xây dựng giao diện người dùng đẹp mắt, dễ sử dụng và tối ưu hiệu suất.",
+    "overview_description_2": "Tôi có kinh nghiệm làm việc với React, Next.js, TypeScript, Tailwind  CSS và React Query, cùng khả năng xử lý linh hoạt các kỹ thuật hiển thị như CSR, SSR, SSG, ISR. Ngoài ra, tôi cũng thành thạo trong việc triển khai API Routes, Server Actions và tối ưu SEO cho các ứng dụng web.",
+    "overview_description_3": "Bên cạnh vai trò Frontend, tôi cũng có khả năng đảm nhiệm một số  công việc Backend, bao gồm xây dựng RESTful APIs, xử lý logic nghiệp vụ và kết nối với cơ sở dữ liệu.",
+    "overview_description_4": "Tôi luôn chủ động học hỏi và cập nhật các xu hướng công nghệ mới để  không ngừng cải thiện chất lượng sản phẩm và kỹ năng bản thân. Ngoài  công việc, tôi yêu thích đọc sách công nghệ, chơi thể thao và du lịch khám phá. Tôi tin rằng sự cân bằng giữa công việc và cuộc sống là yếu tố quan trọng giúp tôi duy trì sự sáng tạo và hiệu quả trong công việc.",
+    "skills": "Kỹ năng",
+    "experience": "Kinh nghiệm làm việc",
+    "education": "Học vấn",
+    "hobbies": "Sở thích",
+    "major": "Kỹ sư công nghệ thông tin",
+    "education_year": "Năm học",
+    "school": "Trường Đại học Công nghệ Sài Gòn",
+    "english_level": "Tiếng anh: Bình thường",
+    "sport": "Chơi thể thao",
+    "read_book": "Đọc sách",
+    "travel": "Du lịch",
+    "listen_music": "Nghe nhạc",
+    "watch_movie": "Xem phim",
+    "overview": "Tổng quan"
+  }
+}

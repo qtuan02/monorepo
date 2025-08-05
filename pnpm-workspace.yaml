@@ -1,3 +1,34 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "toolings/*"
+catalog:
+  eslint: ^9.23.0
+  prettier: ^3.5.3
+  typescript: ^5.8.2
+  dotenv-cli: 8.0.0
+  zod: ^3.24.2
+  tailwindcss: ^4.0.17
+  "postcss": ^8.5.3
+  "@tailwindcss/postcss": ^4.0.17
+  tailwind-merge: ^3.0.2
+  tailwind-scrollbar: ^4.0.2
+  class-variance-authority: ^0.7.1
+  react-error-boundary: ^6.0.0
+  react-hook-form: ^7.55.0
+  "@hookform/resolvers": ^4.1.3
+  lucide-react: ^0.536.0
+  flag-icons: ^7.5.0
+catalogs:
+  tanstackquery:
+    "@tanstack/react-query": ^5.74.4
+    "@tanstack/react-query-devtools": ^5.74.4
+  next15:
+    next: 15.4.2
+    next-intl: 4.3.4
+    "@t3-oss/env-nextjs": 0.13.8
+  react19:
+    react: ^19.1.0
+    react-dom: ^19.1.0
+    "@types/react": 19.1.1
+    "@types/react-dom": 19.1.2

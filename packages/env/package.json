@@ -1,0 +1,21 @@
+{
+  "name": "@repo/env",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/eslint": "workspace:*",
+    "@repo/typescript": "workspace:*",
+    "@types/node": "^22.15.3",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "zod": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:next15"
+  }
+}

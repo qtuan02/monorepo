@@ -1,0 +1,40 @@
+{
+  "name": "@_template",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm with-env next dev",
+    "build": "pnpm with-env next build",
+    "start": "pnpm with-env next start",
+    "lint": "next lint --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "with-env": "dotenv -e ../../.env --"
+  },
+  "dependencies": {
+    "@repo/ui": "workspace:*",
+    "@repo/env": "workspace:*",
+    "@t3-oss/env-nextjs": "catalog:next15",
+    "@tanstack/react-query": "catalog:tanstackquery",
+    "@tanstack/react-query-devtools": "catalog:tanstackquery",
+    "next": "catalog:next15",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "next-intl": "catalog:next15"
+  },
+  "devDependencies": {
+    "@repo/eslint": "workspace:*",
+    "@repo/tailwind": "workspace:*",
+    "@repo/typescript": "workspace:*",
+    "@types/node": "^22.15.3",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "@tailwindcss/postcss": "catalog:",
+    "zod": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:",
+    "dotenv-cli": "catalog:",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:"
+  }
+}
