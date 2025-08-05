@@ -11,7 +11,6 @@
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --",
     "build:vercel": "pnpm with-env-vercel next build",
-    "start:vercel": "pnpm with-env-vercel next start",
     "with-env-vercel": "dotenv -e .env --"
   },
   "dependencies": {
