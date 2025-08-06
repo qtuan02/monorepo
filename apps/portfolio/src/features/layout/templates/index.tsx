@@ -14,12 +14,12 @@ export default async function RootLayout({
 
   return (
     <ErrorBoundary fallback={null}>
-      <main className="relative min-h-screen w-full bg-whitble dark:bg-black">
+      <main className="relative min-h-screen w-full bg-white dark:bg-black">
         <HydrationBoundary state={dehydrate(queryClient)}>
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
-          <div className="pt-15">{children}</div>
+          <div className="pt-12 md:pt-15">{children}</div>
           <Suspense fallback={null}>
             <Footer />
           </Suspense>

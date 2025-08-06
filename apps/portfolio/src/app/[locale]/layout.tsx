@@ -88,7 +88,7 @@ export default async function Layout({
 
   return (
     <html suppressHydrationWarning lang={locale} className={inter.className}>
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="min-h-screen">
         <NextIntlClientProvider locale={locale}>
           <Provider>
             <RootLayout>{children}</RootLayout>

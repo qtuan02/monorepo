@@ -27,7 +27,8 @@
     "next-themes": "^0.4.6",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
-    "react-error-boundary": "catalog:"
+    "react-error-boundary": "catalog:",
+    "tailwind-scrollbar": "catalog:"
   },
   "devDependencies": {
     "@repo/eslint": "workspace:*",

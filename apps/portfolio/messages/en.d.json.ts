@@ -45,7 +45,10 @@ declare const messages: {
     "overview": "Overview",
     "skills": "Skills",
     "title": "About",
-    "description": "About"
+    "description": "About",
+    "company_wisdomrobotics": "WISDOMROBOTICS COMPANY LIMITED",
+    "company_dcorp": "DCORP TECHNOLOGY JOINT STOCK COMPANY",
+    "company_arobid": "AROBID TECHNOLOGY JOINT STOCK COMPANY"
   },
   "Docs": {
     "title": "Component",
