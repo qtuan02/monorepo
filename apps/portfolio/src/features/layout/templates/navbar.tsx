@@ -5,10 +5,10 @@ import Language from "../components/navbar/language";
 import Theme from "../components/navbar/theme";
 import Menu from "../components/navbar/menu";
 
-export default async function Navbar() {
+export default function Navbar() {
   return (
     <nav className="fixed z-50 w-full shadow-sm bg-white dark:bg-gray-900 select-none">
-      <div className="flex items-center h-15 px-3 justify-between">
+      <div className="flex items-center h-12 md:h-15 px-3 justify-between">
         <section className="flex items-center gap-x-10">
           <NextLink href="/" className="flex items-center gap-x-2">
             <NextImage
@@ -21,7 +21,9 @@ export default async function Navbar() {
             <span className="text-lg font-bold">Portfolio</span>
           </NextLink>
 
-          <Menu />
+          <div className="hidden md:flex items-center gap-x-1">
+            <Menu />
+          </div>
         </section>
 
         <section className="flex items-center gap-x-1">

@@ -24,26 +24,22 @@ const Menu = () => {
     [t]
   );
 
-  const isActiveRoute = (itemPath: string) => pathname.includes(itemPath);
+  const isActiveRoute = (itemPath: string) => pathname === itemPath;
 
-  return (
-    <div className="flex items-center gap-x-1">
-      {MENU_ITEMS.map((item, index) => (
-        <NextLink
-          key={`MENU_ITEM-${index}`}
-          href={item.href}
-          className={cn(
-            "px-2 font-medium hover:scale-105 ",
-            isActiveRoute(item.href)
-              ? "underline underline-offset-4 text-black dark:text-white"
-              : "text-gray-500"
-          )}
-        >
-          {item.label}
-        </NextLink>
-      ))}
-    </div>
-  );
+  return MENU_ITEMS.map((item, index) => (
+    <NextLink
+      key={`MENU_ITEM-${index}`}
+      href={item.href}
+      className={cn(
+        "px-2 font-medium hover:scale-105 ",
+        isActiveRoute(item.href)
+          ? "underline underline-offset-4 text-black dark:text-white"
+          : "text-gray-500"
+      )}
+    >
+      {item.label}
+    </NextLink>
+  ));
 };
 
 export default Menu;

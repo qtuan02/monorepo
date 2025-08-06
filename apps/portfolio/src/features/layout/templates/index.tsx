@@ -3,8 +3,9 @@ import Navbar from "./navbar";
 import { ErrorBoundary } from "react-error-boundary";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getQueryClient } from "~/libs/query-client";
+import Footer from "./footer";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -13,12 +14,15 @@ export default function RootLayout({
 
   return (
     <ErrorBoundary fallback={null}>
-      <main className="relative min-h-screen w-full bg-white dark:bg-black">
+      <main className="relative min-h-screen w-full bg-whitble dark:bg-black">
         <HydrationBoundary state={dehydrate(queryClient)}>
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
           <div className="pt-15">{children}</div>
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
         </HydrationBoundary>
       </main>
     </ErrorBoundary>

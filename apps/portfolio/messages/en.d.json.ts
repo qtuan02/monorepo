@@ -8,8 +8,9 @@ declare const messages: {
     "not_found": "Page Not Found"
   },
   "Navbar": {
+    "home": "Home",
     "about": "About",
-    "component": "Component",
+    "component": "Codes",
     "vi_language": "Vietnamese",
     "en_language": "English (US)"
   },

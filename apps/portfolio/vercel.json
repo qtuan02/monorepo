@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && pnpm build:portfolio",
+  "buildCommand": "pnpm build:vercel",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
   "framework": "nextjs"

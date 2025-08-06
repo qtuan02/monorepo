@@ -5,8 +5,9 @@
     "not_found": "Không tìm thấy trang"
   },
   "Navbar": {
+    "home": "Trang chủ",
     "about": "Giới thiệu",
-    "component": "Thành phần",
+    "component": "Codes",
     "vi_language": "Tiếng Việt",
     "en_language": "Tiếng Anh (US)"
   },
