@@ -11,6 +11,7 @@ import { setRequestLocale } from "next-intl/server";
 import { Provider } from "./provider";
 import RootLayout from "~/features/layout/templates";
 import { Inter_Tight } from "next/font/google";
+import { cn } from "@repo/ui/libs/cn";
 
 const inter = Inter_Tight({
   subsets: ["latin"],
@@ -87,7 +88,11 @@ export default async function Layout({
   setRequestLocale(locale);
 
   return (
-    <html suppressHydrationWarning lang={locale} className={inter.className}>
+    <html
+      suppressHydrationWarning
+      lang={locale}
+      className={cn(inter.className, "antialiased")}
+    >
       <body suppressHydrationWarning className="min-h-screen">
         <NextIntlClientProvider locale={locale}>
           <Provider>

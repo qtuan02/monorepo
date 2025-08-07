@@ -64,15 +64,15 @@ const Language = () => {
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="backdrop-blur-md border-gray-200 dark:border-gray-800 w-fit min-w-48 px-2 py-1"
+        className="backdrop-blur-md border-gray-200 dark:border-gray-800 w-fit min-w-48 p-2"
         side="bottom"
         align="end"
       >
-        <div className="flex flex-col ">
+        <div className="flex flex-col bg-white dark:bg-gray-900 rounded-sm overflow-hidden">
           {LANGUAGE_ITEMS.map((item, index) => (
             <section
               key={`LANGUAGE_ITEM-${index}`}
-              className="flex justify-between items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1"
+              className="flex justify-between items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 p-2"
             >
               <div
                 className="flex items-center gap-x-2 cursor-pointer"
