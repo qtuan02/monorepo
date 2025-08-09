@@ -68,6 +68,13 @@ export async function generateMetadata({
       index: false,
       follow: false,
     },
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#fff" },
+      { media: "(prefers-color-scheme: dark)", color: "#000" },
+    ],
+    viewport: {
+      viewportFit: "cover",
+    },
     manifest: "/manifest.webmanifest",
   });
 }

@@ -20,18 +20,23 @@
   "devDependencies": {
     "@repo/eslint": "workspace:*",
     "@repo/typescript": "workspace:*",
+    "@tailwindcss/postcss": "catalog:",
     "@types/node": "^22.15.3",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
-    "@tailwindcss/postcss": "catalog:",
-    "postcss": "catalog:",
     "eslint": "catalog:",
-    "typescript": "catalog:",
-    "tailwindcss": "catalog:"
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
   },
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.11",
+    "@radix-ui/react-aspect-ratio": "^1.1.7",
     "@radix-ui/react-popover": "^1.1.14",
+    "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "catalog:",
+    "embla-carousel-react": "catalog:",
+    "lucide-react": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "tailwind-merge": "catalog:"

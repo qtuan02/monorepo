@@ -32,7 +32,10 @@ export default function Footer() {
     [t]
   );
 
-  const isActiveRoute = (itemPath: string) => pathname === itemPath;
+  const isActiveRoute = (itemPath: string) => {
+    if (itemPath === "/") return pathname === "/";
+    return pathname.startsWith(itemPath);
+  };
 
   return (
     <footer className="fixed bottom-4 flex md:hidden left-4 w-[calc(100%-32px)] rounded-full h-14 bg-gray-100 backdrop-blur-lg shadow-inherit dark:bg-gray-800">

@@ -6,7 +6,7 @@ interface ILayoutDocsTemplateProps extends PropsWithChildren {
 }
 
 export default function LayoutDocsTemplate(props: ILayoutDocsTemplateProps) {
-  const { children, locale } = props;
+  const { children } = props;
 
   return (
     <main className="flex">

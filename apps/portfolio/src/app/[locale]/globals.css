@@ -9,29 +9,13 @@
  * https://github.com/tailwindlabs/tailwindcss/issues/16733
  */
 @source '../../../../../packages/ui';
-@custom-variant dark (&:where(.dark, .dark *));
-
-@theme inline {
-  --font-sans: var(--font-inter-tight);
-}
-
-
-:root {
-  --background: 255 255 255;
-  --foreground: 0 0 0;
-}
-
-[data-theme="dark"] {
-  --background: 0 0 0;
-  --foreground: 255 255 255;
-}
+@custom-variant dark (&:is(.dark *));
 
 .dark {
   --background: 0 0 0;
   --foreground: 255 255 255;
 }
 
-/* FIX CHO IPHONE - Đảm bảo body và html có background color nhất quán */
 html {
   background-color: rgb(var(--background));
   color: rgb(var(--foreground));

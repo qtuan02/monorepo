@@ -1,19 +1,17 @@
 "use client";
 
-import { setCookie } from "cookies-next/client";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { THEME_COOKIE_NAME } from "~/constants/common";
 
 const THEME_ITEMS = [
   {
-    icon: <Sun className="text-white" size={20} />,
     value: "dark",
+    icon: <Sun className="text-white" size={20} />,
   },
   {
-    icon: <Moon size={20} />,
     value: "light",
+    icon: <Moon size={20} />,
   },
 ];
 
@@ -28,15 +26,10 @@ const Theme = () => {
 
   if (!mounted)
     return (
-      <div className="cursor-pointer p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
-        <Sun className="text-white" size={20} />
-      </div>
+      <div className="size-5 mr-2 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
     );
 
-  const handleChangeTheme = () => {
-    setTheme(newTheme);
-    setCookie(THEME_COOKIE_NAME, newTheme);
-  };
+  const handleChangeTheme = () => setTheme(newTheme);
 
   return (
     <div

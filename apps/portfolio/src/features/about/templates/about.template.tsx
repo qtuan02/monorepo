@@ -11,7 +11,7 @@ export default async function AboutTemplate({ locale }: { locale: string }) {
   return (
     <main className="pt-6 md:py-10 space-y-4 md:space-y-8 px-4 relative pb-22 md:pb-6">
       <h1 className="text-2xl md:text-5xl font-bold text-center">{t("about_me")}</h1>
-      <p className="text-sm md:text-lg text-center max-w-2xl mx-auto text-gray-600">
+      <p className="text-sm md:text-lg text-center max-w-2xl mx-auto text-gray-500">
         {t("about_me_description")}
       </p>
       <section className="max-w-6xl mx-auto flex md:flex-row flex-col gap-x-6 gap-y-4">

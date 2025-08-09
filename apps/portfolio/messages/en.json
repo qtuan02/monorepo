@@ -48,7 +48,23 @@
     "company_arobid": "AROBID TECHNOLOGY JOINT STOCK COMPANY"
   },
   "Docs": {
-    "title": "Component",
-    "description": "Component"
+    "title": "Codes",
+    "description": "Codes",
+    "get-started": "Get started",
+    "introduction": "Introduction",
+    "components": "Components",
+    "intro-content": {
+      "paragraph1": "This is a portfolio repo extracted from a monorepo I built myself.",
+      "paragraph2": "Inside are components cloned from shadcn (with customization) along with usage examples.",
+      "list": [
+        "Tricks and best practices learned during development.",
+        "Useful custom hooks and utilities.",
+        "Notes and real-world examples to apply in other projects."
+      ],
+      "paragraph3": "Goal: to create both a personal portfolio and a reusable set of components and tools for future projects."
+    },
+    "preview": "Preview",
+    "import": "Import",
+    "usage": "Usage"
   }
 }

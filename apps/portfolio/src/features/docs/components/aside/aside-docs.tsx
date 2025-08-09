@@ -1,5 +1,58 @@
+"use client";
+
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@repo/ui/components/accordion";
+import NextLink from "~/components/next-link";
+import { getDataDocs } from "../../utils/get-data-docs";
+import { useTranslations } from "next-intl";
+import { usePathname } from "~/i18n/navigation";
+import { cn } from "@repo/ui/libs/cn";
+
+const DEFAULT_VALUE = ["get-started", "components"];
+
 const AsideDocs = () => {
-  return <div>AsideDocs</div>;
+  const t = useTranslations();
+  const pathname = usePathname();
+
+  const ASIDE_ITEMS = getDataDocs(t);
+
+  const isActiveRoute = (itemPath: string) => pathname === itemPath;
+
+  return (
+    <div className="flex flex-col gap-y-4 p-2">
+      <Accordion
+        type="multiple"
+        className="w-full"
+        defaultValue={DEFAULT_VALUE}
+      >
+        {ASIDE_ITEMS.map((item) => (
+          <AccordionItem key={item.key} value={item.key} className="border-b-0">
+            <AccordionTrigger className="py-2 px-3 cursor-pointer hover:no-underline text-base font-semibold flex items-center hover:bg-gray-100 dark:hover:bg-gray-800">
+              {item.label}
+            </AccordionTrigger>
+            <AccordionContent className="flex flex-col pb-0">
+              {item.children.map((child) => (
+                <NextLink
+                  key={child.key}
+                  href={child.href}
+                  className={cn(
+                    "py-2 px-3 hover:bg-gray-200 dark:hover:bg-gray-800 text-base rounded-md",
+                    isActiveRoute(child.href) && "bg-gray-200 dark:bg-gray-800"
+                  )}
+                >
+                  {child.label}
+                </NextLink>
+              ))}
+            </AccordionContent>
+          </AccordionItem>
+        ))}
+      </Accordion>
+    </div>
+  );
 };
 
 export default AsideDocs;

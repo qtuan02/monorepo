@@ -24,7 +24,7 @@ const Menu = () => {
     [t]
   );
 
-  const isActiveRoute = (itemPath: string) => pathname === itemPath;
+  const isActiveRoute = (itemPath: string) => pathname.startsWith(itemPath);
 
   return MENU_ITEMS.map((item, index) => (
     <NextLink

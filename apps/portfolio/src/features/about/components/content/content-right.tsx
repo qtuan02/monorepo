@@ -15,16 +15,16 @@ const ContentRight = async ({ locale }: { locale: string }) => {
       <section id="overview" className="flex flex-col gap-y-4">
         <h2 className="text-xl md:text-2xl font-medium">{t("overview")}</h2>
         <div className="flex flex-col gap-y-3">
-          <p className="text-gray-600 text-sm md:text-base">
+          <p className="text-gray-500 text-sm md:text-base">
             {t("overview_description_1")}
           </p>
-          <p className="text-gray-600 text-sm md:text-base">
+          <p className="text-gray-500 text-sm md:text-base">
             {t("overview_description_2")}
           </p>
-          <p className="text-gray-600 text-sm md:text-base">
+          <p className="text-gray-500 text-sm md:text-base">
             {t("overview_description_3")}
           </p>
-          <p className="text-gray-600 text-sm md:text-base">
+          <p className="text-gray-500 text-sm md:text-base">
             {t("overview_description_4")}
           </p>
         </div>
@@ -93,10 +93,10 @@ const ContentRight = async ({ locale }: { locale: string }) => {
           <h2 className="text-xl md:text-2xl font-medium">{t("education")}</h2>
           <div className="flex flex-col gap-y-1">
             <p className=" font-medium text-sm md:text-base">{t("major")}</p>
-            <p className="text-gray-600 text-sm md:text-base">
+            <p className="text-gray-500 text-sm md:text-base">
               {t("education_year")}: 2020 - 2024
             </p>
-            <p className="text-gray-600 text-sm md:text-base">{t("school")}</p>
+            <p className="text-gray-500 text-sm md:text-base">{t("school")}</p>
             <p className="mt-3 font-medium text-sm md:text-base">
               {t("english_level")}
             </p>

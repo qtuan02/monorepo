@@ -10,7 +10,7 @@ export default async function HomeTemplate({ locale }: { locale: string }) {
 
   return (
     <main className="py-16 space-y-8 px-4 ">
-      <p className="text-gray-600 md:text-lg text-center font-medium">
+      <p className="text-gray-500 md:text-lg text-center font-medium">
         {t("title")}
       </p>
       <p className="text-3xl md:text-6xl font-bold text-center">

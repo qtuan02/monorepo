@@ -7,7 +7,6 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { env } from "~/env";
 import { getQueryClient } from "~/libs/query-client";
 import { ThemeProvider } from "next-themes";
-import { THEME_COOKIE_NAME } from "~/constants/common";
 
 const ReactQueryDevtoolsProduction = dynamic(() =>
   import("@tanstack/react-query-devtools/build/modern/production.js").then(
@@ -30,7 +29,6 @@ const Provider = ({ children }: ProviderProps) => {
       <ThemeProvider
         attribute="class"
         defaultTheme="light"
-        storageKey={THEME_COOKIE_NAME}
         enableSystem={false}
         disableTransitionOnChange={false}
       >

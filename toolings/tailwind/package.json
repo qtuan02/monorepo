@@ -15,6 +15,7 @@
     "@repo/typescript": "workspace:*",
     "@types/node": "^22.15.3",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "tw-animate-css": "catalog:"
   }
 }
