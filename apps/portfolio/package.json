@@ -28,8 +28,7 @@
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "react-error-boundary": "catalog:",
-    "react-syntax-highlighter": "^15.6.1",
-    "tailwind-scrollbar": "catalog:"
+    "react-syntax-highlighter": "^15.6.1"
   },
   "devDependencies": {
     "@repo/eslint": "workspace:*",

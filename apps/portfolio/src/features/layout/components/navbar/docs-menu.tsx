@@ -25,7 +25,10 @@ const DocsMenu = () => {
         <SheetHeader className="py-2.5 pl-5">
           <SheetTitle className="flex items-center justify-between gap-x-2">
             <span className="text-xl font-medium">MENU</span>
-            <SheetClose asChild className="bg-gray-800 rounded-full p-1">
+            <SheetClose
+              asChild
+              className="bg-gray-200 dark:bg-gray-800 rounded-full p-1"
+            >
               <X />
             </SheetClose>
           </SheetTitle>

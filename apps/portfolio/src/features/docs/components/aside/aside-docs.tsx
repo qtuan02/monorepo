@@ -20,7 +20,11 @@ const AsideDocs = () => {
 
   const ASIDE_ITEMS = getDataDocs(t);
 
-  const isActiveRoute = (itemPath: string) => pathname === itemPath;
+  const isActiveRoute = (itemPath: string) => {
+    if (itemPath === "/docs/introduction")
+      return pathname === "/docs" || pathname === "/docs/introduction";
+    return pathname === itemPath;
+  };
 
   return (
     <div className="flex flex-col gap-y-4 p-2">

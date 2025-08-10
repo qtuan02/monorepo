@@ -12,6 +12,7 @@ import MediaQuery from "../components/docs/hooks/MediaQuery";
 import Previous from "../components/docs/hooks/Previous";
 import Toggle from "../components/docs/hooks/Toggle";
 import Unmount from "../components/docs/hooks/Unmount";
+import AspectRatio from "../components/docs/components/aspect-ratio";
 
 export const getDataDocs = (
   t: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -56,6 +57,18 @@ export const getComponentsData = (): DocItem[] => {
       href: "/docs/accordion",
       component: Accordion,
     },
+    {
+      key: "aspect-ratio",
+      label: "Aspect Ratio",
+      href: "/docs/aspect-ratio",
+      component: AspectRatio,
+    },
+    // {
+    //   key: "badge",
+    //   label: "Badge",
+    //   href: "/docs/badge",
+    //   component: Badge,
+    // },
   ];
 };
 

@@ -2,6 +2,9 @@
   "name": "@repo/ui",
   "version": "0.0.0",
   "private": true,
+  "imports": {
+    "#*": "./src/*"
+  },
   "exports": {
     "./libs/*": {
       "types": "./dist/src/libs/*.d.ts",
@@ -14,6 +17,10 @@
     "./hooks/*": {
       "types": "./dist/src/hooks/*.d.ts",
       "default": "./src/hooks/*.ts"
+    },
+    "./utils/*": {
+      "types": "./dist/src/utils/*.d.ts",
+      "default": "./src/utils/*.ts"
     }
   },
   "scripts": {

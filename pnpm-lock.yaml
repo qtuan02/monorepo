@@ -216,9 +216,6 @@ importers:
       react-syntax-highlighter:
         specifier: ^15.6.1
         version: 15.6.1(react@19.1.0)
-      tailwind-scrollbar:
-        specifier: 'catalog:'
-        version: 4.0.2(react@19.1.0)(tailwindcss@4.1.11)
     devDependencies:
       '@repo/eslint':
         specifier: workspace:*
@@ -398,6 +395,9 @@ importers:
       '@types/node':
         specifier: ^22.15.3
         version: 22.15.3
+      tailwind-scrollbar:
+        specifier: 'catalog:'
+        version: 4.0.2(react@19.1.0)(tailwindcss@4.1.11)
       tailwindcss:
         specifier: 'catalog:'
         version: 4.1.11

@@ -16,6 +16,7 @@
     "@types/node": "^22.15.3",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "tw-animate-css": "catalog:"
+    "tw-animate-css": "catalog:",
+    "tailwind-scrollbar": "catalog:"
   }
 }

@@ -18,7 +18,9 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
   const t = await getTranslations({ locale });
 
   const flatDocs = getDataDocs(t).flatMap((doc) => doc.children);
-  const currentIndex = flatDocs.findIndex((doc) => doc.key === slug?.[0]);
+  const currentIndex = flatDocs.findIndex(
+    (doc) => doc.key === (slug?.[0] ?? "introduction")
+  );
   const previous = flatDocs[currentIndex - 1] || null;
   const next = flatDocs[currentIndex + 1] || null;
 
