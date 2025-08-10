@@ -10,6 +10,10 @@
     "./components/*": {
       "types": "./dist/src/components/*.d.ts",
       "default": "./src/components/*.tsx"
+    },
+    "./hooks/*": {
+      "types": "./dist/src/hooks/*.d.ts",
+      "default": "./src/hooks/*.ts"
     }
   },
   "scripts": {
@@ -32,6 +36,7 @@
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
+    "@radix-ui/react-dialog": "^1.1.14",
     "@radix-ui/react-popover": "^1.1.14",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "catalog:",

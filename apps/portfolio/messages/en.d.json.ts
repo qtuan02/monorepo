@@ -68,7 +68,9 @@ declare const messages: {
     },
     "preview": "Preview",
     "import": "Import",
-    "usage": "Usage"
+    "usage": "Usage",
+    "hooks": "Hooks",
+    "original": "Original"
   }
 };
 export default messages;

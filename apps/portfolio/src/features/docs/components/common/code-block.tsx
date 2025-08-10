@@ -1,15 +1,26 @@
+"use client";
+
 import { FC } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-
+import useCopyToClipboard from "@repo/ui/hooks/use-copy-to-clipboard";
+import { Check, Copy } from "lucide-react";
 interface CodeBlockProps {
   code: string;
   language?: string;
 }
 
 const CodeBlock: FC<CodeBlockProps> = ({ code, language = "tsx" }) => {
+  const { copied, copy } = useCopyToClipboard();
+
   return (
-    <div className="rounded-md overflow-hidden max-w-3xl">
+    <div className="rounded-md overflow-hidden relative">
+      <button
+        className="absolute top-2 right-2 cursor-pointer bg-gray-500/50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 p-2 rounded-md"
+        onClick={() => copy(code)}
+      >
+        {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+      </button>
       <SyntaxHighlighter
         language={language}
         showLineNumbers

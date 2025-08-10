@@ -65,6 +65,8 @@
     },
     "preview": "Xem trước",
     "import": "Nhập",
-    "usage": "Cách dùng"
+    "usage": "Cách dùng",
+    "hooks": "Hooks",
+    "original": "Gốc"
   }
 }

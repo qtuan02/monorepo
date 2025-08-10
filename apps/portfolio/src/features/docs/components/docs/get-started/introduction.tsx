@@ -3,14 +3,14 @@ import LayoutDocs from "../../common/layout-docs";
 import { getTranslations } from "next-intl/server";
 
 const Introduction = async (props: IDocComponentProps) => {
-  const { locale } = props;
+  const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   const list = t.raw("intro-content.list") as unknown;
 
   return (
-    <LayoutDocs title={t("introduction")}>
+    <LayoutDocs title={t("introduction")} slug={slug} locale={locale}>
       <p>{t("intro-content.paragraph1")}</p>
       <p>{t("intro-content.paragraph2")}</p>
       {Array.isArray(list) && (

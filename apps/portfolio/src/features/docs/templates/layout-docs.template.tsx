@@ -9,8 +9,8 @@ export default function LayoutDocsTemplate(props: ILayoutDocsTemplateProps) {
   const { children } = props;
 
   return (
-    <main className="flex">
-      <aside className="w-64 min-w-64 sticky top-15 h-[calc(100vh-60px)] overflow-y-auto scrollbar-none">
+    <main className="flex relative">
+      <aside className="w-64 min-w-64 sticky top-15 h-[calc(100vh-60px)] overflow-y-auto scrollbar-none hidden md:block">
         <AsideDocs />
       </aside>
       <article className="flex-1 min-w-0">{children}</article>

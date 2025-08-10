@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
 import { cn } from "@repo/ui/libs/cn";
 
-const DEFAULT_VALUE = ["get-started", "components"];
+const DEFAULT_VALUE = ["get-started", "components", "hooks"];
 
 const AsideDocs = () => {
   const t = useTranslations();
@@ -26,15 +26,15 @@ const AsideDocs = () => {
     <div className="flex flex-col gap-y-4 p-2">
       <Accordion
         type="multiple"
-        className="w-full"
+        className="w-full space-y-0.5"
         defaultValue={DEFAULT_VALUE}
       >
         {ASIDE_ITEMS.map((item) => (
           <AccordionItem key={item.key} value={item.key} className="border-b-0">
-            <AccordionTrigger className="py-2 px-3 cursor-pointer hover:no-underline text-base font-semibold flex items-center hover:bg-gray-100 dark:hover:bg-gray-800">
+            <AccordionTrigger className="mb-0.5 uppercase py-2 px-3 cursor-pointer hover:no-underline text-base font-semibold flex items-center hover:bg-gray-100 dark:hover:bg-gray-800">
               {item.label}
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col pb-0">
+            <AccordionContent className="flex flex-col pb-0 gap-y-0.5">
               {item.children.map((child) => (
                 <NextLink
                   key={child.key}

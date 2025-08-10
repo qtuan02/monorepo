@@ -21,7 +21,7 @@ export default async function DocsTemplate(props: IDocsTemplateProps) {
   if (!Component) notFound();
 
   return (
-    <div className="p-4">
+    <div className="p-4 md:pb-4 pb-22">
       <Component locale={locale} slug={slug} />
     </div>
   );

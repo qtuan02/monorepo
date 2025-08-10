@@ -94,14 +94,14 @@ const usageCode = `
 `;
 
 const Accordion = async (props: IDocComponentProps) => {
-  const { locale } = props;
+  const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Accordion">
+    <LayoutDocs title="Accordion" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 rounded-md p-5 max-w-3xl">
+        <div className="border border-gray-200 rounded-md p-5">
           <AccordionPreview />
         </div>
       </SectionDocs>

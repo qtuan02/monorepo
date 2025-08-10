@@ -65,6 +65,8 @@
     },
     "preview": "Preview",
     "import": "Import",
-    "usage": "Usage"
+    "usage": "Usage",
+    "hooks": "Hooks",
+    "original": "Original"
   }
 }

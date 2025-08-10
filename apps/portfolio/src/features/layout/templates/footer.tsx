@@ -1,11 +1,12 @@
 "use client";
 
 import { cn } from "@repo/ui/libs/cn";
-import { Component, Home, ReceiptText } from "lucide-react";
+import { Component, Home, Menu, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import NextLink from "~/components/next-link";
 import { usePathname } from "~/i18n/navigation";
+import DocsMenu from "../components/navbar/docs-menu";
 
 export default function Footer() {
   const pathname = usePathname();
@@ -16,17 +17,17 @@ export default function Footer() {
       {
         label: t("home"),
         href: "/",
-        icon: <Home size={20} />,
+        icon: <Home className="size-5" />,
       },
       {
         label: t("about"),
         href: "/about",
-        icon: <ReceiptText size={20} />,
+        icon: <ReceiptText className="size-5" />,
       },
       {
         label: t("component"),
         href: "/docs",
-        icon: <Component size={20} />,
+        icon: <Component className="size-5" />,
       },
     ],
     [t]
@@ -39,13 +40,13 @@ export default function Footer() {
 
   return (
     <footer className="fixed bottom-4 flex md:hidden left-4 w-[calc(100%-32px)] rounded-full h-14 bg-gray-100 backdrop-blur-lg shadow-inherit dark:bg-gray-800">
-      <div className="flex items-center w-full h-full px-6">
+      <div className="flex items-center justify-between w-full h-full px-6">
         {MENU_ITEMS.map((item, index) => (
           <NextLink
             key={`FOOTERP-ITEM-${index}`}
             href={item.href}
             className={cn(
-              "flex flex-col items-center gap-x-2 px-4",
+              "flex flex-col items-center gap-x-2 w-20",
               isActiveRoute(item.href) && "text-orange-500"
             )}
           >
@@ -53,6 +54,11 @@ export default function Footer() {
             <span className="text-xs">{item.label}</span>
           </NextLink>
         ))}
+        {pathname.startsWith("/docs") ? (
+          <DocsMenu key="FOOTER-ITEM-MENU" />
+        ) : (
+          <div className="w-20"></div>
+        )}
       </div>
     </footer>
   );
