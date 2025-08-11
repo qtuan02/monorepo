@@ -19,7 +19,11 @@ const CodeBlock: FC<CodeBlockProps> = ({ code, language = "tsx" }) => {
         className="absolute top-2 right-2 cursor-pointer bg-gray-500/50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 p-2 rounded-md"
         onClick={() => copy(code)}
       >
-        {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
+        {copied ? (
+          <Check className="size-4 text-white" />
+        ) : (
+          <Copy className="size-4 text-white" />
+        )}
       </button>
       <SyntaxHighlighter
         language={language}
