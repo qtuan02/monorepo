@@ -35,7 +35,7 @@ const Badge = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Badge" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 rounded-md p-5">
+        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
           <BadgePreview />
         </div>
       </SectionDocs>

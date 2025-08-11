@@ -30,6 +30,7 @@
     ["cn\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "tailwindCSS.experimental.configFile": {
+    "packages/ui/src/styles.css": "packages/ui/**",
     "apps/_template/src/app/[locale]/globals.css": "apps/_template/**",
     "apps/portfolio/src/app/[locale]/globals.css": "apps/portfolio/**"
   }

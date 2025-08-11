@@ -13,6 +13,7 @@ import Previous from "../components/docs/hooks/Previous";
 import Toggle from "../components/docs/hooks/Toggle";
 import Unmount from "../components/docs/hooks/Unmount";
 import AspectRatio from "../components/docs/components/aspect-ratio";
+import Badge from "../components/docs/components/badge";
 
 export const getDataDocs = (
   t: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -63,12 +64,12 @@ export const getComponentsData = (): DocItem[] => {
       href: "/docs/aspect-ratio",
       component: AspectRatio,
     },
-    // {
-    //   key: "badge",
-    //   label: "Badge",
-    //   href: "/docs/badge",
-    //   component: Badge,
-    // },
+    {
+      key: "badge",
+      label: "Badge",
+      href: "/docs/badge",
+      component: Badge,
+    },
   ];
 };
 
