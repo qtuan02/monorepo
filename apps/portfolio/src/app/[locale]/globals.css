@@ -7,14 +7,3 @@
  * https://github.com/tailwindlabs/tailwindcss/issues/16733
  */
 @source '../../../../../packages/ui';
-@custom-variant dark (&:is(.dark *));
-
-.dark {
-  --background: 0 0 0;
-  --foreground: 255 255 255;
-}
-
-html {
-  background-color: rgb(var(--background));
-  color: rgb(var(--foreground));
-}

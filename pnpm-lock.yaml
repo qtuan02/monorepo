@@ -323,6 +323,9 @@ importers:
       '@repo/eslint':
         specifier: workspace:*
         version: link:../../toolings/eslint
+      '@repo/tailwind':
+        specifier: workspace:*
+        version: link:../../toolings/tailwind
       '@repo/typescript':
         specifier: workspace:*
         version: link:../../toolings/typescript
