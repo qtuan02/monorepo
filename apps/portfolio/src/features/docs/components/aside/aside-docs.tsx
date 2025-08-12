@@ -34,15 +34,20 @@ const AsideDocs = () => {
         defaultValue={DEFAULT_VALUE}
       >
         {ASIDE_ITEMS.map((item) => (
-          <AccordionItem key={item.key} value={item.key} className="border-b-0">
-            <AccordionTrigger className="mb-0.5 uppercase py-2 px-3 cursor-pointer hover:no-underline text-base font-semibold flex items-center hover:bg-gray-100 dark:hover:bg-gray-800">
+          <AccordionItem
+            key={`aside-docs-item-${item.key}`}
+            value={item.key}
+            className="border-b-0"
+          >
+            <AccordionTrigger className="focus-visible:ring-0 mb-0.5 uppercase py-2 px-3 cursor-pointer text-base font-semibold flex items-center hover:underline">
               {item.label}
             </AccordionTrigger>
             <AccordionContent className="flex flex-col pb-0 gap-y-0.5">
               {item.children.map((child) => (
                 <NextLink
-                  key={child.key}
+                  key={`aside-docs-children-item-${child.key}`}
                   href={child.href}
+                  replace
                   className={cn(
                     "py-2 px-3 hover:bg-gray-200 dark:hover:bg-gray-800 text-base rounded-md",
                     isActiveRoute(child.href) && "bg-gray-200 dark:bg-gray-800"

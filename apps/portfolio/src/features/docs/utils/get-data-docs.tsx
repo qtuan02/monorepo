@@ -14,6 +14,11 @@ import Toggle from "../components/docs/hooks/Toggle";
 import Unmount from "../components/docs/hooks/Unmount";
 import AspectRatio from "../components/docs/components/aspect-ratio";
 import Badge from "../components/docs/components/badge";
+import Breadcrumb from "../components/docs/components/breadcrumb";
+import Button from "../components/docs/components/button";
+import Carousel from "../components/docs/components/carousel";
+import Checkbox from "../components/docs/components/checkbox";
+import Sortable from "../components/docs/components/sortable";
 
 export const getDataDocs = (
   t: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -69,6 +74,36 @@ export const getComponentsData = (): DocItem[] => {
       label: "Badge",
       href: "/docs/badge",
       component: Badge,
+    },
+    {
+      key: "breadcrumb",
+      label: "Breadcrumb",
+      href: "/docs/breadcrumb",
+      component: Breadcrumb,
+    },
+    {
+      key: "button",
+      label: "Button",
+      href: "/docs/button",
+      component: Button,
+    },
+    {
+      key: "carousel",
+      label: "Carousel",
+      href: "/docs/carousel",
+      component: Carousel,
+    },
+    {
+      key: "checkbox",
+      label: "Checkbox",
+      href: "/docs/checkbox",
+      component: Checkbox,
+    },
+    {
+      key: "sortable",
+      label: "Sortable",
+      href: "/docs/sortable",
+      component: Sortable,
     },
   ];
 };

@@ -43,7 +43,7 @@ export default function Footer() {
       <div className="flex items-center justify-between w-full h-full px-6">
         {MENU_ITEMS.map((item, index) => (
           <NextLink
-            key={`FOOTERP-ITEM-${index}`}
+            key={`footer-item-${index}`}
             href={item.href}
             className={cn(
               "flex flex-col items-center gap-x-2 w-20",
@@ -55,7 +55,7 @@ export default function Footer() {
           </NextLink>
         ))}
         {pathname.startsWith("/docs") ? (
-          <DocsMenu key="FOOTER-ITEM-MENU" />
+          <DocsMenu key="footer-item-menu" />
         ) : (
           <div className="w-20"></div>
         )}

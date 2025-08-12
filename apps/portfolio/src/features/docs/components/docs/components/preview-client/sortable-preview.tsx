@@ -1,0 +1,83 @@
+"use client";
+
+import { useState } from "react";
+import * as SortableComp from "@repo/ui/components/sortable";
+
+const SortablePreview = () => {
+  const [data, setData] = useState([
+    {
+      id: "1",
+      title: "Item 1",
+      description: "Item 1 description",
+    },
+    {
+      id: "2",
+      title: "Item 2",
+      description: "Item 2 description",
+    },
+    {
+      id: "3",
+      title: "Item 3",
+      description: "Item 3 description",
+    },
+    {
+      id: "4",
+      title: "Item 4",
+      description: "Item 4 description",
+    },
+    {
+      id: "5",
+      title: "Item 5",
+      description: "Item 5 description",
+    },
+    {
+      id: "6",
+      title: "Item 6",
+      description: "Item 6 description",
+    },
+    {
+      id: "7",
+      title: "Item 7",
+      description: "Item 7 description",
+    },
+    {
+      id: "8",
+      title: "Item 8",
+      description: "Item 8 description",
+    },
+    {
+      id: "9",
+      title: "Item 9",
+      description: "Item 9 description",
+    },
+  ]);
+
+  return (
+    <SortableComp.Root
+      value={data}
+      onValueChange={setData}
+      getItemValue={(item) => item.id}
+      orientation="mixed"
+    >
+      <SortableComp.Content className="grid auto-rows-fr grid-cols-3 gap-2.5">
+        {data.map((item) => (
+          <SortableComp.Item key={item.id} value={item.id} asChild asHandle>
+            <div className="flex size-full flex-col gap-1 rounded-md border bg-zinc-100 p-4 text-foreground shadow-sm dark:bg-zinc-900">
+              <div className="font-medium text-sm leading-tight sm:text-base">
+                {item.title}
+              </div>
+              <span className="line-clamp-2 hidden text-muted-foreground text-sm sm:inline-block">
+                {item.description}
+              </span>
+            </div>
+          </SortableComp.Item>
+        ))}
+      </SortableComp.Content>
+      <SortableComp.Overlay>
+        <div className="size-full rounded-md bg-primary/5" />
+      </SortableComp.Overlay>
+    </SortableComp.Root>
+  );
+};
+
+export default SortablePreview;
