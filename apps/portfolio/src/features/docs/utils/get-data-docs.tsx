@@ -18,7 +18,13 @@ import Breadcrumb from "../components/docs/components/breadcrumb";
 import Button from "../components/docs/components/button";
 import Carousel from "../components/docs/components/carousel";
 import Checkbox from "../components/docs/components/checkbox";
-import Sortable from "../components/docs/components/sortable";
+import Sortable from "../components/docs/open-source/sortable";
+import Table from "../components/docs/components/table";
+import DatePicker from "../components/docs/components/date-picker";
+import Dialog from "../components/docs/components/dialog";
+import Drawer from "../components/docs/components/drawer";
+import Form from "../components/docs/components/form";
+import HoverCard from "../components/docs/components/hover-card";
 
 export const getDataDocs = (
   t: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -33,6 +39,11 @@ export const getDataDocs = (
       key: "components",
       label: t("Docs.components"),
       children: getComponentsData(),
+    },
+    {
+      key: "open-source",
+      label: t("Docs.open-source"),
+      children: getOpenSourceData(),
     },
     {
       key: "hooks",
@@ -100,10 +111,40 @@ export const getComponentsData = (): DocItem[] => {
       component: Checkbox,
     },
     {
-      key: "sortable",
-      label: "Sortable",
-      href: "/docs/sortable",
-      component: Sortable,
+      key: "date-picker",
+      label: "Date Picker",
+      href: "/docs/date-picker",
+      component: DatePicker,
+    },
+    {
+      key: "dialog",
+      label: "Dialog",
+      href: "/docs/dialog",
+      component: Dialog,
+    },
+    {
+      key: "drawer",
+      label: "Drawer",
+      href: "/docs/drawer",
+      component: Drawer,
+    },
+    {
+      key: "form",
+      label: "Form",
+      href: "/docs/form",
+      component: Form,
+    },
+    {
+      key: "hover-card",
+      label: "Hover Card",
+      href: "/docs/hover-card",
+      component: HoverCard,
+    },
+    {
+      key: "table",
+      label: "Table",
+      href: "/docs/table",
+      component: Table,
     },
   ];
 };
@@ -169,6 +210,17 @@ export const getHooksData = (): DocItem[] => {
       label: "useUnmount",
       href: "/docs/use-unmount",
       component: Unmount,
+    },
+  ];
+};
+
+export const getOpenSourceData = (): DocItem[] => {
+  return [
+    {
+      key: "sortable",
+      label: "Sortable",
+      href: "/docs/sortable",
+      component: Sortable,
     },
   ];
 };

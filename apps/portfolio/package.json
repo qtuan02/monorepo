@@ -19,6 +19,7 @@
     "@t3-oss/env-nextjs": "catalog:next15",
     "@tanstack/react-query": "catalog:tanstackquery",
     "@tanstack/react-query-devtools": "catalog:tanstackquery",
+    "@hookform/resolvers": "catalog:",
     "cookies-next": "^6.1.0",
     "flag-icons": "catalog:",
     "lucide-react": "catalog:",
@@ -28,7 +29,9 @@
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
     "react-error-boundary": "catalog:",
-    "react-syntax-highlighter": "^15.6.1"
+    "react-syntax-highlighter": "^15.6.1",
+    "react-hook-form": "catalog:",
+    "motion": "catalog:"
   },
   "devDependencies": {
     "@repo/eslint": "workspace:*",

@@ -31,8 +31,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
       <div className="flex justify-between items-center h-16">
         {previous ? (
           <NextLink
-            href={`${previous.href}`}
-            replace
+            href={previous.href}
             className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2"
           >
             <ArrowLeft className="size-4" />
@@ -43,8 +42,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
         )}
         {next ? (
           <NextLink
-            href={`${next.href}`}
-            replace
+            href={next.href}
             className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2"
           >
             <span>{next.label}</span>

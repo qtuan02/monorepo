@@ -1,6 +1,7 @@
 import NextLink from "~/components/next-link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
+import { TextReveal } from "@repo/ui/components/text-reveal";
 
 export default async function HomeTemplate({ locale }: { locale: string }) {
   const t = await getTranslations({
@@ -13,9 +14,14 @@ export default async function HomeTemplate({ locale }: { locale: string }) {
       <p className="text-gray-500 md:text-lg text-center font-medium">
         {t("title")}
       </p>
-      <p className="text-3xl md:text-6xl font-bold text-center">
+      <TextReveal
+        className="flex-center"
+        textClassName="text-3xl md:text-6xl font-bold"
+        from="top"
+        split="letter"
+      >
         {t("subtitle")}
-      </p>
+      </TextReveal>
       <p className="text-6xl md:text-8xl text-center animate-bounce mt-4 mb-10 select-none">
         👋
       </p>
