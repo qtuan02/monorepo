@@ -14,7 +14,7 @@ export default async function RootLayout({
 
   return (
     <ErrorBoundary fallback={null}>
-      <main className="relative min-h-screen w-full bg-white dark:bg-black">
+      <main className="relative min-h-screen w-full">
         <HydrationBoundary state={dehydrate(queryClient)}>
           <Suspense fallback={null}>
             <Navbar />

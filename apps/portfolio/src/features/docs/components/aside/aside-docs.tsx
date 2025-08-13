@@ -12,7 +12,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
 import { cn } from "@repo/ui/libs/cn";
 
-const DEFAULT_VALUE = ["get-started", "components", "hooks"];
+const DEFAULT_VALUE = ["get-started", "components", "open-source", "hooks"];
 
 const AsideDocs = () => {
   const t = useTranslations();
@@ -35,9 +35,9 @@ const AsideDocs = () => {
       >
         {ASIDE_ITEMS.map((item) => (
           <AccordionItem
-            key={`aside-docs-item-${item.key}`}
             value={item.key}
             className="border-b-0"
+            key={`aside-docs-item-${item.key}`}
           >
             <AccordionTrigger className="focus-visible:ring-0 mb-0.5 uppercase py-2 px-3 cursor-pointer text-base font-semibold flex items-center hover:underline">
               {item.label}

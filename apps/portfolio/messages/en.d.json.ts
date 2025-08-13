@@ -70,7 +70,8 @@ declare const messages: {
     "import": "Import",
     "usage": "Usage",
     "hooks": "Hooks",
-    "original": "Original"
+    "original": "Original",
+    "open-source": "Open source"
   }
 };
 export default messages;

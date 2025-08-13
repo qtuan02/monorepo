@@ -21,6 +21,7 @@ catalog:
   flag-icons: ^7.5.0
   embla-carousel-react: ^8.6.0
   tw-animate-css: ^1.3.6
+  motion: ^12.23.12
 catalogs:
   tanstackquery:
     "@tanstack/react-query": ^5.74.4

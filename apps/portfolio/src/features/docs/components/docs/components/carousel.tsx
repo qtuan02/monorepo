@@ -12,7 +12,7 @@ import {
 } from "@repo/ui/components/carousel";
 
 const CarouselPreview = () => (
-  <CarouselComp className="w-full max-w-xs mx-auto">
+  <CarouselComp className="w-full max-w-3xs md:max-w-xs mx-auto">
     <CarouselContent>
       {Array.from({ length: 5 }).map((_, index) => (
         <CarouselItem key={index}>
