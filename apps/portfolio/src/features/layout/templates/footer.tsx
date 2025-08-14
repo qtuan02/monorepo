@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@repo/ui/libs/cn";
-import { Component, Home, Menu, ReceiptText } from "lucide-react";
+import { Component, Home, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import NextLink from "~/components/next-link";

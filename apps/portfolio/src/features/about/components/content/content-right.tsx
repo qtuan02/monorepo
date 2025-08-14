@@ -2,13 +2,10 @@ import BadgeSkill from "./badge-skill";
 import CardSection from "../card/card-section";
 import CardExperience from "./card-experience";
 import { Book, Film, Medal, Music, Plane } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
-const ContentRight = async ({ locale }: { locale: string }) => {
-  const t = await getTranslations({
-    locale,
-    namespace: "About",
-  });
+const ContentRight = () => {
+  const t = useTranslations("About");
 
   return (
     <CardSection className="flex flex-col gap-y-6">

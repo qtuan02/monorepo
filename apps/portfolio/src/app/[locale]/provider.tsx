@@ -7,6 +7,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { env } from "~/env";
 import { getQueryClient } from "~/libs/query-client";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 
 const ReactQueryDevtoolsProduction = dynamic(() =>
   import("@tanstack/react-query-devtools/build/modern/production.js").then(
@@ -33,6 +34,7 @@ const Provider = ({ children }: ProviderProps) => {
         disableTransitionOnChange={false}
       >
         {children}
+        <Toaster />
       </ThemeProvider>
       {showDevtools && (
         <React.Suspense fallback={null}>

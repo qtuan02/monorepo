@@ -20,7 +20,8 @@
     "next": "catalog:next15",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
-    "next-intl": "catalog:next15"
+    "next-intl": "catalog:next15",
+    "sonner": "catalog:"
   },
   "devDependencies": {
     "@repo/eslint": "workspace:*",

@@ -31,7 +31,8 @@
     "react-error-boundary": "catalog:",
     "react-syntax-highlighter": "^15.6.1",
     "react-hook-form": "catalog:",
-    "motion": "catalog:"
+    "motion": "catalog:",
+    "sonner": "catalog:"
   },
   "devDependencies": {
     "@repo/eslint": "workspace:*",

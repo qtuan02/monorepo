@@ -8,13 +8,10 @@ import {
   Phone,
 } from "lucide-react";
 import NextLink from "~/components/next-link";
-import { getTranslations } from "next-intl/server";
+import { useTranslations } from "next-intl";
 
-const AsideLeft = async ({ locale }: { locale: string }) => {
-  const t = await getTranslations({
-    locale,
-    namespace: "About",
-  });
+const AsideLeft = () => {
+  const t = useTranslations("About");
 
   return (
     <>
@@ -23,7 +20,9 @@ const AsideLeft = async ({ locale }: { locale: string }) => {
           HT
         </div>
         <p className="text-xl md:text-2xl font-bold">Huỳnh Quốc Tuấn</p>
-        <p className=" text-gray-500 text-sm md:text-base">Developer Frontend</p>
+        <p className=" text-gray-500 text-sm md:text-base">
+          Developer Frontend
+        </p>
         <button className="flex items-center gap-x-2 bg-orange-500 text-white px-4 py-1 rounded-lg cursor-pointer hover:bg-orange-600 transition-all duration-400">
           <Download className="size-4" />
           <span>{t("download_cv")}</span>
@@ -34,11 +33,15 @@ const AsideLeft = async ({ locale }: { locale: string }) => {
         <div className="flex flex-col gap-y-2">
           <div className="flex gap-x-2 items-center">
             <Mail className="size-4 text-orange-500" />
-            <p className="text-gray-500 text-sm md:text-base">huynhquoctuan200702@gmail.com</p>
+            <p className="text-gray-500 text-sm md:text-base">
+              huynhquoctuan200702@gmail.com
+            </p>
           </div>
           <div className="flex gap-x-2 items-center">
             <Phone className="size-4 text-orange-500" />
-            <p className="text-gray-500 text-sm md:text-base">(+84) 393 653 862</p>
+            <p className="text-gray-500 text-sm md:text-base">
+              (+84) 393 653 862
+            </p>
           </div>
           <div className="flex gap-x-2 items-center">
             <MapPin className="size-4 text-orange-500" />

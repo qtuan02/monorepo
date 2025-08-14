@@ -8,13 +8,14 @@ import {
 import { setCookie } from "cookies-next/client";
 import { Check, ChevronDownIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { LOCALE_COOKIE_NAME } from "~/constants/common";
 import { LANGUAGES } from "~/constants/languages";
 import { getPathname, usePathname } from "~/i18n/navigation";
 
 const Language = () => {
+  const router = useRouter();
   const curLocale = useLocale();
   const pathname = usePathname();
   const t = useTranslations("Navbar");
@@ -48,8 +49,8 @@ const Language = () => {
     });
 
     if (searchParams.toString())
-      window.location.href = `${newPathname}?${searchParams.toString()}`;
-    else window.location.href = newPathname;
+      router.replace(`${newPathname}?${searchParams.toString()}`);
+    else router.replace(newPathname);
   };
 
   return (

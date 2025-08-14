@@ -29,8 +29,6 @@ export async function generateMetadata({
   });
 }
 
-export default async function AboutPage({ params }: { params: NextParams }) {
-  const { locale } = await params;
-
-  return <AboutTemplate locale={locale} />;
+export default function AboutPage() {
+  return <AboutTemplate />;
 }

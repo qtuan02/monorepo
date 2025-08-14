@@ -6,15 +6,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@repo/ui/components/accordion";
-import NextLink from "~/components/next-link";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
 import { cn } from "@repo/ui/libs/cn";
+import { useRouter } from "next/navigation";
 
 const DEFAULT_VALUE = ["get-started", "components", "open-source", "hooks"];
 
 const AsideDocs = () => {
+  const router = useRouter();
   const t = useTranslations();
   const pathname = usePathname();
 
@@ -39,22 +40,21 @@ const AsideDocs = () => {
             className="border-b-0"
             key={`aside-docs-item-${item.key}`}
           >
-            <AccordionTrigger className="focus-visible:ring-0 mb-0.5 uppercase py-2 px-3 cursor-pointer text-base font-semibold flex items-center hover:underline">
+            <AccordionTrigger className="focus-visible:ring-0 mb-0.5 uppercase py-1.5 px-3 cursor-pointer text-base font-semibold flex items-center hover:underline">
               {item.label}
             </AccordionTrigger>
             <AccordionContent className="flex flex-col pb-0 gap-y-0.5">
               {item.children.map((child) => (
-                <NextLink
+                <button
                   key={`aside-docs-children-item-${child.key}`}
-                  href={child.href}
-                  replace
+                  onClick={() => router.push(child.href)}
                   className={cn(
-                    "py-2 px-3 hover:bg-gray-200 dark:hover:bg-gray-800 text-base rounded-md",
+                    "py-1.5 px-3 text-left hover:bg-gray-200 dark:hover:bg-gray-800 text-base md:text-sm font-medium rounded-md cursor-pointer",
                     isActiveRoute(child.href) && "bg-gray-200 dark:bg-gray-800"
                   )}
                 >
                   {child.label}
-                </NextLink>
+                </button>
               ))}
             </AccordionContent>
           </AccordionItem>

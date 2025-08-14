@@ -25,6 +25,12 @@ import Dialog from "../components/docs/components/dialog";
 import Drawer from "../components/docs/components/drawer";
 import Form from "../components/docs/components/form";
 import HoverCard from "../components/docs/components/hover-card";
+import Pagination from "../components/docs/components/pagination";
+import Popover from "../components/docs/components/popover";
+import Sheet from "../components/docs/components/sheet";
+import Skeleton from "../components/docs/components/skeleton";
+import Sonner from "../components/docs/components/sonner";
+import Tooltip from "../components/docs/components/tooltip";
 
 export const getDataDocs = (
   t: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -141,10 +147,46 @@ export const getComponentsData = (): DocItem[] => {
       component: HoverCard,
     },
     {
+      key: "pagination",
+      label: "Pagination",
+      href: "/docs/pagination",
+      component: Pagination,
+    },
+    {
+      key: "popover",
+      label: "Popover",
+      href: "/docs/popover",
+      component: Popover,
+    },
+    {
+      key: "sheet",
+      label: "Sheet",
+      href: "/docs/sheet",
+      component: Sheet,
+    },
+    {
+      key: "skeleton",
+      label: "Skeleton",
+      href: "/docs/skeleton",
+      component: Skeleton,
+    },
+    {
+      key: "sonner",
+      label: "Sonner",
+      href: "/docs/sonner",
+      component: Sonner,
+    },
+    {
       key: "table",
       label: "Table",
       href: "/docs/table",
       component: Table,
+    },
+    {
+      key: "tooltip",
+      label: "Tooltip",
+      href: "/docs/tooltip",
+      component: Tooltip,
     },
   ];
 };
