@@ -58,13 +58,14 @@ declare const messages: {
     "components": "Components",
     "intro-content": {
       "paragraph1": "This is a portfolio repo extracted from a monorepo I built myself.",
-      "paragraph2": "Inside are components cloned from shadcn (with customization) along with usage examples.",
+      "paragraph2": "It includes:",
       "list": [
-        "Tricks and best practices learned during development.",
-        "Useful custom hooks and utilities.",
-        "Notes and real-world examples to apply in other projects."
+        "Components from shadcn and components cloned + customized from various other open-source projects",
+        "Tricks and best practices learned during the development process",
+        "A collection of useful custom hooks and utilities",
+        "Notes and real-world examples for applying to other projects"
       ],
-      "paragraph3": "Goal: to create both a personal portfolio and a reusable set of components and tools for future projects."
+      "paragraph3": "The goal of this repo is both to serve as a personal portfolio and to provide a reusable set of components and tools for future projects."
     },
     "preview": "Preview",
     "import": "Import",

@@ -11,16 +11,18 @@ const Introduction = async (props: IDocComponentProps) => {
 
   return (
     <LayoutDocs title={t("introduction")} slug={slug} locale={locale}>
-      <p>{t("intro-content.paragraph1")}</p>
-      <p>{t("intro-content.paragraph2")}</p>
-      {Array.isArray(list) && (
-        <ul className="list-disc pl-6 space-y-1">
-          {list.map((item: string, idx: number) => (
-            <li key={idx}>{item}</li>
-          ))}
-        </ul>
-      )}
-      <p>{t("intro-content.paragraph3")}</p>
+      <div className="flex flex-col gap-y-2">
+        <p>{t("intro-content.paragraph1")}</p>
+        <p>{t("intro-content.paragraph2")}</p>
+        {Array.isArray(list) && (
+          <ul className="list-disc pl-6 space-y-1">
+            {list.map((item: string, idx: number) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+        )}
+        <p>{t("intro-content.paragraph3")}</p>
+      </div>
     </LayoutDocs>
   );
 };

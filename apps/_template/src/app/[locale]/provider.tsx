@@ -3,6 +3,7 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "sonner";
 
 import { env } from "~/env";
 import { getQueryClient } from "~/libs/query-client";
@@ -27,6 +28,7 @@ const Provider = ({ children }: ProviderProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
+      <Toaster />
       {showDevtools && (
         <React.Suspense fallback={null}>
           <ReactQueryDevtoolsProduction />

@@ -54,14 +54,15 @@
     "introduction": "Giới thiệu",
     "components": "Components",
     "intro-content": {
-      "paragraph1": "Đây là portfolio repo được tách ra từ monorepo mà mình tự build.",
-      "paragraph2": "Bên trong chứa các component clone từ shadcn (có tuỳ biến) kèm cách sử dụng.",
+      "paragraph1": "Đây là repo portfolio được tách ra từ monorepo do mình tự xây dựng.",
+      "paragraph2": "Bên trong gồm:",
       "list": [
-        "Những trick và best practices học được trong quá trình phát triển.",
-        "Các custom hooks và utility hữu ích.",
+        "Các component từ shadcn và các component được clone + tùy biến từ nhiều dự án open-source khác",
+        "Những trick và best practices rút ra trong quá trình phát triển.",
+        "Bộ custom hooks và utility hữu ích.",
         "Ghi chú và ví dụ thực tế để áp dụng vào dự án khác."
       ],
-      "paragraph3": "Mục tiêu: vừa làm portfolio cá nhân, vừa tạo bộ component + tool tái sử dụng cho các dự án sau này."
+      "paragraph3": "Mục tiêu của repo này vừa là portfolio cá nhân, vừa là bộ component + tool tái sử dụng cho những dự án sau này."
     },
     "preview": "Xem trước",
     "import": "Nhập",
