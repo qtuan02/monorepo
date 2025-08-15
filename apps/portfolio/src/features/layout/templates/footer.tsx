@@ -54,11 +54,7 @@ export default function Footer() {
             <span className="text-xs">{item.label}</span>
           </NextLink>
         ))}
-        {pathname.startsWith("/docs") ? (
-          <DocsMenu key="footer-item-menu" />
-        ) : (
-          <div className="w-20"></div>
-        )}
+        <DocsMenu key="footer-item-menu" />
       </div>
     </footer>
   );

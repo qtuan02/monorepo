@@ -11,7 +11,10 @@ export default function AboutTemplate() {
   return (
     <main className="pt-6 md:py-10 space-y-4 md:space-y-8 px-4 relative pb-22 md:pb-6">
       <ScrollProgress
-        progressProps={{ className: "bg-orange-500 top-12 md:top-15" }}
+        progressProps={{
+          className:
+            "bg-gradient-to-r from-orange-200 to-orange-600 top-12 md:top-15",
+        }}
       />
       <h1 className="text-2xl md:text-5xl font-bold text-center">
         {t("about_me")}

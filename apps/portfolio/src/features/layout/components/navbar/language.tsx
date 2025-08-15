@@ -42,6 +42,8 @@ const Language = () => {
   }, [curLocale, LANGUAGE_ITEMS]);
 
   const handleChangeLanguage = (value: string) => {
+    if (value === curLocale) return;
+
     setCookie(LOCALE_COOKIE_NAME, value);
     const newPathname = getPathname({
       href: { pathname },
