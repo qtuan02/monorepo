@@ -4,6 +4,19 @@ import { NextParams } from "~/types/common";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import DocsTemplate from "~/features/docs/templates/docs.template";
 import { getDataDocs } from "~/features/docs/utils/get-data-docs";
+import { routing } from "~/i18n/routing";
+
+export async function generateStaticParams() {
+  const locales = routing.locales;
+  const docs = getDataDocs().flatMap((doc) => doc.children);
+
+  return locales.flatMap((locale) =>
+    docs.map((doc) => ({
+      locale,
+      slug: Array.isArray(doc.key) ? doc.key : [doc.key],
+    }))
+  );
+}
 
 export async function generateMetadata({
   params,

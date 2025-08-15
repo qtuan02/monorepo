@@ -4,6 +4,7 @@ import { PropsWithChildren } from "react";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { getTranslations } from "next-intl/server";
 import NextLink from "~/components/next-link";
+import { TypingText } from "@repo/ui/animate-ui/typing-text";
 
 interface ILayoutDocsProps extends PropsWithChildren {
   title: string;
@@ -26,7 +27,13 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
 
   return (
     <div className={cn("space-y-4  max-w-3xl mx-auto", className)}>
-      <h1 className="text-2xl font-semibold">{title}</h1>
+      <div className="h-8">
+        <TypingText
+          className="text-2xl font-semibold"
+          text={title}
+          duration={50}
+        />
+      </div>
       {children}
       <div className="flex justify-between items-center h-16">
         {previous ? (

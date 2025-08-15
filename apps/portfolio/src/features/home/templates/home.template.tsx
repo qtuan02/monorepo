@@ -11,7 +11,7 @@ export default async function HomeTemplate({ locale }: { locale: string }) {
   });
 
   return (
-    <main className="py-16 space-y-8 px-4 relative h-[calc(100vh-60px)]">
+    <main className="py-16 space-y-8 px-4 relative h-[calc(100vh-60px)] overflow-x-hidden">
       <div className="flex justify-center">
         <SplittingText
           className="text-gray-500 md:text-lg font-medium text-center"
@@ -32,14 +32,14 @@ export default async function HomeTemplate({ locale }: { locale: string }) {
       <div className="flex justify-center gap-x-6">
         <NextLink
           href="/about"
-          className="md:text-xl z-1 font-medium px-4 py-2 bg-orange-500 rounded-lg transition-all duration-400 text-white hover:bg-orange-600 flex items-center gap-x-1"
+          className="md:text-xl z-1 font-medium px-4 py-2 bg-gradient-to-br from-orange-300 to-orange-500 rounded-lg text-white flex items-center gap-x-1 hover:opacity-80"
         >
           {t("about")}
           <ArrowRight className="md:size-6 size-4" />
         </NextLink>
         <NextLink
           href="/docs"
-          className="md:text-xl z-1 font-medium px-4 py-2 bg-orange-500 rounded-lg transition-all duration-400 text-white hover:bg-orange-600 flex items-center gap-x-1"
+          className="md:text-xl z-1 font-medium px-4 py-2 bg-gradient-to-br from-orange-300 to-orange-500 rounded-lg text-white flex items-center gap-x-1 hover:opacity-80"
         >
           {t("explore")}
           <ArrowRight className="md:size-6 size-4" />

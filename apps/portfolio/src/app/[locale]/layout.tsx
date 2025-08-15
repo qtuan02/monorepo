@@ -13,6 +13,8 @@ import RootLayout from "~/features/layout/templates";
 import { Inter_Tight } from "next/font/google";
 import { cn } from "@repo/ui/libs/cn";
 
+// export const dynamic = "force-static";
+
 const inter = Inter_Tight({
   subsets: ["latin"],
   adjustFontFallback: true,

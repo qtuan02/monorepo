@@ -214,12 +214,12 @@ function FireworksBackground({
   ref,
   className,
   canvasProps,
-  population = 1,
-  color,
-  fireworkSpeed = { min: 4, max: 8 },
-  fireworkSize = { min: 2, max: 5 },
-  particleSpeed = { min: 2, max: 7 },
-  particleSize = { min: 1, max: 5 },
+  population = 0.7, // density of fireworks
+  color, // color of fireworks
+  fireworkSpeed = { min: 3, max: 7 }, // speed of fireworks
+  fireworkSize = { min: 2, max: 5 }, // size of fireworks
+  particleSpeed = { min: 2, max: 5 }, // speed of particles
+  particleSize = { min: 1, max: 3 }, // size of particles
   ...props
 }: FireworksBackgroundProps) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);

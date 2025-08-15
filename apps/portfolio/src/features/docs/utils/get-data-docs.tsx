@@ -33,39 +33,39 @@ import Sonner from "../components/docs/components/sonner";
 import Tooltip from "../components/docs/components/tooltip";
 
 export const getDataDocs = (
-  t: ReturnType<typeof createTranslator<Messages, "Docs">>
+  t?: ReturnType<typeof createTranslator<Messages, "Docs">>
 ) => {
   return [
     {
       key: "get-started",
-      label: t("Docs.get-started"),
+      label: t?.("Docs.get-started") ?? "",
       children: getStartedData(t),
     },
     {
       key: "components",
-      label: t("Docs.components"),
+      label: t?.("Docs.components") ?? "",
       children: getComponentsData(),
     },
     {
       key: "open-source",
-      label: t("Docs.open-source"),
+      label: t?.("Docs.open-source") ?? "",
       children: getOpenSourceData(),
     },
     {
       key: "hooks",
-      label: t("Docs.hooks"),
+      label: t?.("Docs.hooks") ?? "",
       children: getHooksData(),
     },
   ];
 };
 
 export const getStartedData = (
-  t: ReturnType<typeof createTranslator<Messages, "Docs">>
+  t?: ReturnType<typeof createTranslator<Messages, "Docs">>
 ): DocItem[] => {
   return [
     {
       key: "introduction",
-      label: t("Docs.introduction"),
+      label: t?.("Docs.introduction") ?? "",
       href: "/docs/introduction",
       component: Introduction,
     },

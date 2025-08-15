@@ -10,12 +10,11 @@ import { getDataDocs } from "../../utils/get-data-docs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
 import { cn } from "@repo/ui/libs/cn";
-import { useRouter } from "next/navigation";
+import NextLink from "~/components/next-link";
 
 const DEFAULT_VALUE = ["get-started", "components", "open-source", "hooks"];
 
 const AsideDocs = () => {
-  const router = useRouter();
   const t = useTranslations();
   const pathname = usePathname();
 
@@ -45,16 +44,18 @@ const AsideDocs = () => {
             </AccordionTrigger>
             <AccordionContent className="flex flex-col pb-0 gap-y-0.5">
               {item.children.map((child) => (
-                <button
+                <NextLink
                   key={`aside-docs-children-item-${child.key}`}
-                  onClick={() => router.push(child.href)}
+                  href={child.href}
+                  replace
                   className={cn(
-                    "py-1.5 px-3 text-left hover:bg-gray-200 dark:hover:bg-gray-800 text-base md:text-sm font-medium rounded-md cursor-pointer",
-                    isActiveRoute(child.href) && "bg-gray-200 dark:bg-gray-800"
+                    "py-1.5 px-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-base md:text-sm font-medium rounded-md cursor-pointer",
+                    isActiveRoute(child.href) &&
+                      "!bg-gray-200 dark:!bg-gray-800"
                   )}
                 >
                   {child.label}
-                </button>
+                </NextLink>
               ))}
             </AccordionContent>
           </AccordionItem>
