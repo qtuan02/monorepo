@@ -34,43 +34,39 @@ const AsideLeft = () => {
         </CardSection>
       </SpringElement>
 
-      <SpringElement>
-        <CardSection className="flex flex-col gap-y-4">
-          <h2 className="text-lg font-medium">{t("contact_info")}</h2>
-          <div className="flex flex-col gap-y-2">
-            <div className="flex gap-x-2 items-center">
-              <Mail className="size-4 text-orange-500" />
-              <p className="text-gray-500 text-sm md:text-base">
-                huynhquoctuan200702@gmail.com
-              </p>
-            </div>
-            <div className="flex gap-x-2 items-center">
-              <Phone className="size-4 text-orange-500" />
-              <p className="text-gray-500 text-sm md:text-base">
-                (+84) 393 653 862
-              </p>
-            </div>
-            <div className="flex gap-x-2 items-center">
-              <MapPin className="size-4 text-orange-500" />
-              <p className="text-gray-500 text-sm md:text-base">
-                {t("address")}
-              </p>
-            </div>
-            <div className="flex gap-x-2 items-center">
-              <CalendarRange className="size-4 text-orange-500" />
-              <p className="text-gray-500 text-sm md:text-base">20/07/2002</p>
-            </div>
-            <div className="flex gap-x-2 items-center">
-              <Github className="size-4 text-orange-500" />
-              <p className="text-gray-500 text-sm md:text-base">
-                <NextLink href="https://github.com/qtuan02" isExternalLink>
-                  https://github.com/qtuan02
-                </NextLink>
-              </p>
-            </div>
+      <CardSection className="flex flex-col gap-y-4">
+        <h2 className="text-lg font-medium">{t("contact_info")}</h2>
+        <div className="flex flex-col gap-y-2">
+          <div className="flex gap-x-2 items-center">
+            <Mail className="size-4 text-orange-500" />
+            <p className="text-gray-500 text-sm md:text-base">
+              huynhquoctuan200702@gmail.com
+            </p>
           </div>
-        </CardSection>
-      </SpringElement>
+          <div className="flex gap-x-2 items-center">
+            <Phone className="size-4 text-orange-500" />
+            <p className="text-gray-500 text-sm md:text-base">
+              (+84) 393 653 862
+            </p>
+          </div>
+          <div className="flex gap-x-2 items-center">
+            <MapPin className="size-4 text-orange-500" />
+            <p className="text-gray-500 text-sm md:text-base">{t("address")}</p>
+          </div>
+          <div className="flex gap-x-2 items-center">
+            <CalendarRange className="size-4 text-orange-500" />
+            <p className="text-gray-500 text-sm md:text-base">20/07/2002</p>
+          </div>
+          <div className="flex gap-x-2 items-center">
+            <Github className="size-4 text-orange-500" />
+            <p className="text-gray-500 text-sm md:text-base">
+              <NextLink href="https://github.com/qtuan02" isExternalLink>
+                https://github.com/qtuan02
+              </NextLink>
+            </p>
+          </div>
+        </div>
+      </CardSection>
     </>
   );
 };
