@@ -27,6 +27,18 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+export function generateViewport() {
+  return {
+    themeColor: [
+      { media: "(prefers-color-scheme: light)", color: "#fff" },
+      { media: "(prefers-color-scheme: dark)", color: "#000" },
+    ],
+    viewport: {
+      viewportFit: "cover",
+    },
+  };
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -69,13 +81,6 @@ export async function generateMetadata({
     robots: {
       index: false,
       follow: false,
-    },
-    themeColor: [
-      { media: "(prefers-color-scheme: light)", color: "#fff" },
-      { media: "(prefers-color-scheme: dark)", color: "#000" },
-    ],
-    viewport: {
-      viewportFit: "cover",
     },
     manifest: "/manifest.webmanifest",
   });
