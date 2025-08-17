@@ -57,9 +57,7 @@ const Sortable = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Sortable" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <SortablePreview />
-        </div>
+        <SortablePreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>

@@ -2,16 +2,11 @@ import { createTranslator, Messages } from "next-intl";
 import Introduction from "../components/docs/get-started/introduction";
 import Accordion from "../components/docs/components/accordion";
 import { DocItem } from "~/types/docs";
-import ClickOutside from "../components/docs/hooks/ClickOutside";
-import CopyToClipboard from "../components/docs/hooks/CopyToClipboard";
-import Debounce from "../components/docs/hooks/Debounce";
-import Fetch from "../components/docs/hooks/Fetch";
-import IsClient from "../components/docs/hooks/IsClient";
-import LocalStorage from "../components/docs/hooks/LocalStorage";
-import MediaQuery from "../components/docs/hooks/MediaQuery";
-import Previous from "../components/docs/hooks/Previous";
-import Toggle from "../components/docs/hooks/Toggle";
-import Unmount from "../components/docs/hooks/Unmount";
+import ClickOutside from "../components/docs/hooks/click-outside";
+import CopyToClipboard from "../components/docs/hooks/copy-to-clipboard";
+import IsClient from "../components/docs/hooks/is-client";
+import LocalStorage from "../components/docs/hooks/local-storage";
+import MediaQuery from "../components/docs/hooks/media-query";
 import AspectRatio from "../components/docs/components/aspect-ratio";
 import Badge from "../components/docs/components/badge";
 import Breadcrumb from "../components/docs/components/breadcrumb";
@@ -31,6 +26,23 @@ import Sheet from "../components/docs/components/sheet";
 import Skeleton from "../components/docs/components/skeleton";
 import Sonner from "../components/docs/components/sonner";
 import Tooltip from "../components/docs/components/tooltip";
+import Previous from "../components/docs/hooks/previous";
+import Toggle from "../components/docs/hooks/toggle";
+import Unmount from "../components/docs/hooks/unmount";
+import Debounce from "../components/docs/hooks/debounce";
+import Fetch from "../components/docs/hooks/fetch";
+import Switch from "../components/docs/components/switch";
+import BackgroundFireworks from "../components/docs/animations/background-fireworks";
+import BackgroundHexagon from "../components/docs/animations/background-hexagon";
+import BackgroundHole from "../components/docs/animations/background-hole";
+import BackgroundStart from "../components/docs/animations/background-start";
+import ElementSpring from "../components/docs/animations/element-spring";
+import Loading from "../components/docs/animations/loading";
+import ProgressScroll from "../components/docs/animations/progress-scroll";
+import TextHighlight from "../components/docs/animations/text-highlight";
+import TextRolling from "../components/docs/animations/text-rolling";
+import TextSplitting from "../components/docs/animations/text-splitting";
+import TextTyping from "../components/docs/animations/text-typing";
 
 export const getDataDocs = (
   t?: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -45,6 +57,11 @@ export const getDataDocs = (
       key: "components",
       label: t?.("Docs.components") ?? "",
       children: getComponentsData(),
+    },
+    {
+      key: "animations",
+      label: t?.("Docs.animations") ?? "",
+      children: getAnimationsData(),
     },
     {
       key: "open-source",
@@ -177,6 +194,12 @@ export const getComponentsData = (): DocItem[] => {
       component: Sonner,
     },
     {
+      key: "switch",
+      label: "Switch",
+      href: "/docs/switch",
+      component: Switch,
+    },
+    {
       key: "table",
       label: "Table",
       href: "/docs/table",
@@ -263,6 +286,77 @@ export const getOpenSourceData = (): DocItem[] => {
       label: "Sortable",
       href: "/docs/sortable",
       component: Sortable,
+    },
+  ];
+};
+
+export const getAnimationsData = (): DocItem[] => {
+  return [
+    {
+      key: "background-fireworks",
+      label: "Background Fireworks",
+      href: "/docs/background-fireworks",
+      component: BackgroundFireworks,
+    },
+    {
+      key: "background-hexagon",
+      label: "Background Hexagon",
+      href: "/docs/background-hexagon",
+      component: BackgroundHexagon,
+    },
+    {
+      key: "background-hole",
+      label: "Background Hole",
+      href: "/docs/background-hole",
+      component: BackgroundHole,
+    },
+    {
+      key: "background-start",
+      label: "Background Start",
+      href: "/docs/background-start",
+      component: BackgroundStart,
+    },
+    {
+      key: "element-spring",
+      label: "Element Spring",
+      href: "/docs/element-spring",
+      component: ElementSpring,
+    },
+    {
+      key: "loading",
+      label: "Loading",
+      href: "/docs/loading",
+      component: Loading,
+    },
+    {
+      key: "progress-scroll",
+      label: "Progress Scroll",
+      href: "/docs/progress-scroll",
+      component: ProgressScroll,
+    },
+    {
+      key: "text-highlight",
+      label: "Text Highlight",
+      href: "/docs/text-highlight",
+      component: TextHighlight,
+    },
+    {
+      key: "text-rolling",
+      label: "Text Rolling",
+      href: "/docs/text-rolling",
+      component: TextRolling,
+    },
+    {
+      key: "text-splitting",
+      label: "Text Splitting",
+      href: "/docs/text-splitting",
+      component: TextSplitting,
+    },
+    {
+      key: "text-typing",
+      label: "Text Typing",
+      href: "/docs/text-typing",
+      component: TextTyping,
     },
   ];
 };

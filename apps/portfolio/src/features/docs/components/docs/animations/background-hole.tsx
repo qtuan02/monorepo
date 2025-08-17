@@ -3,27 +3,31 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
-import SonnerPreview from "./preview-client/sonner-preview";
+import { HoleBackground as HoleBackgroundComp } from "@repo/ui/animate-ui/background-hole";
+
+const BackgroundHolePreview = () => (
+  <div className="relative h-80">
+    <HoleBackgroundComp className="absolute inset-0 flex items-center justify-center rounded-xl" />
+  </div>
+);
 
 const importCode = `
-"use client";
-import { Button } from "@repo/ui/components/button";
-import { toast } from "sonner";
+import { HoleBackground } from "@repo/ui/animate-ui/background-hole";
 `;
 
 const usageCode = `
-<Button onClick={() => toast.success("Hello")}>Toast</Button>
+<HoleBackground className="absolute inset-0 flex items-center justify-center rounded-xl" />
 `;
 
-const Sonner = async (props: IDocComponentProps) => {
+const BackgroundHole = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Sonner" slug={slug} locale={locale}>
+    <LayoutDocs title="Background Hole" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <SonnerPreview />
+        <BackgroundHolePreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>
@@ -36,4 +40,4 @@ const Sonner = async (props: IDocComponentProps) => {
   );
 };
 
-export default Sonner;
+export default BackgroundHole;

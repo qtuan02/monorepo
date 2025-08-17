@@ -3,28 +3,33 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
-import SonnerPreview from "./preview-client/sonner-preview";
+import { RollingText as TextRollingComp } from "@repo/ui/animate-ui/text-rolling";
+import SectionDocsReload from "../../common/section-docs-reload";
+
+const TextRollingPreview = () => (
+  <div className="flex justify-center">
+    <TextRollingComp text="Text Rolling" />
+  </div>
+);
 
 const importCode = `
-"use client";
-import { Button } from "@repo/ui/components/button";
-import { toast } from "sonner";
+import { RollingText } from "@repo/ui/animate-ui/text-rolling";
 `;
 
 const usageCode = `
-<Button onClick={() => toast.success("Hello")}>Toast</Button>
+<TextRolling text="Text Rolling" />
 `;
 
-const Sonner = async (props: IDocComponentProps) => {
+const TextRolling = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Sonner" slug={slug} locale={locale}>
-      <SectionDocs title={t("preview")}>
-        <SonnerPreview />
-      </SectionDocs>
+    <LayoutDocs title="Text Rolling" slug={slug} locale={locale}>
+      <SectionDocsReload title={t("preview")}>
+        <TextRollingPreview />
+      </SectionDocsReload>
 
       <SectionDocs title={t("import")}>
         <CodeBlock code={importCode} />
@@ -36,4 +41,4 @@ const Sonner = async (props: IDocComponentProps) => {
   );
 };
 
-export default Sonner;
+export default TextRolling;

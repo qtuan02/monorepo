@@ -101,9 +101,7 @@ const Accordion = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Accordion" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <AccordionPreview />
-        </div>
+        <AccordionPreview />
       </SectionDocs>
       <SectionDocs title={t("import")}>
         <CodeBlock code={importCode} />

@@ -32,16 +32,33 @@ const CarouselPreview = () => (
 );
 
 const importCode = `
-import { Badge } from "@repo/ui/components/badge";
+import {
+  Carousel as CarouselComp,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@repo/ui/components/carousel";
 `;
 
 const usageCode = `
-<div className="flex gap-2">
-  <Badge>Default</Badge>
-  <Badge variant="secondary">Secondary</Badge>
-  <Badge variant="destructive">Destructive</Badge>
-  <Badge variant="outline">Outline</Badge>
-</div>
+<Carousel className="w-full max-w-3xs md:max-w-xs mx-auto">
+  <CarouselContent>
+    {Array.from({ length: 5 }).map((_, index) => (
+      <CarouselItem key={index}>
+        <div className="p-1">
+          <div className="size-full border shadow-inherit rounded-md">
+            <div className="flex aspect-square items-center justify-center p-6">
+              <span className="text-4xl font-semibold">{index + 1}</span>
+            </div>
+          </div>
+        </div>
+      </CarouselItem>
+    ))}
+  </CarouselContent>
+  <CarouselPrevious />
+  <CarouselNext />
+</Carousel>
 `;
 
 const Carousel = async (props: IDocComponentProps) => {
@@ -50,11 +67,9 @@ const Carousel = async (props: IDocComponentProps) => {
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Badge" slug={slug} locale={locale}>
+    <LayoutDocs title="Carousel" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <CarouselPreview />
-        </div>
+        <CarouselPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>

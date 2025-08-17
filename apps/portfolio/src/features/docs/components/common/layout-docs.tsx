@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { getTranslations } from "next-intl/server";
 import NextLink from "~/components/next-link";
-import { TypingText } from "@repo/ui/animate-ui/typing-text";
+import { TypingText } from "@repo/ui/animate-ui/text-typing";
 
 interface ILayoutDocsProps extends PropsWithChildren {
   title: string;
@@ -38,6 +38,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
       <div className="flex justify-between items-center h-16">
         {previous ? (
           <NextLink
+            replace
             href={previous.href}
             className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2"
           >
@@ -49,6 +50,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
         )}
         {next ? (
           <NextLink
+            replace
             href={next.href}
             className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2"
           >
