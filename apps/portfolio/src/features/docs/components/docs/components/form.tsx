@@ -92,9 +92,7 @@ const Form = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Form" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <FormPreview />
-        </div>
+        <FormPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>

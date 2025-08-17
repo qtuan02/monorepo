@@ -5,6 +5,7 @@ import { getMetadataDefault } from "~/utils/get-metadata-default";
 import DocsTemplate from "~/features/docs/templates/docs.template";
 import { getDataDocs } from "~/features/docs/utils/get-data-docs";
 import { routing } from "~/i18n/routing";
+import { notFound } from "next/navigation";
 
 export async function generateStaticParams() {
   const locales = routing.locales;
@@ -45,6 +46,11 @@ export async function generateMetadata({
 
 export default async function DocsPage({ params }: { params: NextParams }) {
   const { locale, slug } = await params;
+
+  const docs = getDataDocs().flatMap((doc) => doc.children);
+  const doc = docs.find((doc) => doc.key === (slug?.[0] ?? "introduction"));
+
+  if (!doc) notFound();
 
   return <DocsTemplate locale={locale} slug={slug} />;
 }

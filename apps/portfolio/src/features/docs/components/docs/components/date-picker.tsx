@@ -75,9 +75,7 @@ const DatePicker = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="DatePicker" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <DatePickerPreview />
-        </div>
+        <DatePickerPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>

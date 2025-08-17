@@ -1,6 +1,4 @@
-import "./loading.css";
-
-export default function Loading() {
+function Loading() {
   return (
     <div className="flex items-center justify-center size-full">
       <div className="relative size-12">
@@ -10,3 +8,5 @@ export default function Loading() {
     </div>
   );
 }
+
+export { Loading };

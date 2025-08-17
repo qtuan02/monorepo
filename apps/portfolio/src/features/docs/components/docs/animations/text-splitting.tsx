@@ -3,36 +3,33 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
-import { Skeleton as SkeletonComp } from "@repo/ui/components/skeleton";
+import { SplittingText as TextSplittingComp } from "@repo/ui/animate-ui/text-splitting";
+import SectionDocsReload from "../../common/section-docs-reload";
 
-const SkeletonPreview = () => (
-  <div className="flex gap-3 justify-center">
-    <SkeletonComp className="h-12 w-12 rounded-full" />
-    <SkeletonComp className="h-12 w-24" />
+const TextRollingPreview = () => (
+  <div className="flex justify-center">
+    <TextSplittingComp text="Text Splitting" />
   </div>
 );
 
 const importCode = `
-import { Skeleton } from "@repo/ui/components/skeleton";
+import { SplittingText } from "@repo/ui/animate-ui/text-splitting";
 `;
 
 const usageCode = `
-<>
-  <SkeletonComp className="h-12 w-12 rounded-full" />
-  <SkeletonComp className="h-12 w-24" />
-</>
+<TextSplitting text="Text Splitting" />
 `;
 
-const Skeleton = async (props: IDocComponentProps) => {
+const TextSplitting = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Skeleton" slug={slug} locale={locale}>
-      <SectionDocs title={t("preview")}>
-        <SkeletonPreview />
-      </SectionDocs>
+    <LayoutDocs title="Text Splitting" slug={slug} locale={locale}>
+      <SectionDocsReload title={t("preview")}>
+        <TextRollingPreview />
+      </SectionDocsReload>
 
       <SectionDocs title={t("import")}>
         <CodeBlock code={importCode} />
@@ -44,4 +41,4 @@ const Skeleton = async (props: IDocComponentProps) => {
   );
 };
 
-export default Skeleton;
+export default TextSplitting;

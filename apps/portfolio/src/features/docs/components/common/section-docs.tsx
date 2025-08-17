@@ -10,7 +10,9 @@ const SectionDocs = (props: ISectionDocsProps) => {
   return (
     <section className="space-y-2">
       <h2 className="text-base md:text-lg font-medium">{title}</h2>
-      {children}
+      <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
+        {children}
+      </div>
     </section>
   );
 };

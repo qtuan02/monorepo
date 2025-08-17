@@ -1,4 +1,4 @@
-import Loading from "~/components/loading";
+import { Loading } from "@repo/ui/animate-ui/loading";
 
 export default function LoadingPage() {
   return (

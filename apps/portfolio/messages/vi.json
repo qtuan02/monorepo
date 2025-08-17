@@ -2,7 +2,8 @@
   "portfolio": "Portfolio",
   "Exception": {
     "back": "Quay lại",
-    "not_found": "Không tìm thấy trang"
+    "not_found": "Không tìm thấy trang",
+    "error": "Đã có lỗi xảy ra"
   },
   "Navbar": {
     "home": "Trang chủ",
@@ -53,6 +54,7 @@
     "get-started": "Bắt đầu",
     "introduction": "Giới thiệu",
     "components": "Components",
+    "animations": "Animations",
     "intro-content": {
       "paragraph1": "Đây là repo portfolio được tách ra từ monorepo do mình tự xây dựng.",
       "paragraph2": "Bên trong gồm:",

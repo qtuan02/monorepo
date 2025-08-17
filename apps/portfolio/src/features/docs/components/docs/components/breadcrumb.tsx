@@ -85,9 +85,7 @@ const Breadcrumb = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Breadcrumb" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <BreadcrumbPreview />
-        </div>
+        <BreadcrumbPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>

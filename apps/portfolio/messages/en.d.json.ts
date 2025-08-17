@@ -5,7 +5,8 @@ declare const messages: {
   "portfolio": "Portfolio",
   "Exception": {
     "back": "Come back",
-    "not_found": "Page Not Found"
+    "not_found": "Page Not Found",
+    "error": "Something went wrong"
   },
   "Navbar": {
     "home": "Home",
@@ -56,6 +57,7 @@ declare const messages: {
     "get-started": "Get started",
     "introduction": "Introduction",
     "components": "Components",
+    "animations": "Animations",
     "intro-content": {
       "paragraph1": "This is a portfolio repo extracted from a monorepo I built myself.",
       "paragraph2": "It includes:",

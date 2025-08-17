@@ -3,27 +3,31 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
-import SonnerPreview from "./preview-client/sonner-preview";
+import { FireworksBackground as FireworksBackgroundComp } from "@repo/ui/animate-ui/background-fireworks";
+
+const BackgroundFireworksPreview = () => (
+  <div className="relative h-80">
+    <FireworksBackgroundComp className="absolute inset-0 flex items-center justify-center rounded-xl" />
+  </div>
+);
 
 const importCode = `
-"use client";
-import { Button } from "@repo/ui/components/button";
-import { toast } from "sonner";
+import { FireworksBackground } from "@repo/ui/animate-ui/background-fireworks";
 `;
 
 const usageCode = `
-<Button onClick={() => toast.success("Hello")}>Toast</Button>
+<FireworksBackground className="absolute inset-0 flex items-center justify-center rounded-xl" />
 `;
 
-const Sonner = async (props: IDocComponentProps) => {
+const BackgroundFireworks = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Sonner" slug={slug} locale={locale}>
+    <LayoutDocs title="Background Fireworks" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <SonnerPreview />
+        <BackgroundFireworksPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>
@@ -36,4 +40,4 @@ const Sonner = async (props: IDocComponentProps) => {
   );
 };
 
-export default Sonner;
+export default BackgroundFireworks;

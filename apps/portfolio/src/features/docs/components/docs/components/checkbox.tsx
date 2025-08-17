@@ -4,6 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
 import { Checkbox as CheckboxComp } from "@repo/ui/components/checkbox";
+import { Checkbox as CheckboxAnimate } from "@repo/ui/animate-ui/checkbox";
 
 const CheckboxPreview = () => (
   <div className="flex flex-col gap-3">
@@ -14,6 +15,10 @@ const CheckboxPreview = () => (
     <div className="flex items-center gap-3">
       <CheckboxComp id="checkbox-2" disabled />
       <label htmlFor="checkbox-2">Disabled Checkbox</label>
+    </div>
+    <div className="flex items-center gap-3">
+      <CheckboxAnimate id="checkbox-animation" />
+      <label htmlFor="checkbox-animation">Animation Checkbox</label>
     </div>
     <label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
       <CheckboxComp
@@ -34,6 +39,7 @@ const CheckboxPreview = () => (
 
 const importCode = `
 import { Checkbox } from "@repo/ui/components/checkbox";
+import { Checkbox as CheckboxAnimate } from "@repo/ui/animate-ui/checkbox";
 `;
 
 const usageCode = `
@@ -45,6 +51,10 @@ const usageCode = `
   <div className="flex items-center gap-3">
     <Checkbox id="checkbox-2" disabled />
     <label htmlFor="checkbox-2">Disabled Checkbox</label>
+  </div>
+  <div className="flex items-center gap-3">
+    <Checkbox id="checkbox-animation" />
+    <label htmlFor="checkbox-animation">Animation Checkbox</label>
   </div>
   <label className="hover:bg-accent/50 flex items-start gap-3 rounded-lg border p-3 has-[[aria-checked=true]]:border-blue-600 has-[[aria-checked=true]]:bg-blue-50 dark:has-[[aria-checked=true]]:border-blue-900 dark:has-[[aria-checked=true]]:bg-blue-950">
     <Checkbox
@@ -71,9 +81,7 @@ const Checkbox = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Checkbox" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <CheckboxPreview />
-        </div>
+        <CheckboxPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>

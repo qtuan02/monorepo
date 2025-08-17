@@ -3,27 +3,31 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
-import SonnerPreview from "./preview-client/sonner-preview";
+import { Loading as LoadingComp } from "@repo/ui/animate-ui/loading";
+
+const LoadingPreview = () => (
+  <div className="h-40">
+    <LoadingComp />
+  </div>
+);
 
 const importCode = `
-"use client";
-import { Button } from "@repo/ui/components/button";
-import { toast } from "sonner";
+import { Loading } from "@repo/ui/animate-ui/loading";
 `;
 
 const usageCode = `
-<Button onClick={() => toast.success("Hello")}>Toast</Button>
+<Loading />
 `;
 
-const Sonner = async (props: IDocComponentProps) => {
+const Loading = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Sonner" slug={slug} locale={locale}>
+    <LayoutDocs title="Loading" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <SonnerPreview />
+        <LoadingPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>
@@ -36,4 +40,4 @@ const Sonner = async (props: IDocComponentProps) => {
   );
 };
 
-export default Sonner;
+export default Loading;

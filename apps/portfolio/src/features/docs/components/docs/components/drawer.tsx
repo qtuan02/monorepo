@@ -82,9 +82,7 @@ const Drawer = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Drawer" slug={slug} locale={locale}>
       <SectionDocs title={t("preview")}>
-        <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
-          <DrawerPreview />
-        </div>
+        <DrawerPreview />
       </SectionDocs>
 
       <SectionDocs title={t("import")}>
