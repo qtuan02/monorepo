@@ -8,6 +8,8 @@ const withNextIntl = createNextIntlPlugin({
 });
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  output: !!process.env.CI ? "standalone" : undefined,
+};
 
 export default withNextIntl(nextConfig);
