@@ -12,7 +12,13 @@ import { usePathname } from "~/i18n/navigation";
 import { cn } from "@repo/ui/libs/cn";
 import NextLink from "~/components/next-link";
 
-const DEFAULT_VALUE = ["get-started", "components", "open-source", "hooks", "animations"];
+const DEFAULT_VALUE = [
+  "get-started",
+  "components",
+  "open-source",
+  "hooks",
+  "animations",
+];
 
 const AsideDocs = () => {
   const t = useTranslations();
