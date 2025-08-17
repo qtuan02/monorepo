@@ -38,11 +38,11 @@ import TextHighlight from "../components/docs/animations/text-highlight";
 import TextRolling from "../components/docs/animations/text-rolling";
 import TextSplitting from "../components/docs/animations/text-splitting";
 import TextTyping from "../components/docs/animations/text-typing";
-import Debounce from "../components/docs/hooks/debounce";
-import Previous from "../components/docs/hooks/previous";
-import Toggle from "../components/docs/hooks/toggle";
-import Unmount from "../components/docs/hooks/unmount";
-import Fetch from "../components/docs/hooks/fetch";
+import Debounce from "../components/docs/hooks/use-debounce";
+import Previous from "../components/docs/hooks/use-previous";
+import Toggle from "../components/docs/hooks/use-toggle";
+import Unmount from "../components/docs/hooks/use-unmount";
+import Fetch from "../components/docs/hooks/use-fetch";
 
 export const getDataDocs = (
   t?: ReturnType<typeof createTranslator<Messages, "Docs">>
