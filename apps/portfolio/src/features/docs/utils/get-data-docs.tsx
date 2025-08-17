@@ -26,11 +26,6 @@ import Sheet from "../components/docs/components/sheet";
 import Skeleton from "../components/docs/components/skeleton";
 import Sonner from "../components/docs/components/sonner";
 import Tooltip from "../components/docs/components/tooltip";
-import Previous from "../components/docs/hooks/previous";
-import Toggle from "../components/docs/hooks/toggle";
-import Unmount from "../components/docs/hooks/unmount";
-import Debounce from "../components/docs/hooks/debounce";
-import Fetch from "../components/docs/hooks/fetch";
 import Switch from "../components/docs/components/switch";
 import BackgroundFireworks from "../components/docs/animations/background-fireworks";
 import BackgroundHexagon from "../components/docs/animations/background-hexagon";
@@ -43,6 +38,11 @@ import TextHighlight from "../components/docs/animations/text-highlight";
 import TextRolling from "../components/docs/animations/text-rolling";
 import TextSplitting from "../components/docs/animations/text-splitting";
 import TextTyping from "../components/docs/animations/text-typing";
+import Debounce from "../components/docs/hooks/debounce";
+import Previous from "../components/docs/hooks/previous";
+import Toggle from "../components/docs/hooks/toggle";
+import Unmount from "../components/docs/hooks/unmount";
+import Fetch from "../components/docs/hooks/fetch";
 
 export const getDataDocs = (
   t?: ReturnType<typeof createTranslator<Messages, "Docs">>
