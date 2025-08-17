@@ -8,8 +8,7 @@
     "./styles.css": "./styles.css"
   },
   "scripts": {
-    "clean": "git clean -xdf .cache .turbo node_modules",
-    "format": "prettier --check . --ignore-path ../../.gitignore"
+    "clean": "git clean -xdf .cache .turbo node_modules"
   },
   "devDependencies": {
     "@repo/typescript": "workspace:*",
