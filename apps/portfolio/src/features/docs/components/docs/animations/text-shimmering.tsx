@@ -3,32 +3,32 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { TypingText as TextTypingComp } from "@repo/ui/animate-ui/text-typing";
+import { ShimmeringText as TextShimmeringComp } from "@repo/ui/animate-ui/text-shimmering";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
-const TextRollingPreview = () => (
-  <div className="flex justify-center h-7">
-    <TextTypingComp text="Text Typing" />
+const TextShimmeringPreview = () => (
+  <div className="flex justify-center">
+    <TextShimmeringComp text="Text Shimmering" wave />
   </div>
 );
 
 const importCode = `
-import { TypingText } from "@repo/ui/animate-ui/text-typing";
+import { ShimmeringText } from "@repo/ui/animate-ui/text-shimmering";
 `;
 
 const usageCode = `
-<TextTyping text="Text Typing" />
+<ShimmeringText text="Text Shimmering" wave />
 `;
 
-const TextTyping = async (props: IDocComponentProps) => {
+const TextShimmering = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
 
   const t = await getTranslations({ locale, namespace: "Docs" });
 
   return (
-    <LayoutDocs title="Text Typing" slug={slug} locale={locale}>
+    <LayoutDocs title="Text Shimmering" slug={slug} locale={locale}>
       <SectionPreviewReload title={t("preview")}>
-        <TextRollingPreview />
+        <TextShimmeringPreview />
       </SectionPreviewReload>
 
       <SectionCode title={t("import")}>
@@ -41,4 +41,4 @@ const TextTyping = async (props: IDocComponentProps) => {
   );
 };
 
-export default TextTyping;
+export default TextShimmering;

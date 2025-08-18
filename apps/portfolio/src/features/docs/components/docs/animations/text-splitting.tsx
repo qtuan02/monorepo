@@ -1,10 +1,10 @@
 import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
-import SectionDocs from "../../common/section-docs";
+import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 import { SplittingText as TextSplittingComp } from "@repo/ui/animate-ui/text-splitting";
-import SectionDocsReload from "../../common/section-docs-reload";
+import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextRollingPreview = () => (
   <div className="flex justify-center">
@@ -27,16 +27,16 @@ const TextSplitting = async (props: IDocComponentProps) => {
 
   return (
     <LayoutDocs title="Text Splitting" slug={slug} locale={locale}>
-      <SectionDocsReload title={t("preview")}>
+      <SectionPreviewReload title={t("preview")}>
         <TextRollingPreview />
-      </SectionDocsReload>
+      </SectionPreviewReload>
 
-      <SectionDocs title={t("import")}>
+      <SectionCode title={t("import")}>
         <CodeBlock code={importCode} />
-      </SectionDocs>
-      <SectionDocs title={t("usage")}>
+      </SectionCode>
+      <SectionCode title={t("usage")}>
         <CodeBlock code={usageCode} />
-      </SectionDocs>
+      </SectionCode>
     </LayoutDocs>
   );
 };

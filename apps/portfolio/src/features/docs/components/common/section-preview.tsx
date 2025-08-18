@@ -1,10 +1,10 @@
 import { PropsWithChildren } from "react";
 
-interface ISectionDocsProps extends PropsWithChildren {
+interface ISectionPreviewProps extends PropsWithChildren {
   title: string;
 }
 
-const SectionDocs = (props: ISectionDocsProps) => {
+const SectionPreview = (props: ISectionPreviewProps) => {
   const { title, children } = props;
 
   return (
@@ -17,4 +17,4 @@ const SectionDocs = (props: ISectionDocsProps) => {
   );
 };
 
-export default SectionDocs;
+export default SectionPreview;

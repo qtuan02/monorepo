@@ -3,11 +3,11 @@
 import { RotateCcw } from "lucide-react";
 import { PropsWithChildren, useState } from "react";
 
-interface ISectionDocsReloadProps extends PropsWithChildren {
+interface ISectionPreviewReloadProps extends PropsWithChildren {
   title: string;
 }
 
-const SectionDocsReload = (props: ISectionDocsReloadProps) => {
+const SectionPreviewReload = (props: ISectionPreviewReloadProps) => {
   const { title, children } = props;
   const [key, setKey] = useState<string>("");
 
@@ -30,4 +30,4 @@ const SectionDocsReload = (props: ISectionDocsReloadProps) => {
   );
 };
 
-export default SectionDocsReload;
+export default SectionPreviewReload;

@@ -43,6 +43,9 @@ import Previous from "../components/docs/hooks/previous";
 import Toggle from "../components/docs/hooks/toggle";
 import Unmount from "../components/docs/hooks/unmount";
 import Fetch from "../components/docs/hooks/fetch";
+import Flex from "../components/docs/get-started/flex";
+import Grid from "../components/docs/get-started/grid";
+import TextShimmering from "../components/docs/animations/text-shimmering";
 
 export const getDataDocs = (
   t?: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -85,6 +88,18 @@ export const getStartedData = (
       label: t?.("Docs.introduction") ?? "",
       href: "/docs/introduction",
       component: Introduction,
+    },
+    {
+      key: "flex",
+      label: "CSS Flexbox",
+      href: "/docs/flex",
+      component: Flex,
+    },
+    {
+      key: "grid",
+      label: "CSS Grid Layout",
+      href: "/docs/grid",
+      component: Grid,
     },
   ];
 };
@@ -345,6 +360,12 @@ export const getAnimationsData = (): DocItem[] => {
       label: "Text Rolling",
       href: "/docs/text-rolling",
       component: TextRolling,
+    },
+    {
+      key: "text-shimmering",
+      label: "Text Shimmering",
+      href: "/docs/text-shimmering",
+      component: TextShimmering,
     },
     {
       key: "text-splitting",
