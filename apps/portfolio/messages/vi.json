@@ -56,15 +56,16 @@
     "components": "Components",
     "animations": "Animations",
     "intro-content": {
-      "paragraph1": "Đây là repo portfolio được tách ra từ monorepo do mình tự xây dựng.",
-      "paragraph2": "Bên trong gồm:",
+      "paragraph1": "Đây là repo portfolio thuộc monorepo do mình tự xây dựng.  ",
+      "paragraph2": "Bên trong bao gồm:",
       "list": [
-        "Các component từ shadcn và các component được clone + tùy biến từ nhiều dự án open-source khác",
-        "Những trick và best practices rút ra trong quá trình phát triển.",
+        "Các component từ shadcn và những component được clone/tùy biến từ nhiều dự án open-source.",
+        "Những trick và best practices rút ra trong quá trình học tập và phát triển.",
         "Bộ custom hooks và utility hữu ích.",
         "Ghi chú và ví dụ thực tế để áp dụng vào dự án khác."
       ],
-      "paragraph3": "Mục tiêu của repo này vừa là portfolio cá nhân, vừa là bộ component + tool tái sử dụng cho những dự án sau này."
+      "paragraph3": "Mục tiêu của repo này vừa là portfolio cá nhân, vừa là bộ component + tool tái sử dụng cho những dự án về sau.",
+      "paragraph4": "Dự án này mình dùng SSG - Static Site Generation để build và dùng sitemap để Google Bot dễ dàng thu thập nội dung, giúp tối ưu SEO."
     },
     "preview": "Xem trước",
     "import": "Nhập",

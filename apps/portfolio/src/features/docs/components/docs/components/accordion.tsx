@@ -7,8 +7,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@repo/ui/components/accordion";
-import SectionDocs from "../../common/section-docs";
 import { getTranslations } from "next-intl/server";
+import SectionPreview from "../../common/section-preview";
+import SectionCode from "../../common/section-code";
 
 const AccordionPreview = () => (
   <AccordionComp
@@ -100,15 +101,15 @@ const Accordion = async (props: IDocComponentProps) => {
 
   return (
     <LayoutDocs title="Accordion" slug={slug} locale={locale}>
-      <SectionDocs title={t("preview")}>
+      <SectionPreview title={t("preview")}>
         <AccordionPreview />
-      </SectionDocs>
-      <SectionDocs title={t("import")}>
+      </SectionPreview>
+      <SectionCode title={t("import")}>
         <CodeBlock code={importCode} />
-      </SectionDocs>
-      <SectionDocs title={t("usage")}>
+      </SectionCode>
+      <SectionCode title={t("usage")}>
         <CodeBlock code={usageCode} />
-      </SectionDocs>
+      </SectionCode>
     </LayoutDocs>
   );
 };

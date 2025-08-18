@@ -56,15 +56,16 @@
     "components": "Components",
     "animations": "Animations",
     "intro-content": {
-      "paragraph1": "This is a portfolio repo extracted from a monorepo I built myself.",
+      "paragraph1": "This is a portfolio repo that belongs to a monorepo I built myself.",
       "paragraph2": "It includes:",
       "list": [
-        "Components from shadcn and components cloned + customized from various other open-source projects",
-        "Tricks and best practices learned during the development process",
-        "A collection of useful custom hooks and utilities",
-        "Notes and real-world examples for applying to other projects"
+        "Components from shadcn and other components cloned/customized from various open-source projects.",
+        "Tricks and best practices gathered during learning and development.",
+        "A collection of useful custom hooks and utilities.",
+        "Notes and practical examples that can be applied to other projects."
       ],
-      "paragraph3": "The goal of this repo is both to serve as a personal portfolio and to provide a reusable set of components and tools for future projects."
+      "paragraph3": "The goal of this repo is to serve both as my personal portfolio and as a reusable set of components and tools for future projects.",
+      "paragraph4": "This project is built with SSG (Static Site Generation) and includes a sitemap to help Google Bot easily crawl the content and improve SEO."
     },
     "preview": "Preview",
     "import": "Import",

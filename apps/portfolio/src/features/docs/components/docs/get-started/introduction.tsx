@@ -1,6 +1,8 @@
 import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 import { getTranslations } from "next-intl/server";
+import NextLink from "~/components/next-link";
+import { ShimmeringText } from "@repo/ui/animate-ui/text-shimmering";
 
 const Introduction = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
@@ -22,6 +24,17 @@ const Introduction = async (props: IDocComponentProps) => {
           </ul>
         )}
         <p>{t("intro-content.paragraph3")}</p>
+        <p>{t("intro-content.paragraph4")}</p>
+        <p className="text-right">
+          <span className="font-medium underline">Github:</span> &nbsp;
+          <NextLink isExternalLink href="https://github.com/qtuan02/monorepo">
+            <ShimmeringText
+              text="https://github.com/qtuan02/monorepo"
+              wave
+              transition={{ repeatDelay: 5, duration: 2 }}
+            />
+          </NextLink>
+        </p>
       </div>
     </LayoutDocs>
   );

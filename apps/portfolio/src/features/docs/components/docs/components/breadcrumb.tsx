@@ -1,7 +1,8 @@
 import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
-import SectionDocs from "../../common/section-docs";
+import SectionPreview from "../../common/section-preview";
+import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 import {
   Breadcrumb as BreadcrumbComp,
@@ -84,16 +85,16 @@ const Breadcrumb = async (props: IDocComponentProps) => {
 
   return (
     <LayoutDocs title="Breadcrumb" slug={slug} locale={locale}>
-      <SectionDocs title={t("preview")}>
+      <SectionPreview title={t("preview")}>
         <BreadcrumbPreview />
-      </SectionDocs>
+      </SectionPreview>
 
-      <SectionDocs title={t("import")}>
+      <SectionCode title={t("import")}>
         <CodeBlock code={importCode} />
-      </SectionDocs>
-      <SectionDocs title={t("usage")}>
+      </SectionCode>
+      <SectionCode title={t("usage")}>
         <CodeBlock code={usageCode} />
-      </SectionDocs>
+      </SectionCode>
     </LayoutDocs>
   );
 };
