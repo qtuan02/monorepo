@@ -12,6 +12,7 @@ import { Provider } from "./provider";
 import RootLayout from "~/features/layout/templates";
 import { Inter_Tight } from "next/font/google";
 import { cn } from "@repo/ui/libs/cn";
+import { env } from "~/env";
 
 // export const dynamic = "force-static";
 
@@ -79,11 +80,13 @@ export async function generateMetadata({
       ],
       shortcut: "/logo.webp",
     },
-    robots: {
-      index: false,
-      follow: false,
-    },
-    manifest: "/manifest.webmanifest",
+    robots:
+      env.NEXT_PUBLIC_ENV === "local"
+        ? {
+            index: false,
+            follow: false,
+          }
+        : undefined,
   });
 }
 
