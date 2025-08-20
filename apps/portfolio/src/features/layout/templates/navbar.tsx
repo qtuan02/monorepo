@@ -10,7 +10,7 @@ export default function Navbar() {
     <nav className="fixed z-50 w-full shadow-sm bg-white dark:bg-gray-900 select-none">
       <div className="flex items-center h-12 md:h-15 px-3 justify-between flex-center">
         <section className="flex items-center gap-x-10">
-          <NextLink href="/" className="flex items-center gap-x-2">
+          <NextLink href="/" className="flex items-center gap-x-2 md:px-2">
             <NextImage
               src="/logo.webp"
               alt="logo"
@@ -18,7 +18,7 @@ export default function Navbar() {
               height={32}
               priority
             />
-            <span className="text-lg font-bold">Portfolio</span>
+            <span className="text-xl font-bold">Portfolio</span>
           </NextLink>
 
           <div className="hidden md:flex items-center gap-x-1">

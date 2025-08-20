@@ -16,27 +16,27 @@ export const getMetadataDefault = async (
       siteName: "Portfolio",
       images: [
         {
-          url: "/vercel.svg",
+          url: "/logo.webp",
           height: 630,
           width: 1200,
           alt: "Portfolio Description",
-          type: "image/jpeg",
+          type: "image/webp",
         },
       ],
       ...metadata?.openGraph,
     },
     twitter: {
       card: "summary_large_image",
-      title: "Portfolio", 
+      title: "Portfolio",
       description: "Portfolio Description",
       site: "Portfolio",
       images: [
         {
-          url: "/vercel.svg",
+          url: "/logo.webp",
           height: 630,
           width: 1200,
           alt: "Portfolio Description",
-          type: "image/jpeg",
+          type: "image/webp",
         },
       ],
       ...metadata?.twitter,

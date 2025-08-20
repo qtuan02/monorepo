@@ -31,10 +31,10 @@ const Menu = () => {
       key={`MENU_ITEM-${index}`}
       href={item.href}
       className={cn(
-        "px-2 font-medium hover:scale-105 ",
+        "px-2 font-medium transition-transform duration-300 origin-bottom py-0.5 text-lg relative before:absolute before:bottom-1 before:inset-x-2 before:h-0.5 before:origin-left before:transition-transform before:duration-500",
         isActiveRoute(item.href)
-          ? "underline underline-offset-4 text-black dark:text-white"
-          : "text-gray-500"
+          ? "underline-offset-4 scale-105 before:scale-x-100 before:bg-black dark:before:bg-white"
+          : "before:scale-x-0 text-gray-500 hover:before:bg-gray-500 hover:scale-105  hover:before:scale-x-100"
       )}
     >
       {item.label}
