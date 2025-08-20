@@ -58,7 +58,7 @@ const Language = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center gap-x-1 text-base font-normal hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md px-2 py-1">
+        <div className="flex items-center gap-x-1 text-base font-normal hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md px-2 py-0.5">
           <span className="[&>span]:rounded-full text-xl">
             {selectedLocale?.icon}
           </span>
