@@ -13,8 +13,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@repo/ui/components/drawer";
-import { Button } from "@repo/ui/components/button";
+} from "@web/ui/components/drawer";
+import { Button } from "@web/ui/components/button";
 
 const DrawerPreview = () => (
   <div className="flex justify-center">
@@ -50,7 +50,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@repo/ui/components/drawer";
+} from "@web/ui/components/drawer";
 `;
 
 const usageCode = `

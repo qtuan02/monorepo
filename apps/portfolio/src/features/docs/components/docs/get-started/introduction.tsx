@@ -2,7 +2,7 @@ import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 import { getTranslations } from "next-intl/server";
 import NextLink from "~/components/next-link";
-import { ShimmeringText } from "@repo/ui/animate-ui/text-shimmering";
+import { ShimmeringText } from "@web/ui/animate-ui/text-shimmering";
 
 const Introduction = async (props: IDocComponentProps) => {
   const { locale, slug } = props;

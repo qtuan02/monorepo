@@ -1,7 +1,7 @@
 import NextLink from "~/components/next-link";
 import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
-import { SplittingText } from "@repo/ui/animate-ui/text-splitting";
+import { SplittingText } from "@web/ui/animate-ui/text-splitting";
 import Background from "../components/background";
 
 export default async function HomeTemplate({ locale }: { locale: string }) {

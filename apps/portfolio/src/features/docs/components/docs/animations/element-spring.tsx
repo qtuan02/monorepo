@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { SpringElement as SpringElementComp } from "@repo/ui/animate-ui/element-spring";
+import { SpringElement as SpringElementComp } from "@web/ui/animate-ui/element-spring";
 
 const ElementSpringPreview = () => (
   <div className="relative h-40">
@@ -17,7 +17,7 @@ const ElementSpringPreview = () => (
 );
 
 const importCode = `
-import { SpringElement } from "@repo/ui/animate-ui/element-spring";
+import { SpringElement } from "@web/ui/animate-ui/element-spring";
 `;
 
 const usageCode = `

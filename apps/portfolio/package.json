@@ -1,5 +1,5 @@
 {
-  "name": "@portfolio",
+  "name": "@web/portfolio",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -15,8 +15,8 @@
     "with-env-vercel": "dotenv -e .env --"
   },
   "dependencies": {
-    "@repo/env": "workspace:*",
-    "@repo/ui": "workspace:*",
+    "@web/env": "workspace:*",
+    "@web/ui": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:next15",
     "@tanstack/react-query": "catalog:tanstackquery",
     "@tanstack/react-query-devtools": "catalog:tanstackquery",
@@ -36,9 +36,9 @@
     "sonner": "catalog:"
   },
   "devDependencies": {
-    "@repo/eslint": "workspace:*",
-    "@repo/tailwind": "workspace:*",
-    "@repo/typescript": "workspace:*",
+    "@web/eslint": "workspace:*",
+    "@web/tailwind": "workspace:*",
+    "@web/typescript": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "^22.15.3",
     "@types/react": "catalog:react19",

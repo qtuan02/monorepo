@@ -12,7 +12,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@repo/ui/components/pagination";
+} from "@web/ui/components/pagination";
 
 const PaginationPreview = () => (
   <PaginationComp>
@@ -50,7 +50,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@repo/ui/components/pagination";
+} from "@web/ui/components/pagination";
 `;
 
 const usageCode = `

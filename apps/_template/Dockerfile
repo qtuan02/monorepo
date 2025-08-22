@@ -1,7 +1,7 @@
 # 1) Build-time arguments (can be overridden with --build-arg)
 ARG NODE_VERSION=22
 ARG APP_DIRNAME=_template
-ARG PROJECT=@_template
+ARG PROJECT=@web/_template
 ARG NODE_ENV=production
 ARG VERSION=local
 

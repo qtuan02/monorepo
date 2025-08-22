@@ -1,10 +1,10 @@
-import { cn } from "@repo/ui/libs/cn";
+import { cn } from "@web/ui/libs/cn";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { PropsWithChildren } from "react";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { getTranslations } from "next-intl/server";
 import NextLink from "~/components/next-link";
-import { TypingText } from "@repo/ui/animate-ui/text-typing";
+import { TypingText } from "@web/ui/animate-ui/text-typing";
 
 interface ILayoutDocsProps extends PropsWithChildren {
   title: string;

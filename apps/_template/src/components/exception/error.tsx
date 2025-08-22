@@ -1,4 +1,4 @@
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@web/ui/components/button";
 import { useTranslations } from "next-intl";
 
 const Error = () => {

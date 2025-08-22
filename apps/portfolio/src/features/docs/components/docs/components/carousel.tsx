@@ -10,7 +10,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@repo/ui/components/carousel";
+} from "@web/ui/components/carousel";
 
 const CarouselPreview = () => (
   <CarouselComp className="w-full max-w-3xs md:max-w-xs mx-auto">
@@ -39,7 +39,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@repo/ui/components/carousel";
+} from "@web/ui/components/carousel";
 `;
 
 const usageCode = `

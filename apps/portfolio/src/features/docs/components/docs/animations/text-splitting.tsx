@@ -3,7 +3,7 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { SplittingText as TextSplittingComp } from "@repo/ui/animate-ui/text-splitting";
+import { SplittingText as TextSplittingComp } from "@web/ui/animate-ui/text-splitting";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextRollingPreview = () => (
@@ -13,7 +13,7 @@ const TextRollingPreview = () => (
 );
 
 const importCode = `
-import { SplittingText } from "@repo/ui/animate-ui/text-splitting";
+import { SplittingText } from "@web/ui/animate-ui/text-splitting";
 `;
 
 const usageCode = `

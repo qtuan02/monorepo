@@ -1,5 +1,5 @@
 {
-  "name": "@_template",
+  "name": "@web/_template",
   "version": "0.1.0",
   "type": "module",
   "private": true,
@@ -13,8 +13,8 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@repo/ui": "workspace:*",
-    "@repo/env": "workspace:*",
+    "@web/ui": "workspace:*",
+    "@web/env": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:next15",
     "@tanstack/react-query": "catalog:tanstackquery",
     "@tanstack/react-query-devtools": "catalog:tanstackquery",
@@ -25,9 +25,9 @@
     "sonner": "catalog:"
   },
   "devDependencies": {
-    "@repo/eslint": "workspace:*",
-    "@repo/tailwind": "workspace:*",
-    "@repo/typescript": "workspace:*",
+    "@web/eslint": "workspace:*",
+    "@web/tailwind": "workspace:*",
+    "@web/typescript": "workspace:*",
     "@types/node": "^22.15.3",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",

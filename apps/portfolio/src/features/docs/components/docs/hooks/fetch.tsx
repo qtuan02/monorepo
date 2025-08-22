@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useFetch from "@repo/ui/hooks/use-fetch";
+import useFetch from "@web/ui/hooks/use-fetch";
 `;
 
 const usageCode = `

@@ -3,7 +3,7 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { ShimmeringText as TextShimmeringComp } from "@repo/ui/animate-ui/text-shimmering";
+import { ShimmeringText as TextShimmeringComp } from "@web/ui/animate-ui/text-shimmering";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextShimmeringPreview = () => (
@@ -13,7 +13,7 @@ const TextShimmeringPreview = () => (
 );
 
 const importCode = `
-import { ShimmeringText } from "@repo/ui/animate-ui/text-shimmering";
+import { ShimmeringText } from "@web/ui/animate-ui/text-shimmering";
 `;
 
 const usageCode = `

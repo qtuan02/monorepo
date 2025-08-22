@@ -5,11 +5,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@repo/ui/components/accordion";
+} from "@web/ui/components/accordion";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
-import { cn } from "@repo/ui/libs/cn";
+import { cn } from "@web/ui/libs/cn";
 import NextLink from "~/components/next-link";
 
 const DEFAULT_VALUE = [

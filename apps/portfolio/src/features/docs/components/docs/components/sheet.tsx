@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@web/ui/components/button";
 import {
   Sheet as SheetComp,
   SheetClose,
@@ -14,7 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@repo/ui/components/sheet";
+} from "@web/ui/components/sheet";
 
 const SheetPreview = () => (
   <div className="flex justify-center">
@@ -39,7 +39,7 @@ const SheetPreview = () => (
 );
 
 const importCode = `
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@web/ui/components/button";
 import {
   Sheet as SheetComp,
   SheetClose,
@@ -49,7 +49,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@repo/ui/components/sheet";
+} from "@web/ui/components/sheet";
 `;
 
 const usageCode = `

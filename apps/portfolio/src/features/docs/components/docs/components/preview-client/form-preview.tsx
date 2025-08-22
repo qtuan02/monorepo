@@ -9,12 +9,12 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from "@repo/ui/components/form";
-import { Input } from "@repo/ui/components/input";
-import { Button } from "@repo/ui/components/button";
+} from "@web/ui/components/form";
+import { Input } from "@web/ui/components/input";
+import { Button } from "@web/ui/components/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "@repo/ui/components/textarea";
+import { Textarea } from "@web/ui/components/textarea";
 
 type FormSchema = z.infer<typeof formSchema>;
 

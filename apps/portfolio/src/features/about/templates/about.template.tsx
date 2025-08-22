@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import AsideLeft from "../components/aside/aside-left";
 import ContentRight from "../components/content/content-right";
-import { ScrollProgress } from "@repo/ui/animate-ui/progress-scroll";
+import { ScrollProgress } from "@web/ui/animate-ui/progress-scroll";
 
 export default function AboutTemplate() {
   const t = useTranslations("About");
