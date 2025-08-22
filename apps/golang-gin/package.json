@@ -1,0 +1,12 @@
+{
+  "name": "@api/golang-gin",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "install": "make install",
+    "dev": "make dev",
+    "build": "make build",
+    "start": "make start"
+  }
+}

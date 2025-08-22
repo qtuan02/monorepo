@@ -15,13 +15,15 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": ["^dev"]
+      "persistent": true
     },
     "clean": {
       "cache": false
     },
     "//#clean": {
+      "cache": false
+    },
+    "install": {
       "cache": false
     }
   }
