@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import usePrevious from "@repo/ui/hooks/use-previous";
+import usePrevious from "@web/ui/hooks/use-previous";
 `;
 
 const usageCode = `

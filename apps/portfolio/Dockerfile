@@ -1,7 +1,7 @@
 # 1) Build-time arguments (can be overridden with --build-arg)
 ARG NODE_VERSION=22
 ARG APP_DIRNAME=portfolio
-ARG PROJECT=@portfolio
+ARG PROJECT=@web/portfolio
 ARG NODE_ENV=production
 ARG VERSION=local
 

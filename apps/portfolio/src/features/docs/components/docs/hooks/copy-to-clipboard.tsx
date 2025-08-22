@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useCopyToClipboard from "@repo/ui/hooks/use-copy-to-clipboard";
+import useCopyToClipboard from "@web/ui/hooks/use-copy-to-clipboard";
 `;
 
 const usageCode = `

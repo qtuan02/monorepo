@@ -8,7 +8,7 @@ import SonnerPreview from "./preview-client/sonner-preview";
 
 const importCode = `
 "use client";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@web/ui/components/button";
 import { toast } from "sonner";
 `;
 

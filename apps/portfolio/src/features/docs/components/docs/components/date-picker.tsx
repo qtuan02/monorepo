@@ -11,15 +11,15 @@ const importCode = `
 
 import { ChevronDownIcon } from "lucide-react";
 
-import { Button } from "@repo/ui/components/button";
-import { Calendar } from "@repo/ui/components/calendar";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
+import { Button } from "@web/ui/components/button";
+import { Calendar } from "@web/ui/components/calendar";
+import { Input } from "@web/ui/components/input";
+import { Label } from "@web/ui/components/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ui/components/popover";
+} from "@web/ui/components/popover";
 import { useState } from "react";
 `;
 

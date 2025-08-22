@@ -9,8 +9,8 @@ import {
 } from "lucide-react";
 import NextLink from "~/components/next-link";
 import { useTranslations } from "next-intl";
-import { HighlightText } from "@repo/ui/animate-ui/text-highlight";
-import { SpringElement } from "@repo/ui/animate-ui/element-spring";
+import { HighlightText } from "@web/ui/animate-ui/text-highlight";
+import { SpringElement } from "@web/ui/animate-ui/element-spring";
 
 const AsideLeft = () => {
   const t = useTranslations("About");

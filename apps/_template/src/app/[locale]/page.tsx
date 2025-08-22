@@ -1,4 +1,4 @@
-import { cn } from "@repo/ui/libs/cn";
+import { cn } from "@web/ui/libs/cn";
 import { env } from "~/env";
 import { NextParams } from "~/types/common";
 

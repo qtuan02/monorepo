@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { HexagonBackground as HexagonBackgroundComp } from "@repo/ui/animate-ui/background-hexagon";
+import { HexagonBackground as HexagonBackgroundComp } from "@web/ui/animate-ui/background-hexagon";
 
 const BackgroundHexagonPreview = () => (
   <div className="relative h-80">
@@ -13,7 +13,7 @@ const BackgroundHexagonPreview = () => (
 );
 
 const importCode = `
-import { HexagonBackground } from "@repo/ui/animate-ui/background-hexagon";
+import { HexagonBackground } from "@web/ui/animate-ui/background-hexagon";
 `;
 
 const usageCode = `

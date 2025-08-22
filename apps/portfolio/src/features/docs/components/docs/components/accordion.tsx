@@ -6,7 +6,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@repo/ui/components/accordion";
+} from "@web/ui/components/accordion";
 import { getTranslations } from "next-intl/server";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
@@ -54,7 +54,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@repo/ui/components/accordion";
+} from "@web/ui/components/accordion";
 `;
 
 const usageCode = `

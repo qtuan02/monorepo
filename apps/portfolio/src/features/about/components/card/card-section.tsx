@@ -1,4 +1,4 @@
-import { cn } from "@repo/ui/libs/cn";
+import { cn } from "@web/ui/libs/cn";
 import { FC, HTMLAttributes, ReactNode } from "react";
 
 interface ICardSectionProps extends HTMLAttributes<HTMLDivElement> {

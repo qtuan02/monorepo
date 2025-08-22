@@ -11,7 +11,7 @@ import { setRequestLocale } from "next-intl/server";
 import { Provider } from "./provider";
 import RootLayout from "~/features/layout/templates";
 import { Inter_Tight } from "next/font/google";
-import { cn } from "@repo/ui/libs/cn";
+import { cn } from "@web/ui/libs/cn";
 import { env } from "~/env";
 
 // export const dynamic = "force-static";

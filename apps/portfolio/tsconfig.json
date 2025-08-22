@@ -1,5 +1,5 @@
 {
-  "extends": "@repo/typescript/nextjs.json",
+  "extends": "@web/typescript/nextjs.json",
   "compilerOptions": {
     "allowArbitraryExtensions": true,
     "lib": ["ES2022", "dom", "dom.iterable"],

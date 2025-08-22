@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { StarsBackground as StarsBackgroundComp } from "@repo/ui/animate-ui/background-start";
+import { StarsBackground as StarsBackgroundComp } from "@web/ui/animate-ui/background-start";
 
 const BackgroundStartPreview = () => (
   <div className="relative h-80">
@@ -13,7 +13,7 @@ const BackgroundStartPreview = () => (
 );
 
 const importCode = `
-import { StarsBackground } from "@repo/ui/animate-ui/background-start";
+import { StarsBackground } from "@web/ui/animate-ui/background-start";
 `;
 
 const usageCode = `

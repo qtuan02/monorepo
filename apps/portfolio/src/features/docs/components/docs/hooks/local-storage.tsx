@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useLocalStorage from "@repo/ui/hooks/use-local-storage";
+import useLocalStorage from "@web/ui/hooks/use-local-storage";
 `;
 
 const usageCode = `

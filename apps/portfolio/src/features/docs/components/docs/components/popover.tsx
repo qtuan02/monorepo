@@ -4,12 +4,12 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@web/ui/components/button";
 import {
   Popover as PopoverComp,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ui/components/popover";
+} from "@web/ui/components/popover";
 
 const PopoverPreview = () => (
   <div className="flex justify-center">
@@ -25,12 +25,12 @@ const PopoverPreview = () => (
 );
 
 const importCode = `
-import { Button } from "@repo/ui/components/button";
+import { Button } from "@web/ui/components/button";
 import {
   Popover as PopoverComp,
   PopoverContent,
   PopoverTrigger,
-} from "@repo/ui/components/popover";
+} from "@web/ui/components/popover";
 `;
 
 const usageCode = `

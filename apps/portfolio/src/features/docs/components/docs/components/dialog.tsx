@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@repo/ui/components/dialog";
-import { Button } from "@repo/ui/components/button";
+} from "@web/ui/components/dialog";
+import { Button } from "@web/ui/components/button";
 
 const DialogPreview = () => (
   <div className="flex justify-center">
@@ -48,8 +48,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@repo/ui/components/dialog";
-import { Button } from "@repo/ui/components/button";
+} from "@web/ui/components/dialog";
+import { Button } from "@web/ui/components/button";
 `;
 
 const usageCode = `

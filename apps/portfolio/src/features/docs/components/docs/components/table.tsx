@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/components/table";
+} from "@web/ui/components/table";
 
 const TablePreview = () => {
   const data = [
@@ -93,7 +93,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@repo/ui/components/table";
+} from "@web/ui/components/table";
 `;
 
 const usageCode = `
