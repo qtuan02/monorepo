@@ -13,7 +13,11 @@
     "build:_template": "turbo run build -F @web/_template",
     "start:_template": "turbo run start -F @web/_template",
     "dev:portfolio": "turbo run dev -F @web/portfolio",
-    "build:portfolio": "turbo run build -F @web/portfolio"
+    "build:portfolio": "turbo run build -F @web/portfolio",
+    "dev:golang-gin": "turbo run dev -F @api/golang-gin",
+    "start:golang-gin": "turbo run start -F @api/golang-gin",
+    "clean:golang-gin": "turbo run clean -F @api/golang-gin",
+    "clean-all:golang-gin": "turbo run clean-all -F @api/golang-gin"
   },
   "devDependencies": {
     "prettier": "catalog:",

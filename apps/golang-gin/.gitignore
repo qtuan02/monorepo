@@ -5,6 +5,7 @@ logs
 logs/*
 go.sum
 .gocache/
+.gomodcache/
 
 # Local env files
 .env
