@@ -1,42 +1,72 @@
-BINARY_NAME ?= golang-gin
-BIN_DIR     ?= ./tmp
-MAIN_PKG    ?= ./cmd/api
-EXT         :=
-AIR         ?= air
+APP        ?= golang-gin
+BIN_DIR    ?= ./tmp
+MAIN_PKG   ?= ./cmd/api
+AIR        ?= air
+
+GOCACHE    ?= $(CURDIR)/.gocache
+GOMODCACHE ?= $(CURDIR)/.gomodcache
+export GOCACHE
+export GOMODCACHE
 
 ifeq ($(OS),Windows_NT)
-	EXT := .exe
+  EXT := .exe
+else
+  EXT :=
 endif
 
-BIN := $(BIN_DIR)/$(BINARY_NAME)$(EXT)
+BIN := $(BIN_DIR)/$(APP)$(EXT)
 
-.PHONY: dev build start d download clean clean_all
+SHELL := bash
+.SHELLFLAGS := -eu -o pipefail -c
 
-d download:
-	@echo "Installing Go modules..."
+.DEFAULT_GOAL := help
+.PHONY: prepare deps dev build run start clean clean-all
+
+
+help:
+	@echo "  dev: make dev        		- start in dev mode (Air hot reload)"
+	@echo "  build: make build   	    - build binary"
+	@echo "  run: make run      	    - run built binary"
+	@echo "  start: make start          - alias of run"
+	@echo "  deps: make deps   		    - tidy & download Go modules"
+	@echo "  clean: make clean		    - remove build artifacts"
+	@echo "  clean-all: make clean-all  - remove build artifacts + go mod cache"
+
+prepare:
+	@mkdir -p ".gocache" ".gomodcache" "$(BIN_DIR)"
+
+deps:
+	@echo ">> Installing Go modules..."
 	@go mod tidy
 	@go mod download
 
-dev:
-	@command -v $(AIR) >/dev/null 2>&1 || { echo "Air not installed. Run: go install github.com/air-verse/air@latest"; exit 1; }
-	@echo "Starting dev server (Air hot reload)..."
-	@$(AIR)
+dev: prepare
+	@command -v $(AIR) >/dev/null 2>&1 && { \
+		echo ">> Starting dev server (Air hot reload)..."; \
+		$(AIR); \
+	} || { \
+		echo "!! Air not found. Fallback to: go run $(MAIN_PKG)"; \
+		go run $(MAIN_PKG); \
+	}
 
-$(BIN_DIR):
-	@mkdir -p $(BIN_DIR) 2>/dev/null || mkdir $(BIN_DIR) 2> NUL || true
+build: prepare
+	@echo ">> Building -> $(BIN)"
+	@go build -o "$(BIN)" "$(MAIN_PKG)"
 
-build: $(BIN_DIR)
-	@echo "Building -> $(BIN)"
-	@go build -o $(BIN) $(MAIN_PKG)
+run: build
+	@echo ">> Starting binary..."
+	@"$(BIN)"
 
-start: build
-	@echo "Starting binary..."
-	@$(BIN)
+start: run
 
 clean:
-	@echo "Cleaning build artifacts..."
-	@rm -rf $(BIN_DIR) 2>/dev/null || rmdir /S /Q $(BIN_DIR) 2> NUL || true
+	@echo ">> Cleaning build artifacts..."
+	@rm -rf "$(BIN_DIR)"
 
-clean_all: clean
-	@echo "Cleaning all..."
+clean-all: clean
+	@echo ">> Cleaning module cache..."
 	@go clean -modcache
+	@echo ">> Removing local caches & logs..."
+	@rm -rf ".gocache" ".gomodcache" "logs"
+	@echo ">> Removing go.sum..."
+	@rm -f go.sum

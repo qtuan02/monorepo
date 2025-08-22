@@ -1,4 +1,5 @@
 # Libs used
+
 ```
 go get github.com/gin-gonic/gin
 go get github.com/joho/godotenv
@@ -42,8 +43,8 @@ golang-gin/
 │  └─ shared/               # struct + error chung
 │     ├─ dto/               # request/response struct
 │     └─ errors/            # error chuẩn (ErrNotFound, ErrInvalidInput)
-├─ .env.example             # mẫu config (.env runtime)
-├─ go.mod/go.sum            # dependency
+├─ .air.toml                # config air (hot reload)
+├─ go.mod                   # dependency
 ├─ docker-compose.yml       # Postgres, Redis... phục vụ dev
 ├─ Makefile                 # shortcut lệnh: run, migrate, tidy
 └─ README.md

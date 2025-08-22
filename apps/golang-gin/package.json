@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "download": "make download",
     "dev": "make dev",
-    "build": "make build",
-    "start": "make start"
+    "start": "make start",
+    "clean": "make clean",
+    "clean-all": "make clean-all"
   }
 }
