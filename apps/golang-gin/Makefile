@@ -10,9 +10,9 @@ endif
 
 BIN := $(BIN_DIR)/$(BINARY_NAME)$(EXT)
 
-.PHONY: dev build start i install clean clean_all
+.PHONY: dev build start d download clean clean_all
 
-i install:
+d download:
 	@echo "Installing Go modules..."
 	@go mod tidy
 	@go mod download
