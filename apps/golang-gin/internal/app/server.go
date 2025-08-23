@@ -2,6 +2,7 @@ package app
 
 import (
 	"golang-gin/internal/config"
+	"golang-gin/internal/db"
 	"golang-gin/internal/pkg/logger"
 	"os"
 
@@ -11,25 +12,27 @@ import (
 
 var (
 	env = config.LoadConfig()
-	log = logger.L()
 )
 
 func Run() {
+	log := logger.L()
+
 	r := gin.New()
 
 	r.RedirectTrailingSlash = true
 
-	RegisterLogger(r)
+	db.RegisterMongo(r, env, log)
+	logger.RegisterLogger(r, env)
+	addr := ":" + env.APP_PORT
+	log.Info("starting http server", zap.String("addr", addr))
+	log.Info("starting environment", zap.String("env", env.GO_ENVIRONMENT))
+
 	RegisterRoutes(r)
 
 	if err := r.SetTrustedProxies(nil); err != nil {
 		log.Error("set trusted proxies failed", zap.Error(err))
 		os.Exit(1)
 	}
-
-	addr := ":" + env.APP_PORT
-	log.Info("starting http server", zap.String("addr", addr))
-	log.Info("starting environment", zap.String("env", env.GO_ENVIRONMENT))
 
 	if err := r.Run(addr); err != nil {
 		log.Error("http server stopped", zap.Error(err))

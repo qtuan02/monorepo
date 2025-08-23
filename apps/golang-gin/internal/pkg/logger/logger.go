@@ -1,10 +1,15 @@
 package logger
 
 import (
+	"golang-gin/internal/config"
+	"golang-gin/internal/middleware"
 	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/gin-contrib/requestid"
+	ginzap "github.com/gin-contrib/zap"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -73,6 +78,25 @@ func Init(cfg Config) (*zap.Logger, error) {
 	logger := zap.New(core, opts...)
 	log = logger
 	return logger, nil
+}
+
+func RegisterLogger(r *gin.Engine, env *config.Config) {
+	log, _ := Init(Config{
+		Env:        env.GO_ENVIRONMENT,
+		Filename:   env.GO_LOGGER_FILENAME,
+		MaxSizeMB:  env.GO_LOGGER_MAXSIZEMB,
+		MaxBackups: env.GO_LOGGER_MAXBACKUPS,
+		MaxAgeDays: env.GO_LOGGER_MAXAGEDAYS,
+		Compress:   true,
+	})
+
+	defer log.Sync()
+
+	r.Use(requestid.New())
+	r.Use(ginzap.RecoveryWithZap(log, true))
+	r.Use(middleware.AccessLog(log))
+
+	log.Info("logger initialized")
 }
 
 func L() *zap.Logger {

@@ -7,6 +7,7 @@ go get github.com/google/uuid
 go get go.uber.org/zap
 go get github.com/gin-contrib/zap
 go get gopkg.in/natefinch/lumberjack.v2
+go get go.mongodb.org/mongo-driver/mongo
 ```
 
 # Structure
