@@ -18,12 +18,12 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from "@web/ui/components/form";
-import { Input } from "@web/ui/components/input";
-import { Button } from "@web/ui/components/button";
+} from "@web/ui/shadcn-ui/form";
+import { Input } from "@web/ui/shadcn-ui/input";
+import { Button } from "@web/ui/shadcn-ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "@web/ui/components/textarea";
+import { Textarea } from "@web/ui/shadcn-ui/textarea";
 `;
 
 const usageCode = `

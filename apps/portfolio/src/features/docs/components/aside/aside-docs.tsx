@@ -5,7 +5,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@web/ui/components/accordion";
+} from "@web/ui/shadcn-ui/accordion";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
@@ -55,9 +55,9 @@ const AsideDocs = () => {
                   href={child.href}
                   replace
                   className={cn(
-                    "py-1.5 px-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-base md:text-sm font-medium rounded-md cursor-pointer",
+                    "py-1.5 px-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 text-base md:text-sm font-medium rounded-md cursor-pointer hover:translate-x-1 hover:transition-transform",
                     isActiveRoute(child.href) &&
-                      "!bg-gray-200 dark:!bg-gray-800"
+                      "!bg-gray-200 dark:!bg-gray-800 font-semibold"
                   )}
                 >
                   {child.label}

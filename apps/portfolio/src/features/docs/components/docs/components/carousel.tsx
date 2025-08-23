@@ -10,7 +10,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@web/ui/components/carousel";
+} from "@web/ui/shadcn-ui/carousel";
 
 const CarouselPreview = () => (
   <CarouselComp className="w-full max-w-3xs md:max-w-xs mx-auto">
@@ -39,7 +39,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@web/ui/components/carousel";
+} from "@web/ui/shadcn-ui/carousel";
 `;
 
 const usageCode = `

@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Checkbox as CheckboxComp } from "@web/ui/components/checkbox";
+import { Checkbox as CheckboxComp } from "@web/ui/shadcn-ui/checkbox";
 import { Checkbox as CheckboxAnimate } from "@web/ui/animate-ui/checkbox";
 
 const CheckboxPreview = () => (
@@ -39,7 +39,7 @@ const CheckboxPreview = () => (
 );
 
 const importCode = `
-import { Checkbox } from "@web/ui/components/checkbox";
+import { Checkbox } from "@web/ui/shadcn-ui/checkbox";
 import { Checkbox as CheckboxAnimate } from "@web/ui/animate-ui/checkbox";
 `;
 

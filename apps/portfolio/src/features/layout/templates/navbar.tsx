@@ -7,7 +7,7 @@ import Menu from "../components/navbar/menu";
 
 export default function Navbar() {
   return (
-    <nav className="fixed z-50 w-full shadow-sm bg-white dark:bg-gray-900 select-none">
+    <nav className="fixed z-50 w-full shadow-sm bg-white/30 dark:bg-gray-900/30 backdrop-blur-md select-none">
       <div className="flex items-center h-12 md:h-15 px-3 justify-between flex-center">
         <section className="flex items-center gap-x-10">
           <NextLink href="/" className="flex items-center gap-x-2 md:px-2">

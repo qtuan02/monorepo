@@ -5,7 +5,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@web/ui/components/sheet";
+} from "@web/ui/shadcn-ui/sheet";
 import { Menu, X } from "lucide-react";
 import AsideDocs from "~/features/docs/components/aside/aside-docs";
 
