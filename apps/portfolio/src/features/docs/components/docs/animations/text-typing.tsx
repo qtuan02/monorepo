@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { TypingText as TextTypingComp } from "@web/ui/animate-ui/text-typing";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
-const TextRollingPreview = () => (
+const TextTypingPreview = () => (
   <div className="flex justify-center h-7">
     <TextTypingComp text="Text Typing" />
   </div>
@@ -28,7 +28,7 @@ const TextTyping = async (props: IDocComponentProps) => {
   return (
     <LayoutDocs title="Text Typing" slug={slug} locale={locale}>
       <SectionPreviewReload title={t("preview")}>
-        <TextRollingPreview />
+        <TextTypingPreview />
       </SectionPreviewReload>
 
       <SectionCode title={t("import")}>
