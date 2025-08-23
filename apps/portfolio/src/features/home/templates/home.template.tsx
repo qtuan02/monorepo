@@ -32,14 +32,14 @@ export default async function HomeTemplate({ locale }: { locale: string }) {
       <div className="flex justify-center gap-x-6">
         <NextLink
           href="/about"
-          className="md:text-xl z-1 font-medium px-4 py-2 bg-gradient-to-br from-orange-300 to-orange-500 rounded-lg text-white flex items-center gap-x-1 group hover:opacity-80"
+          className="md:text-xl z-1 font-medium px-4 py-2 bg-gradient-to-br from-orange-300 to-orange-500 opacity-90 rounded-lg text-white flex items-center gap-x-1 group hover:opacity-80"
         >
           {t("about")}
           <ArrowRight className="md:size-6 size-4 group-hover:translate-x-1 transition-transform" />
         </NextLink>
         <NextLink
           href="/docs"
-          className="md:text-xl z-1 font-medium px-4 py-2 bg-gradient-to-br from-orange-300 to-orange-500 rounded-lg text-white flex items-center gap-x-1 group hover:opacity-80"
+          className="md:text-xl z-1 font-medium px-4 py-2 bg-gradient-to-br from-orange-300 to-orange-500 opacity-90 rounded-lg text-white flex items-center gap-x-1 group hover:opacity-80"
         >
           {t("explore")}
           <ArrowRight className="md:size-6 size-4 group-hover:translate-x-1 transition-transform" />

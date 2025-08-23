@@ -46,6 +46,9 @@ import Fetch from "../components/docs/hooks/fetch";
 import Flex from "../components/docs/get-started/flex";
 import Grid from "../components/docs/get-started/grid";
 import TextShimmering from "../components/docs/animations/text-shimmering";
+import BorderBeam from "../components/docs/animations/border-beam";
+import Card from "../components/docs/components/card";
+import MagicCard from "../components/docs/animations/magic-card";
 
 export const getDataDocs = (
   t?: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -130,6 +133,12 @@ export const getComponentsData = (): DocItem[] => {
       label: "Button",
       href: "/docs/button",
       component: Button,
+    },
+    {
+      key: "card",
+      label: "Card",
+      href: "/docs/card",
+      component: Card,
     },
     {
       key: "carousel",
@@ -322,6 +331,12 @@ export const getAnimationsData = (): DocItem[] => {
       component: BackgroundStart,
     },
     {
+      key: "border-beam",
+      label: "Border Beam",
+      href: "/docs/border-beam",
+      component: BorderBeam,
+    },
+    {
       key: "element-spring",
       label: "Element Spring",
       href: "/docs/element-spring",
@@ -332,6 +347,12 @@ export const getAnimationsData = (): DocItem[] => {
       label: "Loading",
       href: "/docs/loading",
       component: Loading,
+    },
+    {
+      key: "magic-card",
+      label: "Magic Card",
+      href: "/docs/magic-card",
+      component: MagicCard,
     },
     {
       key: "progress-scroll",

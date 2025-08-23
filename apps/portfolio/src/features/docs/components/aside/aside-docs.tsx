@@ -11,18 +11,21 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
 import { cn } from "@web/ui/libs/cn";
 import NextLink from "~/components/next-link";
+import useLocalStorage from "@web/ui/hooks/use-local-storage";
+import { PORTFOLIO_ASIDE_DOCS } from "~/constants/common";
+import useIsClient from "@web/ui/hooks/use-is-client";
 
-const DEFAULT_VALUE = [
-  "get-started",
-  "components",
-  "open-source",
-  "hooks",
-  "animations",
-];
+const DEFAULT_VALUE = ["get-started", "components", "hooks", "animations"];
 
 const AsideDocs = () => {
   const t = useTranslations();
   const pathname = usePathname();
+
+  const isClient = useIsClient();
+  const [value, setValue] = useLocalStorage(
+    PORTFOLIO_ASIDE_DOCS,
+    DEFAULT_VALUE
+  );
 
   const ASIDE_ITEMS = getDataDocs(t);
 
@@ -32,12 +35,15 @@ const AsideDocs = () => {
     return pathname === itemPath;
   };
 
+  if (!isClient) return null;
+
   return (
     <div className="flex flex-col gap-y-4 p-2">
       <Accordion
         type="multiple"
         className="w-full space-y-0.5"
-        defaultValue={DEFAULT_VALUE}
+        defaultValue={value}
+        onValueChange={(value) => setValue(value)}
       >
         {ASIDE_ITEMS.map((item) => (
           <AccordionItem

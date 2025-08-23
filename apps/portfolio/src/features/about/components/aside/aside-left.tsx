@@ -11,6 +11,7 @@ import NextLink from "~/components/next-link";
 import { useTranslations } from "next-intl";
 import { HighlightText } from "@web/ui/animate-ui/text-highlight";
 import { SpringElement } from "@web/ui/animate-ui/element-spring";
+import { BorderBeam } from "@web/ui/animate-ui/border-beam";
 
 const AsideLeft = () => {
   const t = useTranslations("About");
@@ -30,7 +31,6 @@ const AsideLeft = () => {
             <Download className="size-4" />
             <span>{t("download_cv")}</span>
           </HighlightText>
-          {/* <button className="flex items-center gap-x-2 bg-orange-500 text-white px-4 py-1 rounded-lg cursor-pointer hover:bg-orange-600 transition-all duration-400"></button> */}
         </CardSection>
       </SpringElement>
 
@@ -66,6 +66,8 @@ const AsideLeft = () => {
             </p>
           </div>
         </div>
+
+        <BorderBeam duration={8} size={100} />
       </CardSection>
     </>
   );
