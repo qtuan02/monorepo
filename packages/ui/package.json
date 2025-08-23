@@ -14,9 +14,9 @@
       "types": "./dist/src/animate-ui/*.d.ts",
       "default": "./src/animate-ui/*.tsx"
     },
-    "./components/*": {
-      "types": "./dist/src/components/*.d.ts",
-      "default": "./src/components/*.tsx"
+    "./shadcn-ui/*": {
+      "types": "./dist/src/shadcn-ui/*.d.ts",
+      "default": "./src/shadcn-ui/*.tsx"
     },
     "./hooks/*": {
       "types": "./dist/src/hooks/*.d.ts",

@@ -12,7 +12,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@web/ui/components/pagination";
+} from "@web/ui/shadcn-ui/pagination";
 
 const PaginationPreview = () => (
   <PaginationComp>
@@ -50,7 +50,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@web/ui/components/pagination";
+} from "@web/ui/shadcn-ui/pagination";
 `;
 
 const usageCode = `

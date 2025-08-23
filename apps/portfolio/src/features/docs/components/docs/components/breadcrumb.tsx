@@ -12,7 +12,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@web/ui/components/breadcrumb";
+} from "@web/ui/shadcn-ui/breadcrumb";
 
 const BreadcrumbPreview = () => (
   <BreadcrumbComp>
@@ -49,7 +49,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@web/ui/components/breadcrumb";
+} from "@web/ui/shadcn-ui/breadcrumb";
 `;
 
 const usageCode = `

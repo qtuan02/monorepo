@@ -13,8 +13,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@web/ui/components/dialog";
-import { Button } from "@web/ui/components/button";
+} from "@web/ui/shadcn-ui/dialog";
+import { Button } from "../../../../../../../../packages/ui/src/shadcn-ui/button";
 
 const DialogPreview = () => (
   <div className="flex justify-center">
@@ -48,8 +48,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@web/ui/components/dialog";
-import { Button } from "@web/ui/components/button";
+} from "@web/ui/shadcn-ui/dialog";
+import { Button } from "@web/ui/shadcn-ui/button";
 `;
 
 const usageCode = `

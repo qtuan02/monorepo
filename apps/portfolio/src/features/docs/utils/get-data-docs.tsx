@@ -13,7 +13,7 @@ import Breadcrumb from "../components/docs/components/breadcrumb";
 import Button from "../components/docs/components/button";
 import Carousel from "../components/docs/components/carousel";
 import Checkbox from "../components/docs/components/checkbox";
-import Sortable from "../components/docs/open-source/sortable";
+import Sortable from "../components/docs/components/sortable";
 import Table from "../components/docs/components/table";
 import DatePicker from "../components/docs/components/date-picker";
 import Dialog from "../components/docs/components/dialog";
@@ -65,11 +65,6 @@ export const getDataDocs = (
       key: "animations",
       label: t?.("Docs.animations") ?? "",
       children: getAnimationsData(),
-    },
-    {
-      key: "open-source",
-      label: t?.("Docs.open-source") ?? "",
-      children: getOpenSourceData(),
     },
     {
       key: "hooks",
@@ -209,6 +204,12 @@ export const getComponentsData = (): DocItem[] => {
       component: Sonner,
     },
     {
+      key: "sortable",
+      label: "Sortable",
+      href: "/docs/sortable",
+      component: Sortable,
+    },
+    {
       key: "switch",
       label: "Switch",
       href: "/docs/switch",
@@ -290,17 +291,6 @@ export const getHooksData = (): DocItem[] => {
       label: "useUnmount",
       href: "/docs/use-unmount",
       component: Unmount,
-    },
-  ];
-};
-
-export const getOpenSourceData = (): DocItem[] => {
-  return [
-    {
-      key: "sortable",
-      label: "Sortable",
-      href: "/docs/sortable",
-      component: Sortable,
     },
   ];
 };

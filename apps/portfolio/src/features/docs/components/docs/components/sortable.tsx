@@ -9,11 +9,11 @@ import SortablePreview from "./preview-client/sortable-preview";
 const importCode = `
 "use client";
 import { useState } from "react";
-import * as Sortable from "@web/ui/components/sortable";
+import * as Sortable from "@web/ui/shadcn-ui/sortable";
 `;
 
 const usageCode = `
-const [data, setData] = useState([
+const [data, setData] = useState([  
   {
     id: "1",
     title: "Item 1",

@@ -13,8 +13,8 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@web/ui/components/drawer";
-import { Button } from "@web/ui/components/button";
+} from "@web/ui/shadcn-ui/drawer";
+import { Button } from "../../../../../../../../packages/ui/src/shadcn-ui/button";
 
 const DrawerPreview = () => (
   <div className="flex justify-center">
@@ -50,7 +50,7 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@web/ui/components/drawer";
+} from "@web/ui/shadcn-ui/drawer";
 `;
 
 const usageCode = `
