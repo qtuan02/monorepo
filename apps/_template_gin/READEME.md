@@ -20,7 +20,7 @@ golang-gin/
 ├─ internal/
 │  ├─ app/                  # gom handler, map route
 │  │  ├─ server.go          # khởi tạo & chạy Gin server
-│  │  └─ router.go          # định nghĩa route, nhóm API theo module
+│  │  └─ routes.go          # định nghĩa route, nhóm API theo module
 │  ├─ config/
 │  │  └─ config.go          # load config từ .env (viper) → struct Config
 │  ├─ db/
@@ -28,7 +28,7 @@ golang-gin/
 │  │  └─ migrate/           # file SQL tạo bảng (users, wallets, transactions...)
 │  ├─ middleware/           # middleware cho Gin
 │  │  ├─ auth.go            # xác thực JWT
-│  │  ├─ logger.go          # log request
+│  │  ├─ access_log.go          # log request
 │  │  └─ request_id.go      # gắn X-Request-ID
 │  ├─ domain/               # mỗi nghiệp vụ: model, repo, service, handler (DDD style)
 │  │  └─ user/
