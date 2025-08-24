@@ -4,7 +4,7 @@
 monorepo
 ├── apps/               # Main applications
 │ ├── _template/        # Template for bootstrapping a new app (Next.js)
-│ ├── golang-gin/       # Backend service built with Golang (Gin)
+│ ├── _template_gin/    # Template backend built with Golang (Gin)
 │ └── portfolio/        # Frontend portfolio (Next.js)
 │
 ├── packages/           # Shared tooling/configurations (Web)

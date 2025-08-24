@@ -15,10 +15,10 @@
     "dev:portfolio": "turbo run dev -F @web/portfolio",
     "build:portfolio": "turbo run build -F @web/portfolio",
     "start:portfolio": "turbo run start -F @web/portfolio",
-    "dev:golang-gin": "turbo run dev -F @api/golang-gin",
-    "start:golang-gin": "turbo run start -F @api/golang-gin",
-    "clean:golang-gin": "turbo run clean -F @api/golang-gin",
-    "clean-all:golang-gin": "turbo run clean-all -F @api/golang-gin"
+    "dev:_template_gin": "turbo run dev -F @api/_template_gin",
+    "start:_template_gin": "turbo run start -F @api/_template_gin",
+    "clean:_template_gin": "turbo run clean -F @api/_template_gin",
+    "clean-all:_template_gin": "turbo run clean-all -F @api/_template_gin"
   },
   "devDependencies": {
     "prettier": "catalog:",

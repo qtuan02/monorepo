@@ -15,6 +15,9 @@ type Config struct {
 	GO_LOGGER_MAXSIZEMB  int
 	GO_LOGGER_MAXBACKUPS int
 	GO_LOGGER_MAXAGEDAYS int
+	MONGO_URI            string
+	MONGO_DB             string
+	MONGO_KEY            string
 }
 
 func LoadConfig() *Config {
@@ -29,6 +32,9 @@ func LoadConfig() *Config {
 		GO_LOGGER_MAXSIZEMB:  getEnvInt("GO_LOGGER_MAXSIZEMB", 50),
 		GO_LOGGER_MAXBACKUPS: getEnvInt("GO_LOGGER_MAXBACKUPS", 7),
 		GO_LOGGER_MAXAGEDAYS: getEnvInt("GO_LOGGER_MAXAGEDAYS", 14),
+		MONGO_URI:            getEnv("MONGO_URI", "mongodb://localhost:27017"),
+		MONGO_DB:             getEnv("MONGO_DB", "digital-wallet"),
+		MONGO_KEY:            getEnv("MONGO_KEY", "mongo"),
 	}
 }
 
