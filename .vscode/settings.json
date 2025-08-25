@@ -30,15 +30,15 @@
   "i18n-ally.editor.preferEditor": true,
   "i18n-ally.sourceLanguage": "vi",
   "i18n-ally.displayLanguage": "vi",
-  // "i18n-ally.localesPaths": ["apps/_template/messages"],
-  "i18n-ally.localesPaths": ["apps/portfolio/messages"],
+  // "i18n-ally.localesPaths": ["apps/_web-template/messages"],
+  "i18n-ally.localesPaths": ["apps/web-portfolio/messages"],
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]?([^\"'`]+)[\"'`]?"],
     ["cn\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "tailwindCSS.experimental.configFile": {
-    "packages/ui/src/globals.css": "packages/ui/**",
-    "apps/_template/src/app/[locale]/globals.css": "apps/_template/**",
-    "apps/portfolio/src/app/[locale]/globals.css": "apps/portfolio/**"
+    "packages/web-ui/src/globals.css": "packages/web-ui/**",
+    "apps/_web-template/src/app/[locale]/globals.css": "apps/_web-template/**",
+    "apps/web-portfolio/src/app/[locale]/globals.css": "apps/web-portfolio/**"
   }
 }
