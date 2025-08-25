@@ -76,11 +76,9 @@ const Language = () => {
             <section
               key={`LANGUAGE_ITEM-${index}`}
               className="flex justify-between items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 p-2"
+              onClick={() => handleChangeLanguage(item.value)}
             >
-              <div
-                className="flex items-center gap-x-2 cursor-pointer"
-                onClick={() => handleChangeLanguage(item.value)}
-              >
+              <div className="flex items-center gap-x-2 cursor-pointer">
                 <span className="[&>span]:rounded-full">{item.icon}</span>
                 <span>{item.label}</span>
               </div>

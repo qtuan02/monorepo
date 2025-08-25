@@ -186,7 +186,7 @@ importers:
 
   apps/_template_gin: {}
 
-  apps/portfolio:
+  apps/web-portfolio:
     dependencies:
       '@hookform/resolvers':
         specifier: 'catalog:'
