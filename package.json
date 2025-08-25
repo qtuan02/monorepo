@@ -9,16 +9,16 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "dev:_template": "turbo run dev -F @web/_template",
-    "build:_template": "turbo run build -F @web/_template",
-    "start:_template": "turbo run start -F @web/_template",
+    "dev:_web-template": "turbo run dev -F @web/_web-template",
+    "build:_web-template": "turbo run build -F @web/_web-template",
+    "start:_web-template": "turbo run start -F @web/_web-template",
     "dev:web-portfolio": "turbo run dev -F @web/web-portfolio",
     "build:web-portfolio": "turbo run build -F @web/web-portfolio",
     "start:web-portfolio": "turbo run start -F @web/web-portfolio",
-    "dev:_template_gin": "turbo run dev -F @api/_template_gin",
-    "start:_template_gin": "turbo run start -F @api/_template_gin",
-    "clean:_template_gin": "turbo run clean -F @api/_template_gin",
-    "clean-all:_template_gin": "turbo run clean-all -F @api/_template_gin"
+    "dev:_api-template-gin": "turbo run dev -F @api/_api-template-gin",
+    "start:_api-template-gin": "turbo run start -F @api/_api-template-gin",
+    "clean:_api-template-gin": "turbo run clean -F @api/_api-template-gin",
+    "clean-all:_api-template-gin": "turbo run clean-all -F @api/_api-template-gin"
   },
   "devDependencies": {
     "prettier": "catalog:",
