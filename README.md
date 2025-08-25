@@ -2,24 +2,24 @@
 
 ```
 monorepo
-├── apps/               # Main applications
-│ ├── _template/        # Template for bootstrapping a new app (Next.js)
-│ ├── _template_gin/    # Template backend built with Golang (Gin)
-│ └── portfolio/        # Frontend portfolio (Next.js)
+├── apps/                   # Main applications
+│ ├── _api-template-gin/    # Template backend built with Golang (Gin)
+│ ├── _web-template/        # Template for bootstrapping a new app (Next.js)
+│ └── portfolio/            # Frontend portfolio (Next.js)
 │
-├── packages/           # Shared tooling/configurations (Web)
-│ ├── env/              # Environment variable manager (Web)
-│ └── ui/               # Reusable UI components (Web)
+├── packages/               # Shared tooling/configurations (Web)
+│ ├── env/                  # Environment variable manager (Web)
+│ └── web-ui/               # Reusable UI components (Web)
 │
-├── toolings/           # Shared tooling/configurations
-│ ├── eslint/           # Config ESLint
-│ ├── tailwind/         # Config TailwindCSS
-│ └── typescript/       # Config TypeScript
+├── toolings/               # Shared tooling/configurations
+│ ├── eslint/               # Config ESLint
+│ ├── tailwind/             # Config TailwindCSS
+│ └── typescript/           # Config TypeScript
 │
-├── .env.template       # Environment variables template
-├── .gitignore          # Git ignore
-├── package.json        # Root package.json
-├── pnpm-workspace.yaml # pnpm workspace configuration
-├── turbo.json          # Config Turborepo
-└── README.md           # Documentation
+├── .env.template           # Environment variables template
+├── .gitignore              # Git ignore
+├── package.json            # Root package.json
+├── pnpm-workspace.yaml     # pnpm workspace configuration
+├── turbo.json              # Config Turborepo
+└── README.md               # Documentation
 ```

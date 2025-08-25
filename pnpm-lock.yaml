@@ -111,7 +111,9 @@ importers:
         specifier: 'catalog:'
         version: 5.8.2
 
-  apps/_template:
+  apps/_api-template-gin: {}
+
+  apps/_web-template:
     dependencies:
       '@t3-oss/env-nextjs':
         specifier: catalog:next15
@@ -183,8 +185,6 @@ importers:
       zod:
         specifier: 'catalog:'
         version: 3.25.76
-
-  apps/_template_gin: {}
 
   apps/web-portfolio:
     dependencies:
