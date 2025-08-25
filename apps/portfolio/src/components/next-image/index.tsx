@@ -4,7 +4,7 @@ import type { ImageProps } from "next/image";
 import React from "react";
 import Image from "next/image";
 
-import { cn } from "@web/ui/libs/cn";
+import { cn } from "@web/web-ui/libs/cn";
 
 export interface NextImageProps extends ImageProps {
   imageClassName?: string;

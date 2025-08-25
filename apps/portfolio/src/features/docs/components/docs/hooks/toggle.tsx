@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useToggle from "@web/ui/hooks/use-toggle";
+import useToggle from "@web/web-ui/hooks/use-toggle";
 `;
 
 const usageCode = `

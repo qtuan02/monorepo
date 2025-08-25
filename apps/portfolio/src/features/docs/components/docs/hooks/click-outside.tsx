@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useClickOutside from "@web/ui/hooks/use-click-outside";
+import useClickOutside from "@web/web-ui/hooks/use-click-outside";
 `;
 
 const usageCode = `

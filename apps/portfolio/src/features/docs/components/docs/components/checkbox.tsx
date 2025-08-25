@@ -4,8 +4,8 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Checkbox as CheckboxComp } from "@web/ui/shadcn-ui/checkbox";
-import { Checkbox as CheckboxAnimate } from "@web/ui/animate-ui/checkbox";
+import { Checkbox as CheckboxComp } from "@web/web-ui/shadcn-ui/checkbox";
+import { Checkbox as CheckboxAnimate } from "@web/web-ui/animate-ui/checkbox";
 
 const CheckboxPreview = () => (
   <div className="flex flex-col gap-3">
@@ -39,8 +39,8 @@ const CheckboxPreview = () => (
 );
 
 const importCode = `
-import { Checkbox } from "@web/ui/shadcn-ui/checkbox";
-import { Checkbox as CheckboxAnimate } from "@web/ui/animate-ui/checkbox";
+import { Checkbox } from "@web/web-ui/shadcn-ui/checkbox";
+import { Checkbox as CheckboxAnimate } from "@web/web-ui/animate-ui/checkbox";
 `;
 
 const usageCode = `

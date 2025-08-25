@@ -9,9 +9,9 @@ import {
 } from "lucide-react";
 import NextLink from "~/components/next-link";
 import { useTranslations } from "next-intl";
-import { HighlightText } from "@web/ui/animate-ui/text-highlight";
-import { SpringElement } from "@web/ui/animate-ui/element-spring";
-import { BorderBeam } from "@web/ui/animate-ui/border-beam";
+import { HighlightText } from "@web/web-ui/animate-ui/text-highlight";
+import { SpringElement } from "@web/web-ui/animate-ui/element-spring";
+import { BorderBeam } from "@web/web-ui/animate-ui/border-beam";
 
 const AsideLeft = () => {
   const t = useTranslations("About");
@@ -34,7 +34,7 @@ const AsideLeft = () => {
         </CardSection>
       </SpringElement>
 
-      <CardSection className="flex flex-col gap-y-4">
+      <CardSection className="flex flex-col gap-y-4 relative">
         <h2 className="text-lg font-medium">{t("contact_info")}</h2>
         <div className="flex flex-col gap-y-2">
           <div className="flex gap-x-2 items-center">

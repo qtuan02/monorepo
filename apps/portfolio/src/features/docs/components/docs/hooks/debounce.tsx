@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useDebounce from "@web/ui/hooks/use-debounce";
+import useDebounce from "@web/web-ui/hooks/use-debounce";
 `;
 
 const usageCode = `

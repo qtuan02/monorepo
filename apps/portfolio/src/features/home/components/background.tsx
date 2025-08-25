@@ -1,7 +1,7 @@
 "use client";
 
-import { FireworksBackground } from "@web/ui/animate-ui/background-fireworks";
-import { StarsBackground } from "@web/ui/animate-ui/background-start";
+import { FireworksBackground } from "@web/web-ui/animate-ui/background-fireworks";
+import { StarsBackground } from "@web/web-ui/animate-ui/background-start";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 

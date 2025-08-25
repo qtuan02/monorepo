@@ -16,9 +16,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@web/ui/shadcn-ui/card";
-import { Button } from "@web/ui/shadcn-ui/button";
-import { MagicCard } from "@web/ui/animate-ui/magic-card";
+} from "@web/web-ui/shadcn-ui/card";
+import { Button } from "@web/web-ui/shadcn-ui/button";
+import { MagicCard } from "@web/web-ui/animate-ui/magic-card";
 import { useTheme } from "next-themes";
 `;
 

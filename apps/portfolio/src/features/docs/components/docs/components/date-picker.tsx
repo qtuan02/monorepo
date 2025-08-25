@@ -11,15 +11,15 @@ const importCode = `
 
 import { ChevronDownIcon } from "lucide-react";
 
-import { Button } from "@web/ui/shadcn-ui/button";
-import { Calendar } from "@web/ui/shadcn-ui/calendar";
-import { Input } from "@web/ui/shadcn-ui/input";
-import { Label } from "@web/ui/shadcn-ui/label";
+import { Button } from "@web/web-ui/shadcn-ui/button";
+import { Calendar } from "@web/web-ui/shadcn-ui/calendar";
+import { Input } from "@web/web-ui/shadcn-ui/input";
+import { Label } from "@web/web-ui/shadcn-ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@web/ui/shadcn-ui/popover";
+} from "@web/web-ui/shadcn-ui/popover";
 import { useState } from "react";
 `;
 

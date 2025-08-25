@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@web/ui/shadcn-ui/table";
+} from "@web/web-ui/shadcn-ui/table";
 
 const TablePreview = () => {
   const data = [
@@ -93,7 +93,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@web/ui/shadcn-ui/table";
+} from "@web/web-ui/shadcn-ui/table";
 `;
 
 const usageCode = `

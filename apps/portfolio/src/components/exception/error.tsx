@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Home, Undo2 } from "lucide-react";
-import { HexagonBackground } from "@web/ui/animate-ui/background-hexagon";
+import { HexagonBackground } from "@web/web-ui/animate-ui/background-hexagon";
 import { usePathname, useRouter } from "~/i18n/navigation";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";

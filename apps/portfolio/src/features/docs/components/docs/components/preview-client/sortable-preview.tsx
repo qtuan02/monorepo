@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import * as SortableComp from "@web/ui/shadcn-ui/sortable";
+import * as SortableComp from "@web/web-ui/shadcn-ui/sortable";
 import { GripVertical } from "lucide-react";
 
 const SortablePreview = () => {

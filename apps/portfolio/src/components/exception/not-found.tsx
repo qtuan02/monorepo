@@ -3,7 +3,7 @@
 import { Home, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "~/i18n/navigation";
-import { HoleBackground } from "@web/ui/animate-ui/background-hole";
+import { HoleBackground } from "@web/web-ui/animate-ui/background-hole";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 

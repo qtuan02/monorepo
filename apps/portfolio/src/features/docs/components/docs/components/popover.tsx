@@ -4,12 +4,12 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Button } from "../../../../../../../../packages/ui/src/shadcn-ui/button";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 import {
   Popover as PopoverComp,
   PopoverContent,
   PopoverTrigger,
-} from "@web/ui/shadcn-ui/popover";
+} from "@web/web-ui/shadcn-ui/popover";
 
 const PopoverPreview = () => (
   <div className="flex justify-center">
@@ -25,12 +25,12 @@ const PopoverPreview = () => (
 );
 
 const importCode = `
-import { Button } from "@web/ui/shadcn-ui/button";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 import {
   Popover as PopoverComp,
   PopoverContent,
   PopoverTrigger,
-} from "@web/ui/shadcn-ui/popover";
+} from "@web/web-ui/shadcn-ui/popover";
 `;
 
 const usageCode = `

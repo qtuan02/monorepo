@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@web/ui/libs/cn";
+import { cn } from "@web/web-ui/libs/cn";
 import { useTranslations } from "next-intl";
 import { useMemo } from "react";
 import NextLink from "~/components/next-link";

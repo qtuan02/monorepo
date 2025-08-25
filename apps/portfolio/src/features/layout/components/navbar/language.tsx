@@ -4,7 +4,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@web/ui/shadcn-ui/popover";
+} from "@web/web-ui/shadcn-ui/popover";
 import { setCookie } from "cookies-next/client";
 import { Check, ChevronDownIcon } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";

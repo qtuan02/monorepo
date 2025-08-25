@@ -1,4 +1,4 @@
-import { Loading } from "@web/ui/animate-ui/loading";
+import { Loading } from "@web/web-ui/animate-ui/loading";
 
 export default function LoadingPage() {
   return (

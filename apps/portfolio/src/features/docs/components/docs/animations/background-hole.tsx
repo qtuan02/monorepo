@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { HoleBackground as HoleBackgroundComp } from "@web/ui/animate-ui/background-hole";
+import { HoleBackground as HoleBackgroundComp } from "@web/web-ui/animate-ui/background-hole";
 
 const BackgroundHolePreview = () => (
   <div className="relative h-80">
@@ -13,7 +13,7 @@ const BackgroundHolePreview = () => (
 );
 
 const importCode = `
-import { HoleBackground } from "@web/ui/animate-ui/background-hole";
+import { HoleBackground } from "@web/web-ui/animate-ui/background-hole";
 `;
 
 const usageCode = `

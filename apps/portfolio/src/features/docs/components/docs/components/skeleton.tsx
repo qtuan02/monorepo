@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Skeleton as SkeletonComp } from "@web/ui/shadcn-ui/skeleton";
+import { Skeleton as SkeletonComp } from "@web/web-ui/shadcn-ui/skeleton";
 
 const SkeletonPreview = () => (
   <div className="flex gap-3 justify-center">
@@ -14,7 +14,7 @@ const SkeletonPreview = () => (
 );
 
 const importCode = `
-import { Skeleton } from "@web/ui/shadcn-ui/skeleton";
+import { Skeleton } from "@web/web-ui/shadcn-ui/skeleton";
 `;
 
 const usageCode = `

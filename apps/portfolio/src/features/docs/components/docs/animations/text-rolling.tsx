@@ -3,7 +3,7 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { RollingText as TextRollingComp } from "@web/ui/animate-ui/text-rolling";
+import { RollingText as TextRollingComp } from "@web/web-ui/animate-ui/text-rolling";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextRollingPreview = () => (
@@ -13,7 +13,7 @@ const TextRollingPreview = () => (
 );
 
 const importCode = `
-import { RollingText } from "@web/ui/animate-ui/text-rolling";
+import { RollingText } from "@web/web-ui/animate-ui/text-rolling";
 `;
 
 const usageCode = `

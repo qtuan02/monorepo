@@ -12,8 +12,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@web/ui/shadcn-ui/card";
-import { Button } from "@web/ui/shadcn-ui/button";
+} from "@web/web-ui/shadcn-ui/card";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 
 const CardPreview = () => (
   <div className="flex justify-center">
@@ -42,8 +42,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@web/ui/shadcn-ui/card";
-import { Button } from "@web/ui/shadcn-ui/button";
+} from "@web/web-ui/shadcn-ui/card";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 `;
 
 const usageCode = `

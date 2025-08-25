@@ -4,12 +4,12 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Button } from "../../../../../../../../packages/ui/src/shadcn-ui/button";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 import {
   HoverCard as HoverCardComp,
   HoverCardContent,
   HoverCardTrigger,
-} from "@web/ui/shadcn-ui/hover-card";
+} from "@web/web-ui/shadcn-ui/hover-card";
 
 const HoverCardPreview = () => (
   <div className="flex justify-center">
@@ -25,12 +25,12 @@ const HoverCardPreview = () => (
 );
 
 const importCode = `
-import { Button } from "@web/ui/shadcn-ui/button";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 import {
   HoverCard as HoverCardComp,
   HoverCardContent,
   HoverCardTrigger,
-} from "@web/ui/shadcn-ui/hover-card";
+} from "@web/web-ui/shadcn-ui/hover-card";
 `;
 
 const usageCode = `

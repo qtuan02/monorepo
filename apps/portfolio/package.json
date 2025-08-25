@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@web/env": "workspace:*",
-    "@web/ui": "workspace:*",
+    "@web/web-ui": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:next15",
     "@tanstack/react-query": "catalog:tanstackquery",
     "@tanstack/react-query-devtools": "catalog:tanstackquery",

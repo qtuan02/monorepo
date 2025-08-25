@@ -13,7 +13,7 @@
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@web/ui": "workspace:*",
+    "@web/web-ui": "workspace:*",
     "@web/env": "workspace:*",
     "@t3-oss/env-nextjs": "catalog:next15",
     "@tanstack/react-query": "catalog:tanstackquery",

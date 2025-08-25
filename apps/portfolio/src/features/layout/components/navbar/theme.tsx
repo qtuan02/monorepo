@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@web/ui/libs/cn";
+import { cn } from "@web/web-ui/libs/cn";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";

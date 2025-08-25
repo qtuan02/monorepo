@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Badge as BadgeComp } from "@web/ui/shadcn-ui/badge";
+import { Badge as BadgeComp } from "@web/web-ui/shadcn-ui/badge";
 
 const BadgePreview = () => (
   <div className="flex gap-2">
@@ -16,7 +16,7 @@ const BadgePreview = () => (
 );
 
 const importCode = `
-import { Badge } from "@web/ui/shadcn-ui/badge";
+import { Badge } from "@web/web-ui/shadcn-ui/badge";
 `;
 
 const usageCode = `

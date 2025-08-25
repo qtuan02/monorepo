@@ -5,15 +5,15 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@web/ui/shadcn-ui/accordion";
+} from "@web/web-ui/shadcn-ui/accordion";
 import { getDataDocs } from "../../utils/get-data-docs";
 import { useTranslations } from "next-intl";
 import { usePathname } from "~/i18n/navigation";
-import { cn } from "@web/ui/libs/cn";
+import { cn } from "@web/web-ui/libs/cn";
 import NextLink from "~/components/next-link";
-import useLocalStorage from "@web/ui/hooks/use-local-storage";
+import useLocalStorage from "@web/web-ui/hooks/use-local-storage";
 import { PORTFOLIO_ASIDE_DOCS } from "~/constants/common";
-import useIsClient from "@web/ui/hooks/use-is-client";
+import useIsClient from "@web/web-ui/hooks/use-is-client";
 
 const DEFAULT_VALUE = ["get-started", "components", "hooks", "animations"];
 

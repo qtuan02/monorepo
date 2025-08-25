@@ -10,9 +10,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@web/ui/shadcn-ui/card";
-import { Button } from "@web/ui/shadcn-ui/button";
-import { BorderBeam as BorderBeamComp } from "@web/ui/animate-ui/border-beam";
+} from "@web/web-ui/shadcn-ui/card";
+import { Button } from "@web/web-ui/shadcn-ui/button";
+import { BorderBeam as BorderBeamComp } from "@web/web-ui/animate-ui/border-beam";
 import SectionPreview from "../../common/section-preview";
 
 const BorderBeamPreview = () => (
@@ -41,9 +41,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@web/ui/shadcn-ui/card";
-import { Button } from "@web/ui/shadcn-ui/button";
-import { BorderBeam } from "@web/ui/animate-ui/border-beam";
+} from "@web/web-ui/shadcn-ui/card";
+import { Button } from "@web/web-ui/shadcn-ui/button";
+import { BorderBeam } from "@web/web-ui/animate-ui/border-beam";
 `;
 
 const usageCode = `

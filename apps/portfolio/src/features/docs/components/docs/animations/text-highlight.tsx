@@ -3,7 +3,7 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { HighlightText as TextHighlightComp } from "@web/ui/animate-ui/text-highlight";
+import { HighlightText as TextHighlightComp } from "@web/web-ui/animate-ui/text-highlight";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextHighlightPreview = () => (
@@ -13,7 +13,7 @@ const TextHighlightPreview = () => (
 );
 
 const importCode = `
-import { HighlightText } from "@web/ui/animate-ui/text-highlight";
+import { HighlightText } from "@web/web-ui/animate-ui/text-highlight";
 `;
 
 const usageCode = `

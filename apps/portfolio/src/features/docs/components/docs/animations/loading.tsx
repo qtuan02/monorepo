@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Loading as LoadingComp } from "@web/ui/animate-ui/loading";
+import { Loading as LoadingComp } from "@web/web-ui/animate-ui/loading";
 
 const LoadingPreview = () => (
   <div className="h-40">
@@ -13,7 +13,7 @@ const LoadingPreview = () => (
 );
 
 const importCode = `
-import { Loading } from "@web/ui/animate-ui/loading";
+import { Loading } from "@web/web-ui/animate-ui/loading";
 `;
 
 const usageCode = `

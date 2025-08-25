@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useMediaQuery from "@web/ui/hooks/use-media-query";
+import useMediaQuery from "@web/web-ui/hooks/use-media-query";
 `;
 
 const usageCode = `

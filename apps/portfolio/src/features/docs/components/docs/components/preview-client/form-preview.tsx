@@ -9,12 +9,12 @@ import {
   FormControl,
   FormDescription,
   FormMessage,
-} from "@web/ui/shadcn-ui/form";
-import { Input } from "@web/ui/shadcn-ui/input";
-import { Button } from "../../../../../../../../../packages/ui/src/shadcn-ui/button";
+} from "@web/web-ui/shadcn-ui/form";
+import { Input } from "@web/web-ui/shadcn-ui/input";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Textarea } from "@web/ui/shadcn-ui/textarea";
+import { Textarea } from "@web/web-ui/shadcn-ui/textarea";
 
 type FormSchema = z.infer<typeof formSchema>;
 

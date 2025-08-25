@@ -1,7 +1,7 @@
 import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
-import { AspectRatio as AspectRatioComp } from "@web/ui/shadcn-ui/aspect-ratio";
+import { AspectRatio as AspectRatioComp } from "@web/web-ui/shadcn-ui/aspect-ratio";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
@@ -19,7 +19,7 @@ const AspectRatioPreview = () => (
 );
 
 const importCode = `
-import { AspectRatio } from "@web/ui/shadcn-ui/aspect-ratio";
+import { AspectRatio } from "@web/web-ui/shadcn-ui/aspect-ratio";
 `;
 
 const usageCode = `

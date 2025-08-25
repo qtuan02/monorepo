@@ -3,7 +3,7 @@ import LayoutDocs from "../../common/layout-docs";
 import CodeBlock from "../../common/code-block";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { TypingText as TextTypingComp } from "@web/ui/animate-ui/text-typing";
+import { TypingText as TextTypingComp } from "@web/web-ui/animate-ui/text-typing";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextTypingPreview = () => (
@@ -13,7 +13,7 @@ const TextTypingPreview = () => (
 );
 
 const importCode = `
-import { TypingText } from "@web/ui/animate-ui/text-typing";
+import { TypingText } from "@web/web-ui/animate-ui/text-typing";
 `;
 
 const usageCode = `

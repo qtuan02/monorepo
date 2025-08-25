@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { FireworksBackground as FireworksBackgroundComp } from "@web/ui/animate-ui/background-fireworks";
+import { FireworksBackground as FireworksBackgroundComp } from "@web/web-ui/animate-ui/background-fireworks";
 
 const BackgroundFireworksPreview = () => (
   <div className="relative h-80">
@@ -13,7 +13,7 @@ const BackgroundFireworksPreview = () => (
 );
 
 const importCode = `
-import { FireworksBackground } from "@web/ui/animate-ui/background-fireworks";
+import { FireworksBackground } from "@web/web-ui/animate-ui/background-fireworks";
 `;
 
 const usageCode = `

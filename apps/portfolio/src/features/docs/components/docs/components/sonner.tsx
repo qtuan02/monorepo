@@ -8,7 +8,7 @@ import SonnerPreview from "./preview-client/sonner-preview";
 
 const importCode = `
 "use client";
-import { Button } from "@web/ui/shadcn-ui/button";
+import { Button } from "@web/web-ui/shadcn-ui/button";
 import { toast } from "sonner";
 `;
 

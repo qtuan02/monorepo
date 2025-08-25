@@ -3,9 +3,9 @@
 import { FC } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
-import useCopyToClipboard from "@web/ui/hooks/use-copy-to-clipboard";
+import useCopyToClipboard from "@web/web-ui/hooks/use-copy-to-clipboard";
 import { Check, Copy } from "lucide-react";
-import useMediaQuery from "@web/ui/hooks/use-media-query";
+import useMediaQuery from "@web/web-ui/hooks/use-media-query";
 interface CodeBlockProps {
   code: string;
   language?: string;

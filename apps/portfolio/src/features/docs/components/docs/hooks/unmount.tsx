@@ -5,7 +5,7 @@ import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
 
 const importCode = `
-import useUnmount from "@web/ui/hooks/use-unmount";
+import useUnmount from "@web/web-ui/hooks/use-unmount";
 `;
 
 const usageCode = `

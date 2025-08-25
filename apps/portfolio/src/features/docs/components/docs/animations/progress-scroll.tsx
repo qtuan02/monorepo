@@ -4,7 +4,7 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { ScrollProgress as ProgressScrollComp } from "@web/ui/animate-ui/progress-scroll";
+import { ScrollProgress as ProgressScrollComp } from "@web/web-ui/animate-ui/progress-scroll";
 
 const ProgressScrollPreview = () => (
   <div className="relative h-40 overflow-y-auto">
@@ -20,7 +20,7 @@ const ProgressScrollPreview = () => (
 );
 
 const importCode = `
-import { ScrollProgress } from "@web/ui/animate-ui/progress-scroll";
+import { ScrollProgress } from "@web/web-ui/animate-ui/progress-scroll";
 `;
 
 const usageCode = `

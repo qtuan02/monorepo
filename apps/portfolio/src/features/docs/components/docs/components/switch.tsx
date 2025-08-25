@@ -4,9 +4,9 @@ import CodeBlock from "../../common/code-block";
 import SectionPreview from "../../common/section-preview";
 import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Switch as SwitchComp } from "@web/ui/shadcn-ui/switch";
-import { Switch as SwitchAnimate } from "@web/ui/animate-ui/switch";
-import { Label } from "@web/ui/shadcn-ui/label";
+import { Switch as SwitchComp } from "@web/web-ui/shadcn-ui/switch";
+import { Switch as SwitchAnimate } from "@web/web-ui/animate-ui/switch";
+import { Label } from "@web/web-ui/shadcn-ui/label";
 
 const SwitchPreview = () => (
   <div className="flex gap-2 flex-col">
@@ -22,8 +22,8 @@ const SwitchPreview = () => (
 );
 
 const importCode = `
-import { Switch } from "@web/ui/shadcn-ui/switch";
-import { Switch as SwitchAnimate } from "@web/ui/animate-ui/switch";
+import { Switch } from "@web/web-ui/shadcn-ui/switch";
+import { Switch as SwitchAnimate } from "@web/web-ui/animate-ui/switch";
 `;
 
 const usageCode = `
