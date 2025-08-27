@@ -49,6 +49,8 @@ import TextShimmering from "../components/docs/animations/text-shimmering";
 import BorderBeam from "../components/docs/animations/border-beam";
 import Card from "../components/docs/components/card";
 import MagicCard from "../components/docs/animations/magic-card";
+import InfiniteScroll from "../components/docs/expands/infinite-scroll";
+import RateLimit from "../components/docs/expands/rate-limit";
 
 export const getDataDocs = (
   t?: ReturnType<typeof createTranslator<Messages, "Docs">>
@@ -63,6 +65,11 @@ export const getDataDocs = (
       key: "components",
       label: t?.("Docs.components") ?? "",
       children: getComponentsData(),
+    },
+    {
+      key: "expands",
+      label: t?.("Docs.expands") ?? "",
+      children: getExpandsData(t),
     },
     {
       key: "animations",
@@ -98,6 +105,25 @@ export const getStartedData = (
       label: "CSS Grid Layout",
       href: "/docs/grid",
       component: Grid,
+    },
+  ];
+};
+
+export const getExpandsData = (
+  t?: ReturnType<typeof createTranslator<Messages, "Docs">>
+): DocItem[] => {
+  return [
+    {
+      key: "infinite-scroll",
+      label: "Infinite Scroll",
+      href: "/docs/infinite-scroll",
+      component: InfiniteScroll,
+    },
+    {
+      key: "rate-limit",
+      label: "Rate Limit (Next.js)",
+      href: "/docs/rate-limit",
+      component: RateLimit,
     },
   ];
 };
