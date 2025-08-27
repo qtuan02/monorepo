@@ -75,7 +75,7 @@ declare const messages: {
     "usage": "Usage",
     "hooks": "Hooks",
     "original": "Original",
-    "open-source": "Open source"
+    "expands": "Expands"
   }
 };
 export default messages;
