@@ -14,8 +14,7 @@ function getClientIp(req: NextRequest) {
   const xri = req.headers.get("x-real-ip");
   if (xri) return xri.trim();
 
-  // @ts-ignore
-  if (req.ip) return (req as any).ip;
+  if ((req as any)?.ip) return (req as any).ip;
 
   return "127.0.0.1";
 }
