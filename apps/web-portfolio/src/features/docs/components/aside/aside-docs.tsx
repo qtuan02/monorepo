@@ -15,7 +15,13 @@ import useLocalStorage from "@web/web-ui/hooks/use-local-storage";
 import { PORTFOLIO_ASIDE_DOCS } from "~/constants/common";
 import useIsClient from "@web/web-ui/hooks/use-is-client";
 
-const DEFAULT_VALUE = ["get-started", "components", "hooks", "animations"];
+const DEFAULT_VALUE = [
+  "get-started",
+  "components",
+  "expands",
+  "animations",
+  "hooks",
+];
 
 const AsideDocs = () => {
   const t = useTranslations();

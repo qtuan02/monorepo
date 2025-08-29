@@ -33,7 +33,7 @@ const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
       isLoading={isFetchingNextPage}
       hasMore={hasNextPage}
       next={fetchNextPage}
-      threshold={1}
+      threshold={0}
     >
       {hasNextPage &&
         Array.from({ length: 2 }).map((_, index) => (
