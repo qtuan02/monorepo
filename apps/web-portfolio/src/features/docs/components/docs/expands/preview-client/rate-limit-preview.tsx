@@ -10,10 +10,7 @@ const RateLimitPreview = () => {
 
   return (
     <div className="flex flex-col gap-3">
-      <p>
-        Try to send 3 requests in 1 minute. The rate limit is 2 requests per
-        minute.
-      </p>
+      <p>Try to send 3 requests in 1 minute. (Handle in Server of Next.js)</p>
       <Button
         disabled={loading}
         onClick={async () => {

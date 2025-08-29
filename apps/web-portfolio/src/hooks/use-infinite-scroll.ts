@@ -1,12 +1,32 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
+const LIMIT = 5;
+
+type Item = {
+  id: number;
+  price: number;
+  title: string;
+};
+
+type PaginationItem = {
+  limit: number;
+  skip: number;
+  total: number;
+  products: Item[];
+};
+
+type TypeInfiniteScroll = {
+  pageParams: number[];
+  pages: PaginationItem[];
+};
+
 export const useInfiniteScrollQuery = () => {
   return useInfiniteQuery({
     queryKey: ["key-infinite-scroll"],
     queryFn: async ({ pageParam = 0 }) => {
       const res = await fetch(
-        `https://dummyjson.com/products?limit=5&skip=${5 * pageParam}&select=title,price`
+        `https://dummyjson.com/products?limit=${LIMIT}&skip=${LIMIT * pageParam}&select=title,price`
       );
       return res.json();
     },
@@ -15,8 +35,8 @@ export const useInfiniteScrollQuery = () => {
       return nextPage < lastPage.total ? pages.length : undefined;
     },
     initialPageParam: 0,
-    select: useCallback((data: any) => {
-      return data.pages.flatMap((page: any) => page.products);
+    select: useCallback((data: TypeInfiniteScroll) => {
+      return data.pages.flatMap((page: PaginationItem) => page.products);
     }, []),
   });
 };

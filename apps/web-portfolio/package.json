@@ -19,6 +19,7 @@
     "@t3-oss/env-nextjs": "catalog:next15",
     "@tanstack/react-query": "catalog:tanstackquery",
     "@tanstack/react-query-devtools": "catalog:tanstackquery",
+    "@next/third-parties": "catalog:next15",
     "@web/env": "workspace:*",
     "@web/web-ui": "workspace:*",
     "cookies-next": "^6.1.0",

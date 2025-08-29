@@ -31,6 +31,7 @@ catalogs:
     next: 15.4.2
     next-intl: 4.3.4
     "@t3-oss/env-nextjs": 0.13.8
+    "@next/third-parties": 15.5.2
   react19:
     react: ^19.1.0
     react-dom: ^19.1.0

@@ -47,7 +47,13 @@ export interface ProviderProps {
 
 const Provider = ({ children }: ProviderProps) => {
   const queryClient = getQueryClient();
-  const [showDevtools] = React.useState(env.NEXT_PUBLIC_ENV === "local");
+  const [showDevtools, setShowDevtools] = React.useState(
+    env.NEXT_PUBLIC_ENV === "local"
+  );
+
+  React.useEffect(() => {
+    window.toggleDevtools = () => setShowDevtools((old) => !old);
+  }, []);
 
   return (
     <ThemeProvider
@@ -62,7 +68,7 @@ const Provider = ({ children }: ProviderProps) => {
         <Toaster />
         {showDevtools && (
           <React.Suspense fallback={null}>
-            <ReactQueryDevtoolsProduction />
+            <ReactQueryDevtoolsProduction initialIsOpen={false} />
           </React.Suspense>
         )}
       </QueryClientProvider>

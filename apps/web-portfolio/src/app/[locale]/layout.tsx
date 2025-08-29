@@ -13,6 +13,7 @@ import RootLayout from "~/features/layout/templates";
 import { Inter_Tight } from "next/font/google";
 import { cn } from "@web/web-ui/libs/cn";
 import { env } from "~/env";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 // export const dynamic = "force-static";
 
@@ -112,6 +113,8 @@ export default async function Layout({
       className={cn(inter.className, "antialiased")}
     >
       <body suppressHydrationWarning className="min-h-screen">
+        <GoogleAnalytics gaId="" />
+        <GoogleTagManager gtmId="" />
         <NextIntlClientProvider locale={locale}>
           <Provider>
             <RootLayout>{children}</RootLayout>

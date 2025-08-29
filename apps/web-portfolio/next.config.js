@@ -9,6 +9,10 @@ const withNextIntl = createNextIntlPlugin({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: [
+    "@tanstack/react-query",
+    "@tanstack/react-query-devtools",
+  ],
   output: !!process.env.CI ? "standalone" : undefined,
   images: {
     remotePatterns: [
