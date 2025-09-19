@@ -19,7 +19,7 @@ const SectionPreviewReload = (props: ISectionPreviewReloadProps) => {
         className="border border-gray-200 dark:border-gray-800 rounded-md p-5 relative"
       >
         <button
-          className="absolute top-2 right-2 cursor-pointer bg-gray-500/50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 p-2 rounded-md"
+          className="absolute top-2 right-2 cursor-pointer bg-gray-500/50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 p-2 rounded-md hover:translate-y-[-1px] transition-all duration-300"
           onClick={() => setKey(key + 1)}
         >
           <RotateCcw className="size-3 md:size-4 text-white" />

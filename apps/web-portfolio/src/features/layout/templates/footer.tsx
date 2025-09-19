@@ -39,7 +39,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="fixed z-50 bottom-4 flex md:hidden left-4 w-[calc(100%-32px)] rounded-full h-14 bg-gray-100 backdrop-blur-lg shadow-inherit dark:bg-gray-800">
+    <footer className="fixed z-50 bottom-4 flex md:hidden left-4 w-[calc(100%-32px)] rounded-full h-14 bg-gray-100/50 backdrop-blur-lg shadow-inherit dark:bg-gray-800/50">
       <div className="flex items-center justify-between w-full h-full px-6">
         {MENU_ITEMS.map((item, index) => (
           <NextLink

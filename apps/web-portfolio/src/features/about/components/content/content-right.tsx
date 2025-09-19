@@ -43,7 +43,7 @@ const ContentRight = () => {
           <BadgeSkill name="React Router" />
           <BadgeSkill name="Zod" />
           <BadgeSkill name="React Hook Form" />
-          <BadgeSkill name="React Query" />
+          <BadgeSkill name="Tanstack Query" />
           <BadgeSkill name="Zustand" />
           <BadgeSkill name="Redux" />
           <BadgeSkill name="Node.js" />

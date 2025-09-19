@@ -18,7 +18,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ code, language = "tsx" }) => {
   return (
     <div className="rounded-md overflow-hidden relative">
       <button
-        className="absolute top-2 right-2 cursor-pointer bg-gray-500/50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 p-2 rounded-md"
+        className="absolute top-2 right-2 cursor-pointer bg-gray-500/50 dark:bg-gray-800/80 text-gray-800 dark:text-gray-200 p-2 rounded-md hover:translate-y-[-1px] transition-all duration-300"
         onClick={() => copy(code)}
       >
         {copied ? (
