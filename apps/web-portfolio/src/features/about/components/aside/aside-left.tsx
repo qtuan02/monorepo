@@ -34,7 +34,7 @@ const AsideLeft = () => {
         </CardSection>
       </SpringElement>
 
-      <CardSection className="flex flex-col gap-y-4 relative">
+      <CardSection className="flex flex-col gap-y-4 relative overflow-hidden">
         <h2 className="text-lg font-medium">{t("contact_info")}</h2>
         <div className="flex flex-col gap-y-2">
           <div className="flex gap-x-2 items-center">

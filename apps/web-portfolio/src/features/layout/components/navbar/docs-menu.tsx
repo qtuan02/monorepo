@@ -20,7 +20,7 @@ const DocsMenu = () => {
       </SheetTrigger>
       <SheetContent
         isHiddenCloseIcon
-        className="border-l-0 bg-white mt-auto gap-0 dark:bg-gray-900"
+        className="border-l-0 bg-white/50 mt-auto gap-0 dark:bg-gray-900/70 backdrop-blur-sm"
       >
         <SheetHeader className="py-2.5 pl-5">
           <SheetTitle className="flex items-center justify-between gap-x-2">

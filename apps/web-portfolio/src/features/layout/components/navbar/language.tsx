@@ -58,7 +58,7 @@ const Language = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center gap-x-1 text-base font-normal hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md px-2 py-0.5">
+        <div className="flex items-center gap-x-1 text-base font-normal hover:cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-md px-2 py-0.5">
           <span className="[&>span]:rounded-full text-xl">
             {selectedLocale?.icon}
           </span>
@@ -67,15 +67,15 @@ const Language = () => {
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="backdrop-blur-md border-gray-200 dark:border-gray-800 w-fit min-w-48 p-2"
+        className="backdrop-blur-md bg-white/50 dark:bg-black/50 border-gray-200 dark:border-gray-800 w-fit min-w-48 p-2"
         side="bottom"
         align="end"
       >
-        <div className="flex flex-col bg-gray-100 dark:bg-gray-900 rounded-sm overflow-hidden">
+        <div className="flex flex-col rounded-sm overflow-hidden gap-y-[1px]">
           {LANGUAGE_ITEMS.map((item, index) => (
             <section
               key={`LANGUAGE_ITEM-${index}`}
-              className="flex justify-between items-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 p-2"
+              className="flex justify-between items-center bg-gray-100 dark:bg-gray-900 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 p-2"
               onClick={() => handleChangeLanguage(item.value)}
             >
               <div className="flex items-center gap-x-2 cursor-pointer">

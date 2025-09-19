@@ -7,7 +7,7 @@ import { getTranslations } from "next-intl/server";
 import { StarsBackground as StarsBackgroundComp } from "@web/web-ui/animate-ui/background-start";
 
 const BackgroundStartPreview = () => (
-  <div className="relative h-80">
+  <div className="relative h-80 bg-black/50">
     <StarsBackgroundComp className="absolute inset-0 flex items-center justify-center rounded-xl" />
   </div>
 );

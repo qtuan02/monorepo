@@ -40,7 +40,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
           <NextLink
             replace
             href={previous.href}
-            className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2"
+            className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2 transition-colors duration-400"
           >
             <ArrowLeft className="size-4" />
             <span className="line-clamp-1">{previous?.label}</span>
@@ -52,7 +52,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
           <NextLink
             replace
             href={next.href}
-            className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2"
+            className="text-base px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800 cursor-pointer flex items-center gap-x-2 transition-colors duration-400"
           >
             <span className="line-clamp-1">{next.label}</span>
             <ArrowRight className="size-4" />

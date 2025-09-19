@@ -14,11 +14,7 @@
     "start:_web-template": "turbo run start -F @web/_web-template",
     "dev:web-portfolio": "turbo run dev -F @web/web-portfolio",
     "build:web-portfolio": "turbo run build -F @web/web-portfolio",
-    "start:web-portfolio": "turbo run start -F @web/web-portfolio",
-    "dev:_api-template-gin": "turbo run dev -F @api/_api-template-gin",
-    "start:_api-template-gin": "turbo run start -F @api/_api-template-gin",
-    "clean:_api-template-gin": "turbo run clean -F @api/_api-template-gin",
-    "clean-all:_api-template-gin": "turbo run clean-all -F @api/_api-template-gin"
+    "start:web-portfolio": "turbo run start -F @web/web-portfolio"
   },
   "devDependencies": {
     "prettier": "catalog:",
