@@ -17,6 +17,7 @@ const ReactQueryDevtoolsProduction = dynamic(() =>
   )
 );
 
+// handle safari camera theme color
 function ThemeColorSync() {
   const { resolvedTheme } = useTheme();
 

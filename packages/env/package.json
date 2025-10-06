@@ -8,7 +8,8 @@
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
     "lint": "eslint . --max-warnings 0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc"
   },
   "devDependencies": {
     "@web/eslint": "workspace:*",
