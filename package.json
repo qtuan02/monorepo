@@ -14,7 +14,10 @@
     "start:_web-template": "turbo run start -F @web/_web-template",
     "dev:web-portfolio": "turbo run dev -F @web/web-portfolio",
     "build:web-portfolio": "turbo run build -F @web/web-portfolio",
-    "start:web-portfolio": "turbo run start -F @web/web-portfolio"
+    "start:web-portfolio": "turbo run start -F @web/web-portfolio",
+    "dev:web-order": "turbo run dev -F @web/web-order",
+    "build:web-order": "turbo run build -F @web/web-order",
+    "start:web-order": "turbo run start -F @web/web-order"
   },
   "devDependencies": {
     "prettier": "catalog:",
