@@ -1,5 +1,5 @@
 import { Button } from "@web/web-ui/shadcn-ui/button";
-import { NextImage } from "../next-image";
+import { NextImage } from "../../../../components/next-image";
 import { ShoppingBasket } from "lucide-react";
 import { formatCurrency } from "~/utils/curency";
 
@@ -11,8 +11,15 @@ interface IPopularCardProps {
 
 const PopularCard = ({ imageSrc, name, price }: IPopularCardProps) => {
   return (
-    <div className="text-3xl flex font-semibold size-full bg-gray-50 rounded-md overflow-hidden border border-gray-100">
-      <NextImage src={imageSrc} alt="dish" fill className="size-23 shrink-0" />
+    <div className="text-3xl flex font-semibold size-full bg-gray-50 rounded-md overflow-hidden border border-gray-100 select-none">
+      <div className="size-23 shrink-0">
+        <NextImage
+          src={imageSrc}
+          alt="popular-image"
+          fill
+          className="size-full"
+        />
+      </div>
       <div className="py-1.5 pr-1.5 pl-3 flex flex-col justify-between ">
         <h4 className="line-clamp-2 text-base">{name}</h4>
         <div className="flex justify-between items-center">
@@ -21,9 +28,10 @@ const PopularCard = ({ imageSrc, name, price }: IPopularCardProps) => {
           </p>
           <Button
             size="icon"
-            className="cursor-pointer size-7 bg-orange-600 hover:bg-orange-700"
+            variant="outline"
+            className="cursor-pointer size-7 border-orange-400"
           >
-            <ShoppingBasket className="size-5 text-white" />
+            <ShoppingBasket className="size-5 text-orange-500" />
           </Button>
         </div>
       </div>

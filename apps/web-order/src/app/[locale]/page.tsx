@@ -1,12 +1,5 @@
-import { cn } from "@web/web-ui/libs/cn";
-import { env } from "~/env";
-import { NextParams } from "~/types/common";
+import HomeTemplate from "~/features/home/templates/home.template";
 
-export default async function HomePage({ params }: { params: NextParams }) {
-  const { locale } = await params;
-  return (
-    <div className={cn("text-red-500")}>
-      This is {locale} and {env.NEXT_PUBLIC_ENV} Home Page
-    </div>
-  );
+export default function HomePage() {
+  return <HomeTemplate />;
 }

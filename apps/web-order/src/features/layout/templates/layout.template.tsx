@@ -8,8 +8,8 @@ interface ILayoutTemplateProps extends PropsWithChildren {
 export default function LayoutTemplate(props: ILayoutTemplateProps) {
   const { navbar, footer, children } = props;
   return (
-    <main className="h-screen w-screen flex-center flex-col">
-      <div className="size-full max-w-xl bg-gray-100">
+    <main className="flex-center">
+      <div className="size-full max-w-xl bg-gray-100 relative">
         {navbar && navbar}
         {children}
         {footer && footer}

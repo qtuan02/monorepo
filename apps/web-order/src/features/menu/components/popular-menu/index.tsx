@@ -6,7 +6,7 @@ import {
   CarouselItem,
 } from "@web/web-ui/shadcn-ui/carousel";
 import { WheelGesturesPlugin } from "embla-carousel-wheel-gestures";
-import { PopularCard } from "~/components/card/popular-card";
+import { PopularCard } from "~/features/menu/components/card/popular-card";
 
 export default function PopularMenu() {
   return (
@@ -16,7 +16,7 @@ export default function PopularMenu() {
         opts={{
           align: "start",
           dragFree: true,
-          skipSnaps: true,
+          containScroll: "keepSnaps",
         }}
         plugins={[WheelGesturesPlugin({ forceWheelAxis: "x" })]}
         className="size-full"
