@@ -1,19 +1,20 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   Form,
+  FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormControl,
-  FormDescription,
   FormMessage,
 } from "@monorepo/ui/shadcn-ui/form";
 import { Input } from "@monorepo/ui/shadcn-ui/input";
-import { Button } from "@monorepo/ui/shadcn-ui/button";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Textarea } from "@monorepo/ui/shadcn-ui/textarea";
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -39,7 +40,7 @@ const FormPreview = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-y-4 w-full"
+        className="flex w-full flex-col gap-y-4"
       >
         <FormField
           control={form.control}

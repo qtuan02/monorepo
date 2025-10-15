@@ -8,7 +8,7 @@ const BadgeSkill: FC<IBadgeSkillProps> = (props) => {
   const { name } = props;
 
   return (
-    <div className="flex select-none hover:scale-105 items-center px-2 md:px-3 text-xs md:text-sm py-0.5 rounded-2xl cursor-pointer bg-orange-100 hover:bg-orange-200 transition-all font-medium duration-300 text-orange-500">
+    <div className="flex cursor-pointer select-none items-center rounded-2xl bg-orange-100 px-2 py-0.5 text-xs font-medium text-orange-500 transition-all duration-300 hover:scale-105 hover:bg-orange-200 md:px-3 md:text-sm">
       <span>{name}</span>
     </div>
   );

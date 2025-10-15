@@ -13,11 +13,14 @@
   },
   "devDependencies": {
     "@monorepo/eslint": "workspace:*",
+    "@monorepo/prettier": "workspace:*",
     "@monorepo/typescript": "workspace:*",
     "@types/node": "^22.15.3",
     "eslint": "catalog:",
     "typescript": "catalog:",
     "zod": "catalog:",
-    "@t3-oss/env-nextjs": "catalog:next15"
-  }
+    "@t3-oss/env-nextjs": "catalog:next15",
+    "prettier": "catalog:"
+  },
+  "prettier": "@monorepo/prettier"
 }

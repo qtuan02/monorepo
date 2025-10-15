@@ -1,8 +1,9 @@
-import BadgeSkill from "./badge-skill";
-import CardSection from "../card/card-section";
-import CardExperience from "./card-experience";
 import { Book, Film, Medal, Music, Plane } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import CardSection from "../card/card-section";
+import BadgeSkill from "./badge-skill";
+import CardExperience from "./card-experience";
 
 const ContentRight = () => {
   const t = useTranslations("About");
@@ -10,18 +11,18 @@ const ContentRight = () => {
   return (
     <CardSection className="flex flex-col gap-y-6">
       <section id="overview" className="flex flex-col gap-y-4">
-        <h2 className="text-xl md:text-2xl font-medium">{t("overview")}</h2>
+        <h2 className="text-xl font-medium md:text-2xl">{t("overview")}</h2>
         <div className="flex flex-col gap-y-3">
-          <p className="text-gray-500 text-sm md:text-base">
+          <p className="text-sm text-gray-500 md:text-base">
             {t("overview_description_1")}
           </p>
-          <p className="text-gray-500 text-sm md:text-base">
+          <p className="text-sm text-gray-500 md:text-base">
             {t("overview_description_2")}
           </p>
-          <p className="text-gray-500 text-sm md:text-base">
+          <p className="text-sm text-gray-500 md:text-base">
             {t("overview_description_3")}
           </p>
-          <p className="text-gray-500 text-sm md:text-base">
+          <p className="text-sm text-gray-500 md:text-base">
             {t("overview_description_4")}
           </p>
         </div>
@@ -30,7 +31,7 @@ const ContentRight = () => {
       <div className="border-b border-gray-200 dark:border-gray-700"></div>
 
       <section id="skills" className="flex flex-col gap-y-4">
-        <h2 className="text-xl md:text-2xl font-medium">{t("skills")}</h2>
+        <h2 className="text-xl font-medium md:text-2xl">{t("skills")}</h2>
         <div className="flex flex-wrap gap-2">
           <BadgeSkill name="React" />
           <BadgeSkill name="Next.js" />
@@ -60,7 +61,7 @@ const ContentRight = () => {
       <div className="border-b border-gray-200 dark:border-gray-700"></div>
 
       <section id="experience" className="flex flex-col gap-y-4">
-        <h2 className="text-xl md:text-2xl font-medium">{t("experience")}</h2>
+        <h2 className="text-xl font-medium md:text-2xl">{t("experience")}</h2>
         <div className="flex flex-col gap-y-4">
           <CardExperience
             position="Junior Frontend Developer"
@@ -86,40 +87,40 @@ const ContentRight = () => {
       <div className="border-b border-gray-200 dark:border-gray-700"></div>
 
       <section id="orther" className="flex gap-x-4">
-        <div className="w-1/2 flex flex-col gap-y-4">
-          <h2 className="text-xl md:text-2xl font-medium">{t("education")}</h2>
+        <div className="flex w-1/2 flex-col gap-y-4">
+          <h2 className="text-xl font-medium md:text-2xl">{t("education")}</h2>
           <div className="flex flex-col gap-y-1">
-            <p className=" font-medium text-sm md:text-base">{t("major")}</p>
-            <p className="text-gray-500 text-sm md:text-base">
+            <p className="text-sm font-medium md:text-base">{t("major")}</p>
+            <p className="text-sm text-gray-500 md:text-base">
               {t("education_year")}: 2020 - 2024
             </p>
-            <p className="text-gray-500 text-sm md:text-base">{t("school")}</p>
-            <p className="mt-3 font-medium text-sm md:text-base">
+            <p className="text-sm text-gray-500 md:text-base">{t("school")}</p>
+            <p className="mt-3 text-sm font-medium md:text-base">
               {t("english_level")}
             </p>
           </div>
         </div>
-        <div className="w-1/2 flex flex-col gap-y-4">
-          <h2 className="text-xl md:text-2xl font-medium">{t("hobbies")}</h2>
+        <div className="flex w-1/2 flex-col gap-y-4">
+          <h2 className="text-xl font-medium md:text-2xl">{t("hobbies")}</h2>
           <div className="flex flex-col gap-y-1">
             <p className="flex items-center gap-x-2 text-sm md:text-base">
-              <Medal className="size-3 md:size-4 text-orange-400" />
+              <Medal className="size-3 text-orange-400 md:size-4" />
               {t("sport")}
             </p>
             <p className="flex items-center gap-x-2 text-sm md:text-base">
-              <Book className="size-3 md:size-4 text-orange-400" />
+              <Book className="size-3 text-orange-400 md:size-4" />
               {t("read_book")}
             </p>
             <p className="flex items-center gap-x-2 text-sm md:text-base">
-              <Plane className="size-3 md:size-4 text-orange-400" />{" "}
+              <Plane className="size-3 text-orange-400 md:size-4" />{" "}
               {t("travel")}
             </p>
             <p className="flex items-center gap-x-2 text-sm md:text-base">
-              <Music className="size-3 md:size-4 text-orange-400" />{" "}
+              <Music className="size-3 text-orange-400 md:size-4" />{" "}
               {t("listen_music")}
             </p>
             <p className="flex items-center gap-x-2 text-sm md:text-base">
-              <Film className="size-3 md:size-4 text-orange-400" />{" "}
+              <Film className="size-3 text-orange-400 md:size-4" />{" "}
               {t("watch_movie")}
             </p>
           </div>

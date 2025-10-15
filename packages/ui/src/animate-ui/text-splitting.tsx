@@ -1,14 +1,13 @@
 "use client";
 
-import * as React from "react";
-import {
-  motion,
-  type Variants,
-  type TargetAndTransition,
-  type HTMLMotionProps,
-  useInView,
-  type UseInViewOptions,
+import type {
+  HTMLMotionProps,
+  TargetAndTransition,
+  UseInViewOptions,
+  Variants,
 } from "motion/react";
+import * as React from "react";
+import { motion, useInView } from "motion/react";
 
 type DefaultSplittingTextProps = {
   motionVariants?: {
@@ -143,7 +142,7 @@ export const SplittingText: React.FC<SplittingTextProps> = ({
               </motion.span>
               {type === "words" && " "}
             </React.Fragment>
-          )
+          ),
       )}
     </motion.span>
   );

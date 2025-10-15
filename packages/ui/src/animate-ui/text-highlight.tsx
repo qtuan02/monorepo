@@ -1,13 +1,12 @@
 "use client";
 
-import * as React from "react";
-import {
-  motion,
-  useInView,
-  type HTMLMotionProps,
-  type Transition,
-  type UseInViewOptions,
+import type {
+  HTMLMotionProps,
+  Transition,
+  UseInViewOptions,
 } from "motion/react";
+import * as React from "react";
+import { motion, useInView } from "motion/react";
 
 import { cn } from "../libs/cn";
 
@@ -52,8 +51,8 @@ function HighlightText({
         display: "inline",
       }}
       className={cn(
-        `relative inline-block px-2 py-1 rounded-lg bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-500 dark:to-purple-500`,
-        className
+        `relative inline-block rounded-lg bg-gradient-to-r from-blue-100 to-purple-100 px-2 py-1 dark:from-blue-500 dark:to-purple-500`,
+        className,
       )}
       {...props}
     >

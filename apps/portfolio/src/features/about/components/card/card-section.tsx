@@ -1,5 +1,6 @@
-import { cn } from "@monorepo/ui/libs/cn";
 import { FC, HTMLAttributes, ReactNode } from "react";
+
+import { cn } from "@monorepo/ui/libs/cn";
 
 interface ICardSectionProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
@@ -12,8 +13,8 @@ const CardSection: FC<ICardSectionProps> = (props) => {
   return (
     <div
       className={cn(
-        "p-4 md:p-6 bg-gray-50 dark:bg-gray-900 rounded-lg w-full h-fit shadow-sm border-black/5 border",
-        className
+        "h-fit w-full rounded-lg border border-black/5 bg-gray-50 p-4 shadow-sm md:p-6 dark:bg-gray-900",
+        className,
       )}
       {...rest}
     >

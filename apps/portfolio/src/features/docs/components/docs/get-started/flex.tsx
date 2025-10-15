@@ -1,6 +1,6 @@
+import { NextImage } from "~/components/next-image";
 import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
-import { NextImage } from "~/components/next-image";
 
 const Flex = async (props: IDocComponentProps) => {
   const { locale, slug } = props;

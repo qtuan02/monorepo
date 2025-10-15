@@ -1,9 +1,10 @@
 "use client";
 
-import { cn } from "@monorepo/ui/libs/cn";
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+
+import { cn } from "@monorepo/ui/libs/cn";
 
 const Theme = () => {
   const { resolvedTheme, setTheme } = useTheme(); // dùng resolvedTheme thay vì theme
@@ -30,15 +31,15 @@ const Theme = () => {
     >
       <div
         className={cn(
-          "transition-transform duration-500 ease-in-out transform-3d",
-          isLight ? "rotate-y-0" : "rotate-y-180"
+          "transform-3d transition-transform duration-500 ease-in-out",
+          isLight ? "rotate-y-0" : "rotate-y-180",
         )}
       >
-        <div className="size-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center backface-hidden">
+        <div className="backface-hidden flex size-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
           <Moon size={20} />
         </div>
 
-        <div className="absolute inset-0 rotate-y-180 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center backface-hidden">
+        <div className="rotate-y-180 backface-hidden absolute inset-0 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
           <Sun className="text-black dark:text-white" size={20} />
         </div>
       </div>

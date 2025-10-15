@@ -38,7 +38,7 @@ function createParticle(
   direction: number,
   gravity: number,
   friction: number,
-  size: number
+  size: number,
 ): ParticleType {
   const vx = Math.cos(direction) * speed;
   const vy = Math.sin(direction) * speed;
@@ -108,7 +108,7 @@ function createFirework(
   size: number,
   particleSpeed: { min: number; max: number } | number,
   particleSize: { min: number; max: number } | number,
-  onExplode: (particles: ParticleType[]) => void
+  onExplode: (particles: ParticleType[]) => void,
 ): FireworkType {
   const angle = -Math.PI / 2 + rand(-0.3, 0.3);
   const vx = Math.cos(angle) * speed;
@@ -159,8 +159,8 @@ function createFirework(
             particleAngle,
             0.05,
             0.98,
-            localParticleSize
-          )
+            localParticleSize,
+          ),
         );
       }
       onExplode(particles);
@@ -272,8 +272,8 @@ function FireworksBackground({
           size,
           particleSpeed,
           particleSize,
-          handleExplosion
-        )
+          handleExplosion,
+        ),
       );
       const timeout = rand(500, 800) / population;
       setTimeout(launchFirework, timeout);
@@ -326,8 +326,8 @@ function FireworksBackground({
           size,
           particleSpeed,
           particleSize,
-          handleExplosion
-        )
+          handleExplosion,
+        ),
       );
     };
 

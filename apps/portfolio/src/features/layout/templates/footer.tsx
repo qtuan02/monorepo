@@ -1,9 +1,11 @@
 "use client";
 
-import { cn } from "@monorepo/ui/libs/cn";
+import { useMemo } from "react";
 import { Component, Home, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useMemo } from "react";
+
+import { cn } from "@monorepo/ui/libs/cn";
+
 import NextLink from "~/components/next-link";
 import { usePathname } from "~/i18n/navigation";
 import DocsMenu from "../components/navbar/docs-menu";
@@ -30,7 +32,7 @@ export default function Footer() {
         icon: <Component className="size-5" />,
       },
     ],
-    [t]
+    [t],
   );
 
   const isActiveRoute = (itemPath: string) => {
@@ -39,15 +41,15 @@ export default function Footer() {
   };
 
   return (
-    <footer className="fixed z-50 bottom-4 flex md:hidden left-4 w-[calc(100%-32px)] rounded-full h-14 bg-gray-100/50 backdrop-blur-lg shadow-inherit dark:bg-gray-800/50">
-      <div className="flex items-center justify-between w-full h-full px-6">
+    <footer className="fixed bottom-4 left-4 z-50 flex h-14 w-[calc(100%-32px)] rounded-full bg-gray-100/50 shadow-inherit backdrop-blur-lg md:hidden dark:bg-gray-800/50">
+      <div className="flex h-full w-full items-center justify-between px-6">
         {MENU_ITEMS.map((item, index) => (
           <NextLink
             key={`footer-item-${index}`}
             href={item.href}
             className={cn(
-              "flex flex-col items-center gap-x-2 w-20",
-              isActiveRoute(item.href) && "text-orange-500"
+              "flex w-20 flex-col items-center gap-x-2",
+              isActiveRoute(item.href) && "text-orange-500",
             )}
           >
             {item.icon}

@@ -48,7 +48,7 @@ export function rateLimit(options?: Options) {
       if (count > limit) {
         const res = NextResponse.json(
           { error: "Too many requests, please try again later." },
-          { status: 429 }
+          { status: 429 },
         );
         res.headers.set("X-RateLimit-Limit", String(limit));
         res.headers.set("X-RateLimit-Remaining", "0");

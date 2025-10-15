@@ -1,6 +1,7 @@
-import { getTranslations } from "next-intl/server";
-import { getDataDocs, getStartedData } from "../utils/get-data-docs";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
+
+import { getDataDocs, getStartedData } from "../utils/get-data-docs";
 
 interface IDocsTemplateProps {
   locale: string;
@@ -21,7 +22,7 @@ export default async function DocsTemplate(props: IDocsTemplateProps) {
   if (!Component) notFound();
 
   return (
-    <div className="p-4 md:pb-4 pb-22">
+    <div className="pb-22 p-4 md:pb-4">
       <Component locale={locale} slug={slug} />
     </div>
   );

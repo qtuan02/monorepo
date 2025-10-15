@@ -1,0 +1,23 @@
+{
+  "name": "@monorepo/prettier",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules"
+  },
+  "dependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "prettier": "catalog:",
+    "prettier-plugin-tailwindcss": "^0.6.11"
+  },
+  "devDependencies": {
+    "@monorepo/typescript": "workspace:*",
+    "@types/node": "^22.14.1",
+    "typescript": "catalog:"
+  },
+  "prettier": "@monorepo/prettier"
+}

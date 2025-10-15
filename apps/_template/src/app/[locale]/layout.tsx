@@ -1,14 +1,16 @@
 import "./globals.css";
+
+import { ReactNode } from "react";
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
+
 import { routing } from "~/i18n/routing";
 import { NextParams } from "~/types/common";
-import { Metadata } from "next";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
-import { ReactNode } from "react";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { notFound } from "next/navigation";
-import { setRequestLocale } from "next-intl/server";
 import { Provider } from "./provider";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));

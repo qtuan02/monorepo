@@ -1,12 +1,8 @@
 "use client";
 
+import type { Transition, UseInViewOptions } from "motion/react";
 import * as React from "react";
-import {
-  motion,
-  useInView,
-  type UseInViewOptions,
-  type Transition,
-} from "motion/react";
+import { motion, useInView } from "motion/react";
 
 const ENTRY_ANIMATION = {
   initial: { rotateX: 0 },
@@ -53,11 +49,11 @@ function RollingText({
       {characters.map((char, idx) => (
         <span
           key={idx}
-          className="relative inline-block perspective-[9999999px] transform-3d w-auto"
+          className="perspective-[9999999px] transform-3d relative inline-block w-auto"
           aria-hidden="true"
         >
           <motion.span
-            className="absolute inline-block backface-hidden origin-[50%_25%]"
+            className="backface-hidden absolute inline-block origin-[50%_25%]"
             initial={ENTRY_ANIMATION.initial}
             animate={isInView ? ENTRY_ANIMATION.animate : undefined}
             transition={{
@@ -68,7 +64,7 @@ function RollingText({
             {formatCharacter(char)}
           </motion.span>
           <motion.span
-            className="absolute inline-block backface-hidden origin-[50%_100%]"
+            className="backface-hidden absolute inline-block origin-[50%_100%]"
             initial={EXIT_ANIMATION.initial}
             animate={isInView ? EXIT_ANIMATION.animate : undefined}
             transition={{

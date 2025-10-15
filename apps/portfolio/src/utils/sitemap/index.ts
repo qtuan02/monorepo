@@ -12,7 +12,7 @@ type Href = Parameters<typeof getPathname>[0]["href"];
 
 function getEntries(
   href: Href,
-  sitemap?: Omit<MetadataRoute.Sitemap[0], "url" | "alternates">
+  sitemap?: Omit<MetadataRoute.Sitemap[0], "url" | "alternates">,
 ): MetadataRoute.Sitemap {
   return routing.locales.map<MetadataRoute.Sitemap[0]>((locale) => ({
     lastModified: new Date(),
@@ -20,7 +20,7 @@ function getEntries(
     url: getUrl(href, locale),
     alternates: {
       languages: Object.fromEntries(
-        routing.locales.map((cur) => [cur, getUrl(href, cur)])
+        routing.locales.map((cur) => [cur, getUrl(href, cur)]),
       ),
     },
   }));

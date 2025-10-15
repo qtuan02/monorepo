@@ -1,8 +1,10 @@
+import { getTranslations } from "next-intl/server";
+
+import { ShimmeringText } from "@monorepo/ui/animate-ui/text-shimmering";
+
+import NextLink from "~/components/next-link";
 import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
-import { getTranslations } from "next-intl/server";
-import NextLink from "~/components/next-link";
-import { ShimmeringText } from "@monorepo/ui/animate-ui/text-shimmering";
 
 const Introduction = async (props: IDocComponentProps) => {
   const { locale, slug } = props;
@@ -17,7 +19,7 @@ const Introduction = async (props: IDocComponentProps) => {
         <p>{t("intro-content.paragraph1")}</p>
         <p>{t("intro-content.paragraph2")}</p>
         {Array.isArray(list) && (
-          <ul className="list-disc pl-6 space-y-1">
+          <ul className="list-disc space-y-1 pl-6">
             {list.map((item: string, idx: number) => (
               <li key={idx}>{item}</li>
             ))}

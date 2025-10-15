@@ -1,5 +1,5 @@
 {
-  "extends": "@monorepo/typescript/react-library.json",
+  "extends": "@monorepo/typescript/react.json",
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",

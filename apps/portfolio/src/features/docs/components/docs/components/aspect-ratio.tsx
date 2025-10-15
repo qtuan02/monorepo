@@ -1,11 +1,13 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import { AspectRatio as AspectRatioComp } from "@monorepo/ui/shadcn-ui/aspect-ratio";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
-import { getTranslations } from "next-intl/server";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
+
+import { AspectRatio as AspectRatioComp } from "@monorepo/ui/shadcn-ui/aspect-ratio";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const AspectRatioPreview = () => (
   <AspectRatioComp ratio={16 / 9} className="bg-muted rounded-lg">

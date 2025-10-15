@@ -1,8 +1,7 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
+import { BorderBeam as BorderBeamComp } from "@monorepo/ui/animate-ui/border-beam";
+import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   Card,
   CardContent,
@@ -11,8 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/shadcn-ui/card";
-import { Button } from "@monorepo/ui/shadcn-ui/button";
-import { BorderBeam as BorderBeamComp } from "@monorepo/ui/animate-ui/border-beam";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
 import SectionPreview from "../../common/section-preview";
 
 const BorderBeamPreview = () => (

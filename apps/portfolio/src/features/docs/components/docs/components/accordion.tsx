@@ -1,15 +1,17 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
+import { getTranslations } from "next-intl/server";
+
 import {
   Accordion as AccordionComp,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@monorepo/ui/shadcn-ui/accordion";
-import { getTranslations } from "next-intl/server";
-import SectionPreview from "../../common/section-preview";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const AccordionPreview = () => (
   <AccordionComp

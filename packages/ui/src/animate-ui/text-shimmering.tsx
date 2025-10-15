@@ -1,7 +1,8 @@
 "use client";
 
+import type { HTMLMotionProps, Transition } from "motion/react";
 import * as React from "react";
-import { type HTMLMotionProps, motion, type Transition } from "motion/react";
+import { motion } from "motion/react";
 
 import { cn } from "../libs/cn";
 
