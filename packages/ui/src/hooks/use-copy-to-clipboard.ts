@@ -32,7 +32,7 @@ function useCopyToClipboard(delay = 1500) {
         return false;
       }
     },
-    [delay]
+    [delay],
   );
 
   useEffect(() => {

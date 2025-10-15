@@ -1,9 +1,11 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
 import { HighlightText as TextHighlightComp } from "@monorepo/ui/animate-ui/text-highlight";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextHighlightPreview = () => (

@@ -1,12 +1,9 @@
 "use client";
 
+import type { HTMLMotionProps } from "motion/react";
 import * as React from "react";
-import {
-  type HTMLMotionProps,
-  motion,
-  useMotionValue,
-  useSpring,
-} from "motion/react";
+import { motion, useMotionValue, useSpring } from "motion/react";
+
 import { cn } from "../libs/cn";
 
 const generateSpringPath = (
@@ -21,7 +18,7 @@ const generateSpringPath = (
     curveRatioMin?: number;
     curveRatioMax?: number;
     bezierOffset?: number;
-  } = {}
+  } = {},
 ) => {
   const {
     coilCount = 8,
@@ -40,7 +37,7 @@ const generateSpringPath = (
   const h = Math.max(0.8, 1 - (dist - 40) / 200);
   const amplitude = Math.max(
     amplitudeMin,
-    Math.min(amplitudeMax, amplitudeMax * h)
+    Math.min(amplitudeMax, amplitudeMax * h),
   );
   const curveRatio =
     dist <= 40
@@ -87,7 +84,7 @@ function useMotionValueValue(mv: any) {
       return unsub;
     },
     () => mv.get(),
-    () => mv.get()
+    () => mv.get(),
   );
 }
 
@@ -169,7 +166,7 @@ function SpringElement({
     center.y,
     center.x + sx,
     center.y + sy,
-    springPathConfig
+    springPathConfig,
   );
 
   return (
@@ -177,15 +174,15 @@ function SpringElement({
       <svg
         width="100vw"
         height="100vh"
-        className="fixed inset-0 w-screen h-screen pointer-events-none z-10"
+        className="pointer-events-none fixed inset-0 z-10 h-screen w-screen"
       >
         <path
           d={path}
           strokeLinecap="round"
           strokeLinejoin="round"
           className={cn(
-            "stroke-2 stroke-neutral-900 dark:stroke-neutral-100 fill-none",
-            springClassName
+            "fill-none stroke-neutral-900 stroke-2 dark:stroke-neutral-100",
+            springClassName,
           )}
         />
       </svg>
@@ -194,7 +191,7 @@ function SpringElement({
         className={cn(
           "z-20",
           isDragging ? "cursor-grabbing" : "cursor-grab",
-          className
+          className,
         )}
         style={{
           x: springX,

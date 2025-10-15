@@ -1,11 +1,13 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
-import { getTranslations } from "next-intl/server";
-import { Button as ButtonComp } from "@monorepo/ui/shadcn-ui/button";
 import { BatteryFull, Heart, Loader2Icon } from "lucide-react";
+import { getTranslations } from "next-intl/server";
+
+import { Button as ButtonComp } from "@monorepo/ui/shadcn-ui/button";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const ButtonPreview = () => (
   <div className="flex flex-wrap gap-3">

@@ -1,10 +1,12 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
 import { Badge as BadgeComp } from "@monorepo/ui/shadcn-ui/badge";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const BadgePreview = () => (
   <div className="flex gap-2">

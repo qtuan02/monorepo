@@ -1,5 +1,9 @@
 "use client";
 
+import { useTheme } from "next-themes";
+
+import { MagicCard } from "@monorepo/ui/animate-ui/magic-card";
+import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   Card,
   CardContent,
@@ -8,21 +12,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/shadcn-ui/card";
-import { Button } from "@monorepo/ui/shadcn-ui/button";
-import { MagicCard } from "@monorepo/ui/animate-ui/magic-card";
-import { useTheme } from "next-themes";
 
 const MagicCardPreview = () => {
   const { theme } = useTheme();
 
   return (
     <div className="flex justify-center">
-      <Card className="p-0 max-w-sm w-full shadow-none border-none">
+      <Card className="w-full max-w-sm border-none p-0 shadow-none">
         <MagicCard
           gradientColor={theme === "dark" ? "#262626" : "#d9d9d9"}
           className="p-0"
         >
-          <CardHeader className="border-b border-border p-4 [.border-b]:pb-4">
+          <CardHeader className="border-border [.border-b]:pb-4 border-b p-4">
             <CardTitle>Magic Card</CardTitle>
             <CardDescription>
               Magic Card is a component that creates a magic card effect.
@@ -31,7 +32,7 @@ const MagicCardPreview = () => {
           <CardContent className="p-4">
             <p>Magic Card Content</p>
           </CardContent>
-          <CardFooter className="p-4 border-t border-border [.border-t]:pt-4">
+          <CardFooter className="border-border [.border-t]:pt-4 border-t p-4">
             <Button className="w-full">Button</Button>
           </CardFooter>
         </MagicCard>
@@ -39,6 +40,5 @@ const MagicCardPreview = () => {
     </div>
   );
 };
-
 
 export default MagicCardPreview;

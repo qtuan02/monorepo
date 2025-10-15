@@ -30,6 +30,10 @@
     "start": {
       "cache": false,
       "persistent": true
+    },
+    "format": {
+      "cache": false,
+      "outputs": []
     }
   }
 }

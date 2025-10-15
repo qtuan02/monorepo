@@ -1,7 +1,8 @@
 "use client";
 
+import type { UseInViewOptions } from "motion/react";
 import * as React from "react";
-import { motion, useInView, type UseInViewOptions } from "motion/react";
+import { motion, useInView } from "motion/react";
 
 import { cn } from "../libs/cn";
 
@@ -24,7 +25,7 @@ function CursorBlinker({ className }: { className?: string }) {
       animate="blinking"
       className={cn(
         "inline-block h-5 w-[1px] translate-y-1 bg-black dark:bg-white",
-        className
+        className,
       )}
     />
   );

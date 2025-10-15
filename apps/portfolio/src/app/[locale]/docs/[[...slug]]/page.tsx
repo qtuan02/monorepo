@@ -1,11 +1,12 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { NextParams } from "~/types/common";
-import { getMetadataDefault } from "~/utils/get-metadata-default";
+
 import DocsTemplate from "~/features/docs/templates/docs.template";
 import { getDataDocs } from "~/features/docs/utils/get-data-docs";
 import { routing } from "~/i18n/routing";
-import { notFound } from "next/navigation";
+import { NextParams } from "~/types/common";
+import { getMetadataDefault } from "~/utils/get-metadata-default";
 
 export async function generateStaticParams() {
   const locales = routing.locales;
@@ -15,7 +16,7 @@ export async function generateStaticParams() {
     docs.map((doc) => ({
       locale,
       slug: Array.isArray(doc.key) ? doc.key : [doc.key],
-    }))
+    })),
   );
 }
 

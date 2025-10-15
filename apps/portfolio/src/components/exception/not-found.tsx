@@ -1,11 +1,13 @@
 "use client";
 
-import { Home, Undo2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { usePathname, useRouter } from "~/i18n/navigation";
-import { HoleBackground } from "@monorepo/ui/animate-ui/background-hole";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { Home, Undo2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+
+import { HoleBackground } from "@monorepo/ui/animate-ui/background-hole";
+
+import { usePathname, useRouter } from "~/i18n/navigation";
 
 const NotFound = () => {
   const router = useRouter();
@@ -25,21 +27,21 @@ const NotFound = () => {
   }, [router, params, pathname]);
 
   return (
-    <main className=" h-[calc(100vh-48px)] md:h-[calc(100vh-60px)] relative">
-      <div className="flex flex-col gap-y-10 items-center z-10 absolute inset-x-0 mt-20">
-        <h1 className="text-3xl md:text-6xl font-semibold">{t("not_found")}</h1>
+    <main className="relative h-[calc(100vh-48px)] md:h-[calc(100vh-60px)]">
+      <div className="absolute inset-x-0 z-10 mt-20 flex flex-col items-center gap-y-10">
+        <h1 className="text-3xl font-semibold md:text-6xl">{t("not_found")}</h1>
         <div className="flex gap-x-3">
           <button
             key="button-exception-back"
             onClick={() => router.back()}
-            className="cursor-pointer text-xl font-medium px-4 py-2 bg-gradient-to-r from-orange-300 to-orange-500 rounded-lg transition-all duration-500 text-white hover:opacity-80 flex items-center gap-x-1"
+            className="flex cursor-pointer items-center gap-x-1 rounded-lg bg-gradient-to-r from-orange-300 to-orange-500 px-4 py-2 text-xl font-medium text-white transition-all duration-500 hover:opacity-80"
           >
             <Undo2 className="size-6" />
           </button>
           <button
             key="button-exception-home"
             onClick={() => router.push("/")}
-            className="cursor-pointer text-xl font-medium px-4 py-2 bg-gradient-to-r from-orange-300 to-orange-500 rounded-lg transition-all duration-500 text-white hover:opacity-80 flex items-center gap-x-1"
+            className="flex cursor-pointer items-center gap-x-1 rounded-lg bg-gradient-to-r from-orange-300 to-orange-500 px-4 py-2 text-xl font-medium text-white transition-all duration-500 hover:opacity-80"
           >
             <Home className="size-6" />
           </button>

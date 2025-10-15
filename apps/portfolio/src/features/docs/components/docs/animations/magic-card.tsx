@@ -1,8 +1,9 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
 import SectionPreview from "../../common/section-preview";
 import MagicCardPreview from "./preview-client/magic-card-preview";
 

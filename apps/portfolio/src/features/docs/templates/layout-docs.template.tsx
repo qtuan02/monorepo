@@ -1,4 +1,5 @@
 import { PropsWithChildren } from "react";
+
 import AsideDocs from "../components/aside/aside-docs";
 
 interface ILayoutDocsTemplateProps extends PropsWithChildren {
@@ -9,11 +10,11 @@ export default function LayoutDocsTemplate(props: ILayoutDocsTemplateProps) {
   const { children } = props;
 
   return (
-    <main className="flex relative">
-      <aside className="w-64 min-w-64 sticky top-15 h-[85dvh] overflow-y-auto scrollbar-none hidden md:block">
+    <main className="relative flex">
+      <aside className="top-15 scrollbar-none sticky hidden h-[85dvh] w-64 min-w-64 overflow-y-auto md:block">
         <AsideDocs />
       </aside>
-      <article className="flex-1 min-w-0">{children}</article>
+      <article className="min-w-0 flex-1">{children}</article>
     </main>
   );
 }

@@ -1,19 +1,21 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
+import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
-  Card as CardComp,
   CardAction,
+  Card as CardComp,
   CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/shadcn-ui/card";
-import { Button } from "@monorepo/ui/shadcn-ui/button";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const CardPreview = () => (
   <div className="flex justify-center">

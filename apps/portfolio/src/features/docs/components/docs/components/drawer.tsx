@@ -1,12 +1,9 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
+import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
-  Drawer as DrawerComp,
   DrawerClose,
+  Drawer as DrawerComp,
   DrawerContent,
   DrawerDescription,
   DrawerFooter,
@@ -14,7 +11,12 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@monorepo/ui/shadcn-ui/drawer";
-import { Button } from "@monorepo/ui/shadcn-ui/button";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const DrawerPreview = () => (
   <div className="flex justify-center">

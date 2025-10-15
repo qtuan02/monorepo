@@ -9,7 +9,7 @@ const SectionCode = (props: ISectionCodeProps) => {
 
   return (
     <section className="space-y-2">
-      <h2 className="text-base md:text-lg font-medium">{title}</h2>
+      <h2 className="text-base font-medium md:text-lg">{title}</h2>
       {children}
     </section>
   );

@@ -1,8 +1,10 @@
 "use client";
 
-import { cn } from "@monorepo/ui/libs/cn";
-import { useTranslations } from "next-intl";
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+
+import { cn } from "@monorepo/ui/libs/cn";
+
 import NextLink from "~/components/next-link";
 import { usePathname } from "~/i18n/navigation";
 
@@ -21,7 +23,7 @@ const Menu = () => {
         href: "/docs",
       },
     ],
-    [t]
+    [t],
   );
 
   const isActiveRoute = (itemPath: string) => pathname.startsWith(itemPath);
@@ -31,10 +33,10 @@ const Menu = () => {
       key={`MENU_ITEM-${index}`}
       href={item.href}
       className={cn(
-        "px-2 font-medium transition-transform duration-300 origin-bottom py-0.5 text-lg relative before:absolute before:bottom-1 before:inset-x-2 before:h-0.5 before:origin-left before:transition-transform before:duration-500",
+        "relative origin-bottom px-2 py-0.5 text-lg font-medium transition-transform duration-300 before:absolute before:inset-x-2 before:bottom-1 before:h-0.5 before:origin-left before:transition-transform before:duration-500",
         isActiveRoute(item.href)
-          ? "underline-offset-4 scale-105 before:scale-x-100 before:bg-black dark:before:bg-white"
-          : "before:scale-x-0 text-gray-500 hover:before:bg-gray-500 hover:scale-105  hover:before:scale-x-100"
+          ? "scale-105 underline-offset-4 before:scale-x-100 before:bg-black dark:before:bg-white"
+          : "text-gray-500 before:scale-x-0 hover:scale-105 hover:before:scale-x-100 hover:before:bg-gray-500",
       )}
     >
       {item.label}

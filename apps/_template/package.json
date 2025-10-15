@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../toolings/prettier/.prettierignore",
     "dev": "pnpm with-env next dev",
     "build": "pnpm with-env next build",
     "start": "pnpm with-env next start",
@@ -27,6 +28,7 @@
   },
   "devDependencies": {
     "@monorepo/eslint": "workspace:*",
+    "@monorepo/prettier": "workspace:*",
     "@monorepo/tailwind": "workspace:*",
     "@monorepo/typescript": "workspace:*",
     "@types/node": "^22.15.3",
@@ -38,6 +40,8 @@
     "typescript": "catalog:",
     "dotenv-cli": "catalog:",
     "postcss": "catalog:",
-    "tailwindcss": "catalog:"
-  }
+    "tailwindcss": "catalog:",
+    "prettier": "catalog:"
+  },
+  "prettier": "@monorepo/prettier"
 }

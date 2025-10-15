@@ -1,20 +1,28 @@
 import { createTranslator, Messages } from "next-intl";
-import Introduction from "../components/docs/get-started/introduction";
-import Accordion from "../components/docs/components/accordion";
+
 import { DocItem } from "~/types/docs";
-import ClickOutside from "../components/docs/hooks/click-outside";
-import CopyToClipboard from "../components/docs/hooks/copy-to-clipboard";
-import IsClient from "../components/docs/hooks/is-client";
-import LocalStorage from "../components/docs/hooks/local-storage";
-import MediaQuery from "../components/docs/hooks/media-query";
+import BackgroundFireworks from "../components/docs/animations/background-fireworks";
+import BackgroundHexagon from "../components/docs/animations/background-hexagon";
+import BackgroundHole from "../components/docs/animations/background-hole";
+import BackgroundStart from "../components/docs/animations/background-start";
+import BorderBeam from "../components/docs/animations/border-beam";
+import ElementSpring from "../components/docs/animations/element-spring";
+import Loading from "../components/docs/animations/loading";
+import MagicCard from "../components/docs/animations/magic-card";
+import ProgressScroll from "../components/docs/animations/progress-scroll";
+import TextHighlight from "../components/docs/animations/text-highlight";
+import TextRolling from "../components/docs/animations/text-rolling";
+import TextShimmering from "../components/docs/animations/text-shimmering";
+import TextSplitting from "../components/docs/animations/text-splitting";
+import TextTyping from "../components/docs/animations/text-typing";
+import Accordion from "../components/docs/components/accordion";
 import AspectRatio from "../components/docs/components/aspect-ratio";
 import Badge from "../components/docs/components/badge";
 import Breadcrumb from "../components/docs/components/breadcrumb";
 import Button from "../components/docs/components/button";
+import Card from "../components/docs/components/card";
 import Carousel from "../components/docs/components/carousel";
 import Checkbox from "../components/docs/components/checkbox";
-import Sortable from "../components/docs/components/sortable";
-import Table from "../components/docs/components/table";
 import DatePicker from "../components/docs/components/date-picker";
 import Dialog from "../components/docs/components/dialog";
 import Drawer from "../components/docs/components/drawer";
@@ -25,35 +33,28 @@ import Popover from "../components/docs/components/popover";
 import Sheet from "../components/docs/components/sheet";
 import Skeleton from "../components/docs/components/skeleton";
 import Sonner from "../components/docs/components/sonner";
-import Tooltip from "../components/docs/components/tooltip";
+import Sortable from "../components/docs/components/sortable";
 import Switch from "../components/docs/components/switch";
-import BackgroundFireworks from "../components/docs/animations/background-fireworks";
-import BackgroundHexagon from "../components/docs/animations/background-hexagon";
-import BackgroundHole from "../components/docs/animations/background-hole";
-import BackgroundStart from "../components/docs/animations/background-start";
-import ElementSpring from "../components/docs/animations/element-spring";
-import Loading from "../components/docs/animations/loading";
-import ProgressScroll from "../components/docs/animations/progress-scroll";
-import TextHighlight from "../components/docs/animations/text-highlight";
-import TextRolling from "../components/docs/animations/text-rolling";
-import TextSplitting from "../components/docs/animations/text-splitting";
-import TextTyping from "../components/docs/animations/text-typing";
+import Table from "../components/docs/components/table";
+import Tooltip from "../components/docs/components/tooltip";
+import InfiniteScroll from "../components/docs/expands/infinite-scroll";
+import RateLimit from "../components/docs/expands/rate-limit";
+import Flex from "../components/docs/get-started/flex";
+import Grid from "../components/docs/get-started/grid";
+import Introduction from "../components/docs/get-started/introduction";
+import ClickOutside from "../components/docs/hooks/click-outside";
+import CopyToClipboard from "../components/docs/hooks/copy-to-clipboard";
 import Debounce from "../components/docs/hooks/debounce";
+import Fetch from "../components/docs/hooks/fetch";
+import IsClient from "../components/docs/hooks/is-client";
+import LocalStorage from "../components/docs/hooks/local-storage";
+import MediaQuery from "../components/docs/hooks/media-query";
 import Previous from "../components/docs/hooks/previous";
 import Toggle from "../components/docs/hooks/toggle";
 import Unmount from "../components/docs/hooks/unmount";
-import Fetch from "../components/docs/hooks/fetch";
-import Flex from "../components/docs/get-started/flex";
-import Grid from "../components/docs/get-started/grid";
-import TextShimmering from "../components/docs/animations/text-shimmering";
-import BorderBeam from "../components/docs/animations/border-beam";
-import Card from "../components/docs/components/card";
-import MagicCard from "../components/docs/animations/magic-card";
-import InfiniteScroll from "../components/docs/expands/infinite-scroll";
-import RateLimit from "../components/docs/expands/rate-limit";
 
 export const getDataDocs = (
-  t?: ReturnType<typeof createTranslator<Messages, "Docs">>
+  t?: ReturnType<typeof createTranslator<Messages, "Docs">>,
 ) => {
   return [
     {
@@ -85,7 +86,7 @@ export const getDataDocs = (
 };
 
 export const getStartedData = (
-  t?: ReturnType<typeof createTranslator<Messages, "Docs">>
+  t?: ReturnType<typeof createTranslator<Messages, "Docs">>,
 ): DocItem[] => {
   return [
     {
@@ -110,7 +111,7 @@ export const getStartedData = (
 };
 
 export const getExpandsData = (
-  t?: ReturnType<typeof createTranslator<Messages, "Docs">>
+  t?: ReturnType<typeof createTranslator<Messages, "Docs">>,
 ): DocItem[] => {
   return [
     {

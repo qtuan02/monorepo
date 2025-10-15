@@ -1,13 +1,15 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
 import { TypingText as TextTypingComp } from "@monorepo/ui/animate-ui/text-typing";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextTypingPreview = () => (
-  <div className="flex justify-center h-7">
+  <div className="flex h-7 justify-center">
     <TextTypingComp text="Text Typing" />
   </div>
 );

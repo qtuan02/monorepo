@@ -1,15 +1,17 @@
 "use client";
 
+import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { setCookie } from "cookies-next/client";
+import { Check, ChevronDownIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@monorepo/ui/shadcn-ui/popover";
-import { setCookie } from "cookies-next/client";
-import { Check, ChevronDownIcon } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+
 import { LOCALE_COOKIE_NAME } from "~/constants/common";
 import { LANGUAGES } from "~/constants/languages";
 import { getPathname, usePathname } from "~/i18n/navigation";
@@ -34,7 +36,7 @@ const Language = () => {
         icon: <span className="fi fi-us fis"></span>,
       },
     ],
-    [t]
+    [t],
   );
 
   const selectedLocale = useMemo(() => {
@@ -58,8 +60,8 @@ const Language = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="flex items-center gap-x-1 text-base font-normal hover:cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50 rounded-md px-2 py-0.5">
-          <span className="[&>span]:rounded-full text-xl">
+        <div className="flex items-center gap-x-1 rounded-md px-2 py-0.5 text-base font-normal hover:cursor-pointer hover:bg-gray-100/50 dark:hover:bg-gray-800/50">
+          <span className="text-xl [&>span]:rounded-full">
             {selectedLocale?.icon}
           </span>
           {selectedLocale?.countryCode}
@@ -67,18 +69,18 @@ const Language = () => {
         </div>
       </PopoverTrigger>
       <PopoverContent
-        className="backdrop-blur-md bg-white/50 dark:bg-black/50 border-gray-200 dark:border-gray-800 w-fit min-w-48 p-2"
+        className="w-fit min-w-48 border-gray-200 bg-white/50 p-2 backdrop-blur-md dark:border-gray-800 dark:bg-black/50"
         side="bottom"
         align="end"
       >
-        <div className="flex flex-col rounded-sm overflow-hidden gap-y-[1px]">
+        <div className="flex flex-col gap-y-[1px] overflow-hidden rounded-sm">
           {LANGUAGE_ITEMS.map((item, index) => (
             <section
               key={`LANGUAGE_ITEM-${index}`}
-              className="flex justify-between items-center bg-gray-100 dark:bg-gray-900 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 p-2"
+              className="flex cursor-pointer items-center justify-between bg-gray-100 p-2 hover:bg-gray-200 dark:bg-gray-900 dark:hover:bg-gray-800"
               onClick={() => handleChangeLanguage(item.value)}
             >
-              <div className="flex items-center gap-x-2 cursor-pointer">
+              <div className="flex cursor-pointer items-center gap-x-2">
                 <span className="[&>span]:rounded-full">{item.icon}</span>
                 <span>{item.label}</span>
               </div>

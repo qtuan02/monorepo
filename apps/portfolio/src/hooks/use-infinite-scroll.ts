@@ -1,5 +1,5 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 const LIMIT = 5;
 
@@ -26,7 +26,7 @@ export const useInfiniteScrollQuery = () => {
     queryKey: ["key-infinite-scroll"],
     queryFn: async ({ pageParam = 0 }) => {
       const res = await fetch(
-        `https://dummyjson.com/products?limit=${LIMIT}&skip=${LIMIT * pageParam}&select=title,price`
+        `https://dummyjson.com/products?limit=${LIMIT}&skip=${LIMIT * pageParam}&select=title,price`,
       );
       return res.json();
     },

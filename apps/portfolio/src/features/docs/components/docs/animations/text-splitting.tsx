@@ -1,9 +1,11 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
+
 import { SplittingText as TextSplittingComp } from "@monorepo/ui/animate-ui/text-splitting";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
 import SectionPreviewReload from "../../common/section-preview-reload";
 
 const TextRollingPreview = () => (

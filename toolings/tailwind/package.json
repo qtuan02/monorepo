@@ -11,11 +11,14 @@
     "clean": "git clean -xdf .cache .turbo node_modules"
   },
   "devDependencies": {
+    "@monorepo/prettier": "workspace:*",
     "@monorepo/typescript": "workspace:*",
     "@types/node": "^22.15.3",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "tw-animate-css": "catalog:",
-    "tailwind-scrollbar": "catalog:"
-  }
+    "tailwind-scrollbar": "catalog:",
+    "prettier": "catalog:"
+  },
+  "prettier": "@monorepo/prettier"
 }

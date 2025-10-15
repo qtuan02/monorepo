@@ -12,8 +12,8 @@ const ReactQueryDevtoolsProduction = dynamic(() =>
   import("@tanstack/react-query-devtools/build/modern/production.js").then(
     (d) => ({
       default: d.ReactQueryDevtools,
-    })
-  )
+    }),
+  ),
 );
 
 export interface ProviderProps {
@@ -24,7 +24,7 @@ const Provider = ({ children }: ProviderProps) => {
   const queryClient = getQueryClient();
 
   const [showDevtools, setShowDevtools] = React.useState(
-    env.NEXT_PUBLIC_ENV === "local"
+    env.NEXT_PUBLIC_ENV === "local",
   );
 
   React.useEffect(() => {

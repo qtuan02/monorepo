@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const getMetadataDefault = async (
   locale: string,
-  metadata?: Metadata
+  metadata?: Metadata,
 ): Promise<Metadata> => {
   return {
     title: "Portfolio",

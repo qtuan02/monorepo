@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../toolings/prettier/.prettierignore",
     "dev": "pnpm with-env next dev",
     "build": "pnpm with-env next build",
     "start": "pnpm with-env next start",
@@ -38,6 +39,7 @@
     "sonner": "catalog:"
   },
   "devDependencies": {
+    "@monorepo/prettier": "workspace:*",
     "@tailwindcss/postcss": "catalog:",
     "@types/node": "^22.15.3",
     "@types/react": "catalog:react19",
@@ -51,6 +53,8 @@
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "zod": "catalog:"
-  }
+    "zod": "catalog:",
+    "prettier": "catalog:"
+  },
+  "prettier": "@monorepo/prettier"
 }

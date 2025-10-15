@@ -9,8 +9,8 @@ const SectionPreview = (props: ISectionPreviewProps) => {
 
   return (
     <section className="space-y-2">
-      <h2 className="text-base md:text-lg font-medium">{title}</h2>
-      <div className="border border-gray-200 dark:border-gray-800 rounded-md p-5">
+      <h2 className="text-base font-medium md:text-lg">{title}</h2>
+      <div className="rounded-md border border-gray-200 p-5 dark:border-gray-800">
         {children}
       </div>
     </section>

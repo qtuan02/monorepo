@@ -1,11 +1,13 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Checkbox as CheckboxComp } from "@monorepo/ui/shadcn-ui/checkbox";
+
 import { Checkbox as CheckboxAnimate } from "@monorepo/ui/animate-ui/checkbox";
+import { Checkbox as CheckboxComp } from "@monorepo/ui/shadcn-ui/checkbox";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const CheckboxPreview = () => (
   <div className="flex flex-col gap-3">
@@ -28,7 +30,7 @@ const CheckboxPreview = () => (
         className="data-[state=checked]:border-blue-600 data-[state=checked]:bg-blue-600 data-[state=checked]:text-white dark:data-[state=checked]:border-blue-700 dark:data-[state=checked]:bg-blue-700"
       />
       <div className="grid gap-1.5 font-normal">
-        <p className="text-sm leading-none font-medium">Checkbox Block</p>
+        <p className="text-sm font-medium leading-none">Checkbox Block</p>
         <p className="text-muted-foreground text-sm">
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
           quos.

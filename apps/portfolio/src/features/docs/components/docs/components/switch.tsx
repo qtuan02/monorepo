@@ -1,15 +1,17 @@
-import { IDocComponentProps } from "~/types/docs";
-import LayoutDocs from "../../common/layout-docs";
-import CodeBlock from "../../common/code-block";
-import SectionPreview from "../../common/section-preview";
-import SectionCode from "../../common/section-code";
 import { getTranslations } from "next-intl/server";
-import { Switch as SwitchComp } from "@monorepo/ui/shadcn-ui/switch";
+
 import { Switch as SwitchAnimate } from "@monorepo/ui/animate-ui/switch";
 import { Label } from "@monorepo/ui/shadcn-ui/label";
+import { Switch as SwitchComp } from "@monorepo/ui/shadcn-ui/switch";
+
+import { IDocComponentProps } from "~/types/docs";
+import CodeBlock from "../../common/code-block";
+import LayoutDocs from "../../common/layout-docs";
+import SectionCode from "../../common/section-code";
+import SectionPreview from "../../common/section-preview";
 
 const SwitchPreview = () => (
-  <div className="flex gap-2 flex-col">
+  <div className="flex flex-col gap-2">
     <div className="flex items-center space-x-2">
       <SwitchComp id="default-switch" />
       <Label htmlFor="default-switch">Default Switch</Label>

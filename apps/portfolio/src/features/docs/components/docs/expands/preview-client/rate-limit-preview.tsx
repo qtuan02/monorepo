@@ -1,8 +1,9 @@
 "use client";
 
-import { Button } from "@monorepo/ui/shadcn-ui/button";
-import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
+
+import { Button } from "@monorepo/ui/shadcn-ui/button";
 
 const RateLimitPreview = () => {
   const [loading, setLoading] = useState(false);
@@ -34,7 +35,7 @@ const RateLimitPreview = () => {
         }}
       >
         {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
           "Send request"
         )}
