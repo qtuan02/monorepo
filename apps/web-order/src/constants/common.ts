@@ -1,1 +1,0 @@
-export const LOCALE_COOKIE_NAME = "_TEMPLATE_LOCALE";

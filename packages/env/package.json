@@ -1,5 +1,5 @@
 {
-  "name": "@web/env",
+  "name": "@monorepo/env",
   "version": "0.0.0",
   "private": true,
   "exports": {
@@ -12,8 +12,8 @@
     "dev": "tsc"
   },
   "devDependencies": {
-    "@web/eslint": "workspace:*",
-    "@web/typescript": "workspace:*",
+    "@monorepo/eslint": "workspace:*",
+    "@monorepo/typescript": "workspace:*",
     "@types/node": "^22.15.3",
     "eslint": "catalog:",
     "typescript": "catalog:",

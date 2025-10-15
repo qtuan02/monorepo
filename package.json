@@ -9,15 +9,12 @@
     "typecheck": "turbo run typecheck",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "dev:_web-template": "turbo run dev -F @web/_web-template",
-    "build:_web-template": "turbo run build -F @web/_web-template",
-    "start:_web-template": "turbo run start -F @web/_web-template",
-    "dev:web-portfolio": "turbo run dev -F @web/web-portfolio",
-    "build:web-portfolio": "turbo run build -F @web/web-portfolio",
-    "start:web-portfolio": "turbo run start -F @web/web-portfolio",
-    "dev:web-order": "turbo run dev -F @web/web-order",
-    "build:web-order": "turbo run build -F @web/web-order",
-    "start:web-order": "turbo run start -F @web/web-order"
+    "dev:_template": "turbo run dev -F @monorepo/_template",
+    "build:_template": "turbo run build -F @monorepo/_template",
+    "start:_template": "turbo run start -F @monorepo/_template",
+    "dev:portfolio": "turbo run dev -F @monorepo/portfolio",
+    "build:portfolio": "turbo run build -F @monorepo/portfolio",
+    "start:portfolio": "turbo run start -F @monorepo/portfolio"
   },
   "devDependencies": {
     "prettier": "catalog:",

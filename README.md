@@ -3,12 +3,12 @@
 ```
 monorepo
 ├── apps/                   # Main applications
-│ ├── _web-template/        # Template for bootstrapping a new app (Next.js)
+│ ├── _template/            # Template for bootstrapping a new app (Next.js)
 │ └── portfolio/            # Frontend portfolio (Next.js)
 │
 ├── packages/               # Shared tooling/configurations (Web)
 │ ├── env/                  # Environment variable manager (Web)
-│ └── web-ui/               # Reusable UI components (Web)
+│ └── ui/                   # Reusable UI components (Web)
 │
 ├── toolings/               # Shared tooling/configurations
 │ ├── eslint/               # Config ESLint
