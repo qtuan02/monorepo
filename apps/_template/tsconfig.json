@@ -1,0 +1,16 @@
+{
+  "extends": "@monorepo/typescript/nextjs.json",
+  "compilerOptions": {
+    "allowArbitraryExtensions": true,
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "plugins": [{ "name": "next" }],
+    "module": "esnext"
+  },
+  "include": [".", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}

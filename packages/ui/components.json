@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "./src/styles.css",
+    "baseColor": "neutral",
+    "cssVariables": true
+  },
+  "aliases": {
+    "components": "@monorepo/ui/shadcn-ui",
+    "hooks": "@monorepo/ui/hooks",
+    "libs": "@monorepo/ui/libs",
+    "utils": "@monorepo/ui/libs/utils",
+    "ui": "@monorepo/ui/shadcn-ui"
+  },
+  "iconLibrary": "lucide"
+}

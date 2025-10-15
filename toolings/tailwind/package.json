@@ -1,5 +1,5 @@
 {
-  "name": "@web/tailwind",
+  "name": "@monorepo/tailwind",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -11,7 +11,7 @@
     "clean": "git clean -xdf .cache .turbo node_modules"
   },
   "devDependencies": {
-    "@web/typescript": "workspace:*",
+    "@monorepo/typescript": "workspace:*",
     "@types/node": "^22.15.3",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
