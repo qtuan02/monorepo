@@ -18,7 +18,8 @@
     "start:_template": "turbo run start -F @monorepo/_template",
     "dev:portfolio": "turbo run dev -F @monorepo/portfolio",
     "build:portfolio": "turbo run build -F @monorepo/portfolio",
-    "start:portfolio": "turbo run start -F @monorepo/portfolio"
+    "start:portfolio": "turbo run start -F @monorepo/portfolio",
+    "dev:_m-template": "pnpm --filter @monorepo/_m-template dev"
   },
   "prettier": "@monorepo/prettier",
   "devDependencies": {

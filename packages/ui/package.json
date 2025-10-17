@@ -78,7 +78,8 @@
     "react-dom": "catalog:react19",
     "react-hook-form": "catalog:",
     "tailwind-merge": "catalog:",
-    "vaul": "^1.1.2"
+    "vaul": "^1.1.2",
+    "sonner": "catalog:"
   },
   "prettier": "@monorepo/prettier"
 }

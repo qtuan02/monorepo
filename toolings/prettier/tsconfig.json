@@ -1,6 +1,0 @@
-{
-  "extends": "@monorepo/typescript/react.json",
-  "compilerOptions": {},
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
-}
