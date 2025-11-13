@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
-
 import { Button } from "@monorepo/ui/shadcn-ui/button";
+import { Loader2 } from "lucide-react";
 
 const RateLimitPreview = () => {
   const [loading, setLoading] = useState(false);

@@ -2,9 +2,9 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
-  "template": "Template",
-  "Exception": {
-    "back": "Come back"
-  }
+  template: "Template";
+  Exception: {
+    back: "Come back";
+  };
 };
 export default messages;

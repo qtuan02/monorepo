@@ -22,7 +22,7 @@ export default async function DocsTemplate(props: IDocsTemplateProps) {
   if (!Component) notFound();
 
   return (
-    <div className="pb-22 p-4 md:pb-4">
+    <div className="p-4 pb-22 md:pb-4">
       <Component locale={locale} slug={slug} />
     </div>
   );

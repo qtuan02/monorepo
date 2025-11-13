@@ -22,16 +22,14 @@ function ThemeColorSync() {
   const { resolvedTheme } = useTheme();
 
   const ensureMeta = (): HTMLMetaElement => {
-    let metaElement = document.querySelector(
-      'meta[name="theme-color"]',
-    ) as HTMLMetaElement | null;
+    let metaElement = document.querySelector('meta[name="theme-color"]');
 
     if (!metaElement) {
       metaElement = document.createElement("meta");
-      metaElement.name = "theme-color";
+      (metaElement as HTMLMetaElement).name = "theme-color";
       document.head.appendChild(metaElement);
     }
-    return metaElement;
+    return metaElement as HTMLMetaElement;
   };
 
   React.useEffect(() => {

@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { Badge as BadgeComp } from "@monorepo/ui/shadcn-ui/badge";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

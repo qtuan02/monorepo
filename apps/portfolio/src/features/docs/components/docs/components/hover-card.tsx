@@ -1,11 +1,10 @@
-import { getTranslations } from "next-intl/server";
-
 import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   HoverCard as HoverCardComp,
   HoverCardContent,
   HoverCardTrigger,
 } from "@monorepo/ui/shadcn-ui/hover-card";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

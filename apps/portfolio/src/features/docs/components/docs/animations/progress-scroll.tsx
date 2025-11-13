@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { ScrollProgress as ProgressScrollComp } from "@monorepo/ui/animate-ui/progress-scroll";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
@@ -11,7 +10,7 @@ import SectionPreview from "../../common/section-preview";
 const ProgressScrollPreview = () => (
   <div className="relative h-40 overflow-y-auto">
     <ProgressScrollComp
-      className="left-0 top-0 z-10 w-full"
+      className="top-0 left-0 z-10 w-full"
       progressProps={{ className: "absolute" }}
     >
       <div className="h-[1000px]">

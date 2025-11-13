@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-
 import {
   Carousel as CarouselComp,
   CarouselContent,
@@ -7,6 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@monorepo/ui/shadcn-ui/carousel";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
@@ -15,7 +14,7 @@ import SectionCode from "../../common/section-code";
 import SectionPreview from "../../common/section-preview";
 
 const CarouselPreview = () => (
-  <CarouselComp className="max-w-3xs mx-auto w-full md:max-w-xs">
+  <CarouselComp className="mx-auto w-full max-w-3xs md:max-w-xs">
     <CarouselContent>
       {Array.from({ length: 5 }).map((_, index) => (
         <CarouselItem key={index}>

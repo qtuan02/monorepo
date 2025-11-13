@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-
 import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   CardAction,
@@ -10,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/shadcn-ui/card";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

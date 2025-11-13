@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { SplittingText as TextSplittingComp } from "@monorepo/ui/animate-ui/text-splitting";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

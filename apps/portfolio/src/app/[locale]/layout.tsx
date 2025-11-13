@@ -5,11 +5,10 @@ import { ReactNode } from "react";
 import { Metadata } from "next";
 import { Inter_Tight } from "next/font/google";
 import { notFound } from "next/navigation";
+import { cn } from "@monorepo/ui/libs/cn";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
-
-import { cn } from "@monorepo/ui/libs/cn";
 
 import { env } from "~/env";
 import RootLayout from "~/features/layout/templates";

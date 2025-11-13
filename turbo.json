@@ -2,21 +2,29 @@
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
   "tasks": {
+    "topo": {
+      "dependsOn": ["^topo"]
+    },
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
-    },
-    "lint": {
-      "dependsOn": ["^lint"]
-    },
-    "typecheck": {
-      "dependsOn": ["^typecheck"]
+      "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
     "dev": {
       "dependsOn": ["^dev"],
       "cache": false,
       "persistent": false
+    },
+    "format": {
+      "outputs": [".cache/.prettiercache"],
+      "outputLogs": "new-only"
+    },
+    "lint": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": [".cache/.eslintcache"]
+    },
+    "typecheck": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": [".cache/tsbuildinfo.json"]
     },
     "clean": {
       "cache": false
@@ -24,16 +32,26 @@
     "//#clean": {
       "cache": false
     },
-    "install": {
-      "cache": false
+    "push": {
+      "cache": false,
+      "interactive": true
     },
-    "start": {
+    "studio": {
       "cache": false,
       "persistent": true
     },
-    "format": {
+    "ui-add": {
       "cache": false,
-      "outputs": []
+      "interactive": true
     }
-  }
+  },
+  "globalEnv": [],
+  "globalPassThroughEnv": [
+    "NODE_ENV",
+    "CI",
+    "VERCEL",
+    "VERCEL_ENV",
+    "VERCEL_URL",
+    "npm_lifecycle_event"
+  ]
 }

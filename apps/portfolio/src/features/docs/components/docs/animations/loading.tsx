@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { Loading as LoadingComp } from "@monorepo/ui/animate-ui/loading";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

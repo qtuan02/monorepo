@@ -1,7 +1,8 @@
 {
   "name": "@monorepo/ui",
-  "version": "0.0.0",
   "private": true,
+  "type": "module",
+  "license": "MIT",
   "imports": {
     "#*": "./src/*"
   },
@@ -28,25 +29,22 @@
     }
   },
   "scripts": {
-    "clean": "git clean -xdf .cache .turbo node_modules",
-    "format": "prettier --check . --ignore-path ../../toolings/prettier/.prettierignore",
-    "lint": "eslint . --max-warnings 0",
-    "generate:component": "turbo gen react-component",
-    "typecheck": "tsc --noEmit",
-    "dev": "tsc"
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint --flag unstable_native_nodejs_ts_config",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "ui-add": "pnpm dlx shadcn@latest add && prettier src --write --list-different"
   },
   "devDependencies": {
-    "@monorepo/eslint": "workspace:*",
-    "@monorepo/prettier": "workspace:*",
-    "@monorepo/tailwind": "workspace:*",
-    "@monorepo/typescript": "workspace:*",
-    "@tailwindcss/postcss": "catalog:",
-    "@types/node": "^22.15.3",
+    "@monorepo/eslint-config": "workspace:*",
+    "@monorepo/prettier-config": "workspace:*",
+    "@monorepo/tailwind-config": "workspace:*",
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
     "@types/react": "catalog:react19",
     "@types/react-dom": "catalog:react19",
     "eslint": "catalog:",
     "postcss": "catalog:",
-    "tailwindcss": "catalog:",
     "typescript": "catalog:",
     "prettier": "catalog:"
   },
@@ -81,5 +79,5 @@
     "vaul": "^1.1.2",
     "sonner": "catalog:"
   },
-  "prettier": "@monorepo/prettier"
+  "prettier": "@monorepo/prettier-config"
 }

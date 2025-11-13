@@ -1,3 +1,6 @@
+import { BorderBeam } from "@monorepo/ui/animate-ui/border-beam";
+import { SpringElement } from "@monorepo/ui/animate-ui/element-spring";
+import { HighlightText } from "@monorepo/ui/animate-ui/text-highlight";
 import {
   CalendarRange,
   Download,
@@ -7,10 +10,6 @@ import {
   Phone,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { BorderBeam } from "@monorepo/ui/animate-ui/border-beam";
-import { SpringElement } from "@monorepo/ui/animate-ui/element-spring";
-import { HighlightText } from "@monorepo/ui/animate-ui/text-highlight";
 
 import NextLink from "~/components/next-link";
 import CardSection from "../card/card-section";
@@ -22,7 +21,7 @@ const AsideLeft = () => {
     <>
       <SpringElement>
         <CardSection className="flex flex-col items-center gap-y-2">
-          <div className="flex size-24 select-none items-center justify-center rounded-full bg-orange-400 text-4xl font-bold text-white md:size-36 md:text-6xl">
+          <div className="flex size-24 items-center justify-center rounded-full bg-orange-400 text-4xl font-bold text-white select-none md:size-36 md:text-6xl">
             HT
           </div>
           <p className="text-xl font-bold md:text-2xl">Huỳnh Quốc Tuấn</p>

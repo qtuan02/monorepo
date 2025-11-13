@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDownIcon } from "lucide-react";
-
 import { Button } from "@monorepo/ui/shadcn-ui/button";
 import { Calendar } from "@monorepo/ui/shadcn-ui/calendar";
 import { Input } from "@monorepo/ui/shadcn-ui/input";
@@ -12,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@monorepo/ui/shadcn-ui/popover";
+import { ChevronDownIcon } from "lucide-react";
 
 const DatePickerPreview = () => {
   const [open, setOpen] = useState(false);

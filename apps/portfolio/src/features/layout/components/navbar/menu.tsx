@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { useTranslations } from "next-intl";
-
 import { cn } from "@monorepo/ui/libs/cn";
+import { useTranslations } from "next-intl";
 
 import NextLink from "~/components/next-link";
 import { usePathname } from "~/i18n/navigation";

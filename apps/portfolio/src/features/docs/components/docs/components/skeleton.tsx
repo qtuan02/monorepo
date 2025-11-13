@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { Skeleton as SkeletonComp } from "@monorepo/ui/shadcn-ui/skeleton";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

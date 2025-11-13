@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { ShimmeringText } from "@monorepo/ui/animate-ui/text-shimmering";
+import { getTranslations } from "next-intl/server";
 
 import NextLink from "~/components/next-link";
 import { IDocComponentProps } from "~/types/docs";

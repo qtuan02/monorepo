@@ -3,7 +3,6 @@
 import type { ImageProps } from "next/image";
 import React from "react";
 import Image from "next/image";
-
 import { cn } from "@monorepo/ui/libs/cn";
 
 export interface NextImageProps extends ImageProps {

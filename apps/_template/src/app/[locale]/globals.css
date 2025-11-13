@@ -1,4 +1,4 @@
-@import "@monorepo/tailwind/styles.css";
+@import "@monorepo/tailwind-config/styles";
 
 /**
  * This is necessary to load the @monorepo/ui package when moving from
@@ -7,7 +7,7 @@
  * For more details, see:
  * https://github.com/tailwindlabs/tailwindcss/issues/16733
  */
-@source '../../../../../packages/ui';
+@source "../../../../../packages/ui";
 
 @theme inline {
   --font-sans: var(--font-inter-tight);

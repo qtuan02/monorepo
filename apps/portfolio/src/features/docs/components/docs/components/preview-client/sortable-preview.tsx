@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { GripVertical } from "lucide-react";
-
 import * as SortableComp from "@monorepo/ui/shadcn-ui/sortable";
+import { GripVertical } from "lucide-react";
 
 const SortablePreview = () => {
   const [data, setData] = useState([
@@ -67,7 +66,7 @@ const SortablePreview = () => {
             <div className="flex size-full items-center gap-x-2 rounded-md border bg-zinc-100 px-2 py-2 shadow-sm md:py-4 dark:bg-zinc-900">
               <GripVertical className="size-3 md:size-6" />
               <div className="text-foreground flex flex-col gap-1">
-                <div className="text-sm font-medium leading-tight md:text-base">
+                <div className="text-sm leading-tight font-medium md:text-base">
                   {item.title}
                 </div>
                 <span className="text-muted-foreground line-clamp-2 hidden text-sm md:inline-block">

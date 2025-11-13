@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { StarsBackground as StarsBackgroundComp } from "@monorepo/ui/animate-ui/background-start";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

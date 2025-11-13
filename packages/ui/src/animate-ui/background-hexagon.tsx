@@ -54,7 +54,7 @@ function HexagonBackground({
       {...props}
     >
       <style>{`:root { --hexagon-margin: ${hexagonMargin}px; }`}</style>
-      <div className="absolute -left-0 top-0 size-full overflow-hidden">
+      <div className="absolute top-0 -left-0 size-full overflow-hidden">
         {Array.from({ length: gridDimensions.rows }).map((_, rowIndex) => (
           <div
             key={`row-${rowIndex}`}
@@ -81,7 +81,7 @@ function HexagonBackground({
                   className={cn(
                     "relative",
                     "[clip-path:polygon(50%_0%,_100%_25%,_100%_75%,_50%_100%,_0%_75%,_0%_25%)]",
-                    "before:absolute before:left-0 before:top-0 before:h-full before:w-full before:bg-white before:opacity-100 before:transition-all before:duration-1000 before:content-[''] dark:before:bg-neutral-950",
+                    "before:absolute before:top-0 before:left-0 before:h-full before:w-full before:bg-white before:opacity-100 before:transition-all before:duration-1000 before:content-[''] dark:before:bg-neutral-950",
                     "after:absolute after:inset-[var(--hexagon-margin)] after:bg-white after:content-[''] dark:after:bg-neutral-950",
                     "after:[clip-path:polygon(50%_0%,_100%_25%,_100%_75%,_50%_100%,_0%_75%,_0%_25%)]",
                     "hover:before:bg-neutral-200 hover:before:opacity-100 hover:before:duration-0 hover:after:bg-neutral-100 hover:after:opacity-100 hover:after:duration-0 dark:hover:before:bg-neutral-800 dark:hover:after:bg-neutral-900",

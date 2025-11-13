@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-
 import {
   TableBody,
   TableCaption,
@@ -10,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@monorepo/ui/shadcn-ui/table";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

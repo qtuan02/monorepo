@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { TypingText as TextTypingComp } from "@monorepo/ui/animate-ui/text-typing";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

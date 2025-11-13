@@ -1,11 +1,10 @@
-import { getTranslations } from "next-intl/server";
-
 import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   Tooltip as TooltipComp,
   TooltipContent,
   TooltipTrigger,
 } from "@monorepo/ui/shadcn-ui/tooltip";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

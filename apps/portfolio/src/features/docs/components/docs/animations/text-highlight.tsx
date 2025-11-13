@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { HighlightText as TextHighlightComp } from "@monorepo/ui/animate-ui/text-highlight";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

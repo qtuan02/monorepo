@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { FireworksBackground as FireworksBackgroundComp } from "@monorepo/ui/animate-ui/background-fireworks";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

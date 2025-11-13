@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { HexagonBackground as HexagonBackgroundComp } from "@monorepo/ui/animate-ui/background-hexagon";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

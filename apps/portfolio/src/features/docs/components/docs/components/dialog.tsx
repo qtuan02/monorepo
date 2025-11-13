@@ -1,5 +1,3 @@
-import { getTranslations } from "next-intl/server";
-
 import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
   DialogClose,
@@ -11,6 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@monorepo/ui/shadcn-ui/dialog";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { SpringElement as SpringElementComp } from "@monorepo/ui/animate-ui/element-spring";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

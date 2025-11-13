@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-
 import { RollingText as TextRollingComp } from "@monorepo/ui/animate-ui/text-rolling";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

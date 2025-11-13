@@ -20,7 +20,7 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
-          <div className="md:pt-15 pt-12">{children}</div>
+          <div className="pt-12 md:pt-15">{children}</div>
           <Suspense fallback={null}>
             <Footer />
           </Suspense>

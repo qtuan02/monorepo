@@ -1,11 +1,10 @@
-import { getTranslations } from "next-intl/server";
-
 import {
   Accordion as AccordionComp,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@monorepo/ui/shadcn-ui/accordion";
+import { getTranslations } from "next-intl/server";
 
 import { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";

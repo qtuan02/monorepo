@@ -6,8 +6,8 @@ import Theme from "../components/navbar/theme";
 
 export default function Navbar() {
   return (
-    <nav className="fixed z-50 w-full select-none bg-white/30 shadow-sm backdrop-blur-md dark:bg-gray-900/30">
-      <div className="md:h-15 flex-center flex h-12 items-center justify-between px-3">
+    <nav className="fixed z-50 w-full bg-white/30 shadow-sm backdrop-blur-md select-none dark:bg-gray-900/30">
+      <div className="flex-center flex h-12 items-center justify-between px-3 md:h-15">
         <section className="flex items-center gap-x-10">
           <NextLink href="/" className="flex items-center gap-x-2 md:px-2">
             <NextImage

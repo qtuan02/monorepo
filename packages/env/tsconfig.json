@@ -1,5 +1,5 @@
 {
-  "extends": "@monorepo/typescript/react.json",
+  "extends": "@monorepo/tsconfig/base.json",
   "compilerOptions": {},
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
