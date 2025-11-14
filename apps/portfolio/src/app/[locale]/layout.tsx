@@ -116,8 +116,8 @@ export default async function Layout({
       className={cn(inter.className, "antialiased")}
     >
       <body suppressHydrationWarning className="min-h-screen">
-        <GoogleAnalytics gaId="" />
-        <GoogleTagManager gtmId="" />
+        <GoogleAnalytics gaId={env.NEXT_PUBLIC_GOOGLE_ANALYTICS ?? ""} />
+        <GoogleTagManager gtmId={env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER ?? ""} />
         <NextIntlClientProvider locale={locale}>
           <Provider>
             <RootLayout>{children}</RootLayout>

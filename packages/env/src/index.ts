@@ -11,6 +11,10 @@ const env = createEnv({
 
     //template
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN: z.string().url(),
+
+    // google analytics
+    NEXT_PUBLIC_GOOGLE_ANALYTICS: z.string().optional(),
+    NEXT_PUBLIC_GOOGLE_TAG_MANAGER: z.string().optional(),
   },
   experimental__runtimeEnv: {
     NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
@@ -21,6 +25,10 @@ const env = createEnv({
     //template
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN:
       process.env.NEXT_PUBLIC_SENTRY_TEMPLATE_DSN,
+
+    // google analytics
+    NEXT_PUBLIC_GOOGLE_ANALYTICS: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS,
+    NEXT_PUBLIC_GOOGLE_TAG_MANAGER: process.env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER,
   },
 });
 
