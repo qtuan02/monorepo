@@ -1,3 +1,6 @@
+import { BorderBeam } from "@monorepo/ui/animate-ui/border-beam";
+import { SpringElement } from "@monorepo/ui/animate-ui/element-spring";
+import { HighlightText } from "@monorepo/ui/animate-ui/text-highlight";
 import {
   CalendarRange,
   Download,
@@ -7,10 +10,6 @@ import {
   Phone,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-
-import { BorderBeam } from "@monorepo/ui/animate-ui/border-beam";
-import { SpringElement } from "@monorepo/ui/animate-ui/element-spring";
-import { HighlightText } from "@monorepo/ui/animate-ui/text-highlight";
 
 import NextLink from "~/components/next-link";
 import CardSection from "../card/card-section";

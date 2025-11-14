@@ -8,9 +8,10 @@ const env = createEnv({
 
     //portfolio
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: z.string().url(),
+    NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN: z.string().optional(),
 
     //template
-    NEXT_PUBLIC_SENTRY_TEMPLATE_DSN: z.string().url(),
+    NEXT_PUBLIC_SENTRY_TEMPLATE_DSN: z.string().optional(),
 
     // google analytics
     NEXT_PUBLIC_GOOGLE_ANALYTICS: z.string().optional(),
@@ -21,6 +22,8 @@ const env = createEnv({
 
     //portfolio
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: process.env.NEXT_PUBLIC_PORTFOLIO_DOMAIN,
+    NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN:
+      process.env.NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN || "",
 
     //template
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN:

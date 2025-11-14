@@ -15,18 +15,12 @@ const NextLink: React.FC<NextLinkProps> = ({
   const isExternalLink =
     _isExternalLink ?? props.href.toString().startsWith("http");
 
-  if (isExternalLink) {
+  if (isExternalLink)
     return (
-      <a
-        {...props}
-        href={props.href.toString()}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <Link {...props} target="_blank" rel="noopener noreferrer">
         {props.children}
-      </a>
+      </Link>
     );
-  }
 
   return <Link {...props}>{props.children}</Link>;
 };
