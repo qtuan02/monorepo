@@ -1,8 +1,9 @@
 import Image from "next/image";
-import { AspectRatio as AspectRatioComp } from "@monorepo/ui/shadcn-ui/aspect-ratio";
 import { getTranslations } from "next-intl/server";
 
-import { IDocComponentProps } from "~/types/docs";
+import { AspectRatio as AspectRatioComp } from "@monorepo/ui/shadcn-ui/aspect-ratio";
+
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { HoleBackground } from "@monorepo/ui/animate-ui/background-hole";
 import { Home, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { HoleBackground } from "@monorepo/ui/animate-ui/background-hole";
 
 import { usePathname, useRouter } from "~/i18n/navigation";
 

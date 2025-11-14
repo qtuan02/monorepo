@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import {
   Carousel as CarouselComp,
   CarouselContent,
@@ -5,9 +7,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@monorepo/ui/shadcn-ui/carousel";
-import { getTranslations } from "next-intl/server";
 
-import { IDocComponentProps } from "~/types/docs";
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

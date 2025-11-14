@@ -1,4 +1,5 @@
 import { fileURLToPath } from "url";
+import { withSentryConfig } from "@sentry/nextjs";
 import createJiti from "jiti";
 import createNextIntlPlugin from "next-intl/plugin";
 
@@ -30,4 +31,13 @@ const nextConfig = {
   output: !!process.env.CI ? "standalone" : undefined,
 };
 
-export default withNextIntl(nextConfig);
+export default withSentryConfig(withNextIntl(nextConfig), {
+  org: "sentry",
+  project: "template",
+
+  // Only print logs for uploading source maps in CI
+  // Set to `true` to suppress logs
+  silent: !process.env.CI,
+  // Automatically tree-shake Sentry logger statements to reduce bundle size
+  disableLogger: true,
+});

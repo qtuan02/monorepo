@@ -1,4 +1,5 @@
-import { FC, HTMLAttributes, ReactNode } from "react";
+import type { FC, HTMLAttributes, ReactNode } from "react";
+
 import { cn } from "@monorepo/ui/libs/cn";
 
 interface ICardSectionProps extends HTMLAttributes<HTMLDivElement> {

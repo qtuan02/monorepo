@@ -1,8 +1,8 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import type { NextParams } from "~/types/common";
 import AboutTemplate from "~/features/about/templates/about.template";
-import { NextParams } from "~/types/common";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 
 export async function generateMetadata({

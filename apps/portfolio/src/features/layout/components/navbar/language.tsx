@@ -2,14 +2,15 @@
 
 import { useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { setCookie } from "cookies-next/client";
+import { Check, ChevronDownIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@monorepo/ui/shadcn-ui/popover";
-import { setCookie } from "cookies-next/client";
-import { Check, ChevronDownIcon } from "lucide-react";
-import { useLocale, useTranslations } from "next-intl";
 
 import { LOCALE_COOKIE_NAME } from "~/constants/common";
 import { LANGUAGES } from "~/constants/languages";

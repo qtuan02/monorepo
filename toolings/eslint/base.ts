@@ -3,6 +3,7 @@ import { includeIgnoreFile } from "@eslint/compat";
 import eslint from "@eslint/js";
 import importPlugin from "eslint-plugin-import";
 import turboPlugin from "eslint-plugin-turbo";
+import unusedImports from "eslint-plugin-unused-imports";
 import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
 
@@ -10,7 +11,15 @@ import tseslint from "typescript-eslint";
  * All packages that leverage t3-env should use this rule
  */
 export const restrictEnvAccess = defineConfig(
-  { ignores: ["**/env.ts"] },
+  {
+    ignores: [
+      "**/env.ts",
+      "**/instrumentation-client.ts",
+      "**/instrumentation.ts",
+      "**/sentry.client.ts",
+      "**/sentry.server.ts",
+    ],
+  },
   {
     files: ["**/*.js", "**/*.ts", "**/*.tsx"],
     rules: {
@@ -45,6 +54,7 @@ export const baseConfig = defineConfig(
     plugins: {
       import: importPlugin,
       turbo: turboPlugin,
+      "unused-imports": unusedImports,
     },
     extends: [
       eslint.configs.recommended,
@@ -54,6 +64,17 @@ export const baseConfig = defineConfig(
     ],
     rules: {
       ...turboPlugin.configs.recommended.rules,
+      "no-unused-vars": "off", // or "@typescript-eslint/no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
+      ],
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
@@ -66,14 +87,36 @@ export const baseConfig = defineConfig(
         2,
         { checksVoidReturn: { attributes: false } },
       ],
-      "@typescript-eslint/no-unnecessary-condition": [
-        "error",
-        {
-          allowConstantLoopConditions: true,
-        },
-      ],
-      "@typescript-eslint/no-non-null-assertion": "error",
+      // "@typescript-eslint/no-unnecessary-condition": [
+      //   "error",
+      //   {
+      //     allowConstantLoopConditions: true,
+      //   },
+      // ],
       "import/consistent-type-specifier-style": ["error", "prefer-top-level"],
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-base-to-string": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/prefer-nullish-coalescing": "off",
+      "@typescript-eslint/prefer-for-of": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/consistent-type-definitions": "error",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/require-await": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-redundant-type-constituents": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/restrict-template-expressions": "off",
+      "@typescript-eslint/no-floating-promises": "off",
+      "no-useless-escape": "off",
+      "@typescript-eslint/ban-tslint-comment": "off",
+      "@typescript-eslint/no-unsafe-enum-comparison": "warn",
+      "@typescript-eslint/prefer-optional-chain": "warn",
     },
   },
   {

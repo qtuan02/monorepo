@@ -2,9 +2,10 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { HexagonBackground } from "@monorepo/ui/animate-ui/background-hexagon";
 import { Home, Undo2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { HexagonBackground } from "@monorepo/ui/animate-ui/background-hexagon";
 
 import { usePathname, useRouter } from "~/i18n/navigation";
 

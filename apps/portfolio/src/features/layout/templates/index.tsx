@@ -1,4 +1,5 @@
-import React, { Suspense } from "react";
+import type React from "react";
+import { Suspense } from "react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import useIsClient from "@monorepo/ui/hooks/use-is-client";
 import useLocalStorage from "@monorepo/ui/hooks/use-local-storage";
 import { cn } from "@monorepo/ui/libs/cn";
@@ -9,7 +11,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@monorepo/ui/shadcn-ui/accordion";
-import { useTranslations } from "next-intl";
 
 import NextLink from "~/components/next-link";
 import { PORTFOLIO_ASIDE_DOCS } from "~/constants/common";

@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import * as SortableComp from "@monorepo/ui/shadcn-ui/sortable";
 import { GripVertical } from "lucide-react";
+
+import * as SortableComp from "@monorepo/ui/shadcn-ui/sortable";
 
 const SortablePreview = () => {
   const [data, setData] = useState([

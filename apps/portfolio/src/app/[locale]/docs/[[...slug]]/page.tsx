@@ -1,11 +1,11 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
+import type { NextParams } from "~/types/common";
 import DocsTemplate from "~/features/docs/templates/docs.template";
 import { getDataDocs } from "~/features/docs/utils/get-data-docs";
 import { routing } from "~/i18n/routing";
-import { NextParams } from "~/types/common";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 
 export async function generateStaticParams() {

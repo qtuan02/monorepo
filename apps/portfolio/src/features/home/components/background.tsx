@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
+
 import { FireworksBackground } from "@monorepo/ui/animate-ui/background-fireworks";
 import { StarsBackground } from "@monorepo/ui/animate-ui/background-start";
-import { useTheme } from "next-themes";
 
 const colors = [
   "#FF7F50", // coral cam

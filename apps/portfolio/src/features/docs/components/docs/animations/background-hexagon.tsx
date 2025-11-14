@@ -1,7 +1,8 @@
-import { HexagonBackground as HexagonBackgroundComp } from "@monorepo/ui/animate-ui/background-hexagon";
 import { getTranslations } from "next-intl/server";
 
-import { IDocComponentProps } from "~/types/docs";
+import { HexagonBackground as HexagonBackgroundComp } from "@monorepo/ui/animate-ui/background-hexagon";
+
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

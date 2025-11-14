@@ -1,6 +1,7 @@
-import { SplittingText } from "@monorepo/ui/animate-ui/text-splitting";
 import { ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+
+import { SplittingText } from "@monorepo/ui/animate-ui/text-splitting";
 
 import NextLink from "~/components/next-link";
 import Background from "../components/background";

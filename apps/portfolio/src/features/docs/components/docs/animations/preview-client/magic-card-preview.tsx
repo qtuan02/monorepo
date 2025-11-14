@@ -1,5 +1,7 @@
 "use client";
 
+import { useTheme } from "next-themes";
+
 import { MagicCard } from "@monorepo/ui/animate-ui/magic-card";
 import { Button } from "@monorepo/ui/shadcn-ui/button";
 import {
@@ -10,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/shadcn-ui/card";
-import { useTheme } from "next-themes";
 
 const MagicCardPreview = () => {
   const { theme } = useTheme();

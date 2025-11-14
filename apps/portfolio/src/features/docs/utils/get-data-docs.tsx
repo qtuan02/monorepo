@@ -1,6 +1,6 @@
-import { createTranslator, Messages } from "next-intl";
+import type { createTranslator, Messages } from "next-intl";
 
-import { DocItem } from "~/types/docs";
+import type { DocItem } from "~/types/docs";
 import BackgroundFireworks from "../components/docs/animations/background-fireworks";
 import BackgroundHexagon from "../components/docs/animations/background-hexagon";
 import BackgroundHole from "../components/docs/animations/background-hole";
@@ -70,7 +70,7 @@ export const getDataDocs = (
     {
       key: "expands",
       label: t?.("Docs.expands") ?? "",
-      children: getExpandsData(t),
+      children: getExpandsData(),
     },
     {
       key: "animations",
@@ -110,9 +110,7 @@ export const getStartedData = (
   ];
 };
 
-export const getExpandsData = (
-  t?: ReturnType<typeof createTranslator<Messages, "Docs">>,
-): DocItem[] => {
+export const getExpandsData = (): DocItem[] => {
   return [
     {
       key: "infinite-scroll",

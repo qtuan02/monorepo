@@ -1,14 +1,14 @@
 import "./globals.css";
 
-import { ReactNode } from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
+import type { NextParams } from "~/types/common";
 import { routing } from "~/i18n/routing";
-import { NextParams } from "~/types/common";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
 

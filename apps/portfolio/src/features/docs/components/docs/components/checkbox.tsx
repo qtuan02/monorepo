@@ -1,8 +1,9 @@
-import { Checkbox as CheckboxAnimate } from "@monorepo/ui/animate-ui/checkbox";
-import { Checkbox as CheckboxComp } from "@monorepo/ui/shadcn-ui/checkbox";
 import { getTranslations } from "next-intl/server";
 
-import { IDocComponentProps } from "~/types/docs";
+import { Checkbox as CheckboxAnimate } from "@monorepo/ui/animate-ui/checkbox";
+import { Checkbox as CheckboxComp } from "@monorepo/ui/shadcn-ui/checkbox";
+
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

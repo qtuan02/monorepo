@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { cn } from "@monorepo/ui/libs/cn";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+
+import { cn } from "@monorepo/ui/libs/cn";
 
 const Theme = () => {
   const { resolvedTheme, setTheme } = useTheme(); // dùng resolvedTheme thay vì theme

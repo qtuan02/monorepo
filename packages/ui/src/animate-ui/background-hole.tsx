@@ -160,7 +160,7 @@ function HoleBackground({
   }, [numberOfLines, strokeColor]);
 
   const initParticle = React.useCallback(
-    (start: boolean = false) => {
+    (start = false) => {
       const sx =
         stateRef.current.particleArea.sx +
         stateRef.current.particleArea.sw * Math.random();
@@ -292,6 +292,7 @@ function HoleBackground({
     drawLines(ctx);
     drawParticles(ctx);
     ctx.restore();
+
     animationFrameIdRef.current = requestAnimationFrame(tick);
   }, [moveDiscs, moveParticles, drawDiscs, drawLines, drawParticles]);
 

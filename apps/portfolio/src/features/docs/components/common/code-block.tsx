@@ -1,11 +1,12 @@
 "use client";
 
 import type { FC } from "react";
-import useCopyToClipboard from "@monorepo/ui/hooks/use-copy-to-clipboard";
-import useMediaQuery from "@monorepo/ui/hooks/use-media-query";
 import { Check, Copy } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+
+import useCopyToClipboard from "@monorepo/ui/hooks/use-copy-to-clipboard";
+import useMediaQuery from "@monorepo/ui/hooks/use-media-query";
 
 interface CodeBlockProps {
   code: string;

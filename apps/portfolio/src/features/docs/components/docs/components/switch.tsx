@@ -1,9 +1,10 @@
+import { getTranslations } from "next-intl/server";
+
 import { Switch as SwitchAnimate } from "@monorepo/ui/animate-ui/switch";
 import { Label } from "@monorepo/ui/shadcn-ui/label";
 import { Switch as SwitchComp } from "@monorepo/ui/shadcn-ui/switch";
-import { getTranslations } from "next-intl/server";
 
-import { IDocComponentProps } from "~/types/docs";
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

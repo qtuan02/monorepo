@@ -1,8 +1,9 @@
-import { PropsWithChildren } from "react";
-import { TypingText } from "@monorepo/ui/animate-ui/text-typing";
-import { cn } from "@monorepo/ui/libs/cn";
+import type { PropsWithChildren } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+
+import { TypingText } from "@monorepo/ui/animate-ui/text-typing";
+import { cn } from "@monorepo/ui/libs/cn";
 
 import NextLink from "~/components/next-link";
 import { getDataDocs } from "../../utils/get-data-docs";

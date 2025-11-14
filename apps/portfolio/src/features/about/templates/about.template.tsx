@@ -1,7 +1,8 @@
 "use client";
 
-import { ScrollProgress } from "@monorepo/ui/animate-ui/progress-scroll";
 import { useTranslations } from "next-intl";
+
+import { ScrollProgress } from "@monorepo/ui/animate-ui/progress-scroll";
 
 import AsideLeft from "../components/aside/aside-left";
 import ContentRight from "../components/content/content-right";

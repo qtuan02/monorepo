@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import { cn } from "@monorepo/ui/libs/cn";
 import { Component, Home, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
+
+import { cn } from "@monorepo/ui/libs/cn";
 
 import NextLink from "~/components/next-link";
 import { usePathname } from "~/i18n/navigation";
