@@ -9,20 +9,19 @@
   "scripts": {
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
-    "dev": "turbo run dev",
+    "dev": "turbo watch dev --continue",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
     "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
     "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
-    "dev:_template": "turbo run dev -F @monorepo/_template",
+    "dev:_template": "turbo watch dev -F @monorepo/_template",
     "build:_template": "turbo run build -F @monorepo/_template",
     "start:_template": "turbo run start -F @monorepo/_template",
-    "dev:portfolio": "turbo run dev -F @monorepo/portfolio",
+    "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
     "build:portfolio": "turbo run build -F @monorepo/portfolio",
-    "start:portfolio": "turbo run start -F @monorepo/portfolio",
-    "dev:_m-template": "pnpm --filter @monorepo/_m-template dev"
+    "start:portfolio": "turbo run start -F @monorepo/portfolio"
   },
   "devDependencies": {
     "@monorepo/prettier-config": "workspace:*",
