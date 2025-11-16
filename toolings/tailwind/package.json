@@ -5,7 +5,7 @@
   "license": "MIT",
   "exports": {
     "./theme": "./theme.css",
-    "./styles": "./styles.css",
+    "./globals": "./globals.css",
     "./postcss-config": "./postcss-config.js"
   },
   "scripts": {
