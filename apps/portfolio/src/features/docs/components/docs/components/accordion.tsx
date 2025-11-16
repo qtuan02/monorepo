@@ -7,7 +7,7 @@ import {
   AccordionTrigger,
 } from "@monorepo/ui/shadcn-ui/accordion";
 
-import { IDocComponentProps } from "~/types/docs";
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

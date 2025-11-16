@@ -3,23 +3,23 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 const LIMIT = 5;
 
-type Item = {
+interface Item {
   id: number;
   price: number;
   title: string;
-};
+}
 
-type PaginationItem = {
+interface PaginationItem {
   limit: number;
   skip: number;
   total: number;
   products: Item[];
-};
+}
 
-type TypeInfiniteScroll = {
+interface TypeInfiniteScroll {
   pageParams: number[];
   pages: PaginationItem[];
-};
+}
 
 export const useInfiniteScrollQuery = () => {
   return useInfiniteQuery({

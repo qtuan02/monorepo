@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import type { FC } from "react";
 import { Check, Copy } from "lucide-react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -20,7 +20,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ code, language = "tsx" }) => {
   return (
     <div className="relative overflow-hidden rounded-md">
       <button
-        className="absolute right-2 top-2 cursor-pointer rounded-md bg-gray-500/50 p-2 text-gray-800 transition-all duration-300 hover:translate-y-[-1px] dark:bg-gray-800/80 dark:text-gray-200"
+        className="absolute top-2 right-2 cursor-pointer rounded-md bg-gray-500/50 p-2 text-gray-800 transition-all duration-300 hover:translate-y-[-1px] dark:bg-gray-800/80 dark:text-gray-200"
         onClick={() => copy(code)}
       >
         {copied ? (
@@ -33,7 +33,7 @@ const CodeBlock: FC<CodeBlockProps> = ({ code, language = "tsx" }) => {
         language={language}
         showLineNumbers
         wrapLongLines
-        style={oneDark}
+        style={oneDark as Record<string, React.CSSProperties>}
         customStyle={{
           fontSize: isMobile ? "12px" : "14px",
           padding: "16px",

@@ -28,7 +28,7 @@ const Error = () => {
 
   return (
     <main className="relative h-[calc(100vh-48px)] md:h-[calc(100vh-60px)]">
-      <div className="z-1 absolute inset-x-0 mt-20 flex flex-col items-center gap-y-10">
+      <div className="absolute inset-x-0 z-1 mt-20 flex flex-col items-center gap-y-10">
         <h1 className="text-3xl font-semibold md:text-6xl">{t("error")}</h1>
         <div className="flex gap-x-3">
           <button

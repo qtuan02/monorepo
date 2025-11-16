@@ -1,4 +1,4 @@
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
@@ -42,7 +42,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
           <NextLink
             replace
             href={previous.href}
-            className="duration-400 flex cursor-pointer items-center gap-x-2 rounded-md bg-gray-200 px-4 py-2 text-base transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800"
+            className="flex cursor-pointer items-center gap-x-2 rounded-md bg-gray-200 px-4 py-2 text-base transition-colors duration-400 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800"
           >
             <ArrowLeft className="size-4" />
             <span className="line-clamp-1">{previous?.label}</span>
@@ -54,7 +54,7 @@ const LayoutDocs = async (props: ILayoutDocsProps) => {
           <NextLink
             replace
             href={next.href}
-            className="duration-400 flex cursor-pointer items-center gap-x-2 rounded-md bg-gray-200 px-4 py-2 text-base transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800"
+            className="flex cursor-pointer items-center gap-x-2 rounded-md bg-gray-200 px-4 py-2 text-base transition-colors duration-400 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-800"
           >
             <span className="line-clamp-1">{next.label}</span>
             <ArrowRight className="size-4" />

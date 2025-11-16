@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo/prettier",
+  "name": "@monorepo/prettier-config",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -7,17 +7,19 @@
     ".": "./index.js"
   },
   "scripts": {
-    "clean": "git clean -xdf .cache .turbo node_modules"
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
     "prettier": "catalog:",
-    "prettier-plugin-tailwindcss": "^0.6.11"
+    "prettier-plugin-tailwindcss": "^0.7.1"
   },
   "devDependencies": {
-    "@monorepo/typescript": "workspace:*",
-    "@types/node": "^22.14.1",
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
     "typescript": "catalog:"
   },
-  "prettier": "@monorepo/prettier"
+  "prettier": "@monorepo/prettier-config"
 }

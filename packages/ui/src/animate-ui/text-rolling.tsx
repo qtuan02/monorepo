@@ -49,11 +49,11 @@ function RollingText({
       {characters.map((char, idx) => (
         <span
           key={idx}
-          className="perspective-[9999999px] transform-3d relative inline-block w-auto"
+          className="relative inline-block w-auto perspective-[9999999px] transform-3d"
           aria-hidden="true"
         >
           <motion.span
-            className="backface-hidden absolute inline-block origin-[50%_25%]"
+            className="absolute inline-block origin-[50%_25%] backface-hidden"
             initial={ENTRY_ANIMATION.initial}
             animate={isInView ? ENTRY_ANIMATION.animate : undefined}
             transition={{
@@ -64,7 +64,7 @@ function RollingText({
             {formatCharacter(char)}
           </motion.span>
           <motion.span
-            className="backface-hidden absolute inline-block origin-[50%_100%]"
+            className="absolute inline-block origin-[50%_100%] backface-hidden"
             initial={EXIT_ANIMATION.initial}
             animate={isInView ? EXIT_ANIMATION.animate : undefined}
             transition={{

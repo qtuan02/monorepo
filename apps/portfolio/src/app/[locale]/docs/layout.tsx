@@ -1,5 +1,5 @@
+import type { NextParams } from "~/types/common";
 import LayoutDocsTemplate from "~/features/docs/templates/layout-docs.template";
-import { NextParams } from "~/types/common";
 
 export default async function DocsLayout({
   children,

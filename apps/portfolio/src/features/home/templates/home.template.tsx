@@ -28,20 +28,20 @@ export default async function HomeTemplate({ locale }: { locale: string }) {
           type="words"
         />
       </div>
-      <p className="mb-10 mt-4 animate-bounce select-none text-center text-6xl md:text-8xl">
+      <p className="mt-4 mb-10 animate-bounce text-center text-6xl select-none md:text-8xl">
         👋
       </p>
       <div className="flex justify-center gap-x-6">
         <NextLink
           href="/about"
-          className="z-1 group flex items-center gap-x-1 rounded-lg bg-gradient-to-br from-orange-300 to-orange-500 px-4 py-2 font-medium text-white opacity-90 hover:opacity-80 md:text-xl"
+          className="group z-1 flex items-center gap-x-1 rounded-lg bg-gradient-to-br from-orange-300 to-orange-500 px-4 py-2 font-medium text-white opacity-90 hover:opacity-80 md:text-xl"
         >
           {t("about")}
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-1 md:size-6" />
         </NextLink>
         <NextLink
           href="/docs"
-          className="z-1 group flex items-center gap-x-1 rounded-lg bg-gradient-to-br from-orange-300 to-orange-500 px-4 py-2 font-medium text-white opacity-90 hover:opacity-80 md:text-xl"
+          className="group z-1 flex items-center gap-x-1 rounded-lg bg-gradient-to-br from-orange-300 to-orange-500 px-4 py-2 font-medium text-white opacity-90 hover:opacity-80 md:text-xl"
         >
           {t("explore")}
           <ArrowRight className="size-4 transition-transform group-hover:translate-x-1 md:size-6" />

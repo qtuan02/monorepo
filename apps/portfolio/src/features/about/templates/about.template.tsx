@@ -11,7 +11,7 @@ export default function AboutTemplate() {
   const t = useTranslations("About");
 
   return (
-    <main className="pb-22 relative space-y-4 px-4 pt-6 md:space-y-8 md:py-10 md:pb-6">
+    <main className="relative space-y-4 px-4 pt-6 pb-22 md:space-y-8 md:py-10 md:pb-6">
       <ScrollProgress
         progressProps={{
           className:

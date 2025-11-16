@@ -1,9 +1,7 @@
 {
-  "name": "@monorepo/typescript",
-  "version": "0.0.0",
+  "name": "@monorepo/tsconfig",
   "private": true,
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
-  }
+  "files": [
+    "*.json"
+  ]
 }

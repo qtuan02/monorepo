@@ -5,7 +5,7 @@
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "./src/styles.css",
+    "css": "./src/globals.css",
     "baseColor": "neutral",
     "cssVariables": true
   },
@@ -13,7 +13,6 @@
     "components": "@monorepo/ui/shadcn-ui",
     "hooks": "@monorepo/ui/hooks",
     "libs": "@monorepo/ui/libs",
-    "utils": "@monorepo/ui/libs/utils",
     "ui": "@monorepo/ui/shadcn-ui"
   },
   "iconLibrary": "lucide"

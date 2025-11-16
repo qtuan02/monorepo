@@ -1,8 +1,8 @@
 import "./globals.css";
 import "flag-icons/css/flag-icons.min.css";
 
-import { ReactNode } from "react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import { Inter_Tight } from "next/font/google";
 import { notFound } from "next/navigation";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
@@ -11,10 +11,10 @@ import { setRequestLocale } from "next-intl/server";
 
 import { cn } from "@monorepo/ui/libs/cn";
 
+import type { NextParams } from "~/types/common";
 import { env } from "~/env";
 import RootLayout from "~/features/layout/templates";
 import { routing } from "~/i18n/routing";
-import { NextParams } from "~/types/common";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
 

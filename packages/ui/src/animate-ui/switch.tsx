@@ -48,7 +48,7 @@ function Switch({
       <motion.button
         data-slot="switch"
         className={cn(
-          "focus-visible:ring-ring focus-visible:ring-offset-background data-[state=checked]:bg-primary data-[state=unchecked]:bg-input relative flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full p-[3px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=unchecked]:justify-start data-[state=checked]:justify-end",
+          "focus-visible:ring-ring focus-visible:ring-offset-background data-[state=checked]:bg-primary data-[state=unchecked]:bg-input relative flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full p-[3px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:justify-end data-[state=unchecked]:justify-start",
           className,
         )}
         whileTap="tap"
@@ -65,7 +65,7 @@ function Switch({
               isChecked ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }
             }
             transition={{ type: "spring", bounce: 0 }}
-            className="absolute left-1 top-1/2 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 [&_svg]:size-3"
+            className="absolute top-1/2 left-1 -translate-y-1/2 text-neutral-400 dark:text-neutral-500 [&_svg]:size-3"
           >
             {typeof leftIcon !== "string" ? leftIcon : null}
           </motion.div>
@@ -78,7 +78,7 @@ function Switch({
               isChecked ? { scale: 0, opacity: 0 } : { scale: 1, opacity: 1 }
             }
             transition={{ type: "spring", bounce: 0 }}
-            className="absolute right-1 top-1/2 -translate-y-1/2 text-neutral-500 dark:text-neutral-400 [&_svg]:size-3"
+            className="absolute top-1/2 right-1 -translate-y-1/2 text-neutral-500 dark:text-neutral-400 [&_svg]:size-3"
           >
             {typeof rightIcon !== "string" ? rightIcon : null}
           </motion.div>

@@ -2,30 +2,32 @@
   "name": "monorepo",
   "private": true,
   "engines": {
-    "node": ">=22.15.0",
-    "pnpm": ">=9.6.0"
+    "node": ">=22.21.0",
+    "pnpm": ">=10.19.0"
   },
+  "packageManager": "pnpm@10.19.0",
   "scripts": {
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
-    "dev": "turbo run dev",
+    "dev": "turbo watch dev --continue",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "lint": "turbo run lint",
-    "format:fix": "turbo run format --continue -- --write",
-    "dev:_template": "turbo run dev -F @monorepo/_template",
+    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
+    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
+    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
+    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
+    "dev:_template": "turbo watch dev -F @monorepo/_template",
     "build:_template": "turbo run build -F @monorepo/_template",
     "start:_template": "turbo run start -F @monorepo/_template",
-    "dev:portfolio": "turbo run dev -F @monorepo/portfolio",
+    "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
     "build:portfolio": "turbo run build -F @monorepo/portfolio",
     "start:portfolio": "turbo run start -F @monorepo/portfolio"
   },
-  "prettier": "@monorepo/prettier",
   "devDependencies": {
-    "@monorepo/prettier": "workspace:*",
+    "@monorepo/prettier-config": "workspace:*",
     "prettier": "catalog:",
-    "turbo": "^2.5.5",
+    "turbo": "^2.5.8",
     "typescript": "catalog:"
   },
-  "packageManager": "pnpm@10.6.3"
+  "prettier": "@monorepo/prettier-config"
 }

@@ -2,8 +2,8 @@ import { getTranslations } from "next-intl/server";
 
 import { ShimmeringText } from "@monorepo/ui/animate-ui/text-shimmering";
 
+import type { IDocComponentProps } from "~/types/docs";
 import NextLink from "~/components/next-link";
-import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 
 const Introduction = async (props: IDocComponentProps) => {

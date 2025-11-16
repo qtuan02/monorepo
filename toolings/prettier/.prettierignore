@@ -1,4 +1,5 @@
 **/messages/*.d.json.ts
+**/importMap.js
 **/.gitignore
 **/.next/*
 **/.cache/*
@@ -25,6 +26,9 @@
 **/.vscode/*
 **/.idea/*
 
+# Ignore test files and directories
+**/playwright-report/**
+**/test-results/**
 
 **/*.md
 **/*.mdx/**

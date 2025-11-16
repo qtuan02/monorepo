@@ -61,7 +61,7 @@ function TypingText({
   ...props
 }: TypingTextProps) {
   const localRef = React.useRef<HTMLSpanElement>(null);
-  React.useImperativeHandle(ref, () => localRef.current as HTMLSpanElement);
+  React.useImperativeHandle(ref, () => localRef.current!);
 
   const inViewResult = useInView(localRef, {
     once: inViewOnce,
@@ -94,7 +94,7 @@ function TypingText({
 
   React.useEffect(() => {
     if (!started) return;
-    const timeoutIds: Array<ReturnType<typeof setTimeout>> = [];
+    const timeoutIds: ReturnType<typeof setTimeout>[] = [];
     const texts: string[] = typeof text === "string" ? [text] : text;
 
     const typeText = (str: string, onComplete: () => void) => {

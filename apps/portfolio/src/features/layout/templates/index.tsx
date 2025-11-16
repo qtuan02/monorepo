@@ -1,4 +1,5 @@
-import React, { Suspense } from "react";
+import type React from "react";
+import { Suspense } from "react";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { ErrorBoundary } from "react-error-boundary";
 
@@ -20,7 +21,7 @@ export default async function RootLayout({
           <Suspense fallback={null}>
             <Navbar />
           </Suspense>
-          <div className="md:pt-15 pt-12">{children}</div>
+          <div className="pt-12 md:pt-15">{children}</div>
           <Suspense fallback={null}>
             <Footer />
           </Suspense>

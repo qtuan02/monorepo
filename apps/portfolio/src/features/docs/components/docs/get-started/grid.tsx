@@ -1,5 +1,5 @@
+import type { IDocComponentProps } from "~/types/docs";
 import { NextImage } from "~/components/next-image";
-import { IDocComponentProps } from "~/types/docs";
 import LayoutDocs from "../../common/layout-docs";
 
 const Grid = async (props: IDocComponentProps) => {

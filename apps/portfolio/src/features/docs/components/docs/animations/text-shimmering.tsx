@@ -2,7 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ShimmeringText as TextShimmeringComp } from "@monorepo/ui/animate-ui/text-shimmering";
 
-import { IDocComponentProps } from "~/types/docs";
+import type { IDocComponentProps } from "~/types/docs";
 import CodeBlock from "../../common/code-block";
 import LayoutDocs from "../../common/layout-docs";
 import SectionCode from "../../common/section-code";

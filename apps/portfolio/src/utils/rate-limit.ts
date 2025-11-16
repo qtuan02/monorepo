@@ -1,11 +1,12 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { LRUCache } from "lru-cache";
 
-type Options = {
+interface Options {
   uniqueTokenPerInterval?: number;
   interval?: number;
   perPath?: boolean;
-};
+}
 
 function getClientIp(req: NextRequest) {
   const xff = req.headers.get("x-forwarded-for");
@@ -30,6 +31,7 @@ export function rateLimit(options?: Options) {
     check: (req: NextRequest, limit: number) => {
       const ip = getClientIp(req);
       if (!ip) {
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw NextResponse.json({ error: "can not get IP." }, { status: 400 });
       }
 
@@ -53,6 +55,7 @@ export function rateLimit(options?: Options) {
         res.headers.set("X-RateLimit-Limit", String(limit));
         res.headers.set("X-RateLimit-Remaining", "0");
         res.headers.set("X-RateLimit-Reset", String(resetSeconds));
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw res;
       }
 

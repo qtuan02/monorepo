@@ -1,6 +1,7 @@
 "use client";
 
-import { PropsWithChildren, useState } from "react";
+import type { PropsWithChildren } from "react";
+import { useState } from "react";
 import { RotateCcw } from "lucide-react";
 
 interface ISectionPreviewReloadProps extends PropsWithChildren {
@@ -19,7 +20,7 @@ const SectionPreviewReload = (props: ISectionPreviewReloadProps) => {
         className="relative rounded-md border border-gray-200 p-5 dark:border-gray-800"
       >
         <button
-          className="absolute right-2 top-2 cursor-pointer rounded-md bg-gray-500/50 p-2 text-gray-800 transition-all duration-300 hover:translate-y-[-1px] dark:bg-gray-800/80 dark:text-gray-200"
+          className="absolute top-2 right-2 cursor-pointer rounded-md bg-gray-500/50 p-2 text-gray-800 transition-all duration-300 hover:translate-y-[-1px] dark:bg-gray-800/80 dark:text-gray-200"
           onClick={() => setKey(key + 1)}
         >
           <RotateCcw className="size-3 text-white md:size-4" />

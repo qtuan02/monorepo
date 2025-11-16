@@ -1,2 +1,1 @@
-@import "tailwindcss";
-@import "@monorepo/tailwind/styles.css";
+@import "@monorepo/tailwind-config/globals";

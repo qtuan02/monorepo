@@ -15,8 +15,8 @@ function makeQueryClient() {
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) ||
           query.state.status === "pending",
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        shouldRedactErrors: (error) => {
+
+        shouldRedactErrors: () => {
           // We should not catch Next.js server errors
           // as that's how Next.js detects dynamic pages
           // so we cannot redact them.

@@ -12,7 +12,7 @@ const randInt = (min: number, max: number): number =>
 
 const randColor = (): string => `hsl(${randInt(0, 360)}, 100%, 50%)`;
 
-type ParticleType = {
+interface ParticleType {
   x: number;
   y: number;
   color: string;
@@ -28,7 +28,7 @@ type ParticleType = {
   update: () => void;
   draw: (ctx: CanvasRenderingContext2D) => void;
   isAlive: () => boolean;
-};
+}
 
 function createParticle(
   x: number,
@@ -81,7 +81,7 @@ function createParticle(
   };
 }
 
-type FireworkType = {
+interface FireworkType {
   x: number;
   y: number;
   targetY: number;
@@ -97,7 +97,7 @@ type FireworkType = {
   update: () => boolean;
   explode: () => void;
   draw: (ctx: CanvasRenderingContext2D) => void;
-};
+}
 
 function createFirework(
   x: number,
@@ -224,7 +224,7 @@ function FireworksBackground({
 }: FireworksBackgroundProps) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
-  React.useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
+  React.useImperativeHandle(ref, () => containerRef.current!);
 
   React.useEffect(() => {
     const canvas = canvasRef.current;

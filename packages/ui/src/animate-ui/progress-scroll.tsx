@@ -18,7 +18,7 @@ function ScrollProgress({
   ...props
 }: ScrollProgressProps) {
   const containerRef = React.useRef<HTMLDivElement | null>(null);
-  React.useImperativeHandle(ref, () => containerRef.current as HTMLDivElement);
+  React.useImperativeHandle(ref, () => containerRef.current!);
 
   const { scrollYProgress } = useScroll(
     children ? { container: containerRef } : undefined,

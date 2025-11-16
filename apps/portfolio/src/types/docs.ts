@@ -1,13 +1,13 @@
-import { ComponentType } from "react";
+import type { ComponentType } from "react";
 
 export interface IDocComponentProps {
   locale: string;
   slug?: string[];
 }
 
-export type DocItem = {
+export interface DocItem {
   key: string;
   label: string;
   href: string;
   component: ComponentType<IDocComponentProps>;
-};
+}

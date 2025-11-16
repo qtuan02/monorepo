@@ -1,4 +1,4 @@
-@import "@monorepo/tailwind/styles.css";
+@import "@monorepo/tailwind-config/globals";
 /**
  * This is necessary to load the @monorepo/ui package when moving from
  * @tailwindcss/vite v4.0.7 to v4.0.8.
@@ -6,4 +6,4 @@
  * For more details, see:
  * https://github.com/tailwindlabs/tailwindcss/issues/16733
  */
-@source '../../../../../packages/ui';
+@source "../../../../../packages/ui";

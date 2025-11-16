@@ -130,7 +130,7 @@ function SpringElement({
   const sy = useMotionValueValue(springY);
 
   const childRef = React.useRef<HTMLDivElement>(null);
-  React.useImperativeHandle(ref, () => childRef.current as HTMLDivElement);
+  React.useImperativeHandle(ref, () => childRef.current!);
   const [center, setCenter] = React.useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = React.useState(false);
 

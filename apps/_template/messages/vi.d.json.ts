@@ -4,7 +4,7 @@
 declare const messages: {
   "template": "Template",
   "Exception": {
-    "back": "Come back"
+    "back": "Quay lại"
   }
 };
 export default messages;

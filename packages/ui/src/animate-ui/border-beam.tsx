@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, MotionStyle, Transition } from "motion/react";
+import type { MotionStyle, Transition } from "motion/react";
+import { motion } from "motion/react";
 
 import { cn } from "../libs/cn";
 
@@ -66,7 +67,7 @@ export const BorderBeam = ({
 }: BorderBeamProps) => {
   return (
     <div
-      className="border-(length:--border-beam-width) pointer-events-none absolute inset-0 rounded-[inherit] border-transparent [mask-clip:padding-box,border-box] [mask-composite:intersect] [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)]"
+      className="pointer-events-none absolute inset-0 rounded-[inherit] border-(length:--border-beam-width) border-transparent [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)] [mask-composite:intersect] [mask-clip:padding-box,border-box]"
       style={
         {
           "--border-beam-width": `${borderWidth}px`,
