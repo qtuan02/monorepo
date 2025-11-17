@@ -8,24 +8,24 @@
   },
   "exports": {
     "./libs/*": {
-      "types": "./dist/src/libs/*.d.ts",
-      "default": "./src/libs/*.ts"
+      "types": "./dist/src/v1/libs/*.d.ts",
+      "default": "./src/v1/libs/*.ts"
     },
     "./animate-ui/*": {
-      "types": "./dist/src/animate-ui/*.d.ts",
-      "default": "./src/animate-ui/*.tsx"
+      "types": "./dist/src/v1/animate-ui/*.d.ts",
+      "default": "./src/v1/animate-ui/*.tsx"
     },
     "./shadcn-ui/*": {
-      "types": "./dist/src/shadcn-ui/*.d.ts",
-      "default": "./src/shadcn-ui/*.tsx"
+      "types": "./dist/src/v1/shadcn-ui/*.d.ts",
+      "default": "./src/v1/shadcn-ui/*.tsx"
     },
     "./hooks/*": {
-      "types": "./dist/src/hooks/*.d.ts",
-      "default": "./src/hooks/*.ts"
+      "types": "./dist/src/v1/hooks/*.d.ts",
+      "default": "./src/v1/hooks/*.ts"
     },
     "./utils/*": {
-      "types": "./dist/src/utils/*.d.ts",
-      "default": "./src/utils/*.ts"
+      "types": "./dist/src/v1/utils/*.d.ts",
+      "default": "./src/v1/utils/*.ts"
     }
   },
   "scripts": {

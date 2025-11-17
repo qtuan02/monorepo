@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo/portfolio",
+  "name": "@monorepo/_portfolio",
   "private": true,
   "type": "module",
   "scripts": {
