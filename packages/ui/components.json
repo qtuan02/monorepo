@@ -1,19 +1,20 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "default",
+  "style": "new-york",
   "rsc": true,
   "tsx": true,
   "tailwind": {
     "config": "",
-    "css": "./src/globals.css",
+    "css": "src/globals.css",
     "baseColor": "neutral",
     "cssVariables": true
   },
+  "iconLibrary": "lucide",
   "aliases": {
-    "components": "@monorepo/ui/shadcn-ui",
-    "hooks": "@monorepo/ui/hooks",
-    "libs": "@monorepo/ui/libs",
-    "ui": "@monorepo/ui/shadcn-ui"
-  },
-  "iconLibrary": "lucide"
+    "components": "@/src/components",
+    "ui": "@/src/components",
+    "hooks": "@/src/hooks",
+    "utils": "@/src/libs/cn",
+    "libs": "@/src/libs/cn"
+  }
 }
