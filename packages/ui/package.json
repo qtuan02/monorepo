@@ -3,9 +3,6 @@
   "private": true,
   "type": "module",
   "license": "MIT",
-  "imports": {
-    "#*": "./src/*"
-  },
   "exports": {
     "./libs/*": {
       "types": "./dist/src/v1/libs/*.d.ts",
