@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import { Sentry } from "@monorepo/sentry";
 
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {

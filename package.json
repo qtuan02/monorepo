@@ -18,8 +18,10 @@
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
     "dev:_template": "turbo watch dev -F @monorepo/_template",
     "build:_template": "turbo run build -F @monorepo/_template",
+    "start:_template": "turbo run start -F @monorepo/_template",
     "dev:_portfolio": "turbo watch dev -F @monorepo/_portfolio",
-    "build:_portfolio": "turbo run build -F @monorepo/_portfolio"
+    "build:_portfolio": "turbo run build -F @monorepo/_portfolio",
+    "start:_portfolio": "turbo run start -F @monorepo/_portfolio"
   },
   "devDependencies": {
     "@monorepo/prettier-config": "workspace:*",

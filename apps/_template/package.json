@@ -15,7 +15,7 @@
   "dependencies": {
     "@monorepo/env": "workspace:*",
     "@monorepo/ui": "workspace:*",
-    "@sentry/nextjs": "catalog:sentry",
+    "@monorepo/sentry": "workspace:*",
     "next": "catalog:next15",
     "next-intl": "catalog:next15",
     "react": "catalog:react19",

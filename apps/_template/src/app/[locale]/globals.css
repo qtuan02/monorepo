@@ -1,4 +1,4 @@
-@import "@monorepo/tailwind-config/styles";
+@import "@monorepo/tailwind-config/globals";
 
 /**
  * This is necessary to load the @monorepo/ui package when moving from
