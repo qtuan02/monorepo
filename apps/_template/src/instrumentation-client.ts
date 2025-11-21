@@ -1,11 +1,8 @@
-import * as Sentry from "@sentry/nextjs";
+import { Sentry } from "@monorepo/sentry";
+import init from "@monorepo/sentry/client";
 
-Sentry.init({
+init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_TEMPLATE_DSN,
-  integrations: [
-    Sentry.feedbackIntegration({
-      // Additional SDK configuration goes in here, for example:
-      colorScheme: "system",
-    }),
-  ],
 });
+
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

@@ -33,11 +33,16 @@ const nextConfig = {
 
 export default withSentryConfig(withNextIntl(nextConfig), {
   org: "sentry",
-  project: "template",
+  project: "_template",
 
   // Only print logs for uploading source maps in CI
   // Set to `true` to suppress logs
   silent: !process.env.CI,
   // Automatically tree-shake Sentry logger statements to reduce bundle size
   disableLogger: true,
+
+  // You can capture React component names to see which component a user clicked on in Sentry features like Session Replay
+  reactComponentAnnotation: {
+    enabled: true,
+  },
 });
