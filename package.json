@@ -21,9 +21,13 @@
     "start:_template": "turbo run start -F @monorepo/_template",
     "dev:_portfolio": "turbo watch dev -F @monorepo/_portfolio",
     "build:_portfolio": "turbo run build -F @monorepo/_portfolio",
-    "start:_portfolio": "turbo run start -F @monorepo/_portfolio"
+    "start:_portfolio": "turbo run start -F @monorepo/_portfolio",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.27.9",
     "@monorepo/prettier-config": "workspace:*",
     "prettier": "catalog:",
     "turbo": "^2.5.8",
