@@ -23,8 +23,8 @@
     "build:_portfolio": "turbo run build -F @monorepo/_portfolio",
     "start:_portfolio": "turbo run start -F @monorepo/_portfolio",
     "changeset": "changeset",
-    "version": "changeset version",
-    "release": "changeset publish"
+    "changeset:version": "changeset version",
+    "changeset:release": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",

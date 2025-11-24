@@ -22,6 +22,7 @@ const nextConfig = {
     "@tanstack/react-table",
     "@tanstack/react-query-devtools",
     "@monorepo/ui",
+    "@fe-monorepo/ui",
     "@monorepo/env",
   ],
 

@@ -2,14 +2,15 @@
 
 import type { DayButton } from "react-day-picker";
 import * as React from "react";
-import { Button, buttonVariants } from "@/src/components/button";
-import { cn } from "@/src/libs/cn";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
 import { DayPicker, getDefaultClassNames } from "react-day-picker";
+
+import { cn } from "../libs/cn";
+import { Button, buttonVariants } from "./button";
 
 function Calendar({
   className,

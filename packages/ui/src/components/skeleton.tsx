@@ -1,4 +1,6 @@
-import { cn } from "@/src/libs/cn";
+import type * as React from "react";
+
+import { cn } from "../libs/cn";
 
 function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (

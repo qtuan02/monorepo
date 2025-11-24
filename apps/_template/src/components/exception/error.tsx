@@ -1,6 +1,5 @@
+import { Button } from "@fe-monorepo/ui/components/button";
 import { useTranslations } from "next-intl";
-
-import { Button } from "@monorepo/ui/shadcn-ui/button";
 
 const Error = () => {
   const t = useTranslations("Exception");

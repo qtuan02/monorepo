@@ -1,8 +1,9 @@
 "use client";
 
 import type * as React from "react";
-import { cn } from "@/src/libs/cn";
 import { Drawer as DrawerPrimitive } from "vaul";
+
+import { cn } from "../libs/cn";
 
 function Drawer({
   ...props

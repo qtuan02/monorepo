@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@monorepo/ui/shadcn-ui/button";
+import { Button } from "@fe-monorepo/ui/components/button";
 
 const ButtonSentryError = () => {
   return (

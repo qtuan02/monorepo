@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "exports": {
+    ".": "./src/index.ts",
     "./libs/*": "./src/libs/*.ts",
     "./components/*": "./src/components/*.tsx",
     "./animate-ui/*": "./src/v1/animate-ui/*.tsx",

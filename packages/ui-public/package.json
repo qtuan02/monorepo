@@ -1,54 +1,29 @@
 {
-  "name": "@fe-monorepo/ui-public",
+  "name": "@fe-monorepo/ui",
   "type": "module",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
     "./libs/*": {
       "types": "./dist/libs/*.d.ts",
-      "require": "./dist/libs/*.cjs",
       "import": "./dist/libs/*.js",
-      "default": "./src/libs/*.ts"
+      "default": "./dist/libs/*.js"
     },
     "./components/*": {
       "types": "./dist/components/*.d.ts",
-      "require": "./dist/components/*.cjs",
-      "import": "./dist/components/*.js",
-      "default": "./src/components/*.tsx"
-    },
-    "./animate-ui/*": {
-      "types": "./dist/v1/animate-ui/*.d.ts",
-      "require": "./dist/v1/animate-ui/*.cjs",
-      "import": "./dist/v1/animate-ui/*.js",
-      "default": "./src/v1/animate-ui/*.tsx"
-    },
-    "./shadcn-ui/*": {
-      "types": "./dist/v1/shadcn-ui/*.d.ts",
-      "require": "./dist/v1/shadcn-ui/*.cjs",
-      "import": "./dist/v1/shadcn-ui/*.js",
-      "default": "./src/v1/shadcn-ui/*.tsx"
-    },
-    "./hooks/*": {
-      "types": "./dist/v1/hooks/*.d.ts",
-      "require": "./dist/v1/hooks/*.cjs",
-      "import": "./dist/v1/hooks/*.js",
-      "default": "./src/v1/hooks/*.ts"
-    },
-    "./utils/*": {
-      "types": "./dist/v1/utils/*.d.ts",
-      "require": "./dist/v1/utils/*.cjs",
-      "import": "./dist/v1/utils/*.js",
-      "default": "./src/v1/utils/*.ts"
+      "import": "./dist/components/*.jsx",
+      "default": "./dist/components/*.jsx"
     }
   },
   "dependencies": {
-    "@dnd-kit/core": "^6.3.1",
-    "@dnd-kit/modifiers": "^9.0.0",
-    "@dnd-kit/sortable": "^10.0.0",
-    "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "catalog:",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.15",
