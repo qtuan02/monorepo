@@ -1,4 +1,4 @@
-import { cn } from "@fe-monorepo/ui";
+import { cn } from "@monorepo/ui/libs/cn";
 
 import type { NextParams } from "~/types/common";
 import { ButtonSentryError } from "~/components/button/button-sentry-error";

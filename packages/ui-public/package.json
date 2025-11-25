@@ -2,10 +2,15 @@
   "name": "@fe-monorepo/ui",
   "type": "module",
   "license": "MIT",
-  "version": "0.1.0",
+  "version": "1.0.2",
   "publishConfig": {
     "access": "public"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "package.json"
+  ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -24,7 +29,8 @@
       "require": "./dist/components/*.cjs",
       "import": "./dist/components/*.js",
       "default": "./dist/components/*.js"
-    }
+    },
+    "./globals.css": "./dist/globals.css"
   },
   "dependencies": {
     "@hookform/resolvers": "catalog:",
