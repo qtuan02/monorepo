@@ -1,4 +1,4 @@
-import { Button } from "@fe-monorepo/ui/components/button";
+import { Button } from "@fe-monorepo/ui";
 import { useTranslations } from "next-intl";
 
 const NotFound = () => {

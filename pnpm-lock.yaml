@@ -249,15 +249,15 @@ importers:
 
   apps/_template:
     dependencies:
+      '@fe-monorepo/ui':
+        specifier: 0.1.0
+        version: link:../../packages/ui-public
       '@monorepo/env':
         specifier: workspace:*
         version: link:../../packages/env
       '@monorepo/sentry':
         specifier: workspace:*
         version: link:../../packages/sentry
-      '@monorepo/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       next:
         specifier: catalog:next15
         version: 15.4.2(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

@@ -2,23 +2,26 @@
   "name": "@fe-monorepo/ui",
   "type": "module",
   "license": "MIT",
-  "version": "1.0.1",
+  "version": "0.1.0",
   "publishConfig": {
     "access": "public"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./libs/*": {
       "types": "./dist/libs/*.d.ts",
+      "require": "./dist/libs/*.cjs",
       "import": "./dist/libs/*.js",
       "default": "./dist/libs/*.js"
     },
     "./components/*": {
       "types": "./dist/components/*.d.ts",
+      "require": "./dist/components/*.cjs",
       "import": "./dist/components/*.js",
       "default": "./dist/components/*.js"
     }

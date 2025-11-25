@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@monorepo/env": "workspace:*",
-    "@monorepo/ui": "workspace:*",
+    "@fe-monorepo/ui": "0.1.0",
     "@monorepo/sentry": "workspace:*",
     "next": "catalog:next15",
     "next-intl": "catalog:next15",
