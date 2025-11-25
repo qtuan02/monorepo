@@ -22,9 +22,10 @@
     "dev:_portfolio": "turbo watch dev -F @monorepo/_portfolio",
     "build:_portfolio": "turbo run build -F @monorepo/_portfolio",
     "start:_portfolio": "turbo run start -F @monorepo/_portfolio",
+    "build:ui": "turbo run build -F @monorepo/ui",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:release": "changeset publish"
+    "changeset:publish": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",

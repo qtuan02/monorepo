@@ -9,10 +9,7 @@
     },
     "outDir": "./dist",
     "declaration": true,
-    "declarationMap": true,
-    "noEmit": false,
-    "module": "ESNext",
-    "moduleResolution": "Bundler"
+    "declarationMap": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

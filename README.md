@@ -22,3 +22,7 @@ monorepo
 ├── turbo.json              # Config Turborepo
 └── README.md               # Documentation
 ```
+
+## Publishing to NPM
+
+To publish the UI package to npm, see the detailed guide at [docs/apps/CHANGESET.md](./docs/apps/CHANGESET.md).

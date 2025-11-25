@@ -2,7 +2,7 @@
   "name": "@fe-monorepo/ui",
   "type": "module",
   "license": "MIT",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publishConfig": {
     "access": "public"
   },
@@ -19,8 +19,8 @@
     },
     "./components/*": {
       "types": "./dist/components/*.d.ts",
-      "import": "./dist/components/*.jsx",
-      "default": "./dist/components/*.jsx"
+      "import": "./dist/components/*.js",
+      "default": "./dist/components/*.js"
     }
   },
   "dependencies": {
