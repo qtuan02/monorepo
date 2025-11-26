@@ -7,7 +7,7 @@
  * For more details, see:
  * https://github.com/tailwindlabs/tailwindcss/issues/16733
  */
-@source "../../../../../packages/ui";
+@source "../../../../packages/ui";
 
 @theme inline {
   --font-sans: var(--font-inter-tight);

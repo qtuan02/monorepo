@@ -39,7 +39,7 @@
   "i18n-ally.sourceLanguage": "vi",
   "i18n-ally.displayLanguage": "vi",
   // "i18n-ally.localesPaths": ["apps/_template/messages"],
-  "i18n-ally.localesPaths": ["apps/_portfolio/messages"],
+  // "i18n-ally.localesPaths": ["apps/_portfolio/messages"],
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]?([^\"'`]+)[\"'`]?"],
     ["cn\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
@@ -47,6 +47,14 @@
   "tailwindCSS.experimental.configFile": {
     "packages/ui/src/globals.css": "packages/ui/**",
     "apps/_template/src/app/[locale]/globals.css": "apps/_template/**",
-    "apps/_portfolio/src/app/[locale]/globals.css": "apps/_portfolio/**"
-  }
+    "apps/_portfolio/src/app/[locale]/globals.css": "apps/_portfolio/**",
+    "apps/portfolio/src/app/globals.css": "apps/portfolio/**"
+  },
+  "i18n-ally.localesPaths": [
+    "apps/portfolio/messages",
+    "apps/_portfolio/messages",
+    "apps/_template/messages",
+    "apps/_portfolio/src/i18n",
+    "apps/_template/src/i18n"
+  ]
 }
