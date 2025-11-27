@@ -15,7 +15,7 @@ function getFileName(id?: number) {
 }
 
 function getLoc(path: string, id?: number) {
-  return `${env.NEXT_PUBLIC_PORTFOLIO_DOMAIN}/api/sitemaps/${path}/${getFileName(id)}`;
+  return `${env.NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN}/api/sitemaps/${path}/${getFileName(id)}`;
 }
 function getSitemap(path: string, id?: number) {
   return /* XML */ `<sitemap><loc>${getLoc(path, id)}</loc><lastmod>${new Date().toISOString()}</lastmod></sitemap>`;

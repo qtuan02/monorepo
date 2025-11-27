@@ -7,6 +7,7 @@ import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { TooltipProvider } from "@monorepo/ui";
 
 import { TITLE_METADATA } from "~/constants/common";
+import { env } from "~/env";
 import Navbar from "~/features/navbar";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
@@ -46,10 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
       ],
       shortcut: "/favicon.ico",
     },
-    robots: {
-      index: false,
-      follow: false,
-    },
+    robots:
+      env.NEXT_PUBLIC_ENV === "local"
+        ? {
+            index: false,
+            follow: false,
+          }
+        : undefined,
     manifest: "/manifest.webmanifest",
   });
 }

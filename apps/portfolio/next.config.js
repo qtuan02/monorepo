@@ -18,7 +18,7 @@ const nextConfig = {
 
 export default withSentryConfig(nextConfig, {
   org: "sentry",
-  project: "portfolio",
+  project: "portfolio_v1",
 
   // Only print logs for uploading source maps in CI
   // Set to `true` to suppress logs

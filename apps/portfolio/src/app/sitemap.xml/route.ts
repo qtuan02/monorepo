@@ -1,3 +1,5 @@
+import { env } from "~/env";
+
 /**
  * Solution: https://github.com/vercel/next.js/discussions/61025#discussioncomment-9299207
  */
@@ -12,7 +14,7 @@ function getFileName(id?: number) {
 }
 
 function getLoc(path: string, id?: number) {
-  return `${"http://localhost:3000"}/api/sitemaps/${path}/${getFileName(id)}`;
+  return `${env.NEXT_PUBLIC_PORTFOLIO_DOMAIN}/api/sitemaps/${path}/${getFileName(id)}`;
 }
 function getSitemap(path: string, id?: number) {
   return /* XML */ `<sitemap><loc>${getLoc(path, id)}</loc><lastmod>${new Date().toISOString()}</lastmod></sitemap>`;

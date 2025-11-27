@@ -6,6 +6,10 @@ const env = createEnv({
   client: {
     NEXT_PUBLIC_ENV: z.string().optional(),
 
+    // portfolio v1
+    NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN: z.string().url(),
+    NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN: z.string().optional(),
+
     //portfolio
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: z.string().url(),
     NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN: z.string().optional(),
@@ -20,8 +24,14 @@ const env = createEnv({
   experimental__runtimeEnv: {
     NEXT_PUBLIC_ENV: process.env.NEXT_PUBLIC_ENV,
 
+    // portfolio v1
+    NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN:
+      process.env.NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN,
+    NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN:
+      process.env.NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN,
+
     //portfolio
-    NEXT_PUBLIC_PORTFOLIO_DOMAIN: process.env.NEXT_PUBLIC_PORTFOLIO_DOMAIN,
+    NEXT_PUBLIC_PORTFOLIO_DOMAIN: process.env.NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN,
     NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN:
       process.env.NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN || "",
 
