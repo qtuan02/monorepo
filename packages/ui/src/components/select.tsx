@@ -1,9 +1,10 @@
 "use client";
 
-import * as React from "react";
-import { cn } from "@/src/libs/cn";
+import type * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
+
+import { cn } from "../libs/cn";
 
 function Select({
   ...props

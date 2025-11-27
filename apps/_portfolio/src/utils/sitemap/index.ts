@@ -6,7 +6,7 @@ import { getPathname } from "~/i18n/navigation";
 import { routing } from "~/i18n/routing";
 
 // Adapt this as necessary
-const host = env.NEXT_PUBLIC_PORTFOLIO_DOMAIN;
+const host = env.NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN;
 
 type Href = Parameters<typeof getPathname>[0]["href"];
 

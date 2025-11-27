@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/"],
     },
-    // sitemap: [`${env.NEXT_PUBLIC_NEWS_DOMAIN}/sitemap.xml`],
+    // sitemap: [`${env.NEXT_PUBLIC_TEMPLATE_DOMAIN}/sitemap.xml`],
   };
 }

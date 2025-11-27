@@ -1,8 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { cn } from "@/src/libs/cn";
+import type * as React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
+
+import { cn } from "../libs/cn";
 
 function ScrollArea({
   className,
