@@ -7,6 +7,14 @@ createJiti(fileURLToPath(import.meta.url))("./src/env");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  turbopack: {
+    rules: {
+      "*.svg": {
+        as: "*.js",
+        loaders: ["@svgr/webpack"],
+      },
+    },
+  },
   /** Enables hot reloading for local packages without a build step */
   transpilePackages: ["@monorepo/ui", "@monorepo/env"],
 

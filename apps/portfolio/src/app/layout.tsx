@@ -12,7 +12,9 @@ import Navbar from "~/features/navbar";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
 
-export function generateStaticParams() {}
+export function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   return getMetadataDefault({
