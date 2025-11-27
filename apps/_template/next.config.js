@@ -1,7 +1,8 @@
 import { fileURLToPath } from "url";
-import { withSentryConfig } from "@sentry/nextjs";
 import createJiti from "jiti";
 import createNextIntlPlugin from "next-intl/plugin";
+
+import { Sentry } from "@monorepo/sentry";
 
 const withNextIntl = createNextIntlPlugin({
   experimental: {
@@ -31,15 +32,17 @@ const nextConfig = {
     "@tanstack/react-query-devtools",
     "@monorepo/ui",
     "@monorepo/env",
+    "@monorepo/sentry",
   ],
 
   /** We already do linting and typechecking as separate tasks in CI */
   typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
 
   output: process.env.CI === "true" ? "standalone" : undefined,
 };
 
-export default withSentryConfig(withNextIntl(nextConfig), {
+export default Sentry.withSentryConfig(withNextIntl(nextConfig), {
   org: "sentry",
   project: "_template",
 

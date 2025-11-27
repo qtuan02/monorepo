@@ -1,6 +1,7 @@
 import { fileURLToPath } from "url";
-import { withSentryConfig } from "@sentry/nextjs";
 import createJiti from "jiti";
+
+import { Sentry } from "@monorepo/sentry";
 
 // Import env files to validate at build time. Use jiti so we can load .ts files in here.
 createJiti(fileURLToPath(import.meta.url))("./src/env");
@@ -16,15 +17,16 @@ const nextConfig = {
     },
   },
   /** Enables hot reloading for local packages without a build step */
-  transpilePackages: ["@monorepo/ui", "@monorepo/env"],
+  transpilePackages: ["@monorepo/ui", "@monorepo/env", "@monorepo/sentry"],
 
   /** We already do linting and typechecking as separate tasks in CI */
   typescript: { ignoreBuildErrors: true },
+  eslint: { ignoreDuringBuilds: true },
 
   output: process.env.CI === "true" ? "standalone" : undefined,
 };
 
-export default withSentryConfig(nextConfig, {
+export default Sentry.withSentryConfig(nextConfig, {
   org: "sentry",
   project: "portfolio_v1",
 
