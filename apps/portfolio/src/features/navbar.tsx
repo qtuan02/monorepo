@@ -9,7 +9,7 @@ import {
 import { cn } from "@monorepo/ui/libs/cn";
 
 import { Dock, DockIcon } from "~/components/dock";
-import { ModeToggle } from "~/components/mode-toggle";
+import { ThemeToggleButton } from "~/components/theme-toggle-gif";
 import { DATA } from "~/constants/data";
 
 export default function Navbar() {
@@ -37,10 +37,13 @@ export default function Navbar() {
             </Tooltip>
           </DockIcon>
         ))}
-        <DockIcon>
+        <DockIcon key="theme">
           <Tooltip>
             <TooltipTrigger asChild>
-              <ModeToggle />
+              <ThemeToggleButton
+                animationVariant="gif"
+                url="https://media.giphy.com/media/KBbr4hHl9DSahKvInO/giphy.gif?cid=790b76112m5eeeydoe7et0cr3j3ekb1erunxozyshuhxx2vl&ep=v1_stickers_search&rid=giphy.gif&ct=s"
+              />
             </TooltipTrigger>
             <TooltipContent>
               <p>Theme</p>

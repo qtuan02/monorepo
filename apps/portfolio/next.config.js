@@ -13,7 +13,7 @@ const nextConfig = {
   /** We already do linting and typechecking as separate tasks in CI */
   typescript: { ignoreBuildErrors: true },
 
-  output: !!process.env.CI ? "standalone" : undefined,
+  output: process.env.CI === "true" ? "standalone" : undefined,
 };
 
 export default withSentryConfig(nextConfig, {

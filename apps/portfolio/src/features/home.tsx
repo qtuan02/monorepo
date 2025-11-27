@@ -2,6 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage, Badge } from "@monorepo/ui";
 
 import BlurFade from "~/components/blur-fade";
 import BlurFadeText from "~/components/blur-fade-text";
+import { Lens } from "~/components/lens";
 import { ResumeCard } from "~/components/resume-card";
 import { DATA } from "~/constants/data";
 
@@ -28,8 +29,15 @@ export default function HomePage() {
               />
             </div>
             <BlurFade delay={BLUR_FADE_DELAY}>
-              <Avatar className="size-30 border">
-                <AvatarImage alt="HT" src={DATA.header.avatarUrl} />
+              <Avatar className="size-40 border">
+                <Lens
+                  zoomFactor={2}
+                  lensSize={60}
+                  isStatic={false}
+                  ariaLabel="Zoom Area"
+                >
+                  <AvatarImage alt="HT" src={DATA.header.avatarUrl} />
+                </Lens>
                 <AvatarFallback>HT</AvatarFallback>
               </Avatar>
             </BlurFade>
@@ -102,6 +110,7 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
       <section id="skills">
         <div className="flex min-h-0 flex-col gap-y-3">
           <BlurFade delay={BLUR_FADE_DELAY * 9}>
