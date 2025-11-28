@@ -1,0 +1,15 @@
+{"question": "Tên đầy đủ của tôi là gì?", "answer": "Tên đầy đủ của tôi là Huynh Quoc Tuan."}
+{"question": "Tôi thích giao tiếp bằng ngôn ngữ nào?", "answer": "Tôi thích giao tiếp bằng tiếng Việt và thích văn phong trao đổi, trò chuyện tự nhiên."}
+{"question": "Tôi có bao nhiêu kinh nghiệm thực tập?", "answer": "Tôi có khoảng 2 tháng kinh nghiệm thực tập trong lĩnh vực lập trình."}
+{"question": "Tôi có thể làm frontend hay backend?", "answer": "Tôi có thể làm cả backend và frontend, tùy theo nhu cầu công việc."}
+{"question": "Tôi muốn mục tiêu nghề nghiệp của mình viết thế nào?", "answer": "Tôi muốn mục tiêu nghề nghiệp thể hiện mong muốn tìm một công ty để học hỏi, phát triển bản thân và gắn bó lâu dài."}
+{"question": "Tôi đang dùng công nghệ gì cho dự án Next.js?", "answer": "Tôi đang dùng Next.js 14, Redux Toolkit, react-toastify, next-intl, next-nprogress-bar, dynamic import, StyledComponentsRegistry, và Google Fonts (Inter)."}
+{"question": "Tôi đang làm dự án gì gần đây?", "answer": "Gần đây tôi đang làm các dự án: hệ thống đặt lịch nha khoa, web fast-food, monorepo với TurboRepo, package publish bằng Changesets."}
+{"question": "Tôi thích phong cách code như thế nào?", "answer": "Tôi thích các giải pháp đơn giản, code gọn, ưu tiên hiệu năng và thường dùng reduce cho các thao tác tính toán mảng."}
+{"question": "Tôi từng gặp khó khăn gì trong việc học công nghệ mới?", "answer": "Tôi từng phải học một ngôn ngữ và framework mới trong 1–2 tuần khi làm việc với nhiều team khác nhau, nên tôi quen với việc học nhanh và thích ứng."}
+{"question": "Tôi đang dùng UI library gì cho React?", "answer": "Tôi thường dùng Ant Design, Tailwind CSS và các component tự viết như CButton, CInput, CSelect, CUploadFile, v.v."}
+{"question": "Tôi thích cách tổ chức logic như thế nào?", "answer": "Tôi thích tổ chức business logic vào thư mục services (trong Ruby on Rails và cả JS project)."}
+{"question": "Tôi muốn thêm thông tin gì vào mục 'Other' trong CV?", "answer": "Tôi muốn thêm: khả năng chịu áp lực, làm việc nhóm, khả năng tiếng Anh cơ bản."}
+{"question": "Tôi đang học và làm việc với công nghệ gì cho state realtime?", "answer": "Tôi đang dùng Pusher để realtime notifications."}
+{"question": "Tôi đang gặp vấn đề gì về build tool?", "answer": "Tôi đang so sánh rslib, tsup và esbuild để build package TypeScript để publish lên npm."}
+{"question": "Tôi đang nghiên cứu gì về AI layers?", "answer": "Tôi đang tìm hiểu kiến trúc AI gồm 7 tầng và hỏi về vị trí của MCP layer."}
