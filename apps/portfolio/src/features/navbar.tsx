@@ -40,10 +40,7 @@ export default function Navbar() {
         <DockIcon key="theme">
           <Tooltip>
             <TooltipTrigger asChild>
-              <ThemeToggleButton
-                animationVariant="gif"
-                url="https://media.giphy.com/media/KBbr4hHl9DSahKvInO/giphy.gif?cid=790b76112m5eeeydoe7et0cr3j3ekb1erunxozyshuhxx2vl&ep=v1_stickers_search&rid=giphy.gif&ct=s"
-              />
+              <ThemeToggleButton animationVariant="polygon" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Theme</p>

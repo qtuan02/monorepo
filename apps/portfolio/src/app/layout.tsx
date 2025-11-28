@@ -80,7 +80,7 @@ export default async function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="bg-background mx-auto min-h-screen max-w-2xl px-6 py-12 font-sans antialiased sm:py-24"
+        className="bg-background mx-auto min-h-screen max-w-2xl px-6 py-12 pb-26 font-sans antialiased sm:pt-24"
       >
         <GoogleAnalytics gaId="" />
         <GoogleTagManager gtmId="" />

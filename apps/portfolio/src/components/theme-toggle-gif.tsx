@@ -57,6 +57,7 @@ export const ThemeToggleButton = React.forwardRef<
           "top-right": "top right",
           "bottom-left": "bottom left",
           "bottom-right": "bottom right",
+          "left-right": "left right",
         };
 
         if (animationVariant === "circle") {

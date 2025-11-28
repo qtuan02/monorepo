@@ -111,8 +111,13 @@ const ThreadSuggestions: FC = () => {
       {[
         {
           title: "Xin chào, bạn là ai?",
-          label: "Giới thiệu về tôi",
+          label: "Câu chào đầu tiên để bắt đầu hội thoại",
           action: "Xin chào, bạn là ai?",
+        },
+        {
+          title: "Giới thiệu về bản thân",
+          label: "Yêu cầu chatbot mô tả tổng quan về bản thân",
+          action: "Giới thiệu về bản thân",
         },
       ].map((suggestedAction, index) => (
         <m.div
