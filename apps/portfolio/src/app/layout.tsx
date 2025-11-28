@@ -2,15 +2,24 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import type * as React from "react";
+import { Inter_Tight } from "next/font/google";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 
-import { TooltipProvider } from "@monorepo/ui";
+import { cn, TooltipProvider } from "@monorepo/ui";
 
 import { TITLE_METADATA } from "~/constants/common";
 import { env } from "~/env";
 import Navbar from "~/features/navbar";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
+
+const inter = Inter_Tight({
+  subsets: ["latin"],
+  adjustFontFallback: true,
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-inter-tight",
+});
 
 export function generateStaticParams() {
   return [];
@@ -64,7 +73,11 @@ export default async function RootLayout({
   children,
 }: React.PropsWithChildren) {
   return (
-    <html suppressHydrationWarning lang="en">
+    <html
+      suppressHydrationWarning
+      lang="en"
+      className={cn(inter.className, "antialiased")}
+    >
       <body
         suppressHydrationWarning
         className="bg-background mx-auto min-h-screen max-w-2xl px-6 py-12 font-sans antialiased sm:py-24"

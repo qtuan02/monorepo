@@ -2,15 +2,26 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Inter_Tight } from "next/font/google";
 import { notFound } from "next/navigation";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
+import { cn } from "@monorepo/ui";
+
 import type { NextParams } from "~/types/common";
 import { routing } from "~/i18n/routing";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
+
+const inter = Inter_Tight({
+  subsets: ["latin"],
+  adjustFontFallback: true,
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-inter-tight",
+});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -81,7 +92,11 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   return (
-    <html suppressHydrationWarning lang={locale}>
+    <html
+      suppressHydrationWarning
+      lang={locale}
+      className={cn(inter.className, "antialiased")}
+    >
       <body suppressHydrationWarning>
         <GoogleAnalytics gaId="" />
         <GoogleTagManager gtmId="" />
