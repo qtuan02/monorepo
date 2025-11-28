@@ -219,16 +219,23 @@ export function formatRelevantContext(
   }
 
   const knowledgeBase = relevantQA
-    .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
+    .map((qa, index) => {
+      // Format with clear structure and numbering
+      return `[${index + 1}] ${qa.question}\n   → ${qa.answer}`;
+    })
     .join("\n\n");
 
   return isQueryEnglish
-    ? `Based on the following knowledge base about Huynh Quoc Tuan:
+    ? `Here is the relevant information about you from your knowledge base. USE THESE SPECIFIC DETAILS in your response:
 
-${knowledgeBase}`
-    : `Dựa trên cơ sở kiến thức sau đây về Huynh Quoc Tuan:
+${knowledgeBase}
 
-${knowledgeBase}`;
+IMPORTANT: When answering, you MUST reference the specific details above (company names, technologies, projects, dates, etc.). Do not give generic answers.`
+    : `Đây là thông tin liên quan về bạn từ cơ sở kiến thức. SỬ DỤNG CÁC CHI TIẾT CỤ THỂ NÀY trong câu trả lời:
+
+${knowledgeBase}
+
+QUAN TRỌNG: Khi trả lời, bạn PHẢI tham chiếu các chi tiết cụ thể ở trên (tên công ty, công nghệ, dự án, thời gian, v.v.). Không được trả lời chung chung.`;
 }
 
 /**

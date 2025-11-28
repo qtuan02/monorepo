@@ -110,14 +110,14 @@ const ThreadSuggestions: FC = () => {
     <div className="aui-thread-welcome-suggestions grid w-full gap-2 pb-4 @md:grid-cols-2">
       {[
         {
-          title: "Xin chào, bạn là ai?",
-          label: "Câu chào đầu tiên để bắt đầu hội thoại",
-          action: "Xin chào, bạn là ai?",
+          title: "Giới thiệu về bản thân",
+          label: "Mô tả tổng quan về bản thân",
+          action: "Giới thiệu về bản thân",
         },
         {
-          title: "Giới thiệu về bản thân",
-          label: "Yêu cầu chatbot mô tả tổng quan về bản thân",
-          action: "Giới thiệu về bản thân",
+          title: "Kinh nghiệm làm việc như thế nào?",
+          label: "Mô tả tổng quan về kinh nghiệm làm việc của tôi",
+          action: "Kinh nghiệm làm việc như thế nào?",
         },
       ].map((suggestedAction, index) => (
         <m.div

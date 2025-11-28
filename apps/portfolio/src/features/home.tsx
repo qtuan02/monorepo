@@ -82,6 +82,7 @@ export default function HomePage() {
                   subtitle={work.title}
                   period={`${work.start} - ${work.end ?? "Present"}`}
                   description={work.description}
+                  techStack={work.techStack}
                 />
               </BlurFade>
             ))}
@@ -124,7 +125,7 @@ export default function HomePage() {
                 key={`skill-${index}`}
                 delay={BLUR_FADE_DELAY * 10 + index * 0.05}
               >
-                <Badge className="rounded-sm px-1.5 md:px-3 md:py-1 transition-all duration-300 select-none hover:-translate-y-1">
+                <Badge className="rounded-sm px-1.5 transition-all duration-300 select-none hover:-translate-y-1 md:px-3 md:py-1">
                   {skill}
                 </Badge>
               </BlurFade>

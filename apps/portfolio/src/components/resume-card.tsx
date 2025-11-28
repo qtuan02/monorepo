@@ -24,6 +24,7 @@ interface ResumeCardProps {
   href?: string;
   badges?: readonly string[];
   period: string;
+  techStack?: readonly string[];
   description?: string;
 }
 export const ResumeCard = ({
@@ -35,12 +36,13 @@ export const ResumeCard = ({
   href,
   badges,
   period,
+  techStack,
   description,
 }: ResumeCardProps) => {
   const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    if (description) {
+    if (description || techStack) {
       e.preventDefault();
       setIsExpanded(!isExpanded);
     }
@@ -94,12 +96,11 @@ export const ResumeCard = ({
             </div>
             {subtitle && <div className="font-sans text-xs">{subtitle}</div>}
           </CardHeader>
-          {description && (
+          {(description || techStack) && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{
                 opacity: isExpanded ? 1 : 0,
-
                 height: isExpanded ? "auto" : 0,
               }}
               transition={{
@@ -109,6 +110,14 @@ export const ResumeCard = ({
               className="mt-2 text-xs sm:text-sm"
             >
               {description}
+              {techStack && (
+                <div className="mt-2 text-xs sm:text-sm">
+                  <span className="font-semibold">Tech Stack:</span>&nbsp;
+                  <span className="text-muted-foreground">
+                    {techStack.join(", ")}
+                  </span>
+                </div>
+              )}
             </motion.div>
           )}
         </div>
