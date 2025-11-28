@@ -16,6 +16,7 @@
     "@monorepo/env": "workspace:*",
     "@monorepo/ui": "workspace:*",
     "@monorepo/sentry": "workspace:*",
+    "@t3-oss/env-nextjs": "catalog:next15",
     "next": "catalog:next15",
     "next-intl": "catalog:next15",
     "react": "catalog:react19",

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Avatar, AvatarFallback, AvatarImage, Badge } from "@monorepo/ui";
 
 import BlurFade from "~/components/blur-fade";
@@ -10,7 +12,7 @@ const BLUR_FADE_DELAY = 0.08;
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-[100dvh] flex-col space-y-10">
+    <main className="flex min-h-[100dvh] flex-col space-y-6 md:space-y-10">
       <section id="hero">
         <div className="mx-auto w-full max-w-2xl space-y-8">
           <div className="flex justify-between gap-2">
@@ -29,7 +31,7 @@ export default function HomePage() {
               />
             </div>
             <BlurFade delay={BLUR_FADE_DELAY}>
-              <Avatar className="size-40 border">
+              <Avatar className="size-28 border select-none md:size-36">
                 <Lens
                   zoomFactor={2}
                   lensSize={60}
@@ -80,6 +82,7 @@ export default function HomePage() {
                   subtitle={work.title}
                   period={`${work.start} - ${work.end ?? "Present"}`}
                   description={work.description}
+                  techStack={work.techStack}
                 />
               </BlurFade>
             ))}
@@ -116,13 +119,13 @@ export default function HomePage() {
           <BlurFade delay={BLUR_FADE_DELAY * 9}>
             <h2 className="text-xl font-bold">Skills</h2>
           </BlurFade>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1 md:gap-2">
             {DATA.skills.data.map((skill, index) => (
               <BlurFade
                 key={`skill-${index}`}
                 delay={BLUR_FADE_DELAY * 10 + index * 0.05}
               >
-                <Badge className="rounded-sm px-3 py-1 transition-all duration-300 hover:-translate-y-1">
+                <Badge className="rounded-sm px-1.5 transition-all duration-300 select-none hover:-translate-y-1 md:px-3 md:py-1">
                   {skill}
                 </Badge>
               </BlurFade>
@@ -130,6 +133,57 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <div className="flex">
+        <section id="contact" className="flex-1">
+          <div className="flex min-h-0 flex-col gap-y-3">
+            <BlurFade delay={BLUR_FADE_DELAY * 9}>
+              <h2 className="text-xl font-bold">{DATA.contact.title}</h2>
+            </BlurFade>
+            <div className="flex flex-col gap-y-2">
+              {DATA.contact.data.map((contact, index) => (
+                <BlurFade
+                  key={`contact-${index}`}
+                  delay={BLUR_FADE_DELAY * 10 + index * 0.05}
+                >
+                  <div className="flex items-center gap-x-2">
+                    <contact.icon className="size-4" />
+                    <Link
+                      href={contact.href}
+                      className="text-xs text-gray-500 md:text-sm"
+                    >
+                      {contact.label}
+                    </Link>
+                  </div>
+                </BlurFade>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="hobbies">
+          <div className="flex min-h-0 flex-col gap-y-3">
+            <BlurFade delay={BLUR_FADE_DELAY * 9}>
+              <h2 className="text-xl font-bold">{DATA.hobbies.title}</h2>
+            </BlurFade>
+            <div className="flex flex-col gap-y-2">
+              {DATA.hobbies.data.map((hobby, index) => (
+                <BlurFade
+                  key={`hobby-${index}`}
+                  delay={BLUR_FADE_DELAY * 10 + index * 0.05}
+                >
+                  <div className="flex items-center gap-x-2">
+                    <hobby.icon className="size-4" />
+                    <span className="text-xs text-gray-500 md:text-sm">
+                      {hobby.label}
+                    </span>
+                  </div>
+                </BlurFade>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

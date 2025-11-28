@@ -1,5 +1,5 @@
 {
-  "name": "@monorepo/portfolio",
+  "name": "@monorepo/assistant-ai",
   "private": true,
   "type": "module",
   "scripts": {
@@ -7,25 +7,33 @@
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "dev": "pnpm with-env next dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
+    "generate-embeddings": "pnpm with-env jiti scripts/generate-embeddings.ts",
     "lint": "eslint --flag unstable_native_nodejs_ts_config",
     "start": "pnpm with-env next start",
     "typecheck": "tsc --noEmit",
-    "with-env": "dotenv -e ../../.env --",
-    "build:vercel": "pnpm with-env-vercel next build",
-    "with-env-vercel": "dotenv -e .env --"
+    "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.42",
+    "@assistant-ui/react": "^0.11.39",
+    "@assistant-ui/react-ai-sdk": "^1.1.11",
+    "@assistant-ui/react-markdown": "^0.11.4",
+    "@google/generative-ai": "^0.24.1",
     "@monorepo/env": "workspace:*",
     "@monorepo/ui": "workspace:*",
-    "@monorepo/sentry": "workspace:*",
+    "@radix-ui/react-slot": "^1.2.4",
     "@t3-oss/env-nextjs": "catalog:next15",
+    "ai": "^5.0.95",
+    "class-variance-authority": "^0.7.1",
+    "compute-cosine-similarity": "^1.1.0",
+    "framer-motion": "^12.23.24",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "next": "catalog:next15",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
-    "react-markdown": "^9.1.0",
-    "next-themes": "^0.4.6"
+    "remark-gfm": "^4.0.1",
+    "zustand": "catalog:"
   },
   "devDependencies": {
     "@monorepo/eslint-config": "workspace:*",

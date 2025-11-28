@@ -25,7 +25,8 @@
     "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
     "build:portfolio": "turbo run build -F @monorepo/portfolio",
     "start:portfolio": "turbo run start -F @monorepo/portfolio",
-    "build:package": "turbo run build -F @monorepo/ui",
+    "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai",
+    "build:package:ui": "turbo run build:package -F @monorepo/ui",
     "changeset": "changeset",
     "changeset:version": "changeset version",
     "changeset:publish": "changeset publish"
