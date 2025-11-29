@@ -6,7 +6,7 @@ import {
   useChatRuntime,
 } from "@assistant-ui/react-ai-sdk";
 
-import { Thread } from "../components/assistant-ui/thread";
+import { Thread } from "../components/thread";
 
 export const Assistant = () => {
   const runtime = useChatRuntime({

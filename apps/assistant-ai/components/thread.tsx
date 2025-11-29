@@ -9,12 +9,14 @@ import {
 } from "@assistant-ui/react";
 import {
   ArrowDownIcon,
+  ArrowUpIcon,
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   CopyIcon,
   PencilIcon,
   RefreshCwIcon,
+  Square,
 } from "lucide-react";
 import { domAnimation, LazyMotion, MotionConfig } from "motion/react";
 import * as m from "motion/react-m";
@@ -65,13 +67,13 @@ export const Thread: FC = () => {
 const ThreadScrollToBottom: FC = () => {
   return (
     <ThreadPrimitive.ScrollToBottom asChild>
-      <TooltipIconButton
-        tooltip="Scroll to bottom"
+      <Button
         variant="outline"
-        className="aui-thread-scroll-to-bottom dark:bg-background dark:hover:bg-accent absolute -top-12 z-10 self-center rounded-full p-4 disabled:invisible"
+        size="icon"
+        className="aui-thread-scroll-to-bottom absolute -top-12 z-10 size-[34px] cursor-pointer self-center rounded-full bg-gray-100 disabled:invisible"
       >
         <ArrowDownIcon className="text-black" />
-      </TooltipIconButton>
+      </Button>
     </ThreadPrimitive.ScrollToBottom>
   );
 };
@@ -135,7 +137,7 @@ const ThreadSuggestions: FC = () => {
           >
             <Button
               variant="ghost"
-              className="aui-thread-welcome-suggestion dark:hover:bg-accent/60 h-auto w-full flex-1 flex-wrap items-start justify-start gap-1 rounded-3xl border px-5 py-4 text-left text-sm @md:flex-col"
+              className="aui-thread-welcome-suggestion dark:hover:bg-accent/60 h-auto w-full flex-1 cursor-pointer flex-wrap items-start justify-start gap-1 rounded-3xl border px-5 py-4 text-left text-sm hover:bg-gray-100 @md:flex-col"
               aria-label={suggestedAction.action}
             >
               <span className="aui-thread-welcome-suggestion-text-1 font-medium">
@@ -159,13 +161,48 @@ const Composer: FC = () => {
       <ComposerPrimitive.Root className="aui-composer-root group/input-group border-input bg-background has-[textarea:focus-visible]:border-ring has-[textarea:focus-visible]:ring-ring/50 dark:bg-background relative flex w-full flex-col rounded-3xl border px-1 pt-2 shadow-xs transition-[color,box-shadow] outline-none has-[textarea:focus-visible]:ring-[3px]">
         <ComposerAttachments />
         <ComposerPrimitive.Input
-          placeholder="Send a message..."
+          placeholder="Gửi tin nhắn..."
           className="aui-composer-input placeholder:text-muted-foreground mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none focus-visible:ring-0"
           rows={1}
           autoFocus
           aria-label="Message input"
         />
+        <ComposerAction />
       </ComposerPrimitive.Root>
+    </div>
+  );
+};
+
+const ComposerAction: FC = () => {
+  return (
+    <div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-end">
+      <ThreadPrimitive.If running={false}>
+        <ComposerPrimitive.Send asChild>
+          <Button
+            type="submit"
+            variant="default"
+            size="icon"
+            className="aui-composer-send size-[34px] cursor-pointer rounded-full p-1 hover:bg-gray-100"
+            aria-label="Send message"
+          >
+            <ArrowUpIcon className="aui-composer-send-icon size-5" />
+          </Button>
+        </ComposerPrimitive.Send>
+      </ThreadPrimitive.If>
+
+      <ThreadPrimitive.If running>
+        <ComposerPrimitive.Cancel asChild>
+          <Button
+            type="button"
+            variant="default"
+            size="icon"
+            className="aui-composer-cancel border-muted-foreground/60 dark:border-muted-foreground/90 size-[34px] cursor-pointer rounded-full border hover:bg-gray-100"
+            aria-label="Stop generating"
+          >
+            <Square className="aui-composer-cancel-icon size-3.5 fill-black" />
+          </Button>
+        </ComposerPrimitive.Cancel>
+      </ThreadPrimitive.If>
     </div>
   );
 };
