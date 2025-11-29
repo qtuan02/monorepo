@@ -48,6 +48,7 @@
     "packages/ui/src/globals.css": "packages/ui/**",
     "apps/_template/src/app/[locale]/globals.css": "apps/_template/**",
     "apps/_portfolio/src/app/[locale]/globals.css": "apps/_portfolio/**",
-    "apps/portfolio/src/app/globals.css": "apps/portfolio/**"
+    "apps/portfolio/src/app/globals.css": "apps/portfolio/**",
+    "apps/assistant-ai/app/globals.css": "apps/assistant-ai/**"
   }
 }

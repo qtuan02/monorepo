@@ -3,7 +3,7 @@ import { z } from "zod";
 
 const env = createEnv({
   server: {
-    GOOGLE_GENERATIVE_AI_API_KEY: z.string(),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_ENV: z.string().optional(),
