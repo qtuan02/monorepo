@@ -1,7 +1,7 @@
 # 1) Build-time arguments (can be overridden with --build-arg)
 ARG NODE_VERSION=22
-ARG APP_DIRNAME=portfolio
-ARG PROJECT=@monorepo/portfolio
+ARG APP_DIRNAME=document
+ARG PROJECT=@monorepo/document
 ARG NODE_ENV=production
 ARG VERSION=local
 
