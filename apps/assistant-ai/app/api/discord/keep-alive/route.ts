@@ -2,7 +2,7 @@ import { initializeDiscordBot } from "~/libs/discord-bot";
 
 /**
  * Keep-alive endpoint for Discord bot
- * This endpoint should be called periodically (via Vercel Cron) to ensure
+ * This endpoint can be triggered manually to ensure
  * the bot stays connected to Discord's gateway
  */
 export async function GET() {
