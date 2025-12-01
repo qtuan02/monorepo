@@ -181,7 +181,7 @@ async function callChatAPI(userMessage: string): Promise<string> {
 
 export async function initializeDiscordBot(): Promise<Client | null> {
   // If client exists and is ready, return it
-  if (client?.isReady()) {
+  if (isInitialized && client) {
     return client;
   }
 
@@ -194,46 +194,9 @@ export async function initializeDiscordBot(): Promise<Client | null> {
     }
   }
 
-  // If client exists but is not ready, try to reconnect
-  if (client && !client.isReady()) {
-    console.log(
-      "Discord client exists but not ready, attempting to reconnect...",
-    );
-    try {
-      // Check if client is in a bad state by checking if it's ready
-      // If not ready after a timeout, destroy and recreate
-      const isReady = client.isReady();
-      if (!isReady) {
-        // Wait a bit to see if it becomes ready
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        if (!client.isReady()) {
-          // Still not ready, destroy and recreate
-          await client.destroy();
-          client = null;
-          isInitialized = false;
-        } else {
-          return client;
-        }
-      }
-    } catch (error) {
-      console.error("Error during reconnection attempt:", error);
-      client = null;
-      isInitialized = false;
-    }
-  }
-
   if (!env.DISCORD_TOKEN) {
     console.error("DISCORD_TOKEN is not set");
     return null;
-  }
-
-  // Prevent multiple simultaneous initializations
-  if (isInitialized) {
-    console.log("Discord bot is already initializing, waiting...");
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    if (client?.isReady()) {
-      return client;
-    }
   }
 
   isInitialized = true;
@@ -247,7 +210,7 @@ export async function initializeDiscordBot(): Promise<Client | null> {
   });
 
   // Register event handlers BEFORE login
-  newClient.on("clientReady", () => {
+  newClient.on("ready", () => {
     console.log(`Discord bot logged in as ${newClient.user?.tag}!`);
     console.log(`Bot ID: ${newClient.user?.id}`);
   });
@@ -283,7 +246,7 @@ export async function initializeDiscordBot(): Promise<Client | null> {
 
       try {
         // Reply immediately with a placeholder
-        const response = await msg.reply("Generating response...");
+        const response = await msg.reply("Tao đang suy nghĩ...");
 
         // Call the /api/chat endpoint
         const text = await callChatAPI(cleanContent);
@@ -323,17 +286,6 @@ export async function initializeDiscordBot(): Promise<Client | null> {
 
   newClient.on("disconnect", () => {
     console.warn("Discord client disconnected");
-    // Reset initialization flag to allow reconnection
-    isInitialized = false;
-  });
-
-  newClient.on("shardDisconnect", (event, shardId) => {
-    console.warn(`Discord shard ${shardId} disconnected:`, event);
-    isInitialized = false;
-  });
-
-  newClient.on("shardReconnecting", (shardId) => {
-    console.log(`Discord shard ${shardId} reconnecting...`);
   });
 
   newClient.on("shardReady", (shardId) => {
@@ -345,22 +297,10 @@ export async function initializeDiscordBot(): Promise<Client | null> {
     client = newClient;
     console.log("Discord bot initialization complete");
 
-    // Wait a bit to ensure the client is fully ready
-    await new Promise((resolve) => {
-      if (newClient.isReady()) {
-        resolve(undefined);
-      } else {
-        newClient.once("ready", () => resolve(undefined));
-        // Timeout after 10 seconds
-        setTimeout(() => resolve(undefined), 10000);
-      }
-    });
-
     return client;
   } catch (error) {
     console.error("Failed to login to Discord:", error);
     isInitialized = false;
-    client = null;
     return null;
   }
 }
