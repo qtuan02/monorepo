@@ -27,6 +27,7 @@
     "ai": "^5.0.95",
     "class-variance-authority": "^0.7.1",
     "compute-cosine-similarity": "^1.1.0",
+    "discord.js": "14.25.1",
     "framer-motion": "^12.23.24",
     "lucide-react": "catalog:",
     "motion": "catalog:",
