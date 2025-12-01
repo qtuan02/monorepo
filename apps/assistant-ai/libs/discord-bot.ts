@@ -199,7 +199,7 @@ export async function initializeDiscordBot(): Promise<Client | null> {
   });
 
   // Register event handlers BEFORE login
-  newClient.on("ready", () => {
+  newClient.on("clientReady", () => {
     console.log(`Discord bot logged in as ${newClient.user?.tag}!`);
     console.log(`Bot ID: ${newClient.user?.id}`);
   });
