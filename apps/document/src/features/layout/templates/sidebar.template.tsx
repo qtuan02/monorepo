@@ -19,7 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "~/components/sidebar";
+} from "~/features/layout/components/sidebar";
 import { Link, usePathname } from "~/i18n/navigation";
 
 interface MenuItem {

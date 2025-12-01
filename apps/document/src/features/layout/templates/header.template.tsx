@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { SidebarTrigger } from "~/components/sidebar";
+import { SidebarTrigger } from "~/features/layout/components/sidebar";
 
 export default function HeaderTemplate() {
   const t = useTranslations("Dashboard");

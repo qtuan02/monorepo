@@ -1,4 +1,4 @@
-import { SidebarInset } from "~/components/sidebar";
+import { SidebarInset } from "~/features/layout/components/sidebar";
 import HeaderTemplate from "./header.template";
 import { DashboardSidebar } from "./sidebar.template";
 
