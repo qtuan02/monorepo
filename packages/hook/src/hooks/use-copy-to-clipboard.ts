@@ -18,6 +18,7 @@ export function useCopyToClipboard(): [
       await navigator.clipboard.writeText(text);
       setCopiedText(text);
     } catch (error) {
+      console.log("Error", error);
       setCopiedText(null);
     }
   };

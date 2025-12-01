@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 export function useOnScreen(
   ref: RefObject<Element | null>,
-  rootMargin: string = "0px",
+  rootMargin = "0px",
 ): boolean {
   const [isVisible, setIsVisible] = useState(false);
 
