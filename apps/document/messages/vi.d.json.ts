@@ -76,6 +76,22 @@ declare const messages: {
     "hooks": "Hooks",
     "original": "Gốc",
     "expands": "Expands"
+  },
+  "Dashboard": {
+    "title": "Bảng điều khiển",
+    "description": "Tổng quan về ứng dụng của bạn",
+    "total_revenue": "Tổng doanh thu",
+    "subscriptions": "Đăng ký",
+    "sales": "Bán hàng",
+    "active_now": "Đang hoạt động",
+    "revenue_description": "Tổng doanh thu từ tất cả nguồn",
+    "subscriptions_description": "Tổng số đăng ký đang hoạt động",
+    "sales_description": "Tổng số bán hàng tháng này",
+    "active_description": "Người dùng đang hoạt động",
+    "overview": "Tổng quan",
+    "recent_activity": "Hoạt động gần đây",
+    "this_month": "Tháng này",
+    "last_month": "so với tháng trước"
   }
 };
 export default messages;

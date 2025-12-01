@@ -13,7 +13,7 @@ import { cn } from "@monorepo/ui/libs/cn";
 
 import type { NextParams } from "~/types/common";
 import { env } from "~/env";
-import RootLayoutTemplate from "~/features/layout/templates/root-layout.template";
+import LayoutTemplate from "~/features/layout/templates/layout.template";
 import { routing } from "~/i18n/routing";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
@@ -120,7 +120,7 @@ export default async function Layout({
         <GoogleTagManager gtmId={env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER ?? ""} />
         <NextIntlClientProvider locale={locale}>
           <Provider>
-            <RootLayoutTemplate>{children}</RootLayoutTemplate>
+            <LayoutTemplate>{children}</LayoutTemplate>
           </Provider>
         </NextIntlClientProvider>
       </body>

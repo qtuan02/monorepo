@@ -73,5 +73,21 @@
     "hooks": "Hooks",
     "original": "Original",
     "expands": "Expands"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "description": "Overview of your application",
+    "total_revenue": "Total Revenue",
+    "subscriptions": "Subscriptions",
+    "sales": "Sales",
+    "active_now": "Active Now",
+    "revenue_description": "Total revenue from all sources",
+    "subscriptions_description": "Total active subscriptions",
+    "sales_description": "Total sales this month",
+    "active_description": "Users currently active",
+    "overview": "Overview",
+    "recent_activity": "Recent Activity",
+    "this_month": "This Month",
+    "last_month": "from last month"
   }
 }

@@ -1,7 +1,5 @@
-import type { NextParams } from "~/types/common";
+import HomeTemplate from "~/features/home/templates/home.template";
 
-export default async function HomePage({ params }: { params: NextParams }) {
-  const { locale } = await params;
-
-  return <div>Locale: {locale}</div>;
+export default function HomePage() {
+  return <HomeTemplate />;
 }
