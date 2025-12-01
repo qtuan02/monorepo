@@ -15,8 +15,8 @@ const inter = Inter_Tight({
 });
 
 export const metadata: Metadata = {
-  title: "Chat with Tuan",
-  description: "Chat with Tuan",
+  title: "Assistant AI",
+  description: "Assistant AI",
 };
 
 export default function RootLayout({

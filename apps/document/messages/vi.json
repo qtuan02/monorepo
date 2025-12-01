@@ -1,0 +1,93 @@
+{
+  "portfolio": "Portfolio",
+  "Exception": {
+    "back": "Quay lại",
+    "not_found": "Không tìm thấy trang",
+    "error": "Đã có lỗi xảy ra"
+  },
+  "Navbar": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "component": "Codes",
+    "vi_language": "Tiếng Việt",
+    "en_language": "Tiếng Anh (US)"
+  },
+  "Home": {
+    "title": "Xin chào, mình là Developer Frontend",
+    "subtitle": "Bạn có thể gọi mình là Tuấn",
+    "about": "Tìm hiểu về tôi",
+    "explore": "Khám phá"
+  },
+  "About": {
+    "about_me": "Về tôi",
+    "about_me_description": "Với niềm đam mê lập trình, tôi luôn tìm kiếm cơ hội để học hỏi, thử nghiệm và ứng dụng những xu hướng công nghệ mới vào sản phẩm web",
+    "download_cv": "Tải CV",
+    "contact_info": "Thông tin liên hệ",
+    "address": "Quận 7, TP.Hồ Chí Minh, Việt Nam",
+    "overview_description_1": "Xin chào! Tôi là Tuấn, một Frontend Developer với hơn 1.5 năm kinh nghiệm trong việc phát triển các ứng dụng web hiện đại. Tôi đam mê xây dựng giao diện người dùng đẹp mắt, dễ sử dụng và tối ưu hiệu suất.",
+    "overview_description_2": "Tôi có kinh nghiệm làm việc với React, Next.js, TypeScript, Tailwind  CSS và React Query, cùng khả năng xử lý linh hoạt các kỹ thuật hiển thị như CSR, SSR, SSG, ISR. Ngoài ra, tôi cũng thành thạo trong việc triển khai API Routes, Server Actions và tối ưu SEO cho các ứng dụng web.",
+    "overview_description_3": "Bên cạnh vai trò Frontend, tôi cũng có khả năng đảm nhiệm một số  công việc Backend, bao gồm xây dựng RESTful APIs, xử lý logic nghiệp vụ và kết nối với cơ sở dữ liệu.",
+    "overview_description_4": "Tôi luôn chủ động học hỏi và cập nhật các xu hướng công nghệ mới để  không ngừng cải thiện chất lượng sản phẩm và kỹ năng bản thân. Ngoài  công việc, tôi yêu thích đọc sách công nghệ, chơi thể thao và du lịch khám phá. Tôi tin rằng sự cân bằng giữa công việc và cuộc sống là yếu tố quan trọng giúp tôi duy trì sự sáng tạo và hiệu quả trong công việc.",
+    "skills": "Kỹ năng",
+    "experience": "Kinh nghiệm làm việc",
+    "education": "Học vấn",
+    "hobbies": "Sở thích",
+    "major": "Kỹ sư công nghệ thông tin",
+    "education_year": "Năm học",
+    "school": "Trường Đại học Công nghệ Sài Gòn",
+    "english_level": "Tiếng anh: Bình thường",
+    "sport": "Chơi thể thao",
+    "read_book": "Đọc sách",
+    "travel": "Du lịch",
+    "listen_music": "Nghe nhạc",
+    "watch_movie": "Xem phim",
+    "overview": "Tổng quan",
+    "title": "Giới thiệu",
+    "description": "Giới thiệu",
+    "company_wisdomrobotics": "\nCÔNG TY TNHH WISDOMROBOTICS",
+    "company_dcorp": "CÔNG TY CỔ PHẦN CÔNG NGHỆ DCORP",
+    "company_arobid": "CÔNG TY CỔ PHẦN CÔNG NGHỆ AROBID"
+  },
+  "Docs": {
+    "title": "Codes",
+    "description": "Codes",
+    "get-started": "Bắt đầu",
+    "introduction": "Giới thiệu",
+    "components": "Components",
+    "animations": "Animations",
+    "intro-content": {
+      "paragraph1": "Đây là repo portfolio thuộc monorepo do mình tự xây dựng.  ",
+      "paragraph2": "Bên trong bao gồm:",
+      "list": [
+        "Các component từ shadcn và những component được clone/tùy biến từ nhiều dự án open-source.",
+        "Những trick và best practices rút ra trong quá trình học tập và phát triển.",
+        "Bộ custom hooks và utility hữu ích.",
+        "Ghi chú và ví dụ thực tế để áp dụng vào dự án khác."
+      ],
+      "paragraph3": "Mục tiêu của repo này vừa là portfolio cá nhân, vừa là bộ component + tool tái sử dụng cho những dự án về sau.",
+      "paragraph4": "Dự án này mình dùng SSG - Static Site Generation để build và dùng sitemap để Google Bot dễ dàng thu thập nội dung, giúp tối ưu SEO."
+    },
+    "preview": "Xem trước",
+    "import": "Nhập",
+    "usage": "Cách dùng",
+    "hooks": "Hooks",
+    "original": "Gốc",
+    "expands": "Expands"
+  },
+  "Dashboard": {
+    "title": "Bảng điều khiển",
+    "description": "Tổng quan về ứng dụng của bạn",
+    "total_revenue": "Tổng doanh thu",
+    "subscriptions": "Đăng ký",
+    "sales": "Bán hàng",
+    "active_now": "Đang hoạt động",
+    "revenue_description": "Tổng doanh thu từ tất cả nguồn",
+    "subscriptions_description": "Tổng số đăng ký đang hoạt động",
+    "sales_description": "Tổng số bán hàng tháng này",
+    "active_description": "Người dùng đang hoạt động",
+    "overview": "Tổng quan",
+    "recent_activity": "Hoạt động gần đây",
+    "this_month": "Tháng này",
+    "last_month": "so với tháng trước"
+  }
+}

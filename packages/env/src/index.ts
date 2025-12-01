@@ -4,6 +4,7 @@ import { z } from "zod";
 const env = createEnv({
   server: {
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
+    DISCORD_TOKEN: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_ENV: z.string().optional(),
@@ -18,6 +19,9 @@ const env = createEnv({
 
     //template
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN: z.string().optional(),
+
+    //assistant ai
+    NEXT_PUBLIC_ASSISTANT_AI_DOMAIN: z.string().optional(),
 
     // google analytics
     NEXT_PUBLIC_GOOGLE_ANALYTICS: z.string().optional(),
@@ -40,6 +44,10 @@ const env = createEnv({
     //template
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN:
       process.env.NEXT_PUBLIC_SENTRY_TEMPLATE_DSN,
+
+    //assistant ai
+    NEXT_PUBLIC_ASSISTANT_AI_DOMAIN:
+      process.env.NEXT_PUBLIC_ASSISTANT_AI_DOMAIN,
 
     // google analytics
     NEXT_PUBLIC_GOOGLE_ANALYTICS: process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS,

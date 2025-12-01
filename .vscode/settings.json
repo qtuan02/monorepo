@@ -38,8 +38,9 @@
   "i18n-ally.editor.preferEditor": true,
   "i18n-ally.sourceLanguage": "vi",
   "i18n-ally.displayLanguage": "vi",
-  "i18n-ally.localesPaths": ["apps/_template/messages"],
+  // "i18n-ally.localesPaths": ["apps/_template/messages"],
   // "i18n-ally.localesPaths": ["apps/_portfolio/messages"],
+  "i18n-ally.localesPaths": ["apps/document/messages"],
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]?([^\"'`]+)[\"'`]?"],
     ["cn\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
@@ -49,6 +50,7 @@
     "apps/_template/src/app/[locale]/globals.css": "apps/_template/**",
     "apps/_portfolio/src/app/[locale]/globals.css": "apps/_portfolio/**",
     "apps/portfolio/src/app/globals.css": "apps/portfolio/**",
-    "apps/assistant-ai/app/globals.css": "apps/assistant-ai/**"
+    "apps/assistant-ai/app/globals.css": "apps/assistant-ai/**",
+    "apps/document/src/app/[locale]/globals.css": "apps/document/**"
   }
 }
