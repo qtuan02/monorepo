@@ -2,5 +2,11 @@
   "buildCommand": "pnpm build:vercel",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/discord/keep-alive",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
