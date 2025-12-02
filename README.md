@@ -50,8 +50,10 @@ monorepo
 ### External Projects
 
 - **[Discord Bot](https://github.com/qtuan02/discord-bot)** - Discord bot integrated with Assistant AI API
-  - Live: [discord-bot-pfuo.onrender.com](https://discord-bot-pfuo.onrender.com)
+  - Live: [Active Domain](https://discord-bot-pfuo.onrender.com) (⚠️ Note: Render shuts down after 15 minutes of inactivity)
+  - Discord Bot: [Channel Discord](https://discord.com/channels/1084718391539023922/1084718392260440090)
   - Description: Discord bot that listens to messages and responds using the Assistant AI API for chat responses
+  - How to test: Go to the Discord channel, tag `@Peter` and send a message
 
 ## Documentation
 
