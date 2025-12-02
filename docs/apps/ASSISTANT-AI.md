@@ -1,4 +1,4 @@
-This is the [assistant-ui](https://github.com/Yonom/assistant-ui) starter project with RAG (Retrieval-Augmented Generation) capabilities.
+This is a chat application built with [assistant-ui](https://github.com/Yonom/assistant-ui) that connects to Google Gemini API.
 
 ## Getting Started
 
@@ -16,58 +16,18 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## RAG System Setup
+## Features
 
-This assistant includes a RAG (Retrieval-Augmented Generation) system that allows the chatbot to answer questions based on your personal knowledge base.
-
-### 1. Ingest Demo Documents
-
-First, ingest the demo documents to populate the vector store:
-
-```bash
-# Make a POST request to the ingest endpoint
-curl -X POST http://localhost:3000/api/ingest
-```
-
-Or use any HTTP client to call `POST /api/ingest`.
-
-### 2. Check Vector Store Status
-
-You can check the status of your vector store:
-
-```bash
-curl http://localhost:3000/api/ingest
-```
-
-### 3. Start Chatting
-
-Once documents are ingested, the chatbot will automatically retrieve relevant context from your knowledge base when answering questions.
-
-## Adding Your Own Documents
-
-1. Edit `apps/assistant-ai/data/demo-documents.json` to add your own documents
-2. The format is:
-   ```json
-   {
-     "documents": [
-       {
-         "id": "unique-id",
-         "content": "Your document content here...",
-         "metadata": {
-           "category": "optional",
-           "type": "optional"
-         }
-       }
-     ]
-   }
-   ```
-3. Call the ingest endpoint again to update the vector store
+- **Chat Interface**: Modern chat UI built with assistant-ui
+- **Google Gemini Integration**: Uses Gemini 2.5 Flash model for responses
+- **Streaming Responses**: Real-time streaming of AI responses
+- **Reasoning Support**: Displays AI reasoning process when available
 
 ## Architecture
 
-The RAG system consists of:
+The application consists of:
 
-- **Vector Store**: Local file-based storage (`data/vector-store.json`)
-- **Embeddings**: Google's text-embedding-004 model
-- **Retrieval**: Cosine similarity search
-- **Integration**: Automatic context injection into chat responses
+- **Frontend**: React components using `@assistant-ui/react` and `@assistant-ui/react-ai-sdk`
+- **API Route**: `/api/chat` endpoint that handles chat requests
+- **AI SDK**: Uses Vercel AI SDK with Google's AI SDK adapter
+- **Model**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)

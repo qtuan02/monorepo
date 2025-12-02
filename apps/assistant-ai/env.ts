@@ -6,12 +6,10 @@ import { env as envBase } from "@monorepo/env";
 export const env = createEnv({
   server: {
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
-    DISCORD_TOKEN: z.string().optional(),
   },
   client: {},
   experimental__runtimeEnv: {
     GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-    DISCORD_TOKEN: process.env.DISCORD_TOKEN,
   },
   extends: [envBase],
 });
