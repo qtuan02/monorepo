@@ -3,11 +3,15 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
+import type { OAuthMessage } from "~/types/oauth";
+
 export default function AuthCallbackPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const isPopup = searchParams.get("popup") === "true";
+    const error = searchParams.get("error");
+    const redirectTo = searchParams.get("redirect") || "/";
 
     // Check if this is opened in a popup (has window.opener) OR has popup flag
     if ((window.opener && !window.opener.closed) || isPopup) {
@@ -21,46 +25,58 @@ export default function AuthCallbackPage() {
         return;
       }
 
-      // Wait a bit for session to be set
-      setTimeout(() => {
-        const error = searchParams.get("error");
+      // Wait a bit for session to be set and ensure DOM is ready
+      const sendMessage = () => {
+        const message: OAuthMessage = error
+          ? {
+              type: "OAUTH_ERROR",
+              error,
+            }
+          : {
+              type: "OAUTH_SUCCESS",
+            };
 
-        if (error) {
-          // Send error message to parent
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage(
-              {
-                type: "OAUTH_ERROR",
-                error: error,
-              },
-              window.location.origin,
-            );
+        // Send message to parent window multiple times to ensure it's received
+        if (window.opener && !window.opener.closed) {
+          try {
+            // Send message immediately
+            window.opener.postMessage(message, window.location.origin);
+            
+            // Send again after a short delay as backup
+            setTimeout(() => {
+              if (window.opener && !window.opener.closed) {
+                window.opener.postMessage(message, window.location.origin);
+              }
+            }, 100);
+
+            // Close popup after ensuring message is sent
+            setTimeout(() => {
+              window.close();
+            }, 300);
+          } catch (err) {
+            // If postMessage fails, try to close anyway
+            console.error("Failed to send message to opener:", err);
+            window.close();
           }
         } else {
-          // Send success message to parent
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage(
-              {
-                type: "OAUTH_SUCCESS",
-              },
-              window.location.origin,
-            );
-          }
+          // No opener, just close
+          window.close();
         }
+      };
 
-        // Close popup after sending message
-        window.close();
-      }, 500);
+      // Use requestAnimationFrame to ensure DOM is ready, then wait a bit for session
+      requestAnimationFrame(() => {
+        setTimeout(sendMessage, 500);
+      });
     } else {
       // If not in popup and no popup flag, redirect normally
       // But only if this is not opened from a popup context
-      const redirectTo = searchParams.get("redirect") || "/";
       window.location.href = redirectTo;
     }
   }, [searchParams]);
 
   return (
-    <div className="flex h-screen items-center justify-center">
+    <div className="flex-center h-screen w-screen">
       <div className="text-center">
         <p>Completing sign in...</p>
       </div>

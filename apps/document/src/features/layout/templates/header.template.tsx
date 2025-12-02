@@ -1,8 +1,8 @@
 import { useTranslations } from "next-intl";
 
-import { LanguageToggle } from "~/features/layout/components/language-toggle";
 import { SidebarTrigger } from "~/features/layout/components/sidebar";
-import { ThemeToggle } from "~/features/layout/components/theme-toggle";
+import { LanguageToggle } from "~/features/layout/components/toggle/language-toggle";
+import { ThemeToggle } from "~/features/layout/components/toggle/theme-toggle";
 
 export default function HeaderTemplate() {
   const t = useTranslations("Dashboard");

@@ -2,14 +2,15 @@
 
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { Home, Undo2 } from "lucide-react";
+import { Home, RotateCcw, SearchX } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { Button } from "@monorepo/ui";
 import { HoleBackground } from "@monorepo/ui/animate-ui/background-hole";
 
 import { usePathname, useRouter } from "~/i18n/navigation";
 
-const NotFound = () => {
+function NotFound() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,30 +28,53 @@ const NotFound = () => {
   }, [router, params, pathname]);
 
   return (
-    <main className="relative h-[calc(100vh-48px)] md:h-[calc(100vh-60px)]">
-      <div className="absolute inset-x-0 z-10 mt-20 flex flex-col items-center gap-y-10">
-        <h1 className="text-3xl font-semibold md:text-6xl">{t("not_found")}</h1>
-        <div className="flex gap-x-3">
-          <button
-            key="button-exception-back"
+    <main className="relative flex min-h-[calc(100vh-48px)] md:min-h-[calc(100vh-60px)] items-center justify-center overflow-hidden">
+      <HoleBackground className="absolute inset-0" />
+      
+      <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
+        <div className="mb-8 flex justify-center">
+          <div className="relative">
+            <div className="absolute inset-0 animate-pulse rounded-full bg-primary/10" />
+            <div className="relative flex size-24 items-center justify-center rounded-full bg-primary/5 backdrop-blur-sm">
+              <SearchX className="size-12 text-primary" />
+            </div>
+          </div>
+        </div>
+
+        <div className="mb-2 text-6xl font-bold tracking-tight text-foreground md:text-8xl">
+          404
+        </div>
+        
+        <h1 className="mb-4 text-2xl font-semibold text-foreground md:text-3xl">
+          {t("not_found")}
+        </h1>
+        
+        <p className="mb-8 text-muted-foreground md:text-lg">
+          The page you&apos;re looking for doesn&apos;t exist or has been moved.
+        </p>
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <Button
             onClick={() => router.back()}
-            className="flex cursor-pointer items-center gap-x-1 rounded-lg bg-gradient-to-r from-orange-300 to-orange-500 px-4 py-2 text-xl font-medium text-white transition-all duration-500 hover:opacity-80"
+            variant="outline"
+            size="lg"
+            className="group"
           >
-            <Undo2 className="size-6" />
-          </button>
-          <button
-            key="button-exception-home"
+            <RotateCcw className="mr-2 size-4 transition-transform group-hover:-rotate-180" />
+            Go Back
+          </Button>
+          <Button
             onClick={() => router.push("/")}
-            className="flex cursor-pointer items-center gap-x-1 rounded-lg bg-gradient-to-r from-orange-300 to-orange-500 px-4 py-2 text-xl font-medium text-white transition-all duration-500 hover:opacity-80"
+            size="lg"
+            className="group"
           >
-            <Home className="size-6" />
-          </button>
+            <Home className="mr-2 size-4 transition-transform group-hover:scale-110" />
+            Go Home
+          </Button>
         </div>
       </div>
-
-      <HoleBackground className="absolute inset-0 flex items-center justify-center" />
     </main>
   );
-};
+}
 
 export default NotFound;

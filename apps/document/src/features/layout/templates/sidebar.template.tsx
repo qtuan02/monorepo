@@ -13,7 +13,8 @@ import {
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
-import { Button, Separator } from "@monorepo/ui";
+import { useIsClient } from "@monorepo/hook";
+import { Button, Separator, Skeleton } from "@monorepo/ui";
 
 import {
   Sidebar,
@@ -88,6 +89,7 @@ export function DashboardSidebar() {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
   const router = useRouter();
+  const isClient = useIsClient();
   const { data: session } = authClient.useSession();
 
   const handleSignOut = async () => {
@@ -101,6 +103,8 @@ export function DashboardSidebar() {
       );
     }
   };
+
+  const isLoading = !session?.user || !isClient;
 
   return (
     <Sidebar>
@@ -146,30 +150,31 @@ export function DashboardSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
-      {session?.user && (
-        <SidebarFooter>
-          <Separator className="mb-2" />
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-col gap-1 px-2">
+      <SidebarFooter>
+        <Separator />
+        <div className="flex items-center justify-between gap-2 p-2">
+          <div className="flex flex-col gap-1">
+            {isLoading ? (
+              <Skeleton className="h-5 w-24" />
+            ) : (
               <p className="text-sidebar-foreground truncate text-sm font-medium">
-                {session.user.name || "User"}
+                {session?.user.name || "User"}
               </p>
+            )}
+
+            {isLoading ? (
+              <Skeleton className="h-4 w-40" />
+            ) : (
               <p className="text-sidebar-foreground/70 truncate text-xs">
-                {session.user.email}
+                {session?.user?.email || "email@example.com"}
               </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full justify-start"
-              onClick={handleSignOut}
-            >
-              <LogOutIcon className="mr-2 size-4" />
-              <span>{t("sign_out")}</span>
-            </Button>
+            )}
           </div>
-        </SidebarFooter>
-      )}
+          <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <LogOutIcon className="size-4" />
+          </Button>
+        </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }

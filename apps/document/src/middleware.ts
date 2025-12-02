@@ -3,45 +3,59 @@ import { NextResponse } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 import createMiddleware from "next-intl/middleware";
 
+import { AUTH_ROUTES, isPublicRoute } from "./constants/routes";
 import { routing } from "./i18n/routing";
+import { parsePathname } from "./utils/path-helpers";
+import { createSignInRedirectUrl } from "./utils/redirect-helpers";
 
 const intlMiddleware = createMiddleware(routing);
 
-// Public routes that don't require authentication
-const publicRoutes = ["/sign-in"];
-
-export default async function middleware(request: NextRequest) {
+/**
+ * Middleware function that handles internationalization and authentication.
+ *
+ * - Excludes auth API routes from processing
+ * - Checks if routes are public (sign-in)
+ * - Validates authentication cookie for protected routes
+ * - Applies i18n middleware and sets pathname header
+ *
+ * @param request - The incoming Next.js request
+ * @returns NextResponse with appropriate headers and redirects
+ */
+export default async function middleware(
+  request: NextRequest,
+): Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // Exclude auth API routes from i18n middleware and auth check
-  if (pathname.startsWith("/api/auth")) {
+  if (pathname.startsWith(AUTH_ROUTES.API_BASE)) {
     return NextResponse.next();
   }
 
-  // Extract locale from pathname (format: /locale/...)
-  const pathnameWithoutLocale = pathname.replace(/^\/[^/]+/, "") || "/";
-  const locale = pathname.split("/")[1] || routing.defaultLocale;
+  // Extract locale and pathname information
+  const { pathnameWithoutLocale } = parsePathname(pathname);
 
   // Check if the route is public (check without locale prefix)
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathnameWithoutLocale.startsWith(route),
-  );
+  const isPublic = isPublicRoute(pathnameWithoutLocale);
 
   // If not a public route, check authentication cookie
   // NOTE: This is an optimistic check - full validation should be done in server components/API routes
-  if (!isPublicRoute) {
+  if (!isPublic) {
     const sessionCookie = getSessionCookie(request);
 
     if (!sessionCookie) {
       // Redirect to sign-in page with the current locale
-      const signInUrl = new URL(`/${locale}/sign-in`, request.url);
-      signInUrl.searchParams.set("redirect", pathname);
+      const signInUrl = createSignInRedirectUrl(request, pathname);
       return NextResponse.redirect(signInUrl);
     }
   }
 
   // Apply i18n middleware for all other routes
-  return intlMiddleware(request);
+  const res = intlMiddleware(request);
+
+  // Set pathname in header for server components
+  res.headers.set("x-current-path", pathname);
+
+  return res;
 }
 
 // Read more: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher

@@ -12,7 +12,11 @@ const globalForMongo = globalThis as unknown as {
   db: Db | undefined;
 };
 
-// Extract database name from URL or use default
+/**
+ * Extracts the database name from a MongoDB connection URL.
+ * @param url - The MongoDB connection URL
+ * @returns The database name, or "document" as default
+ */
 const getDatabaseName = (url: string): string => {
   try {
     const urlObj = new URL(url);
@@ -75,7 +79,10 @@ if (!isProduction) {
   globalForMongo.db = db;
 }
 
-// Function to check MongoDB connection
+/**
+ * Checks the MongoDB connection status by attempting to connect and ping the database.
+ * @returns Promise resolving to connection status with optional error and database name
+ */
 export async function checkMongoConnection(): Promise<{
   connected: boolean;
   error?: string;

@@ -3,6 +3,7 @@ export * from "./hooks/use-countdown";
 export * from "./hooks/use-debounce";
 export * from "./hooks/use-fetch";
 export * from "./hooks/use-hover";
+export * from "./hooks/use-is-client";
 export * from "./hooks/use-is-mobile";
 export * from "./hooks/use-isomorphhic-layout-effect";
 export * from "./hooks/use-local-storage";
