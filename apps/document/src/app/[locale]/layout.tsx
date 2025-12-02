@@ -4,6 +4,7 @@ import "flag-icons/css/flag-icons.min.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter_Tight } from "next/font/google";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -15,6 +16,7 @@ import type { NextParams } from "~/types/common";
 import { env } from "~/env";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
 import { routing } from "~/i18n/routing";
+import { auth } from "~/libs/auth";
 import { getMetadataDefault } from "~/utils/get-metadata-default";
 import { Provider } from "./provider";
 
@@ -109,6 +111,11 @@ export default async function Layout({
 
   setRequestLocale(locale);
 
+  // Check if user is authenticated
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
   return (
     <html
       suppressHydrationWarning
@@ -120,7 +127,7 @@ export default async function Layout({
         <GoogleTagManager gtmId={env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER ?? ""} />
         <NextIntlClientProvider locale={locale}>
           <Provider>
-            <LayoutTemplate>{children}</LayoutTemplate>
+            {session ? <LayoutTemplate>{children}</LayoutTemplate> : children}
           </Provider>
         </NextIntlClientProvider>
       </body>

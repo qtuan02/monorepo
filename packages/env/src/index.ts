@@ -3,8 +3,16 @@ import { z } from "zod";
 
 const env = createEnv({
   server: {
+    NODE_ENV: z
+      .enum(["development", "production", "test"])
+      .default("development"),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
     DISCORD_TOKEN: z.string().optional(),
+    MONGODB_URL: z.string().url(),
+    BETTER_AUTH_SECRET: z.string().min(32),
+    BETTER_AUTH_URL: z.string().url().optional(),
+    GOOGLE_CLIENT_ID: z.string().optional(),
+    GOOGLE_CLIENT_SECRET: z.string().optional(),
   },
   client: {
     NEXT_PUBLIC_ENV: z.string().optional(),

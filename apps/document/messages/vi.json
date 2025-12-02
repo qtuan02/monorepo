@@ -89,5 +89,33 @@
     "recent_activity": "Hoạt động gần đây",
     "this_month": "Tháng này",
     "last_month": "so với tháng trước"
+  },
+  "SignIn": {
+    "title": "Đăng nhập vào tài khoản",
+    "description": "Nhập thông tin đăng nhập để truy cập tài khoản của bạn",
+    "email": "Email",
+    "email_placeholder": "name@example.com",
+    "password": "Mật khẩu",
+    "password_placeholder": "Nhập mật khẩu của bạn",
+    "forgot_password": "Quên mật khẩu?",
+    "remember_me": "Ghi nhớ đăng nhập",
+    "sign_in": "Đăng nhập",
+    "signing_in": "Đang đăng nhập...",
+    "sign_in_success": "Đăng nhập thành công",
+    "sign_in_error": "Đăng nhập thất bại",
+    "popup_blocked_error": "Popup bị chặn. Vui lòng cho phép popup cho trang web này.",
+    "or_continue_with": "Hoặc tiếp tục với",
+    "sign_in_with_google": "Đăng nhập bằng Google"
+  },
+  "Sidebar": {
+    "dashboard": "Bảng điều khiển",
+    "admin_panel": "Bảng quản trị",
+    "main": "Chính",
+    "home": "Trang chủ",
+    "analytics": "Phân tích",
+    "reports": "Báo cáo",
+    "users": "Người dùng",
+    "settings": "Cài đặt",
+    "sign_out": "Đăng xuất"
   }
 }
