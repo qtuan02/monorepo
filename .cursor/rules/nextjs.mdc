@@ -1,53 +1,91 @@
 ---
-alwaysApply: false
+description: Next.js 15 App Router best practices for monorepo structure, covering Server Components, Server Actions, performance optimization, and monorepo-specific patterns.
+globs: apps/**/*.ts,apps/**/*.tsx,apps/**/*.js,apps/**/*.jsx
 ---
 
-You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind.
+# Next.js 15 Development Guidelines
 
-Code Style and Structure
+You are an expert in Next.js 15 App Router, React 19, TypeScript, and modern web development.
 
-- Write concise, technical TypeScript code with accurate examples.
-- Use functional and declarative programming patterns; avoid classes.
-- Prefer iteration and modularization over code duplication.
-- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-- Structure files: exported component, subcomponents, helpers, static content, types.
+## Core Principles
 
-Naming Conventions
+- Use Next.js 15 App Router patterns exclusively
+- Favor React Server Components (RSC) by default
+- Minimize client-side JavaScript
+- Use Server Actions for data mutations
+- Implement proper error boundaries and loading states
 
-- Use lowercase with dashes for directories (e.g., components/auth-wizard).
-- Favor named exports for components.
+## Project Structure
 
-TypeScript Usage
+This is a monorepo with the following structure:
 
-- Use TypeScript for all code; prefer interfaces over types.
-- Avoid enums; use maps instead.
-- Use functional components with TypeScript interfaces.
+- `apps/*` - Next.js applications
+- `packages/*` - Shared packages (UI components, hooks, database, etc.)
+- `toolings/*` - Shared tooling configurations
 
-Syntax and Formatting
+## Code Style and Structure
 
-- Use the "function" keyword for pure functions.
-- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
-- Use declarative JSX.
+- Write concise, technical TypeScript code
+- Use functional and declarative programming patterns; avoid classes
+- Prefer iteration and modularization over code duplication
+- Use descriptive variable names with auxiliary verbs (e.g., `isLoading`, `hasError`)
+- Structure files: exported component, subcomponents, helpers, static content, types
 
-UI and Styling
+## Naming Conventions
 
-- Use Shadcn UI, Radix, and Tailwind for components and styling.
-- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+- Use lowercase with dashes for directories (e.g., `components/auth-wizard`)
+- Use PascalCase for components
+- Favor named exports for components
+- Use kebab-case for route segments
 
-Performance Optimization
+## TypeScript Usage
 
-- Minimize 'use client', 'useEffect', and 'setState'; favor React Server Components (RSC).
-- Wrap client components in Suspense with fallback.
-- Use dynamic loading for non-critical components.
-- Optimize images: use WebP format, include size data, implement lazy loading.
+- Use TypeScript for all code; prefer interfaces over types
+- Avoid enums; use maps or const objects instead
+- Use functional components with TypeScript interfaces
+- Always declare explicit types; avoid `any`
 
-Key Conventions
+## Syntax and Formatting
 
-- Use 'nuqs' for URL search parameter state management.
-- Optimize Web Vitals (LCP, CLS, FID).
-- Limit 'use client':
-  - Favor server components and Next.js SSR.
-  - Use only for Web API access in small components.
-  - Avoid for data fetching or state management.
+- Use the `function` keyword for components and pure functions
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements
+- Use declarative JSX
 
-Follow Next.js docs for Data Fetching, Rendering, and Routing.
+## UI and Styling
+
+- Use shadcn/ui components from `@monorepo/ui` package
+- Use Radix UI primitives for complex components
+- Use Tailwind CSS v4 for styling
+- Implement responsive design with mobile-first approach
+
+## Performance Optimization
+
+- Minimize `'use client'` directives; favor React Server Components
+- Minimize `useEffect` and `useState`; prefer Server Components and Server Actions
+- Wrap client components in Suspense with fallback
+- Use dynamic loading for non-critical components
+- Optimize images: use WebP format, include size data, implement lazy loading
+- Optimize Web Vitals (LCP, CLS, FID)
+
+## Data Fetching
+
+- Use Server Components for data fetching (no `fetch` in client components)
+- Use Server Actions for mutations
+- Implement proper error handling and loading states
+- Use `next-intl` for internationalization (already configured)
+
+## Key Conventions
+
+- Use `nuqs` for URL search parameter state management (if needed)
+- Limit `'use client'`:
+  - Favor server components and Next.js SSR
+  - Use only for Web API access in small components
+  - Avoid for data fetching or state management
+- Follow Next.js 15 docs for Data Fetching, Rendering, and Routing
+
+## Monorepo Considerations
+
+- Import shared packages using workspace protocol: `@monorepo/ui`, `@monorepo/db`, etc.
+- Keep app-specific code in `apps/*/src`
+- Share reusable code through `packages/*`
+- Use Turbo for build orchestration

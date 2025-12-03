@@ -8,6 +8,12 @@ import { Toaster } from "sonner";
 import { env } from "~/env";
 import { getQueryClient } from "~/libs/query-client";
 
+declare global {
+  interface Window {
+    toggleDevtools?: () => void;
+  }
+}
+
 const ReactQueryDevtoolsProduction = dynamic(() =>
   import("@tanstack/react-query-devtools/build/modern/production.js").then(
     (d) => ({

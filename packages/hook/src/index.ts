@@ -5,7 +5,7 @@ export * from "./hooks/use-fetch";
 export * from "./hooks/use-hover";
 export * from "./hooks/use-is-client";
 export * from "./hooks/use-is-mobile";
-export * from "./hooks/use-isomorphhic-layout-effect";
+export * from "./hooks/use-isomorphic-layout-effect";
 export * from "./hooks/use-local-storage";
 export * from "./hooks/use-media-query";
 export * from "./hooks/use-network-status";

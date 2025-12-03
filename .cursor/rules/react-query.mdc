@@ -1,0 +1,107 @@
+---
+description: Best practices for TanStack Query (React Query) in monorepo applications, covering query configuration, mutations, caching strategies, error handling, and Next.js integration patterns.
+globs: apps/**/*.ts,apps/**/*.tsx,apps/**/libs/query-client.ts,packages/**/*.ts,packages/**/*.tsx
+---
+
+# TanStack Query (React Query) Best Practices
+
+## Core Principles
+
+- Use TanStack Query for server state management, not client state
+- Leverage automatic caching, background refetching, and request deduplication
+- Configure QueryClient with appropriate defaults for your application
+- Use proper query keys for effective cache management
+- Implement proper error boundaries and error handling
+
+## Query Client Configuration
+
+- **Server/Client Separation**: Create separate QueryClient instances for server and client in Next.js
+  - Use `isServer` check to create new client on server, reuse on client
+  - Configure `dehydrate` options for Next.js SSR compatibility
+- **Default Options**: Set sensible defaults for `staleTime`, `cacheTime`, and `retry` behavior
+- **Error Handling**: Configure global error handling through QueryClient defaults
+- **DevTools**: Use `@tanstack/react-query-devtools` in development only
+
+## Query Keys
+
+- Use hierarchical, descriptive query keys that reflect the data structure
+- Include all variables that affect the query in the key
+- Use query key factories for type-safe, consistent keys
+- Example: `['users', userId, 'posts']` instead of `['userPosts']`
+
+## Query Hooks
+
+- **useQuery**: For fetching and caching data
+  - Use for GET requests and read operations
+  - Configure `staleTime` based on data freshness requirements
+  - Use `enabled` option to conditionally fetch data
+- **useMutation**: For data mutations (POST, PUT, DELETE)
+  - Implement optimistic updates for better UX
+  - Use `onSuccess` and `onError` for side effects
+  - Invalidate related queries after successful mutations
+- **useInfiniteQuery**: For paginated or infinite lists
+  - Implement proper `getNextPageParam` and `getPreviousPageParam`
+  - Use `fetchNextPage` and `hasNextPage` for pagination controls
+
+## Caching Strategies
+
+- **Stale Time**: Configure based on how often data changes
+  - Static data: Long stale time (hours/days)
+  - Dynamic data: Short stale time (seconds/minutes)
+- **Cache Time**: Keep cached data longer than stale time for better UX
+- **Background Refetching**: Enable for critical data that needs to stay fresh
+- **Prefetching**: Prefetch data in Next.js Server Components when possible
+
+## Error Handling
+
+- Use `error` state from query hooks to handle errors gracefully
+- Implement error boundaries for query errors
+- Provide meaningful error messages to users
+- Log errors to monitoring service (e.g., Sentry)
+- Use `retry` and `retryDelay` options appropriately
+
+## Next.js Integration
+
+- **Server Components**: Prefetch queries in Server Components using `getQueryClient()`
+- **Hydration**: Dehydrate queries on server, hydrate on client
+- **Route Handlers**: Use queries in API routes for data fetching
+- **Server Actions**: Combine with mutations for form submissions and mutations
+
+## Performance Optimization
+
+- **Request Deduplication**: Let TanStack Query handle duplicate requests automatically
+- **Selective Updates**: Use `select` option to transform and subscribe to specific data
+- **Parallel Queries**: Use `useQueries` for parallel data fetching
+- **Dependent Queries**: Use `enabled` option for sequential queries
+
+## Common Patterns
+
+- **Query Invalidation**: Invalidate related queries after mutations
+  ```typescript
+  queryClient.invalidateQueries({ queryKey: ["users", userId] });
+  ```
+- **Optimistic Updates**: Update UI immediately, rollback on error
+- **Query Prefetching**: Prefetch data before navigation
+- **Query Cancellation**: Cancel in-flight requests when component unmounts
+
+## Anti-patterns to Avoid
+
+- Don't use React Query for client-only state (use Zustand, useState, etc.)
+- Don't create QueryClient in component render (use singleton pattern)
+- Don't ignore error states from queries
+- Don't over-fetch data - use `select` to get only needed fields
+- Don't mix server and client QueryClient instances incorrectly
+
+## Testing
+
+- Mock QueryClient in tests
+- Use `QueryClientProvider` with test client
+- Test query states (loading, error, success)
+- Test mutation callbacks and invalidations
+
+## Monorepo Considerations
+
+- Share query key factories across packages if needed
+- Use shared QueryClient configuration in packages
+- Keep query logic close to components that use it
+- Consider creating query hooks in feature directories

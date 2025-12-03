@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
-export const getMetadataDefault = async (
+export function getMetadataDefault(
   locale: string,
   metadata?: Metadata,
-): Promise<Metadata> => {
+): Metadata {
   return {
     title: "Template",
     description: "Template Description",
@@ -42,4 +42,4 @@ export const getMetadataDefault = async (
       ...metadata?.twitter,
     },
   };
-};
+}

@@ -7,7 +7,7 @@ const init = ({ dsn = "" }: { dsn?: string }) =>
     // Adds request headers and IP for users, for more info visit:
     // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
     sendDefaultPii: true,
-    // @ts-ignore
+    // @ts-expect-error - Type incompatibility between @sentry/profiling-node and @sentry/core
     integrations: [nodeProfilingIntegration()],
     // We recommend adjusting this value in production, or using `tracesSampler`
     // for finer control

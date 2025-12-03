@@ -12,7 +12,10 @@ function getFileName(id?: number) {
 }
 
 function getLoc(path: string, id?: number) {
-  return `${"http://localhost:3000"}/api/sitemaps/${path}/${getFileName(id)}`;
+  // TODO: Replace with your actual domain
+  // Note: This is a template, configure your domain in env.ts
+  const baseUrl = "http://localhost:3000";
+  return `${baseUrl}/api/sitemaps/${path}/${getFileName(id)}`;
 }
 function getSitemap(path: string, id?: number) {
   return /* XML */ `<sitemap><loc>${getLoc(path, id)}</loc><lastmod>${new Date().toISOString()}</lastmod></sitemap>`;

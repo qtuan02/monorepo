@@ -15,10 +15,6 @@ export async function middleware(request: NextRequest) {
   res.headers.set("x-hostname", request.headers.get("host") || "");
   res.headers.set("x-user-agent", request.headers.get("user-agent") || "");
 
-  const cacheIdCookie = request.cookies.get("_portfolio_cache_id");
-
-  const cacheId = cacheIdCookie?.value || crypto.randomUUID();
-
   let locale = request.nextUrl.pathname.split("/")[1];
 
   const isMissingLocale =
@@ -32,12 +28,6 @@ export async function middleware(request: NextRequest) {
 
   if (!request.cookies.get(LOCALE_COOKIE_NAME)) {
     res.cookies.set(LOCALE_COOKIE_NAME, locale || routing.defaultLocale);
-  }
-
-  if (!cacheIdCookie?.value) {
-    res.cookies.set("_portfolio_cache_id", cacheId, {
-      maxAge: 60 * 60 * 24, // 1 day
-    });
   }
 
   return res;
