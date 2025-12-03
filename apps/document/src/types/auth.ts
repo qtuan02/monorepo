@@ -15,4 +15,3 @@ export interface AuthProviderProps {
   session: Session;
   pathname: string;
 }
-

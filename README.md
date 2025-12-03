@@ -10,6 +10,7 @@ monorepo
 │ └── portfolio/            # Frontend portfolio (Next.js)
 │
 ├── packages/               # Shared packages
+│ ├── db/                   # Database package with Prisma ORM and MongoDB
 │ ├── env/                  # Environment variable manager
 │ ├── hook/                 # Reusable React hooks
 │ ├── sentry/               # Sentry integration package
@@ -58,5 +59,6 @@ monorepo
 ## Documentation
 
 - [Assistant AI](./docs/apps/ASSISTANT-AI.md) - Chat application with Google Gemini integration
-- [Sentry Integration](./docs/apps/SENTRY.md) - Error tracking and performance monitoring setup
-- [Publishing to NPM](./docs/apps/CHANGESET.md) - Guide for publishing the UI package to npm
+- [Sentry Integration](./docs/packages/SENTRY.md) - Error tracking and performance monitoring setup
+- [Database Package](./docs/packages/DATABASE.MD) - Prisma ORM and MongoDB setup and usage
+- [Publishing to NPM](./docs/others/CHANGESET.md) - Guide for publishing the UI package to npm

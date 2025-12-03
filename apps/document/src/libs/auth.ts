@@ -34,7 +34,6 @@ export const auth = betterAuth({
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
             getUserInfo: async (token) => {
-              // Get user info from Google
               const response = await fetch(
                 "https://www.googleapis.com/oauth2/v2/userinfo",
                 {
@@ -50,7 +49,7 @@ export const auth = betterAuth({
 
               const profile = await response.json();
 
-              // Check if email is allowed before proceeding
+              // Validate email is allowed before proceeding
               if (profile.email) {
                 const isAllowed = await checkEmailAllowed(profile.email);
 
@@ -81,7 +80,7 @@ export const auth = betterAuth({
   basePath: "/api/auth",
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      // Check email/password sign-in - only validate email is in allowed_emails
+      // Validate email is in allowed_emails for email/password sign-in
       if (ctx.path === "/sign-in/email") {
         const email = ctx.body?.email as string | undefined;
 

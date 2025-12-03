@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
-import { logger } from "~/utils/logger";
 import type { OAuthMessage } from "~/types/oauth";
+import { logger } from "~/utils/logger";
 
 interface OAuthPopupOptions {
   onSuccess?: () => void;
@@ -82,9 +82,11 @@ export function useOAuthPopup(options: OAuthPopupOptions = {}) {
         (data.type === "OAUTH_SUCCESS" || data.type === "OAUTH_ERROR")
       ) {
         const oauthMessage = data as OAuthMessage;
-        
-        logger.info("OAuth popup received message", { type: oauthMessage.type });
-        
+
+        logger.info("OAuth popup received message", {
+          type: oauthMessage.type,
+        });
+
         if (oauthMessage.type === "OAUTH_SUCCESS") {
           cleanup();
           // Small delay to ensure cleanup completes
@@ -125,4 +127,3 @@ export function useOAuthPopup(options: OAuthPopupOptions = {}) {
     cleanup,
   };
 }
-

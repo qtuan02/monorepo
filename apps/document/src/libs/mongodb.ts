@@ -1,4 +1,4 @@
-import type { Db } from "mongodb";
+import type { Db, MongoClientOptions } from "mongodb";
 import { MongoClient } from "mongodb";
 
 import { env } from "~/env";
@@ -28,40 +28,25 @@ const getDatabaseName = (url: string): string => {
 };
 
 const databaseName = getDatabaseName(env.MONGODB_URL);
-
-// Check if we're in production mode
 const isProduction = env.NODE_ENV === "production";
 
-// Check if it's MongoDB Atlas (mongodb+srv://)
-const isAtlas = env.MONGODB_URL.startsWith("mongodb+srv://");
+/**
+ * Creates MongoDB client options with appropriate TLS configuration.
+ */
+const createMongoOptions = (): MongoClientOptions => {
+  const options: MongoClientOptions = {
+    maxPoolSize: 10,
+    minPoolSize: 5,
+    serverSelectionTimeoutMS: 10000,
+    retryWrites: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
+  };
 
-// MongoDB client options
-const mongoOptions: {
-  maxPoolSize: number;
-  minPoolSize: number;
-  serverSelectionTimeoutMS: number;
-  tls?: boolean;
-  tlsAllowInvalidCertificates?: boolean;
-  tlsAllowInvalidHostnames?: boolean;
-  retryWrites?: boolean;
-} = {
-  maxPoolSize: 10,
-  minPoolSize: 5,
-  serverSelectionTimeoutMS: 10000,
-  retryWrites: true,
+  return options;
 };
 
-// For MongoDB Atlas, configure TLS properly
-if (isAtlas) {
-  // MongoDB Atlas requires TLS
-  mongoOptions.tls = true;
-  // In development, allow invalid certificates to bypass SSL issues
-  // Remove this in production for security
-  if (!isProduction) {
-    mongoOptions.tlsAllowInvalidCertificates = true;
-    mongoOptions.tlsAllowInvalidHostnames = true;
-  }
-}
+const mongoOptions = createMongoOptions();
 
 export const client =
   globalForMongo.client ?? new MongoClient(env.MONGODB_URL, mongoOptions);
@@ -70,9 +55,7 @@ if (!isProduction) {
   globalForMongo.client = client;
 }
 
-// Connect to MongoDB - connection is lazy, so we don't need to await here
-// Better Auth will handle the connection when needed
-
+// Connection is lazy - Better Auth will handle the connection when needed
 export const db = globalForMongo.db ?? client.db(databaseName);
 
 if (!isProduction) {

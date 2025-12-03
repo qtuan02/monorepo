@@ -1,6 +1,6 @@
 import type { AllowedEmail } from "~/types/database";
-import { db } from "./mongodb";
 import { logger } from "~/utils/logger";
+import { db } from "./mongodb";
 
 /**
  * Checks if an email is allowed to sign in by querying the allowed_emails collection.
@@ -39,32 +39,5 @@ export async function checkEmailAllowed(email: string): Promise<boolean> {
     logger.error("[checkEmailAllowed] Error checking allowed email", error);
     // In case of error, deny access for security
     return false;
-  }
-}
-
-/**
- * Gets the allowed email document with password for validation
- * @param email - The email address to check
- * @returns Promise<AllowedEmail | null> - The allowed email document or null
- */
-export async function getAllowedEmail(
-  email: string,
-): Promise<AllowedEmail | null> {
-  if (!email) {
-    return null;
-  }
-
-  try {
-    const normalizedEmail = email.toLowerCase().trim();
-    const collection = db.collection<AllowedEmail>("allowed_emails");
-    const result = await collection.findOne({
-      email: normalizedEmail,
-      active: true,
-    });
-
-    return result;
-  } catch (error) {
-    logger.error("[getAllowedEmail] Error getting allowed email", error);
-    return null;
   }
 }

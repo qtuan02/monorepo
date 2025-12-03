@@ -24,4 +24,3 @@ export const AUTH_ROUTES = {
 export function isPublicRoute(pathnameWithoutLocale: string): boolean {
   return PUBLIC_ROUTES.some((route) => pathnameWithoutLocale.startsWith(route));
 }
-

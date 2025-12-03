@@ -2,7 +2,7 @@ import { Sentry } from "@monorepo/sentry";
 
 import { env } from "~/env";
 
-const isDevelopment = env.NEXT_PUBLIC_ENV === "local" || process.env.NODE_ENV === "development";
+const isDevelopment = env.NEXT_PUBLIC_ENV === "local";
 
 /**
  * Logger utility that only logs in development and integrates with Sentry for production errors.
@@ -15,7 +15,10 @@ export const logger = {
    */
   info: (message: string, data?: unknown) => {
     if (isDevelopment) {
-      console.log(`[INFO] ${message}`, data ? JSON.stringify(data, null, 2) : "");
+      console.log(
+        `[INFO] ${message}`,
+        data ? JSON.stringify(data, null, 2) : "",
+      );
     }
   },
 
@@ -26,7 +29,10 @@ export const logger = {
    */
   warn: (message: string, data?: unknown) => {
     if (isDevelopment) {
-      console.warn(`[WARN] ${message}`, data ? JSON.stringify(data, null, 2) : "");
+      console.warn(
+        `[WARN] ${message}`,
+        data ? JSON.stringify(data, null, 2) : "",
+      );
     }
   },
 
@@ -55,4 +61,3 @@ export const logger = {
     }
   },
 };
-

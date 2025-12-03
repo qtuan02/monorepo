@@ -23,4 +23,3 @@ export interface OAuthCallbackSearchParams {
   redirect?: string;
   error?: string;
 }
-

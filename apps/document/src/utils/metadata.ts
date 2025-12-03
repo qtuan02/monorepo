@@ -22,12 +22,21 @@ export async function createMetadata(
   locale: string,
   metadata?: Metadata,
 ): Promise<Metadata> {
+  const title = metadata?.title
+    ? typeof metadata.title === "string"
+      ? { default: metadata.title, template: `%s | ${DEFAULT_METADATA.title}` }
+      : {
+          default: DEFAULT_METADATA.title,
+          template: `%s | ${DEFAULT_METADATA.title}`,
+          ...metadata.title,
+        }
+    : {
+        default: DEFAULT_METADATA.title,
+        template: `%s | ${DEFAULT_METADATA.title}`,
+      };
+
   return {
-    title: {
-      default: DEFAULT_METADATA.title,
-      template: `%s | ${DEFAULT_METADATA.title}`,
-      ...metadata?.title,
-    },
+    title,
     description: DEFAULT_METADATA.description,
     ...metadata,
     icons: {
@@ -56,7 +65,9 @@ export async function createMetadata(
         },
       ],
       shortcut: DEFAULT_METADATA.logoUrl,
-      ...metadata?.icons,
+      ...(metadata?.icons && typeof metadata.icons === "object"
+        ? metadata.icons
+        : {}),
     },
     openGraph: {
       type: "website",
@@ -100,4 +111,3 @@ export async function createMetadata(
         : metadata?.robots,
   };
 }
-

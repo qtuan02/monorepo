@@ -30,7 +30,11 @@ export function useGoogleSignIn({ locale }: UseGoogleSignInOptions) {
       setIsLoading(false);
     },
     onError: (error) => {
-      toast.error(error === "popup_blocked_error" ? t("popup_blocked_error") : t("sign_in_error"));
+      toast.error(
+        error === "popup_blocked_error"
+          ? t("popup_blocked_error")
+          : t("sign_in_error"),
+      );
       setIsLoading(false);
     },
     onClose: () => {
@@ -74,4 +78,3 @@ export function useGoogleSignIn({ locale }: UseGoogleSignInOptions) {
     isLoading,
   };
 }
-

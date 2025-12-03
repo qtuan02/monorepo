@@ -28,28 +28,28 @@ function Error() {
   }, [router, params, pathname]);
 
   return (
-    <main className="relative flex min-h-[calc(100vh-48px)] md:min-h-[calc(100vh-60px)] items-center justify-center overflow-hidden">
+    <main className="relative flex min-h-[calc(100vh-48px)] items-center justify-center overflow-hidden md:min-h-[calc(100vh-60px)]">
       <HexagonBackground className="absolute inset-0" />
-      
+
       <div className="relative z-10 mx-auto max-w-2xl px-4 text-center">
         <div className="mb-8 flex justify-center">
           <div className="relative">
-            <div className="absolute inset-0 animate-ping rounded-full bg-destructive/20" />
-            <div className="relative flex size-24 items-center justify-center rounded-full bg-destructive/10 backdrop-blur-sm">
-              <AlertTriangle className="size-12 text-destructive" />
+            <div className="bg-destructive/20 absolute inset-0 animate-ping rounded-full" />
+            <div className="bg-destructive/10 relative flex size-24 items-center justify-center rounded-full backdrop-blur-sm">
+              <AlertTriangle className="text-destructive size-12" />
             </div>
           </div>
         </div>
 
-        <div className="mb-2 text-6xl font-bold tracking-tight text-foreground md:text-8xl">
+        <div className="text-foreground mb-2 text-6xl font-bold tracking-tight md:text-8xl">
           500
         </div>
-        
-        <h1 className="mb-4 text-2xl font-semibold text-foreground md:text-3xl">
+
+        <h1 className="text-foreground mb-4 text-2xl font-semibold md:text-3xl">
           {t("error")}
         </h1>
-        
-        <p className="mb-8 text-muted-foreground md:text-lg">
+
+        <p className="text-muted-foreground mb-8 md:text-lg">
           Something went wrong on our end. We&apos;re working to fix it.
         </p>
 
@@ -63,11 +63,7 @@ function Error() {
             <RotateCcw className="mr-2 size-4 transition-transform group-hover:-rotate-180" />
             Go Back
           </Button>
-          <Button
-            onClick={() => router.push("/")}
-            size="lg"
-            className="group"
-          >
+          <Button onClick={() => router.push("/")} size="lg" className="group">
             <Home className="mr-2 size-4 transition-transform group-hover:scale-110" />
             Go Home
           </Button>

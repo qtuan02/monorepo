@@ -11,8 +11,8 @@ import { setRequestLocale } from "next-intl/server";
 
 import { cn } from "@monorepo/ui/libs/cn";
 
-import { interFont } from "~/constants/fonts";
 import type { NextParams } from "~/types/common";
+import { interFont } from "~/constants/fonts";
 import { env } from "~/env";
 import { AuthProvider } from "~/features/auth/provider/auth.provider";
 import { routing } from "~/i18n/routing";

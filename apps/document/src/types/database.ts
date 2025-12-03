@@ -10,4 +10,3 @@ export interface AllowedEmail {
   password?: string;
   active: boolean;
 }
-

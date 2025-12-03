@@ -5,7 +5,7 @@ import { checkMongoConnection } from "~/libs/mongodb";
 export async function GET() {
   try {
     const result = await checkMongoConnection();
-    
+
     if (result.connected) {
       return NextResponse.json(
         {
@@ -37,4 +37,3 @@ export async function GET() {
     );
   }
 }
-

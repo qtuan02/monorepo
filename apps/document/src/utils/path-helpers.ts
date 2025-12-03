@@ -30,4 +30,3 @@ export function parsePathname(pathname: string) {
     locale: extractLocale(pathname),
   };
 }
-

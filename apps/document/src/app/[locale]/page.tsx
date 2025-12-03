@@ -2,14 +2,10 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import type { NextParams } from "~/types/common";
-import { auth } from "~/libs/auth";
 import HomeTemplate from "~/features/home/templates/home.template";
+import { auth } from "~/libs/auth";
 
-export default async function HomePage({
-  params,
-}: {
-  params: NextParams;
-}) {
+export default async function HomePage({ params }: { params: NextParams }) {
   const { locale } = await params;
 
   // Validate session on server side for security

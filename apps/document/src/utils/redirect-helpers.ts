@@ -17,4 +17,3 @@ export function createSignInRedirectUrl(
   signInUrl.searchParams.set("redirect", pathname);
   return signInUrl;
 }
-

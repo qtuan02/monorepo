@@ -41,7 +41,7 @@ export default function AuthCallbackPage() {
           try {
             // Send message immediately
             window.opener.postMessage(message, window.location.origin);
-            
+
             // Send again after a short delay as backup
             setTimeout(() => {
               if (window.opener && !window.opener.closed) {
