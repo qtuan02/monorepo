@@ -10,7 +10,9 @@
     "lint": "eslint",
     "start": "pnpm with-env next start",
     "typecheck": "tsc --noEmit",
-    "with-env": "dotenv -e ../../.env --"
+    "with-env": "dotenv -e ../../.env --",
+    "build:vercel": "pnpm with-env-vercel next build",
+    "with-env-vercel": "dotenv -e .env --"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
@@ -37,4 +39,3 @@
   },
   "prettier": "@monorepo/prettier-config"
 }
-
