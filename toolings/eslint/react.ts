@@ -11,6 +11,7 @@ export const reactConfig = defineConfig(
     plugins: {
       react: reactPlugin,
       "react-compiler": compilerPlugin,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       "react-hooks": hooksPlugin as any,
     },
     rules: {

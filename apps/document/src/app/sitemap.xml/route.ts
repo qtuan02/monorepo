@@ -1,5 +1,4 @@
 import { env } from "~/env";
-import { generateSitemaps as getSlugSitemaps } from "../api/sitemaps/docs/slug/sitemap";
 
 /**
  * Solution: https://github.com/vercel/next.js/discussions/61025#discussioncomment-9299207
@@ -20,9 +19,6 @@ function getLoc(path: string, id?: number) {
 function getSitemap(path: string, id?: number) {
   return /* XML */ `<sitemap><loc>${getLoc(path, id)}</loc><lastmod>${new Date().toISOString()}</lastmod></sitemap>`;
 }
-function getSitemaps(ids: { id: number }[], path: string) {
-  return ids.map(({ id }) => getSitemap(path, id)).join("");
-}
 
 export async function GET() {
   const xml = /* XML */ `<?xml version="1.0" encoding="UTF-8"?>
@@ -30,7 +26,6 @@ export async function GET() {
       ${getSitemap("common")}
       ${getSitemap("about")}
       ${getSitemap("docs")}
-      ${getSitemaps(await getSlugSitemaps(), "docs/slug")}
     </sitemapindex>
   `;
 

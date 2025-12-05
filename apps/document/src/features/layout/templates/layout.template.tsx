@@ -12,7 +12,7 @@ export default function LayoutTemplate({
       <DashboardSidebar />
       <SidebarInset>
         <HeaderTemplate />
-        <div className="mt-16">{children}</div>
+        {children}
       </SidebarInset>
     </>
   );

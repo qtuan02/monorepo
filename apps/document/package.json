@@ -7,7 +7,7 @@
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "dev": "pnpm with-env next dev",
     "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint --flag unstable_native_nodejs_ts_config",
+    "lint": "eslint",
     "start": "pnpm with-env next start",
     "typecheck": "tsc --noEmit",
     "with-env": "dotenv -e ../../.env --",
@@ -25,8 +25,6 @@
     "@tanstack/react-query": "catalog:tanstackquery",
     "@tanstack/react-query-devtools": "catalog:tanstackquery",
     "cookies-next": "^6.1.0",
-    "flag-icons": "catalog:",
-    "lru-cache": "^11.1.0",
     "lucide-react": "catalog:",
     "motion": "catalog:",
     "next": "catalog:next15",
@@ -37,7 +35,10 @@
     "react-error-boundary": "catalog:",
     "react-hook-form": "catalog:",
     "react-syntax-highlighter": "16.1.0",
-    "sonner": "catalog:"
+    "sonner": "catalog:",
+    "better-auth": "^1.4.4",
+    "mongodb": "^7.0.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@monorepo/eslint-config": "workspace:*",

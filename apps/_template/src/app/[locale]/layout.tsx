@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Inter_Tight } from "next/font/google";
 import { notFound } from "next/navigation";
-import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
+// import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 
@@ -98,8 +98,9 @@ export default async function RootLayout({
       className={cn(inter.className, "antialiased")}
     >
       <body suppressHydrationWarning>
-        <GoogleAnalytics gaId="" />
-        <GoogleTagManager gtmId="" />
+        {/* Configure Google Analytics and Tag Manager IDs in environment variables */}
+        {/* <GoogleAnalytics gaId={env.NEXT_PUBLIC_GA_ID} /> */}
+        {/* <GoogleTagManager gtmId={env.NEXT_PUBLIC_GTM_ID} /> */}
         <NextIntlClientProvider locale={locale}>
           <Provider>{children}</Provider>
         </NextIntlClientProvider>

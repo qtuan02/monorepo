@@ -3,7 +3,7 @@ import "flag-icons/css/flag-icons.min.css";
 
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { Inter_Tight } from "next/font/google";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
@@ -12,21 +12,15 @@ import { setRequestLocale } from "next-intl/server";
 import { cn } from "@monorepo/ui/libs/cn";
 
 import type { NextParams } from "~/types/common";
+import { interFont } from "~/constants/fonts";
 import { env } from "~/env";
-import LayoutTemplate from "~/features/layout/templates/layout.template";
+import { AuthProvider } from "~/features/auth/provider/auth.provider";
 import { routing } from "~/i18n/routing";
-import { getMetadataDefault } from "~/utils/get-metadata-default";
+import { auth } from "~/libs/auth";
+import { createMetadata } from "~/utils/metadata";
 import { Provider } from "./provider";
 
 // export const dynamic = "force-static";
-
-const inter = Inter_Tight({
-  subsets: ["latin"],
-  adjustFontFallback: true,
-  weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-  variable: "--font-inter-tight",
-});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -52,45 +46,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
 
-  return getMetadataDefault(locale, {
+  return createMetadata(locale, {
     title: {
       default: "Document",
       template: "%s | Document",
     },
-    icons: {
-      icon: [
-        {
-          url: "/logo.webp",
-          type: "image/webp",
-          sizes: "32x32",
-        },
-        {
-          url: "/logo.webp",
-          type: "image/webp",
-          sizes: "16x16",
-        },
-        {
-          url: "/logo.webp",
-          sizes: "any",
-          type: "image/webp",
-        },
-      ],
-      apple: [
-        {
-          url: "/logo.webp",
-          type: "image/webp",
-          sizes: "180x180",
-        },
-      ],
-      shortcut: "/logo.webp",
-    },
-    robots:
-      env.NEXT_PUBLIC_ENV === "local"
-        ? {
-            index: false,
-            follow: false,
-          }
-        : undefined,
   });
 }
 
@@ -109,18 +69,31 @@ export default async function Layout({
 
   setRequestLocale(locale);
 
+  // Get headers once
+  const headersList = await headers();
+
+  // Check if user is authenticated
+  const session = await auth.api.getSession({
+    headers: headersList,
+  });
+
+  // Get pathname from header (set by middleware)
+  const pathname = headersList.get("x-current-path") || "";
+
   return (
     <html
       suppressHydrationWarning
       lang={locale}
-      className={cn(inter.className, "antialiased")}
+      className={cn(interFont.className, "antialiased")}
     >
       <body suppressHydrationWarning className="min-h-screen">
         <GoogleAnalytics gaId={env.NEXT_PUBLIC_GOOGLE_ANALYTICS ?? ""} />
         <GoogleTagManager gtmId={env.NEXT_PUBLIC_GOOGLE_TAG_MANAGER ?? ""} />
         <NextIntlClientProvider locale={locale}>
           <Provider>
-            <LayoutTemplate>{children}</LayoutTemplate>
+            <AuthProvider session={session} pathname={pathname}>
+              {children}
+            </AuthProvider>
           </Provider>
         </NextIntlClientProvider>
       </body>

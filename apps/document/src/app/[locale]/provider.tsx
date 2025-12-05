@@ -3,11 +3,12 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider, useTheme } from "next-themes";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
 
 import { env } from "~/env";
 import { SidebarProvider } from "~/features/layout/components/sidebar";
+import { ThemeColorSync } from "~/features/layout/components/theme-color-sync";
 import { getQueryClient } from "~/libs/query-client";
 
 const ReactQueryDevtoolsProduction = dynamic(() =>
@@ -17,29 +18,6 @@ const ReactQueryDevtoolsProduction = dynamic(() =>
     }),
   ),
 );
-
-// handle safari camera theme color
-function ThemeColorSync() {
-  const { resolvedTheme } = useTheme();
-
-  const ensureMeta = (): HTMLMetaElement => {
-    let metaElement = document.querySelector('meta[name="theme-color"]');
-
-    if (!metaElement) {
-      metaElement = document.createElement("meta");
-      (metaElement as HTMLMetaElement).name = "theme-color";
-      document.head.appendChild(metaElement);
-    }
-    return metaElement as HTMLMetaElement;
-  };
-
-  React.useEffect(() => {
-    if (!resolvedTheme) return;
-    ensureMeta().content = resolvedTheme === "dark" ? "#000" : "#fff";
-  }, [resolvedTheme]);
-
-  return null;
-}
 
 export interface ProviderProps {
   children: React.ReactNode;

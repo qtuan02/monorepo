@@ -28,11 +28,11 @@ const nextConfig = {
   transpilePackages: [
     "@tanstack/query-core",
     "@tanstack/react-query",
-    "@tanstack/react-table",
     "@tanstack/react-query-devtools",
     "@monorepo/ui",
     "@monorepo/env",
     "@monorepo/sentry",
+    "@monorepo/hook",
   ],
 
   /** We already do linting and typechecking as separate tasks in CI */

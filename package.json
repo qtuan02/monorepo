@@ -21,10 +21,14 @@
     "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
     "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai",
     "dev:document": "turbo watch dev -F @monorepo/document",
+    "dev:mcp": "turbo watch dev -F @monorepo/mcp",
     "build:package:ui": "turbo run build:package -F @monorepo/ui",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:publish": "changeset publish"
+    "changeset:publish": "changeset publish",
+    "db:generate": "turbo run db:generate --filter=@monorepo/db",
+    "db:migrate": "turbo run db:migrate --filter=@monorepo/db",
+    "db:deploy": "turbo run db:deploy --filter=@monorepo/db"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",

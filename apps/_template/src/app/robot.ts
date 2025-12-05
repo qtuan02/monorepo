@@ -1,7 +1,5 @@
 import type { MetadataRoute } from "next";
 
-// import { env } from "~/env";
-
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -9,6 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/api/"],
     },
+    // Uncomment and configure when you have a domain:
     // sitemap: [`${env.NEXT_PUBLIC_TEMPLATE_DOMAIN}/sitemap.xml`],
   };
 }

@@ -28,7 +28,6 @@ const nextConfig = {
   transpilePackages: [
     "@tanstack/query-core",
     "@tanstack/react-query",
-    "@tanstack/react-table",
     "@tanstack/react-query-devtools",
     "@monorepo/ui",
     "@monorepo/env",
