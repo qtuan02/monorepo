@@ -3,6 +3,8 @@ import { google } from "@ai-sdk/google";
 import { convertToModelMessages, stepCountIs, streamText, tool } from "ai";
 import { z } from "zod";
 
+import type { GeminiModel } from "~/constants/models";
+import { GEMINI_MODELS } from "~/constants/models";
 import { callMcpTool, listMcpTools } from "~/lib/mcp-client";
 
 async function getMcpToolsForAiSdk() {
@@ -189,7 +191,13 @@ function convertMcpSchemaToZod(schema: unknown): z.ZodTypeAny {
 }
 
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const {
+    messages,
+    model,
+  }: {
+    messages: UIMessage[];
+    model?: string;
+  } = await req.json();
 
   // Get MCP tools and convert to AI SDK format
   const mcpTools = await getMcpToolsForAiSdk();
@@ -197,8 +205,15 @@ export async function POST(req: Request) {
   // Check if get-weather tool is available
   const hasWeatherTool = Object.keys(mcpTools).includes("get-weather");
 
+  // Validate and use provided model or default to gemini-2.5-flash
+  const selectedModel: GeminiModel =
+    (model &&
+      GEMINI_MODELS.some((m: { id: GeminiModel }) => m.id === model) &&
+      (model as GeminiModel)) ||
+    "gemini-2.5-flash";
+
   const result = streamText({
-    model: google("gemini-2.5-flash"),
+    model: google(selectedModel),
     messages: convertToModelMessages(messages),
     tools: Object.keys(mcpTools).length > 0 ? mcpTools : undefined,
     // Allow multiple steps to enable follow-up summary message after tool execution
