@@ -25,9 +25,62 @@ import { Button, cn } from "@monorepo/ui";
 
 import { ComposerAttachments, UserMessageAttachments } from "./attachment";
 import { MarkdownText } from "./markdown-text";
+import { ModelSelector } from "./model-selector";
 import { Reasoning, ReasoningGroup } from "./reasoning";
 import { ToolFallback } from "./tool-fallback";
 import { TooltipIconButton } from "./tooltip-icon-button";
+
+const SUGGESTIONS = [
+  {
+    title: "Sử dụng",
+    label: "tool hello-world",
+    prompt: "Sử dụng tool hello-world",
+  },
+  {
+    title: "Hãy cho tôi biết",
+    label: "tuan-mcp có mấy tool, gồm những tool nào?",
+    prompt: "Hãy cho tôi biết tuan-mcp có mấy tool, gồm những tool nào?",
+  },
+  {
+    title: "Thời tiết",
+    label: "hôm nay ở Hồ Chí Minh như thế nào?",
+    prompt: "Thời tiết hôm nay ở Hồ Chí Minh như thế nào?",
+  },
+  {
+    title: "Dự báo thời tiết",
+    label: "ở Hồ Chí Minh như thế nào?",
+    prompt: "Dự báo thời tiết ở Hồ Chí Minh như thế nào?",
+  },
+] as const;
+
+const ThreadSuggestions: FC = () => {
+  return (
+    <div className="aui-thread-welcome-suggestions grid w-full gap-2 pb-4 @md:grid-cols-2">
+      {SUGGESTIONS.map((suggestion, index) => (
+        <div
+          key={suggestion.prompt}
+          className="aui-thread-welcome-suggestion-display fade-in slide-in-from-bottom-2 animate-in fill-mode-both duration-200 nth-[n+3]:hidden @md:nth-[n+3]:block"
+          style={{ animationDelay: `${100 + index * 50}ms` }}
+        >
+          <ThreadPrimitive.Suggestion prompt={suggestion.prompt} send asChild>
+            <Button
+              variant="ghost"
+              className="aui-thread-welcome-suggestion hover:bg-muted h-auto w-full flex-wrap items-start justify-start gap-1 rounded-2xl border px-4 py-3 text-left text-sm transition-colors @md:flex-col"
+              aria-label={suggestion.prompt}
+            >
+              <span className="aui-thread-welcome-suggestion-text-1 font-medium">
+                {suggestion.title}
+              </span>
+              <span className="aui-thread-welcome-suggestion-text-2 text-muted-foreground">
+                {suggestion.label}
+              </span>
+            </Button>
+          </ThreadPrimitive.Suggestion>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 export const Thread: FC = () => {
   return (
@@ -40,6 +93,9 @@ export const Thread: FC = () => {
           }}
         >
           <ThreadPrimitive.Viewport className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll px-4">
+            <div className="bg-background/80 sticky top-0 z-10 mb-2 flex justify-end py-2 backdrop-blur-sm">
+              <ModelSelector />
+            </div>
             <ThreadPrimitive.If empty>
               <ThreadWelcome />
             </ThreadPrimitive.If>
@@ -102,6 +158,7 @@ const ThreadWelcome: FC = () => {
           </m.div>
         </div>
       </div>
+      <ThreadSuggestions />
     </div>
   );
 };

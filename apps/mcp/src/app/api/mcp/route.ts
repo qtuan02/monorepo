@@ -4,13 +4,15 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { z } from "zod";
 
 import {
+  formatForecastResponse,
   formatWeatherResponse,
   getCurrentWeather,
+  getForecast,
 } from "~/utils/openweathermap";
 
 // Create MCP server instance
 const server = new McpServer({
-  name: "hello-world-server",
+  name: "tuan-mcp",
   version: "1.0.0",
 });
 
@@ -77,6 +79,65 @@ server.registerTool(
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to get weather data: ${errorMessage}`);
+    }
+  },
+);
+
+// Register weather forecast tool
+server.registerTool(
+  "get-forecast",
+  {
+    title: "Get Weather Forecast",
+    description:
+      "Get 5-day weather forecast data for a city using OpenWeatherMap API",
+    inputSchema: {
+      city: z
+        .string()
+        .describe("City name (e.g., 'Ho Chi Minh City', 'London', 'New York')"),
+      units: z
+        .enum(["metric", "imperial", "standard"])
+        .optional()
+        .default("metric")
+        .describe(
+          "Units of measurement: metric (Celsius), imperial (Fahrenheit), or standard (Kelvin)",
+        ),
+    },
+    outputSchema: {
+      city: z.string(),
+      country: z.string(),
+      forecast: z.array(
+        z.object({
+          dateTime: z.string(),
+          timestamp: z.number(),
+          temperature: z.number(),
+          feelsLike: z.number(),
+          tempMin: z.number(),
+          tempMax: z.number(),
+          description: z.string(),
+          humidity: z.number(),
+          pressure: z.number(),
+          windSpeed: z.number(),
+          windDirection: z.number(),
+          visibility: z.number(),
+          pop: z.number(),
+          clouds: z.number(),
+        }),
+      ),
+    },
+  },
+  async ({ city, units = "metric" }) => {
+    try {
+      const forecastData = await getForecast(city, units);
+      const { text, output } = formatForecastResponse(forecastData, units);
+
+      return {
+        content: [{ type: "text", text }],
+        structuredContent: output as unknown as Record<string, unknown>,
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Failed to get weather forecast: ${errorMessage}`);
     }
   },
 );
