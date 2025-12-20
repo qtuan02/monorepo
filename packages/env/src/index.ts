@@ -24,6 +24,8 @@ const env = createEnv({
 
     // ASSISTANT AI KEY
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
+    OPENWEATHERMAP_API_KEY: z.string().optional(),
+    MCP_DOMAIN: z.string().optional(),
   },
   client: {
     // ENV

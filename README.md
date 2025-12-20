@@ -6,6 +6,7 @@ monorepo
 │ ├── _template/            # Template for bootstrapping a new app (Next.js)
 │ ├── _portfolio/           # Portfolio application v1 (Next.js)
 │ ├── assistant-ai/         # Chat application with Google Gemini (Next.js)
+│ ├── mcp/                  # MCP server for weather data (Next.js)
 │ └── portfolio/            # Frontend portfolio (Next.js)
 │
 ├── packages/               # Shared packages
@@ -58,6 +59,7 @@ monorepo
 ## Documentation
 
 - [Assistant AI](./docs/apps/ASSISTANT-AI.md) - Chat application with Google Gemini integration
+- [MCP Server](./docs/apps/MCP.md) - Model Context Protocol server for weather data
 - [Sentry Integration](./docs/packages/SENTRY.md) - Error tracking and performance monitoring setup
 - [Database Package](./docs/packages/DATABASE.MD) - Prisma ORM and MongoDB setup and usage
 - [Publishing to NPM](./docs/others/CHANGESET.md) - Guide for publishing the UI package to npm
