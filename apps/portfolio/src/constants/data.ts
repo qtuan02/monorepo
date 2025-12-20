@@ -16,7 +16,7 @@ export const DATA = {
   header: {
     title: "Hi, I'm Tuan",
     subtitle:
-      "With a passion for programming, I constantly seek opportunities to learn, experiment, and apply new technology trends to web products",
+      "With a passion for programming, I constantly seek opportunities to learn, experiment, and apply new technology trends to products",
     avatarUrl: "/avatar.jpg",
   },
   about: {
@@ -129,8 +129,10 @@ export const DATA = {
     data: [
       "JavaScript",
       "TypeScript",
+      "Java",
       "React.js",
       "Next.js",
+      "Spring Boot",
       "Express.js",
       "Tailwind CSS",
       "PostgreSQL",

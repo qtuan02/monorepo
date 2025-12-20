@@ -20,7 +20,6 @@
     "dev:_portfolio": "turbo watch dev -F @monorepo/_portfolio",
     "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
     "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai",
-    "dev:document": "turbo watch dev -F @monorepo/document",
     "dev:mcp": "turbo watch dev -F @monorepo/mcp",
     "build:package:ui": "turbo run build:package -F @monorepo/ui",
     "changeset": "changeset",
