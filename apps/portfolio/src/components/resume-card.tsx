@@ -25,7 +25,7 @@ interface ResumeCardProps {
   badges?: readonly string[];
   period: string;
   techStack?: readonly string[];
-  description?: string;
+  description?: readonly string[];
 }
 export const ResumeCard = ({
   defaultExpanded = false,
@@ -109,7 +109,11 @@ export const ResumeCard = ({
               }}
               className="mt-2 text-xs sm:text-sm"
             >
-              {description}
+              {description?.map((item, index) => (
+                <ul key={`description-${index}`} className="list-disc list-inside">
+                  <li>{item}</li>
+                </ul>
+              ))}
               {techStack && (
                 <div className="mt-2 text-xs sm:text-sm">
                   <span className="font-semibold">Tech Stack:</span>&nbsp;
