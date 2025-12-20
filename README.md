@@ -6,7 +6,6 @@ monorepo
 │ ├── _template/            # Template for bootstrapping a new app (Next.js)
 │ ├── _portfolio/           # Portfolio application v1 (Next.js)
 │ ├── assistant-ai/         # Chat application with Google Gemini (Next.js)
-│ ├── document/             # Admin dashboard application (Next.js)
 │ └── portfolio/            # Frontend portfolio (Next.js)
 │
 ├── packages/               # Shared packages
