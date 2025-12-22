@@ -3,10 +3,11 @@
 **Epic ID:** Epic 2  
 **Project:** Documents - UI Documentation Site  
 **Related Documents:** [PRD](../prd.md), [Architecture](../architecture.md)  
-**Status:** Ready for Story Creation  
-**Created:** 2024-12-19
+**Status:** In Progress (75% Complete)  
+**Created:** 2024-12-19  
+**Updated:** 2024-12-22
 
----
+> **Progress Notes:** Stories 2.1-2.2 completed with UI shell. Stories 2.3-2.5 partially complete (UI done, auto-generation needs Epic 3). Story 2.6 complete.
 
 ## Epic Goal
 
@@ -27,12 +28,14 @@ This epic delivers the core detail pages where users view comprehensive informat
 **Project Type:** Greenfield  
 **Technology Stack:** React 18+, TypeScript, Vite 5+, React Router 6+, shadcn/ui, Tailwind CSS, Shiki (syntax highlighting)  
 **Integration Points:**
+
 - Monorepo packages: `@monorepo/ui` (components for previews), `@monorepo/hook` (hooks)
 - Build-time processing for source code extraction
 - TypeScript parsing for props extraction (Epic 3)
 - Component preview rendering with context providers
 
 **Dependencies:**
+
 - Requires Epic 3 (Auto-Generation) for props tables and source code extraction
 - Requires Epic 1 (Discovery) for navigation to detail pages
 - Requires Epic 6 (Error Handling) for error states during preview loading
@@ -48,6 +51,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **So that** I can understand how to use it
 
 **Acceptance Criteria:**
+
 - Detail page shows:
   - Component name and description
   - Visual preview with live example
@@ -72,6 +76,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **So that** I can understand how to use it
 
 **Acceptance Criteria:**
+
 - Detail page shows:
   - Hook name and description
   - Parameters and return values (auto-generated)
@@ -94,6 +99,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **So that** I can understand its appearance and behavior
 
 **Acceptance Criteria:**
+
 - Preview section shows live component example (rendered React component, not static image)
 - Preview is interactive (if component supports interaction)
 - Preview is responsive (shows mobile/tablet/desktop views if applicable)
@@ -106,6 +112,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **Priority:** P0 (Critical)
 
 **Technical Notes:**
+
 - Need PreviewContainer component that wraps components with necessary providers
 - Support for components requiring theme providers, state management, etc.
 - Consider iframe isolation for complex components (optional enhancement)
@@ -119,6 +126,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **So that** I can understand implementation details
 
 **Acceptance Criteria:**
+
 - Source code is displayed with syntax highlighting
 - Code is properly formatted
 - Line numbers are optional (toggle)
@@ -139,6 +147,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **So that** I can understand component API
 
 **Acceptance Criteria:**
+
 - Props table is auto-generated from TypeScript interfaces
 - Table shows: prop name, type, description, default value, required
 - Complex types are displayed clearly
@@ -152,6 +161,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **Dependencies:** Epic 3 (TypeScript parsing for props extraction)
 
 **Technical Notes:**
+
 - Requires ts-morph or TypeScript compiler API
 - Need to handle complex types: generics, unions, intersections, etc.
 - JSDoc comment extraction for descriptions
@@ -165,6 +175,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **So that** I can use them in my project
 
 **Acceptance Criteria:**
+
 - Copy button is visible for all code blocks
 - Copy button shows feedback when clicked (toast notification)
 - Copied code is properly formatted
@@ -174,6 +185,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **Priority:** P1 (High)
 
 **Technical Notes:**
+
 - Use Clipboard API with fallback
 - Toast notification component (shadcn/ui should provide)
 - Preserve code formatting when copying
@@ -194,6 +206,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 ## Technical Considerations
 
 **Implementation Approach:**
+
 - Dynamic routing: `/components/:name`, `/hooks/:name`
 - Lazy loading for code viewers and previews
 - Client-side rendering for interactive previews
@@ -201,12 +214,14 @@ This epic delivers the core detail pages where users view comprehensive informat
 - Syntax highlighting with Shiki (server-side rendering support)
 
 **Component Preview Strategy:**
+
 - PreviewContainer component wraps imported components
 - Support for common providers (ThemeProvider, etc.)
 - Error boundary around preview to catch rendering errors
 - Consider code-splitting for large component libraries
 
 **Integration with Other Epics:**
+
 - Epic 3 provides all auto-generated data (props, source code, metadata)
 - Epic 1 provides navigation links to detail pages
 - Epic 4 provides breadcrumb navigation
@@ -219,6 +234,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **Primary Risk:** Component preview complexity - some components may require complex setup (context providers, state, etc.)
 
 **Mitigation:**
+
 - Start with simple components first
 - Document preview setup requirements
 - Provide fallback to static preview for problematic components
@@ -228,6 +244,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **Performance Risk:** Large source files or complex props tables could slow down page rendering
 
 **Mitigation:**
+
 - Implement lazy loading for code viewers
 - Virtual scrolling for large props tables (if needed)
 - Code splitting for detail pages
@@ -236,6 +253,7 @@ This epic delivers the core detail pages where users view comprehensive informat
 **TypeScript Parsing Risk:** Complex TypeScript types may not be parsed correctly (Epic 3 dependency)
 
 **Mitigation:**
+
 - Use proven library (ts-morph recommended)
 - Fallback display for unsupported type patterns
 - Manual override capability for edge cases
@@ -269,8 +287,8 @@ This epic delivers the core detail pages where users view comprehensive informat
 ---
 
 **Next Steps:**
+
 1. Create detailed user stories from this epic
 2. Begin implementation with US-2.1 (View Component Details) as foundation
 3. Coordinate with Epic 3 to ensure TypeScript parsing supports props extraction needs
 4. Design PreviewContainer architecture early to handle component preview requirements
-

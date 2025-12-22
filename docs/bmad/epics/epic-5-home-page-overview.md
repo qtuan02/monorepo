@@ -27,11 +27,13 @@ This epic creates the home page that serves as the entry point and overview for 
 **Project Type:** Greenfield  
 **Technology Stack:** React 18+, TypeScript, shadcn/ui, Tailwind CSS  
 **Integration Points:**
+
 - Epic 1 (component/hook counts, links to sections)
 - Epic 3 (metadata for featured selection)
 - Routing to discovery pages
 
 **Dependencies:**
+
 - Requires Epic 1 (for navigation links)
 - Requires Epic 3 (for component/hook counts)
 - Can be developed after core navigation is in place
@@ -47,6 +49,7 @@ This epic creates the home page that serves as the entry point and overview for 
 **So that** I understand what's available
 
 **Acceptance Criteria:**
+
 - Home page shows:
   - Welcome message
   - Quick stats (number of components, hooks)
@@ -60,12 +63,14 @@ This epic creates the home page that serves as the entry point and overview for 
 **Priority:** P1 (High)
 
 **Featured Selection Criteria:**
+
 - Most used components/hooks (if usage data available)
 - Recently added components/hooks
 - Manually curated (configurable list)
 - Selection criteria should be documented and easily updateable
 
 **Technical Notes:**
+
 - Use shadcn/ui Card components for featured items
 - Stats can be computed from Epic 3 metadata
 - Featured items link to detail pages (Epic 2)
@@ -88,6 +93,7 @@ This epic creates the home page that serves as the entry point and overview for 
 ## Technical Considerations
 
 **Implementation Approach:**
+
 - Static home page with dynamic stats (computed from metadata)
 - Featured items configuration (JSON file or metadata)
 - Card-based layout for featured components/hooks
@@ -95,6 +101,7 @@ This epic creates the home page that serves as the entry point and overview for 
 - Responsive grid layout
 
 **Featured Selection Strategy:**
+
 - **Option 1:** Manually curated list (simplest, most control)
   - JSON config file with component/hook names
   - Easy to update and maintain
@@ -108,6 +115,7 @@ This epic creates the home page that serves as the entry point and overview for 
 **Recommendation:** Start with Option 1 (manually curated) for MVP, can enhance later.
 
 **Content Strategy:**
+
 - Welcome message: Brief, friendly, informative
 - Quick stats: Component count, Hook count, Total items
 - Featured items: 4-6 most useful/common components/hooks
@@ -121,6 +129,7 @@ This epic creates the home page that serves as the entry point and overview for 
 **Primary Risk:** Featured selection criteria may not meet all user needs
 
 **Mitigation:**
+
 - Start with manually curated list (most control)
 - Document selection criteria clearly
 - Make it easy to update featured items
@@ -129,6 +138,7 @@ This epic creates the home page that serves as the entry point and overview for 
 **Content Risk:** Getting started guide may not be comprehensive enough
 
 **Mitigation:**
+
 - Keep it concise (3-5 steps)
 - Focus on most common use cases
 - Link to detailed documentation if needed
@@ -137,6 +147,7 @@ This epic creates the home page that serves as the entry point and overview for 
 **Performance Risk:** Loading featured component previews could slow page load
 
 **Mitigation:**
+
 - Lazy load featured component previews
 - Use thumbnail images instead of live previews (if performance is an issue)
 - Optimize featured item rendering
@@ -168,6 +179,7 @@ This epic creates the home page that serves as the entry point and overview for 
 ---
 
 **Next Steps:**
+
 1. Create detailed user story from this epic
 2. Design home page layout and content structure
 3. Implement after Epic 1 navigation is in place
@@ -175,4 +187,3 @@ This epic creates the home page that serves as the entry point and overview for 
 5. Create featured items configuration
 6. Write getting started guide content
 7. Test and iterate based on feedback
-

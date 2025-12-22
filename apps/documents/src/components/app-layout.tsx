@@ -1,7 +1,7 @@
+import type { SearchResult } from "~/lib/search-utils";
+import { useSearch } from "~/lib/use-search";
 import NavigationSidebar from "./navigation-sidebar";
 import SearchBar from "./search-bar";
-import { useSearch } from "~/lib/use-search";
-import type { SearchResult } from "~/lib/search-utils";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -19,9 +19,9 @@ export default function AppLayout({ children, currentPath }: AppLayoutProps) {
   return (
     <div className="flex min-h-screen">
       <NavigationSidebar currentPath={currentPath} />
-      <div className="flex flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* Header with Search Bar */}
-        <header className="border-b bg-white px-6 py-4 dark:bg-gray-900 md:px-8">
+        <header className="border-b bg-white px-6 py-4 md:px-8 dark:bg-gray-900">
           <div className="mx-auto max-w-7xl">
             <SearchBar onSearch={search} onResultSelect={handleResultSelect} />
           </div>
@@ -32,4 +32,3 @@ export default function AppLayout({ children, currentPath }: AppLayoutProps) {
     </div>
   );
 }
-

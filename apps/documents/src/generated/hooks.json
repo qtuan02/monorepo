@@ -1,0 +1,266 @@
+{
+  "hooks": [
+    {
+      "id": "use-copy-to-clipboard",
+      "name": "UseCopyToClipboard",
+      "description": null,
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-copy-to-clipboard.ts",
+      "parameters": [],
+      "returns": {
+        "type": "[string, (text: string) => Promise<void>]"
+      },
+      "sourceCode": "import { useState } from \"react\";\n\ntype CopiedValueType = string | null;\n\nexport function useCopyToClipboard(): [\n  CopiedValueType,\n  (text: string) => Promise<void>,\n] {\n  const [copiedText, setCopiedText] = useState<CopiedValueType>(null);\n\n  const copy = async (text: string): Promise<void> => {\n    if (!navigator?.clipboard) {\n      console.warn(\"Clipboard not supported\");\n      return;\n    }\n\n    try {\n      await navigator.clipboard.writeText(text);\n      setCopiedText(text);\n    } catch (error) {\n      console.log(\"Error\", error);\n      setCopiedText(null);\n    }\n  };\n\n  return [copiedText, copy];\n}\n"
+    },
+    {
+      "id": "use-countdown",
+      "name": "UseCountdown",
+      "description": "A custom hook for a countdown timer.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-countdown.ts",
+      "parameters": [
+        {
+          "name": "initialSeconds",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "[number, () => void]"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\n/**\n * A custom hook for a countdown timer.\n * @param initialSeconds - The starting number of seconds for the countdown.\n * @returns An array containing the current countdown time and a function to reset the countdown.\n */\nexport function useCountdown(initialSeconds: number): [number, () => void] {\n  const [timeLeft, setTimeLeft] = useState<number>(initialSeconds);\n\n  const reset = () => setTimeLeft(initialSeconds);\n\n  useEffect(() => {\n    if (timeLeft <= 0) return;\n\n    const intervalId = setInterval(() => {\n      setTimeLeft((prev) => prev - 1);\n    }, 1000);\n\n    return () => clearInterval(intervalId);\n  }, [timeLeft]);\n\n  return [timeLeft, reset];\n}\n"
+    },
+    {
+      "id": "use-debounce",
+      "name": "UseDebounce",
+      "description": null,
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-debounce.ts",
+      "parameters": [
+        {
+          "name": "value",
+          "type": "T",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "T"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nexport function useDebounce<T>(value: T, delay: number): T {\n  const [debouncedValue, setDebouncedValue] = useState<T>(value);\n\n  useEffect(() => {\n    const handler = setTimeout(() => {\n      setDebouncedValue(value);\n    }, delay);\n\n    return () => {\n      clearTimeout(handler);\n    };\n  }, [value, delay]);\n\n  return debouncedValue;\n}\n"
+    },
+    {
+      "id": "use-fetch",
+      "name": "UseFetch",
+      "description": null,
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-fetch.ts",
+      "parameters": [
+        {
+          "name": "url",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "{ data: T; loading: boolean; error: Error; }"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nfunction useFetch<T>(url: string) {\n  const [data, setData] = useState<T | null>(null);\n  const [loading, setLoading] = useState(true);\n  const [error, setError] = useState<Error | null>(null);\n\n  useEffect(() => {\n    const fetchData = async () => {\n      setLoading(true);\n      try {\n        const response = await fetch(url);\n        const result = await response.json();\n        setData(result);\n      } catch (err) {\n        setError(err as Error);\n      } finally {\n        setLoading(false);\n      }\n    };\n\n    fetchData();\n  }, [url]);\n\n  return { data, loading, error };\n}\n\nexport default useFetch;\n"
+    },
+    {
+      "id": "use-hover",
+      "name": "UseHover",
+      "description": null,
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-hover.ts",
+      "parameters": [
+        {
+          "name": "elementRef",
+          "type": "React.RefObject<T>",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nexport function useHover<T extends HTMLElement>(\n  elementRef: React.RefObject<T>,\n): boolean {\n  // State to track hover status\n  const [isHovered, setIsHovered] = useState(false);\n\n  useEffect(() => {\n    const element = elementRef.current;\n\n    if (!element) return;\n\n    // Event handlers\n    const handleMouseEnter = () => setIsHovered(true);\n    const handleMouseLeave = () => setIsHovered(false);\n\n    // Attach event listeners\n    element.addEventListener(\"mouseenter\", handleMouseEnter);\n    element.addEventListener(\"mouseleave\", handleMouseLeave);\n\n    // Cleanup event listeners on unmount or ref change\n    return () => {\n      element.removeEventListener(\"mouseenter\", handleMouseEnter);\n      element.removeEventListener(\"mouseleave\", handleMouseLeave);\n    };\n  }, [elementRef]);\n\n  return isHovered;\n}\n"
+    },
+    {
+      "id": "use-is-client",
+      "name": "UseIsClient",
+      "description": null,
+      "category": "Client-side",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-is-client.ts",
+      "parameters": [],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nexport function useIsClient() {\n  const [isClient, setIsClient] = useState(false);\n\n  useEffect(() => {\n    setIsClient(true);\n  }, []);\n\n  return isClient;\n}\n"
+    },
+    {
+      "id": "use-is-mobile",
+      "name": "UseIsMobile",
+      "description": null,
+      "category": "Client-side",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-is-mobile.ts",
+      "parameters": [],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import * as React from \"react\";\n\nconst MOBILE_BREAKPOINT = 768;\n\nexport function useIsMobile() {\n  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(\n    undefined,\n  );\n\n  React.useEffect(() => {\n    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);\n    const onChange = () => {\n      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);\n    };\n    mql.addEventListener(\"change\", onChange);\n    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);\n    return () => mql.removeEventListener(\"change\", onChange);\n  }, []);\n\n  return !!isMobile;\n}\n"
+    },
+    {
+      "id": "use-isomorphic-layout-effect",
+      "name": "UseIsomorphicLayoutEffect",
+      "description": "Returns the appropriate layout effect hook based on the environment.\nUses `useLayoutEffect` in the browser and `useEffect` on the server.\n\nThis is useful for avoiding SSR warnings when using `useLayoutEffect`\nin components that are rendered on both server and client.",
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-isomorphic-layout-effect.ts",
+      "parameters": [],
+      "returns": {
+        "type": "typeof React.useLayoutEffect"
+      },
+      "sourceCode": "import { useEffect, useLayoutEffect } from \"react\";\n\n/**\n * Returns the appropriate layout effect hook based on the environment.\n * Uses `useLayoutEffect` in the browser and `useEffect` on the server.\n *\n * This is useful for avoiding SSR warnings when using `useLayoutEffect`\n * in components that are rendered on both server and client.\n *\n * @returns The appropriate effect hook for the current environment\n *\n * @example\n * ```tsx\n * const useIsomorphicLayoutEffect = useIsomorphicLayoutEffect();\n *\n * useIsomorphicLayoutEffect(() => {\n *   // This will use useLayoutEffect in browser, useEffect on server\n *   window.scrollTo(0, 0);\n * }, []);\n * ```\n */\nexport function useIsomorphicLayoutEffect() {\n  return typeof window !== \"undefined\" ? useLayoutEffect : useEffect;\n}\n"
+    },
+    {
+      "id": "use-local-storage",
+      "name": "UseLocalStorage",
+      "description": null,
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-local-storage.ts",
+      "parameters": [
+        {
+          "name": "key",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "initialValue",
+          "type": "T",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "[T, (value: T) => void]"
+      },
+      "sourceCode": "import { useState } from \"react\";\n\nexport function useLocalStorage<T>(\n  key: string,\n  initialValue: T,\n): [T, (value: T) => void] {\n  const [storedValue, setStoredValue] = useState<T>(() => {\n    try {\n      const item = window.localStorage.getItem(key);\n      return item ? (JSON.parse(item) as T) : initialValue;\n    } catch (error) {\n      console.error(error);\n      return initialValue;\n    }\n  });\n\n  const setValue = (value: T) => {\n    try {\n      setStoredValue(value);\n      window.localStorage.setItem(key, JSON.stringify(value));\n    } catch (error) {\n      console.error(error);\n    }\n  };\n\n  return [storedValue, setValue];\n}\n"
+    },
+    {
+      "id": "use-media-query",
+      "name": "UseMediaQuery",
+      "description": null,
+      "category": "Client-side",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-media-query.ts",
+      "parameters": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nexport function useMediaQuery(query: string): boolean {\n  const [matches, setMatches] = useState<boolean>(false);\n\n  useEffect(() => {\n    const mediaQueryList = window.matchMedia(query);\n    const documentChangeHandler = () => setMatches(mediaQueryList.matches);\n\n    // Set the initial state\n    setMatches(mediaQueryList.matches);\n\n    // Listen for changes\n    mediaQueryList.addEventListener(\"change\", documentChangeHandler);\n\n    // Cleanup listener on unmount\n    return () => {\n      mediaQueryList.removeEventListener(\"change\", documentChangeHandler);\n    };\n  }, [query]);\n\n  return matches;\n}\n"
+    },
+    {
+      "id": "use-network-status",
+      "name": "UseNetworkStatus",
+      "description": null,
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-network-status.ts",
+      "parameters": [],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nconst isServer = typeof window !== \"undefined\";\n\nexport function useNetworkStatus(): boolean {\n  const [isOnline, setIsOnline] = useState(\n    isServer ? true : window.navigator.onLine,\n  );\n\n  useEffect(() => {\n    const handleOnline = () => setIsOnline(true);\n    const handleOffline = () => setIsOnline(false);\n\n    window.addEventListener(\"online\", handleOnline);\n    window.addEventListener(\"offline\", handleOffline);\n\n    return () => {\n      window.removeEventListener(\"online\", handleOnline);\n      window.removeEventListener(\"offline\", handleOffline);\n    };\n  }, []);\n\n  return isOnline;\n}\n"
+    },
+    {
+      "id": "use-on-screen",
+      "name": "UseOnScreen",
+      "description": null,
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-on-screen.ts",
+      "parameters": [
+        {
+          "name": "ref",
+          "type": "React.RefObject<Element>",
+          "required": true
+        },
+        {
+          "name": "rootMargin",
+          "type": "string",
+          "required": false,
+          "defaultValue": "\"0px\""
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import type { RefObject } from \"react\";\nimport { useEffect, useState } from \"react\";\n\nexport function useOnScreen(\n  ref: RefObject<Element | null>,\n  rootMargin = \"0px\",\n): boolean {\n  const [isVisible, setIsVisible] = useState(false);\n\n  useEffect(() => {\n    if (ref.current == null) return;\n    const currentRef = ref.current;\n    const observer = new IntersectionObserver(\n      ([entry]) => setIsVisible(entry?.isIntersecting ?? false),\n      { rootMargin },\n    );\n    if (currentRef) observer.observe(currentRef);\n    return () => {\n      if (currentRef) observer.unobserve(currentRef);\n    };\n  }, [ref, rootMargin]);\n\n  return isVisible;\n}\n"
+    },
+    {
+      "id": "use-throttle",
+      "name": "UseThrottle",
+      "description": null,
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-throttle.ts",
+      "parameters": [
+        {
+          "name": "value",
+          "type": "T",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "T"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\n\nexport function useThrottle<T>(value: T, delay: number): T {\n  const [throttledValue, setThrottledValue] = useState<T>(value);\n\n  useEffect(() => {\n    const handler = setTimeout(() => {\n      setThrottledValue(value);\n    }, delay);\n\n    // Cleanup the timeout if the effect runs again before the delay completes\n    return () => {\n      clearTimeout(handler);\n    };\n  }, [value, delay]);\n\n  return throttledValue;\n}\n"
+    },
+    {
+      "id": "use-timeout",
+      "name": "UseTimeout",
+      "description": "A React hook to execute a callback function after a specified delay.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages/hook/src/hooks/use-timeout.ts",
+      "parameters": [
+        {
+          "name": "callback",
+          "type": "() => void",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "sourceCode": "import { useEffect, useRef } from \"react\";\n\n/**\n * A React hook to execute a callback function after a specified delay.\n *\n * @param callback - The function to execute after the timeout.\n * @param delay - The timeout duration in milliseconds. If `null`, the timeout will not run.\n */\n\nexport function useTimeout(callback: () => void, delay: number | null): void {\n  const callbackRef = useRef(callback);\n\n  // Update the callback reference if it changes.\n  useEffect(() => {\n    callbackRef.current = callback;\n  }, [callback]);\n\n  // Set the timeout.\n  useEffect(() => {\n    if (!delay && delay !== 0) {\n      return;\n    }\n\n    const id = setTimeout(() => {\n      callbackRef.current();\n    }, delay);\n\n    return () => {\n      clearTimeout(id);\n    };\n  }, [delay]);\n}\n"
+    }
+  ]
+}

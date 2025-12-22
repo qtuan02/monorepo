@@ -1,0 +1,107 @@
+import { Link } from "react-router";
+
+import type { HookMetadata } from "~/types/hook-metadata";
+import CodeViewer from "./code-viewer";
+import PackageBadge from "./package-badge";
+import ParametersTable from "./parameters-table";
+import ReturnValue from "./return-value";
+
+interface HookDetailProps {
+  hook: HookMetadata;
+  categorySlug: string;
+}
+
+export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
+  return (
+    <div className="space-y-8" data-testid="hook-detail">
+      {/* Header Section */}
+      <header className="space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+              {hook.name}
+            </h1>
+            {hook.description && (
+              <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+                {hook.description}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <PackageBadge package={hook.package} />
+            <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+              {hook.category}
+            </span>
+          </div>
+        </div>
+
+        {/* Back link */}
+        <Link
+          to={`/hooks/${categorySlug}`}
+          className="inline-flex items-center text-sm text-blue-600 hover:underline dark:text-blue-400"
+        >
+          ← Back to {hook.category}
+        </Link>
+      </header>
+
+      {/* Parameters Section */}
+      <section aria-labelledby="parameters-heading">
+        <h2
+          id="parameters-heading"
+          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+        >
+          Parameters
+        </h2>
+        <ParametersTable parameters={hook.parameters} />
+      </section>
+
+      {/* Return Value Section */}
+      <section aria-labelledby="return-heading">
+        <h2
+          id="return-heading"
+          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+        >
+          Return Value
+        </h2>
+        <ReturnValue returns={hook.returns} />
+      </section>
+
+      {/* Source Code Section */}
+      <section aria-labelledby="source-heading">
+        <h2
+          id="source-heading"
+          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+        >
+          Source Code
+        </h2>
+        <CodeViewer
+          code={hook.sourceCode}
+          language="tsx"
+          filename={hook.filePath}
+        />
+      </section>
+
+      {/* Examples Section */}
+      {hook.examples && hook.examples.length > 0 && (
+        <section aria-labelledby="examples-heading">
+          <h2
+            id="examples-heading"
+            className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+          >
+            Examples
+          </h2>
+          <div className="space-y-4">
+            {hook.examples.map((example, index) => (
+              <CodeViewer
+                key={index}
+                code={example}
+                language="tsx"
+                filename={`Example ${index + 1}`}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}

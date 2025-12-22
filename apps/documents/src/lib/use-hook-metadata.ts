@@ -1,22 +1,45 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { HookMetadata } from "~/types/hook-metadata";
+// Import generated data (created by scripts/generate-metadata.ts)
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - Generated at build time
+import hooksData from "~/generated/hooks.json";
 
 /**
  * Hook to fetch hook metadata
- * TODO: Replace with actual API call from Epic 3 when available
+ * Uses auto-generated data from build-time script
  */
 export function useHookMetadata() {
   const [hooks, setHooks] = useState<HookMetadata[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Placeholder: Will be replaced with actual API call from Epic 3
-    // For now, return empty array
-    setIsLoading(false);
-    setHooks([]);
+    try {
+      // Use generated data
+      const data = hooksData?.hooks || [];
+      setHooks(data as HookMetadata[]);
+    } catch (error) {
+      console.error("Failed to load hook metadata:", error);
+      setHooks([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   return { hooks, isLoading };
 }
 
+/**
+ * Hook to fetch a single hook by ID
+ * @param id - Hook ID to fetch
+ */
+export function useHookById(id: string) {
+  const { hooks, isLoading } = useHookMetadata();
+
+  const hook = useMemo(() => {
+    return hooks.find((h) => h.id === id) || null;
+  }, [hooks, id]);
+
+  return { hook, isLoading };
+}
