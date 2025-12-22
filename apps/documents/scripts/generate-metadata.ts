@@ -44,6 +44,7 @@ interface ComponentMetadata {
   name: string;
   description: string | null;
   category: string;
+  parentCategory: string;
   package: "ui";
   filePath: string;
   props: ComponentProp[];
@@ -407,6 +408,7 @@ function extractComponentMetadata(filePath: string): ComponentMetadata | null {
       name,
       description,
       category,
+      parentCategory: "shadcn",
       package: "ui",
       filePath: relativePath,
       props,

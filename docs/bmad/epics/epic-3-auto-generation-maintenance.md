@@ -3,8 +3,11 @@
 **Epic ID:** Epic 3  
 **Project:** Documents - UI Documentation Site  
 **Related Documents:** [PRD](../prd.md), [Architecture](../architecture.md)  
-**Status:** Ready for Story Creation  
-**Created:** 2024-12-19
+**Status:** Complete  
+**Created:** 2024-12-19  
+**Updated:** 2024-12-22
+
+> **Completion Notes:** All 3 user stories completed. Story 3.1 (Generate Documentation Metadata) implemented core functionality including props extraction, source code extraction, and basic metadata generation. Story 3.2 (Interactive Component Preview) added component registry for live previews. Story 3.3 (Auto-Generate Component Metadata) implemented category detection and metadata organization.
 
 ---
 
@@ -27,12 +30,14 @@ This epic provides the core automation that eliminates manual documentation main
 **Project Type:** Greenfield  
 **Technology Stack:** Node.js (build-time), TypeScript, ts-morph (or TypeScript compiler API), Vite plugins  
 **Integration Points:**
+
 - File system: `packages/ui/src/components/*.tsx`, `packages/hook/src/hooks/*.ts`
 - Build-time processing via Vite plugins
 - Monorepo package resolution
 - TypeScript AST parsing for props extraction
 
 **Dependencies:**
+
 - Foundation for Epic 1 (discovery needs metadata)
 - Foundation for Epic 2 (detail pages need props tables and source code)
 - Must complete early in development timeline (Week 5-6)
@@ -48,6 +53,7 @@ This epic provides the core automation that eliminates manual documentation main
 **So that** documentation stays in sync with code
 
 **Acceptance Criteria:**
+
 - Props are extracted from component TypeScript interfaces
 - Props table is generated automatically
 - JSDoc comments are extracted for descriptions
@@ -59,6 +65,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Priority:** P0 (Critical)
 
 **Technical Notes:**
+
 - Use ts-morph or TypeScript compiler API
 - Parse component props interface/type definitions
 - Extract type information, required/optional status
@@ -75,6 +82,7 @@ This epic provides the core automation that eliminates manual documentation main
 **So that** source code is always up-to-date
 
 **Acceptance Criteria:**
+
 - Source code is read from `packages/ui/src/components/*.tsx`
 - Source code is read from `packages/hook/src/hooks/*.ts`
 - File reading handles monorepo structure correctly
@@ -85,6 +93,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Priority:** P0 (Critical)
 
 **Technical Notes:**
+
 - Build-time file system reading via Vite plugin or Node.js script
 - Handle monorepo package resolution (use workspace package references)
 - Filter out `/v1/*` directory components
@@ -100,6 +109,7 @@ This epic provides the core automation that eliminates manual documentation main
 **So that** components are properly categorized and tagged
 
 **Acceptance Criteria:**
+
 - Component names are extracted from file names
 - Categories are determined using automatic detection (file location patterns, naming conventions)
 - Manual override capability via metadata files (e.g., `component.meta.json`) for category assignment
@@ -112,6 +122,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Priority:** P1 (High)
 
 **Technical Notes:**
+
 - Category detection rules:
   - File location patterns (e.g., components in `form/` folder → Form category)
   - Naming conventions (e.g., `Button`, `Input` → Form category)
@@ -121,6 +132,7 @@ This epic provides the core automation that eliminates manual documentation main
 - Support for multiple categories per component (tags)
 
 **Category Detection Rules:**
+
 - **Form:** Input, Button, Select, Checkbox, Radio, Textarea, etc.
 - **Layout:** Container, Grid, Flex, Stack, etc.
 - **Feedback:** Alert, Toast, Modal, Dialog, etc.
@@ -143,6 +155,7 @@ This epic provides the core automation that eliminates manual documentation main
 ## Technical Considerations
 
 **Implementation Approach:**
+
 - Build-time processing via Vite plugin or separate build script
 - TypeScript AST parsing using ts-morph (recommended) or compiler API
 - File system traversal for component discovery
@@ -150,12 +163,14 @@ This epic provides the core automation that eliminates manual documentation main
 - JSON output for metadata storage (can be imported by frontend)
 
 **Build Process Integration:**
+
 - Vite plugin runs during build
 - Generates metadata files in `src/generated/` or similar
 - Frontend imports generated metadata at build time
 - Type-safe metadata types generated from JSON
 
 **TypeScript Parsing Library Choice:**
+
 - **ts-morph** (Recommended):
   - Higher-level API, easier to use
   - Better for AST manipulation
@@ -170,6 +185,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Recommendation:** Start with ts-morph for faster development, migrate to compiler API if performance issues arise.
 
 **Error Handling:**
+
 - Graceful fallback when parsing fails (show raw type string)
 - Log errors for debugging
 - Continue processing other components if one fails
@@ -182,6 +198,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Primary Risk:** TypeScript parsing complexity - complex types may not be parsed correctly
 
 **Mitigation:**
+
 - Research and test parsing libraries early (Week 1)
 - Build proof-of-concept with sample components (Week 1)
 - Start with simple cases, iterate to complex types
@@ -192,6 +209,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Category Assignment Risk:** Automatic detection may not be accurate for all components
 
 **Mitigation:**
+
 - Manual review of first 20 components to validate accuracy
 - Manual override capability via metadata files
 - Clear category detection rules documented
@@ -201,6 +219,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Performance Risk:** Build-time processing may be slow with 100+ components
 
 **Mitigation:**
+
 - Implement caching for parsed results
 - Process components in parallel where possible
 - Optimize file system operations
@@ -210,6 +229,7 @@ This epic provides the core automation that eliminates manual documentation main
 **Monorepo Resolution Risk:** Package resolution may fail in build environment
 
 **Mitigation:**
+
 - Test monorepo package resolution early (Week 1)
 - Use relative paths if package resolution fails
 - Document workarounds if needed
@@ -242,6 +262,7 @@ This epic provides the core automation that eliminates manual documentation main
 ---
 
 **Next Steps:**
+
 1. Research and select TypeScript parsing library (ts-morph recommended)
 2. Build proof-of-concept for props extraction (Week 1)
 3. Create detailed user stories from this epic
@@ -249,4 +270,3 @@ This epic provides the core automation that eliminates manual documentation main
 5. Then implement US-3.1 (Auto-Generate Props Tables)
 6. Finally implement US-3.3 (Auto-Generate Component Metadata)
 7. Conduct manual review of first 20 components for category validation
-

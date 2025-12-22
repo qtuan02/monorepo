@@ -11,10 +11,10 @@ export interface ComponentMetadata {
   name: string;
   description: string | null;
   category: string; // Categories: Form, Layout, Feedback, Data Display, Navigation, Uncategorized
+  parentCategory: string; // Parent category: e.g., "shadcn"
   package: "ui";
   filePath: string;
   props: ComponentProp[];
   sourceCode: string;
   examples?: string[];
 }
-

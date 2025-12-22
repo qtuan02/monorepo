@@ -5,8 +5,9 @@
       "name": "Accordion",
       "description": null,
       "category": "Layout",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/accordion.tsx",
+      "filePath": "packages\\ui\\src\\components\\accordion.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as AccordionPrimitive from \"@radix-ui/react-accordion\";\nimport { ChevronDownIcon } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Accordion({\n  ...props\n}: React.ComponentProps<typeof AccordionPrimitive.Root>) {\n  return <AccordionPrimitive.Root data-slot=\"accordion\" {...props} />;\n}\n\nfunction AccordionItem({\n  className,\n  ...props\n}: React.ComponentProps<typeof AccordionPrimitive.Item>) {\n  return (\n    <AccordionPrimitive.Item\n      data-slot=\"accordion-item\"\n      className={cn(\"border-b last:border-b-0\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction AccordionTrigger({\n  className,\n  children,\n  ...props\n}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {\n  return (\n    <AccordionPrimitive.Header className=\"flex\">\n      <AccordionPrimitive.Trigger\n        data-slot=\"accordion-trigger\"\n        className={cn(\n          \"focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180\",\n          className,\n        )}\n        {...props}\n      >\n        {children}\n        <ChevronDownIcon className=\"text-muted-foreground pointer-events-none size-4 shrink-0 translate-y-0.5 transition-transform duration-200\" />\n      </AccordionPrimitive.Trigger>\n    </AccordionPrimitive.Header>\n  );\n}\n\nfunction AccordionContent({\n  className,\n  children,\n  ...props\n}: React.ComponentProps<typeof AccordionPrimitive.Content>) {\n  return (\n    <AccordionPrimitive.Content\n      data-slot=\"accordion-content\"\n      className=\"data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm\"\n      {...props}\n    >\n      <div className={cn(\"pt-0 pb-4\", className)}>{children}</div>\n    </AccordionPrimitive.Content>\n  );\n}\n\nexport { Accordion, AccordionItem, AccordionTrigger, AccordionContent };\n"
     },
@@ -15,8 +16,9 @@
       "name": "AlertDialog",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/alert-dialog.tsx",
+      "filePath": "packages\\ui\\src\\components\\alert-dialog.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as AlertDialogPrimitive from \"@radix-ui/react-alert-dialog\";\n\nimport { cn } from \"../libs/cn\";\nimport { buttonVariants } from \"./button\";\n\nfunction AlertDialog({\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Root>) {\n  return <AlertDialogPrimitive.Root data-slot=\"alert-dialog\" {...props} />;\n}\n\nfunction AlertDialogTrigger({\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Trigger>) {\n  return (\n    <AlertDialogPrimitive.Trigger data-slot=\"alert-dialog-trigger\" {...props} />\n  );\n}\n\nfunction AlertDialogPortal({\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Portal>) {\n  return (\n    <AlertDialogPrimitive.Portal data-slot=\"alert-dialog-portal\" {...props} />\n  );\n}\n\nfunction AlertDialogOverlay({\n  className,\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Overlay>) {\n  return (\n    <AlertDialogPrimitive.Overlay\n      data-slot=\"alert-dialog-overlay\"\n      className={cn(\n        \"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogContent({\n  className,\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {\n  return (\n    <AlertDialogPortal>\n      <AlertDialogOverlay />\n      <AlertDialogPrimitive.Content\n        data-slot=\"alert-dialog-content\"\n        className={cn(\n          \"bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg\",\n          className,\n        )}\n        {...props}\n      />\n    </AlertDialogPortal>\n  );\n}\n\nfunction AlertDialogHeader({\n  className,\n  ...props\n}: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"alert-dialog-header\"\n      className={cn(\"flex flex-col gap-2 text-center sm:text-left\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogFooter({\n  className,\n  ...props\n}: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"alert-dialog-footer\"\n      className={cn(\n        \"flex flex-col-reverse gap-2 sm:flex-row sm:justify-end\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogTitle({\n  className,\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {\n  return (\n    <AlertDialogPrimitive.Title\n      data-slot=\"alert-dialog-title\"\n      className={cn(\"text-lg font-semibold\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogDescription({\n  className,\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Description>) {\n  return (\n    <AlertDialogPrimitive.Description\n      data-slot=\"alert-dialog-description\"\n      className={cn(\"text-muted-foreground text-sm\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogAction({\n  className,\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {\n  return (\n    <AlertDialogPrimitive.Action\n      className={cn(buttonVariants(), className)}\n      {...props}\n    />\n  );\n}\n\nfunction AlertDialogCancel({\n  className,\n  ...props\n}: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {\n  return (\n    <AlertDialogPrimitive.Cancel\n      className={cn(buttonVariants({ variant: \"outline\" }), className)}\n      {...props}\n    />\n  );\n}\n\nexport {\n  AlertDialog,\n  AlertDialogPortal,\n  AlertDialogOverlay,\n  AlertDialogTrigger,\n  AlertDialogContent,\n  AlertDialogHeader,\n  AlertDialogFooter,\n  AlertDialogTitle,\n  AlertDialogDescription,\n  AlertDialogAction,\n  AlertDialogCancel,\n};\n"
     },
@@ -25,8 +27,9 @@
       "name": "AspectRatio",
       "description": null,
       "category": "Layout",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/aspect-ratio.tsx",
+      "filePath": "packages\\ui\\src\\components\\aspect-ratio.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport * as AspectRatioPrimitive from \"@radix-ui/react-aspect-ratio\";\n\nfunction AspectRatio({\n  ...props\n}: React.ComponentProps<typeof AspectRatioPrimitive.Root>) {\n  return <AspectRatioPrimitive.Root data-slot=\"aspect-ratio\" {...props} />;\n}\n\nexport { AspectRatio };\n"
     },
@@ -35,8 +38,9 @@
       "name": "Avatar",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/avatar.tsx",
+      "filePath": "packages\\ui\\src\\components\\avatar.tsx",
       "props": [
         {
           "name": "className",
@@ -51,8 +55,9 @@
       "name": "Badge",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/badge.tsx",
+      "filePath": "packages\\ui\\src\\components\\badge.tsx",
       "props": [
         {
           "name": "className",
@@ -78,8 +83,9 @@
       "name": "Breadcrumb",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/breadcrumb.tsx",
+      "filePath": "packages\\ui\\src\\components\\breadcrumb.tsx",
       "props": [],
       "sourceCode": "import type * as React from \"react\";\nimport { Slot } from \"@radix-ui/react-slot\";\nimport { ChevronRight, MoreHorizontal } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Breadcrumb({ ...props }: React.ComponentProps<\"nav\">) {\n  return <nav aria-label=\"breadcrumb\" data-slot=\"breadcrumb\" {...props} />;\n}\n\nfunction BreadcrumbList({ className, ...props }: React.ComponentProps<\"ol\">) {\n  return (\n    <ol\n      data-slot=\"breadcrumb-list\"\n      className={cn(\n        \"text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction BreadcrumbItem({ className, ...props }: React.ComponentProps<\"li\">) {\n  return (\n    <li\n      data-slot=\"breadcrumb-item\"\n      className={cn(\"inline-flex items-center gap-1.5\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction BreadcrumbLink({\n  asChild,\n  className,\n  ...props\n}: React.ComponentProps<\"a\"> & {\n  asChild?: boolean;\n}) {\n  const Comp = asChild ? Slot : \"a\";\n\n  return (\n    <Comp\n      data-slot=\"breadcrumb-link\"\n      className={cn(\"hover:text-foreground transition-colors\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction BreadcrumbPage({ className, ...props }: React.ComponentProps<\"span\">) {\n  return (\n    <span\n      data-slot=\"breadcrumb-page\"\n      role=\"link\"\n      aria-disabled=\"true\"\n      aria-current=\"page\"\n      className={cn(\"text-foreground font-normal\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction BreadcrumbSeparator({\n  children,\n  className,\n  ...props\n}: React.ComponentProps<\"li\">) {\n  return (\n    <li\n      data-slot=\"breadcrumb-separator\"\n      role=\"presentation\"\n      aria-hidden=\"true\"\n      className={cn(\"[&>svg]:size-3.5\", className)}\n      {...props}\n    >\n      {children ?? <ChevronRight />}\n    </li>\n  );\n}\n\nfunction BreadcrumbEllipsis({\n  className,\n  ...props\n}: React.ComponentProps<\"span\">) {\n  return (\n    <span\n      data-slot=\"breadcrumb-ellipsis\"\n      role=\"presentation\"\n      aria-hidden=\"true\"\n      className={cn(\"flex size-9 items-center justify-center\", className)}\n      {...props}\n    >\n      <MoreHorizontal className=\"size-4\" />\n      <span className=\"sr-only\">More</span>\n    </span>\n  );\n}\n\nexport {\n  Breadcrumb,\n  BreadcrumbList,\n  BreadcrumbItem,\n  BreadcrumbLink,\n  BreadcrumbPage,\n  BreadcrumbSeparator,\n  BreadcrumbEllipsis,\n};\n"
     },
@@ -88,8 +94,9 @@
       "name": "Button",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/button.tsx",
+      "filePath": "packages\\ui\\src\\components\\button.tsx",
       "props": [
         {
           "name": "className",
@@ -120,8 +127,9 @@
       "name": "Calendar",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/calendar.tsx",
+      "filePath": "packages\\ui\\src\\components\\calendar.tsx",
       "props": [
         {
           "name": "className",
@@ -169,8 +177,9 @@
       "name": "Card",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/card.tsx",
+      "filePath": "packages\\ui\\src\\components\\card.tsx",
       "props": [
         {
           "name": "className",
@@ -178,15 +187,16 @@
           "required": false
         }
       ],
-      "sourceCode": "import type * as React from \"react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Card({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      className={cn(\n        \"bg-card text-card-foreground rounded-lg border shadow-sm\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction CardHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      className={cn(\"flex flex-col space-y-1.5 p-6\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction CardTitle({ className, ...props }: React.ComponentProps<\"h3\">) {\n  return (\n    <h3\n      className={cn(\n        \"text-2xl leading-none font-semibold tracking-tight\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction CardDescription({ className, ...props }: React.ComponentProps<\"p\">) {\n  return (\n    <p className={cn(\"text-muted-foreground text-sm\", className)} {...props} />\n  );\n}\n\nfunction CardContent({ className, ...props }: React.ComponentProps<\"div\">) {\n  return <div className={cn(\"p-6 pt-0\", className)} {...props} />;\n}\n\nfunction CardFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div className={cn(\"flex items-center p-6 pt-0\", className)} {...props} />\n  );\n}\n\nexport {\n  Card,\n  CardHeader,\n  CardFooter,\n  CardTitle,\n  CardDescription,\n  CardContent,\n};\n"
+      "sourceCode": "import type * as React from \"react\";\r\n\r\nimport { cn } from \"../libs/cn\";\r\n\r\nfunction Card({ className, ...props }: React.ComponentProps<\"div\">) {\r\n  return (\r\n    <div\r\n      className={cn(\r\n        \"bg-card text-card-foreground rounded-lg border shadow-sm\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    />\r\n  );\r\n}\r\n\r\nfunction CardHeader({ className, ...props }: React.ComponentProps<\"div\">) {\r\n  return (\r\n    <div\r\n      className={cn(\"flex flex-col space-y-1.5 p-6\", className)}\r\n      {...props}\r\n    />\r\n  );\r\n}\r\n\r\nfunction CardTitle({ className, ...props }: React.ComponentProps<\"h3\">) {\r\n  return (\r\n    <h3\r\n      className={cn(\r\n        \"text-2xl leading-none font-semibold tracking-tight\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    />\r\n  );\r\n}\r\n\r\nfunction CardDescription({ className, ...props }: React.ComponentProps<\"p\">) {\r\n  return (\r\n    <p className={cn(\"text-muted-foreground text-sm\", className)} {...props} />\r\n  );\r\n}\r\n\r\nfunction CardContent({ className, ...props }: React.ComponentProps<\"div\">) {\r\n  return <div className={cn(\"p-6 pt-0\", className)} {...props} />;\r\n}\r\n\r\nfunction CardFooter({ className, ...props }: React.ComponentProps<\"div\">) {\r\n  return (\r\n    <div className={cn(\"flex items-center p-6 pt-0\", className)} {...props} />\r\n  );\r\n}\r\n\r\nexport {\r\n  Card,\r\n  CardHeader,\r\n  CardFooter,\r\n  CardTitle,\r\n  CardDescription,\r\n  CardContent,\r\n};\r\n"
     },
     {
       "id": "checkbox",
       "name": "Checkbox",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/checkbox.tsx",
+      "filePath": "packages\\ui\\src\\components\\checkbox.tsx",
       "props": [
         {
           "name": "className",
@@ -201,8 +211,9 @@
       "name": "Collapsible",
       "description": null,
       "category": "Layout",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/collapsible.tsx",
+      "filePath": "packages\\ui\\src\\components\\collapsible.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport * as CollapsiblePrimitive from \"@radix-ui/react-collapsible\";\n\nfunction Collapsible({\n  ...props\n}: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({\n  ...props\n}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {\n  return (\n    <CollapsiblePrimitive.CollapsibleTrigger\n      data-slot=\"collapsible-trigger\"\n      {...props}\n    />\n  );\n}\n\nfunction CollapsibleContent({\n  ...props\n}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {\n  return (\n    <CollapsiblePrimitive.CollapsibleContent\n      data-slot=\"collapsible-content\"\n      {...props}\n    />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n"
     },
@@ -211,8 +222,9 @@
       "name": "Command",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/command.tsx",
+      "filePath": "packages\\ui\\src\\components\\command.tsx",
       "props": [
         {
           "name": "className",
@@ -227,8 +239,9 @@
       "name": "ContextMenu",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/context-menu.tsx",
+      "filePath": "packages\\ui\\src\\components\\context-menu.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as ContextMenuPrimitive from \"@radix-ui/react-context-menu\";\nimport { CheckIcon, ChevronRightIcon, CircleIcon } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction ContextMenu({\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Root>) {\n  return <ContextMenuPrimitive.Root data-slot=\"context-menu\" {...props} />;\n}\n\nfunction ContextMenuTrigger({\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {\n  return (\n    <ContextMenuPrimitive.Trigger data-slot=\"context-menu-trigger\" {...props} />\n  );\n}\n\nfunction ContextMenuGroup({\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Group>) {\n  return (\n    <ContextMenuPrimitive.Group data-slot=\"context-menu-group\" {...props} />\n  );\n}\n\nfunction ContextMenuPortal({\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Portal>) {\n  return (\n    <ContextMenuPrimitive.Portal data-slot=\"context-menu-portal\" {...props} />\n  );\n}\n\nfunction ContextMenuSub({\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Sub>) {\n  return <ContextMenuPrimitive.Sub data-slot=\"context-menu-sub\" {...props} />;\n}\n\nfunction ContextMenuRadioGroup({\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.RadioGroup>) {\n  return (\n    <ContextMenuPrimitive.RadioGroup\n      data-slot=\"context-menu-radio-group\"\n      {...props}\n    />\n  );\n}\n\nfunction ContextMenuSubTrigger({\n  className,\n  inset,\n  children,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.SubTrigger> & {\n  inset?: boolean;\n}) {\n  return (\n    <ContextMenuPrimitive.SubTrigger\n      data-slot=\"context-menu-sub-trigger\"\n      data-inset={inset}\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      {children}\n      <ChevronRightIcon className=\"ml-auto\" />\n    </ContextMenuPrimitive.SubTrigger>\n  );\n}\n\nfunction ContextMenuSubContent({\n  className,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.SubContent>) {\n  return (\n    <ContextMenuPrimitive.SubContent\n      data-slot=\"context-menu-sub-content\"\n      className={cn(\n        \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction ContextMenuContent({\n  className,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Content>) {\n  return (\n    <ContextMenuPrimitive.Portal>\n      <ContextMenuPrimitive.Content\n        data-slot=\"context-menu-content\"\n        className={cn(\n          \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md\",\n          className,\n        )}\n        {...props}\n      />\n    </ContextMenuPrimitive.Portal>\n  );\n}\n\nfunction ContextMenuItem({\n  className,\n  inset,\n  variant = \"default\",\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Item> & {\n  inset?: boolean;\n  variant?: \"default\" | \"destructive\";\n}) {\n  return (\n    <ContextMenuPrimitive.Item\n      data-slot=\"context-menu-item\"\n      data-inset={inset}\n      data-variant={variant}\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction ContextMenuCheckboxItem({\n  className,\n  children,\n  checked,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.CheckboxItem>) {\n  return (\n    <ContextMenuPrimitive.CheckboxItem\n      data-slot=\"context-menu-checkbox-item\"\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      checked={checked}\n      {...props}\n    >\n      <span className=\"pointer-events-none absolute left-2 flex size-3.5 items-center justify-center\">\n        <ContextMenuPrimitive.ItemIndicator>\n          <CheckIcon className=\"size-4\" />\n        </ContextMenuPrimitive.ItemIndicator>\n      </span>\n      {children}\n    </ContextMenuPrimitive.CheckboxItem>\n  );\n}\n\nfunction ContextMenuRadioItem({\n  className,\n  children,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.RadioItem>) {\n  return (\n    <ContextMenuPrimitive.RadioItem\n      data-slot=\"context-menu-radio-item\"\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      <span className=\"pointer-events-none absolute left-2 flex size-3.5 items-center justify-center\">\n        <ContextMenuPrimitive.ItemIndicator>\n          <CircleIcon className=\"size-2 fill-current\" />\n        </ContextMenuPrimitive.ItemIndicator>\n      </span>\n      {children}\n    </ContextMenuPrimitive.RadioItem>\n  );\n}\n\nfunction ContextMenuLabel({\n  className,\n  inset,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Label> & {\n  inset?: boolean;\n}) {\n  return (\n    <ContextMenuPrimitive.Label\n      data-slot=\"context-menu-label\"\n      data-inset={inset}\n      className={cn(\n        \"text-foreground px-2 py-1.5 text-sm font-medium data-[inset]:pl-8\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction ContextMenuSeparator({\n  className,\n  ...props\n}: React.ComponentProps<typeof ContextMenuPrimitive.Separator>) {\n  return (\n    <ContextMenuPrimitive.Separator\n      data-slot=\"context-menu-separator\"\n      className={cn(\"bg-border -mx-1 my-1 h-px\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction ContextMenuShortcut({\n  className,\n  ...props\n}: React.ComponentProps<\"span\">) {\n  return (\n    <span\n      data-slot=\"context-menu-shortcut\"\n      className={cn(\n        \"text-muted-foreground ml-auto text-xs tracking-widest\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport {\n  ContextMenu,\n  ContextMenuTrigger,\n  ContextMenuContent,\n  ContextMenuItem,\n  ContextMenuCheckboxItem,\n  ContextMenuRadioItem,\n  ContextMenuLabel,\n  ContextMenuSeparator,\n  ContextMenuShortcut,\n  ContextMenuGroup,\n  ContextMenuPortal,\n  ContextMenuSub,\n  ContextMenuSubContent,\n  ContextMenuSubTrigger,\n  ContextMenuRadioGroup,\n};\n"
     },
@@ -237,8 +250,9 @@
       "name": "Dialog",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/dialog.tsx",
+      "filePath": "packages\\ui\\src\\components\\dialog.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as DialogPrimitive from \"@radix-ui/react-dialog\";\nimport { XIcon } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Dialog({\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Root>) {\n  return <DialogPrimitive.Root data-slot=\"dialog\" {...props} />;\n}\n\nfunction DialogTrigger({\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {\n  return <DialogPrimitive.Trigger data-slot=\"dialog-trigger\" {...props} />;\n}\n\nfunction DialogPortal({\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Portal>) {\n  return <DialogPrimitive.Portal data-slot=\"dialog-portal\" {...props} />;\n}\n\nfunction DialogClose({\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Close>) {\n  return <DialogPrimitive.Close data-slot=\"dialog-close\" {...props} />;\n}\n\nfunction DialogOverlay({\n  className,\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {\n  return (\n    <DialogPrimitive.Overlay\n      data-slot=\"dialog-overlay\"\n      className={cn(\n        \"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DialogContent({\n  className,\n  children,\n  showCloseButton = true,\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Content> & {\n  showCloseButton?: boolean;\n}) {\n  return (\n    <DialogPortal data-slot=\"dialog-portal\">\n      <DialogOverlay />\n      <DialogPrimitive.Content\n        data-slot=\"dialog-content\"\n        className={cn(\n          \"bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg\",\n          className,\n        )}\n        {...props}\n      >\n        {children}\n        {showCloseButton && (\n          <DialogPrimitive.Close\n            data-slot=\"dialog-close\"\n            className=\"ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\"\n          >\n            <XIcon />\n            <span className=\"sr-only\">Close</span>\n          </DialogPrimitive.Close>\n        )}\n      </DialogPrimitive.Content>\n    </DialogPortal>\n  );\n}\n\nfunction DialogHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"dialog-header\"\n      className={cn(\"flex flex-col gap-2 text-center sm:text-left\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction DialogFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"dialog-footer\"\n      className={cn(\n        \"flex flex-col-reverse gap-2 sm:flex-row sm:justify-end\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DialogTitle({\n  className,\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Title>) {\n  return (\n    <DialogPrimitive.Title\n      data-slot=\"dialog-title\"\n      className={cn(\"text-lg leading-none font-semibold\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction DialogDescription({\n  className,\n  ...props\n}: React.ComponentProps<typeof DialogPrimitive.Description>) {\n  return (\n    <DialogPrimitive.Description\n      data-slot=\"dialog-description\"\n      className={cn(\"text-muted-foreground text-sm\", className)}\n      {...props}\n    />\n  );\n}\n\nexport {\n  Dialog,\n  DialogClose,\n  DialogContent,\n  DialogDescription,\n  DialogFooter,\n  DialogHeader,\n  DialogOverlay,\n  DialogPortal,\n  DialogTitle,\n  DialogTrigger,\n};\n"
     },
@@ -247,8 +261,9 @@
       "name": "Drawer",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/drawer.tsx",
+      "filePath": "packages\\ui\\src\\components\\drawer.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport { Drawer as DrawerPrimitive } from \"vaul\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Drawer({\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Root>) {\n  return <DrawerPrimitive.Root data-slot=\"drawer\" {...props} />;\n}\n\nfunction DrawerTrigger({\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Trigger>) {\n  return <DrawerPrimitive.Trigger data-slot=\"drawer-trigger\" {...props} />;\n}\n\nfunction DrawerPortal({\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Portal>) {\n  return <DrawerPrimitive.Portal data-slot=\"drawer-portal\" {...props} />;\n}\n\nfunction DrawerClose({\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Close>) {\n  return <DrawerPrimitive.Close data-slot=\"drawer-close\" {...props} />;\n}\n\nfunction DrawerOverlay({\n  className,\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {\n  return (\n    <DrawerPrimitive.Overlay\n      data-slot=\"drawer-overlay\"\n      className={cn(\n        \"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DrawerContent({\n  className,\n  children,\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Content>) {\n  return (\n    <DrawerPortal data-slot=\"drawer-portal\">\n      <DrawerOverlay />\n      <DrawerPrimitive.Content\n        data-slot=\"drawer-content\"\n        className={cn(\n          \"group/drawer-content bg-background fixed z-50 flex h-auto flex-col\",\n          \"data-[vaul-drawer-direction=top]:inset-x-0 data-[vaul-drawer-direction=top]:top-0 data-[vaul-drawer-direction=top]:mb-24 data-[vaul-drawer-direction=top]:max-h-[80vh] data-[vaul-drawer-direction=top]:rounded-b-lg data-[vaul-drawer-direction=top]:border-b\",\n          \"data-[vaul-drawer-direction=bottom]:inset-x-0 data-[vaul-drawer-direction=bottom]:bottom-0 data-[vaul-drawer-direction=bottom]:mt-24 data-[vaul-drawer-direction=bottom]:max-h-[80vh] data-[vaul-drawer-direction=bottom]:rounded-t-lg data-[vaul-drawer-direction=bottom]:border-t\",\n          \"data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm\",\n          \"data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm\",\n          className,\n        )}\n        {...props}\n      >\n        <div className=\"bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[vaul-drawer-direction=bottom]/drawer-content:block\" />\n        {children}\n      </DrawerPrimitive.Content>\n    </DrawerPortal>\n  );\n}\n\nfunction DrawerHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"drawer-header\"\n      className={cn(\n        \"flex flex-col gap-0.5 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-1.5 md:text-left\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DrawerFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"drawer-footer\"\n      className={cn(\"mt-auto flex flex-col gap-2 p-4\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction DrawerTitle({\n  className,\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Title>) {\n  return (\n    <DrawerPrimitive.Title\n      data-slot=\"drawer-title\"\n      className={cn(\"text-foreground font-semibold\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction DrawerDescription({\n  className,\n  ...props\n}: React.ComponentProps<typeof DrawerPrimitive.Description>) {\n  return (\n    <DrawerPrimitive.Description\n      data-slot=\"drawer-description\"\n      className={cn(\"text-muted-foreground text-sm\", className)}\n      {...props}\n    />\n  );\n}\n\nexport {\n  Drawer,\n  DrawerPortal,\n  DrawerOverlay,\n  DrawerTrigger,\n  DrawerClose,\n  DrawerContent,\n  DrawerHeader,\n  DrawerFooter,\n  DrawerTitle,\n  DrawerDescription,\n};\n"
     },
@@ -257,8 +272,9 @@
       "name": "DropdownMenu",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/dropdown-menu.tsx",
+      "filePath": "packages\\ui\\src\\components\\dropdown-menu.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as DropdownMenuPrimitive from \"@radix-ui/react-dropdown-menu\";\nimport { CheckIcon, ChevronRightIcon, CircleIcon } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction DropdownMenu({\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {\n  return <DropdownMenuPrimitive.Root data-slot=\"dropdown-menu\" {...props} />;\n}\n\nfunction DropdownMenuPortal({\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {\n  return (\n    <DropdownMenuPrimitive.Portal data-slot=\"dropdown-menu-portal\" {...props} />\n  );\n}\n\nfunction DropdownMenuTrigger({\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {\n  return (\n    <DropdownMenuPrimitive.Trigger\n      data-slot=\"dropdown-menu-trigger\"\n      {...props}\n    />\n  );\n}\n\nfunction DropdownMenuContent({\n  className,\n  sideOffset = 4,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {\n  return (\n    <DropdownMenuPrimitive.Portal>\n      <DropdownMenuPrimitive.Content\n        data-slot=\"dropdown-menu-content\"\n        sideOffset={sideOffset}\n        className={cn(\n          \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md\",\n          className,\n        )}\n        {...props}\n      />\n    </DropdownMenuPrimitive.Portal>\n  );\n}\n\nfunction DropdownMenuGroup({\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) {\n  return (\n    <DropdownMenuPrimitive.Group data-slot=\"dropdown-menu-group\" {...props} />\n  );\n}\n\nfunction DropdownMenuItem({\n  className,\n  inset,\n  variant = \"default\",\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {\n  inset?: boolean;\n  variant?: \"default\" | \"destructive\";\n}) {\n  return (\n    <DropdownMenuPrimitive.Item\n      data-slot=\"dropdown-menu-item\"\n      data-inset={inset}\n      data-variant={variant}\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DropdownMenuCheckboxItem({\n  className,\n  children,\n  checked,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>) {\n  return (\n    <DropdownMenuPrimitive.CheckboxItem\n      data-slot=\"dropdown-menu-checkbox-item\"\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      checked={checked}\n      {...props}\n    >\n      <span className=\"pointer-events-none absolute left-2 flex size-3.5 items-center justify-center\">\n        <DropdownMenuPrimitive.ItemIndicator>\n          <CheckIcon className=\"size-4\" />\n        </DropdownMenuPrimitive.ItemIndicator>\n      </span>\n      {children}\n    </DropdownMenuPrimitive.CheckboxItem>\n  );\n}\n\nfunction DropdownMenuRadioGroup({\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {\n  return (\n    <DropdownMenuPrimitive.RadioGroup\n      data-slot=\"dropdown-menu-radio-group\"\n      {...props}\n    />\n  );\n}\n\nfunction DropdownMenuRadioItem({\n  className,\n  children,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem>) {\n  return (\n    <DropdownMenuPrimitive.RadioItem\n      data-slot=\"dropdown-menu-radio-item\"\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      <span className=\"pointer-events-none absolute left-2 flex size-3.5 items-center justify-center\">\n        <DropdownMenuPrimitive.ItemIndicator>\n          <CircleIcon className=\"size-2 fill-current\" />\n        </DropdownMenuPrimitive.ItemIndicator>\n      </span>\n      {children}\n    </DropdownMenuPrimitive.RadioItem>\n  );\n}\n\nfunction DropdownMenuLabel({\n  className,\n  inset,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {\n  inset?: boolean;\n}) {\n  return (\n    <DropdownMenuPrimitive.Label\n      data-slot=\"dropdown-menu-label\"\n      data-inset={inset}\n      className={cn(\n        \"px-2 py-1.5 text-sm font-medium data-[inset]:pl-8\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DropdownMenuSeparator({\n  className,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {\n  return (\n    <DropdownMenuPrimitive.Separator\n      data-slot=\"dropdown-menu-separator\"\n      className={cn(\"bg-border -mx-1 my-1 h-px\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction DropdownMenuShortcut({\n  className,\n  ...props\n}: React.ComponentProps<\"span\">) {\n  return (\n    <span\n      data-slot=\"dropdown-menu-shortcut\"\n      className={cn(\n        \"text-muted-foreground ml-auto text-xs tracking-widest\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction DropdownMenuSub({\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {\n  return <DropdownMenuPrimitive.Sub data-slot=\"dropdown-menu-sub\" {...props} />;\n}\n\nfunction DropdownMenuSubTrigger({\n  className,\n  inset,\n  children,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {\n  inset?: boolean;\n}) {\n  return (\n    <DropdownMenuPrimitive.SubTrigger\n      data-slot=\"dropdown-menu-sub-trigger\"\n      data-inset={inset}\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      {children}\n      <ChevronRightIcon className=\"ml-auto size-4\" />\n    </DropdownMenuPrimitive.SubTrigger>\n  );\n}\n\nfunction DropdownMenuSubContent({\n  className,\n  ...props\n}: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {\n  return (\n    <DropdownMenuPrimitive.SubContent\n      data-slot=\"dropdown-menu-sub-content\"\n      className={cn(\n        \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport {\n  DropdownMenu,\n  DropdownMenuPortal,\n  DropdownMenuTrigger,\n  DropdownMenuContent,\n  DropdownMenuGroup,\n  DropdownMenuLabel,\n  DropdownMenuItem,\n  DropdownMenuCheckboxItem,\n  DropdownMenuRadioGroup,\n  DropdownMenuRadioItem,\n  DropdownMenuSeparator,\n  DropdownMenuShortcut,\n  DropdownMenuSub,\n  DropdownMenuSubTrigger,\n  DropdownMenuSubContent,\n};\n"
     },
@@ -267,8 +283,9 @@
       "name": "FormItem",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/form.tsx",
+      "filePath": "packages\\ui\\src\\components\\form.tsx",
       "props": [
         {
           "name": "className",
@@ -283,8 +300,9 @@
       "name": "HoverCard",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/hover-card.tsx",
+      "filePath": "packages\\ui\\src\\components\\hover-card.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as HoverCardPrimitive from \"@radix-ui/react-hover-card\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction HoverCard({\n  ...props\n}: React.ComponentProps<typeof HoverCardPrimitive.Root>) {\n  return <HoverCardPrimitive.Root data-slot=\"hover-card\" {...props} />;\n}\n\nfunction HoverCardTrigger({\n  ...props\n}: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) {\n  return (\n    <HoverCardPrimitive.Trigger data-slot=\"hover-card-trigger\" {...props} />\n  );\n}\n\nfunction HoverCardContent({\n  className,\n  align = \"center\",\n  sideOffset = 4,\n  ...props\n}: React.ComponentProps<typeof HoverCardPrimitive.Content>) {\n  return (\n    <HoverCardPrimitive.Portal data-slot=\"hover-card-portal\">\n      <HoverCardPrimitive.Content\n        data-slot=\"hover-card-content\"\n        align={align}\n        sideOffset={sideOffset}\n        className={cn(\n          \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-64 origin-(--radix-hover-card-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden\",\n          className,\n        )}\n        {...props}\n      />\n    </HoverCardPrimitive.Portal>\n  );\n}\n\nexport { HoverCard, HoverCardTrigger, HoverCardContent };\n"
     },
@@ -293,8 +311,9 @@
       "name": "InputOTP",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/input-otp.tsx",
+      "filePath": "packages\\ui\\src\\components\\input-otp.tsx",
       "props": [
         {
           "name": "className",
@@ -314,8 +333,9 @@
       "name": "Input",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/input.tsx",
+      "filePath": "packages\\ui\\src\\components\\input.tsx",
       "props": [
         {
           "name": "className",
@@ -335,8 +355,9 @@
       "name": "Label",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/label.tsx",
+      "filePath": "packages\\ui\\src\\components\\label.tsx",
       "props": [
         {
           "name": "className",
@@ -351,8 +372,9 @@
       "name": "Menubar",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/menubar.tsx",
+      "filePath": "packages\\ui\\src\\components\\menubar.tsx",
       "props": [
         {
           "name": "className",
@@ -367,8 +389,9 @@
       "name": "NavigationMenu",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/navigation-menu.tsx",
+      "filePath": "packages\\ui\\src\\components\\navigation-menu.tsx",
       "props": [
         {
           "name": "className",
@@ -394,8 +417,9 @@
       "name": "Pagination",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/pagination.tsx",
+      "filePath": "packages\\ui\\src\\components\\pagination.tsx",
       "props": [
         {
           "name": "className",
@@ -410,8 +434,9 @@
       "name": "Popover",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/popover.tsx",
+      "filePath": "packages\\ui\\src\\components\\popover.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as PopoverPrimitive from \"@radix-ui/react-popover\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Popover({\n  ...props\n}: React.ComponentProps<typeof PopoverPrimitive.Root>) {\n  return <PopoverPrimitive.Root data-slot=\"popover\" {...props} />;\n}\n\nfunction PopoverTrigger({\n  ...props\n}: React.ComponentProps<typeof PopoverPrimitive.Trigger>) {\n  return <PopoverPrimitive.Trigger data-slot=\"popover-trigger\" {...props} />;\n}\n\nfunction PopoverContent({\n  className,\n  align = \"center\",\n  sideOffset = 4,\n  ...props\n}: React.ComponentProps<typeof PopoverPrimitive.Content>) {\n  return (\n    <PopoverPrimitive.Portal>\n      <PopoverPrimitive.Content\n        data-slot=\"popover-content\"\n        align={align}\n        sideOffset={sideOffset}\n        className={cn(\n          \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border p-4 shadow-md outline-hidden\",\n          className,\n        )}\n        {...props}\n      />\n    </PopoverPrimitive.Portal>\n  );\n}\n\nfunction PopoverAnchor({\n  ...props\n}: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {\n  return <PopoverPrimitive.Anchor data-slot=\"popover-anchor\" {...props} />;\n}\n\nexport { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };\n"
     },
@@ -420,8 +445,9 @@
       "name": "Progress",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/progress.tsx",
+      "filePath": "packages\\ui\\src\\components\\progress.tsx",
       "props": [
         {
           "name": "className",
@@ -441,8 +467,9 @@
       "name": "RadioGroup",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/radio-group.tsx",
+      "filePath": "packages\\ui\\src\\components\\radio-group.tsx",
       "props": [
         {
           "name": "className",
@@ -457,8 +484,9 @@
       "name": "ResizablePanelGroup",
       "description": null,
       "category": "Layout",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/resizable.tsx",
+      "filePath": "packages\\ui\\src\\components\\resizable.tsx",
       "props": [
         {
           "name": "className",
@@ -473,8 +501,9 @@
       "name": "ScrollArea",
       "description": null,
       "category": "Layout",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/scroll-area.tsx",
+      "filePath": "packages\\ui\\src\\components\\scroll-area.tsx",
       "props": [
         {
           "name": "className",
@@ -494,18 +523,20 @@
       "name": "Select",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/select.tsx",
+      "filePath": "packages\\ui\\src\\components\\select.tsx",
       "props": [],
-      "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as SelectPrimitive from \"@radix-ui/react-select\";\nimport { CheckIcon, ChevronDownIcon, ChevronUpIcon } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Select({\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Root>) {\n  return <SelectPrimitive.Root data-slot=\"select\" {...props} />;\n}\n\nfunction SelectGroup({\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Group>) {\n  return <SelectPrimitive.Group data-slot=\"select-group\" {...props} />;\n}\n\nfunction SelectValue({\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Value>) {\n  return <SelectPrimitive.Value data-slot=\"select-value\" {...props} />;\n}\n\nfunction SelectTrigger({\n  className,\n  size = \"default\",\n  children,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {\n  size?: \"sm\" | \"default\";\n}) {\n  return (\n    <SelectPrimitive.Trigger\n      data-slot=\"select-trigger\"\n      data-size={size}\n      className={cn(\n        \"border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\n        className,\n      )}\n      {...props}\n    >\n      {children}\n      <SelectPrimitive.Icon asChild>\n        <ChevronDownIcon className=\"size-4 opacity-50\" />\n      </SelectPrimitive.Icon>\n    </SelectPrimitive.Trigger>\n  );\n}\n\nfunction SelectContent({\n  className,\n  children,\n  position = \"popper\",\n  align = \"center\",\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Content>) {\n  return (\n    <SelectPrimitive.Portal>\n      <SelectPrimitive.Content\n        data-slot=\"select-content\"\n        className={cn(\n          \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md\",\n          position === \"popper\" &&\n            \"data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1\",\n          className,\n        )}\n        position={position}\n        align={align}\n        {...props}\n      >\n        <SelectScrollUpButton />\n        <SelectPrimitive.Viewport\n          className={cn(\n            \"p-1\",\n            position === \"popper\" &&\n              \"h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1\",\n          )}\n        >\n          {children}\n        </SelectPrimitive.Viewport>\n        <SelectScrollDownButton />\n      </SelectPrimitive.Content>\n    </SelectPrimitive.Portal>\n  );\n}\n\nfunction SelectLabel({\n  className,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Label>) {\n  return (\n    <SelectPrimitive.Label\n      data-slot=\"select-label\"\n      className={cn(\"text-muted-foreground px-2 py-1.5 text-xs\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction SelectItem({\n  className,\n  children,\n  hiddenIcon = false,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Item> & {\n  hiddenIcon?: boolean;\n}) {\n  return (\n    <SelectPrimitive.Item\n      data-slot=\"select-item\"\n      className={cn(\n        \"focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2\",\n        className,\n      )}\n      {...props}\n    >\n      {!hiddenIcon && (\n        <span className=\"absolute right-2 flex size-3.5 items-center justify-center\">\n          <SelectPrimitive.ItemIndicator>\n            <CheckIcon className=\"size-4\" />\n          </SelectPrimitive.ItemIndicator>\n        </span>\n      )}\n      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>\n    </SelectPrimitive.Item>\n  );\n}\n\nfunction SelectSeparator({\n  className,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.Separator>) {\n  return (\n    <SelectPrimitive.Separator\n      data-slot=\"select-separator\"\n      className={cn(\"bg-border pointer-events-none -mx-1 my-1 h-px\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction SelectScrollUpButton({\n  className,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {\n  return (\n    <SelectPrimitive.ScrollUpButton\n      data-slot=\"select-scroll-up-button\"\n      className={cn(\n        \"flex cursor-default items-center justify-center py-1\",\n        className,\n      )}\n      {...props}\n    >\n      <ChevronUpIcon className=\"size-4\" />\n    </SelectPrimitive.ScrollUpButton>\n  );\n}\n\nfunction SelectScrollDownButton({\n  className,\n  ...props\n}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {\n  return (\n    <SelectPrimitive.ScrollDownButton\n      data-slot=\"select-scroll-down-button\"\n      className={cn(\n        \"flex cursor-default items-center justify-center py-1\",\n        className,\n      )}\n      {...props}\n    >\n      <ChevronDownIcon className=\"size-4\" />\n    </SelectPrimitive.ScrollDownButton>\n  );\n}\n\nexport {\n  Select,\n  SelectContent,\n  SelectGroup,\n  SelectItem,\n  SelectLabel,\n  SelectScrollDownButton,\n  SelectScrollUpButton,\n  SelectSeparator,\n  SelectTrigger,\n  SelectValue,\n};\n"
+      "sourceCode": "\"use client\";\r\n\r\nimport type * as React from \"react\";\r\nimport * as SelectPrimitive from \"@radix-ui/react-select\";\r\nimport { CheckIcon, ChevronDownIcon, ChevronUpIcon } from \"lucide-react\";\r\n\r\nimport { cn } from \"../libs/cn\";\r\n\r\nfunction Select({\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Root>) {\r\n  return <SelectPrimitive.Root data-slot=\"select\" {...props} />;\r\n}\r\n\r\nfunction SelectGroup({\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Group>) {\r\n  return <SelectPrimitive.Group data-slot=\"select-group\" {...props} />;\r\n}\r\n\r\nfunction SelectValue({\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Value>) {\r\n  return <SelectPrimitive.Value data-slot=\"select-value\" {...props} />;\r\n}\r\n\r\nfunction SelectTrigger({\r\n  className,\r\n  size = \"default\",\r\n  children,\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {\r\n  size?: \"sm\" | \"default\";\r\n}) {\r\n  return (\r\n    <SelectPrimitive.Trigger\r\n      data-slot=\"select-trigger\"\r\n      data-size={size}\r\n      className={cn(\r\n        \"border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    >\r\n      {children}\r\n      <SelectPrimitive.Icon asChild>\r\n        <ChevronDownIcon className=\"size-4 opacity-50\" />\r\n      </SelectPrimitive.Icon>\r\n    </SelectPrimitive.Trigger>\r\n  );\r\n}\r\n\r\nfunction SelectContent({\r\n  className,\r\n  children,\r\n  position = \"popper\",\r\n  align = \"center\",\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Content>) {\r\n  return (\r\n    <SelectPrimitive.Portal>\r\n      <SelectPrimitive.Content\r\n        data-slot=\"select-content\"\r\n        className={cn(\r\n          \"bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md\",\r\n          position === \"popper\" &&\r\n            \"data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1\",\r\n          className,\r\n        )}\r\n        position={position}\r\n        align={align}\r\n        {...props}\r\n      >\r\n        <SelectScrollUpButton />\r\n        <SelectPrimitive.Viewport\r\n          className={cn(\r\n            \"p-1\",\r\n            position === \"popper\" &&\r\n              \"h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)] scroll-my-1\",\r\n          )}\r\n        >\r\n          {children}\r\n        </SelectPrimitive.Viewport>\r\n        <SelectScrollDownButton />\r\n      </SelectPrimitive.Content>\r\n    </SelectPrimitive.Portal>\r\n  );\r\n}\r\n\r\nfunction SelectLabel({\r\n  className,\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Label>) {\r\n  return (\r\n    <SelectPrimitive.Label\r\n      data-slot=\"select-label\"\r\n      className={cn(\"text-muted-foreground px-2 py-1.5 text-xs\", className)}\r\n      {...props}\r\n    />\r\n  );\r\n}\r\n\r\nfunction SelectItem({\r\n  className,\r\n  children,\r\n  hiddenIcon = false,\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Item> & {\r\n  hiddenIcon?: boolean;\r\n}) {\r\n  return (\r\n    <SelectPrimitive.Item\r\n      data-slot=\"select-item\"\r\n      className={cn(\r\n        \"focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    >\r\n      {!hiddenIcon && (\r\n        <span className=\"absolute right-2 flex size-3.5 items-center justify-center\">\r\n          <SelectPrimitive.ItemIndicator>\r\n            <CheckIcon className=\"size-4\" />\r\n          </SelectPrimitive.ItemIndicator>\r\n        </span>\r\n      )}\r\n      <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>\r\n    </SelectPrimitive.Item>\r\n  );\r\n}\r\n\r\nfunction SelectSeparator({\r\n  className,\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.Separator>) {\r\n  return (\r\n    <SelectPrimitive.Separator\r\n      data-slot=\"select-separator\"\r\n      className={cn(\"bg-border pointer-events-none -mx-1 my-1 h-px\", className)}\r\n      {...props}\r\n    />\r\n  );\r\n}\r\n\r\nfunction SelectScrollUpButton({\r\n  className,\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.ScrollUpButton>) {\r\n  return (\r\n    <SelectPrimitive.ScrollUpButton\r\n      data-slot=\"select-scroll-up-button\"\r\n      className={cn(\r\n        \"flex cursor-default items-center justify-center py-1\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    >\r\n      <ChevronUpIcon className=\"size-4\" />\r\n    </SelectPrimitive.ScrollUpButton>\r\n  );\r\n}\r\n\r\nfunction SelectScrollDownButton({\r\n  className,\r\n  ...props\r\n}: React.ComponentProps<typeof SelectPrimitive.ScrollDownButton>) {\r\n  return (\r\n    <SelectPrimitive.ScrollDownButton\r\n      data-slot=\"select-scroll-down-button\"\r\n      className={cn(\r\n        \"flex cursor-default items-center justify-center py-1\",\r\n        className,\r\n      )}\r\n      {...props}\r\n    >\r\n      <ChevronDownIcon className=\"size-4\" />\r\n    </SelectPrimitive.ScrollDownButton>\r\n  );\r\n}\r\n\r\nexport {\r\n  Select,\r\n  SelectContent,\r\n  SelectGroup,\r\n  SelectItem,\r\n  SelectLabel,\r\n  SelectScrollDownButton,\r\n  SelectScrollUpButton,\r\n  SelectSeparator,\r\n  SelectTrigger,\r\n  SelectValue,\r\n};\r\n"
     },
     {
       "id": "separator",
       "name": "Separator",
       "description": null,
       "category": "Layout",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/separator.tsx",
+      "filePath": "packages\\ui\\src\\components\\separator.tsx",
       "props": [
         {
           "name": "className",
@@ -532,8 +563,9 @@
       "name": "Sheet",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/sheet.tsx",
+      "filePath": "packages\\ui\\src\\components\\sheet.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as SheetPrimitive from \"@radix-ui/react-dialog\";\nimport { XIcon } from \"lucide-react\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {\n  return <SheetPrimitive.Root data-slot=\"sheet\" {...props} />;\n}\n\nfunction SheetTrigger({\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Trigger>) {\n  return <SheetPrimitive.Trigger data-slot=\"sheet-trigger\" {...props} />;\n}\n\nfunction SheetClose({\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Close>) {\n  return <SheetPrimitive.Close data-slot=\"sheet-close\" {...props} />;\n}\n\nfunction SheetPortal({\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Portal>) {\n  return <SheetPrimitive.Portal data-slot=\"sheet-portal\" {...props} />;\n}\n\nfunction SheetOverlay({\n  className,\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Overlay>) {\n  return (\n    <SheetPrimitive.Overlay\n      data-slot=\"sheet-overlay\"\n      className={cn(\n        \"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nfunction SheetContent({\n  className,\n  children,\n  side = \"right\",\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Content> & {\n  side?: \"top\" | \"right\" | \"bottom\" | \"left\";\n}) {\n  return (\n    <SheetPortal>\n      <SheetOverlay />\n      <SheetPrimitive.Content\n        data-slot=\"sheet-content\"\n        className={cn(\n          \"bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500\",\n          side === \"right\" &&\n            \"data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm\",\n          side === \"left\" &&\n            \"data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm\",\n          side === \"top\" &&\n            \"data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top inset-x-0 top-0 h-auto border-b\",\n          side === \"bottom\" &&\n            \"data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom inset-x-0 bottom-0 h-auto border-t\",\n          className,\n        )}\n        {...props}\n      >\n        {children}\n        <SheetPrimitive.Close className=\"ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none\">\n          <XIcon className=\"size-4\" />\n          <span className=\"sr-only\">Close</span>\n        </SheetPrimitive.Close>\n      </SheetPrimitive.Content>\n    </SheetPortal>\n  );\n}\n\nfunction SheetHeader({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"sheet-header\"\n      className={cn(\"flex flex-col gap-1.5 p-4\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction SheetFooter({ className, ...props }: React.ComponentProps<\"div\">) {\n  return (\n    <div\n      data-slot=\"sheet-footer\"\n      className={cn(\"mt-auto flex flex-col gap-2 p-4\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction SheetTitle({\n  className,\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Title>) {\n  return (\n    <SheetPrimitive.Title\n      data-slot=\"sheet-title\"\n      className={cn(\"text-foreground font-semibold\", className)}\n      {...props}\n    />\n  );\n}\n\nfunction SheetDescription({\n  className,\n  ...props\n}: React.ComponentProps<typeof SheetPrimitive.Description>) {\n  return (\n    <SheetPrimitive.Description\n      data-slot=\"sheet-description\"\n      className={cn(\"text-muted-foreground text-sm\", className)}\n      {...props}\n    />\n  );\n}\n\nexport {\n  Sheet,\n  SheetTrigger,\n  SheetClose,\n  SheetContent,\n  SheetHeader,\n  SheetFooter,\n  SheetTitle,\n  SheetDescription,\n};\n"
     },
@@ -542,8 +574,9 @@
       "name": "Skeleton",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/skeleton.tsx",
+      "filePath": "packages\\ui\\src\\components\\skeleton.tsx",
       "props": [
         {
           "name": "className",
@@ -558,8 +591,9 @@
       "name": "Slider",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/slider.tsx",
+      "filePath": "packages\\ui\\src\\components\\slider.tsx",
       "props": [
         {
           "name": "className",
@@ -596,8 +630,9 @@
       "name": "Sonner",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/sonner.tsx",
+      "filePath": "packages\\ui\\src\\components\\sonner.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type { ToasterProps } from \"sonner\";\nimport {\n  CircleCheckIcon,\n  InfoIcon,\n  Loader2Icon,\n  OctagonXIcon,\n  TriangleAlertIcon,\n} from \"lucide-react\";\nimport { useTheme } from \"next-themes\";\nimport { Toaster as Sonner } from \"sonner\";\n\nconst Toaster = ({ ...props }: ToasterProps) => {\n  const { theme = \"system\" } = useTheme();\n\n  return (\n    <Sonner\n      theme={theme as ToasterProps[\"theme\"]}\n      className=\"toaster group\"\n      icons={{\n        success: <CircleCheckIcon className=\"size-4\" />,\n        info: <InfoIcon className=\"size-4\" />,\n        warning: <TriangleAlertIcon className=\"size-4\" />,\n        error: <OctagonXIcon className=\"size-4\" />,\n        loading: <Loader2Icon className=\"size-4 animate-spin\" />,\n      }}\n      style={\n        {\n          \"--normal-bg\": \"var(--popover)\",\n          \"--normal-text\": \"var(--popover-foreground)\",\n          \"--normal-border\": \"var(--border)\",\n          \"--border-radius\": \"var(--radius)\",\n        } as React.CSSProperties\n      }\n      {...props}\n    />\n  );\n};\n\nexport { Toaster };\n"
     },
@@ -606,8 +641,9 @@
       "name": "Switch",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/switch.tsx",
+      "filePath": "packages\\ui\\src\\components\\switch.tsx",
       "props": [
         {
           "name": "className",
@@ -622,8 +658,9 @@
       "name": "Table",
       "description": null,
       "category": "Data Display",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/table.tsx",
+      "filePath": "packages\\ui\\src\\components\\table.tsx",
       "props": [
         {
           "name": "className",
@@ -638,8 +675,9 @@
       "name": "Tabs",
       "description": null,
       "category": "Navigation",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/tabs.tsx",
+      "filePath": "packages\\ui\\src\\components\\tabs.tsx",
       "props": [
         {
           "name": "className",
@@ -654,8 +692,9 @@
       "name": "Textarea",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/textarea.tsx",
+      "filePath": "packages\\ui\\src\\components\\textarea.tsx",
       "props": [
         {
           "name": "className",
@@ -670,8 +709,9 @@
       "name": "ToggleGroup",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/toggle-group.tsx",
+      "filePath": "packages\\ui\\src\\components\\toggle-group.tsx",
       "props": [
         {
           "name": "className",
@@ -707,8 +747,9 @@
       "name": "Toggle",
       "description": null,
       "category": "Form",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/toggle.tsx",
+      "filePath": "packages\\ui\\src\\components\\toggle.tsx",
       "props": [
         {
           "name": "className",
@@ -733,8 +774,9 @@
       "name": "Tooltip",
       "description": null,
       "category": "Feedback",
+      "parentCategory": "shadcn",
       "package": "ui",
-      "filePath": "packages/ui/src/components/tooltip.tsx",
+      "filePath": "packages\\ui\\src\\components\\tooltip.tsx",
       "props": [],
       "sourceCode": "\"use client\";\n\nimport type * as React from \"react\";\nimport * as TooltipPrimitive from \"@radix-ui/react-tooltip\";\n\nimport { cn } from \"../libs/cn\";\n\nfunction TooltipProvider({\n  delayDuration = 0,\n  ...props\n}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {\n  return (\n    <TooltipPrimitive.Provider\n      data-slot=\"tooltip-provider\"\n      delayDuration={delayDuration}\n      {...props}\n    />\n  );\n}\n\nfunction Tooltip({\n  ...props\n}: React.ComponentProps<typeof TooltipPrimitive.Root>) {\n  return (\n    <TooltipProvider>\n      <TooltipPrimitive.Root data-slot=\"tooltip\" {...props} />\n    </TooltipProvider>\n  );\n}\n\nfunction TooltipTrigger({\n  ...props\n}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {\n  return <TooltipPrimitive.Trigger data-slot=\"tooltip-trigger\" {...props} />;\n}\n\nfunction TooltipContent({\n  className,\n  sideOffset = 0,\n  children,\n  ...props\n}: React.ComponentProps<typeof TooltipPrimitive.Content>) {\n  return (\n    <TooltipPrimitive.Portal>\n      <TooltipPrimitive.Content\n        data-slot=\"tooltip-content\"\n        sideOffset={sideOffset}\n        className={cn(\n          \"bg-foreground text-background animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--radix-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance\",\n          className,\n        )}\n        {...props}\n      >\n        {children}\n        <TooltipPrimitive.Arrow className=\"bg-foreground fill-foreground z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px]\" />\n      </TooltipPrimitive.Content>\n    </TooltipPrimitive.Portal>\n  );\n}\n\nexport { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };\n"
     }

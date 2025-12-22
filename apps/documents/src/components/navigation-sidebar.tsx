@@ -1,18 +1,10 @@
-import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  Code,
-  Component,
-  Layout,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Code, Component } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { cn } from "@monorepo/ui/libs/cn";
 
 import { CATEGORIES, categoryToSlug } from "~/lib/category-utils";
-import { HOOK_CATEGORIES, hookCategoryToSlug } from "~/lib/hook-category-utils";
 import { useComponentMetadata } from "~/lib/use-component-metadata";
 import { useHookMetadata } from "~/lib/use-hook-metadata";
 
@@ -88,7 +80,7 @@ function SidebarCategory({
         <Link
           to={path}
           className="flex-1 truncate"
-          onClick={(e) => {
+          onClick={(_e) => {
             // If checking category page directly
             onItemClick();
           }}
@@ -134,7 +126,7 @@ export default function NavigationSidebar({
 }: NavigationSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
-  const { components } = useComponentMetadata();
+  const { components: _components } = useComponentMetadata();
   const { hooks } = useHookMetadata();
 
   const activePath = location.pathname;
@@ -146,28 +138,13 @@ export default function NavigationSidebar({
 
   // Auto-expand current active category on mount or path change
   useEffect(() => {
-    // Check component categories
-    CATEGORIES.forEach((category) => {
-      const slug = categoryToSlug(category);
-      // Expand if current path is in this category
-      if (activePath.includes(`/components/${slug}`)) {
-        setExpandedCategories((prev) => ({
-          ...prev,
-          [`component-${category}`]: true,
-        }));
-      }
-    });
-
-    // Check hook categories
-    HOOK_CATEGORIES.forEach((category) => {
-      const slug = hookCategoryToSlug(category);
-      if (activePath.includes(`/hooks/${slug}`)) {
-        setExpandedCategories((prev) => ({
-          ...prev,
-          [`hook-${category}`]: true,
-        }));
-      }
-    });
+    // Auto-expand shadcn parent if on any component page
+    if (activePath.startsWith("/components")) {
+      setExpandedCategories((prev) => ({
+        ...prev,
+        "shadcn-components": true,
+      }));
+    }
   }, [activePath]);
 
   const toggleCategory = (key: string) => {
@@ -227,34 +204,23 @@ export default function NavigationSidebar({
               </h2>
             </div>
             <ul className="space-y-1">
-              {CATEGORIES.map((category) => {
-                const slug = categoryToSlug(category);
-                const categoryPath = `/components/${slug}`;
-                const isActive = activePath.startsWith(categoryPath);
-                const categoryKey = `component-${category}`;
-
-                // Get components in this category
-                const categoryComponents = components
-                  .filter((c) => c.category === category)
-                  .map((c) => ({
-                    label: c.name,
-                    path: `/components/${slug}/${c.id}`,
-                  }));
-
-                return (
-                  <SidebarCategory
-                    key={category}
-                    title={category}
-                    path={categoryPath}
-                    items={categoryComponents}
-                    isActive={isActive}
-                    isExpanded={expandedCategories[categoryKey] || false}
-                    onToggle={() => toggleCategory(categoryKey)}
-                    onItemClick={() => setIsMobileOpen(false)}
-                    activePath={activePath}
-                  />
-                );
-              })}
+              {/* shadcn parent category */}
+              <SidebarCategory
+                title="shadcn"
+                path="/components"
+                items={CATEGORIES.map((category) => {
+                  const slug = categoryToSlug(category);
+                  return {
+                    label: category,
+                    path: `/components/${slug}`,
+                  };
+                })}
+                isActive={activePath.startsWith("/components")}
+                isExpanded={expandedCategories["shadcn-components"] || false}
+                onToggle={() => toggleCategory("shadcn-components")}
+                onItemClick={() => setIsMobileOpen(false)}
+                activePath={activePath}
+              />
             </ul>
           </div>
 
@@ -269,34 +235,17 @@ export default function NavigationSidebar({
               </h2>
             </div>
             <ul className="space-y-1">
-              {HOOK_CATEGORIES.map((category) => {
-                const slug = hookCategoryToSlug(category);
-                const categoryPath = `/hooks/${slug}`;
-                const isActive = activePath.startsWith(categoryPath);
-                const categoryKey = `hook-${category}`;
-
-                // Get hooks in this category
-                const categoryHooks = hooks
-                  .filter((h) => h.category === category)
-                  .map((h) => ({
-                    label: h.name,
-                    path: `/hooks/${slug}/${h.id}`,
-                  }));
-
-                return (
-                  <SidebarCategory
-                    key={category}
-                    title={category}
-                    path={categoryPath}
-                    items={categoryHooks}
-                    isActive={isActive}
-                    isExpanded={expandedCategories[categoryKey] || false}
-                    onToggle={() => toggleCategory(categoryKey)}
-                    onItemClick={() => setIsMobileOpen(false)}
-                    activePath={activePath}
+              {/* Flat list of all hooks */}
+              {hooks.map((hook) => (
+                <li key={hook.id}>
+                  <NavItem
+                    label={hook.name}
+                    path={`/hooks/${hook.id}`}
+                    isActive={activePath === `/hooks/${hook.id}`}
+                    onClick={() => setIsMobileOpen(false)}
                   />
-                );
-              })}
+                </li>
+              ))}
             </ul>
           </div>
         </nav>

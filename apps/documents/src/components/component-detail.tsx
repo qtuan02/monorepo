@@ -47,6 +47,21 @@ export default function ComponentDetail({
         </Link>
       </header>
 
+      {/* Import Code Section */}
+      <section aria-labelledby="import-heading">
+        <h2
+          id="import-heading"
+          className="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100"
+        >
+          Import
+        </h2>
+        <CodeViewer
+          code={`import { ${component.name} } from "@monorepo/ui/components/${component.id}";`}
+          language="typescript"
+          filename="import"
+        />
+      </section>
+
       {/* Preview Section */}
       <section aria-labelledby="preview-heading">
         <h2
