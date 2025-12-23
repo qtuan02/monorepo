@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 
 import type { HookMetadata } from "~/types/hook-metadata";
+import { hookExamples } from "~/registry/hook-examples";
 import CodeViewer from "./code-viewer";
 import PackageBadge from "./package-badge";
 import ParametersTable from "./parameters-table";
@@ -43,6 +44,43 @@ export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
           ← Back to {hook.category}
         </Link>
       </header>
+
+      {/* Usage Section - Shows live demo and example code */}
+      {hookExamples[hook.id] && (
+        <section aria-labelledby="usage-heading">
+          <h2
+            id="usage-heading"
+            className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+          >
+            Usage Example
+          </h2>
+          <div className="space-y-4">
+            {/* Live Demo */}
+            <div>
+              <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Live Demo
+              </h3>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+                {(() => {
+                  const DemoComponent = hookExamples[hook.id].component;
+                  return <DemoComponent />;
+                })()}
+              </div>
+            </div>
+            {/* Example Code */}
+            <div>
+              <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Example Code
+              </h3>
+              <CodeViewer
+                code={hookExamples[hook.id].code}
+                language="tsx"
+                filename="Example Usage"
+              />
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Parameters Section */}
       <section aria-labelledby="parameters-heading">

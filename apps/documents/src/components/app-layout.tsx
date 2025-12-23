@@ -2,6 +2,7 @@ import type { SearchResult } from "~/lib/search-utils";
 import { useSearch } from "~/lib/use-search";
 import NavigationSidebar from "./navigation-sidebar";
 import SearchBar from "./search-bar";
+import ThemeSwitcher from "./theme-switcher";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -20,10 +21,16 @@ export default function AppLayout({ children, currentPath }: AppLayoutProps) {
     <div className="flex min-h-screen">
       <NavigationSidebar currentPath={currentPath} />
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Header with Search Bar */}
+        {/* Header with Search Bar and Theme Switcher */}
         <header className="border-b bg-white px-6 py-4 md:px-8 dark:bg-gray-900">
-          <div className="mx-auto max-w-7xl">
-            <SearchBar onSearch={search} onResultSelect={handleResultSelect} />
+          <div className="mx-auto flex max-w-7xl items-center gap-4">
+            <div className="flex-1">
+              <SearchBar
+                onSearch={search}
+                onResultSelect={handleResultSelect}
+              />
+            </div>
+            <ThemeSwitcher />
           </div>
         </header>
         {/* Main Content */}

@@ -1,2 +1,11 @@
 @import "@monorepo/tailwind-config/globals";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply transition-colors duration-200;
+  }
+}

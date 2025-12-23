@@ -444,6 +444,9 @@ importers:
 
   apps/documents:
     dependencies:
+      '@monorepo/hook':
+        specifier: workspace:*
+        version: link:../../packages/hook
       '@monorepo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
