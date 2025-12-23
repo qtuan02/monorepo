@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+
 import { cn } from "@monorepo/ui/libs/cn";
 
 import type { ComponentMetadata } from "~/types/component-metadata";
@@ -16,15 +17,20 @@ export default function ComponentCard({ component }: ComponentCardProps) {
     <Link
       to={`/components/${categorySlug}/${component.id}`}
       className={cn(
-        "group block rounded-lg border bg-white p-4 shadow-sm transition-all hover:shadow-md dark:bg-gray-800",
-        "focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-gray-100",
+        "group block rounded-lg border bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:bg-gray-800",
+        "focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 focus:outline-none dark:focus:ring-gray-100",
       )}
       data-testid="component-card"
     >
       {/* Thumbnail placeholder */}
-      <div className="mb-3 aspect-video w-full rounded-md bg-gray-100 dark:bg-gray-700">
-        <div className="flex h-full items-center justify-center text-sm text-gray-400">
-          Preview
+      <div className="mb-3 aspect-video w-full rounded-md bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
+        <div className="flex h-full flex-col items-center justify-center gap-2 text-sm">
+          <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+            Preview Coming Soon
+          </span>
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            Component preview
+          </span>
         </div>
       </div>
 
@@ -38,11 +44,10 @@ export default function ComponentCard({ component }: ComponentCardProps) {
 
       {/* Description */}
       {component.description && (
-        <p className="text-sm text-gray-600 line-clamp-2 dark:text-gray-400">
+        <p className="line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
           {component.description}
         </p>
       )}
     </Link>
   );
 }
-

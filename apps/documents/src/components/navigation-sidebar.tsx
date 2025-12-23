@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronRight, Code, Component } from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { cn } from "@monorepo/ui/libs/cn";
 
-import { CATEGORIES, categoryToSlug } from "~/lib/category-utils";
 import { useComponentMetadata } from "~/lib/use-component-metadata";
 import { useHookMetadata } from "~/lib/use-hook-metadata";
 
@@ -31,10 +30,10 @@ function NavItem({
     <Link
       to={path}
       className={cn(
-        "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
+        "sidebar-item group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
         isSubItem ? "ml-4 border-l border-gray-100 pl-4 text-xs" : "",
         isActive
-          ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground font-semibold"
+          ? "sidebar-item-active bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary-foreground font-semibold"
           : "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100",
         isSubItem && isActive && "border-primary",
       )}
@@ -80,8 +79,8 @@ function SidebarCategory({
         <Link
           to={path}
           className="flex-1 truncate"
-          onClick={(_e) => {
-            // If checking category page directly
+          onClick={(e) => {
+            e.stopPropagation();
             onItemClick();
           }}
         >
@@ -126,7 +125,7 @@ export default function NavigationSidebar({
 }: NavigationSidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const location = useLocation();
-  const { components: _components } = useComponentMetadata();
+  const { components } = useComponentMetadata();
   const { hooks } = useHookMetadata();
 
   const activePath = location.pathname;
@@ -134,18 +133,7 @@ export default function NavigationSidebar({
   // Track expanded categories
   const [expandedCategories, setExpandedCategories] = useState<
     Record<string, boolean>
-  >({});
-
-  // Auto-expand current active category on mount or path change
-  useEffect(() => {
-    // Auto-expand shadcn parent if on any component page
-    if (activePath.startsWith("/components")) {
-      setExpandedCategories((prev) => ({
-        ...prev,
-        "shadcn-components": true,
-      }));
-    }
-  }, [activePath]);
+  >({ shadcn: true }); // Default shadcn to expanded
 
   const toggleCategory = (key: string) => {
     setExpandedCategories((prev) => ({
@@ -188,36 +176,44 @@ export default function NavigationSidebar({
       <aside
         role="complementary"
         className={cn(
-          "scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 fixed top-0 left-0 z-40 h-full w-72 overflow-y-auto border-r bg-white transition-transform md:relative md:translate-x-0 dark:bg-gray-900",
+          "scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 fixed top-0 left-0 z-40 h-full w-72 overflow-y-auto border-r bg-white transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 dark:bg-gray-900",
           isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         )}
       >
         <nav className="p-4 pt-16 md:pt-4">
           {/* Components Section */}
           <div className="mb-8">
-            <div className="mb-3 flex items-center gap-2 px-2">
+            <Link
+              to="/components"
+              className="mb-3 flex items-center gap-2 px-2 transition-opacity hover:opacity-80"
+              onClick={() => setIsMobileOpen(false)}
+            >
               <div className="flex size-6 items-center justify-center rounded-md bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
                 <Component className="size-4" />
               </div>
               <h2 className="text-sm font-bold tracking-wider text-gray-900 uppercase dark:text-gray-100">
                 Components
               </h2>
-            </div>
+            </Link>
             <ul className="space-y-1">
-              {/* shadcn parent category */}
+              {/* Expandable shadcn parent with nested components */}
               <SidebarCategory
                 title="shadcn"
                 path="/components"
-                items={CATEGORIES.map((category) => {
-                  const slug = categoryToSlug(category);
-                  return {
-                    label: category,
-                    path: `/components/${slug}`,
-                  };
-                })}
+                items={components
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((component) => {
+                    const categorySlug = component.category
+                      .toLowerCase()
+                      .replace(/\s+/g, "-");
+                    return {
+                      label: component.name,
+                      path: `/components/${categorySlug}/${component.id}`,
+                    };
+                  })}
                 isActive={activePath.startsWith("/components")}
-                isExpanded={expandedCategories["shadcn-components"] || false}
-                onToggle={() => toggleCategory("shadcn-components")}
+                isExpanded={expandedCategories.shadcn || false}
+                onToggle={() => toggleCategory("shadcn")}
                 onItemClick={() => setIsMobileOpen(false)}
                 activePath={activePath}
               />
@@ -226,14 +222,18 @@ export default function NavigationSidebar({
 
           {/* Hooks Section */}
           <div>
-            <div className="mb-3 flex items-center gap-2 px-2">
+            <Link
+              to="/hooks"
+              className="mb-3 flex items-center gap-2 px-2 transition-opacity hover:opacity-80"
+              onClick={() => setIsMobileOpen(false)}
+            >
               <div className="flex size-6 items-center justify-center rounded-md bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
                 <Code className="size-4" />
               </div>
               <h2 className="text-sm font-bold tracking-wider text-gray-900 uppercase dark:text-gray-100">
                 Hooks
               </h2>
-            </div>
+            </Link>
             <ul className="space-y-1">
               {/* Flat list of all hooks */}
               {hooks.map((hook) => (

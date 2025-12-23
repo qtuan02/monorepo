@@ -1,10 +1,19 @@
 import { Link } from "react-router";
 
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@monorepo/ui/components/tabs";
+
 import type { ComponentMetadata } from "~/types/component-metadata";
 import CodeViewer from "./code-viewer";
+import ExamplesSection from "./examples-section";
+import ImportSection from "./import-section";
 import PackageBadge from "./package-badge";
-import PreviewContainer from "./preview-container";
 import PropsTable from "./props-table";
+import UsageSection from "./usage-section";
 
 interface ComponentDetailProps {
   component: ComponentMetadata;
@@ -15,8 +24,16 @@ export default function ComponentDetail({
   component,
   categorySlug,
 }: ComponentDetailProps) {
+  // Transform examples array to match ExamplesSection interface
+  const componentExamples =
+    component.examples?.map((code, index) => ({
+      title: `Example ${index + 1}`,
+      description: `Usage example for ${component.name}`,
+      code,
+    })) || [];
+
   return (
-    <div className="space-y-8" data-testid="component-detail">
+    <div className="space-y-6" data-testid="component-detail">
       {/* Header Section */}
       <header className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -47,79 +64,65 @@ export default function ComponentDetail({
         </Link>
       </header>
 
-      {/* Import Code Section */}
-      <section aria-labelledby="import-heading">
-        <h2
-          id="import-heading"
-          className="mb-3 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
-          Import
-        </h2>
-        <CodeViewer
-          code={`import { ${component.name} } from "@monorepo/ui/components/${component.id}";`}
-          language="typescript"
-          filename="import"
-        />
-      </section>
+      {/* Tabs Layout */}
+      <Tabs defaultValue="overview" className="mt-6">
+        <TabsList className="w-full justify-start">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="examples">
+            Examples{" "}
+            {componentExamples.length > 0 && (
+              <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-100">
+                {componentExamples.length}
+              </span>
+            )}
+          </TabsTrigger>
+          {component.props && component.props.length > 0 && (
+            <TabsTrigger value="props">Props</TabsTrigger>
+          )}
+          <TabsTrigger value="code">Source Code</TabsTrigger>
+        </TabsList>
 
-      {/* Preview Section */}
-      <section aria-labelledby="preview-heading">
-        <h2
-          id="preview-heading"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
-          Preview
-        </h2>
-        <PreviewContainer component={component} />
-      </section>
+        {/* Overview Tab */}
+        <TabsContent value="overview" className="mt-6 space-y-8">
+          {/* Import Section */}
+          <ImportSection
+            packageName="@monorepo/ui"
+            componentName={component.name}
+            componentId={component.id}
+          />
 
-      {/* Props Table Section */}
-      <section aria-labelledby="props-heading">
-        <h2
-          id="props-heading"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
-          Props
-        </h2>
-        <PropsTable props={component.props} />
-      </section>
+          {/* Usage Section with Preview */}
+          <UsageSection
+            code={`<${component.name} />`}
+            component={component}
+            showPreview={true}
+          />
+        </TabsContent>
 
-      {/* Source Code Section */}
-      <section aria-labelledby="source-heading">
-        <h2
-          id="source-heading"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
-          Source Code
-        </h2>
-        <CodeViewer
-          code={component.sourceCode}
-          language="tsx"
-          filename={component.filePath}
-        />
-      </section>
+        {/* Examples Tab */}
+        <TabsContent value="examples" className="mt-6">
+          <ExamplesSection
+            examples={componentExamples}
+            componentName={component.name}
+          />
+        </TabsContent>
 
-      {/* Examples Section */}
-      {component.examples && component.examples.length > 0 && (
-        <section aria-labelledby="examples-heading">
-          <h2
-            id="examples-heading"
-            className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-          >
-            Examples
-          </h2>
-          <div className="space-y-4">
-            {component.examples.map((example, index) => (
-              <CodeViewer
-                key={index}
-                code={example}
-                language="tsx"
-                filename={`Example ${index + 1}`}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+        {/* Props Tab - Only if props exist */}
+        {component.props && component.props.length > 0 && (
+          <TabsContent value="props" className="mt-6">
+            <PropsTable props={component.props} />
+          </TabsContent>
+        )}
+
+        {/* Source Code Tab */}
+        <TabsContent value="code" className="mt-6">
+          <CodeViewer
+            code={component.sourceCode}
+            language="tsx"
+            filename={component.filePath}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

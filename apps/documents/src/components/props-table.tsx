@@ -95,7 +95,7 @@ export default function PropsTable({ props }: PropsTableProps) {
               <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
                 {prop.description || (
                   <span className="text-gray-400 italic dark:text-gray-500">
-                    No description
+                    Description coming soon
                   </span>
                 )}
               </td>

@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router";
 
 import AppLayout from "~/components/app-layout";
+import Breadcrumb from "~/components/breadcrumb";
 import HookDetail from "~/components/hook-detail";
 import { hookCategoryToSlug } from "~/lib/hook-category-utils";
 import { useHookById } from "~/lib/use-hook-metadata";
@@ -58,40 +59,18 @@ export default function HookDetailPage() {
 
   return (
     <AppLayout currentPath={`/hooks/${id}`}>
-      {/* Breadcrumb Navigation */}
-      <nav
-        className="border-b border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-800/50"
-        aria-label="Breadcrumb"
-        data-testid="breadcrumb"
-      >
-        <ol className="flex items-center space-x-2 text-sm">
-          <li>
-            <Link
-              to="/"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              Home
-            </Link>
-          </li>
-          <li className="text-gray-400 dark:text-gray-500">/</li>
-          <li>
-            <Link
-              to="/hooks"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              Hooks
-            </Link>
-          </li>
-          <li className="text-gray-400 dark:text-gray-500">/</li>
-          <li className="font-medium text-gray-900 dark:text-gray-100">
-            {hook.name}
-          </li>
-        </ol>
-      </nav>
-
-      {/* Hook Detail Content */}
-      <div className="p-6 md:p-8">
-        <HookDetail hook={hook} categorySlug={categorySlug} />
+      <div className="px-6 py-6 md:px-12">
+        <div className="mx-auto max-w-7xl">
+          <Breadcrumb
+            items={[
+              { label: "Home", path: "/" },
+              { label: "Hooks", path: "/hooks" },
+              { label: hook.name },
+            ]}
+            className="mb-6"
+          />
+          <HookDetail hook={hook} categorySlug={categorySlug} />
+        </div>
       </div>
     </AppLayout>
   );

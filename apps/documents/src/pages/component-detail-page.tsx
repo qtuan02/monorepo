@@ -1,8 +1,13 @@
 import { Link, useParams } from "react-router";
 
 import AppLayout from "~/components/app-layout";
+import Breadcrumb from "~/components/breadcrumb";
 import ComponentDetail from "~/components/component-detail";
-import { isValidCategorySlug, slugToCategory } from "~/lib/category-utils";
+import {
+  categoryToSlug,
+  isValidCategorySlug,
+  slugToCategory,
+} from "~/lib/category-utils";
 import { useComponentById } from "~/lib/use-component-metadata";
 
 export default function ComponentDetailPage() {
@@ -80,49 +85,19 @@ export default function ComponentDetailPage() {
 
   return (
     <AppLayout currentPath={`/components/${categorySlug}/${id}`}>
-      {/* Breadcrumb Navigation */}
-      <nav
-        className="border-b border-gray-200 bg-gray-50 px-6 py-3 dark:border-gray-700 dark:bg-gray-800/50"
-        aria-label="Breadcrumb"
-        data-testid="breadcrumb"
-      >
-        <ol className="flex items-center space-x-2 text-sm">
-          <li>
-            <Link
-              to="/"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              Home
-            </Link>
-          </li>
-          <li className="text-gray-400 dark:text-gray-500">/</li>
-          <li>
-            <Link
-              to="/components"
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              Components
-            </Link>
-          </li>
-          <li className="text-gray-400 dark:text-gray-500">/</li>
-          <li>
-            <Link
-              to={`/components/${categorySlug}`}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              {category}
-            </Link>
-          </li>
-          <li className="text-gray-400 dark:text-gray-500">/</li>
-          <li className="font-medium text-gray-900 dark:text-gray-100">
-            {component.name}
-          </li>
-        </ol>
-      </nav>
-
-      {/* Component Detail Content */}
-      <div className="p-6 md:p-8">
-        <ComponentDetail component={component} categorySlug={categorySlug} />
+      <div className="px-6 py-6 md:px-12">
+        <div className="mx-auto max-w-7xl">
+          <Breadcrumb
+            items={[
+              { label: "Home", path: "/" },
+              { label: "Components", path: "/components" },
+              { label: "shadcn", path: "/components" },
+              { label: component.name },
+            ]}
+            className="mb-6"
+          />
+          <ComponentDetail component={component} categorySlug={categorySlug} />
+        </div>
       </div>
     </AppLayout>
   );

@@ -22,7 +22,7 @@ export default function AppLayout({ children, currentPath }: AppLayoutProps) {
       <NavigationSidebar currentPath={currentPath} />
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header with Search Bar and Theme Switcher */}
-        <header className="border-b bg-white px-6 py-4 md:px-8 dark:bg-gray-900">
+        <header className="sticky top-0 z-50 border-b bg-white px-6 py-4 md:px-12 dark:bg-gray-900">
           <div className="mx-auto flex max-w-7xl items-center gap-4">
             <div className="flex-1">
               <SearchBar

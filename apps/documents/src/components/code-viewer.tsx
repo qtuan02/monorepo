@@ -1,5 +1,11 @@
 import { useCallback, useState } from "react";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@monorepo/ui/components/tooltip";
+
 interface CodeViewerProps {
   code: string;
   language?: string;
@@ -65,60 +71,75 @@ export default function CodeViewer({
         </div>
         <div className="flex items-center gap-2">
           {/* Line numbers toggle */}
-          <button
-            type="button"
-            onClick={toggleLineNumbers}
-            className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
-            title={
-              lineNumbersVisible ? "Hide line numbers" : "Show line numbers"
-            }
-          >
-            {lineNumbersVisible ? "Hide #" : "Show #"}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={toggleLineNumbers}
+                className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                aria-label={
+                  lineNumbersVisible ? "Hide line numbers" : "Show line numbers"
+                }
+              >
+                {lineNumbersVisible ? "Hide #" : "Show #"}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {lineNumbersVisible ? "Hide line numbers" : "Show line numbers"}
+            </TooltipContent>
+          </Tooltip>
 
           {/* Copy button */}
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="flex items-center gap-1.5 rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-            data-testid="copy-button"
-          >
-            {copied ? (
-              <>
-                <svg
-                  className="h-4 w-4 text-green-600 dark:text-green-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Copied!
-              </>
-            ) : (
-              <>
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  />
-                </svg>
-                Copy
-              </>
-            )}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                data-testid="copy-button"
+                aria-label={copied ? "Code copied" : "Copy code to clipboard"}
+              >
+                {copied ? (
+                  <>
+                    <svg
+                      className="h-4 w-4 text-green-600 dark:text-green-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                      />
+                    </svg>
+                    Copy
+                  </>
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {copied ? "Copied to clipboard!" : "Copy code"}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 
@@ -158,10 +179,10 @@ function highlightSyntax(line: string, language: string): React.ReactNode {
   }
 
   // Basic patterns for highlighting
-  const patterns: Array<{
+  const patterns: {
     regex: RegExp;
     className: string;
-  }> = [
+  }[] = [
     // Comments
     { regex: /(\/\/.*$)/g, className: "text-gray-500" },
     // Strings
