@@ -10,7 +10,7 @@ const mockHook: HookMetadata = {
   id: "use-state",
   name: "useState",
   description: "A hook for state management",
-  category: "Client-side",
+  category: "Utilities",
   package: "hook",
   filePath: "use-state.ts",
   parameters: [],
@@ -45,9 +45,9 @@ vi.mock("~/components/hook-detail", () => ({
 describe("HookDetailPage", () => {
   it("renders hook detail for valid route", () => {
     render(
-      <MemoryRouter initialEntries={["/hooks/client-side/use-state"]}>
+      <MemoryRouter initialEntries={["/hooks/use-state"]}>
         <Routes>
-          <Route path="/hooks/:category/:id" element={<HookDetailPage />} />
+          <Route path="/hooks/:id" element={<HookDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -58,9 +58,9 @@ describe("HookDetailPage", () => {
 
   it("renders breadcrumb navigation", () => {
     render(
-      <MemoryRouter initialEntries={["/hooks/client-side/use-state"]}>
+      <MemoryRouter initialEntries={["/hooks/use-state"]}>
         <Routes>
-          <Route path="/hooks/:category/:id" element={<HookDetailPage />} />
+          <Route path="/hooks/:id" element={<HookDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -68,27 +68,14 @@ describe("HookDetailPage", () => {
     expect(screen.getByTestId("breadcrumb")).toBeInTheDocument();
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Hooks")).toBeInTheDocument();
-    expect(screen.getByText("Client-side")).toBeInTheDocument();
     expect(screen.getByText("useState")).toBeInTheDocument();
-  });
-
-  it("shows error for invalid category", () => {
-    render(
-      <MemoryRouter initialEntries={["/hooks/invalid-category/use-state"]}>
-        <Routes>
-          <Route path="/hooks/:category/:id" element={<HookDetailPage />} />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    expect(screen.getByText("Invalid Category")).toBeInTheDocument();
   });
 
   it("shows error for non-existent hook", () => {
     render(
-      <MemoryRouter initialEntries={["/hooks/client-side/non-existent"]}>
+      <MemoryRouter initialEntries={["/hooks/non-existent"]}>
         <Routes>
-          <Route path="/hooks/:category/:id" element={<HookDetailPage />} />
+          <Route path="/hooks/:id" element={<HookDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -98,14 +85,14 @@ describe("HookDetailPage", () => {
 
   it("has back link on error pages", () => {
     render(
-      <MemoryRouter initialEntries={["/hooks/client-side/non-existent"]}>
+      <MemoryRouter initialEntries={["/hooks/non-existent"]}>
         <Routes>
-          <Route path="/hooks/:category/:id" element={<HookDetailPage />} />
+          <Route path="/hooks/:id" element={<HookDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
 
-    const backLink = screen.getByText(/← Back to Client-side/);
-    expect(backLink).toHaveAttribute("href", "/hooks/client-side");
+    const backLink = screen.getByText(/← Back to Hooks/);
+    expect(backLink).toHaveAttribute("href", "/hooks");
   });
 });

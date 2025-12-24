@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+/**
+ * Tracks the state of a CSS media query.
+ */
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState<boolean>(false);
 

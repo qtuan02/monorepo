@@ -11,7 +11,7 @@ interface UsageSectionProps {
 export default function UsageSection({
   code,
   component,
-  showPreview = true,
+  showPreview = false,
 }: UsageSectionProps) {
   return (
     <section aria-labelledby="usage-heading" className="space-y-4">

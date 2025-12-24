@@ -1,16 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
+import type { ComponentMetadata } from "~/types/component-metadata";
 import {
   categoryToSlug,
-  slugToCategory,
-  isValidCategorySlug,
   filterComponentsByCategory,
+  isValidCategorySlug,
+  slugToCategory,
 } from "~/lib/category-utils";
-import type { ComponentMetadata } from "~/types/component-metadata";
 
 describe("category-utils", () => {
   describe("categoryToSlug", () => {
     it("converts category names to URL slugs", () => {
+      expect(categoryToSlug("ui")).toBe("ui");
       expect(categoryToSlug("Form")).toBe("form");
       expect(categoryToSlug("Data Display")).toBe("data-display");
       expect(categoryToSlug("Uncategorized")).toBe("uncategorized");
@@ -19,6 +20,7 @@ describe("category-utils", () => {
 
   describe("slugToCategory", () => {
     it("converts URL slugs to category names", () => {
+      expect(slugToCategory("ui")).toBe("ui");
       expect(slugToCategory("form")).toBe("Form");
       expect(slugToCategory("data-display")).toBe("Data Display");
       expect(slugToCategory("uncategorized")).toBe("Uncategorized");
@@ -31,6 +33,7 @@ describe("category-utils", () => {
 
   describe("isValidCategorySlug", () => {
     it("validates valid category slugs", () => {
+      expect(isValidCategorySlug("ui")).toBe(true);
       expect(isValidCategorySlug("form")).toBe(true);
       expect(isValidCategorySlug("data-display")).toBe(true);
       expect(isValidCategorySlug("navigation")).toBe(true);
@@ -49,7 +52,8 @@ describe("category-utils", () => {
           id: "1",
           name: "Button",
           description: "A button component",
-          category: "Form",
+          category: "ui",
+          parentCategory: "shadcn",
           package: "ui",
           filePath: "button.tsx",
           props: [],
@@ -59,7 +63,8 @@ describe("category-utils", () => {
           id: "2",
           name: "Card",
           description: "A card component",
-          category: "Layout",
+          category: "ui",
+          parentCategory: "shadcn",
           package: "ui",
           filePath: "card.tsx",
           props: [],
@@ -69,7 +74,8 @@ describe("category-utils", () => {
           id: "3",
           name: "Input",
           description: "An input component",
-          category: "Form",
+          category: "ui",
+          parentCategory: "shadcn",
           package: "ui",
           filePath: "input.tsx",
           props: [],
@@ -77,10 +83,11 @@ describe("category-utils", () => {
         },
       ];
 
-      const filtered = filterComponentsByCategory(components, "form");
-      expect(filtered).toHaveLength(2);
+      const filtered = filterComponentsByCategory(components, "ui");
+      expect(filtered).toHaveLength(3);
       expect(filtered[0]?.name).toBe("Button");
-      expect(filtered[1]?.name).toBe("Input");
+      expect(filtered[1]?.name).toBe("Card");
+      expect(filtered[2]?.name).toBe("Input");
     });
 
     it("returns empty array when no components match", () => {
@@ -89,7 +96,8 @@ describe("category-utils", () => {
           id: "1",
           name: "Button",
           description: "A button component",
-          category: "Form",
+          category: "ui",
+          parentCategory: "shadcn",
           package: "ui",
           filePath: "button.tsx",
           props: [],
@@ -97,9 +105,8 @@ describe("category-utils", () => {
         },
       ];
 
-      const filtered = filterComponentsByCategory(components, "layout");
+      const filtered = filterComponentsByCategory(components, "form");
       expect(filtered).toHaveLength(0);
     });
   });
 });
-

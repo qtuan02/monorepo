@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 
 const isServer = typeof window !== "undefined";
 
+/**
+ * Tracks the browser's online/offline network status.
+ */
 export function useNetworkStatus(): boolean {
   const [isOnline, setIsOnline] = useState(
     isServer ? true : window.navigator.onLine,

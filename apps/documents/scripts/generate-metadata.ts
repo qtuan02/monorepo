@@ -369,7 +369,8 @@ function extractComponentMetadata(filePath: string): ComponentMetadata | null {
     const fileName = path.basename(filePath, path.extname(filePath));
     const id = fileName;
     let name = kebabToPascalCase(fileName);
-    const category = detectCategory(fileName, CATEGORY_PATTERNS);
+    // AC2: All components tagged as 'ui' only per Story 8.8
+    const category = "ui";
     const relativePath = path.relative(ROOT_DIR, filePath);
 
     // Parse with ts-morph
@@ -622,6 +623,11 @@ export const generatedHooks = hooksData.hooks;
 function generateComponentRegistry(components: ComponentMetadata[]) {
   const registryPath = path.join(OUTPUT_DIR, "registry.tsx");
 
+  // Special export name mappings for components that don't match filename → PascalCase pattern
+  const exportNameOverrides: Record<string, string> = {
+    sonner: "Toaster",
+  };
+
   const registryContent = `// Auto-generated component registry - do not edit
 import { lazy, type LazyExoticComponent, type ComponentType } from "react";
 
@@ -632,7 +638,8 @@ ${components
   .map((component) => {
     // Assumption: Component filename (id) matches import path
     // and PascalCase name matches the named export
-    return `  "${component.id}": lazy(() => import("@monorepo/ui/components/${component.id}").then(m => ({ default: m.${component.name} }))),`;
+    const exportName = exportNameOverrides[component.id] || component.name;
+    return `  "${component.id}": lazy(() => import("@monorepo/ui/components/${component.id}").then(m => ({ default: m.${exportName} }))),`;
   })
   .join("\n")}
 };

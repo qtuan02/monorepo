@@ -25,11 +25,21 @@ describe("ParametersTable", () => {
     render(<ParametersTable parameters={mockParameters} />);
 
     expect(screen.getByTestId("parameters-table")).toBeInTheDocument();
-    expect(screen.getByText("Parameter")).toBeInTheDocument();
-    expect(screen.getByText("Type")).toBeInTheDocument();
-    expect(screen.getByText("Default")).toBeInTheDocument();
-    expect(screen.getByText("Required")).toBeInTheDocument();
-    expect(screen.getByText("Description")).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Parameter" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Type" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Default" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Required" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Description" }),
+    ).toBeInTheDocument();
   });
 
   it("renders parameter names", () => {

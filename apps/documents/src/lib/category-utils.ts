@@ -22,7 +22,8 @@ export function categoryToSlug(category: string): string {
  * Converts a URL slug back to a category display name
  */
 export function slugToCategory(slug: string): string {
-  const categoryMap: Record<string, Category> = {
+  const categoryMap: Record<string, string> = {
+    ui: "ui", // All components are now tagged as 'ui'
     form: "Form",
     layout: "Layout",
     feedback: "Feedback",
@@ -39,6 +40,7 @@ export function slugToCategory(slug: string): string {
  */
 export function isValidCategorySlug(slug: string): boolean {
   const validSlugs = [
+    "ui", // All components are now tagged as 'ui'
     "form",
     "layout",
     "feedback",
@@ -57,6 +59,7 @@ export function filterComponentsByCategory(
   category: string,
 ): ComponentMetadata[] {
   const normalizedCategory = slugToCategory(category);
-  return components.filter((component) => component.category === normalizedCategory);
+  return components.filter(
+    (component) => component.category === normalizedCategory,
+  );
 }
-

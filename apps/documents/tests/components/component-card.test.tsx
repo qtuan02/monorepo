@@ -1,15 +1,16 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router";
+import { describe, expect, it } from "vitest";
 
-import ComponentCard from "~/components/component-card";
 import type { ComponentMetadata } from "~/types/component-metadata";
+import ComponentCard from "~/components/component-card";
 
 const mockComponent: ComponentMetadata = {
   id: "button",
   name: "Button",
   description: "A button component for user interactions",
-  category: "Form",
+  category: "ui",
+  parentCategory: "shadcn",
   package: "ui",
   filePath: "button.tsx",
   props: [],
@@ -48,7 +49,7 @@ describe("ComponentCard", () => {
     );
 
     const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/components/form/button");
+    expect(link).toHaveAttribute("href", "/components/button");
   });
 
   it("renders placeholder thumbnail", () => {
@@ -71,4 +72,3 @@ describe("ComponentCard", () => {
     expect(screen.getByText("UI")).toBeInTheDocument();
   });
 });
-

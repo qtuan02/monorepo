@@ -39,7 +39,7 @@ describe("HookDetail", () => {
   it("renders hook detail", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
@@ -49,7 +49,7 @@ describe("HookDetail", () => {
   it("displays hook name and description", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
@@ -62,28 +62,28 @@ describe("HookDetail", () => {
   it("shows category badge", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
     expect(screen.getByText("Client-side")).toBeInTheDocument();
   });
 
-  it("has back link to category page", () => {
+  it("has back link to hooks page", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
-    const backLink = screen.getByText(/← Back to Client-side/);
-    expect(backLink).toHaveAttribute("href", "/hooks/client-side");
+    const backLink = screen.getByText(/← Back to Hooks/);
+    expect(backLink).toHaveAttribute("href", "/hooks");
   });
 
   it("renders parameters section", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
@@ -91,32 +91,23 @@ describe("HookDetail", () => {
     expect(screen.getByTestId("parameters-table")).toBeInTheDocument();
   });
 
-  it("renders return value section", () => {
-    render(
-      <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
-      </BrowserRouter>,
-    );
-
-    expect(screen.getByText("Return Value")).toBeInTheDocument();
-    expect(screen.getByTestId("return-value")).toBeInTheDocument();
-  });
-
   it("renders source code section", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
     expect(screen.getByText("Source Code")).toBeInTheDocument();
-    expect(screen.getByTestId("code-viewer")).toBeInTheDocument();
+    // There might be multiple code-viewer elements (source code + examples)
+    const codeViewers = screen.getAllByTestId("code-viewer");
+    expect(codeViewers.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders examples section when examples exist", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHook} categorySlug="client-side" />
+        <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
@@ -126,7 +117,7 @@ describe("HookDetail", () => {
   it("does not render examples section when no examples", () => {
     render(
       <BrowserRouter>
-        <HookDetail hook={mockHookNoExamples} categorySlug="client-side" />
+        <HookDetail hook={mockHookNoExamples} />
       </BrowserRouter>,
     );
 

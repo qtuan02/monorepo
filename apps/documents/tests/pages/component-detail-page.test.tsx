@@ -10,7 +10,8 @@ const mockComponent: ComponentMetadata = {
   id: "button",
   name: "Button",
   description: "A button component",
-  category: "Form",
+  category: "ui",
+  parentCategory: "shadcn",
   package: "ui",
   filePath: "button.tsx",
   props: [],
@@ -44,12 +45,9 @@ vi.mock("~/components/component-detail", () => ({
 describe("ComponentDetailPage", () => {
   it("renders component detail for valid route", () => {
     render(
-      <MemoryRouter initialEntries={["/components/form/button"]}>
+      <MemoryRouter initialEntries={["/components/button"]}>
         <Routes>
-          <Route
-            path="/components/:category/:id"
-            element={<ComponentDetailPage />}
-          />
+          <Route path="/components/:id" element={<ComponentDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -60,12 +58,9 @@ describe("ComponentDetailPage", () => {
 
   it("renders breadcrumb navigation", () => {
     render(
-      <MemoryRouter initialEntries={["/components/form/button"]}>
+      <MemoryRouter initialEntries={["/components/button"]}>
         <Routes>
-          <Route
-            path="/components/:category/:id"
-            element={<ComponentDetailPage />}
-          />
+          <Route path="/components/:id" element={<ComponentDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -73,33 +68,14 @@ describe("ComponentDetailPage", () => {
     expect(screen.getByTestId("breadcrumb")).toBeInTheDocument();
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Components")).toBeInTheDocument();
-    expect(screen.getByText("Form")).toBeInTheDocument();
     expect(screen.getByText("Button")).toBeInTheDocument();
-  });
-
-  it("shows error for invalid category", () => {
-    render(
-      <MemoryRouter initialEntries={["/components/invalid-category/button"]}>
-        <Routes>
-          <Route
-            path="/components/:category/:id"
-            element={<ComponentDetailPage />}
-          />
-        </Routes>
-      </MemoryRouter>,
-    );
-
-    expect(screen.getByText("Invalid Category")).toBeInTheDocument();
   });
 
   it("shows error for non-existent component", () => {
     render(
-      <MemoryRouter initialEntries={["/components/form/non-existent"]}>
+      <MemoryRouter initialEntries={["/components/non-existent"]}>
         <Routes>
-          <Route
-            path="/components/:category/:id"
-            element={<ComponentDetailPage />}
-          />
+          <Route path="/components/:id" element={<ComponentDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
@@ -109,17 +85,14 @@ describe("ComponentDetailPage", () => {
 
   it("has back link on error pages", () => {
     render(
-      <MemoryRouter initialEntries={["/components/form/non-existent"]}>
+      <MemoryRouter initialEntries={["/components/non-existent"]}>
         <Routes>
-          <Route
-            path="/components/:category/:id"
-            element={<ComponentDetailPage />}
-          />
+          <Route path="/components/:id" element={<ComponentDetailPage />} />
         </Routes>
       </MemoryRouter>,
     );
 
-    const backLink = screen.getByText(/← Back to Form/);
-    expect(backLink).toHaveAttribute("href", "/components/form");
+    const backLink = screen.getByText(/← Back to Components/);
+    expect(backLink).toHaveAttribute("href", "/components");
   });
 });

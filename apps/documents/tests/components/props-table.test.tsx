@@ -30,11 +30,21 @@ describe("PropsTable", () => {
     render(<PropsTable props={mockProps} />);
 
     expect(screen.getByTestId("props-table")).toBeInTheDocument();
-    expect(screen.getByText("Prop")).toBeInTheDocument();
-    expect(screen.getByText("Type")).toBeInTheDocument();
-    expect(screen.getByText("Default")).toBeInTheDocument();
-    expect(screen.getByText("Required")).toBeInTheDocument();
-    expect(screen.getByText("Description")).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Prop" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Type" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Default" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Required" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "Description" }),
+    ).toBeInTheDocument();
   });
 
   it("renders prop names", () => {

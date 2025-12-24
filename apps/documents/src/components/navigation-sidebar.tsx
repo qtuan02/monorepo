@@ -44,82 +44,6 @@ function NavItem({
   );
 }
 
-interface SidebarCategoryProps {
-  title: string;
-  path: string;
-  items: { label: string; path: string }[];
-  isActive: boolean;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onItemClick: () => void;
-  activePath: string;
-}
-
-function SidebarCategory({
-  title,
-  path,
-  items,
-  isActive,
-  isExpanded,
-  onToggle,
-  onItemClick,
-  activePath,
-}: SidebarCategoryProps) {
-  return (
-    <li className="mb-1">
-      <div
-        className={cn(
-          "flex cursor-pointer items-center justify-between rounded-md px-3 py-2 text-sm font-medium transition-colors select-none",
-          isActive
-            ? "text-gray-900 dark:text-gray-100"
-            : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800",
-        )}
-        onClick={onToggle}
-      >
-        <Link
-          to={path}
-          className="flex-1 truncate"
-          onClick={(e) => {
-            e.stopPropagation();
-            onItemClick();
-          }}
-        >
-          {title}
-        </Link>
-        <button
-          className="ml-2 rounded-sm p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggle();
-          }}
-        >
-          {isExpanded ? (
-            <ChevronDown className="size-4 opacity-50" />
-          ) : (
-            <ChevronRight className="size-4 opacity-50" />
-          )}
-        </button>
-      </div>
-
-      {isExpanded && items.length > 0 && (
-        <ul className="mt-1 space-y-1">
-          {items.map((item) => (
-            <li key={item.path}>
-              <NavItem
-                label={item.label}
-                path={item.path}
-                isActive={activePath === item.path}
-                onClick={onItemClick}
-                isSubItem
-              />
-            </li>
-          ))}
-        </ul>
-      )}
-    </li>
-  );
-}
-
 export default function NavigationSidebar({
   currentPath: _currentPath,
 }: NavigationSidebarProps) {
@@ -130,10 +54,9 @@ export default function NavigationSidebar({
 
   const activePath = location.pathname;
 
-  // Track expanded categories
   const [expandedCategories, setExpandedCategories] = useState<
     Record<string, boolean>
-  >({ shadcn: true }); // Default shadcn to expanded
+  >({ components: true, hooks: true }); // Default both to expanded
 
   const toggleCategory = (key: string) => {
     setExpandedCategories((prev) => ({
@@ -183,70 +106,110 @@ export default function NavigationSidebar({
         <nav className="p-4 pt-16 md:pt-4">
           {/* Components Section */}
           <div className="mb-8">
-            <Link
-              to="/components"
-              className="mb-3 flex items-center gap-2 px-2 transition-opacity hover:opacity-80"
-              onClick={() => setIsMobileOpen(false)}
+            <div
+              className="mb-3 flex cursor-pointer items-center justify-between gap-2 px-2"
+              onClick={() => toggleCategory("components")}
             >
-              <div className="flex size-6 items-center justify-center rounded-md bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
-                <Component className="size-4" />
-              </div>
-              <h2 className="text-sm font-bold tracking-wider text-gray-900 uppercase dark:text-gray-100">
-                Components
-              </h2>
-            </Link>
-            <ul className="space-y-1">
-              {/* Expandable shadcn parent with nested components */}
-              <SidebarCategory
-                title="shadcn"
-                path="/components"
-                items={components
+              <Link
+                to="/components"
+                className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMobileOpen(false);
+                }}
+              >
+                <div className="flex size-6 items-center justify-center rounded-md bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+                  <Component className="size-4" />
+                </div>
+                <h2 className="text-sm font-bold tracking-wider text-gray-900 uppercase dark:text-gray-100">
+                  Components
+                </h2>
+              </Link>
+              <button
+                className="ml-2 rounded-sm p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCategory("components");
+                }}
+              >
+                {expandedCategories.components ? (
+                  <ChevronDown className="size-4 opacity-50" />
+                ) : (
+                  <ChevronRight className="size-4 opacity-50" />
+                )}
+              </button>
+            </div>
+            {expandedCategories.components && (
+              <ul className="space-y-1">
+                {components
                   .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((component) => {
-                    const categorySlug = component.category
-                      .toLowerCase()
-                      .replace(/\s+/g, "-");
-                    return {
-                      label: component.name,
-                      path: `/components/${categorySlug}/${component.id}`,
-                    };
-                  })}
-                isActive={activePath.startsWith("/components")}
-                isExpanded={expandedCategories.shadcn || false}
-                onToggle={() => toggleCategory("shadcn")}
-                onItemClick={() => setIsMobileOpen(false)}
-                activePath={activePath}
-              />
-            </ul>
+                  .map((component) => (
+                    <li key={component.id}>
+                      <NavItem
+                        label={component.name}
+                        path={`/components/${component.id}`}
+                        isActive={activePath === `/components/${component.id}`}
+                        onClick={() => setIsMobileOpen(false)}
+                        isSubItem
+                      />
+                    </li>
+                  ))}
+              </ul>
+            )}
           </div>
 
           {/* Hooks Section */}
           <div>
-            <Link
-              to="/hooks"
-              className="mb-3 flex items-center gap-2 px-2 transition-opacity hover:opacity-80"
-              onClick={() => setIsMobileOpen(false)}
+            <div
+              className="mb-3 flex cursor-pointer items-center justify-between gap-2 px-2"
+              onClick={() => toggleCategory("hooks")}
             >
-              <div className="flex size-6 items-center justify-center rounded-md bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-                <Code className="size-4" />
-              </div>
-              <h2 className="text-sm font-bold tracking-wider text-gray-900 uppercase dark:text-gray-100">
-                Hooks
-              </h2>
-            </Link>
-            <ul className="space-y-1">
-              {/* Flat list of all hooks */}
-              {hooks.map((hook) => (
-                <li key={hook.id}>
-                  <NavItem
-                    label={hook.name}
-                    path={`/hooks/${hook.id}`}
-                    isActive={activePath === `/hooks/${hook.id}`}
-                    onClick={() => setIsMobileOpen(false)}
-                  />
-                </li>
-              ))}
-            </ul>
+              <Link
+                to="/hooks"
+                className="flex items-center gap-2 transition-opacity hover:opacity-80"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsMobileOpen(false);
+                }}
+              >
+                <div className="flex size-6 items-center justify-center rounded-md bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  <Code className="size-4" />
+                </div>
+                <h2 className="text-sm font-bold tracking-wider text-gray-900 uppercase dark:text-gray-100">
+                  Hooks
+                </h2>
+              </Link>
+              <button
+                className="ml-2 rounded-sm p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCategory("hooks");
+                }}
+              >
+                {expandedCategories.hooks ? (
+                  <ChevronDown className="size-4 opacity-50" />
+                ) : (
+                  <ChevronRight className="size-4 opacity-50" />
+                )}
+              </button>
+            </div>
+            {expandedCategories.hooks && (
+              <ul className="space-y-1">
+                {hooks
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((hook) => (
+                    <li key={hook.id}>
+                      <NavItem
+                        label={hook.name}
+                        path={`/hooks/${hook.id}`}
+                        isActive={activePath === `/hooks/${hook.id}`}
+                        onClick={() => setIsMobileOpen(false)}
+                        isSubItem
+                      />
+                    </li>
+                  ))}
+              </ul>
+            )}
           </div>
         </nav>
       </aside>

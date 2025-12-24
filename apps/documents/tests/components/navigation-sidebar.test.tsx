@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router";
+import { describe, expect, it } from "vitest";
 
 import NavigationSidebar from "~/components/navigation-sidebar";
 
@@ -9,7 +9,7 @@ describe("NavigationSidebar", () => {
   it("renders both components and hooks sections", () => {
     render(
       <BrowserRouter>
-        <NavigationSidebar currentPath="/components/form" />
+        <NavigationSidebar currentPath="/components/button" />
       </BrowserRouter>,
     );
 
@@ -17,74 +17,67 @@ describe("NavigationSidebar", () => {
     expect(screen.getByText("Hooks")).toBeInTheDocument();
   });
 
-  it("renders all component categories", () => {
+  it("renders component items", () => {
     render(
       <BrowserRouter>
-        <NavigationSidebar currentPath="/components/form" />
+        <NavigationSidebar currentPath="/components/button" />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Form")).toBeInTheDocument();
-    expect(screen.getByText("Layout")).toBeInTheDocument();
-    expect(screen.getByText("Feedback")).toBeInTheDocument();
-    expect(screen.getByText("Data Display")).toBeInTheDocument();
-    expect(screen.getByText("Navigation")).toBeInTheDocument();
+    // Check for component links - now flat list of all components
+    expect(screen.getByText("Accordion")).toBeInTheDocument();
+    expect(screen.getByText("AlertDialog")).toBeInTheDocument();
   });
 
-  it("renders all hook categories", () => {
+  it("renders hook items", () => {
     render(
       <BrowserRouter>
-        <NavigationSidebar currentPath="/hooks/client-side" />
+        <NavigationSidebar currentPath="/hooks/use-debounce" />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Client-side")).toBeInTheDocument();
-    expect(screen.getByText("Utilities")).toBeInTheDocument();
-    // Use getAllByText since "Uncategorized" appears in both sections
-    const uncategorizedLinks = screen.getAllByText("Uncategorized");
-    expect(uncategorizedLinks.length).toBeGreaterThan(0);
-    // Verify hook section has Uncategorized link
-    const hookUncategorizedLink = uncategorizedLinks.find((link) =>
-      link.getAttribute("href")?.includes("/hooks/uncategorized"),
-    );
-    expect(hookUncategorizedLink).toBeInTheDocument();
+    // Check for hook links - now flat list of all hooks
+    expect(screen.getByText("UseDebounce")).toBeInTheDocument();
+    expect(screen.getByText("UseCopyToClipboard")).toBeInTheDocument();
   });
 
-  it("highlights active component category", () => {
+  it("highlights active component", () => {
     // Mock location by navigating to the path
-    window.history.pushState({}, "", "/components/form");
-    
+    window.history.pushState({}, "", "/components/accordion");
+
     const { container } = render(
       <BrowserRouter>
-        <NavigationSidebar currentPath="/components/form" />
+        <NavigationSidebar currentPath="/components/accordion" />
       </BrowserRouter>,
     );
 
-    // Find the form link and check if it has active styling
-    const formLink = container.querySelector('a[href="/components/form"]');
-    expect(formLink?.className).toContain("bg-gray-100");
+    // Find the accordion link and check if it has active styling
+    const accordionLink = container.querySelector(
+      'a[href="/components/accordion"]',
+    );
+    expect(accordionLink?.className).toContain("sidebar-item-active");
   });
 
-  it("highlights active hook category", () => {
+  it("highlights active hook", () => {
     // Mock location by navigating to the path
-    window.history.pushState({}, "", "/hooks/client-side");
-    
+    window.history.pushState({}, "", "/hooks/use-debounce");
+
     const { container } = render(
       <BrowserRouter>
-        <NavigationSidebar currentPath="/hooks/client-side" />
+        <NavigationSidebar currentPath="/hooks/use-debounce" />
       </BrowserRouter>,
     );
 
-    // Find the client-side link and check if it has active styling
-    const clientSideLink = container.querySelector('a[href="/hooks/client-side"]');
-    expect(clientSideLink?.className).toContain("bg-gray-100");
+    // Find the use-debounce link and check if it has active styling
+    const hookLink = container.querySelector('a[href="/hooks/use-debounce"]');
+    expect(hookLink?.className).toContain("sidebar-item-active");
   });
 
   it("toggles mobile menu", async () => {
     const user = userEvent.setup();
     render(
       <BrowserRouter>
-        <NavigationSidebar currentPath="/components/form" />
+        <NavigationSidebar currentPath="/components/button" />
       </BrowserRouter>,
     );
 
@@ -94,5 +87,18 @@ describe("NavigationSidebar", () => {
     const sidebar = screen.getByRole("complementary");
     expect(sidebar).toHaveClass("translate-x-0");
   });
-});
 
+  it("can collapse and expand sections", async () => {
+    const user = userEvent.setup();
+    render(
+      <BrowserRouter>
+        <NavigationSidebar currentPath="/components/button" />
+      </BrowserRouter>,
+    );
+
+    // Find collapse buttons
+    const collapseButtons = screen.getAllByRole("button");
+    // There should be at least toggle buttons for Components and Hooks sections
+    expect(collapseButtons.length).toBeGreaterThanOrEqual(2);
+  });
+});

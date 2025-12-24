@@ -38,7 +38,7 @@ export const componentRegistry: ComponentRegistry = {
   "sheet": lazy(() => import("@monorepo/ui/components/sheet").then(m => ({ default: m.Sheet }))),
   "skeleton": lazy(() => import("@monorepo/ui/components/skeleton").then(m => ({ default: m.Skeleton }))),
   "slider": lazy(() => import("@monorepo/ui/components/slider").then(m => ({ default: m.Slider }))),
-  "sonner": lazy(() => import("@monorepo/ui/components/sonner").then(m => ({ default: m.Sonner }))),
+  "sonner": lazy(() => import("@monorepo/ui/components/sonner").then(m => ({ default: m.Toaster }))),
   "switch": lazy(() => import("@monorepo/ui/components/switch").then(m => ({ default: m.Switch }))),
   "table": lazy(() => import("@monorepo/ui/components/table").then(m => ({ default: m.Table }))),
   "tabs": lazy(() => import("@monorepo/ui/components/tabs").then(m => ({ default: m.Tabs }))),

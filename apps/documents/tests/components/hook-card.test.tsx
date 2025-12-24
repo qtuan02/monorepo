@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router";
+import { describe, expect, it } from "vitest";
 
-import HookCard from "~/components/hook-card";
 import type { HookMetadata } from "~/types/hook-metadata";
+import HookCard from "~/components/hook-card";
 
 const mockHook: HookMetadata = {
   id: "use-toggle",
@@ -26,7 +26,9 @@ describe("HookCard", () => {
     );
 
     expect(screen.getByText("useToggle")).toBeInTheDocument();
-    expect(screen.getByText("A hook for toggling boolean state")).toBeInTheDocument();
+    expect(
+      screen.getByText("A hook for toggling boolean state"),
+    ).toBeInTheDocument();
   });
 
   it("has correct test id", () => {
@@ -47,17 +49,18 @@ describe("HookCard", () => {
     );
 
     const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/hooks/client-side/use-toggle");
+    expect(link).toHaveAttribute("href", "/hooks/use-toggle");
   });
 
-  it("displays category badge", () => {
+  it("does not display category badge on hook card", () => {
     render(
       <BrowserRouter>
         <HookCard hook={mockHook} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Client-side")).toBeInTheDocument();
+    // Hook cards no longer show the category badge
+    expect(screen.queryByText("Client-side")).not.toBeInTheDocument();
   });
 
   it("displays package badge", () => {
@@ -70,4 +73,3 @@ describe("HookCard", () => {
     expect(screen.getByText("Hook")).toBeInTheDocument();
   });
 });
-

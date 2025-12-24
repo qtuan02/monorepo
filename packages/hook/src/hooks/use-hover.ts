@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+/**
+ * Tracks whether an element is being hovered over.
+ */
 export function useHover<T extends HTMLElement>(
   elementRef: React.RefObject<T>,
 ): boolean {

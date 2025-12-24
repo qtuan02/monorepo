@@ -10,6 +10,7 @@ const mockComponent: ComponentMetadata = {
   name: "Button",
   description: "A reusable button component for user interactions",
   category: "Form",
+  parentCategory: "shadcn",
   package: "ui",
   filePath: "packages/ui/src/components/button.tsx",
   props: [
@@ -57,7 +58,7 @@ describe("ComponentDetail", () => {
   it("renders component detail", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
@@ -67,7 +68,7 @@ describe("ComponentDetail", () => {
   it("displays component name and description", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
@@ -80,7 +81,7 @@ describe("ComponentDetail", () => {
   it("shows category badge", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
@@ -90,91 +91,76 @@ describe("ComponentDetail", () => {
   it("shows package badge", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
     expect(screen.getByText("UI")).toBeInTheDocument();
   });
 
-  it("has back link to category page", () => {
+  it("has back link to components page", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    const backLink = screen.getByText(/← Back to Form/);
-    expect(backLink).toHaveAttribute("href", "/components/form");
+    const backLink = screen.getByText(/← Back to Components/);
+    expect(backLink).toHaveAttribute("href", "/components");
   });
 
-  it("renders preview section", () => {
+  it("renders tabs including Preview", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Preview")).toBeInTheDocument();
-    expect(screen.getByTestId("preview-container")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Overview/ })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Preview/ })).toBeInTheDocument();
   });
 
-  it("renders props table section", () => {
+  it("renders props tab when props exist", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Props")).toBeInTheDocument();
-    expect(screen.getByTestId("props-table")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Props" })).toBeInTheDocument();
   });
 
-  it("renders source code section", () => {
+  it("renders source code tab", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Source Code")).toBeInTheDocument();
-    expect(screen.getByTestId("code-viewer")).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Source Code" }),
+    ).toBeInTheDocument();
   });
 
-  it("renders examples section when examples exist", () => {
+  it("shows example count badge when examples exist", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
+        <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Examples")).toBeInTheDocument();
+    // Should show count badge for 2 examples
+    expect(screen.getByText("2")).toBeInTheDocument();
   });
 
-  it("does not render examples section when no examples", () => {
+  it("does not show example count when no examples", () => {
     render(
       <BrowserRouter>
-        <ComponentDetail
-          component={mockComponentNoExamples}
-          categorySlug="form"
-        />
+        <ComponentDetail component={mockComponentNoExamples} />
       </BrowserRouter>,
     );
 
-    expect(screen.queryByText("Examples")).not.toBeInTheDocument();
-  });
-
-  it("uses semantic HTML sections", () => {
-    render(
-      <BrowserRouter>
-        <ComponentDetail component={mockComponent} categorySlug="form" />
-      </BrowserRouter>,
-    );
-
-    // Check for aria-labelledby attributes
-    expect(screen.getByLabelText("Preview")).toBeInTheDocument();
-    expect(screen.getByLabelText("Props")).toBeInTheDocument();
-    expect(screen.getByLabelText("Source Code")).toBeInTheDocument();
-    expect(screen.getByLabelText("Examples")).toBeInTheDocument();
+    // Should not show any count badge
+    expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
 });

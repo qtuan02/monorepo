@@ -3,23 +3,16 @@ import { Link, useParams } from "react-router";
 import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import HookDetail from "~/components/hook-detail";
-import { hookCategoryToSlug } from "~/lib/hook-category-utils";
 import { useHookById } from "~/lib/use-hook-metadata";
 
 export default function HookDetailPage() {
-  const params = useParams<{
-    category?: string;
-    id: string;
-  }>();
-
-  // Handle both /hooks/:id and /hooks/:category/:id patterns
-  const id = params.id || params.category || "";
-  const { hook, isLoading } = useHookById(id);
+  const { id } = useParams<{ id: string }>();
+  const { hook, isLoading } = useHookById(id || "");
 
   // Loading state
   if (isLoading) {
     return (
-      <AppLayout currentPath={`/hooks/${id}`}>
+      <AppLayout currentPath={`/hooks/${id || ""}`}>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">
             <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-900 dark:border-gray-600 dark:border-t-gray-100" />
@@ -33,7 +26,7 @@ export default function HookDetailPage() {
   // Hook not found
   if (!hook) {
     return (
-      <AppLayout currentPath={`/hooks/${id}`}>
+      <AppLayout currentPath={`/hooks/${id || ""}`}>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">
             <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -54,11 +47,8 @@ export default function HookDetailPage() {
     );
   }
 
-  // Get category slug from hook metadata for breadcrumb compatibility
-  const categorySlug = hookCategoryToSlug(hook.category);
-
   return (
-    <AppLayout currentPath={`/hooks/${id}`}>
+    <AppLayout currentPath={`/hooks/${id || ""}`}>
       <div className="px-6 py-6 md:px-12">
         <div className="mx-auto max-w-7xl">
           <Breadcrumb
@@ -69,7 +59,7 @@ export default function HookDetailPage() {
             ]}
             className="mb-6"
           />
-          <HookDetail hook={hook} categorySlug={categorySlug} />
+          <HookDetail hook={hook} />
         </div>
       </div>
     </AppLayout>

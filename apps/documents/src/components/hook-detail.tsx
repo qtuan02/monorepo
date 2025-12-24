@@ -5,14 +5,12 @@ import { hookExamples } from "~/registry/hook-examples";
 import CodeViewer from "./code-viewer";
 import PackageBadge from "./package-badge";
 import ParametersTable from "./parameters-table";
-import ReturnValue from "./return-value";
 
 interface HookDetailProps {
   hook: HookMetadata;
-  categorySlug: string;
 }
 
-export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
+export default function HookDetail({ hook }: HookDetailProps) {
   return (
     <div className="space-y-8" data-testid="hook-detail">
       {/* Header Section */}
@@ -38,10 +36,10 @@ export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
 
         {/* Back link */}
         <Link
-          to={`/hooks/${categorySlug}`}
+          to="/hooks"
           className="inline-flex items-center text-sm text-blue-600 hover:underline dark:text-blue-400"
         >
-          ← Back to {hook.category}
+          ← Back to Hooks
         </Link>
       </header>
 
@@ -62,8 +60,8 @@ export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
               </h3>
               <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
                 {(() => {
-                  const DemoComponent = hookExamples[hook.id].component;
-                  return <DemoComponent />;
+                  const DemoComponent = hookExamples[hook.id]?.component;
+                  return DemoComponent ? <DemoComponent /> : null;
                 })()}
               </div>
             </div>
@@ -73,7 +71,7 @@ export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
                 Example Code
               </h3>
               <CodeViewer
-                code={hookExamples[hook.id].code}
+                code={hookExamples[hook.id]?.code ?? ""}
                 language="tsx"
                 filename="Example Usage"
               />
@@ -91,17 +89,6 @@ export default function HookDetail({ hook, categorySlug }: HookDetailProps) {
           Parameters
         </h2>
         <ParametersTable parameters={hook.parameters} />
-      </section>
-
-      {/* Return Value Section */}
-      <section aria-labelledby="return-heading">
-        <h2
-          id="return-heading"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
-        >
-          Return Value
-        </h2>
-        <ReturnValue returns={hook.returns} />
       </section>
 
       {/* Source Code Section */}

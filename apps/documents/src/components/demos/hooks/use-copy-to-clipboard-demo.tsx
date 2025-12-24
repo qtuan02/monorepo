@@ -4,7 +4,8 @@ import { useCopyToClipboard } from "@monorepo/hook";
 
 export default function UseCopyToClipboardDemo() {
   const [text, setText] = useState("Hello, copy me!");
-  const { copied, copy } = useCopyToClipboard();
+  const [copiedText, copy] = useCopyToClipboard();
+  const copied = copiedText !== null;
 
   return (
     <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">

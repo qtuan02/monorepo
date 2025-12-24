@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
+import type { ComponentMetadata } from "~/types/component-metadata";
+import type { HookMetadata } from "~/types/hook-metadata";
 import {
   filterComponentsByPackage,
   filterHooksByPackage,
-  isValidPackageFilter,
   getPackageFilterFromUrl,
+  isValidPackageFilter,
 } from "~/lib/package-filter-utils";
-import type { ComponentMetadata } from "~/types/component-metadata";
-import type { HookMetadata } from "~/types/hook-metadata";
 
 describe("package-filter-utils", () => {
   const mockComponents: ComponentMetadata[] = [
@@ -16,6 +16,7 @@ describe("package-filter-utils", () => {
       name: "Button",
       description: "A button component",
       category: "Form",
+      parentCategory: "shadcn",
       package: "ui",
       filePath: "button.tsx",
       props: [],
@@ -102,4 +103,3 @@ describe("package-filter-utils", () => {
     });
   });
 });
-

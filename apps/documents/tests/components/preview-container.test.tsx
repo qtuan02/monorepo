@@ -8,7 +8,8 @@ const mockComponent: ComponentMetadata = {
   id: "button",
   name: "Button",
   description: "A button component",
-  category: "Form",
+  category: "ui",
+  parentCategory: "shadcn",
   package: "ui",
   filePath: "button.tsx",
   props: [],
@@ -29,21 +30,12 @@ describe("PreviewContainer", () => {
     expect(screen.getByText("Interactive")).toBeInTheDocument();
   });
 
-  it("shows placeholder for component preview", () => {
+  it("shows loading state initially", () => {
     render(<PreviewContainer component={mockComponent} />);
 
-    // Since we're using placeholder until Epic 3, check for placeholder
-    expect(screen.getByTestId("preview-placeholder")).toBeInTheDocument();
-    expect(screen.getByText("Button")).toBeInTheDocument();
-  });
-
-  it("displays component name in placeholder", () => {
-    render(<PreviewContainer component={mockComponent} />);
-
-    expect(screen.getByText("Button")).toBeInTheDocument();
-    expect(
-      screen.getByText("Live preview coming in Epic 3"),
-    ).toBeInTheDocument();
+    // Component shows loading state when lazy-loading
+    expect(screen.getByTestId("preview-loading")).toBeInTheDocument();
+    expect(screen.getByText("Loading preview...")).toBeInTheDocument();
   });
 
   it("has proper styling", () => {

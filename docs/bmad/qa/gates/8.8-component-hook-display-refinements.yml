@@ -1,0 +1,280 @@
+# QA Gate: Story 8.8 - Component and Hook Display Refinements
+# Story: docs/bmad/stories/8.8.component-hook-display-refinements.md
+# QA Agent: Quinn (QA)
+# Review Date: 2025-12-24
+# Status: PARTIAL_PASS
+
+story_id: "8.8"
+story_name: "Component and Hook Display Refinements"
+qa_status: PARTIAL_PASS
+overall_score: 65
+
+# =============================================================================
+# COMPONENT DISPLAY REQUIREMENTS
+# =============================================================================
+
+acceptance_criteria:
+  - id: AC1
+    name: "Follow shadcn UI Preview Pattern"
+    status: NOT_VERIFIED
+    score: 0
+    findings:
+      - type: DEFERRED
+        description: "Research shadcn UI documentation pattern has not been documented"
+        evidence: "Story mentions this as deferred for follow-up"
+        severity: MEDIUM
+    verification:
+      method: MANUAL_REVIEW
+      browser_tested: false
+      notes: "AC deferred as per Dev Agent Record"
+
+  - id: AC2
+    name: "Simplified Tagging"
+    status: FAIL
+    score: 0
+    findings:
+      - type: BUG
+        description: "Components are NOT tagged as 'ui' only as required"
+        evidence: |
+          components.json contains various categories:
+          - Layout (accordion, aspect-ratio, collapsible, resizable, scroll-area, separator)
+          - Feedback (alert-dialog, dialog, drawer, hover-card, popover, sheet, sonner, tooltip)  
+          - Data Display (avatar, badge, calendar, card, progress, skeleton, table)
+          - Form (button, checkbox, input, label, radio-group, select, slider, switch, textarea, toggle, toggle-group)
+          - Navigation (breadcrumb, command, context-menu, dropdown-menu, menubar, navigation-menu, pagination, tabs)
+        severity: HIGH
+    verification:
+      method: CODE_REVIEW
+      file: apps/documents/src/generated/components.json
+      notes: "All 51 components should have category 'ui' but use diverse categories"
+
+  - id: AC3
+    name: "Overview Tab Restructure"
+    status: PASS
+    score: 100
+    findings:
+      - type: IMPLEMENTATION
+        description: "Overview tab correctly restructured"
+        evidence: |
+          component-detail.tsx shows:
+          - Import section: ImportSection component (line 85-89)
+          - Code section: UsageSection with showPreview={false} (line 92-96)
+          - No preview in Overview tab
+        severity: NONE
+    verification:
+      method: CODE_REVIEW
+      file: apps/documents/src/components/component-detail.tsx
+      lines: 82-97
+      notes: "Manual section mentioned in story but not implemented. However, UsageSection serves similar purpose."
+
+  - id: AC4
+    name: "Rename Example Tab to Preview"
+    status: PASS
+    score: 100
+    findings:
+      - type: IMPLEMENTATION
+        description: "Tab correctly renamed from 'Example' to 'Preview'"
+        evidence: |
+          component-detail.tsx line 68-75:
+          <TabsTrigger value="preview">Preview...</TabsTrigger>
+        severity: NONE
+    verification:
+      method: CODE_REVIEW
+      file: apps/documents/src/components/component-detail.tsx
+      lines: 68-75
+      notes: "Preview tab shows live component preview and examples"
+
+  # =============================================================================
+  # HOOK DISPLAY REQUIREMENTS
+  # =============================================================================
+
+  - id: AC5
+    name: "Follow usehooks-ts and hooks.ts Patterns"
+    status: NOT_VERIFIED
+    score: 0
+    findings:
+      - type: DEFERRED
+        description: "Research usehooks-ts pattern has not been documented"
+        evidence: "Story mentions this as deferred for follow-up"
+        severity: MEDIUM
+    verification:
+      method: MANUAL_REVIEW
+      browser_tested: false
+      notes: "AC deferred as per Dev Agent Record"
+
+  - id: AC6
+    name: "Sidebar Menu Enhancement"
+    status: PASS
+    score: 100
+    findings:
+      - type: IMPLEMENTATION
+        description: "Hooks section has expand/collapse toggle"
+        evidence: |
+          navigation-sidebar.tsx:
+          - expandedCategories state with hooks: true default (line 57-59)
+          - toggleCategory function (line 61-66)
+          - ChevronDown/ChevronRight icons (line 189-193)
+          - Conditional rendering based on expandedCategories.hooks (line 196)
+        severity: NONE
+    verification:
+      method: CODE_REVIEW
+      file: apps/documents/src/components/navigation-sidebar.tsx
+      lines: 57-66, 161-213
+      notes: "Both Components and Hooks sections have expand/collapse functionality"
+
+  - id: AC7
+    name: "Add Simple Descriptions"
+    status: PARTIAL
+    score: 20
+    findings:
+      - type: BUG
+        description: "Most hooks missing descriptions"
+        evidence: |
+          hooks.json analysis - 14 total hooks:
+          WITH descriptions (3):
+          - use-countdown: "A custom hook for a countdown timer."
+          - use-isomorphic-layout-effect: Has description
+          - use-timeout: "A React hook to execute a callback function after a specified delay."
+
+          WITHOUT descriptions - null (11):
+          - use-copy-to-clipboard: null
+          - use-debounce: null
+          - use-fetch: null
+          - use-hover: null
+          - use-is-client: null
+          - use-is-mobile: null
+          - use-local-storage: null
+          - use-media-query: null
+          - use-network-status: null
+          - use-on-screen: null
+          - use-throttle: null
+        severity: HIGH
+    verification:
+      method: CODE_REVIEW
+      file: apps/documents/src/generated/hooks.json
+      notes: "Story requires ALL hooks have simple descriptions. Only 3/14 have descriptions."
+
+  - id: AC8
+    name: "Require Live Demo and Example Code"
+    status: PARTIAL
+    score: 92
+    findings:
+      - type: IMPLEMENTATION
+        description: "13 of 14 hooks have live demos"
+        evidence: |
+          hook-examples.ts registry contains demos for:
+          ✅ use-copy-to-clipboard
+          ✅ use-countdown
+          ✅ use-debounce
+          ✅ use-hover
+          ✅ use-is-client
+          ✅ use-is-mobile
+          ✅ use-isomorphic-layout-effect
+          ✅ use-local-storage
+          ✅ use-media-query
+          ✅ use-network-status
+          ✅ use-on-screen
+          ✅ use-throttle
+          ✅ use-timeout
+
+          MISSING demo:
+          ❌ use-fetch (exists in hooks.json but no demo in registry)
+        severity: MEDIUM
+    verification:
+      method: CODE_REVIEW
+      files:
+        - apps/documents/src/registry/hook-examples.ts
+        - apps/documents/src/components/demos/hooks/
+      notes: "13/14 hooks have live demos. use-fetch is missing."
+
+  - id: AC9
+    name: "Hook Detail Page Structure"
+    status: PASS
+    score: 100
+    findings:
+      - type: IMPLEMENTATION
+        description: "Return Value section removed, Parameters and Source Code kept"
+        evidence: |
+          hook-detail.tsx structure:
+          - Usage Example with Live Demo (line 47-81)
+          - Parameters section (line 83-92) ✅
+          - Source Code section (line 94-107) ✅
+          - No Return Value section ✅ (removed)
+          - Examples section for additional code examples (line 109-129)
+        severity: NONE
+    verification:
+      method: CODE_REVIEW
+      file: apps/documents/src/components/hook-detail.tsx
+      lines: 47-129
+      notes: "Structure matches requirements - Return Value removed, Parameters and Source Code preserved"
+
+# =============================================================================
+# SUMMARY
+# =============================================================================
+
+summary:
+  total_acs: 9
+  passed: 4
+  partial: 2
+  failed: 1
+  not_verified: 2
+
+  blocking_issues:
+    - id: BLOCK-001
+      ac: AC2
+      description: "Component categories not updated to 'ui' only"
+      recommendation: "Update generate-metadata.ts script to set all component categories to 'ui'"
+      priority: P1
+
+    - id: BLOCK-002
+      ac: AC7
+      description: "11 of 14 hooks missing descriptions"
+      recommendation: "Add simple, concise descriptions to all hooks in hooks.json"
+      priority: P1
+
+  non_blocking_issues:
+    - id: ISSUE-001
+      ac: AC8
+      description: "use-fetch hook missing live demo"
+      recommendation: "Create use-fetch-demo.tsx and register in hook-examples.ts"
+      priority: P2
+
+    - id: ISSUE-002
+      ac: AC3
+      description: "Manual Installation section not implemented in Overview tab"
+      recommendation: "Add ManualSection component to component-detail.tsx Overview tab"
+      priority: P3
+
+  recommendations:
+    - "Run metadata generation script to regenerate components.json with 'ui' category"
+    - "Add descriptions to hooks.json for each hook"
+    - "Create demo component for use-fetch hook"
+    - "Consider adding Manual Installation section to component Overview tab"
+
+  dev_agent_record_alignment: true
+  notes: |
+    Dev Agent Record in story file accurately reflects implementation status.
+    The deferred items (AC1, AC5) were correctly identified.
+    Main issues are AC2 (component tagging) and AC7 (hook descriptions).
+
+# =============================================================================
+# VERIFICATION METADATA
+# =============================================================================
+
+verification:
+  qa_agent: "Quinn (QA)"
+  review_date: "2025-12-24"
+  files_reviewed:
+    - apps/documents/src/components/component-detail.tsx
+    - apps/documents/src/components/hook-detail.tsx
+    - apps/documents/src/components/navigation-sidebar.tsx
+    - apps/documents/src/generated/components.json
+    - apps/documents/src/generated/hooks.json
+    - apps/documents/src/registry/hook-examples.ts
+  browser_testing: false
+  browser_url: "http://localhost:3000"
+  next_steps:
+    - "Fix AC2: Update component categories to 'ui'"
+    - "Fix AC7: Add hook descriptions"
+    - "Fix AC8: Add use-fetch demo"
+    - "Retest after fixes"

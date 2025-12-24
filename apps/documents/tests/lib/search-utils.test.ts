@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import type { SearchResult } from "~/lib/search-utils";
-import {
-  searchComponentsAndHooks,
-  limitSearchResults,
-} from "~/lib/search-utils";
 import type { ComponentMetadata } from "~/types/component-metadata";
 import type { HookMetadata } from "~/types/hook-metadata";
+import {
+  limitSearchResults,
+  searchComponentsAndHooks,
+} from "~/lib/search-utils";
 
 describe("search-utils", () => {
   const mockComponents: ComponentMetadata[] = [
@@ -15,6 +15,7 @@ describe("search-utils", () => {
       name: "Button",
       description: "A button component",
       category: "Form",
+      parentCategory: "shadcn",
       package: "ui",
       filePath: "button.tsx",
       props: [],
@@ -25,6 +26,7 @@ describe("search-utils", () => {
       name: "Input",
       description: "An input component",
       category: "Form",
+      parentCategory: "shadcn",
       package: "ui",
       filePath: "input.tsx",
       props: [],
@@ -66,7 +68,11 @@ describe("search-utils", () => {
     });
 
     it("searches hooks by name (case-insensitive)", () => {
-      const results = searchComponentsAndHooks("toggle", mockComponents, mockHooks);
+      const results = searchComponentsAndHooks(
+        "toggle",
+        mockComponents,
+        mockHooks,
+      );
       expect(results).toHaveLength(1);
       expect(results[0]?.name).toBe("useToggle");
       expect(results[0]?.type).toBe("hook");
@@ -88,7 +94,11 @@ describe("search-utils", () => {
     });
 
     it("returns empty array for whitespace-only query", () => {
-      const results = searchComponentsAndHooks("   ", mockComponents, mockHooks);
+      const results = searchComponentsAndHooks(
+        "   ",
+        mockComponents,
+        mockHooks,
+      );
       expect(results).toHaveLength(0);
     });
 
@@ -136,4 +146,3 @@ describe("search-utils", () => {
     });
   });
 });
-

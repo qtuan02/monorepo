@@ -12,18 +12,15 @@ import CodeViewer from "./code-viewer";
 import ExamplesSection from "./examples-section";
 import ImportSection from "./import-section";
 import PackageBadge from "./package-badge";
+import PreviewContainer from "./preview-container";
 import PropsTable from "./props-table";
 import UsageSection from "./usage-section";
 
 interface ComponentDetailProps {
   component: ComponentMetadata;
-  categorySlug: string;
 }
 
-export default function ComponentDetail({
-  component,
-  categorySlug,
-}: ComponentDetailProps) {
+export default function ComponentDetail({ component }: ComponentDetailProps) {
   // Transform examples array to match ExamplesSection interface
   const componentExamples =
     component.examples?.map((code, index) => ({
@@ -57,10 +54,10 @@ export default function ComponentDetail({
 
         {/* Back link */}
         <Link
-          to={`/components/${categorySlug}`}
+          to="/components"
           className="inline-flex items-center text-sm text-blue-600 hover:underline dark:text-blue-400"
         >
-          ← Back to {component.category}
+          ← Back to Components
         </Link>
       </header>
 
@@ -68,8 +65,8 @@ export default function ComponentDetail({
       <Tabs defaultValue="overview" className="mt-6">
         <TabsList className="w-full justify-start">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="examples">
-            Examples{" "}
+          <TabsTrigger value="preview">
+            Preview{" "}
             {componentExamples.length > 0 && (
               <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-100">
                 {componentExamples.length}
@@ -91,20 +88,31 @@ export default function ComponentDetail({
             componentId={component.id}
           />
 
-          {/* Usage Section with Preview */}
+          {/* Usage Section - Code only, no preview */}
           <UsageSection
             code={`<${component.name} />`}
             component={component}
-            showPreview={true}
+            showPreview={false}
           />
         </TabsContent>
 
-        {/* Examples Tab */}
-        <TabsContent value="examples" className="mt-6">
-          <ExamplesSection
-            examples={componentExamples}
-            componentName={component.name}
-          />
+        {/* Preview Tab - Live UI Demo */}
+        <TabsContent value="preview" className="mt-6 space-y-8">
+          {/* Live Component Preview */}
+          <section>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Live Preview
+            </h2>
+            <PreviewContainer component={component} />
+          </section>
+
+          {/* Examples with code */}
+          {componentExamples.length > 0 && (
+            <ExamplesSection
+              examples={componentExamples}
+              componentName={component.name}
+            />
+          )}
         </TabsContent>
 
         {/* Props Tab - Only if props exist */}
