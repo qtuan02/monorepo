@@ -1,11 +1,10 @@
+import { Code, Component } from "lucide-react";
 import { useNavigate } from "react-router";
+
 import { Badge } from "@monorepo/ui";
 import { cn } from "@monorepo/ui/libs/cn";
-import { Component, Code } from "lucide-react";
 
 import type { SearchResult } from "~/lib/search-utils";
-import { categoryToSlug } from "~/lib/category-utils";
-import { hookCategoryToSlug } from "~/lib/hook-category-utils";
 
 interface SearchResultsProps {
   results: SearchResult[];
@@ -21,15 +20,10 @@ export default function SearchResults({
   const navigate = useNavigate();
 
   const handleResultClick = (result: SearchResult) => {
-    let path: string;
-    
-    if (result.type === "component") {
-      const categorySlug = categoryToSlug(result.category);
-      path = `/components/${categorySlug}/${result.id}`;
-    } else {
-      const categorySlug = hookCategoryToSlug(result.category);
-      path = `/hooks/${categorySlug}/${result.id}`;
-    }
+    const path =
+      result.type === "component"
+        ? `/components/${result.id}`
+        : `/hooks/${result.id}`;
 
     navigate(path);
     onSelect(result);
@@ -56,7 +50,7 @@ export default function SearchResults({
               className={cn(
                 "flex w-full items-start gap-3 rounded-md px-3 py-2 text-left transition-colors",
                 "hover:bg-gray-100 dark:hover:bg-gray-800",
-                "focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-800",
+                "focus:bg-gray-100 focus:outline-none dark:focus:bg-gray-800",
               )}
               role="option"
               data-testid="search-result"
@@ -93,4 +87,3 @@ export default function SearchResults({
     </div>
   );
 }
-

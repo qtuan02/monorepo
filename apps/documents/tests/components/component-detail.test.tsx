@@ -78,14 +78,15 @@ describe("ComponentDetail", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows category badge", () => {
+  it("does not show category badge (removed per AC4)", () => {
     render(
       <BrowserRouter>
         <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Form")).toBeInTheDocument();
+    // Category badge should no longer appear - only package badge remains
+    expect(screen.queryByText("Form")).not.toBeInTheDocument();
   });
 
   it("shows package badge", () => {

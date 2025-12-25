@@ -1,11 +1,20 @@
-import { useState } from "react";
-import { ChevronDown, ChevronRight, Code, Component } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Code,
+  Component,
+  Menu,
+  X,
+} from "lucide-react";
 import { Link, useLocation } from "react-router";
 
 import { cn } from "@monorepo/ui/libs/cn";
 
 import { useComponentMetadata } from "~/lib/use-component-metadata";
 import { useHookMetadata } from "~/lib/use-hook-metadata";
+
+const SIDEBAR_STATE_KEY = "docs-sidebar-expanded";
 
 interface NavigationSidebarProps {
   currentPath?: string;
@@ -54,9 +63,27 @@ export default function NavigationSidebar({
 
   const activePath = location.pathname;
 
+  // Load initial state from localStorage
   const [expandedCategories, setExpandedCategories] = useState<
     Record<string, boolean>
-  >({ components: true, hooks: true }); // Default both to expanded
+  >(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(SIDEBAR_STATE_KEY);
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          return { components: true, hooks: true };
+        }
+      }
+    }
+    return { components: true, hooks: true };
+  });
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(expandedCategories));
+  }, [expandedCategories]);
 
   const toggleCategory = (key: string) => {
     setExpandedCategories((prev) => ({
@@ -67,32 +94,17 @@ export default function NavigationSidebar({
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Mobile hamburger button - improved visibility */}
       <button
-        className="fixed top-4 left-4 z-50 md:hidden"
+        className="fixed top-4 left-4 z-50 rounded-lg border border-gray-200 bg-white p-2 shadow-md md:hidden dark:border-gray-700 dark:bg-gray-900"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label="Toggle menu"
       >
-        <div className="space-y-1.5">
-          <span
-            className={cn(
-              "block h-0.5 w-6 bg-gray-900 transition-all dark:bg-gray-100",
-              isMobileOpen && "translate-y-2 rotate-45",
-            )}
-          />
-          <span
-            className={cn(
-              "block h-0.5 w-6 bg-gray-900 transition-all dark:bg-gray-100",
-              isMobileOpen && "opacity-0",
-            )}
-          />
-          <span
-            className={cn(
-              "block h-0.5 w-6 bg-gray-900 transition-all dark:bg-gray-100",
-              isMobileOpen && "-translate-y-2 -rotate-45",
-            )}
-          />
-        </div>
+        {isMobileOpen ? (
+          <X className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+        ) : (
+          <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+        )}
       </button>
 
       {/* Sidebar */}
@@ -100,16 +112,14 @@ export default function NavigationSidebar({
         role="complementary"
         className={cn(
           "scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 fixed top-0 left-0 z-40 h-full w-72 overflow-y-auto border-r bg-white transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 dark:bg-gray-900",
-          isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
+          // Mobile: show/hide based on isMobileOpen
+          isMobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <nav className="p-4 pt-16 md:pt-4">
           {/* Components Section */}
           <div className="mb-8">
-            <div
-              className="mb-3 flex cursor-pointer items-center justify-between gap-2 px-2"
-              onClick={() => toggleCategory("components")}
-            >
+            <div className="mb-3 flex items-center justify-between gap-2 px-2">
               <Link
                 to="/components"
                 className="flex items-center gap-2 transition-opacity hover:opacity-80"
@@ -160,10 +170,7 @@ export default function NavigationSidebar({
 
           {/* Hooks Section */}
           <div>
-            <div
-              className="mb-3 flex cursor-pointer items-center justify-between gap-2 px-2"
-              onClick={() => toggleCategory("hooks")}
-            >
+            <div className="mb-3 flex items-center justify-between gap-2 px-2">
               <Link
                 to="/hooks"
                 className="flex items-center gap-2 transition-opacity hover:opacity-80"

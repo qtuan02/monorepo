@@ -3,6 +3,7 @@ import { Component, Suspense, useEffect, useState } from "react";
 
 import type { ComponentMetadata } from "~/types/component-metadata";
 import { componentRegistry } from "~/generated/registry";
+import { componentExamples } from "~/registry/component-examples";
 
 // Error Boundary Component
 interface ErrorBoundaryProps {
@@ -37,17 +38,19 @@ interface PreviewContainerProps {
   component: ComponentMetadata;
 }
 
-// Loading fallback component
+// Loading fallback component with skeleton animation
 function PreviewLoading() {
   return (
     <div
-      className="flex h-48 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800"
+      className="flex h-48 items-center justify-center rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900"
       data-testid="preview-loading"
     >
-      <div className="text-center">
-        <div className="mb-2 h-6 w-6 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900 dark:border-gray-600 dark:border-t-gray-100" />
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Loading preview...
+      <div className="flex flex-col items-center gap-3">
+        <div className="relative">
+          <div className="h-8 w-8 animate-spin rounded-full border-3 border-gray-300 border-t-blue-500 dark:border-gray-600 dark:border-t-blue-400" />
+        </div>
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          Loading component...
         </p>
       </div>
     </div>
@@ -106,15 +109,22 @@ export default function PreviewContainer({ component }: PreviewContainerProps) {
     return <PreviewLoading />;
   }
 
+  // Check if we have a dedicated demo component
+  const demoExample = componentExamples[component.id];
   const LazyComponent = componentRegistry[component.id];
 
   const renderPreview = () => {
+    // Prefer demo component if available
+    if (demoExample) {
+      const DemoComponent = demoExample.component;
+      return <DemoComponent />;
+    }
+
     if (!LazyComponent) {
       return <PreviewPlaceholder componentName={component.name} />;
     }
 
-    // Pass default children if it's a known container/content component
-    // This is a naive heuristic; ideally we'd have specific examples
+    // Fallback: render basic component with default props
     const props: Record<string, any> = {};
 
     // Add default children for common components to avoid empty rendering

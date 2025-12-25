@@ -59,14 +59,15 @@ describe("HookDetail", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows category badge", () => {
+  it("does not show category badge (removed per AC4)", () => {
     render(
       <BrowserRouter>
         <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Client-side")).toBeInTheDocument();
+    // Category badge should no longer appear - only package badge remains
+    expect(screen.queryByText("Client-side")).not.toBeInTheDocument();
   });
 
   it("has back link to hooks page", () => {

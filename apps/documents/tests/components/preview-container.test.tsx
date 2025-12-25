@@ -30,12 +30,14 @@ describe("PreviewContainer", () => {
     expect(screen.getByText("Interactive")).toBeInTheDocument();
   });
 
-  it("shows loading state initially", () => {
+  it("renders demo component when available", () => {
     render(<PreviewContainer component={mockComponent} />);
 
-    // Component shows loading state when lazy-loading
-    expect(screen.getByTestId("preview-loading")).toBeInTheDocument();
-    expect(screen.getByText("Loading preview...")).toBeInTheDocument();
+    // Button demo component renders directly when demo exists
+    // Check for demo component content (variants, sizes sections)
+    expect(screen.getByText("Variants")).toBeInTheDocument();
+    // Multiple Default buttons exist - use getAllByText
+    expect(screen.getAllByText("Default").length).toBeGreaterThan(0);
   });
 
   it("has proper styling", () => {
