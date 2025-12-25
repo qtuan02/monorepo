@@ -1,4 +1,3 @@
-import type { ComponentMetadata } from "~/types/component-metadata";
 import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import ComponentCard from "~/components/component-card";

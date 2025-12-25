@@ -1,6 +1,4 @@
-import { Badge } from "@monorepo/ui";
 
-import type { ComponentMetadata } from "~/types/component-metadata";
 import CodeViewer from "./code-viewer";
 
 interface ImportSectionProps {

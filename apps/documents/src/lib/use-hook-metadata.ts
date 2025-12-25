@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { HookMetadata } from "~/types/hook-metadata";
 // Import generated data (created by scripts/generate-metadata.ts)
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+ 
 // @ts-ignore - Generated at build time
 import hooksData from "~/generated/hooks.json";
 

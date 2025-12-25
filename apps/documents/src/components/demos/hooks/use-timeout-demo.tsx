@@ -5,7 +5,7 @@ import { useTimeout } from "@monorepo/hook";
 export default function UseTimeoutDemo() {
   const [message, setMessage] = useState("");
   const [delay, setDelay] = useState(3000);
-  const [key, setKey] = useState(0); // Use key to reset timeout
+  const [_key, setKey] = useState(0); // Use key to reset timeout
 
   // Reset and trigger new timeout
   const resetTimeout = () => {

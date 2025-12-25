@@ -89,7 +89,7 @@ describe("NavigationSidebar", () => {
   });
 
   it("can collapse and expand sections", async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     render(
       <BrowserRouter>
         <NavigationSidebar currentPath="/components/button" />

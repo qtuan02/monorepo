@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
-
-import { useIsomorphicLayoutEffect } from "@monorepo/hook";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 export default function UseIsomorphicLayoutEffectDemo() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [renderCount, setRenderCount] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
-  // This hook will use useLayoutEffect on client, useEffect on server
-  const useIsomorphic = useIsomorphicLayoutEffect();
+  // Check if we're on client side
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-  useIsomorphic(() => {
-    // Measure window dimensions
+  // Use useLayoutEffect for DOM measurements (only on client)
+  useLayoutEffect(() => {
     const updateDimensions = () => {
       setDimensions({
         width: window.innerWidth,
@@ -44,7 +45,7 @@ export default function UseIsomorphicLayoutEffectDemo() {
             Width
           </p>
           <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            {dimensions.width}px
+            {isClient ? `${dimensions.width}px` : "..."}
           </p>
         </div>
         <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
@@ -52,7 +53,7 @@ export default function UseIsomorphicLayoutEffectDemo() {
             Height
           </p>
           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-            {dimensions.height}px
+            {isClient ? `${dimensions.height}px` : "..."}
           </p>
         </div>
       </div>
@@ -62,9 +63,7 @@ export default function UseIsomorphicLayoutEffectDemo() {
           <code className="bg-gray-200 px-1 dark:bg-gray-800">
             useLayoutEffect
           </code>{" "}
-          on client,{" "}
-          <code className="bg-gray-200 px-1 dark:bg-gray-800">useEffect</code>{" "}
-          on server
+          for synchronous DOM measurements
         </p>
       </div>
     </div>

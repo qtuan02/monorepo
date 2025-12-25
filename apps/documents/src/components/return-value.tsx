@@ -5,7 +5,7 @@ interface ReturnValueProps {
 }
 
 export default function ReturnValue({ returns }: ReturnValueProps) {
-  if (!returns || !returns.type) {
+  if (!returns?.type) {
     return (
       <div
         className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800"

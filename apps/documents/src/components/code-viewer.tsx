@@ -178,8 +178,8 @@ function highlightSyntax(line: string, language: string): React.ReactNode {
     return line;
   }
 
-  // Basic patterns for highlighting
-  const patterns: {
+  // Basic patterns for highlighting (reserved for Shiki in Epic 3)
+  const _patterns: {
     regex: RegExp;
     className: string;
   }[] = [

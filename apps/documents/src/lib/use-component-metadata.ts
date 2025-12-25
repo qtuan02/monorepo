@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { ComponentMetadata } from "~/types/component-metadata";
 // Import generated data (created by scripts/generate-metadata.ts)
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+ 
 // @ts-ignore - Generated at build time
 import componentsData from "~/generated/components.json";
 
