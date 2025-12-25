@@ -2,6 +2,9 @@ import { useState } from "react";
 
 type CopiedValueType = string | null;
 
+/**
+ * Provides a simple way to copy text to the clipboard.
+ */
 export function useCopyToClipboard(): [
   CopiedValueType,
   (text: string) => Promise<void>,

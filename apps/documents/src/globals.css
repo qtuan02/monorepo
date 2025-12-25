@@ -1,0 +1,76 @@
+@import "@monorepo/tailwind-config/globals";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply transition-colors duration-200;
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  /* Card hover animation */
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  /* Smooth transition utility */
+  .smooth-transition {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  /* Fade in animation */
+  .animate-fade-in {
+    animation: fadeIn 300ms ease-in;
+  }
+
+  /* Sidebar menu animations */
+  .sidebar-item {
+    @apply transition-all duration-200 ease-in-out;
+  }
+
+  .sidebar-item:hover {
+    @apply translate-x-1;
+  }
+
+  .sidebar-item-active {
+    @apply translate-x-1;
+    animation: pulse-once 600ms ease-out;
+  }
+}
+
+/* Keyframes for fade in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Keyframes for active item pulse */
+@keyframes pulse-once {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

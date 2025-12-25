@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+/**
+ * Persists state in browser's localStorage with automatic synchronization.
+ */
 export function useLocalStorage<T>(
   key: string,
   initialValue: T,

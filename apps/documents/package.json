@@ -1,0 +1,47 @@
+{
+  "name": "@monorepo/documents",
+  "private": true,
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "generate:docs": "npx --yes tsx scripts/generate-metadata.ts",
+    "dev": "pnpm generate:docs && vite",
+    "build": "pnpm generate:docs && tsc && vite build",
+    "preview": "vite preview",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@monorepo/hook": "workspace:*",
+    "@monorepo/ui": "workspace:*",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "react-router": "catalog:",
+    "lucide-react": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/eslint-config": "workspace:*",
+    "@monorepo/prettier-config": "workspace:*",
+    "@monorepo/tailwind-config": "workspace:*",
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "@vitejs/plugin-react": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "@testing-library/user-event": "catalog:",
+    "eslint": "catalog:",
+    "jsdom": "catalog:",
+    "prettier": "catalog:",
+    "ts-morph": "^23.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "prettier": "@monorepo/prettier-config"
+}

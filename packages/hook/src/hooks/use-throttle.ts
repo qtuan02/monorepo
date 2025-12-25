@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 
+/**
+ * Limits value updates to at most once per specified interval.
+ */
 export function useThrottle<T>(value: T, delay: number): T {
   const [throttledValue, setThrottledValue] = useState<T>(value);
 

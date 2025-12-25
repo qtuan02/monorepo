@@ -1,6 +1,9 @@
 import type { RefObject } from "react";
 import { useEffect, useState } from "react";
 
+/**
+ * Detects when an element is visible in the viewport.
+ */
 export function useOnScreen(
   ref: RefObject<Element | null>,
   rootMargin = "0px",
