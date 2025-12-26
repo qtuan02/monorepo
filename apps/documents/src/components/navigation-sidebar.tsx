@@ -94,16 +94,16 @@ export default function NavigationSidebar({
 
   return (
     <>
-      {/* Mobile hamburger button - improved visibility */}
+      {/* Mobile hamburger button - moved to bottom-right */}
       <button
-        className="fixed top-4 left-4 z-50 rounded-lg border border-gray-200 bg-white p-2 shadow-md md:hidden dark:border-gray-700 dark:bg-gray-900"
+        className="fixed right-6 bottom-6 z-50 rounded-xl border border-gray-200 bg-white p-3 shadow-lg md:hidden dark:border-gray-700 dark:bg-gray-900"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label="Toggle menu"
       >
         {isMobileOpen ? (
-          <X className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          <X className="h-6 w-6 text-gray-700 dark:text-gray-300" />
         ) : (
-          <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+          <Menu className="h-6 w-6 text-gray-700 dark:text-gray-300" />
         )}
       </button>
 
@@ -111,7 +111,7 @@ export default function NavigationSidebar({
       <aside
         role="complementary"
         className={cn(
-          "scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 fixed top-0 left-0 z-40 h-full w-72 overflow-y-auto border-r bg-white transition-transform md:sticky md:top-0 md:h-screen md:translate-x-0 dark:bg-gray-900",
+          "scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 fixed top-0 left-0 z-40 h-screen w-72 overflow-y-auto border-r bg-white transition-transform md:translate-x-0 dark:bg-gray-900",
           // Mobile: show/hide based on isMobileOpen
           isMobileOpen ? "translate-x-0" : "-translate-x-full",
         )}

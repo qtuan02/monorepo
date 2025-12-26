@@ -56,7 +56,7 @@ export default function HookDetailPage() {
 
   return (
     <AppLayout currentPath={`/hooks/${id || ""}`}>
-      <div className="px-6 py-6 md:px-12">
+      <div className="px-4 py-4 md:px-12 md:py-6">
         <div className="mx-auto max-w-7xl">
           <Breadcrumb
             items={[

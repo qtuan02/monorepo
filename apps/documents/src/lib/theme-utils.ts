@@ -38,9 +38,28 @@ export function getEffectiveTheme(theme: Theme): "light" | "dark" {
 
 export function applyTheme(theme: "light" | "dark"): void {
   const root = document.documentElement;
-  if (theme === "dark") {
-    root.classList.add("dark");
-  } else {
-    root.classList.remove("dark");
-  }
+
+  // Temporarily disable transitions for instant theme switch
+  const css = document.createElement("style");
+  css.textContent = `* {
+    -webkit-transition: none !important;
+    -moz-transition: none !important;
+    -o-transition: none !important;
+    transition: none !important;
+  }`;
+  document.head.appendChild(css);
+
+  // Use requestAnimationFrame to prevent blocking the UI
+  requestAnimationFrame(() => {
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
+    }
+
+    // Re-enable transitions after theme is applied
+    requestAnimationFrame(() => {
+      document.head.removeChild(css);
+    });
+  });
 }
