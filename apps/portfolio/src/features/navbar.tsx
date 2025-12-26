@@ -37,6 +37,9 @@ export default function Navbar() {
             </Tooltip>
           </DockIcon>
         ))}
+        <DockIcon className="!w-3" key="line-1">
+          |
+        </DockIcon>
         <DockIcon key="theme">
           <Tooltip>
             <TooltipTrigger asChild>
