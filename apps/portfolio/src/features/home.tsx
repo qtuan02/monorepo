@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage, Badge } from "@monorepo/ui";
 import BlurFade from "~/components/blur-fade";
 import BlurFadeText from "~/components/blur-fade-text";
 import { Lens } from "~/components/lens";
+import { ProjectCard } from "~/components/project-card";
 import { ResumeCard } from "~/components/resume-card";
 import { DATA } from "~/constants/data";
 
@@ -128,6 +129,33 @@ export default function HomePage() {
                 <Badge className="rounded-sm px-1.5 transition-all duration-300 select-none hover:-translate-y-1 md:px-3 md:py-1">
                   {skill}
                 </Badge>
+              </BlurFade>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div className="flex min-h-0 flex-col gap-y-3">
+          <BlurFade delay={BLUR_FADE_DELAY * 11}>
+            <h2 className="text-xl font-bold">{DATA.projects.title}</h2>
+          </BlurFade>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {DATA.projects.data.map((project, index) => (
+              <BlurFade
+                key={`project-${index}`}
+                delay={BLUR_FADE_DELAY * 12 + index * 0.1}
+                className="h-full"
+              >
+                <ProjectCard
+                  title={project.title}
+                  description={project.description}
+                  techStack={project.techStack}
+                  github={project.github}
+                  demo={project.demo}
+                  image={project.image}
+                  type={project.type}
+                />
               </BlurFade>
             ))}
           </div>
