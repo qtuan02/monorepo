@@ -215,7 +215,8 @@ export const DATA = {
         title: "Document UI",
         description: "",
         techStack: [
-          "Next.js",
+          "React.js",
+          "Vite",
           "TypeScript",
           "Shadcn UI",
           "Tailwind CSS",
