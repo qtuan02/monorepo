@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 
 import AppLayout from "~/components/app-layout";
@@ -10,6 +11,12 @@ export default function ComponentDetailPage() {
     id: string;
   }>();
   const { component, isLoading } = useComponentById(id || "");
+
+  useEffect(() => {
+    if (component) {
+      document.title = `Component | ${component.name}`;
+    }
+  }, [component]);
 
   // Loading state
   if (isLoading) {

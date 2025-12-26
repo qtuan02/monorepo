@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 
 import AppLayout from "~/components/app-layout";
@@ -8,6 +9,12 @@ import { useHookById } from "~/lib/use-hook-metadata";
 export default function HookDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { hook, isLoading } = useHookById(id || "");
+
+  useEffect(() => {
+    if (hook) {
+      document.title = `Hook | ${hook.name}`;
+    }
+  }, [hook]);
 
   // Loading state
   if (isLoading) {

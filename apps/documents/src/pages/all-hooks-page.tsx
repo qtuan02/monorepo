@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import HookCard from "~/components/hook-card";
@@ -5,6 +7,10 @@ import { useHookMetadata } from "~/lib/use-hook-metadata";
 
 export default function AllHooksPage() {
   const { hooks, isLoading } = useHookMetadata();
+
+  useEffect(() => {
+    document.title = "Hooks";
+  }, []);
 
   // Sort all hooks alphabetically
   const sortedHooks = [...hooks].sort((a, b) => a.name.localeCompare(b.name));

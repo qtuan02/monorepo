@@ -8,6 +8,7 @@ import {
 } from "@monorepo/ui/components/tabs";
 
 import type { ComponentMetadata } from "~/types/component-metadata";
+import { componentExamples as componentDemoRegistry } from "~/registry/component-examples";
 import CodeViewer from "./code-viewer";
 import ExamplesSection from "./examples-section";
 import ImportSection from "./import-section";
@@ -22,12 +23,16 @@ interface ComponentDetailProps {
 
 export default function ComponentDetail({ component }: ComponentDetailProps) {
   // Transform examples array to match ExamplesSection interface
-  const componentExamples =
+  const transformedExamples =
     component.examples?.map((code, index) => ({
       title: `Example ${index + 1}`,
       description: `Usage example for ${component.name}`,
       code,
     })) || [];
+
+  // Get demo code for usage section (matches preview tab)
+  const demoExample = componentDemoRegistry[component.id];
+  const usageCode = demoExample?.code || `<${component.name} />`;
 
   return (
     <div className="space-y-6" data-testid="component-detail">
@@ -64,9 +69,9 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="preview">
             Preview{" "}
-            {componentExamples.length > 0 && (
+            {transformedExamples.length > 0 && (
               <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-100">
-                {componentExamples.length}
+                {transformedExamples.length}
               </span>
             )}
           </TabsTrigger>
@@ -85,9 +90,9 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
             componentId={component.id}
           />
 
-          {/* Usage Section - Code only, no preview */}
+          {/* Usage Section - Shows demo code matching preview */}
           <UsageSection
-            code={`<${component.name} />`}
+            code={usageCode}
             component={component}
             showPreview={false}
           />
@@ -104,9 +109,9 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           </section>
 
           {/* Examples with code */}
-          {componentExamples.length > 0 && (
+          {transformedExamples.length > 0 && (
             <ExamplesSection
-              examples={componentExamples}
+              examples={transformedExamples}
               componentName={component.name}
             />
           )}
