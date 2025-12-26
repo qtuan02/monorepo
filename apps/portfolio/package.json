@@ -18,6 +18,7 @@
     "@monorepo/env": "workspace:*",
     "@monorepo/ui": "workspace:*",
     "@monorepo/sentry": "workspace:*",
+    "@next/third-parties": "catalog:next15",
     "@t3-oss/env-nextjs": "catalog:next15",
     "lucide-react": "catalog:",
     "motion": "catalog:",
