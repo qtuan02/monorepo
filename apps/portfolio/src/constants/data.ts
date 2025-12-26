@@ -194,7 +194,7 @@ export const DATA = {
     title: "Public Projects",
     data: [
       {
-        title: "Assistant AI & MCP",
+        title: "Assistant AI & MCP tools",
         description: "",
         techStack: [
           "Next.js",
