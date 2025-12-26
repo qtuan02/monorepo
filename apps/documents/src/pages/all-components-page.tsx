@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import ComponentCard from "~/components/component-card";
@@ -5,6 +7,10 @@ import { useComponentMetadata } from "~/lib/use-component-metadata";
 
 export default function AllComponentsPage() {
   const { components, isLoading } = useComponentMetadata();
+
+  useEffect(() => {
+    document.title = "Components";
+  }, []);
 
   // Sort all components alphabetically
   const sortedComponents = [...components].sort((a, b) =>
