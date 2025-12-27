@@ -113,7 +113,7 @@ export function ProjectCard({
               )}
             >
               <ExternalLinkIcon className="size-3.5" />
-              <span>Demo</span>
+              <span>Website</span>
             </Link>
           )}
         </div>
