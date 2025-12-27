@@ -1,40 +1,38 @@
-# Structure
+# Monorepo
+
+## 📁 Structure
 
 ```
-monorepo
-├── apps/                   # Main applications
-│ ├── _template/            # Template for bootstrapping a new app (Next.js)
-│ ├── _portfolio/           # Portfolio application v1 (Next.js)
-│ ├── assistant-ai/         # Chat application with Google Gemini (Next.js)
-│ ├── mcp/                  # MCP server for weather data (Next.js)
-│ └── portfolio/            # Frontend portfolio (Next.js)
+monorepo/
+├── apps/                      # Applications
+│   ├── _template/            # Next.js app template for bootstrapping
+│   ├── assistant-ai/         # AI chat application (Next.js 15 + React 19)
+│   ├── documents/            # Component docs site (Vite + React 19)
+│   ├── mcp/                  # Model Context Protocol server
+│   └── portfolio/            # Portfolio website (Next.js 15 + React 19)
 │
-├── packages/               # Shared packages
-│ ├── db/                   # Database package with Prisma ORM and MongoDB
-│ ├── env/                  # Environment variable manager
-│ ├── hook/                 # Reusable React hooks
-│ ├── sentry/               # Sentry integration package
-│ ├── ui/                   # Reusable UI components library
-│ └── ui-public/            # Public UI components (built package)
+├── packages/                  # Shared packages
+│   ├── db/                   # Database package with Prisma ORM + MongoDB
+│   ├── env/                  # Environment variable validation
+│   ├── hook/                 # Reusable React hooks
+│   ├── sentry/               # Sentry error tracking integration
+│   ├── ui/                   # UI component library (shadcn/ui based)
+│   └── ui-public/            # Published UI package for NPM
 │
-├── toolings/               # Shared tooling/configurations
-│ ├── eslint/               # ESLint configuration
-│ ├── prettier/             # Prettier configuration
-│ ├── tailwind/             # TailwindCSS configuration
-│ └── typescript/           # TypeScript configuration
+├── toolings/                  # Shared configurations
+│   ├── eslint/               # ESLint configuration
+│   ├── prettier/             # Prettier configuration
+│   ├── tailwind/             # TailwindCSS configuration
+│   └── typescript/           # TypeScript configuration
 │
-├── docs/                   # Documentation
-│ └── apps/                 # Application-specific documentation
+├── turbo/                     # Turborepo generators
+│   └── generators/           # Code generation templates
 │
-├── turbo/                  # Turborepo generators
-│ └── generators/           # Code generation templates
-│
-├── .env.template           # Environment variables template
-├── .gitignore              # Git ignore
-├── package.json            # Root package.json
-├── pnpm-workspace.yaml     # pnpm workspace configuration
-├── turbo.json              # Turborepo configuration
-└── README.md               # Documentation
+└── docs/                      # Documentation
+    ├── apps/                 # Application-specific docs
+    ├── packages/             # Package-specific docs
+    ├── bmad/                 # BMAD workflow documentation
+    └── others/               # General documentation
 ```
 
 ## Applications
@@ -45,8 +43,8 @@ monorepo
   - Source: `apps/assistant-ai/`
 - **[Portfolio](https://portfolio-ui-2025.vercel.app)** - Frontend portfolio
   - Source: `apps/portfolio/`
-- **[Portfolio v1](https://portfolio-ui-2025v1.vercel.app)** - Portfolio application v1
-  - Source: `apps/_portfolio/`
+- **[Documents](https://documents-ui.vercel.app)** - Frontend documents
+  - Source: `apps/documents/`
 
 ### External Projects
 
