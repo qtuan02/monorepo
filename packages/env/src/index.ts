@@ -14,14 +14,6 @@ const env = createEnv({
     // DATABASE
     MONGODB_URL: z.string().optional(),
 
-    // BETTER AUTH
-    BETTER_AUTH_SECRET: z.string().optional(),
-    BETTER_AUTH_URL: z.string().optional(),
-
-    // GOOGLE OAUTH
-    GOOGLE_CLIENT_ID: z.string().optional(),
-    GOOGLE_CLIENT_SECRET: z.string().optional(),
-
     // ASSISTANT AI KEY
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
     OPENWEATHERMAP_API_KEY: z.string().optional(),
@@ -33,13 +25,12 @@ const env = createEnv({
 
     // DOMAIN
     NEXT_PUBLIC_TEMPLATE_DOMAIN: z.string().optional(),
-    NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN: z.string().optional(),
+    NEXT_PUBLIC_DOCUMENTS_DOMAIN: z.string().optional(),
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: z.string().optional(),
     NEXT_PUBLIC_ASSISTANT_AI_DOMAIN: z.string().optional(),
 
     // SENTRY
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN: z.string().optional(),
-    NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN: z.string().optional(),
     NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN: z.string().optional(),
 
     // GOOGLE
@@ -51,8 +42,7 @@ const env = createEnv({
 
     // DOMAIN
     NEXT_PUBLIC_TEMPLATE_DOMAIN: process.env.NEXT_PUBLIC_TEMPLATE_DOMAIN,
-    NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN:
-      process.env.NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN,
+    NEXT_PUBLIC_DOCUMENTS_DOMAIN: process.env.NEXT_PUBLIC_DOCUMENTS_DOMAIN,
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: process.env.NEXT_PUBLIC_PORTFOLIO_DOMAIN,
     NEXT_PUBLIC_ASSISTANT_AI_DOMAIN:
       process.env.NEXT_PUBLIC_ASSISTANT_AI_DOMAIN,
@@ -60,8 +50,6 @@ const env = createEnv({
     //SENTRY
     NEXT_PUBLIC_SENTRY_TEMPLATE_DSN:
       process.env.NEXT_PUBLIC_SENTRY_TEMPLATE_DSN,
-    NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN:
-      process.env.NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN,
     NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN:
       process.env.NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN,
 

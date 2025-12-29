@@ -50,21 +50,16 @@ export const env = createEnv({
 - `NODE_ENV` - Node environment (development, production, test)
 - `DISCORD_TOKEN` - Discord bot token (optional)
 - `MONGODB_URL` - MongoDB connection URL (optional)
-- `BETTER_AUTH_SECRET` - Better Auth secret key (optional)
-- `BETTER_AUTH_URL` - Better Auth base URL (optional)
-- `GOOGLE_CLIENT_ID` - Google OAuth client ID (optional)
-- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret (optional)
 - `GOOGLE_GENERATIVE_AI_API_KEY` - Google Gemini API key (optional)
 
 ### Client Variables
 
 - `NEXT_PUBLIC_ENV` - Public environment identifier (optional)
 - `NEXT_PUBLIC_TEMPLATE_DOMAIN` - Template app domain (optional)
-- `NEXT_PUBLIC_PORTFOLIO_V1_DOMAIN` - Portfolio v1 domain (optional)
+- `NEXT_PUBLIC_DOCUMENTS_DOMAIN` - Portfolio v1 domain (optional)
 - `NEXT_PUBLIC_PORTFOLIO_DOMAIN` - Portfolio domain (optional)
 - `NEXT_PUBLIC_ASSISTANT_AI_DOMAIN` - Assistant AI domain (optional)
 - `NEXT_PUBLIC_SENTRY_TEMPLATE_DSN` - Sentry DSN for template (optional)
-- `NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN` - Sentry DSN for portfolio v1 (optional)
 - `NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN` - Sentry DSN for portfolio (optional)
 - `NEXT_PUBLIC_GOOGLE_ANALYTICS` - Google Analytics ID (optional)
 - `NEXT_PUBLIC_GOOGLE_TAG_MANAGER` - Google Tag Manager ID (optional)

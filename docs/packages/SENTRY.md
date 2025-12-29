@@ -132,10 +132,8 @@ export default function GlobalError({
 
 Each app requires its own DSN:
 
-- `_portfolio`: `NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN`
 - `_template`: `NEXT_PUBLIC_SENTRY_TEMPLATE_DSN`
 - `portfolio`: `NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN`
-- `document`: `NEXT_PUBLIC_SENTRY_PORTFOLIO_V1_DSN`
 
 Add these to `.env` in the monorepo root.
 
