@@ -18,7 +18,7 @@ const mockComponent: ComponentMetadata = {
   sourceCode: "export function Button() {}",
 };
 
-vi.mock("~/lib/use-component-metadata", () => ({
+vi.mock("~/hooks/use-component-metadata", () => ({
   useComponentMetadata: () => ({ components: [], isLoading: false }),
   useComponentById: vi.fn((id: string) => {
     if (id === "button") {

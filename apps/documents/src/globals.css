@@ -5,9 +5,14 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  #root {
+    @apply m-0 h-full w-full overflow-hidden p-0;
+  }
+
   html {
     @apply transition-colors duration-200;
-    scroll-behavior: smooth;
   }
 }
 
@@ -61,6 +66,33 @@
   50% {
     opacity: 0.85;
   }
+}
+
+/* Collapsible animations */
+@keyframes collapsible-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.animate-collapsible-down {
+  animation: collapsible-down 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-collapsible-up {
+  animation: collapsible-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Reduced motion support for accessibility */

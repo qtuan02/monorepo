@@ -5,7 +5,7 @@ import {
   slugToHookCategory,
   isValidHookCategorySlug,
   filterHooksByCategory,
-} from "~/lib/hook-category-utils";
+} from "~/utils/hook-category-utils";
 import type { HookMetadata } from "~/types/hook-metadata";
 
 describe("hook-category-utils", () => {

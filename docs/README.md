@@ -15,17 +15,8 @@ docs/
 │   ├── DATABASE.MD         # Prisma ORM and MongoDB guide
 │   └── SENTRY.md           # Sentry error tracking setup
 │
-├── bmad/                    # BMAD workflow documentation
-│   ├── brief.md            # Project brief for Documents app
-│   ├── brainstorm.md       # Brainstorming sessions
-│   ├── prd.md              # Product Requirements Document
-│   ├── architecture.md     # System architecture
-│   ├── epics/              # Epic documentation
-│   ├── stories/            # User story documentation
-│   └── qa/                 # QA test results
-│
+
 └── others/                  # General documentation
-    ├── BMAD-GUIDE.md       # BMAD system usage guide
     └── CHANGESET.md        # NPM package publishing guide
 ```
 
@@ -52,11 +43,9 @@ docs/
 
 ### Development Guides
 
-| Topic                 | Description                     | Documentation                   |
-| --------------------- | ------------------------------- | ------------------------------- |
-| **BMAD Workflow**     | Development methodology         | [Guide](./others/BMAD-GUIDE.md) |
-| **Publishing to NPM** | Package versioning & publishing | [Guide](./others/CHANGESET.md)  |
-| **Project Brief**     | Documents app overview          | [Brief](./bmad/brief.md)        |
+| Topic                 | Description                     | Documentation                  |
+| --------------------- | ------------------------------- | ------------------------------ |
+| **Publishing to NPM** | Package versioning & publishing | [Guide](./others/CHANGESET.md) |
 
 ## 📖 Documentation Guides
 
@@ -65,9 +54,8 @@ docs/
 Start here to get up to speed:
 
 1. **[Main README](../README.md)** - Monorepo overview and setup
-2. **[BMAD Guide](./others/BMAD-GUIDE.md)** - Development workflow
-3. **Application Docs** - Specific app you'll be working on
-4. **Package Docs** - Shared libraries you'll use
+2. **Application Docs** - Specific app you'll be working on
+3. **Package Docs** - Shared libraries you'll use
 
 ### For Application Development
 
@@ -149,7 +137,6 @@ Learn how to publish packages:
 ### By Topic
 
 - **Getting Started**: [Main README](../README.md)
-- **Development Workflow**: [BMAD Guide](./others/BMAD-GUIDE.md)
 - **API Integration**: [Assistant AI](./apps/ASSISTANT-AI.md), [MCP Server](./apps/MCP.md)
 - **Database**: [Database Guide](./packages/DATABASE.MD)
 - **Error Tracking**: [Sentry Guide](./packages/SENTRY.md)
@@ -225,11 +212,9 @@ Learn how to publish packages:
 1. **This documentation** - Start here
 2. **Code comments** - Check inline documentation
 3. **Package READMEs** - See package-specific docs
-4. **BMAD workflow** - Follow development process
 
 ### Need More Help?
 
-- Review the [BMAD Guide](./others/BMAD-GUIDE.md) for workflow questions
 - Check app-specific docs for technical issues
 - Contact the maintainer for urgent matters
 

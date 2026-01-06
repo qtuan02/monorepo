@@ -27,12 +27,12 @@ const mockHook: HookMetadata = {
   sourceCode: `export function useState<T>(initialValue: T) {
   // implementation
 }`,
-  examples: ["const [count, setCount] = useState(0);"],
+  previews: ["const [count, setCount] = useState(0);"],
 };
 
 const mockHookNoExamples: HookMetadata = {
   ...mockHook,
-  examples: undefined,
+  previews: undefined,
 };
 
 describe("HookDetail", () => {
@@ -105,23 +105,23 @@ describe("HookDetail", () => {
     expect(codeViewers.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders examples section when examples exist", () => {
+  it("renders previews section when previews exist", () => {
     render(
       <BrowserRouter>
         <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Examples")).toBeInTheDocument();
+    expect(screen.getByText("Previews")).toBeInTheDocument();
   });
 
-  it("does not render examples section when no examples", () => {
+  it("does not render previews section when no previews", () => {
     render(
       <BrowserRouter>
         <HookDetail hook={mockHookNoExamples} />
       </BrowserRouter>,
     );
 
-    expect(screen.queryByText("Examples")).not.toBeInTheDocument();
+    expect(screen.queryByText("Previews")).not.toBeInTheDocument();
   });
 });

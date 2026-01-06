@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 
-import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import ComponentCard from "~/components/component-card";
-import { useComponentMetadata } from "~/lib/use-component-metadata";
+import { useComponentMetadata } from "~/hooks/use-component-metadata";
 
 export default function AllComponentsPage() {
   const { components, isLoading } = useComponentMetadata();
@@ -18,8 +17,8 @@ export default function AllComponentsPage() {
   );
 
   return (
-    <AppLayout currentPath="/components">
-      <div className="px-4 py-4 md:px-12 md:py-6">
+    <>
+      <div className="px-4 pt-4 pb-8 md:px-12 md:pt-6">
         <div className="mx-auto max-w-7xl">
           <Breadcrumb
             items={[{ label: "Home", path: "/" }, { label: "Components" }]}
@@ -28,7 +27,7 @@ export default function AllComponentsPage() {
           <div className="mb-6">
             <h1 className="text-3xl font-bold">All Components</h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
-              Browse all available UI components from the shadcn collection
+              Browse all available UI components from the Shadcn UI collection
             </p>
           </div>
 
@@ -39,7 +38,7 @@ export default function AllComponentsPage() {
               {/* Single shadcn section with all components */}
               <section>
                 <h2 className="mb-4 text-2xl font-semibold text-gray-900 dark:text-gray-100">
-                  shadcn
+                  Shadcn UI
                 </h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {sortedComponents.map((component) => (
@@ -51,6 +50,6 @@ export default function AllComponentsPage() {
           )}
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }

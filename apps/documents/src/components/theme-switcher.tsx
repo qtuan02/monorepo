@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 
-import type { Theme } from "~/lib/theme-utils";
+import type { Theme } from "~/utils/theme-utils";
 import { useTheme } from "~/contexts/theme-context";
-import { THEMES } from "~/lib/theme-utils";
+import { THEMES } from "~/utils/theme-utils";
 
 const themeOptions: {
   value: Theme;
@@ -45,25 +45,11 @@ export default function ThemeSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"
         aria-label="Toggle theme"
         aria-expanded={isOpen}
       >
         <Icon className="h-4 w-4" />
-        <span className="hidden sm:inline">{currentOption?.label}</span>
-        <svg
-          className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
       </button>
 
       {isOpen && (

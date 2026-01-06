@@ -1,9 +1,8 @@
 import { useEffect } from "react";
 
-import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import HookCard from "~/components/hook-card";
-import { useHookMetadata } from "~/lib/use-hook-metadata";
+import { useHookMetadata } from "~/hooks/use-hook-metadata";
 
 export default function AllHooksPage() {
   const { hooks, isLoading } = useHookMetadata();
@@ -16,7 +15,7 @@ export default function AllHooksPage() {
   const sortedHooks = [...hooks].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <AppLayout currentPath="/hooks">
+    <>
       <div className="px-4 py-4 md:px-12 md:py-6">
         <div className="mx-auto max-w-7xl">
           <Breadcrumb
@@ -49,6 +48,6 @@ export default function AllHooksPage() {
           )}
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }

@@ -11,10 +11,10 @@ import {
 } from "@monorepo/ui/components/dialog";
 import { cn } from "@monorepo/ui/libs/cn";
 
-import type { SearchResult } from "~/lib/search-utils";
-import { searchComponentsAndHooks } from "~/lib/search-utils";
-import { useComponentMetadata } from "~/lib/use-component-metadata";
-import { useHookMetadata } from "~/lib/use-hook-metadata";
+import type { SearchResult } from "~/utils/search-utils";
+import { searchComponentsAndHooks } from "~/utils/search-utils";
+import { useComponentMetadata } from "~/hooks/use-component-metadata";
+import { useHookMetadata } from "~/hooks/use-hook-metadata";
 
 interface SearchModalProps {
   open: boolean;
@@ -50,8 +50,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   ];
 
   const displayItems = query.trim()
-    ? searchComponentsAndHooks(query, components, hooks).slice(0, 20)
-    : allItems.slice(0, 20);
+    ? searchComponentsAndHooks(query, components, hooks)
+    : allItems;
 
   // Reset selected index when results change
   useEffect(() => {
@@ -147,117 +147,162 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             </div>
           ) : (
             <div className="p-2">
-              {!query.trim() && (
+              {!query.trim() ? (
                 <>
+                  {/* All Components Section */}
                   <div className="px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                     All Components ({components.length})
                   </div>
-                  {displayItems
-                    .filter((item) => item.type === "component")
-                    .slice(0, 10)
-                    .map((item) => {
-                      const index = displayItems.indexOf(item);
-                      return (
-                        <li
-                          key={`comp-${item.id}`}
-                          role="option"
-                          aria-selected={index === selectedIndex}
-                          className={cn(
-                            "group mb-1 flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
-                            index === selectedIndex
-                              ? "bg-blue-50 dark:bg-blue-900/20"
-                              : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
-                          )}
-                          onClick={() => handleSelect(item)}
-                          onMouseEnter={() => setSelectedIndex(index)}
-                        >
-                          <div className="mt-0.5 flex-shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-purple-700 uppercase dark:bg-purple-900/30 dark:text-purple-400">
-                            C
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  "truncate font-medium text-gray-900 dark:text-gray-100",
-                                  index === selectedIndex &&
-                                    "text-blue-700 dark:text-blue-300",
-                                )}
-                              >
-                                {item.name}
-                              </span>
+                  <ul role="listbox" className="mb-4 space-y-1">
+                    {displayItems
+                      .filter((item) => item.type === "component")
+                      .map((item) => {
+                        const index = displayItems.indexOf(item);
+                        return (
+                          <li
+                            key={`comp-${item.id}`}
+                            role="option"
+                            aria-selected={index === selectedIndex}
+                            className={cn(
+                              "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
+                              index === selectedIndex
+                                ? "bg-blue-50 dark:bg-blue-900/20"
+                                : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                            )}
+                            onClick={() => handleSelect(item)}
+                            onMouseEnter={() => setSelectedIndex(index)}
+                          >
+                            <div className="mt-0.5 flex-shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-purple-700 uppercase dark:bg-purple-900/30 dark:text-purple-400">
+                              C
                             </div>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  <div className="mt-4 px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "truncate font-medium text-gray-900 dark:text-gray-100",
+                                    index === selectedIndex &&
+                                      "text-blue-700 dark:text-blue-300",
+                                  )}
+                                >
+                                  {item.name}
+                                </span>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                  </ul>
+
+                  {/* All Hooks Section */}
+                  <div className="px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                     All Hooks ({hooks.length})
                   </div>
+                  <ul role="listbox" className="space-y-1">
+                    {displayItems
+                      .filter((item) => item.type === "hook")
+                      .map((item) => {
+                        const index = displayItems.indexOf(item);
+                        return (
+                          <li
+                            key={`hook-${item.id}`}
+                            role="option"
+                            aria-selected={index === selectedIndex}
+                            className={cn(
+                              "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
+                              index === selectedIndex
+                                ? "bg-blue-50 dark:bg-blue-900/20"
+                                : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                            )}
+                            onClick={() => handleSelect(item)}
+                            onMouseEnter={() => setSelectedIndex(index)}
+                          >
+                            <div className="mt-0.5 flex-shrink-0 rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-green-700 uppercase dark:bg-green-900/30 dark:text-green-400">
+                              H
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={cn(
+                                    "truncate font-medium text-gray-900 dark:text-gray-100",
+                                    index === selectedIndex &&
+                                      "text-blue-700 dark:text-blue-300",
+                                  )}
+                                >
+                                  {item.name}
+                                </span>
+                              </div>
+                            </div>
+                          </li>
+                        );
+                      })}
+                  </ul>
                 </>
-              )}
-              <ul role="listbox" className="space-y-1">
-                {displayItems.map((item, index) => (
-                  <li
-                    key={`${item.type}-${item.id}`}
-                    role="option"
-                    aria-selected={index === selectedIndex}
-                    className={cn(
-                      "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
-                      index === selectedIndex
-                        ? "bg-blue-50 dark:bg-blue-900/20"
-                        : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
-                    )}
-                    onClick={() => handleSelect(item)}
-                    onMouseEnter={() => setSelectedIndex(index)}
-                  >
-                    {/* Type Badge */}
-                    <div
+              ) : (
+                /* Search Results */
+                <ul role="listbox" className="space-y-1">
+                  {displayItems.map((item, index) => (
+                    <li
+                      key={`${item.type}-${item.id}`}
+                      role="option"
+                      aria-selected={index === selectedIndex}
                       className={cn(
-                        "mt-0.5 flex-shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
-                        item.type === "component"
-                          ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                          : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+                        "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
+                        index === selectedIndex
+                          ? "bg-blue-50 dark:bg-blue-900/20"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
                       )}
+                      onClick={() => handleSelect(item)}
+                      onMouseEnter={() => setSelectedIndex(index)}
                     >
-                      {item.type === "component" ? "C" : "H"}
-                    </div>
+                      {/* Type Badge */}
+                      <div
+                        className={cn(
+                          "mt-0.5 flex-shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
+                          item.type === "component"
+                            ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
+                            : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+                        )}
+                      >
+                        {item.type === "component" ? "C" : "H"}
+                      </div>
 
-                    {/* Content */}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={cn(
-                            "truncate font-medium text-gray-900 dark:text-gray-100",
-                            index === selectedIndex &&
-                              "text-blue-700 dark:text-blue-300",
-                          )}
-                        >
-                          {item.name}
-                        </span>
-                        {item.category && (
-                          <span className="truncate text-xs text-gray-500 dark:text-gray-400">
-                            · {item.category}
+                      {/* Content */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={cn(
+                              "truncate font-medium text-gray-900 dark:text-gray-100",
+                              index === selectedIndex &&
+                                "text-blue-700 dark:text-blue-300",
+                            )}
+                          >
+                            {item.name}
                           </span>
+                          {item.category && (
+                            <span className="truncate text-xs text-gray-500 dark:text-gray-400">
+                              · {item.category}
+                            </span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="mt-0.5 line-clamp-1 text-sm text-gray-600 dark:text-gray-400">
+                            {item.description}
+                          </p>
                         )}
                       </div>
-                      {item.description && (
-                        <p className="mt-0.5 line-clamp-1 text-sm text-gray-600 dark:text-gray-400">
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
 
-                    {/* Enter hint on selected */}
-                    {index === selectedIndex && (
-                      <div className="flex flex-shrink-0 items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-                        <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] dark:bg-gray-700">
-                          ↵
-                        </kbd>
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ul>
+                      {/* Enter hint on selected */}
+                      {index === selectedIndex && (
+                        <div className="flex flex-shrink-0 items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
+                          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] dark:bg-gray-700">
+                            ↵
+                          </kbd>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           )}
         </div>

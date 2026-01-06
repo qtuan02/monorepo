@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 
-import AppLayout from "~/components/app-layout";
 import Breadcrumb from "~/components/breadcrumb";
 import ComponentDetail from "~/components/component-detail";
-import { useComponentById } from "~/lib/use-component-metadata";
+import { useComponentById } from "~/hooks/use-component-metadata";
 
 export default function ComponentDetailPage() {
   const { id } = useParams<{
@@ -21,7 +20,7 @@ export default function ComponentDetailPage() {
   // Loading state
   if (isLoading) {
     return (
-      <AppLayout currentPath={`/components/${id}`}>
+      <>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">
             <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-900 dark:border-gray-600 dark:border-t-gray-100" />
@@ -30,14 +29,14 @@ export default function ComponentDetailPage() {
             </p>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   // Component not found
   if (!component) {
     return (
-      <AppLayout currentPath={`/components/${id}`}>
+      <>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">
             <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -54,12 +53,12 @@ export default function ComponentDetailPage() {
             </Link>
           </div>
         </div>
-      </AppLayout>
+      </>
     );
   }
 
   return (
-    <AppLayout currentPath={`/components/${id}`}>
+    <>
       <div className="px-4 py-4 md:px-12 md:py-6">
         <div className="mx-auto max-w-7xl">
           <Breadcrumb
@@ -73,6 +72,6 @@ export default function ComponentDetailPage() {
           <ComponentDetail component={component} />
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import { Badge } from "@monorepo/ui";
 import { cn } from "@monorepo/ui/libs/cn";
 
-import type { SearchResult } from "~/lib/search-utils";
+import type { SearchResult } from "~/utils/search-utils";
 
 interface SearchResultsProps {
   results: SearchResult[];

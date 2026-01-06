@@ -1,0 +1,308 @@
+{
+  "hooks": [
+    {
+      "id": "use-copy-to-clipboard",
+      "name": "UseCopyToClipboard",
+      "description": "Provides a simple way to copy text to the clipboard.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-copy-to-clipboard.ts",
+      "parameters": [],
+      "returns": {
+        "type": "[string, (text: string) => Promise<void>]"
+      },
+      "sourceCode": "import { useState } from \"react\";\r\n\r\ntype CopiedValueType = string | null;\r\n\r\n/**\r\n * Provides a simple way to copy text to the clipboard.\r\n */\r\nexport function useCopyToClipboard(): [\r\n  CopiedValueType,\r\n  (text: string) => Promise<void>,\r\n] {\r\n  const [copiedText, setCopiedText] = useState<CopiedValueType>(null);\r\n\r\n  const copy = async (text: string): Promise<void> => {\r\n    if (!navigator?.clipboard) {\r\n      console.warn(\"Clipboard not supported\");\r\n      return;\r\n    }\r\n\r\n    try {\r\n      await navigator.clipboard.writeText(text);\r\n      setCopiedText(text);\r\n    } catch (error) {\r\n      console.log(\"Error\", error);\r\n      setCopiedText(null);\r\n    }\r\n  };\r\n\r\n  return [copiedText, copy];\r\n}\r\n",
+      "previews": [
+        "import { useState } from \"react\";\r\n\r\nimport { useCopyToClipboard } from \"@monorepo/hook\";\r\n\r\nexport default function UseCopyToClipboardPreview() {\r\n  const [text, setText] = useState(\"Hello, copy me!\");\r\n  const [copiedText, copy] = useCopyToClipboard();\r\n  const copied = copiedText !== null;\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-2\">\r\n        <label\r\n          htmlFor=\"copy-input\"\r\n          className=\"block text-sm font-medium text-gray-700 dark:text-gray-300\"\r\n        >\r\n          Text to copy:\r\n        </label>\r\n        <input\r\n          id=\"copy-input\"\r\n          type=\"text\"\r\n          value={text}\r\n          onChange={(e) => setText(e.target.value)}\r\n          className=\"w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white\"\r\n        />\r\n      </div>\r\n      <div className=\"flex items-center gap-2\">\r\n        <button\r\n          onClick={() => copy(text)}\r\n          className=\"rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none\"\r\n        >\r\n          {copied ? \"✓ Copied!\" : \"Copy to Clipboard\"}\r\n        </button>\r\n        {copied && (\r\n          <span className=\"text-sm text-green-600 dark:text-green-400\">\r\n            Text copied successfully!\r\n          </span>\r\n        )}\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-countdown",
+      "name": "UseCountdown",
+      "description": "A custom hook for a countdown timer.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-countdown.ts",
+      "parameters": [
+        {
+          "name": "initialSeconds",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "[number, () => void]"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * A custom hook for a countdown timer.\r\n * @param initialSeconds - The starting number of seconds for the countdown.\r\n * @returns An array containing the current countdown time and a function to reset the countdown.\r\n */\r\nexport function useCountdown(initialSeconds: number): [number, () => void] {\r\n  const [timeLeft, setTimeLeft] = useState<number>(initialSeconds);\r\n\r\n  const reset = () => setTimeLeft(initialSeconds);\r\n\r\n  useEffect(() => {\r\n    if (timeLeft <= 0) return;\r\n\r\n    const intervalId = setInterval(() => {\r\n      setTimeLeft((prev) => prev - 1);\r\n    }, 1000);\r\n\r\n    return () => clearInterval(intervalId);\r\n  }, [timeLeft]);\r\n\r\n  return [timeLeft, reset];\r\n}\r\n",
+      "previews": [
+        "\r\nimport { useCountdown } from \"@monorepo/hook\";\r\n\r\nexport default function UseCountdownPreview() {\r\n  const [timeLeft, reset] = useCountdown(10); // 10 second countdown\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-4 text-center\">\r\n        <div className=\"text-6xl font-bold text-blue-600 dark:text-blue-400\">\r\n          {timeLeft}\r\n        </div>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          {timeLeft > 0 ? \"Counting down...\" : \"Time's up!\"}\r\n        </p>\r\n        <button\r\n          onClick={reset}\r\n          className=\"rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none\"\r\n        >\r\n          Reset Countdown\r\n        </button>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-debounce",
+      "name": "UseDebounce",
+      "description": "Delays updating a value until after a specified time has passed.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-debounce.ts",
+      "parameters": [
+        {
+          "name": "value",
+          "type": "T",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "T"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Delays updating a value until after a specified time has passed.\r\n */\r\nexport function useDebounce<T>(value: T, delay: number): T {\r\n  const [debouncedValue, setDebouncedValue] = useState<T>(value);\r\n\r\n  useEffect(() => {\r\n    const handler = setTimeout(() => {\r\n      setDebouncedValue(value);\r\n    }, delay);\r\n\r\n    return () => {\r\n      clearTimeout(handler);\r\n    };\r\n  }, [value, delay]);\r\n\r\n  return debouncedValue;\r\n}\r\n",
+      "previews": [
+        "import { useState } from \"react\";\r\n\r\nimport { useDebounce } from \"@monorepo/hook\";\r\n\r\nexport default function UseDebouncePreview() {\r\n  const [searchTerm, setSearchTerm] = useState(\"\");\r\n  const debouncedSearch = useDebounce(searchTerm, 500);\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-2\">\r\n        <label\r\n          htmlFor=\"search-input\"\r\n          className=\"block text-sm font-medium text-gray-700 dark:text-gray-300\"\r\n        >\r\n          Type to search (500ms debounce):\r\n        </label>\r\n        <input\r\n          id=\"search-input\"\r\n          type=\"text\"\r\n          value={searchTerm}\r\n          onChange={(e) => setSearchTerm(e.target.value)}\r\n          placeholder=\"Start typing...\"\r\n          className=\"w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white\"\r\n        />\r\n      </div>\r\n      <div className=\"space-y-1 rounded-md bg-gray-50 p-4 dark:bg-gray-900\">\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          <span className=\"font-semibold\">Immediate value:</span> {searchTerm}\r\n        </p>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          <span className=\"font-semibold\">Debounced value:</span>{\" \"}\r\n          {debouncedSearch}\r\n        </p>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-fetch",
+      "name": "UseFetch",
+      "description": "Fetches data from a URL and returns loading and error states.",
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-fetch.ts",
+      "parameters": [
+        {
+          "name": "url",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "{ data: T; loading: boolean; error: Error; }"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Fetches data from a URL and returns loading and error states.\r\n */\r\nexport function useFetch<T>(url: string) {\r\n  const [data, setData] = useState<T | null>(null);\r\n  const [loading, setLoading] = useState(true);\r\n  const [error, setError] = useState<Error | null>(null);\r\n\r\n  useEffect(() => {\r\n    const fetchData = async () => {\r\n      setLoading(true);\r\n      try {\r\n        const response = await fetch(url);\r\n        const result = await response.json();\r\n        setData(result);\r\n      } catch (err) {\r\n        setError(err as Error);\r\n      } finally {\r\n        setLoading(false);\r\n      }\r\n    };\r\n\r\n    fetchData();\r\n  }, [url]);\r\n\r\n  return { data, loading, error };\r\n}\r\n\r\nexport default useFetch;\r\n",
+      "previews": [
+        "import { useState } from \"react\";\r\n\r\nimport { Button } from \"@monorepo/ui/components/button\";\r\n\r\n// Preview implementation since useFetch expects a URL\r\nfunction useFetchPreview<T>(url: string | null) {\r\n  const [data, setData] = useState<T | null>(null);\r\n  const [loading, setLoading] = useState(false);\r\n  const [error, setError] = useState<Error | null>(null);\r\n\r\n  const fetchData = async () => {\r\n    if (!url) return;\r\n    setLoading(true);\r\n    setError(null);\r\n    try {\r\n      const response = await fetch(url);\r\n      const result = await response.json();\r\n      setData(result);\r\n    } catch (err) {\r\n      setError(err as Error);\r\n    } finally {\r\n      setLoading(false);\r\n    }\r\n  };\r\n\r\n  return { data, loading, error, refetch: fetchData };\r\n}\r\n\r\ninterface Todo {\r\n  userId: number;\r\n  id: number;\r\n  title: string;\r\n  completed: boolean;\r\n}\r\n\r\nexport default function UseFetchPreview() {\r\n  const [url, setUrl] = useState<string | null>(null);\r\n  const { data, loading, error, refetch } = useFetchPreview<Todo>(url);\r\n\r\n  const handleFetch = () => {\r\n    setUrl(\"https://jsonplaceholder.typicode.com/todos/1\");\r\n  };\r\n\r\n  // Trigger fetch when URL changes\r\n  if (url && !data && !loading && !error) {\r\n    refetch();\r\n  }\r\n\r\n  return (\r\n    <div className=\"space-y-4\">\r\n      <div className=\"flex flex-col gap-2\">\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          Click the button to fetch a sample TODO item from JSONPlaceholder API\r\n        </p>\r\n        <Button onClick={handleFetch} disabled={loading}>\r\n          {loading ? \"Fetching...\" : \"Fetch Data\"}\r\n        </Button>\r\n      </div>\r\n\r\n      <div className=\"rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900\">\r\n        <h4 className=\"mb-2 text-sm font-medium text-gray-700 dark:text-gray-300\">\r\n          Result:\r\n        </h4>\r\n        {loading && (\r\n          <div className=\"flex items-center gap-2 text-sm text-gray-500\">\r\n            <div className=\"size-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600\" />\r\n            Loading...\r\n          </div>\r\n        )}\r\n        {error && (\r\n          <p className=\"text-sm text-red-600 dark:text-red-400\">\r\n            Error: {error.message}\r\n          </p>\r\n        )}\r\n        {data && (\r\n          <pre className=\"overflow-x-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-800\">\r\n            {JSON.stringify(data, null, 2)}\r\n          </pre>\r\n        )}\r\n        {!loading && !error && !data && (\r\n          <p className=\"text-sm text-gray-500\">No data fetched yet</p>\r\n        )}\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-hover",
+      "name": "UseHover",
+      "description": "Tracks whether an element is being hovered over.",
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-hover.ts",
+      "parameters": [
+        {
+          "name": "elementRef",
+          "type": "React.RefObject<T>",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Tracks whether an element is being hovered over.\r\n */\r\nexport function useHover<T extends HTMLElement>(\r\n  elementRef: React.RefObject<T>,\r\n): boolean {\r\n  // State to track hover status\r\n  const [isHovered, setIsHovered] = useState(false);\r\n\r\n  useEffect(() => {\r\n    const element = elementRef.current;\r\n\r\n    if (!element) return;\r\n\r\n    // Event handlers\r\n    const handleMouseEnter = () => setIsHovered(true);\r\n    const handleMouseLeave = () => setIsHovered(false);\r\n\r\n    // Attach event listeners\r\n    element.addEventListener(\"mouseenter\", handleMouseEnter);\r\n    element.addEventListener(\"mouseleave\", handleMouseLeave);\r\n\r\n    // Cleanup event listeners on unmount or ref change\r\n    return () => {\r\n      element.removeEventListener(\"mouseenter\", handleMouseEnter);\r\n      element.removeEventListener(\"mouseleave\", handleMouseLeave);\r\n    };\r\n  }, [elementRef]);\r\n\r\n  return isHovered;\r\n}\r\n",
+      "previews": [
+        "import { useRef } from \"react\";\r\n\r\nimport { useHover } from \"@monorepo/hook\";\r\n\r\nexport default function UseHoverPreview() {\r\n  const hoverRef = useRef<HTMLDivElement>(null!);\r\n  const isHovered = useHover(hoverRef);\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n        Hover over the box below to see the hook in action:\r\n      </p>\r\n      <div\r\n        ref={hoverRef}\r\n        className={`cursor-pointer rounded-lg p-8 text-center transition-all duration-300 ${\r\n          isHovered\r\n            ? \"scale-105 bg-blue-600 text-white shadow-lg\"\r\n            : \"bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300\"\r\n        }`}\r\n      >\r\n        <p className=\"text-lg font-semibold\">\r\n          {isHovered ? \"🎉 Hovering!\" : \"👋 Hover me!\"}\r\n        </p>\r\n      </div>\r\n      <div className=\"rounded-md bg-gray-50 p-3 dark:bg-gray-900\">\r\n        <code className=\"text-xs text-gray-700 dark:text-gray-300\">\r\n          isHovered: {String(isHovered)}\r\n        </code>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-is-client",
+      "name": "UseIsClient",
+      "description": "Detects if the code is running on the client (browser) side.",
+      "category": "Client-side",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-is-client.ts",
+      "parameters": [],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Detects if the code is running on the client (browser) side.\r\n */\r\nexport function useIsClient() {\r\n  const [isClient, setIsClient] = useState(false);\r\n\r\n  useEffect(() => {\r\n    setIsClient(true);\r\n  }, []);\r\n\r\n  return isClient;\r\n}\r\n",
+      "previews": [
+        "import { useIsClient } from \"@monorepo/hook\";\r\n\r\nexport default function UseIsClientPreview() {\r\n  const isClient = useIsClient();\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-3 text-center\">\r\n        <div\r\n          className={`inline-flex h-16 w-16 items-center justify-center rounded-full ${\r\n            isClient\r\n              ? \"bg-green-100 dark:bg-green-900/30\"\r\n              : \"bg-yellow-100 dark:bg-yellow-900/30\"\r\n          }`}\r\n        >\r\n          <span className=\"text-3xl\">{isClient ? \"✓\" : \"⏳\"}</span>\r\n        </div>\r\n        <p className=\"text-lg font-semibold text-gray-900 dark:text-gray-100\">\r\n          {isClient ? \"Running on Client\" : \"Server-side Rendering\"}\r\n        </p>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          This hook returns{\" \"}\r\n          <code className=\"rounded bg-gray-100 px-2 py-1 dark:bg-gray-900\">\r\n            {String(isClient)}\r\n          </code>\r\n        </p>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-is-mobile",
+      "name": "UseIsMobile",
+      "description": "Detects if the current device is mobile based on screen width.",
+      "category": "Client-side",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-is-mobile.ts",
+      "parameters": [],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import * as React from \"react\";\r\n\r\nconst MOBILE_BREAKPOINT = 768;\r\n\r\n/**\r\n * Detects if the current device is mobile based on screen width.\r\n */\r\nexport function useIsMobile() {\r\n  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(\r\n    undefined,\r\n  );\r\n\r\n  React.useEffect(() => {\r\n    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);\r\n    const onChange = () => {\r\n      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);\r\n    };\r\n    mql.addEventListener(\"change\", onChange);\r\n    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);\r\n    return () => mql.removeEventListener(\"change\", onChange);\r\n  }, []);\r\n\r\n  return !!isMobile;\r\n}\r\n",
+      "previews": [
+        "import { useIsMobile } from \"@monorepo/hook\";\r\n\r\nexport default function UseIsMobilePreview() {\r\n  const isMobile = useIsMobile();\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-4\">\r\n        <div className=\"rounded-md bg-gray-50 p-4 dark:bg-gray-900\">\r\n          <p className=\"text-lg font-semibold text-gray-900 dark:text-gray-100\">\r\n            Current Device:{\" \"}\r\n            <span\r\n              className={\r\n                isMobile\r\n                  ? \"text-blue-600 dark:text-blue-400\"\r\n                  : \"text-green-600 dark:text-green-400\"\r\n              }\r\n            >\r\n              {isMobile ? \"📱 Mobile\" : \"💻 Desktop\"}\r\n            </span>\r\n          </p>\r\n        </div>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          💡 Try resizing your browser window to see the value change\r\n        </p>\r\n        <div className=\"rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900\">\r\n          <p className=\"font-mono text-xs text-gray-700 dark:text-gray-300\">\r\n            isMobile: {isMobile.toString()}\r\n          </p>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-isomorphic-layout-effect",
+      "name": "UseIsomorphicLayoutEffect",
+      "description": "Returns the appropriate layout effect hook based on the environment.\r\nUses `useLayoutEffect` in the browser and `useEffect` on the server.\r\n\r\nThis is useful for avoiding SSR warnings when using `useLayoutEffect`\r\nin components that are rendered on both server and client.",
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-isomorphic-layout-effect.ts",
+      "parameters": [],
+      "returns": {
+        "type": "typeof React.useLayoutEffect"
+      },
+      "sourceCode": "import { useEffect, useLayoutEffect } from \"react\";\r\n\r\n/**\r\n * Returns the appropriate layout effect hook based on the environment.\r\n * Uses `useLayoutEffect` in the browser and `useEffect` on the server.\r\n *\r\n * This is useful for avoiding SSR warnings when using `useLayoutEffect`\r\n * in components that are rendered on both server and client.\r\n *\r\n * @returns The appropriate effect hook for the current environment\r\n *\r\n * @example\r\n * ```tsx\r\n * const useIsomorphicLayoutEffect = useIsomorphicLayoutEffect();\r\n *\r\n * useIsomorphicLayoutEffect(() => {\r\n *   // This will use useLayoutEffect in browser, useEffect on server\r\n *   window.scrollTo(0, 0);\r\n * }, []);\r\n * ```\r\n */\r\nexport function useIsomorphicLayoutEffect() {\r\n  return typeof window !== \"undefined\" ? useLayoutEffect : useEffect;\r\n}\r\n",
+      "previews": [
+        "import { useEffect, useLayoutEffect, useState } from \"react\";\r\n\r\nexport default function UseIsomorphicLayoutEffectPreview() {\r\n  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });\r\n  const [renderCount, setRenderCount] = useState(0);\r\n  const [isClient, setIsClient] = useState(false);\r\n\r\n  // Check if we're on client side\r\n  useEffect(() => {\r\n    setIsClient(true);\r\n  }, []);\r\n\r\n  // Use useLayoutEffect for DOM measurements (only on client)\r\n  useLayoutEffect(() => {\r\n    const updateDimensions = () => {\r\n      setDimensions({\r\n        width: window.innerWidth,\r\n        height: window.innerHeight,\r\n      });\r\n    };\r\n\r\n    updateDimensions();\r\n    window.addEventListener(\"resize\", updateDimensions);\r\n\r\n    return () => window.removeEventListener(\"resize\", updateDimensions);\r\n  }, []);\r\n\r\n  useEffect(() => {\r\n    setRenderCount((prev) => prev + 1);\r\n  }, [dimensions]);\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-2\">\r\n        <h3 className=\"text-lg font-semibold text-gray-900 dark:text-gray-100\">\r\n          Window Dimensions\r\n        </h3>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          Resize your browser window to see updates\r\n        </p>\r\n      </div>\r\n      <div className=\"grid grid-cols-2 gap-4\">\r\n        <div className=\"rounded-md bg-blue-50 p-4 dark:bg-blue-900/20\">\r\n          <p className=\"text-sm font-medium text-gray-700 dark:text-gray-300\">\r\n            Width\r\n          </p>\r\n          <p className=\"text-2xl font-bold text-blue-600 dark:text-blue-400\">\r\n            {isClient ? `${dimensions.width}px` : \"...\"}\r\n          </p>\r\n        </div>\r\n        <div className=\"rounded-md bg-green-50 p-4 dark:bg-green-900/20\">\r\n          <p className=\"text-sm font-medium text-gray-700 dark:text-gray-300\">\r\n            Height\r\n          </p>\r\n          <p className=\"text-2xl font-bold text-green-600 dark:text-green-400\">\r\n            {isClient ? `${dimensions.height}px` : \"...\"}\r\n          </p>\r\n        </div>\r\n      </div>\r\n      <div className=\"rounded-md bg-gray-50 p-3 dark:bg-gray-900\">\r\n        <p className=\"text-xs text-gray-600 dark:text-gray-400\">\r\n          Renders: {renderCount} • Uses{\" \"}\r\n          <code className=\"bg-gray-200 px-1 dark:bg-gray-800\">\r\n            useLayoutEffect\r\n          </code>{\" \"}\r\n          for synchronous DOM measurements\r\n        </p>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-local-storage",
+      "name": "UseLocalStorage",
+      "description": "Persists state in browser's localStorage with automatic synchronization.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-local-storage.ts",
+      "parameters": [
+        {
+          "name": "key",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "initialValue",
+          "type": "T",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "[T, (value: T) => void]"
+      },
+      "sourceCode": "import { useState } from \"react\";\r\n\r\n/**\r\n * Persists state in browser's localStorage with automatic synchronization.\r\n */\r\nexport function useLocalStorage<T>(\r\n  key: string,\r\n  initialValue: T,\r\n): [T, (value: T) => void] {\r\n  const [storedValue, setStoredValue] = useState<T>(() => {\r\n    try {\r\n      const item = window.localStorage.getItem(key);\r\n      return item ? (JSON.parse(item) as T) : initialValue;\r\n    } catch (error) {\r\n      console.error(error);\r\n      return initialValue;\r\n    }\r\n  });\r\n\r\n  const setValue = (value: T) => {\r\n    try {\r\n      setStoredValue(value);\r\n      window.localStorage.setItem(key, JSON.stringify(value));\r\n    } catch (error) {\r\n      console.error(error);\r\n    }\r\n  };\r\n\r\n  return [storedValue, setValue];\r\n}\r\n",
+      "previews": [
+        "import { useLocalStorage } from \"@monorepo/hook\";\r\n\r\nexport default function UseLocalStoragePreview() {\r\n  const [name, setName] = useLocalStorage(\"preview-name\", \"\");\r\n  const [count, setCount] = useLocalStorage(\"preview-count\", 0);\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-2\">\r\n        <label\r\n          htmlFor=\"name-input\"\r\n          className=\"block text-sm font-medium text-gray-700 dark:text-gray-300\"\r\n        >\r\n          Your Name (persisted):\r\n        </label>\r\n        <input\r\n          id=\"name-input\"\r\n          type=\"text\"\r\n          value={name}\r\n          onChange={(e) => setName(e.target.value)}\r\n          placeholder=\"Enter your name\"\r\n          className=\"w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white\"\r\n        />\r\n      </div>\r\n      <div className=\"space-y-2\">\r\n        <p className=\"text-sm font-medium text-gray-700 dark:text-gray-300\">\r\n          Counter (persisted): {count}\r\n        </p>\r\n        <div className=\"flex gap-2\">\r\n          <button\r\n            onClick={() => setCount(count + 1)}\r\n            className=\"rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none\"\r\n          >\r\n            Increment\r\n          </button>\r\n          <button\r\n            onClick={() => setCount(0)}\r\n            className=\"rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-none\"\r\n          >\r\n            Reset\r\n          </button>\r\n        </div>\r\n      </div>\r\n      <p className=\"text-xs text-gray-500 dark:text-gray-400\">\r\n        💡 Reload the page to see values persist in localStorage\r\n      </p>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-media-query",
+      "name": "UseMediaQuery",
+      "description": "Tracks the state of a CSS media query.",
+      "category": "Client-side",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-media-query.ts",
+      "parameters": [
+        {
+          "name": "query",
+          "type": "string",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Tracks the state of a CSS media query.\r\n */\r\nexport function useMediaQuery(query: string): boolean {\r\n  const [matches, setMatches] = useState<boolean>(false);\r\n\r\n  useEffect(() => {\r\n    const mediaQueryList = window.matchMedia(query);\r\n    const documentChangeHandler = () => setMatches(mediaQueryList.matches);\r\n\r\n    // Set the initial state\r\n    setMatches(mediaQueryList.matches);\r\n\r\n    // Listen for changes\r\n    mediaQueryList.addEventListener(\"change\", documentChangeHandler);\r\n\r\n    // Cleanup listener on unmount\r\n    return () => {\r\n      mediaQueryList.removeEventListener(\"change\", documentChangeHandler);\r\n    };\r\n  }, [query]);\r\n\r\n  return matches;\r\n}\r\n",
+      "previews": [
+        "import { useMediaQuery } from \"@monorepo/hook\";\r\n\r\nexport default function UseMediaQueryPreview() {\r\n  const isSmall = useMediaQuery(\"(max-width: 640px)\");\r\n  const isMedium = useMediaQuery(\"(min-width: 641px) and (max-width: 1024px)\");\r\n  const isLarge = useMediaQuery(\"(min-width: 1025px)\");\r\n  const isDark = useMediaQuery(\"(prefers-color-scheme: dark)\");\r\n\r\n  const activeSize = isSmall ? \"Small\" : isMedium ? \"Medium\" : \"Large\";\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-3\">\r\n        <h3 className=\"text-lg font-semibold text-gray-900 dark:text-gray-100\">\r\n          Current Screen Size: {activeSize}\r\n        </h3>\r\n        <div className=\"space-y-2\">\r\n          <div className=\"flex items-center gap-2\">\r\n            <div\r\n              className={`h-4 w-4 rounded-full ${isSmall ? \"bg-green-500\" : \"bg-gray-300 dark:bg-gray-600\"}`}\r\n            />\r\n            <span className=\"text-sm text-gray-700 dark:text-gray-300\">\r\n              Small (≤ 640px): {String(isSmall)}\r\n            </span>\r\n          </div>\r\n          <div className=\"flex items-center gap-2\">\r\n            <div\r\n              className={`h-4 w-4 rounded-full ${isMedium ? \"bg-green-500\" : \"bg-gray-300 dark:bg-gray-600\"}`}\r\n            />\r\n            <span className=\"text-sm text-gray-700 dark:text-gray-300\">\r\n              Medium (641-1024px): {String(isMedium)}\r\n            </span>\r\n          </div>\r\n          <div className=\"flex items-center gap-2\">\r\n            <div\r\n              className={`h-4 w-4 rounded-full ${isLarge ? \"bg-green-500\" : \"bg-gray-300 dark:bg-gray-600\"}`}\r\n            />\r\n            <span className=\"text-sm text-gray-700 dark:text-gray-300\">\r\n              Large (≥ 1025px): {String(isLarge)}\r\n            </span>\r\n          </div>\r\n          <div className=\"flex items-center gap-2\">\r\n            <div\r\n              className={`h-4 w-4 rounded-full ${isDark ? \"bg-green-500\" : \"bg-gray-300 dark:bg-gray-600\"}`}\r\n            />\r\n            <span className=\"text-sm text-gray-700 dark:text-gray-300\">\r\n              Dark Mode: {String(isDark)}\r\n            </span>\r\n          </div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-network-status",
+      "name": "UseNetworkStatus",
+      "description": "Tracks the browser's online/offline network status.",
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-network-status.ts",
+      "parameters": [],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\nconst isServer = typeof window !== \"undefined\";\r\n\r\n/**\r\n * Tracks the browser's online/offline network status.\r\n */\r\nexport function useNetworkStatus(): boolean {\r\n  const [isOnline, setIsOnline] = useState(\r\n    isServer ? true : window.navigator.onLine,\r\n  );\r\n\r\n  useEffect(() => {\r\n    const handleOnline = () => setIsOnline(true);\r\n    const handleOffline = () => setIsOnline(false);\r\n\r\n    window.addEventListener(\"online\", handleOnline);\r\n    window.addEventListener(\"offline\", handleOffline);\r\n\r\n    return () => {\r\n      window.removeEventListener(\"online\", handleOnline);\r\n      window.removeEventListener(\"offline\", handleOffline);\r\n    };\r\n  }, []);\r\n\r\n  return isOnline;\r\n}\r\n",
+      "previews": [
+        "import { useNetworkStatus } from \"@monorepo/hook\";\r\n\r\nexport default function UseNetworkStatusPreview() {\r\n  const isOnline = useNetworkStatus();\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-3 text-center\">\r\n        <div\r\n          className={`inline-flex h-16 w-16 items-center justify-center rounded-full ${\r\n            isOnline\r\n              ? \"bg-green-100 dark:bg-green-900/30\"\r\n              : \"bg-red-100 dark:bg-red-900/30\"\r\n          }`}\r\n        >\r\n          <span className=\"text-3xl\">{isOnline ? \"🌐\" : \"⚠️\"}</span>\r\n        </div>\r\n        <p className=\"text-lg font-semibold text-gray-900 dark:text-gray-100\">\r\n          {isOnline ? \"You are Online\" : \"You are Offline\"}\r\n        </p>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          Try toggling your network connection to see this update.\r\n        </p>\r\n        <div className=\"rounded-md bg-gray-50 p-3 dark:bg-gray-900\">\r\n          <code className=\"text-xs text-gray-700 dark:text-gray-300\">\r\n            isOnline: {String(isOnline)}\r\n          </code>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-on-screen",
+      "name": "UseOnScreen",
+      "description": "Detects when an element is visible in the viewport.",
+      "category": "Uncategorized",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-on-screen.ts",
+      "parameters": [
+        {
+          "name": "ref",
+          "type": "React.RefObject<Element>",
+          "required": true
+        },
+        {
+          "name": "rootMargin",
+          "type": "string",
+          "required": false,
+          "defaultValue": "\"0px\""
+        }
+      ],
+      "returns": {
+        "type": "boolean"
+      },
+      "sourceCode": "import type { RefObject } from \"react\";\r\nimport { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Detects when an element is visible in the viewport.\r\n */\r\nexport function useOnScreen(\r\n  ref: RefObject<Element | null>,\r\n  rootMargin = \"0px\",\r\n): boolean {\r\n  const [isVisible, setIsVisible] = useState(false);\r\n\r\n  useEffect(() => {\r\n    if (ref.current == null) return;\r\n    const currentRef = ref.current;\r\n    const observer = new IntersectionObserver(\r\n      ([entry]) => setIsVisible(entry?.isIntersecting ?? false),\r\n      { rootMargin },\r\n    );\r\n    if (currentRef) observer.observe(currentRef);\r\n    return () => {\r\n      if (currentRef) observer.unobserve(currentRef);\r\n    };\r\n  }, [ref, rootMargin]);\r\n\r\n  return isVisible;\r\n}\r\n",
+      "previews": [
+        "import { useRef } from \"react\";\r\n\r\nimport { useOnScreen } from \"@monorepo/hook\";\r\n\r\nexport default function UseOnScreenPreview() {\r\n  const ref1 = useRef<HTMLDivElement>(null);\r\n  const ref2 = useRef<HTMLDivElement>(null);\r\n  const ref3 = useRef<HTMLDivElement>(null);\r\n\r\n  const isVisible1 = useOnScreen(ref1);\r\n  const isVisible2 = useOnScreen(ref2);\r\n  const isVisible3 = useOnScreen(ref3);\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n        Scroll to see which elements are visible on screen:\r\n      </p>\r\n      <div className=\"h-64 space-y-4 overflow-y-auto rounded-md border border-gray-300 p-4 dark:border-gray-600\">\r\n        <div\r\n          ref={ref1}\r\n          className={`rounded-md p-4 transition-colors ${\r\n            isVisible1\r\n              ? \"border-green-500 bg-green-100 dark:bg-green-900/30\"\r\n              : \"border-gray-300 bg-gray-100 dark:bg-gray-700\"\r\n          } border-2`}\r\n        >\r\n          <p className=\"font-semibold text-gray-900 dark:text-gray-100\">\r\n            Box 1 {isVisible1 ? \"✓ Visible\" : \"✗ Not Visible\"}\r\n          </p>\r\n        </div>\r\n        <div className=\"h-32\" /> {/* Spacer */}\r\n        <div\r\n          ref={ref2}\r\n          className={`rounded-md p-4 transition-colors ${\r\n            isVisible2\r\n              ? \"border-green-500 bg-green-100 dark:bg-green-900/30\"\r\n              : \"border-gray-300 bg-gray-100 dark:bg-gray-700\"\r\n          } border-2`}\r\n        >\r\n          <p className=\"font-semibold text-gray-900 dark:text-gray-100\">\r\n            Box 2 {isVisible2 ? \"✓ Visible\" : \"✗ Not Visible\"}\r\n          </p>\r\n        </div>\r\n        <div className=\"h-32\" /> {/* Spacer */}\r\n        <div\r\n          ref={ref3}\r\n          className={`rounded-md p-4 transition-colors ${\r\n            isVisible3\r\n              ? \"border-green-500 bg-green-100 dark:bg-green-900/30\"\r\n              : \"border-gray-300 bg-gray-100 dark:bg-gray-700\"\r\n          } border-2`}\r\n        >\r\n          <p className=\"font-semibold text-gray-900 dark:text-gray-100\">\r\n            Box 3 {isVisible3 ? \"✓ Visible\" : \"✗ Not Visible\"}\r\n          </p>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-throttle",
+      "name": "UseThrottle",
+      "description": "Limits value updates to at most once per specified interval.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-throttle.ts",
+      "parameters": [
+        {
+          "name": "value",
+          "type": "T",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "T"
+      },
+      "sourceCode": "import { useEffect, useState } from \"react\";\r\n\r\n/**\r\n * Limits value updates to at most once per specified interval.\r\n */\r\nexport function useThrottle<T>(value: T, delay: number): T {\r\n  const [throttledValue, setThrottledValue] = useState<T>(value);\r\n\r\n  useEffect(() => {\r\n    const handler = setTimeout(() => {\r\n      setThrottledValue(value);\r\n    }, delay);\r\n\r\n    // Cleanup the timeout if the effect runs again before the delay completes\r\n    return () => {\r\n      clearTimeout(handler);\r\n    };\r\n  }, [value, delay]);\r\n\r\n  return throttledValue;\r\n}\r\n",
+      "previews": [
+        "import { useState } from \"react\";\r\n\r\nimport { useThrottle } from \"@monorepo/hook\";\r\n\r\nexport default function UseThrottlePreview() {\r\n  const [value, setValue] = useState(\"\");\r\n  const throttledValue = useThrottle(value, 1000);\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-2\">\r\n        <label\r\n          htmlFor=\"throttle-input\"\r\n          className=\"block text-sm font-medium text-gray-700 dark:text-gray-300\"\r\n        >\r\n          Type to see throttling (1000ms):\r\n        </label>\r\n        <input\r\n          id=\"throttle-input\"\r\n          type=\"text\"\r\n          value={value}\r\n          onChange={(e) => setValue(e.target.value)}\r\n          placeholder=\"Start typing...\"\r\n          className=\"w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white\"\r\n        />\r\n      </div>\r\n      <div className=\"space-y-1 rounded-md bg-gray-50 p-4 dark:bg-gray-900\">\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          <span className=\"font-semibold\">Immediate value:</span> {value}\r\n        </p>\r\n        <p className=\"text-sm text-gray-600 dark:text-gray-400\">\r\n          <span className=\"font-semibold\">Throttled value:</span>{\" \"}\r\n          {throttledValue}\r\n        </p>\r\n      </div>\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    },
+    {
+      "id": "use-timeout",
+      "name": "UseTimeout",
+      "description": "A React hook to execute a callback function after a specified delay.",
+      "category": "Utilities",
+      "package": "hook",
+      "filePath": "packages\\hook\\src\\hooks\\use-timeout.ts",
+      "parameters": [
+        {
+          "name": "callback",
+          "type": "() => void",
+          "required": true
+        },
+        {
+          "name": "delay",
+          "type": "number",
+          "required": true
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "sourceCode": "import { useEffect, useRef } from \"react\";\r\n\r\n/**\r\n * A React hook to execute a callback function after a specified delay.\r\n *\r\n * @param callback - The function to execute after the timeout.\r\n * @param delay - The timeout duration in milliseconds. If `null`, the timeout will not run.\r\n */\r\n\r\nexport function useTimeout(callback: () => void, delay: number | null): void {\r\n  const callbackRef = useRef(callback);\r\n\r\n  // Update the callback reference if it changes.\r\n  useEffect(() => {\r\n    callbackRef.current = callback;\r\n  }, [callback]);\r\n\r\n  // Set the timeout.\r\n  useEffect(() => {\r\n    if (!delay && delay !== 0) {\r\n      return;\r\n    }\r\n\r\n    const id = setTimeout(() => {\r\n      callbackRef.current();\r\n    }, delay);\r\n\r\n    return () => {\r\n      clearTimeout(id);\r\n    };\r\n  }, [delay]);\r\n}\r\n",
+      "previews": [
+        "import { useState } from \"react\";\r\n\r\nimport { useTimeout } from \"@monorepo/hook\";\r\n\r\nexport default function UseTimeoutPreview() {\r\n  const [message, setMessage] = useState(\"\");\r\n  const [delay, setDelay] = useState(3000);\r\n  const [_key, setKey] = useState(0); // Use key to reset timeout\r\n\r\n  // Reset and trigger new timeout\r\n  const resetTimeout = () => {\r\n    setMessage(\"Timeout started...\");\r\n    setKey((prev) => prev + 1);\r\n  };\r\n\r\n  // Use the timeout hook\r\n  useTimeout(\r\n    () => {\r\n      setMessage(\"Timeout completed!\");\r\n    },\r\n    message === \"Timeout started...\" ? delay : null,\r\n  );\r\n\r\n  return (\r\n    <div className=\"space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800\">\r\n      <div className=\"space-y-2\">\r\n        <label\r\n          htmlFor=\"delay-input\"\r\n          className=\"block text-sm font-medium text-gray-700 dark:text-gray-300\"\r\n        >\r\n          Delay (ms):\r\n        </label>\r\n        <input\r\n          id=\"delay-input\"\r\n          type=\"number\"\r\n          value={delay}\r\n          onChange={(e) => setDelay(Number(e.target.value))}\r\n          min=\"1000\"\r\n          max=\"10000\"\r\n          step=\"1000\"\r\n          className=\"w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white\"\r\n        />\r\n      </div>\r\n      <button\r\n        onClick={resetTimeout}\r\n        className=\"w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none\"\r\n      >\r\n        Start Timeout\r\n      </button>\r\n      {message && (\r\n        <div className=\"rounded-md bg-gray-50 p-4 dark:bg-gray-900\">\r\n          <p className=\"text-sm font-medium text-gray-900 dark:text-gray-100\">\r\n            {message}\r\n          </p>\r\n        </div>\r\n      )}\r\n    </div>\r\n  );\r\n}\r\n"
+      ]
+    }
+  ]
+}
