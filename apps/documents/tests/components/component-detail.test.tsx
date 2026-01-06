@@ -43,7 +43,7 @@ export function Button({ variant = "primary", disabled, children }: ButtonProps)
     </button>
   );
 }`,
-  examples: [
+  previews: [
     `<Button variant="primary">Click me</Button>`,
     `<Button variant="secondary" disabled>Disabled</Button>`,
   ],
@@ -51,7 +51,7 @@ export function Button({ variant = "primary", disabled, children }: ButtonProps)
 
 const mockComponentNoExamples: ComponentMetadata = {
   ...mockComponent,
-  examples: undefined,
+  previews: undefined,
 };
 
 describe("ComponentDetail", () => {
@@ -117,7 +117,6 @@ describe("ComponentDetail", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByRole("tab", { name: /Overview/ })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Preview/ })).toBeInTheDocument();
   });
 
@@ -138,23 +137,21 @@ describe("ComponentDetail", () => {
       </BrowserRouter>,
     );
 
-    expect(
-      screen.getByRole("tab", { name: "Source Code" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Code" })).toBeInTheDocument();
   });
 
-  it("shows example count badge when examples exist", () => {
+  it("shows preview count badge when previews exist", () => {
     render(
       <BrowserRouter>
         <ComponentDetail component={mockComponent} />
       </BrowserRouter>,
     );
 
-    // Should show count badge for 2 examples
+    // Should show count badge for 2 previews
     expect(screen.getByText("2")).toBeInTheDocument();
   });
 
-  it("does not show example count when no examples", () => {
+  it("does not show preview count when no previews", () => {
     render(
       <BrowserRouter>
         <ComponentDetail component={mockComponentNoExamples} />

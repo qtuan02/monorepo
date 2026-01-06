@@ -7,6 +7,22 @@
     <title>UI Documentation</title>
   </head>
   <body>
+    <script>
+      (function () {
+        try {
+          var theme = localStorage.getItem("app-theme-preference");
+          var effectiveTheme =
+            theme === "system" || !theme
+              ? window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light"
+              : theme;
+          if (effectiveTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          }
+        } catch (e) {}
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -6,7 +6,7 @@ import {
   filterComponentsByCategory,
   isValidCategorySlug,
   slugToCategory,
-} from "~/lib/category-utils";
+} from "~/utils/category-utils";
 
 describe("category-utils", () => {
   describe("categoryToSlug", () => {

@@ -18,7 +18,7 @@ const mockHook: HookMetadata = {
   sourceCode: "export function useState() {}",
 };
 
-vi.mock("~/lib/use-hook-metadata", () => ({
+vi.mock("~/hooks/use-hook-metadata", () => ({
   useHookMetadata: () => ({ hooks: [], isLoading: false }),
   useHookById: vi.fn((id: string) => {
     if (id === "use-state") {

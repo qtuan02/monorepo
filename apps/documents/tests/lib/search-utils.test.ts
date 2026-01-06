@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import type { SearchResult } from "~/lib/search-utils";
+import type { SearchResult } from "~/utils/search-utils";
 import type { ComponentMetadata } from "~/types/component-metadata";
 import type { HookMetadata } from "~/types/hook-metadata";
 import {
   limitSearchResults,
   searchComponentsAndHooks,
-} from "~/lib/search-utils";
+} from "~/utils/search-utils";
 
 describe("search-utils", () => {
   const mockComponents: ComponentMetadata[] = [

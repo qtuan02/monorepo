@@ -16,5 +16,5 @@ export interface ComponentMetadata {
   filePath: string;
   props: ComponentProp[];
   sourceCode: string;
-  examples?: string[];
+  previews?: string[];
 }

@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 import { Component, Suspense, useEffect, useState } from "react";
 
 import type { ComponentMetadata } from "~/types/component-metadata";
-import { componentRegistry } from "~/generated/registry";
-import { componentExamples } from "~/registry/component-examples";
+import { componentPreviews } from "~/constants/component-previews";
+import { componentRegistry } from "~/constants/registry";
 
 // Error Boundary Component
 interface ErrorBoundaryProps {
@@ -110,14 +110,14 @@ export default function PreviewContainer({ component }: PreviewContainerProps) {
   }
 
   // Check if we have a dedicated demo component
-  const demoExample = componentExamples[component.id];
+  const previewItem = componentPreviews[component.id];
   const LazyComponent = componentRegistry[component.id];
 
   const renderPreview = () => {
     // Prefer demo component if available
-    if (demoExample) {
-      const DemoComponent = demoExample.component;
-      return <DemoComponent />;
+    if (previewItem) {
+      const PreviewComponent = previewItem.component;
+      return <PreviewComponent />;
     }
 
     if (!LazyComponent) {

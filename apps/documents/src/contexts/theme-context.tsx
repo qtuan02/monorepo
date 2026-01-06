@@ -6,7 +6,7 @@ import {
   useTransition,
 } from "react";
 
-import type { Theme } from "~/lib/theme-utils";
+import type { Theme } from "~/utils/theme-utils";
 import {
   applyTheme,
   getEffectiveTheme,
@@ -14,7 +14,7 @@ import {
   getSystemTheme,
   setStoredTheme,
   THEMES,
-} from "~/lib/theme-utils";
+} from "~/utils/theme-utils";
 
 interface ThemeContextType {
   theme: Theme;

@@ -7,7 +7,7 @@ import {
   filterHooksByPackage,
   getPackageFilterFromUrl,
   isValidPackageFilter,
-} from "~/lib/package-filter-utils";
+} from "~/utils/package-filter-utils";
 
 describe("package-filter-utils", () => {
   const mockComponents: ComponentMetadata[] = [

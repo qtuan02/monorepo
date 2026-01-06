@@ -7,32 +7,27 @@ import {
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
 
+import type { ComponentPreview } from "./previews-section";
 import type { ComponentMetadata } from "~/types/component-metadata";
-import { componentExamples as componentDemoRegistry } from "~/registry/component-examples";
 import CodeViewer from "./code-viewer";
-import ExamplesSection from "./examples-section";
 import ImportSection from "./import-section";
 import PackageBadge from "./package-badge";
 import PreviewContainer from "./preview-container";
+import PreviewsSection from "./previews-section";
 import PropsTable from "./props-table";
-import UsageSection from "./usage-section";
 
 interface ComponentDetailProps {
   component: ComponentMetadata;
 }
 
 export default function ComponentDetail({ component }: ComponentDetailProps) {
-  // Transform examples array to match ExamplesSection interface
-  const transformedExamples =
-    component.examples?.map((code, index) => ({
-      title: `Example ${index + 1}`,
-      description: `Usage example for ${component.name}`,
+  // Transform previews array to match PreviewsSection interface
+  const transformedPreviews: ComponentPreview[] =
+    component.previews?.map((code, index) => ({
+      title: `Preview ${index + 1}`,
+      description: `Usage preview for ${component.name}`,
       code,
     })) || [];
-
-  // Get demo code for usage section (matches preview tab)
-  const demoExample = componentDemoRegistry[component.id];
-  const usageCode = demoExample?.code || `<${component.name} />`;
 
   return (
     <div className="space-y-6" data-testid="component-detail">
@@ -64,39 +59,21 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
       </header>
 
       {/* Tabs Layout */}
-      <Tabs defaultValue="overview" className="mt-6">
+      <Tabs defaultValue="preview" className="mt-6">
         <TabsList className="w-full justify-start">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="preview">
             Preview{" "}
-            {transformedExamples.length > 0 && (
+            {transformedPreviews.length > 0 && (
               <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-100">
-                {transformedExamples.length}
+                {transformedPreviews.length}
               </span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="code">Code</TabsTrigger>
           {component.props && component.props.length > 0 && (
             <TabsTrigger value="props">Props</TabsTrigger>
           )}
-          <TabsTrigger value="code">Source Code</TabsTrigger>
         </TabsList>
-
-        {/* Overview Tab */}
-        <TabsContent value="overview" className="mt-6 space-y-8">
-          {/* Import Section */}
-          <ImportSection
-            packageName="@monorepo/ui"
-            componentName={component.name}
-            componentId={component.id}
-          />
-
-          {/* Usage Section - Shows demo code matching preview */}
-          <UsageSection
-            code={usageCode}
-            component={component}
-            showPreview={false}
-          />
-        </TabsContent>
 
         {/* Preview Tab - Live UI Demo */}
         <TabsContent value="preview" className="mt-6 space-y-8">
@@ -108,13 +85,34 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
             <PreviewContainer component={component} />
           </section>
 
-          {/* Examples with code */}
-          {transformedExamples.length > 0 && (
-            <ExamplesSection
-              examples={transformedExamples}
+          {/* Previews with code */}
+          {transformedPreviews.length > 0 && (
+            <PreviewsSection
+              previews={transformedPreviews}
               componentName={component.name}
             />
           )}
+        </TabsContent>
+
+        {/* Source Code Tab */}
+        <TabsContent value="code" className="mt-6 space-y-8">
+          {/* Import Section */}
+          <ImportSection
+            packageName="@monorepo/ui"
+            componentName={component.name}
+            componentId={component.id}
+          />
+
+          <section>
+            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+              Source Code
+            </h2>
+            <CodeViewer
+              code={component.sourceCode}
+              language="tsx"
+              filename={component.filePath}
+            />
+          </section>
         </TabsContent>
 
         {/* Props Tab - Only if props exist */}
@@ -123,15 +121,6 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
             <PropsTable props={component.props} />
           </TabsContent>
         )}
-
-        {/* Source Code Tab */}
-        <TabsContent value="code" className="mt-6">
-          <CodeViewer
-            code={component.sourceCode}
-            language="tsx"
-            filename={component.filePath}
-          />
-        </TabsContent>
       </Tabs>
     </div>
   );

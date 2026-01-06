@@ -21,6 +21,5 @@ export interface HookMetadata {
   parameters: HookParameter[];
   returns: HookReturn;
   sourceCode: string;
-  examples?: string[];
+  previews?: string[];
 }
-

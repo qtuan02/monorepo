@@ -4,7 +4,7 @@ import { Input } from "@monorepo/ui";
 import { cn } from "@monorepo/ui/libs/cn";
 
 import SearchResults from "./search-results";
-import type { SearchResult } from "~/lib/search-utils";
+import type { SearchResult } from "~/utils/search-utils";
 
 interface SearchBarProps {
   onSearch: (query: string) => SearchResult[];
