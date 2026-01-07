@@ -1,6 +1,0 @@
-{
-  "extends": "@monorepo/tsconfig/base.json",
-  "compilerOptions": {},
-  "include": [".", "prisma"],
-  "exclude": ["node_modules", "dist"]
-}

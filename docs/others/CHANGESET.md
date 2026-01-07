@@ -1,12 +1,19 @@
-# Guide to Publish UI Package to NPM with Changesets
+# Guide to Publish Packages to NPM with Changesets
 
-Guide to build and publish package `@monorepo/ui` to npm with name `@fe-monorepo/ui` using Changesets.
+Guide to build and publish packages to npm using Changesets.
+
+## Packages
+
+| Internal Package | NPM Package         | Description   |
+| ---------------- | ------------------- | ------------- |
+| `@monorepo/ui`   | `@fe-monorepo/ui`   | UI components |
+| `@monorepo/hook` | `@fe-monorepo/hook` | React hooks   |
 
 ## Main Steps
 
 1. **Create Changeset** - Record changes and version bump type
 2. **Bump Version** - Apply changesets and update version
-3. **Build** - Build with rslib (automatically copy dist to ui-public)
+3. **Build** - Build with rslib (automatically copy dist to public packages)
 4. **Publish** - Publish to npm
 
 ## Step 1: Create Changeset
@@ -17,7 +24,7 @@ pnpm changeset
 
 **Process:**
 
-- Select package: `@monorepo/ui`
+- Select package: `@monorepo/ui` or `@monorepo/hook`
 - Select bump type: `patch` / `minor` / `major`
 - Enter change description
 
@@ -35,20 +42,24 @@ pnpm changeset:version
 
 This command will:
 
-- Update version in `packages/ui-public/package.json`
+- Update version in `packages/ui-public/package.json` or `packages/hook-public/package.json`
 - Create/update `CHANGELOG.md`
 - Delete applied changeset files
 
 ## Step 3: Build Package
 
 ```bash
-pnpm build:ui
+# Build UI package
+pnpm build:package:ui
+
+# Build Hook package
+pnpm build:package:hook
 ```
 
 **Build process:**
 
-- `rslib build` creates ESM/CJS and `.d.ts` files in `packages/ui/dist/`
-- Script automatically copies `packages/ui/dist/` → `packages/ui-public/dist/`
+- `rslib build` creates ESM/CJS and `.d.ts` files in `packages/<pkg>/dist/`
+- Script automatically copies `packages/<pkg>/dist/` → `packages/<pkg>-public/dist/`
 
 ## Step 4: Publish to NPM
 
@@ -76,6 +87,7 @@ pnpm changeset:publish --tag beta
 
 # Test beta version
 npm install @fe-monorepo/ui@beta
+npm install @fe-monorepo/hook@beta
 
 # After testing OK, publish production
 pnpm changeset:publish
@@ -88,19 +100,21 @@ pnpm changeset:publish
 ```bash
 pnpm changeset                    # 1. Create changeset
 pnpm changeset:version            # 2. Bump version
-pnpm build:ui                     # 3. Build (automatically copy dist)
-pnpm changeset:publish  # 4. Publish
+pnpm build:package:ui             # 3. Build UI (or build:package:hook)
+pnpm changeset:publish            # 4. Publish
 ```
 
 ### Beta Release (Recommended)
 
 ```bash
-pnpm changeset                    # 1. Create changeset
-pnpm changeset:version            # 2. Bump version
-pnpm build:ui                     # 3. Build
-pnpm changeset:publish --tag beta  # 4. Publish beta
+pnpm changeset                      # 1. Create changeset
+pnpm changeset:version              # 2. Bump version
+pnpm build:package:ui               # 3. Build UI
+pnpm build:package:hook             # 3. Build Hook
+pnpm changeset:publish --tag beta   # 4. Publish beta
 # Test: npm install @fe-monorepo/ui@beta
-pnpm changeset:publish  # 5. Publish production
+# Test: npm install @fe-monorepo/hook@beta
+pnpm changeset:publish              # 5. Publish production
 ```
 
 ## Troubleshooting
@@ -120,8 +134,8 @@ pnpm changeset:publish  # 5. Publish production
 
 ### "dist folder not found"
 
-- Run build: `pnpm build:ui`
-- Check: `ls -la packages/ui-public/dist`
+- Run build: `pnpm build:package:ui` or `pnpm build:package:hook`
+- Check: `ls -la packages/ui-public/dist` or `ls -la packages/hook-public/dist`
 
 ## Best Practices
 

@@ -12,9 +12,9 @@ monorepo/
 │   └── portfolio/            # Portfolio website (Next.js 15 + React 19)
 │
 ├── packages/                  # Shared packages
-│   ├── db/                   # Database package with Prisma ORM + MongoDB
 │   ├── env/                  # Environment variable validation
 │   ├── hook/                 # Reusable React hooks
+│   ├── hook-public/          # Published Hook package for NPM
 │   ├── sentry/               # Sentry error tracking integration
 │   ├── ui/                   # UI component library (shadcn/ui based)
 │   └── ui-public/            # Published UI package for NPM
@@ -31,7 +31,6 @@ monorepo/
 └── docs/                      # Documentation
     ├── apps/                 # Application-specific docs
     ├── packages/             # Package-specific docs
-    ├── bmad/                 # BMAD workflow documentation
     └── others/               # General documentation
 ```
 
@@ -59,5 +58,4 @@ monorepo/
 - [Assistant AI](./docs/apps/ASSISTANT-AI.md) - Chat application with Google Gemini integration
 - [MCP Server](./docs/apps/MCP.md) - Model Context Protocol server for weather data
 - [Sentry Integration](./docs/packages/SENTRY.md) - Error tracking and performance monitoring setup
-- [Database Package](./docs/packages/DATABASE.MD) - Prisma ORM and MongoDB setup and usage
-- [Publishing to NPM](./docs/others/CHANGESET.md) - Guide for publishing the UI package to npm
+- [Publishing to NPM](./docs/others/CHANGESET.md) - Guide for publishing UI and Hook packages to npm

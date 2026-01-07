@@ -17,18 +17,15 @@
     "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
     "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
     "dev:_template": "turbo watch dev -F @monorepo/_template",
-    "dev:_portfolio": "turbo watch dev -F @monorepo/_portfolio",
     "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
     "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai",
     "dev:mcp": "turbo watch dev -F @monorepo/mcp",
     "dev:documents": "turbo watch dev -F @monorepo/documents",
     "build:package:ui": "turbo run build:package -F @monorepo/ui",
+    "build:package:hook": "turbo run build:package -F @monorepo/hook",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:publish": "changeset publish",
-    "db:generate": "turbo run db:generate --filter=@monorepo/db",
-    "db:migrate": "turbo run db:migrate --filter=@monorepo/db",
-    "db:deploy": "turbo run db:deploy --filter=@monorepo/db"
+    "changeset:publish": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.9",
