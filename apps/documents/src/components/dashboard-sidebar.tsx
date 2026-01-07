@@ -121,22 +121,24 @@ export function DashboardSidebarContent({
       <div
         data-collapsed={isCollapsed}
         className={cn(
-          "group flex h-full w-full flex-col overflow-hidden bg-gray-50/40 dark:bg-gray-900/40",
+          "group flex h-full w-full flex-col overflow-hidden bg-white dark:bg-black",
           className,
         )}
       >
         {/* Header / Brand */}
         <div
           className={cn(
-            "flex h-14 items-center border-b px-4 lg:h-[60px]",
+            "flex h-14 items-center border-b border-gray-200 px-4 lg:h-[60px] dark:border-gray-800",
             isCollapsed ? "justify-center px-2" : "lg:px-6",
           )}
         >
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md">
-              <Bot className="size-5 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-black text-white dark:bg-white dark:text-black">
+              <Bot className="size-5" />
             </div>
-            {!isCollapsed && <span className="">Documents</span>}
+            {!isCollapsed && (
+              <span className="text-black dark:text-white">Documents</span>
+            )}
           </Link>
         </div>
 
@@ -147,7 +149,7 @@ export function DashboardSidebarContent({
               {navGroups.map((group, index) => (
                 <div key={index}>
                   {!isCollapsed && group.label && (
-                    <div className="mb-2 px-2 text-sm font-semibold tracking-tight text-gray-500 uppercase dark:text-gray-400">
+                    <div className="mb-2 px-2 text-xs font-semibold tracking-wider text-gray-900 uppercase dark:text-gray-100">
                       {group.label}
                     </div>
                   )}
@@ -160,14 +162,14 @@ export function DashboardSidebarContent({
                             <TooltipTrigger asChild>
                               <Link
                                 to={item.url}
-                                className="mx-auto flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                                className="mx-auto flex h-9 w-9 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-900"
                               >
                                 <item.icon className="size-4" />
                               </Link>
                             </TooltipTrigger>
                             <TooltipContent
                               side="right"
-                              className="flex items-center gap-4"
+                              className="flex items-center gap-4 bg-black text-white dark:bg-white dark:text-black"
                             >
                               {item.title} (Group)
                             </TooltipContent>
@@ -181,22 +183,22 @@ export function DashboardSidebarContent({
                             }
                             className="group/collapsible"
                           >
-                            <div className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <div className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-900">
                               <Link
                                 to={item.url}
-                                className="flex flex-1 items-center gap-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
+                                className="flex flex-1 items-center gap-2 text-[15px] font-medium text-gray-700 hover:text-black dark:text-gray-300 dark:hover:text-white"
                               >
                                 <item.icon className="h-4 w-4" />
                                 {item.title}
                               </Link>
                               <CollapsibleTrigger asChild>
-                                <button className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+                                <button className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-gray-200 dark:hover:bg-gray-800">
                                   <ChevronRight className="h-4 w-4 text-gray-500 transition-transform duration-300 group-data-[state=open]/collapsible:rotate-90" />
                                 </button>
                               </CollapsibleTrigger>
                             </div>
                             <CollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden">
-                              <div className="mt-1 space-y-1 px-2">
+                              <div className="mt-1 ml-4 space-y-1 border-l border-gray-200 px-2 dark:border-gray-800">
                                 {item.items.map((subItem) => {
                                   const isActive =
                                     location.pathname === subItem.url;
@@ -206,10 +208,10 @@ export function DashboardSidebarContent({
                                       to={subItem.url}
                                       onClick={() => setIsMobileOpen?.(false)}
                                       className={cn(
-                                        "block rounded-md px-2 py-1.5 text-[15px] transition-colors",
+                                        "block rounded-md px-2 py-1.5 text-sm transition-colors",
                                         isActive
-                                          ? "bg-gray-100 font-medium text-gray-900 dark:bg-gray-800 dark:text-gray-50"
-                                          : "text-gray-500 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800/50 dark:hover:text-gray-50",
+                                          ? "bg-gray-100 font-medium text-black dark:bg-gray-900 dark:text-white"
+                                          : "text-gray-500 hover:bg-gray-50 hover:text-black dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-white",
                                       )}
                                     >
                                       {subItem.title}

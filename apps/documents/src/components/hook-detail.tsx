@@ -17,7 +17,7 @@ export default function HookDetail({ hook }: HookDetailProps) {
       <header className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold text-black dark:text-white">
               {hook.name}
             </h1>
             {hook.description && (
@@ -34,7 +34,7 @@ export default function HookDetail({ hook }: HookDetailProps) {
         {/* Back link */}
         <Link
           to="/hooks"
-          className="inline-flex items-center text-sm text-blue-600 hover:underline dark:text-blue-400"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-black hover:underline dark:text-gray-400 dark:hover:text-white"
         >
           ← Back to Hooks
         </Link>
@@ -45,17 +45,17 @@ export default function HookDetail({ hook }: HookDetailProps) {
         <section aria-labelledby="usage-heading">
           <h2
             id="usage-heading"
-            className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+            className="mb-4 text-xl font-semibold text-black dark:text-white"
           >
             Usage Preview
           </h2>
           <div className="space-y-4">
             {/* Live Preview */}
             <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <h3 className="mb-2 text-sm font-medium text-black dark:text-white">
                 Live Preview
               </h3>
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-black">
                 {(() => {
                   const PreviewComponent = hookPreviews[hook.id]?.component;
                   return PreviewComponent ? <PreviewComponent /> : null;
@@ -64,7 +64,7 @@ export default function HookDetail({ hook }: HookDetailProps) {
             </div>
             {/* Preview Code */}
             <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              <h3 className="mb-2 text-sm font-medium text-black dark:text-white">
                 Preview Code
               </h3>
               <CodeViewer
@@ -81,7 +81,7 @@ export default function HookDetail({ hook }: HookDetailProps) {
       <section aria-labelledby="parameters-heading">
         <h2
           id="parameters-heading"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+          className="mb-4 text-xl font-semibold text-black dark:text-white"
         >
           Parameters
         </h2>
@@ -92,7 +92,7 @@ export default function HookDetail({ hook }: HookDetailProps) {
       <section aria-labelledby="source-heading">
         <h2
           id="source-heading"
-          className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+          className="mb-4 text-xl font-semibold text-black dark:text-white"
         >
           Source Code
         </h2>
@@ -108,7 +108,7 @@ export default function HookDetail({ hook }: HookDetailProps) {
         <section aria-labelledby="previews-heading">
           <h2
             id="previews-heading"
-            className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100"
+            className="mb-4 text-xl font-semibold text-black dark:text-white"
           >
             Previews
           </h2>

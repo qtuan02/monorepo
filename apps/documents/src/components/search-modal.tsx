@@ -117,20 +117,20 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl gap-0 p-0 md:w-full">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl gap-0 border-gray-200 bg-white p-0 md:w-full dark:border-gray-800 dark:bg-black">
         <DialogHeader className="sr-only">
           <DialogTitle>Search Components and Hooks</DialogTitle>
         </DialogHeader>
 
         {/* Search Input */}
-        <div className="relative border-b border-gray-200 dark:border-gray-700">
-          <Search className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-400" />
+        <div className="relative border-b border-gray-200 dark:border-gray-800">
+          <Search className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-500" />
           <Input
             type="text"
             placeholder="Search components and hooks..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="border-0 py-6 pr-4 pl-12 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
+            className="border-0 bg-transparent py-6 pr-4 pl-12 text-base text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-white"
             autoFocus
           />
         </div>
@@ -166,22 +166,22 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                             className={cn(
                               "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
                               index === selectedIndex
-                                ? "bg-blue-50 dark:bg-blue-900/20"
-                                : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                                ? "bg-gray-100 dark:bg-gray-900"
+                                : "hover:bg-gray-50 dark:hover:bg-gray-900/50",
                             )}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(index)}
                           >
-                            <div className="mt-0.5 flex-shrink-0 rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-purple-700 uppercase dark:bg-purple-900/30 dark:text-purple-400">
+                            <div className="mt-0.5 flex-shrink-0 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white">
                               C
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <span
                                   className={cn(
-                                    "truncate font-medium text-gray-900 dark:text-gray-100",
+                                    "truncate font-medium text-black dark:text-white",
                                     index === selectedIndex &&
-                                      "text-blue-700 dark:text-blue-300",
+                                      "text-black dark:text-white",
                                   )}
                                 >
                                   {item.name}
@@ -210,22 +210,22 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                             className={cn(
                               "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
                               index === selectedIndex
-                                ? "bg-blue-50 dark:bg-blue-900/20"
-                                : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                                ? "bg-gray-100 dark:bg-gray-900"
+                                : "hover:bg-gray-50 dark:hover:bg-gray-900/50",
                             )}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(index)}
                           >
-                            <div className="mt-0.5 flex-shrink-0 rounded bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-green-700 uppercase dark:bg-green-900/30 dark:text-green-400">
+                            <div className="mt-0.5 flex-shrink-0 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white">
                               H
                             </div>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <span
                                   className={cn(
-                                    "truncate font-medium text-gray-900 dark:text-gray-100",
+                                    "truncate font-medium text-black dark:text-white",
                                     index === selectedIndex &&
-                                      "text-blue-700 dark:text-blue-300",
+                                      "text-black dark:text-white",
                                   )}
                                 >
                                   {item.name}
@@ -248,8 +248,8 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                       className={cn(
                         "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
                         index === selectedIndex
-                          ? "bg-blue-50 dark:bg-blue-900/20"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                          ? "bg-gray-100 dark:bg-gray-900"
+                          : "hover:bg-gray-50 dark:hover:bg-gray-900/50",
                       )}
                       onClick={() => handleSelect(item)}
                       onMouseEnter={() => setSelectedIndex(index)}
@@ -257,10 +257,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                       {/* Type Badge */}
                       <div
                         className={cn(
-                          "mt-0.5 flex-shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide uppercase",
-                          item.type === "component"
-                            ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                            : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+                          "mt-0.5 flex-shrink-0 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white",
                         )}
                       >
                         {item.type === "component" ? "C" : "H"}
@@ -271,9 +268,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                         <div className="flex items-center gap-2">
                           <span
                             className={cn(
-                              "truncate font-medium text-gray-900 dark:text-gray-100",
+                              "truncate font-medium text-black dark:text-white",
                               index === selectedIndex &&
-                                "text-blue-700 dark:text-blue-300",
+                                "text-black dark:text-white",
                             )}
                           >
                             {item.name}
@@ -294,7 +291,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                       {/* Enter hint on selected */}
                       {index === selectedIndex && (
                         <div className="flex flex-shrink-0 items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-                          <kbd className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[10px] dark:bg-gray-700">
+                          <kbd className="rounded border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-700 dark:bg-black">
                             ↵
                           </kbd>
                         </div>
@@ -308,23 +305,23 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
         </div>
 
         {/* Footer with shortcuts hint */}
-        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-700 dark:bg-gray-800/50">
+        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-black">
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-gray-700">
+                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
                   ↑↓
                 </kbd>
                 Navigate
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-gray-700">
+                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
                   ↵
                 </kbd>
                 Select
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-gray-700">
+                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
                   ESC
                 </kbd>
                 Close
@@ -332,7 +329,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             </div>
             <span className="flex items-center gap-1">
               <Command className="size-3" />
-              <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-gray-700">
+              <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
                 K
               </kbd>
               Shortcut

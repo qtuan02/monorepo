@@ -35,7 +35,7 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
       <header className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-3xl font-bold text-black dark:text-white">
               {component.name}
             </h1>
             {component.description && (
@@ -52,7 +52,7 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
         {/* Back link */}
         <Link
           to="/components"
-          className="inline-flex items-center text-sm text-blue-600 hover:underline dark:text-blue-400"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-black hover:underline dark:text-gray-400 dark:hover:text-white"
         >
           ← Back to Components
         </Link>
@@ -60,18 +60,31 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
 
       {/* Tabs Layout */}
       <Tabs defaultValue="preview" className="mt-6">
-        <TabsList className="w-full justify-start">
-          <TabsTrigger value="preview">
+        <TabsList className="w-full justify-start bg-gray-100 p-1 dark:bg-gray-800">
+          <TabsTrigger
+            value="preview"
+            className="data-[state=active]:bg-white data-[state=active]:text-black dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+          >
             Preview{" "}
             {transformedPreviews.length > 0 && (
-              <span className="ml-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-100">
+              <span className="ml-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-black dark:border-gray-700 dark:bg-black dark:text-white">
                 {transformedPreviews.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger value="code">Code</TabsTrigger>
+          <TabsTrigger
+            value="code"
+            className="data-[state=active]:bg-white data-[state=active]:text-black dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+          >
+            Code
+          </TabsTrigger>
           {component.props && component.props.length > 0 && (
-            <TabsTrigger value="props">Props</TabsTrigger>
+            <TabsTrigger
+              value="props"
+              className="data-[state=active]:bg-white data-[state=active]:text-black dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+            >
+              Props
+            </TabsTrigger>
           )}
         </TabsList>
 
@@ -79,7 +92,7 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
         <TabsContent value="preview" className="mt-6 space-y-8">
           {/* Live Component Preview */}
           <section>
-            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
               Live Preview
             </h2>
             <PreviewContainer component={component} />
@@ -104,7 +117,7 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           />
 
           <section>
-            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
               Source Code
             </h2>
             <CodeViewer

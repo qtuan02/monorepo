@@ -11,16 +11,16 @@ export default function PackageBadge({
   className,
 }: PackageBadgeProps) {
   const label = packageType === "ui" ? "UI" : "Hook";
-  const variant = packageType === "ui" ? "default" : "secondary";
 
   return (
-    <Badge
-      variant={variant}
-      className={cn("text-xs", className)}
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border border-gray-300 bg-white px-2 py-0.5 text-xs font-medium text-black dark:border-gray-700 dark:bg-black dark:text-white",
+        className,
+      )}
       data-testid="package-badge"
     >
       {label}
-    </Badge>
+    </span>
   );
 }
-

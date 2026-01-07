@@ -19,16 +19,12 @@ export default function HomePage() {
       value: components.length,
       icon: Layers,
       href: "/components",
-      color:
-        "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
     },
     {
       label: "Hooks",
       value: hooks.length,
       icon: Code2,
       href: "/hooks",
-      color:
-        "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
     },
   ];
 
@@ -59,7 +55,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl space-y-12">
           {/* Hero Section */}
           <header className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
+            <h1 className="text-4xl font-bold tracking-tight text-black dark:text-white">
               UI Documentation
             </h1>
             <p className="max-w-2xl text-lg text-gray-600 dark:text-gray-400">
@@ -75,14 +71,14 @@ export default function HomePage() {
               <Link
                 key={stat.label}
                 to={stat.href}
-                className="group rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-gray-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
+                className="group rounded-xl border border-gray-200 bg-white p-6 transition-all hover:border-black hover:shadow-md dark:border-gray-800 dark:bg-black dark:hover:border-white"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`rounded-lg p-3 ${stat.color}`}>
-                    <stat.icon className="size-6" />
+                  <div className="rounded-lg border border-gray-100 p-3 dark:border-gray-800">
+                    <stat.icon className="size-6 text-black dark:text-white" />
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+                    <div className="text-3xl font-bold text-black dark:text-white">
                       {stat.value}
                     </div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -96,19 +92,19 @@ export default function HomePage() {
 
           {/* Features Section */}
           <section className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-semibold text-black dark:text-white">
               Features
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {features.map((feature) => (
                 <div
                   key={feature.title}
-                  className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"
+                  className="rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-black"
                 >
-                  <div className="mb-4 inline-flex rounded-lg bg-blue-100 p-3 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                  <div className="mb-4 inline-flex rounded-lg border border-gray-100 p-3 text-black dark:border-gray-800 dark:text-white">
                     <feature.icon className="size-6" />
                   </div>
-                  <h3 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">
+                  <h3 className="mb-2 font-semibold text-black dark:text-white">
                     {feature.title}
                   </h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -121,7 +117,7 @@ export default function HomePage() {
 
           {/* NPM Packages Section */}
           <section className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-semibold text-black dark:text-white">
               Published Packages
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -129,13 +125,13 @@ export default function HomePage() {
                 href="https://www.npmjs.com/package/@fe-monorepo/ui"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-red-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-red-700"
+                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-black hover:shadow-md dark:border-gray-800 dark:bg-black dark:hover:border-white"
               >
-                <div className="flex size-12 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                <div className="flex size-12 items-center justify-center rounded-lg border border-gray-100 text-black dark:border-gray-800 dark:text-white">
                   <Package className="size-6" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="font-semibold text-black dark:text-white">
                     @fe-monorepo/ui
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -143,7 +139,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <svg
-                  className="size-5 text-gray-400 transition-transform group-hover:translate-x-1"
+                  className="size-5 text-gray-400 transition-transform group-hover:translate-x-1 dark:text-gray-600"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -160,13 +156,13 @@ export default function HomePage() {
                 href="https://www.npmjs.com/package/@fe-monorepo/hook"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-red-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-red-700"
+                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-black hover:shadow-md dark:border-gray-800 dark:bg-black dark:hover:border-white"
               >
-                <div className="flex size-12 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                <div className="flex size-12 items-center justify-center rounded-lg border border-gray-100 text-black dark:border-gray-800 dark:text-white">
                   <Code2 className="size-6" />
                 </div>
                 <div className="flex-1">
-                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="font-semibold text-black dark:text-white">
                     @fe-monorepo/hook
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -174,7 +170,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <svg
-                  className="size-5 text-gray-400 transition-transform group-hover:translate-x-1"
+                  className="size-5 text-gray-400 transition-transform group-hover:translate-x-1 dark:text-gray-600"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
