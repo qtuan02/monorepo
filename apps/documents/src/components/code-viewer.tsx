@@ -65,7 +65,7 @@ export default function CodeViewer({
               {filename}
             </span>
           )}
-          <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 uppercase dark:bg-gray-700 dark:text-gray-400">
+          <span className="rounded border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white">
             {language}
           </span>
         </div>
@@ -76,7 +76,7 @@ export default function CodeViewer({
               <button
                 type="button"
                 onClick={toggleLineNumbers}
-                className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 hover:text-black dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                 aria-label={
                   lineNumbersVisible ? "Hide line numbers" : "Show line numbers"
                 }
@@ -95,14 +95,14 @@ export default function CodeViewer({
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                className="flex items-center gap-1.5 rounded border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-black transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-black dark:text-white dark:hover:bg-gray-900"
                 data-testid="copy-button"
                 aria-label={copied ? "Code copied" : "Copy code to clipboard"}
               >
                 {copied ? (
                   <>
                     <svg
-                      className="h-4 w-4 text-green-600 dark:text-green-400"
+                      className="h-4 w-4"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -144,20 +144,20 @@ export default function CodeViewer({
       </div>
 
       {/* Code Content */}
-      <div className="max-h-[500px] overflow-auto bg-gray-900 dark:bg-gray-950">
+      <div className="max-h-[500px] overflow-auto bg-black dark:bg-black">
         <pre className="p-4 text-sm leading-relaxed">
           <code className="block">
             {lines.map((line, index) => (
               <div key={index} className="flex">
                 {lineNumbersVisible && (
                   <span
-                    className="mr-4 inline-block w-8 text-right text-gray-500 select-none"
+                    className="mr-4 inline-block w-8 text-right text-gray-600 select-none"
                     data-testid="line-number"
                   >
                     {index + 1}
                   </span>
                 )}
-                <span className="flex-1 text-gray-100">
+                <span className="flex-1 text-gray-200">
                   {highlightSyntax(line, language)}
                 </span>
               </div>
@@ -184,21 +184,21 @@ function highlightSyntax(line: string, language: string): React.ReactNode {
     className: string;
   }[] = [
     // Comments
-    { regex: /(\/\/.*$)/g, className: "text-gray-500" },
+    { regex: /(\/\/.*$)/g, className: "text-gray-500 italic" },
     // Strings
-    { regex: /("[^"]*"|'[^']*'|`[^`]*`)/g, className: "text-green-400" },
+    { regex: /("[^"]*"|'[^']*'|`[^`]*`)/g, className: "text-gray-300" },
     // Keywords
     {
       regex:
         /\b(import|export|from|const|let|var|function|return|if|else|for|while|class|interface|type|extends|implements|new|this|super|async|await|default|try|catch|throw|finally)\b/g,
-      className: "text-purple-400",
+      className: "font-bold text-white",
     },
     // JSX tags
-    { regex: /(<\/?[\w]+)/g, className: "text-blue-400" },
+    { regex: /(<\/?[\w]+)/g, className: "font-semibold text-white" },
     // Numbers
-    { regex: /\b(\d+)\b/g, className: "text-orange-400" },
+    { regex: /\b(\d+)\b/g, className: "text-gray-300" },
     // Boolean/null
-    { regex: /\b(true|false|null|undefined)\b/g, className: "text-orange-400" },
+    { regex: /\b(true|false|null|undefined)\b/g, className: "text-gray-300" },
   ];
 
   // For simplicity, just return the line without full highlighting

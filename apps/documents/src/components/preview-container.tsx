@@ -42,12 +42,12 @@ interface PreviewContainerProps {
 function PreviewLoading() {
   return (
     <div
-      className="flex h-48 items-center justify-center rounded-lg border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 dark:border-gray-700 dark:from-gray-800 dark:to-gray-900"
+      className="flex h-48 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
       data-testid="preview-loading"
     >
       <div className="flex flex-col items-center gap-3">
         <div className="relative">
-          <div className="h-8 w-8 animate-spin rounded-full border-3 border-gray-300 border-t-blue-500 dark:border-gray-600 dark:border-t-blue-400" />
+          <div className="size-8 animate-spin rounded-full border-2 border-gray-200 border-t-black dark:border-gray-800 dark:border-t-white" />
         </div>
         <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
           Loading component...
@@ -61,15 +61,19 @@ function PreviewLoading() {
 function PreviewError({ componentName }: { componentName: string }) {
   return (
     <div
-      className="flex h-48 items-center justify-center rounded-lg border border-red-200 bg-red-50 dark:border-red-800/50 dark:bg-red-900/20"
+      className="flex h-48 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-black"
       data-testid="preview-error"
     >
       <div className="text-center">
-        <div className="mb-2 text-2xl">⚠️</div>
-        <p className="font-medium text-red-700 dark:text-red-400">
+        <div className="mb-2 flex justify-center">
+          <div className="flex size-10 items-center justify-center rounded-full border border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+            <span className="text-lg">!</span>
+          </div>
+        </div>
+        <p className="font-medium text-black dark:text-white">
           Failed to render preview
         </p>
-        <p className="text-sm text-red-600 dark:text-red-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Component &quot;{componentName}&quot; could not be rendered
         </p>
       </div>
@@ -81,15 +85,15 @@ function PreviewError({ componentName }: { componentName: string }) {
 function PreviewPlaceholder({ componentName }: { componentName: string }) {
   return (
     <div
-      className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+      className="flex h-48 items-center justify-center rounded-lg border border-dashed border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/50"
       data-testid="preview-placeholder"
     >
       <div className="text-center">
-        <div className="mb-2 text-4xl text-gray-400 dark:text-gray-500">🎨</div>
-        <p className="font-medium text-gray-600 dark:text-gray-400">
+        <div className="mb-2 text-2xl text-gray-400 dark:text-gray-600">❖</div>
+        <p className="font-medium text-gray-900 dark:text-white">
           {componentName}
         </p>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Preview not available
         </p>
       </div>
@@ -137,21 +141,21 @@ export default function PreviewContainer({ component }: PreviewContainerProps) {
 
   return (
     <div
-      className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900"
+      className="overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-black"
       data-testid="preview-container"
     >
       {/* Preview Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
-        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50/50 px-4 py-2 dark:border-gray-800 dark:bg-gray-900/50">
+        <span className="text-sm font-medium text-black dark:text-white">
           Preview
         </span>
-        <span className="text-xs text-gray-500 dark:text-gray-500">
+        <span className="text-xs text-gray-500 dark:text-gray-400">
           Interactive
         </span>
       </div>
 
       {/* Preview Content */}
-      <div className="flex min-h-[200px] items-center justify-center p-6">
+      <div className="flex min-h-[200px] items-center justify-center bg-white p-6 dark:bg-black">
         <ErrorBoundary
           fallback={<PreviewError componentName={component.name} />}
         >

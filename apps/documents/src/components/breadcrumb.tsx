@@ -32,7 +32,7 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
             {isClickable ? (
               <Link
                 to={item.path!}
-                className="text-gray-600 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                className="text-gray-500 transition-colors hover:text-black dark:text-gray-400 dark:hover:text-white"
               >
                 {item.label}
               </Link>
@@ -40,8 +40,8 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
               <span
                 className={cn(
                   isLast
-                    ? "font-medium text-gray-900 dark:text-gray-100"
-                    : "text-gray-500 dark:text-gray-400",
+                    ? "font-medium text-black dark:text-white"
+                    : "text-gray-400 dark:text-gray-500",
                 )}
               >
                 {item.label}

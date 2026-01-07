@@ -45,7 +45,7 @@ export default function ThemeSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"
+        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-black hover:bg-gray-100 dark:border-gray-800 dark:bg-black dark:text-white dark:hover:bg-gray-900"
         aria-label="Toggle theme"
         aria-expanded={isOpen}
       >
@@ -53,7 +53,7 @@ export default function ThemeSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-black">
           <div className="py-1">
             {themeOptions.map((option) => {
               const OptionIcon = option.icon;
@@ -68,15 +68,15 @@ export default function ThemeSwitcher() {
                   }}
                   className={`flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors ${
                     isActive
-                      ? "bg-gray-100 font-medium text-gray-900 dark:bg-gray-700 dark:text-gray-100"
-                      : "text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700/50"
+                      ? "bg-gray-100 font-medium text-black dark:bg-gray-900 dark:text-white"
+                      : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900/50"
                   }`}
                 >
                   <OptionIcon className="h-4 w-4" />
                   <span>{option.label}</span>
                   {isActive && (
                     <svg
-                      className="ml-auto h-4 w-4 text-blue-600 dark:text-blue-400"
+                      className="ml-auto h-4 w-4 text-black dark:text-white"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
