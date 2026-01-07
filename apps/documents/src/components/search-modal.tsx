@@ -12,9 +12,9 @@ import {
 import { cn } from "@monorepo/ui/libs/cn";
 
 import type { SearchResult } from "~/utils/search-utils";
-import { searchComponentsAndHooks } from "~/utils/search-utils";
 import { useComponentMetadata } from "~/hooks/use-component-metadata";
 import { useHookMetadata } from "~/hooks/use-hook-metadata";
+import { searchComponentsAndHooks } from "~/utils/search-utils";
 
 interface SearchModalProps {
   open: boolean;
@@ -149,9 +149,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             <div className="p-2">
               {!query.trim() ? (
                 <>
-                  {/* All Components Section */}
+                  {/* UI Introduction Section */}
                   <div className="px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
-                    All Components ({components.length})
+                    UI Introduction ({components.length})
                   </div>
                   <ul role="listbox" className="mb-4 space-y-1">
                     {displayItems
@@ -193,9 +193,9 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                       })}
                   </ul>
 
-                  {/* All Hooks Section */}
+                  {/* Hook Introduction Section */}
                   <div className="px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
-                    All Hooks ({hooks.length})
+                    Hook Introduction ({hooks.length})
                   </div>
                   <ul role="listbox" className="space-y-1">
                     {displayItems

@@ -6,11 +6,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./libs/*": "./src/libs/*.ts",
-    "./components/*": "./src/components/*.tsx",
-    "./animate-ui/*": "./src/v1/animate-ui/*.tsx",
-    "./shadcn-ui/*": "./src/v1/shadcn-ui/*.tsx",
-    "./hooks/*": "./src/v1/hooks/*.ts",
-    "./utils/*": "./src/v1/utils/*.ts"
+    "./components/*": "./src/components/*.tsx"
   },
   "scripts": {
     "build:package": "rslib build && node scripts/copy-dist.js",

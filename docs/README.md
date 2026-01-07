@@ -12,10 +12,8 @@ docs/
 │   └── MCP.md              # Model Context Protocol server setup
 │
 ├── packages/                # Package-specific documentation
-│   ├── DATABASE.MD         # Prisma ORM and MongoDB guide
 │   └── SENTRY.md           # Sentry error tracking setup
 │
-
 └── others/                  # General documentation
     └── CHANGESET.md        # NPM package publishing guide
 ```
@@ -33,13 +31,14 @@ docs/
 
 ### Packages
 
-| Package              | Description            | Documentation                             |
-| -------------------- | ---------------------- | ----------------------------------------- |
-| **@monorepo/ui**     | UI component library   | [Main README](../packages/ui/README.md)   |
-| **@monorepo/hook**   | React hooks library    | [Main README](../packages/hook/README.md) |
-| **@monorepo/db**     | Database with Prisma   | [Guide](./packages/DATABASE.MD)           |
-| **@monorepo/sentry** | Error tracking         | [Guide](./packages/SENTRY.md)             |
-| **@monorepo/env**    | Environment validation | [Main README](../packages/env/README.md)  |
+| Package               | Description            | Documentation                                    |
+| --------------------- | ---------------------- | ------------------------------------------------ |
+| **@monorepo/ui**      | UI component library   | [Main README](../packages/ui/README.md)          |
+| **@monorepo/hook**    | React hooks library    | [Main README](../packages/hook/README.md)        |
+| **@fe-monorepo/ui**   | Published UI on NPM    | [Main README](../packages/ui-public/README.md)   |
+| **@fe-monorepo/hook** | Published Hook on NPM  | [Main README](../packages/hook-public/README.md) |
+| **@monorepo/sentry**  | Error tracking         | [Guide](./packages/SENTRY.md)                    |
+| **@monorepo/env**     | Environment validation | [Main README](../packages/env/README.md)         |
 
 ### Development Guides
 
@@ -80,12 +79,6 @@ Learn about each application:
 ### For Package Development
 
 Understand the shared packages:
-
-- **[Database](./packages/DATABASE.MD)** - MongoDB + Prisma
-  - Schema design
-  - Running migrations
-  - Query patterns
-  - Best practices
 
 - **[Sentry](./packages/SENTRY.md)** - Error tracking
   - Setup for each app
@@ -138,7 +131,6 @@ Learn how to publish packages:
 
 - **Getting Started**: [Main README](../README.md)
 - **API Integration**: [Assistant AI](./apps/ASSISTANT-AI.md), [MCP Server](./apps/MCP.md)
-- **Database**: [Database Guide](./packages/DATABASE.MD)
 - **Error Tracking**: [Sentry Guide](./packages/SENTRY.md)
 - **Documentation Site**: [Documents Guide](./apps/DOCUMENTS.md)
 - **Publishing**: [Changesets Guide](./others/CHANGESET.md)
@@ -148,8 +140,6 @@ Learn how to publish packages:
 - **Next.js 15**: Portfolio, Assistant AI, MCP Server
 - **React 19**: All applications
 - **Vite**: Documents app
-- **Prisma**: Database package
-- **MongoDB**: Database package
 - **Google Gemini**: Assistant AI
 - **MCP**: MCP Server, Assistant AI
 - **Sentry**: All production apps

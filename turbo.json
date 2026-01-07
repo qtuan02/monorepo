@@ -6,7 +6,7 @@
       "dependsOn": ["^topo"]
     },
     "build": {
-      "dependsOn": ["^build", "^db:generate"],
+      "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"],
       "env": ["DATABASE_URL"]
@@ -55,16 +55,6 @@
     "ui-add": {
       "cache": false,
       "interactive": true
-    },
-    "db:generate": {
-      "cache": false
-    },
-    "db:migrate": {
-      "cache": false,
-      "persistent": true
-    },
-    "db:deploy": {
-      "cache": false
     }
   },
   "globalEnv": [],

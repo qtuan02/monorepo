@@ -118,6 +118,77 @@ export default function HomePage() {
               ))}
             </div>
           </section>
+
+          {/* NPM Packages Section */}
+          <section className="space-y-6">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              Published Packages
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <a
+                href="https://www.npmjs.com/package/@fe-monorepo/ui"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-red-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-red-700"
+              >
+                <div className="flex size-12 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                  <Package className="size-6" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                    @fe-monorepo/ui
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    UI Component Library
+                  </div>
+                </div>
+                <svg
+                  className="size-5 text-gray-400 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+              <a
+                href="https://www.npmjs.com/package/@fe-monorepo/hook"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:border-red-300 hover:shadow-md dark:border-gray-800 dark:bg-gray-900 dark:hover:border-red-700"
+              >
+                <div className="flex size-12 items-center justify-center rounded-lg bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                  <Code2 className="size-6" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                    @fe-monorepo/hook
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    React Hooks Library
+                  </div>
+                </div>
+                <svg
+                  className="size-5 text-gray-400 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+              </a>
+            </div>
+          </section>
         </div>
       </div>
     </>
