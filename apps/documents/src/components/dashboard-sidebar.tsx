@@ -136,7 +136,7 @@ export function DashboardSidebarContent({
             <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md">
               <Bot className="size-5 text-white" />
             </div>
-            {!isCollapsed && <span className="">Monorepo Docs</span>}
+            {!isCollapsed && <span className="">Documents</span>}
           </Link>
         </div>
 
@@ -184,7 +184,6 @@ export function DashboardSidebarContent({
                             <div className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
                               <Link
                                 to={item.url}
-                                onClick={() => toggleGroup(item.title, true)}
                                 className="flex flex-1 items-center gap-2 text-[15px] font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                               >
                                 <item.icon className="h-4 w-4" />
