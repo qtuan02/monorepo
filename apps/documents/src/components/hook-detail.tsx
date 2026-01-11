@@ -102,28 +102,6 @@ export default function HookDetail({ hook }: HookDetailProps) {
           filename={hook.filePath}
         />
       </section>
-
-      {/* Previews Section */}
-      {hook.previews && hook.previews.length > 0 && (
-        <section aria-labelledby="previews-heading">
-          <h2
-            id="previews-heading"
-            className="mb-4 text-xl font-semibold text-black dark:text-white"
-          >
-            Previews
-          </h2>
-          <div className="space-y-4">
-            {hook.previews.map((preview, index) => (
-              <CodeViewer
-                key={index}
-                code={preview}
-                language="tsx"
-                filename={`Preview ${index + 1}`}
-              />
-            ))}
-          </div>
-        </section>
-      )}
     </div>
   );
 }
