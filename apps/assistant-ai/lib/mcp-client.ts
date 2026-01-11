@@ -11,7 +11,7 @@ import { env } from "../env";
  * Stateless HTTP transport requires new client per request
  */
 async function createMcpClient(): Promise<Client | null> {
-  const mcpServerUrl = env.MCP_DOMAIN;
+  const mcpServerUrl = `${env.MCP_DOMAIN}/api/mcp`;
 
   if (!mcpServerUrl) {
     return null;
