@@ -95,7 +95,7 @@ export const DATA = {
         start: "Mar 2024",
         end: "Jun 2024",
         techStack: [
-          "Express.js",
+          "Spring Boot",
           "Next.js",
           "PostgreSQL",
           "Tailwind CSS",
