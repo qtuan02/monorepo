@@ -27,16 +27,14 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [isPending, startTransition] = useTransition();
-  const [theme, setThemeState] = useState<Theme>(() => {
-    // Initialize from localStorage or default to system
-    return getStoredTheme() || THEMES.system;
-  });
+  const [theme, setThemeState] = useState<Theme>(
+    () => getStoredTheme() || THEMES.system,
+  );
 
   const [effectiveTheme, setEffectiveTheme] = useState<"light" | "dark">(() =>
     getEffectiveTheme(theme),
   );
 
-  // Update effective theme when theme changes
   useEffect(() => {
     const newEffectiveTheme = getEffectiveTheme(theme);
     if (newEffectiveTheme !== effectiveTheme) {
@@ -45,7 +43,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
   }, [theme, effectiveTheme]);
 
-  // Listen for system theme changes when using "system" theme
   useEffect(() => {
     if (theme !== THEMES.system) return;
 
@@ -63,7 +60,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme, effectiveTheme]);
 
   const setTheme = (newTheme: Theme) => {
-    // Use transition to prevent UI blocking
     startTransition(() => {
       setThemeState(newTheme);
       setStoredTheme(newTheme);

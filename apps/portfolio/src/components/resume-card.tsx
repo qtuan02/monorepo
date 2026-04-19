@@ -110,7 +110,10 @@ export const ResumeCard = ({
               className="mt-2 text-xs sm:text-sm"
             >
               {description?.map((item, index) => (
-                <ul key={`description-${index}`} className="list-disc list-inside">
+                <ul
+                  key={`description-${index}`}
+                  className="list-inside list-disc"
+                >
                   <li>{item}</li>
                 </ul>
               ))}

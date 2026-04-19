@@ -1,10 +1,11 @@
 import { useSearchParams } from "react-router";
+
 import { Tabs, TabsList, TabsTrigger } from "@monorepo/ui";
 
 import type { PackageFilter } from "~/utils/package-filter-utils";
 import {
-  PACKAGE_FILTER_OPTIONS,
   getPackageFilterFromUrl,
+  PACKAGE_FILTER_OPTIONS,
 } from "~/utils/package-filter-utils";
 
 interface PackageFilterProps {
@@ -42,4 +43,3 @@ export default function PackageFilter({ className }: PackageFilterProps) {
     </Tabs>
   );
 }
-

@@ -36,47 +36,42 @@ export default function CodeViewer({
     setLineNumbersVisible((prev) => !prev);
   }, []);
 
-  // Split code into lines for line number display
   const lines = code.split("\n");
 
   if (!code) {
     return (
       <div
-        className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800"
+        className="border-border bg-muted/50 rounded-lg border p-8 text-center"
         data-testid="code-viewer-empty"
       >
-        <p className="text-gray-500 dark:text-gray-400">
-          No source code available.
-        </p>
+        <p className="text-muted-foreground">No source code available.</p>
       </div>
     );
   }
 
   return (
     <div
-      className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+      className="border-border overflow-hidden rounded-lg border"
       data-testid="code-viewer"
     >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-4 py-2 dark:border-gray-700 dark:bg-gray-800">
+      <div className="border-border bg-muted/50 flex items-center justify-between border-b px-4 py-2">
         <div className="flex items-center gap-3">
           {filename && (
-            <span className="font-mono text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-muted-foreground font-mono text-sm">
               {filename}
             </span>
           )}
-          <span className="rounded border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white">
+          <span className="border-border bg-background text-foreground rounded border px-2 py-0.5 text-xs font-medium uppercase">
             {language}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          {/* Line numbers toggle */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={toggleLineNumbers}
-                className="rounded px-2 py-1 text-xs text-gray-500 hover:bg-gray-200 hover:text-black dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                className="text-muted-foreground hover:bg-accent hover:text-foreground rounded px-2 py-1 text-xs"
                 aria-label={
                   lineNumbersVisible ? "Hide line numbers" : "Show line numbers"
                 }
@@ -89,13 +84,12 @@ export default function CodeViewer({
             </TooltipContent>
           </Tooltip>
 
-          {/* Copy button */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex items-center gap-1.5 rounded border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-black transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-black dark:text-white dark:hover:bg-gray-900"
+                className="border-border bg-background text-foreground hover:bg-muted flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-medium transition-colors"
                 data-testid="copy-button"
                 aria-label={copied ? "Code copied" : "Copy code to clipboard"}
               >
@@ -143,23 +137,20 @@ export default function CodeViewer({
         </div>
       </div>
 
-      {/* Code Content */}
-      <div className="max-h-[500px] overflow-auto bg-black dark:bg-black">
+      <div className="max-h-[500px] overflow-auto bg-black">
         <pre className="p-4 text-sm leading-relaxed">
           <code className="block">
             {lines.map((line, index) => (
               <div key={index} className="flex">
                 {lineNumbersVisible && (
                   <span
-                    className="mr-4 inline-block w-8 text-right text-gray-600 select-none"
+                    className="text-muted-foreground mr-4 inline-block w-8 text-right select-none"
                     data-testid="line-number"
                   >
                     {index + 1}
                   </span>
                 )}
-                <span className="flex-1 text-gray-200">
-                  {highlightSyntax(line, language)}
-                </span>
+                <span className="flex-1 text-gray-200">{line || " "}</span>
               </div>
             ))}
           </code>
@@ -167,41 +158,4 @@ export default function CodeViewer({
       </div>
     </div>
   );
-}
-
-/**
- * Basic syntax highlighting for TSX/TypeScript
- * TODO: Replace with Shiki for proper syntax highlighting in Epic 3
- */
-function highlightSyntax(line: string, language: string): React.ReactNode {
-  if (language !== "tsx" && language !== "typescript" && language !== "ts") {
-    return line;
-  }
-
-  // Basic patterns for highlighting (reserved for Shiki in Epic 3)
-  const _patterns: {
-    regex: RegExp;
-    className: string;
-  }[] = [
-    // Comments
-    { regex: /(\/\/.*$)/g, className: "text-gray-500 italic" },
-    // Strings
-    { regex: /("[^"]*"|'[^']*'|`[^`]*`)/g, className: "text-gray-300" },
-    // Keywords
-    {
-      regex:
-        /\b(import|export|from|const|let|var|function|return|if|else|for|while|class|interface|type|extends|implements|new|this|super|async|await|default|try|catch|throw|finally)\b/g,
-      className: "font-bold text-white",
-    },
-    // JSX tags
-    { regex: /(<\/?[\w]+)/g, className: "font-semibold text-white" },
-    // Numbers
-    { regex: /\b(\d+)\b/g, className: "text-gray-300" },
-    // Boolean/null
-    { regex: /\b(true|false|null|undefined)\b/g, className: "text-gray-300" },
-  ];
-
-  // For simplicity, just return the line without full highlighting
-  // Full Shiki integration will be added in Epic 3
-  return line || " ";
 }

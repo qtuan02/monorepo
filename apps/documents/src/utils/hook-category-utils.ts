@@ -46,4 +46,3 @@ export function filterHooksByCategory(
   const normalizedCategory = slugToHookCategory(category);
   return hooks.filter((hook) => hook.category === normalizedCategory);
 }
-

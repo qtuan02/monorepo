@@ -8,23 +8,21 @@ export default function ParametersTable({ parameters }: ParametersTableProps) {
   if (!parameters || parameters.length === 0) {
     return (
       <div
-        className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800"
+        className="border-border bg-muted/50 rounded-lg border p-8 text-center"
         data-testid="parameters-table-empty"
       >
-        <p className="text-gray-500 dark:text-gray-400">
-          This hook takes no parameters.
-        </p>
+        <p className="text-muted-foreground">This hook takes no parameters.</p>
       </div>
     );
   }
 
   return (
     <div
-      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700"
+      className="border-border overflow-x-auto rounded-lg border"
       data-testid="parameters-table"
     >
       <table className="w-full min-w-[600px] text-left text-sm">
-        <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
+        <thead className="bg-muted text-muted-foreground text-xs uppercase">
           <tr>
             <th scope="col" className="px-4 py-3 font-semibold">
               Parameter
@@ -43,39 +41,35 @@ export default function ParametersTable({ parameters }: ParametersTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody className="divide-border divide-y">
           {parameters.map((param) => (
             <tr
               key={param.name}
-              className="bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800/50"
+              className="bg-background hover:bg-muted/50"
               data-testid="parameters-table-row"
             >
-              {/* Parameter Name */}
               <td className="px-4 py-3 whitespace-nowrap">
-                <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-sm font-medium text-gray-900 dark:bg-gray-700 dark:text-gray-100">
+                <code className="bg-muted text-foreground rounded px-1.5 py-0.5 font-mono text-sm font-medium">
                   {param.name}
                 </code>
               </td>
 
-              {/* Type */}
               <td className="px-4 py-3">
                 <code className="font-mono text-xs text-purple-600 dark:text-purple-400">
                   {formatType(param.type)}
                 </code>
               </td>
 
-              {/* Default Value */}
               <td className="px-4 py-3">
                 {param.defaultValue ? (
                   <code className="font-mono text-xs text-green-600 dark:text-green-400">
                     {param.defaultValue}
                   </code>
                 ) : (
-                  <span className="text-gray-400 dark:text-gray-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </td>
 
-              {/* Required */}
               <td className="px-4 py-3 text-center">
                 {param.required ? (
                   <span
@@ -85,16 +79,13 @@ export default function ParametersTable({ parameters }: ParametersTableProps) {
                     Required
                   </span>
                 ) : (
-                  <span className="text-gray-400 dark:text-gray-500">
-                    Optional
-                  </span>
+                  <span className="text-muted-foreground">Optional</span>
                 )}
               </td>
 
-              {/* Description */}
-              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+              <td className="text-muted-foreground px-4 py-3">
                 {param.description || (
-                  <span className="text-gray-400 italic dark:text-gray-500">
+                  <span className="text-muted-foreground italic">
                     Description coming soon
                   </span>
                 )}
@@ -107,9 +98,6 @@ export default function ParametersTable({ parameters }: ParametersTableProps) {
   );
 }
 
-/**
- * Format complex TypeScript types for display
- */
 function formatType(type: string): string {
   if (type.length > 80) {
     return type.substring(0, 77) + "...";

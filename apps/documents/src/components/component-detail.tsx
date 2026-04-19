@@ -16,12 +16,14 @@ import PreviewContainer from "./preview-container";
 import PreviewsSection from "./previews-section";
 import PropsTable from "./props-table";
 
+const tabTriggerClass =
+  "data-[state=active]:bg-background data-[state=active]:text-foreground";
+
 interface ComponentDetailProps {
   component: ComponentMetadata;
 }
 
 export default function ComponentDetail({ component }: ComponentDetailProps) {
-  // Transform previews array to match PreviewsSection interface
   const transformedPreviews: ComponentPreview[] =
     component.previews?.map((code, index) => ({
       title: `Preview ${index + 1}`,
@@ -31,15 +33,14 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
 
   return (
     <div className="space-y-6" data-testid="component-detail">
-      {/* Header Section */}
       <header className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-black dark:text-white">
+            <h1 className="text-foreground text-3xl font-bold">
               {component.name}
             </h1>
             {component.description && (
-              <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground mt-2 text-lg">
                 {component.description}
               </p>
             )}
@@ -49,56 +50,42 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           </div>
         </div>
 
-        {/* Back link */}
         <Link
           to="/components"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-black hover:underline dark:text-gray-400 dark:hover:text-white"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm hover:underline"
         >
           ← Back to Components
         </Link>
       </header>
 
-      {/* Tabs Layout */}
       <Tabs defaultValue="preview" className="mt-6">
-        <TabsList className="w-full justify-start bg-gray-100 p-1 dark:bg-gray-800">
-          <TabsTrigger
-            value="preview"
-            className="data-[state=active]:bg-white data-[state=active]:text-black dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
-          >
+        <TabsList className="bg-muted w-full justify-start p-1">
+          <TabsTrigger value="preview" className={tabTriggerClass}>
             Preview{" "}
             {transformedPreviews.length > 0 && (
-              <span className="ml-1 rounded-full border border-gray-200 bg-white px-2 py-0.5 text-xs font-medium text-black dark:border-gray-700 dark:bg-black dark:text-white">
+              <span className="border-border bg-background text-foreground ml-1 rounded-full border px-2 py-0.5 text-xs font-medium">
                 {transformedPreviews.length}
               </span>
             )}
           </TabsTrigger>
-          <TabsTrigger
-            value="code"
-            className="data-[state=active]:bg-white data-[state=active]:text-black dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
-          >
+          <TabsTrigger value="code" className={tabTriggerClass}>
             Code
           </TabsTrigger>
           {component.props && component.props.length > 0 && (
-            <TabsTrigger
-              value="props"
-              className="data-[state=active]:bg-white data-[state=active]:text-black dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
-            >
+            <TabsTrigger value="props" className={tabTriggerClass}>
               Props
             </TabsTrigger>
           )}
         </TabsList>
 
-        {/* Preview Tab - Live UI Demo */}
         <TabsContent value="preview" className="mt-6 space-y-8">
-          {/* Live Component Preview */}
           <section>
-            <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
+            <h2 className="text-foreground mb-4 text-xl font-semibold">
               Live Preview
             </h2>
             <PreviewContainer component={component} />
           </section>
 
-          {/* Previews with code */}
           {transformedPreviews.length > 0 && (
             <PreviewsSection
               previews={transformedPreviews}
@@ -107,9 +94,7 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           )}
         </TabsContent>
 
-        {/* Source Code Tab */}
         <TabsContent value="code" className="mt-6 space-y-8">
-          {/* Import Section */}
           <ImportSection
             packageName="@monorepo/ui"
             componentName={component.name}
@@ -117,7 +102,7 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           />
 
           <section>
-            <h2 className="mb-4 text-xl font-semibold text-black dark:text-white">
+            <h2 className="text-foreground mb-4 text-xl font-semibold">
               Source Code
             </h2>
             <CodeViewer
@@ -128,7 +113,6 @@ export default function ComponentDetail({ component }: ComponentDetailProps) {
           </section>
         </TabsContent>
 
-        {/* Props Tab - Only if props exist */}
         {component.props && component.props.length > 0 && (
           <TabsContent value="props" className="mt-6">
             <PropsTable props={component.props} />

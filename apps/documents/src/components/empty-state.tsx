@@ -10,14 +10,13 @@ export default function EmptyState({ category }: EmptyStateProps) {
       className="flex flex-col items-center justify-center py-12 text-center"
       data-testid="empty-state"
     >
-      <Package className="mb-4 size-12 text-gray-400" />
-      <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">
+      <Package className="text-muted-foreground mb-4 size-12" />
+      <h2 className="text-foreground mb-2 text-xl font-semibold">
         No components found
       </h2>
-      <p className="text-gray-600 dark:text-gray-400">
-        The {category} category doesn't have any components yet.
+      <p className="text-muted-foreground">
+        The {category} category doesn&apos;t have any components yet.
       </p>
     </div>
   );
 }
-

@@ -21,6 +21,15 @@ interface SearchModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const resultRowClass = (selected: boolean) =>
+  cn(
+    "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
+    selected ? "bg-muted" : "hover:bg-muted/50",
+  );
+
+const typeBadgeClass =
+  "mt-0.5 shrink-0 rounded border border-border bg-background px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-foreground uppercase";
+
 export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -29,7 +38,6 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
   const { components } = useComponentMetadata();
   const { hooks } = useHookMetadata();
 
-  // Get all items or filtered results
   const allItems: SearchResult[] = [
     ...components.map((c) => ({
       id: c.id,
@@ -53,12 +61,23 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
     ? searchComponentsAndHooks(query, components, hooks)
     : allItems;
 
-  // Reset selected index when results change
   useEffect(() => {
     setSelectedIndex(0);
   }, [displayItems.length]);
 
-  // Handle keyboard navigation
+  const handleSelect = useCallback(
+    (item: SearchResult) => {
+      const path =
+        item.type === "component"
+          ? `/components/${item.id}`
+          : `/hooks/${item.id}`;
+      navigate(path);
+      onOpenChange(false);
+      setQuery("");
+    },
+    [navigate, onOpenChange],
+  );
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!open) return;
@@ -89,20 +108,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, displayItems, selectedIndex, onOpenChange]);
-
-  const handleSelect = useCallback(
-    (item: SearchResult) => {
-      const path =
-        item.type === "component"
-          ? `/components/${item.id}`
-          : `/hooks/${item.id}`;
-      navigate(path);
-      onOpenChange(false);
-      setQuery("");
-    },
-    [navigate, onOpenChange],
-  );
+  }, [open, displayItems, selectedIndex, onOpenChange, handleSelect]);
 
   const handleOpenChange = useCallback(
     (newOpen: boolean) => {
@@ -117,29 +123,27 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-2xl gap-0 border-gray-200 bg-white p-0 md:w-full dark:border-gray-800 dark:bg-black">
+      <DialogContent className="border-border bg-background w-[calc(100%-2rem)] max-w-2xl gap-0 p-0 md:w-full">
         <DialogHeader className="sr-only">
           <DialogTitle>Search Components and Hooks</DialogTitle>
         </DialogHeader>
 
-        {/* Search Input */}
-        <div className="relative border-b border-gray-200 dark:border-gray-800">
-          <Search className="absolute top-1/2 left-4 size-5 -translate-y-1/2 text-gray-500" />
+        <div className="border-border relative border-b">
+          <Search className="text-muted-foreground absolute top-1/2 left-4 size-5 -translate-y-1/2" />
           <Input
             type="text"
             placeholder="Search components and hooks..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="border-0 bg-transparent py-6 pr-4 pl-12 text-base text-black placeholder:text-gray-500 focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-white"
+            className="text-foreground placeholder:text-muted-foreground border-0 bg-transparent py-6 pr-4 pl-12 text-base focus-visible:ring-0 focus-visible:ring-offset-0"
             autoFocus
           />
         </div>
 
-        {/* Results List */}
         <div className="max-h-[500px] overflow-y-auto">
           {displayItems.length === 0 ? (
             <div className="px-4 py-12 text-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-muted-foreground text-sm">
                 {query.trim()
                   ? "No results found"
                   : "No components or hooks available"}
@@ -149,8 +153,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             <div className="p-2">
               {!query.trim() ? (
                 <>
-                  {/* UI Introduction Section */}
-                  <div className="px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                  <div className="text-muted-foreground px-2 py-2 text-xs font-semibold tracking-wider uppercase">
                     UI Introduction ({components.length})
                   </div>
                   <ul role="listbox" className="mb-4 space-y-1">
@@ -163,38 +166,22 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                             key={`comp-${item.id}`}
                             role="option"
                             aria-selected={index === selectedIndex}
-                            className={cn(
-                              "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
-                              index === selectedIndex
-                                ? "bg-gray-100 dark:bg-gray-900"
-                                : "hover:bg-gray-50 dark:hover:bg-gray-900/50",
-                            )}
+                            className={resultRowClass(index === selectedIndex)}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(index)}
                           >
-                            <div className="mt-0.5 flex-shrink-0 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white">
-                              C
-                            </div>
+                            <div className={typeBadgeClass}>C</div>
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className={cn(
-                                    "truncate font-medium text-black dark:text-white",
-                                    index === selectedIndex &&
-                                      "text-black dark:text-white",
-                                  )}
-                                >
-                                  {item.name}
-                                </span>
-                              </div>
+                              <span className="text-foreground truncate font-medium">
+                                {item.name}
+                              </span>
                             </div>
                           </li>
                         );
                       })}
                   </ul>
 
-                  {/* Hook Introduction Section */}
-                  <div className="px-2 py-2 text-xs font-semibold tracking-wider text-gray-500 uppercase">
+                  <div className="text-muted-foreground px-2 py-2 text-xs font-semibold tracking-wider uppercase">
                     Hook Introduction ({hooks.length})
                   </div>
                   <ul role="listbox" className="space-y-1">
@@ -207,30 +194,15 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                             key={`hook-${item.id}`}
                             role="option"
                             aria-selected={index === selectedIndex}
-                            className={cn(
-                              "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
-                              index === selectedIndex
-                                ? "bg-gray-100 dark:bg-gray-900"
-                                : "hover:bg-gray-50 dark:hover:bg-gray-900/50",
-                            )}
+                            className={resultRowClass(index === selectedIndex)}
                             onClick={() => handleSelect(item)}
                             onMouseEnter={() => setSelectedIndex(index)}
                           >
-                            <div className="mt-0.5 flex-shrink-0 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white">
-                              H
-                            </div>
+                            <div className={typeBadgeClass}>H</div>
                             <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className={cn(
-                                    "truncate font-medium text-black dark:text-white",
-                                    index === selectedIndex &&
-                                      "text-black dark:text-white",
-                                  )}
-                                >
-                                  {item.name}
-                                </span>
-                              </div>
+                              <span className="text-foreground truncate font-medium">
+                                {item.name}
+                              </span>
                             </div>
                           </li>
                         );
@@ -238,60 +210,41 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
                   </ul>
                 </>
               ) : (
-                /* Search Results */
                 <ul role="listbox" className="space-y-1">
                   {displayItems.map((item, index) => (
                     <li
                       key={`${item.type}-${item.id}`}
                       role="option"
                       aria-selected={index === selectedIndex}
-                      className={cn(
-                        "group flex cursor-pointer items-start gap-3 rounded-lg px-3 py-2.5 transition-all",
-                        index === selectedIndex
-                          ? "bg-gray-100 dark:bg-gray-900"
-                          : "hover:bg-gray-50 dark:hover:bg-gray-900/50",
-                      )}
+                      className={resultRowClass(index === selectedIndex)}
                       onClick={() => handleSelect(item)}
                       onMouseEnter={() => setSelectedIndex(index)}
                     >
-                      {/* Type Badge */}
-                      <div
-                        className={cn(
-                          "mt-0.5 flex-shrink-0 rounded border border-gray-200 bg-white px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-black uppercase dark:border-gray-700 dark:bg-black dark:text-white",
-                        )}
-                      >
+                      <div className={typeBadgeClass}>
                         {item.type === "component" ? "C" : "H"}
                       </div>
 
-                      {/* Content */}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span
-                            className={cn(
-                              "truncate font-medium text-black dark:text-white",
-                              index === selectedIndex &&
-                                "text-black dark:text-white",
-                            )}
-                          >
+                          <span className="text-foreground truncate font-medium">
                             {item.name}
                           </span>
                           {item.category && (
-                            <span className="truncate text-xs text-gray-500 dark:text-gray-400">
+                            <span className="text-muted-foreground truncate text-xs">
                               · {item.category}
                             </span>
                           )}
                         </div>
                         {item.description && (
-                          <p className="mt-0.5 line-clamp-1 text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-muted-foreground mt-0.5 line-clamp-1 text-sm">
                             {item.description}
                           </p>
                         )}
                       </div>
 
-                      {/* Enter hint on selected */}
                       {index === selectedIndex && (
-                        <div className="flex flex-shrink-0 items-center gap-1 text-xs text-gray-400 dark:text-gray-500">
-                          <kbd className="rounded border border-gray-200 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-700 dark:bg-black">
+                        <div className="text-muted-foreground flex shrink-0 items-center gap-1 text-xs">
+                          <kbd className="border-border bg-background rounded border px-1.5 py-0.5 font-mono text-[10px]">
                             ↵
                           </kbd>
                         </div>
@@ -304,24 +257,23 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
           )}
         </div>
 
-        {/* Footer with shortcuts hint */}
-        <div className="border-t border-gray-200 bg-gray-50 px-4 py-3 dark:border-gray-800 dark:bg-black">
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+        <div className="border-border bg-muted/50 border-t px-4 py-3">
+          <div className="text-muted-foreground flex items-center justify-between text-xs">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
+                <kbd className="border-border bg-background rounded border px-1.5 py-0.5 font-mono text-[10px]">
                   ↑↓
                 </kbd>
                 Navigate
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
+                <kbd className="border-border bg-background rounded border px-1.5 py-0.5 font-mono text-[10px]">
                   ↵
                 </kbd>
                 Select
               </span>
               <span className="flex items-center gap-1">
-                <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
+                <kbd className="border-border bg-background rounded border px-1.5 py-0.5 font-mono text-[10px]">
                   ESC
                 </kbd>
                 Close
@@ -329,7 +281,7 @@ export default function SearchModal({ open, onOpenChange }: SearchModalProps) {
             </div>
             <span className="flex items-center gap-1">
               <Command className="size-3" />
-              <kbd className="rounded border border-gray-300 bg-white px-1.5 py-0.5 font-mono text-[10px] dark:border-gray-600 dark:bg-black">
+              <kbd className="border-border bg-background rounded border px-1.5 py-0.5 font-mono text-[10px]">
                 K
               </kbd>
               Shortcut

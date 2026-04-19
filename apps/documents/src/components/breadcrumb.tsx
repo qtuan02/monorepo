@@ -5,7 +5,7 @@ import { cn } from "@monorepo/ui/libs/cn";
 
 export interface BreadcrumbItem {
   label: string;
-  path?: string; // undefined = current page (not clickable)
+  path?: string;
 }
 
 interface BreadcrumbProps {
@@ -27,12 +27,12 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
         return (
           <div key={index} className="flex items-center">
             {index > 0 && (
-              <ChevronRight className="mx-1 h-4 w-4 text-gray-400" />
+              <ChevronRight className="text-muted-foreground mx-1 h-4 w-4" />
             )}
             {isClickable ? (
               <Link
                 to={item.path!}
-                className="text-gray-500 transition-colors hover:text-black dark:text-gray-400 dark:hover:text-white"
+                className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 {item.label}
               </Link>
@@ -40,8 +40,8 @@ export default function Breadcrumb({ items, className }: BreadcrumbProps) {
               <span
                 className={cn(
                   isLast
-                    ? "font-medium text-black dark:text-white"
-                    : "text-gray-400 dark:text-gray-500",
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground",
                 )}
               >
                 {item.label}

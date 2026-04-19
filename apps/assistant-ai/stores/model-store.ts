@@ -28,4 +28,3 @@ export const useModelStore = create<ModelStore>((set) => ({
     set({ selectedModel: model });
   },
 }));
-

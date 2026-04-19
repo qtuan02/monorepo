@@ -17,6 +17,7 @@
     "ui-add": "pnpm dlx shadcn@latest add && prettier src --write --list-different"
   },
   "devDependencies": {
+    "@storybook/react": "catalog:storybook",
     "@monorepo/eslint-config": "workspace:*",
     "@monorepo/prettier-config": "workspace:*",
     "@monorepo/tailwind-config": "workspace:*",

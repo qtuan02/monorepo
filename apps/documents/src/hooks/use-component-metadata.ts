@@ -1,39 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import type { ComponentMetadata } from "~/types/component-metadata";
-// Import generated data (created by scripts/generate-metadata.ts)
- 
-// @ts-ignore - Generated at build time
 import componentsData from "~/constants/components.json";
 
-/**
- * Hook to fetch component metadata
- * Uses auto-generated data from build-time script
- */
+const COMPONENTS = (componentsData as { components: ComponentMetadata[] })
+  .components;
+
 export function useComponentMetadata() {
-  const [components, setComponents] = useState<ComponentMetadata[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    try {
-      // Use generated data
-      const data = componentsData?.components || [];
-      setComponents(data as ComponentMetadata[]);
-    } catch (error) {
-      console.error("Failed to load component metadata:", error);
-      setComponents([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  return { components, isLoading };
+  return useMemo(() => ({ components: COMPONENTS, isLoading: false }), []);
 }
 
-/**
- * Hook to fetch a single component by ID
- * @param id - Component ID to fetch
- */
 export function useComponentById(id: string) {
   const { components, isLoading } = useComponentMetadata();
 

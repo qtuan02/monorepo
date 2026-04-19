@@ -36,7 +36,6 @@ export default function AppLayout() {
     }
   };
 
-  // Cmd/Ctrl + K shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -49,7 +48,6 @@ export default function AppLayout() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Prevent scroll restoration on page reload
   useEffect(() => {
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
@@ -58,11 +56,9 @@ export default function AppLayout() {
   }, []);
 
   return (
-    <div className="flex h-[100dvh] w-full bg-white dark:bg-black">
-      {/* Mobile Sidebar (Fixed) */}
+    <div className="bg-background flex h-[100dvh] w-full">
       <DashboardSidebarMobile />
 
-      {/* Desktop Resizable Layout */}
       <ResizablePanelGroup direction="horizontal">
         <ResizablePanel
           ref={sidebarRef}
@@ -74,7 +70,7 @@ export default function AppLayout() {
           onCollapse={() => setIsSidebarCollapsed(true)}
           onExpand={() => setIsSidebarCollapsed(false)}
           className={cn(
-            "hidden border-r border-gray-200 md:block dark:border-gray-800",
+            "border-border hidden border-r md:block",
             !isDragging && "transition-all duration-300 ease-in-out",
           )}
         >
@@ -82,20 +78,19 @@ export default function AppLayout() {
         </ResizablePanel>
 
         <ResizableHandle
-          className="hidden w-[1px] bg-gray-200 md:flex dark:bg-gray-800"
+          className="bg-border hidden w-px md:flex"
           onDragging={setIsDragging}
         />
 
         <ResizablePanel defaultSize={82}>
           <div className="flex h-full flex-col overflow-hidden">
-            {/* Header */}
-            <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-4 lg:h-[60px] dark:border-gray-800 dark:bg-black">
+            <header className="border-border bg-background sticky top-0 z-10 flex h-14 items-center gap-4 border-b px-4 lg:h-[60px]">
               <div className="hidden md:flex">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={toggleSidebar}
-                  className="text-black hover:bg-gray-100 dark:text-white dark:hover:bg-gray-900"
+                  className="text-foreground hover:bg-muted"
                 >
                   <PanelLeft
                     className={cn(
@@ -109,25 +104,21 @@ export default function AppLayout() {
               <div className="flex flex-1 items-center gap-4 md:ml-auto md:w-auto md:flex-none">
                 <Button
                   variant="outline"
-                  className="text-muted-foreground relative w-full justify-start rounded-md border-gray-200 bg-white text-sm text-gray-500 shadow-none hover:bg-gray-50 hover:text-gray-900 sm:w-64 sm:pr-12 md:w-80 lg:w-96 dark:border-gray-800 dark:bg-black dark:text-gray-400 dark:hover:bg-gray-900 dark:hover:text-gray-50"
+                  className="text-muted-foreground border-border bg-background hover:bg-muted hover:text-foreground relative w-full justify-start rounded-md text-sm shadow-none sm:w-64 sm:pr-12 md:w-80 lg:w-96"
                   onClick={() => setSearchOpen(true)}
                 >
                   <Search className="mr-2 h-4 w-4" />
                   <span>Search components...</span>
-                  <kbd className="bg-muted pointer-events-none absolute top-1.5 right-1.5 hidden h-5 items-center gap-1 rounded border border-gray-200 px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex dark:border-gray-700">
+                  <kbd className="bg-muted border-border pointer-events-none absolute top-1.5 right-1.5 hidden h-5 items-center gap-1 rounded border px-1.5 font-mono text-[10px] font-medium opacity-100 select-none sm:flex">
                     <span className="text-xs">⌘</span>K
                   </kbd>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  className="text-black hover:bg-gray-100 dark:text-white dark:hover:bg-gray-900"
-                >
+                <Button variant="ghost" size="icon" asChild>
                   <a
                     href="https://github.com/qtuan02/monorepo/tree/main/apps/documents"
                     target="_blank"
                     rel="noopener noreferrer"
+                    className="text-foreground hover:bg-muted"
                   >
                     <Github className="h-5 w-5" />
                     <span className="sr-only">GitHub</span>
@@ -137,15 +128,13 @@ export default function AppLayout() {
               </div>
             </header>
 
-            {/* Main Content */}
-            <main className="flex-1 overflow-auto bg-white dark:bg-black">
+            <main className="bg-background flex-1 overflow-auto">
               <Outlet />
             </main>
           </div>
         </ResizablePanel>
       </ResizablePanelGroup>
 
-      {/* Search Modal */}
       <SearchModal open={searchOpen} onOpenChange={setSearchOpen} />
     </div>
   );
