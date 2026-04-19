@@ -1,4 +1,5 @@
 # Manual deploy: run from Actions → this workflow → Run workflow → pick app.
+# Documentation: docs/others/VERCEL-DEPLOY.md
 #
 # Prerequisite (Vercel Dashboard, per project):
 #   Settings → Git → Deploy Hooks → create hook for branch `main` (or your production branch).
@@ -14,6 +15,9 @@
 # Optional: disable automatic Production deployments on each Vercel project if you only want deploys via this workflow.
 
 name: Manual Vercel deploy
+
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:

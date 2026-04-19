@@ -88,15 +88,16 @@ GOOGLE_GENERATIVE_AI_API_KEY: z.string(), // Remove .optional()
 
 ## Best Practices
 
-1. **Always use this package**: Never access `process.env` directly
+1. **Always use this package**: Do not read `process.env` or `import.meta.env` directly in app source — use `@monorepo/env` or `@monorepo/env/vite`
 2. **Extend, don't duplicate**: Apps should extend the base config
 3. **Type safety**: Let TypeScript guide you with autocomplete
 4. **Validation**: All variables are validated at build time
 
 ## Dependencies
 
-- `@t3-oss/env-nextjs` - Environment variable validation
-- `zod` - Schema validation
+- `@t3-oss/env-nextjs` — Next.js-oriented `createEnv` (default export `@monorepo/env`)
+- `@t3-oss/env-core` — Core `createEnv` used by `@monorepo/env/vite`
+- `zod` — Schema validation
 
 ## Related Documentation
 

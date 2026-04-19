@@ -9,7 +9,8 @@ monorepo/
 │   ├── assistant-ai/         # AI chat application (Next.js 15 + React 19)
 │   ├── documents/            # Component docs site (Vite + React 19)
 │   ├── mcp/                  # Model Context Protocol server
-│   └── portfolio/            # Portfolio website (Next.js 15 + React 19)
+│   ├── portfolio/            # Portfolio website (Next.js 15 + React 19)
+│   └── storybook/            # Storybook for @monorepo/ui (Vite)
 │
 ├── packages/                  # Shared packages
 │   ├── env/                  # Environment variable validation
@@ -42,8 +43,10 @@ monorepo/
   - Source: `apps/assistant-ai/`
 - **[Portfolio](https://portfolio-ui-2025.vercel.app)** - Frontend portfolio
   - Source: `apps/portfolio/`
-- **[Documents](https://documents-ui.vercel.app)** - Frontend documents
+- **[Documents](https://documents-ui.vercel.app)** - UI & hooks documentation site
   - Source: `apps/documents/`
+- **[Storybook](https://storybook-monorepo-ui.vercel.app)** - Interactive stories for `@monorepo/ui`
+  - Source: `apps/storybook/`
 
 ### External Projects
 
@@ -55,7 +58,11 @@ monorepo/
 
 ## Documentation
 
-- [Assistant AI](./docs/apps/ASSISTANT-AI.md) - Chat application with Google Gemini integration
-- [MCP Server](./docs/apps/MCP.md) - Model Context Protocol server for weather data
-- [Sentry Integration](./docs/packages/SENTRY.md) - Error tracking and performance monitoring setup
-- [Publishing to NPM](./docs/others/CHANGESET.md) - Guide for publishing UI and Hook packages to npm
+- [Documents](./docs/apps/DOCUMENTS.md) — Component and hook documentation site (Vite)
+- [Storybook](./docs/apps/STORYBOOK.md) — UI preview for `@monorepo/ui`
+- [Assistant AI](./docs/apps/ASSISTANT-AI.md) — Chat application with Google Gemini integration
+- [MCP Server](./docs/apps/MCP.md) — Model Context Protocol server for weather data
+- [Sentry integration](./docs/packages/SENTRY.md) — Error tracking and performance monitoring
+- [Publishing to NPM](./docs/others/CHANGESET.md) — Versioning and publishing UI/Hook packages
+- [Vercel manual deploy](./docs/others/VERCEL-DEPLOY.md) — GitHub Actions deploy hooks
+- [Docs index](./docs/README.md) — Full table of contents

@@ -9,25 +9,28 @@ docs/
 ├── apps/                    # Application-specific documentation
 │   ├── ASSISTANT-AI.md     # AI chat application guide
 │   ├── DOCUMENTS.md        # Component documentation site guide
+│   ├── STORYBOOK.md        # Storybook (Vite) for @monorepo/ui
 │   └── MCP.md              # Model Context Protocol server setup
 │
 ├── packages/                # Package-specific documentation
 │   └── SENTRY.md           # Sentry error tracking setup
 │
 └── others/                  # General documentation
-    └── CHANGESET.md        # NPM package publishing guide
+    ├── CHANGESET.md        # NPM package publishing guide
+    └── VERCEL-DEPLOY.md    # Manual Vercel deploy hooks (GitHub Actions)
 ```
 
 ## 🚀 Quick Links
 
 ### Applications
 
-| Application      | Description                | Documentation                         |
-| ---------------- | -------------------------- | ------------------------------------- |
-| **Portfolio**    | Personal portfolio website | [Main README](../README.md#portfolio) |
-| **Assistant AI** | AI chat with Google Gemini | [Guide](./apps/ASSISTANT-AI.md)       |
-| **Documents**    | Component documentation    | [Guide](./apps/DOCUMENTS.md)          |
-| **MCP Server**   | Weather data MCP server    | [Guide](./apps/MCP.md)                |
+| Application      | Description                   | Documentation                             |
+| ---------------- | ----------------------------- | ----------------------------------------- |
+| **Portfolio**    | Personal portfolio website    | [App README](../apps/portfolio/README.md) |
+| **Assistant AI** | AI chat with Google Gemini    | [Guide](./apps/ASSISTANT-AI.md)           |
+| **Documents**    | Component documentation       | [Guide](./apps/DOCUMENTS.md)              |
+| **Storybook**    | UI preview for `@monorepo/ui` | [Guide](./apps/STORYBOOK.md)              |
+| **MCP Server**   | Weather data MCP server       | [Guide](./apps/MCP.md)                    |
 
 ### Packages
 
@@ -42,9 +45,10 @@ docs/
 
 ### Development Guides
 
-| Topic                 | Description                     | Documentation                  |
-| --------------------- | ------------------------------- | ------------------------------ |
-| **Publishing to NPM** | Package versioning & publishing | [Guide](./others/CHANGESET.md) |
+| Topic                      | Description                     | Documentation                      |
+| -------------------------- | ------------------------------- | ---------------------------------- |
+| **Publishing to NPM**      | Package versioning & publishing | [Guide](./others/CHANGESET.md)     |
+| **Vercel (manual deploy)** | GitHub Actions + deploy hooks   | [Guide](./others/VERCEL-DEPLOY.md) |
 
 ## 📖 Documentation Guides
 
@@ -66,10 +70,14 @@ Learn about each application:
   - Chat features and architecture
 
 - **[Documents](./apps/DOCUMENTS.md)** - Component documentation site
-  - How metadata generation works
+  - Metadata JSON and preview registry
   - Adding new components/hooks
-  - Deployment guide
-  - Testing strategy
+  - Deployment and environment variables
+  - Testing and troubleshooting (including Vite on Windows)
+
+- **[Storybook](./apps/STORYBOOK.md)** - Interactive UI stories for `@monorepo/ui`
+  - Dev commands and ports
+  - Shared `@monorepo/env/vite` usage
 
 - **[MCP Server](./apps/MCP.md)** - Weather data tools
   - OpenWeatherMap API setup
@@ -107,9 +115,8 @@ Learn how to publish packages:
 ### Add New Component
 
 1. Create component in `packages/ui/src/components/`
-2. Add TypeScript interfaces
-3. Run `pnpm generate:docs` to update documentation
-4. Component appears automatically in [Documents](./apps/DOCUMENTS.md)
+2. Update Documents metadata and registry as described in [Documents](./apps/DOCUMENTS.md)
+3. Optionally add or extend Storybook stories under `packages/ui/src/stories/`
 
 ### Configure Error Tracking
 
@@ -134,12 +141,13 @@ Learn how to publish packages:
 - **Error Tracking**: [Sentry Guide](./packages/SENTRY.md)
 - **Documentation Site**: [Documents Guide](./apps/DOCUMENTS.md)
 - **Publishing**: [Changesets Guide](./others/CHANGESET.md)
+- **Vercel**: [Manual deploy hooks](./others/VERCEL-DEPLOY.md)
 
 ### By Technology
 
 - **Next.js 15**: Portfolio, Assistant AI, MCP Server
 - **React 19**: All applications
-- **Vite**: Documents app
+- **Vite**: Documents app, Storybook
 - **Google Gemini**: Assistant AI
 - **MCP**: MCP Server, Assistant AI
 - **Sentry**: All production apps
@@ -210,7 +218,7 @@ Learn how to publish packages:
 
 ---
 
-**Last Updated**: December 2025  
-**Maintained By**: Monorepo Team
+**Last updated**: April 2026  
+**Maintained by**: Monorepo team
 
 For the main monorepo overview, see [README.md](../README.md)
