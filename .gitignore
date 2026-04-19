@@ -42,6 +42,9 @@ yarn-error.log*
 dist/
 .cache
 
+# storybook static export
+apps/storybook/storybook-static/
+
 # turbo
 .turbo
 

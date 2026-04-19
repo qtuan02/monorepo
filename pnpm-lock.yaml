@@ -15,6 +15,9 @@ catalogs:
     '@rslib/core':
       specifier: 0.17.0
       version: 0.17.0
+    '@t3-oss/env-core':
+      specifier: 0.13.8
+      version: 0.13.8
     '@tailwindcss/postcss':
       specifier: ^4.1.14
       version: 4.1.14
@@ -135,6 +138,13 @@ catalogs:
     '@storybook/react':
       specifier: 8.6.11
       version: 8.6.11
+  tanstackquery:
+    '@tanstack/react-query':
+      specifier: ^5.90.2
+      version: 5.99.2
+    '@tanstack/react-query-devtools':
+      specifier: ^5.90.2
+      version: 5.99.2
 
 importers:
 
@@ -170,6 +180,12 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: catalog:next15
         version: 0.13.8(typescript@5.8.2)(valibot@1.1.0(typescript@5.8.2))(zod@4.1.13)
+      '@tanstack/react-query':
+        specifier: catalog:tanstackquery
+        version: 5.99.2(react@19.2.0)
+      '@tanstack/react-query-devtools':
+        specifier: catalog:tanstackquery
+        version: 5.99.2(@tanstack/react-query@5.99.2(react@19.2.0))(react@19.2.0)
       next:
         specifier: catalog:next15
         version: 15.4.8(@opentelemetry/api@1.9.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -319,6 +335,9 @@ importers:
 
   apps/documents:
     dependencies:
+      '@monorepo/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@monorepo/hook':
         specifier: workspace:*
         version: link:../../packages/hook
@@ -529,6 +548,9 @@ importers:
 
   apps/storybook:
     dependencies:
+      '@monorepo/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@monorepo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -617,6 +639,9 @@ importers:
 
   packages/env:
     dependencies:
+      '@t3-oss/env-core':
+        specifier: 'catalog:'
+        version: 0.13.8(typescript@5.8.2)(valibot@1.1.0(typescript@5.8.2))(zod@4.1.13)
       zod:
         specifier: 'catalog:'
         version: 4.1.13
@@ -645,6 +670,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.8.2
+      vite:
+        specifier: 'catalog:'
+        version: 6.4.1(@types/node@22.15.3)(jiti@2.6.1)(lightningcss@1.30.1)(terser@5.44.1)(tsx@4.21.0)
 
   packages/hook:
     dependencies:
@@ -4109,6 +4137,23 @@ packages:
 
   '@tailwindcss/postcss@4.1.14':
     resolution: {integrity: sha512-BdMjIxy7HUNThK87C7BC8I1rE8BVUsfNQSI5siQ4JK3iIa3w0XyVvVL9SXLWO//CtYTcp1v7zci0fYwJOjB+Zg==}
+
+  '@tanstack/query-core@5.99.2':
+    resolution: {integrity: sha512-1HunU0bXVsR1ZJMZbcOPE6VtaBJxsW809RE9xPe4Gz7MlB0GWwQvuTPhMoEmQ/hIzFKJ/DWAuttIe7BOaWx0tA==}
+
+  '@tanstack/query-devtools@5.99.2':
+    resolution: {integrity: sha512-TEF1d+RYO9l8oeCwgzmOHIgKwAzXQmw2s/ny2bW8qeg2OMkkLjALfVEivgCMR3OL/jVdMmeTPX56WrV+uvYJFg==}
+
+  '@tanstack/react-query-devtools@5.99.2':
+    resolution: {integrity: sha512-8txkK9A9XBNTB8RoxVgfp6W3qwBr25tNP10L4yu3KuyhAdEvccECfIRzesSwMVk/wpVVioAr+hbMtUkMMF+WVw==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.99.2
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.99.2':
+    resolution: {integrity: sha512-vM91UEe45QUS9ED6OklsVL15i8qKcRqNwpWzPTVWvRPRSEgDudDgHpvyTjcdlwHcrKNa80T+xXYcchT2noPnZA==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@testing-library/dom@10.4.0':
     resolution: {integrity: sha512-pemlzrSESWbdAloYml3bAJMEfNh1Z7EduzqPKprCH5S341frlpYnUEW0H72dLxa6IsYr+mPno20GiSm+h9dEdQ==}
@@ -10820,6 +10865,21 @@ snapshots:
       '@tailwindcss/oxide': 4.1.14
       postcss: 8.5.6
       tailwindcss: 4.1.14
+
+  '@tanstack/query-core@5.99.2': {}
+
+  '@tanstack/query-devtools@5.99.2': {}
+
+  '@tanstack/react-query-devtools@5.99.2(@tanstack/react-query@5.99.2(react@19.2.0))(react@19.2.0)':
+    dependencies:
+      '@tanstack/query-devtools': 5.99.2
+      '@tanstack/react-query': 5.99.2(react@19.2.0)
+      react: 19.2.0
+
+  '@tanstack/react-query@5.99.2(react@19.2.0)':
+    dependencies:
+      '@tanstack/query-core': 5.99.2
+      react: 19.2.0
 
   '@testing-library/dom@10.4.0':
     dependencies:

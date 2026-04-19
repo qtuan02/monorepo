@@ -1,12 +1,16 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   BookOpen,
+  ExternalLink,
   Layers,
   Package,
   Palette,
+  PanelsTopLeft,
   Sparkles,
   Zap,
 } from "lucide-react";
+
+import { env } from "@monorepo/env/vite";
 
 const meta = {
   title: "Storybook/Introduction",
@@ -20,6 +24,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 function IntroductionContent() {
+  const docsUrl = env.VITE_DOCUMENTS_DOMAIN?.trim() ?? "";
+  const storybookUrl = env.VITE_STORYBOOK_DOMAIN?.trim() ?? "";
+  const showRelatedSites = docsUrl.length > 0 || storybookUrl.length > 0;
+
   const highlights = [
     {
       icon: Layers,
@@ -78,6 +86,70 @@ function IntroductionContent() {
             ràng, có cấu trúc, dễ lướt.
           </p>
         </header>
+
+        {showRelatedSites ? (
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Documents &amp; Storybook
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <a
+                href={docsUrl || "#"}
+                target={docsUrl ? "_blank" : undefined}
+                rel={docsUrl ? "noopener noreferrer" : undefined}
+                className={`group border-border bg-card flex items-center gap-4 rounded-xl border p-5 transition-all hover:shadow-md ${
+                  docsUrl
+                    ? "hover:border-primary"
+                    : "pointer-events-none opacity-60"
+                }`}
+              >
+                <div className="border-border bg-background flex size-12 shrink-0 items-center justify-center rounded-lg border">
+                  <BookOpen className="size-6" aria-hidden />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold">UI Documentation</div>
+                  <div className="text-muted-foreground text-sm">
+                    {docsUrl
+                      ? "Ứng dụng documents — components, hooks, source."
+                      : "Thiếu VITE_DOCUMENTS_DOMAIN"}
+                  </div>
+                  {docsUrl ? (
+                    <div className="text-muted-foreground mt-2 truncate text-xs">
+                      {docsUrl}
+                    </div>
+                  ) : null}
+                </div>
+                {docsUrl ? (
+                  <ExternalLink className="text-muted-foreground size-5 shrink-0" />
+                ) : null}
+              </a>
+              <div className="border-border bg-card group flex items-center gap-4 rounded-xl border p-5">
+                <div className="border-border bg-background flex size-12 shrink-0 items-center justify-center rounded-lg border">
+                  <PanelsTopLeft className="size-6" aria-hidden />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-semibold">Storybook</div>
+                  <div className="text-muted-foreground text-sm">
+                    Bạn đang xem preview tại đây.
+                  </div>
+                  {storybookUrl ? (
+                    <div className="text-muted-foreground mt-2 truncate text-xs">
+                      {storybookUrl}
+                    </div>
+                  ) : (
+                    <div className="text-muted-foreground mt-2 text-xs">
+                      Set{" "}
+                      <code className="bg-muted rounded px-1">
+                        VITE_STORYBOOK_DOMAIN
+                      </code>{" "}
+                      để hiển thị URL public.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
+        ) : null}
 
         <section className="grid gap-4 sm:grid-cols-3">
           <div className="border-border bg-card rounded-xl border p-5 shadow-sm">
@@ -145,7 +217,7 @@ function IntroductionContent() {
                 key={item.title}
                 className="border-border bg-muted/30 flex gap-4 rounded-xl border p-5"
               >
-                <div className="border-border bg-background shrink-0 rounded-lg border p-2.5">
+                <div className="border-border bg-background max-h-11 max-w-11 shrink-0 rounded-lg border p-2.5">
                   <item.icon className="size-5" aria-hidden />
                 </div>
                 <div>

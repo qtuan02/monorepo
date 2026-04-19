@@ -56,13 +56,26 @@ export const env = createEnv({
 
 - `NEXT_PUBLIC_ENV` - Public environment identifier (optional)
 - `NEXT_PUBLIC_TEMPLATE_DOMAIN` - Template app domain (optional)
-- `NEXT_PUBLIC_DOCUMENTS_DOMAIN` - Portfolio v1 domain (optional)
 - `NEXT_PUBLIC_PORTFOLIO_DOMAIN` - Portfolio domain (optional)
 - `NEXT_PUBLIC_ASSISTANT_AI_DOMAIN` - Assistant AI domain (optional)
 - `NEXT_PUBLIC_SENTRY_TEMPLATE_DSN` - Sentry DSN for template (optional)
 - `NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN` - Sentry DSN for portfolio (optional)
 - `NEXT_PUBLIC_GOOGLE_ANALYTICS` - Google Analytics ID (optional)
 - `NEXT_PUBLIC_GOOGLE_TAG_MANAGER` - Google Tag Manager ID (optional)
+
+Vite apps (`apps/documents`, `apps/storybook`) should import validated env from **`@monorepo/env/vite`** (not `import.meta.env` in app source):
+
+```ts
+import { env } from "@monorepo/env/vite";
+
+const docs = env.VITE_DOCUMENTS_DOMAIN;
+```
+
+Root `.env` keys (optional):
+
+- `VITE_DOCUMENTS_DOMAIN` — public URL of the Documents app
+- `VITE_STORYBOOK_DOMAIN` — public URL of Storybook
+- `VITE_SKIP_ENV_VALIDATION` — set to `true` to skip validation (e.g. local tooling)
 
 ## Configuration
 

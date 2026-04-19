@@ -51,6 +51,7 @@
     "apps/_portfolio/src/app/[locale]/globals.css": "apps/_portfolio/**",
     "apps/portfolio/src/app/globals.css": "apps/portfolio/**",
     "apps/assistant-ai/app/globals.css": "apps/assistant-ai/**",
-    "apps/document/src/app/[locale]/globals.css": "apps/document/**"
+    "apps/document/src/app/[locale]/globals.css": "apps/document/**",
+    "apps/storybook/src/styles.css": "apps/storybook/**"
   }
 }

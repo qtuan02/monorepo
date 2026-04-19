@@ -25,7 +25,6 @@ const env = createEnv({
 
     // DOMAIN
     NEXT_PUBLIC_TEMPLATE_DOMAIN: z.string().optional(),
-    NEXT_PUBLIC_DOCUMENTS_DOMAIN: z.string().optional(),
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: z.string().optional(),
     NEXT_PUBLIC_ASSISTANT_AI_DOMAIN: z.string().optional(),
 
@@ -42,7 +41,6 @@ const env = createEnv({
 
     // DOMAIN
     NEXT_PUBLIC_TEMPLATE_DOMAIN: process.env.NEXT_PUBLIC_TEMPLATE_DOMAIN,
-    NEXT_PUBLIC_DOCUMENTS_DOMAIN: process.env.NEXT_PUBLIC_DOCUMENTS_DOMAIN,
     NEXT_PUBLIC_PORTFOLIO_DOMAIN: process.env.NEXT_PUBLIC_PORTFOLIO_DOMAIN,
     NEXT_PUBLIC_ASSISTANT_AI_DOMAIN:
       process.env.NEXT_PUBLIC_ASSISTANT_AI_DOMAIN,

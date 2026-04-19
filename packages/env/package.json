@@ -4,7 +4,8 @@
   "license": "MIT",
   "private": true,
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./vite": "./src/vite.ts"
   },
   "scripts": {
     "clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -17,12 +18,14 @@
     "@monorepo/prettier-config": "workspace:*",
     "@monorepo/tsconfig": "workspace:*",
     "@types/node": "catalog:",
-    "eslint": "catalog:",
-    "typescript": "catalog:",
     "@t3-oss/env-nextjs": "catalog:next15",
-    "prettier": "catalog:"
+    "eslint": "catalog:",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   },
   "dependencies": {
+    "@t3-oss/env-core": "catalog:",
     "zod": "catalog:"
   },
   "prettier": "@monorepo/prettier-config"

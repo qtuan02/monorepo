@@ -14,12 +14,12 @@ declare global {
   }
 }
 
-const ReactQueryDevtoolsProduction = dynamic(() =>
-  import("@tanstack/react-query-devtools/build/modern/production.js").then(
-    (d) => ({
-      default: d.ReactQueryDevtools,
-    }),
-  ),
+const ReactQueryDevtools = dynamic(
+  () =>
+    import("@tanstack/react-query-devtools").then(
+      (mod) => mod.ReactQueryDevtools,
+    ),
+  { ssr: false },
 );
 
 export interface ProviderProps {
@@ -43,7 +43,7 @@ const Provider = ({ children }: ProviderProps) => {
       <Toaster />
       {showDevtools && (
         <React.Suspense fallback={null}>
-          <ReactQueryDevtoolsProduction initialIsOpen={false} />
+          <ReactQueryDevtools buttonPosition="bottom-left" />
         </React.Suspense>
       )}
     </QueryClientProvider>
