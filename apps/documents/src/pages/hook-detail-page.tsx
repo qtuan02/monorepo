@@ -7,7 +7,7 @@ import { useHookById } from "~/hooks/use-hook-metadata";
 
 export default function HookDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { hook, isLoading } = useHookById(id || "");
+  const { hook } = useHookById(id || "");
 
   useEffect(() => {
     if (hook) {
@@ -15,36 +15,18 @@ export default function HookDetailPage() {
     }
   }, [hook]);
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <>
-        <div className="flex min-h-[60vh] items-center justify-center">
-          <div className="text-center">
-            <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-gray-900 dark:border-gray-600 dark:border-t-gray-100" />
-            <p className="text-gray-600 dark:text-gray-400">Loading hook...</p>
-          </div>
-        </div>
-      </>
-    );
-  }
-
-  // Hook not found
   if (!hook) {
     return (
       <>
         <div className="flex min-h-[60vh] items-center justify-center">
           <div className="text-center">
-            <h1 className="mb-2 text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h1 className="text-foreground mb-2 text-2xl font-bold">
               Hook Not Found
             </h1>
-            <p className="mb-4 text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground mb-4">
               The hook &quot;{id}&quot; could not be found.
             </p>
-            <Link
-              to="/hooks"
-              className="text-blue-600 hover:underline dark:text-blue-400"
-            >
+            <Link to="/hooks" className="text-primary hover:underline">
               ← Back to Hooks
             </Link>
           </div>

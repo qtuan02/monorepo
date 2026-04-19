@@ -30,7 +30,7 @@ export function searchComponentsAndHooks(
   for (const component of components) {
     const nameMatch = component.name.toLowerCase();
     const relevance = calculateRelevance(nameMatch, normalizedQuery);
-    
+
     if (relevance > 0) {
       results.push({
         id: component.id,
@@ -47,7 +47,7 @@ export function searchComponentsAndHooks(
   for (const hook of hooks) {
     const nameMatch = hook.name.toLowerCase();
     const relevance = calculateRelevance(nameMatch, normalizedQuery);
-    
+
     if (relevance > 0) {
       results.push({
         id: hook.id,
@@ -62,8 +62,14 @@ export function searchComponentsAndHooks(
 
   // Sort by relevance (exact matches first, then partial matches)
   return results.sort((a, b) => {
-    const aRelevance = calculateRelevance(a.name.toLowerCase(), normalizedQuery);
-    const bRelevance = calculateRelevance(b.name.toLowerCase(), normalizedQuery);
+    const aRelevance = calculateRelevance(
+      a.name.toLowerCase(),
+      normalizedQuery,
+    );
+    const bRelevance = calculateRelevance(
+      b.name.toLowerCase(),
+      normalizedQuery,
+    );
     return bRelevance - aRelevance;
   });
 }
@@ -101,4 +107,3 @@ export function limitSearchResults(
 ): SearchResult[] {
   return results.slice(0, limit);
 }
-

@@ -15,27 +15,24 @@ export default function ComponentCard({ component }: ComponentCardProps) {
     <Link
       to={`/components/${component.id}`}
       className={cn(
-        "group block rounded-lg border border-gray-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-black hover:shadow-md dark:border-gray-800 dark:bg-black dark:hover:border-white",
-        "focus:ring-2 focus:ring-black focus:ring-offset-2 focus:outline-none dark:focus:ring-white",
+        "group border-border bg-card hover:border-primary block rounded-lg border p-4 shadow-sm transition-all duration-200 hover:shadow-md",
+        "focus:ring-ring focus:ring-2 focus:ring-offset-2 focus:outline-none",
       )}
       data-testid="component-card"
     >
-      {/* Component preview */}
-      <div className="mb-3 aspect-video w-full overflow-hidden rounded-md border border-gray-100 dark:border-gray-800">
+      <div className="border-border mb-3 aspect-video w-full overflow-hidden rounded-md border">
         <PreviewContainer component={component} />
       </div>
 
-      {/* Component name and package badge */}
       <div className="mb-1 flex items-start justify-between gap-2">
-        <h3 className="text-lg font-semibold text-black group-hover:text-gray-700 dark:text-white dark:group-hover:text-gray-300">
+        <h3 className="text-foreground group-hover:text-muted-foreground text-lg font-semibold">
           {component.name}
         </h3>
         <PackageBadge package="ui" />
       </div>
 
-      {/* Description */}
       {component.description && (
-        <p className="line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="text-muted-foreground line-clamp-2 text-sm">
           {component.description}
         </p>
       )}

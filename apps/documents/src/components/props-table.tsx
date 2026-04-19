@@ -8,10 +8,10 @@ export default function PropsTable({ props }: PropsTableProps) {
   if (!props || props.length === 0) {
     return (
       <div
-        className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center dark:border-gray-700 dark:bg-gray-800"
+        className="border-border bg-muted/50 rounded-lg border p-8 text-center"
         data-testid="props-table-empty"
       >
-        <p className="text-gray-500 dark:text-gray-400">
+        <p className="text-muted-foreground">
           No props available for this component.
         </p>
       </div>
@@ -20,11 +20,11 @@ export default function PropsTable({ props }: PropsTableProps) {
 
   return (
     <div
-      className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700"
+      className="border-border overflow-x-auto rounded-lg border"
       data-testid="props-table"
     >
       <table className="w-full min-w-[600px] text-left text-sm">
-        <thead className="bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-400">
+        <thead className="bg-muted text-muted-foreground text-xs uppercase">
           <tr>
             <th scope="col" className="px-4 py-3 font-semibold">
               Prop
@@ -43,39 +43,35 @@ export default function PropsTable({ props }: PropsTableProps) {
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+        <tbody className="divide-border divide-y">
           {props.map((prop) => (
             <tr
               key={prop.name}
-              className="bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800/50"
+              className="bg-background hover:bg-muted/50"
               data-testid="props-table-row"
             >
-              {/* Prop Name */}
               <td className="px-4 py-3 whitespace-nowrap">
-                <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-sm font-medium text-gray-900 dark:bg-gray-700 dark:text-gray-100">
+                <code className="bg-muted text-foreground rounded px-1.5 py-0.5 font-mono text-sm font-medium">
                   {prop.name}
                 </code>
               </td>
 
-              {/* Type */}
               <td className="px-4 py-3">
                 <code className="block w-full max-w-[300px] min-w-[150px] font-mono text-xs break-words whitespace-pre-wrap text-purple-600 dark:text-purple-400">
                   {formatType(prop.type)}
                 </code>
               </td>
 
-              {/* Default Value */}
               <td className="px-4 py-3">
                 {prop.defaultValue ? (
                   <code className="font-mono text-xs text-green-600 dark:text-green-400">
                     {prop.defaultValue}
                   </code>
                 ) : (
-                  <span className="text-gray-400 dark:text-gray-500">—</span>
+                  <span className="text-muted-foreground">—</span>
                 )}
               </td>
 
-              {/* Required */}
               <td className="px-4 py-3 text-center">
                 {prop.required ? (
                   <span
@@ -85,16 +81,13 @@ export default function PropsTable({ props }: PropsTableProps) {
                     Required
                   </span>
                 ) : (
-                  <span className="text-gray-400 dark:text-gray-500">
-                    Optional
-                  </span>
+                  <span className="text-muted-foreground">Optional</span>
                 )}
               </td>
 
-              {/* Description */}
-              <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+              <td className="text-muted-foreground px-4 py-3">
                 {prop.description || (
-                  <span className="text-gray-400 italic dark:text-gray-500">
+                  <span className="text-muted-foreground italic">
                     Description coming soon
                   </span>
                 )}
@@ -107,12 +100,7 @@ export default function PropsTable({ props }: PropsTableProps) {
   );
 }
 
-/**
- * Format complex TypeScript types for display
- * Handles long union types, generics, etc.
- */
 function formatType(type: string): string {
-  // Truncate very long types
   if (type.length > 300) {
     return type.substring(0, 297) + "...";
   }

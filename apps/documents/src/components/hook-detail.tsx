@@ -13,15 +13,12 @@ interface HookDetailProps {
 export default function HookDetail({ hook }: HookDetailProps) {
   return (
     <div className="space-y-8" data-testid="hook-detail">
-      {/* Header Section */}
       <header className="space-y-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-black dark:text-white">
-              {hook.name}
-            </h1>
+            <h1 className="text-foreground text-3xl font-bold">{hook.name}</h1>
             {hook.description && (
-              <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+              <p className="text-muted-foreground mt-2 text-lg">
                 {hook.description}
               </p>
             )}
@@ -31,40 +28,36 @@ export default function HookDetail({ hook }: HookDetailProps) {
           </div>
         </div>
 
-        {/* Back link */}
         <Link
           to="/hooks"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-black hover:underline dark:text-gray-400 dark:hover:text-white"
+          className="text-muted-foreground hover:text-foreground inline-flex items-center text-sm hover:underline"
         >
           ← Back to Hooks
         </Link>
       </header>
 
-      {/* Usage Section - Shows live preview and preview code */}
       {hookPreviews[hook.id] && (
         <section aria-labelledby="usage-heading">
           <h2
             id="usage-heading"
-            className="mb-4 text-xl font-semibold text-black dark:text-white"
+            className="text-foreground mb-4 text-xl font-semibold"
           >
             Usage Preview
           </h2>
           <div className="space-y-4">
-            {/* Live Preview */}
             <div>
-              <h3 className="mb-2 text-sm font-medium text-black dark:text-white">
+              <h3 className="text-foreground mb-2 text-sm font-medium">
                 Live Preview
               </h3>
-              <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-black">
+              <div className="border-border bg-card rounded-lg border p-4">
                 {(() => {
                   const PreviewComponent = hookPreviews[hook.id]?.component;
                   return PreviewComponent ? <PreviewComponent /> : null;
                 })()}
               </div>
             </div>
-            {/* Preview Code */}
             <div>
-              <h3 className="mb-2 text-sm font-medium text-black dark:text-white">
+              <h3 className="text-foreground mb-2 text-sm font-medium">
                 Preview Code
               </h3>
               <CodeViewer
@@ -77,22 +70,20 @@ export default function HookDetail({ hook }: HookDetailProps) {
         </section>
       )}
 
-      {/* Parameters Section */}
       <section aria-labelledby="parameters-heading">
         <h2
           id="parameters-heading"
-          className="mb-4 text-xl font-semibold text-black dark:text-white"
+          className="text-foreground mb-4 text-xl font-semibold"
         >
           Parameters
         </h2>
         <ParametersTable parameters={hook.parameters} />
       </section>
 
-      {/* Source Code Section */}
       <section aria-labelledby="source-heading">
         <h2
           id="source-heading"
-          className="mb-4 text-xl font-semibold text-black dark:text-white"
+          className="text-foreground mb-4 text-xl font-semibold"
         >
           Source Code
         </h2>

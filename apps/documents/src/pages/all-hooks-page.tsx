@@ -13,6 +13,9 @@ const INSTALL_COMMANDS = {
   pnpm: "pnpm add @fe-monorepo/hook",
 };
 
+const installTabTriggerClass =
+  "h-7 rounded-md px-3 text-xs font-medium data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm";
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -24,8 +27,9 @@ function CopyButton({ text }: { text: string }) {
 
   return (
     <button
+      type="button"
       onClick={handleCopy}
-      className="flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-black dark:text-gray-200 dark:hover:bg-gray-900"
+      className="border-border bg-background text-foreground hover:bg-muted flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium shadow-sm transition-all"
       title="Copy to clipboard"
     >
       {copied ? (
@@ -44,7 +48,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 export default function AllHooksPage() {
-  const { hooks, isLoading } = useHookMetadata();
+  const { hooks } = useHookMetadata();
   const [activeTab, setActiveTab] =
     useState<keyof typeof INSTALL_COMMANDS>("npm");
 
@@ -52,7 +56,6 @@ export default function AllHooksPage() {
     document.title = "Hooks";
   }, []);
 
-  // Sort all hooks alphabetically
   const sortedHooks = [...hooks].sort((a, b) => a.name.localeCompare(b.name));
 
   return (
@@ -64,22 +67,20 @@ export default function AllHooksPage() {
             className="mb-4"
           />
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-black dark:text-white">
+            <h1 className="text-foreground text-3xl font-bold">
               Hook Introduction
             </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">
+            <p className="text-muted-foreground mt-2">
               Browse all available custom React hooks
             </p>
 
-            {/* Installation Card */}
-            <div className="mt-6 rounded-lg border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-black">
-              {/* Header */}
-              <div className="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between dark:border-gray-700">
+            <div className="border-border bg-card mt-6 rounded-lg border shadow-sm">
+              <div className="border-border flex flex-col gap-3 border-b px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h3 className="text-base font-semibold text-black dark:text-white">
+                  <h3 className="text-foreground text-base font-semibold">
                     Installation
                   </h3>
-                  <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-muted-foreground mt-0.5 text-sm">
                     Add the package to your project
                   </p>
                 </div>
@@ -89,22 +90,19 @@ export default function AllHooksPage() {
                     setActiveTab(v as keyof typeof INSTALL_COMMANDS)
                   }
                 >
-                  <TabsList className="h-9 bg-gray-100 p-1 dark:bg-gray-800">
-                    <TabsTrigger
-                      value="npm"
-                      className="h-7 rounded-md px-3 text-xs font-medium data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
-                    >
+                  <TabsList className="bg-muted h-9 p-1">
+                    <TabsTrigger value="npm" className={installTabTriggerClass}>
                       npm
                     </TabsTrigger>
                     <TabsTrigger
                       value="yarn"
-                      className="h-7 rounded-md px-3 text-xs font-medium data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+                      className={installTabTriggerClass}
                     >
                       yarn
                     </TabsTrigger>
                     <TabsTrigger
                       value="pnpm"
-                      className="h-7 rounded-md px-3 text-xs font-medium data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm dark:data-[state=active]:bg-black dark:data-[state=active]:text-white"
+                      className={installTabTriggerClass}
                     >
                       pnpm
                     </TabsTrigger>
@@ -112,25 +110,23 @@ export default function AllHooksPage() {
                 </Tabs>
               </div>
 
-              {/* Code Block */}
-              <div className="flex items-center gap-4 bg-black px-5 py-4 dark:bg-gray-950">
-                <Terminal className="size-4 flex-shrink-0 text-gray-500" />
+              <div className="flex items-center gap-4 bg-black px-5 py-4">
+                <Terminal className="text-muted-foreground size-4 shrink-0" />
                 <code className="flex-1 overflow-x-auto font-mono text-sm text-white">
                   {INSTALL_COMMANDS[activeTab]}
                 </code>
                 <CopyButton text={INSTALL_COMMANDS[activeTab]} />
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-5 py-3 dark:border-gray-700 dark:bg-black">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="border-border bg-muted/50 flex items-center justify-between border-t px-5 py-3">
+                <span className="text-muted-foreground text-sm">
                   @fe-monorepo/hook
                 </span>
                 <a
                   href="https://www.npmjs.com/package/@fe-monorepo/hook"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 text-sm font-medium text-black transition-colors hover:text-gray-700 dark:text-white dark:hover:text-gray-300"
+                  className="text-foreground hover:text-muted-foreground flex items-center gap-1.5 text-sm font-medium transition-colors"
                 >
                   View on npm
                   <ExternalLink className="size-3.5" />
@@ -139,23 +135,18 @@ export default function AllHooksPage() {
             </div>
           </div>
 
-          {isLoading ? (
-            <div>Loading...</div>
-          ) : (
-            <div className="space-y-8">
-              {/* All hooks section */}
-              <section>
-                <h2 className="mb-4 text-2xl font-semibold text-black dark:text-white">
-                  Custom Hooks
-                </h2>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {sortedHooks.map((hook) => (
-                    <HookCard key={hook.id} hook={hook} />
-                  ))}
-                </div>
-              </section>
-            </div>
-          )}
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-foreground mb-4 text-2xl font-semibold">
+                Custom Hooks
+              </h2>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {sortedHooks.map((hook) => (
+                  <HookCard key={hook.id} hook={hook} />
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     </>

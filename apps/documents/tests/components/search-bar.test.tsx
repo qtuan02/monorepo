@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { BrowserRouter } from "react-router";
+import { describe, expect, it, vi } from "vitest";
 
 import SearchBar from "~/components/search-bar";
 
@@ -49,4 +49,3 @@ describe("SearchBar", () => {
     expect(input).toHaveAttribute("aria-haspopup", "listbox");
   });
 });
-

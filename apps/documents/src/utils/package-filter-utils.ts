@@ -38,7 +38,9 @@ export function filterHooksByPackage(
 /**
  * Validates package filter value from URL
  */
-export function isValidPackageFilter(value: string | null): value is PackageFilter {
+export function isValidPackageFilter(
+  value: string | null,
+): value is PackageFilter {
   return value === "all" || value === "ui" || value === "hook";
 }
 

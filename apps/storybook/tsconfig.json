@@ -1,0 +1,17 @@
+{
+  "extends": "@monorepo/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/**/*",
+    ".storybook/**/*",
+    "vite.config.ts",
+    "eslint.config.ts"
+  ],
+  "exclude": ["node_modules", "storybook-static"]
+}

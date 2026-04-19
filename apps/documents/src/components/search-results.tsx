@@ -31,15 +31,15 @@ export default function SearchResults({
 
   return (
     <div
-      className="absolute z-50 mt-2 w-full rounded-lg border bg-white shadow-lg dark:bg-gray-900"
+      className="border-border bg-card absolute z-50 mt-2 w-full rounded-lg border shadow-lg"
       role="listbox"
       aria-label="Search results"
       data-testid="search-results"
     >
       <div className="max-h-96 overflow-y-auto p-2">
         {results.length === 0 ? (
-          <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-            No results found for "{query}"
+          <div className="text-muted-foreground px-3 py-2 text-sm">
+            No results found for &quot;{query}&quot;
           </div>
         ) : (
           results.map((result) => (
@@ -49,33 +49,32 @@ export default function SearchResults({
               onClick={() => handleResultClick(result)}
               className={cn(
                 "flex w-full items-start gap-3 rounded-md px-3 py-2 text-left transition-colors",
-                "hover:bg-gray-100 dark:hover:bg-gray-800",
-                "focus:bg-gray-100 focus:outline-none dark:focus:bg-gray-800",
+                "hover:bg-muted focus:bg-muted focus:outline-none",
               )}
               role="option"
               data-testid="search-result"
             >
               <div className="mt-0.5 shrink-0">
                 {result.type === "component" ? (
-                  <Component className="size-4 text-gray-600 dark:text-gray-400" />
+                  <Component className="text-muted-foreground size-4" />
                 ) : (
-                  <Code className="size-4 text-gray-600 dark:text-gray-400" />
+                  <Code className="text-muted-foreground size-4" />
                 )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                  <span className="text-foreground font-medium">
                     {result.name}
                   </span>
                   <Badge variant="secondary" className="text-xs">
                     {result.type === "component" ? "Component" : "Hook"}
                   </Badge>
                 </div>
-                <div className="mt-1 flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <div className="text-muted-foreground mt-1 flex items-center gap-2 text-xs">
                   <span>{result.category}</span>
                 </div>
                 {result.description && (
-                  <p className="mt-1 line-clamp-2 text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-muted-foreground mt-1 line-clamp-2 text-sm">
                     {result.description}
                   </p>
                 )}

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
 import EmptyState from "~/components/empty-state";
 
@@ -27,4 +27,3 @@ describe("EmptyState", () => {
     expect(icon).toBeInTheDocument();
   });
 });
-

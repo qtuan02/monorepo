@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import {
-  hookCategoryToSlug,
-  slugToHookCategory,
-  isValidHookCategorySlug,
-  filterHooksByCategory,
-} from "~/utils/hook-category-utils";
 import type { HookMetadata } from "~/types/hook-metadata";
+import {
+  filterHooksByCategory,
+  hookCategoryToSlug,
+  isValidHookCategorySlug,
+  slugToHookCategory,
+} from "~/utils/hook-category-utils";
 
 describe("hook-category-utils", () => {
   describe("hookCategoryToSlug", () => {
@@ -106,4 +106,3 @@ describe("hook-category-utils", () => {
     });
   });
 });
-

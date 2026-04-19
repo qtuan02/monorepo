@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
 
+import { cn } from "@monorepo/ui/libs/cn";
+
 import type { Theme } from "~/utils/theme-utils";
 import { useTheme } from "~/contexts/theme-context";
 import { THEMES } from "~/utils/theme-utils";
@@ -20,7 +22,6 @@ export default function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -44,8 +45,9 @@ export default function ThemeSwitcher() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-black hover:bg-gray-100 dark:border-gray-800 dark:bg-black dark:text-white dark:hover:bg-gray-900"
+        className="border-border bg-background text-foreground hover:bg-muted flex h-9 w-9 items-center justify-center rounded-lg border"
         aria-label="Toggle theme"
         aria-expanded={isOpen}
       >
@@ -53,7 +55,7 @@ export default function ThemeSwitcher() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-800 dark:bg-black">
+        <div className="border-border bg-background absolute right-0 z-50 mt-2 w-48 rounded-lg border shadow-lg">
           <div className="py-1">
             {themeOptions.map((option) => {
               const OptionIcon = option.icon;
@@ -62,21 +64,23 @@ export default function ThemeSwitcher() {
               return (
                 <button
                   key={option.value}
+                  type="button"
                   onClick={() => {
                     setTheme(option.value);
                     setIsOpen(false);
                   }}
-                  className={`flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors ${
+                  className={cn(
+                    "flex w-full items-center gap-3 px-4 py-2 text-sm transition-colors",
                     isActive
-                      ? "bg-gray-100 font-medium text-black dark:bg-gray-900 dark:text-white"
-                      : "text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-gray-900/50"
-                  }`}
+                      ? "bg-muted text-foreground font-medium"
+                      : "text-muted-foreground hover:bg-muted/80",
+                  )}
                 >
                   <OptionIcon className="h-4 w-4" />
                   <span>{option.label}</span>
                   {isActive && (
                     <svg
-                      className="ml-auto h-4 w-4 text-black dark:text-white"
+                      className="text-foreground ml-auto h-4 w-4"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >

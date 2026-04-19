@@ -6,12 +6,12 @@ import type { HookMetadata } from "~/types/hook-metadata";
 import HookDetail from "~/components/hook-detail";
 
 const mockHook: HookMetadata = {
-  id: "use-state",
-  name: "useState",
+  id: "use-debounce",
+  name: "useDebounce",
   description: "A hook for managing local component state",
   category: "Client-side",
   package: "hook",
-  filePath: "packages/hooks/src/use-state.ts",
+  filePath: "packages/hooks/src/use-debounce.ts",
   parameters: [
     {
       name: "initialValue",
@@ -24,7 +24,7 @@ const mockHook: HookMetadata = {
     type: "[T, (value: T) => void]",
     description: "A tuple with current value and setter",
   },
-  sourceCode: `export function useState<T>(initialValue: T) {
+  sourceCode: `export function useDebounce<T>(initialValue: T) {
   // implementation
 }`,
   previews: ["const [count, setCount] = useState(0);"],
@@ -32,6 +32,8 @@ const mockHook: HookMetadata = {
 
 const mockHookNoExamples: HookMetadata = {
   ...mockHook,
+  id: "use-no-preview-registry",
+  name: "useNoPreview",
   previews: undefined,
 };
 
@@ -53,7 +55,7 @@ describe("HookDetail", () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("useState")).toBeInTheDocument();
+    expect(screen.getByText("useDebounce")).toBeInTheDocument();
     expect(
       screen.getByText("A hook for managing local component state"),
     ).toBeInTheDocument();
@@ -105,23 +107,23 @@ describe("HookDetail", () => {
     expect(codeViewers.length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders previews section when previews exist", () => {
+  it("renders usage preview when hook has a registered preview", () => {
     render(
       <BrowserRouter>
         <HookDetail hook={mockHook} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText("Previews")).toBeInTheDocument();
+    expect(screen.getByText("Usage Preview")).toBeInTheDocument();
   });
 
-  it("does not render previews section when no previews", () => {
+  it("does not render usage preview when hook is not in preview registry", () => {
     render(
       <BrowserRouter>
         <HookDetail hook={mockHookNoExamples} />
       </BrowserRouter>,
     );
 
-    expect(screen.queryByText("Previews")).not.toBeInTheDocument();
+    expect(screen.queryByText("Usage Preview")).not.toBeInTheDocument();
   });
 });

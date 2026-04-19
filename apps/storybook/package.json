@@ -1,0 +1,48 @@
+{
+  "name": "@monorepo/storybook",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo dist node_modules",
+    "format": "prettier --check . --ignore-path ../../.gitignore",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "preview": "vite preview",
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build"
+  },
+  "dependencies": {
+    "@monorepo/ui": "workspace:*",
+    "class-variance-authority": "catalog:",
+    "next-themes": "^0.4.6",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.6",
+    "@monorepo/eslint-config": "workspace:*",
+    "@monorepo/prettier-config": "workspace:*",
+    "@monorepo/tailwind-config": "workspace:*",
+    "@monorepo/tsconfig": "workspace:*",
+    "@storybook/addon-essentials": "8.6.11",
+    "@storybook/blocks": "8.6.11",
+    "@storybook/react": "catalog:storybook",
+    "@storybook/react-vite": "8.6.11",
+    "@storybook/test": "8.6.11",
+    "@tailwindcss/postcss": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "@vitejs/plugin-react": "catalog:",
+    "eslint": "catalog:",
+    "lucide-react": "catalog:",
+    "postcss": "catalog:",
+    "prettier": "catalog:",
+    "sonner": "catalog:",
+    "storybook": "8.6.11",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  },
+  "prettier": "@monorepo/prettier-config"
+}

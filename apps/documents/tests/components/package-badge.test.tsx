@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
 import PackageBadge from "~/components/package-badge";
 
@@ -19,4 +19,3 @@ describe("PackageBadge", () => {
     expect(screen.getByTestId("package-badge")).toBeInTheDocument();
   });
 });
-

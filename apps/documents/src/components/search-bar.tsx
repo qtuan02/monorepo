@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
+
 import { Input } from "@monorepo/ui";
 import { cn } from "@monorepo/ui/libs/cn";
 
-import SearchResults from "./search-results";
 import type { SearchResult } from "~/utils/search-utils";
+import SearchResults from "./search-results";
 
 interface SearchBarProps {
   onSearch: (query: string) => SearchResult[];
@@ -91,7 +92,7 @@ export default function SearchBar({
     <div ref={searchRef} className={cn("relative w-full max-w-md", className)}>
       <div className="relative">
         <Search
-          className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+          className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-gray-400"
           aria-hidden="true"
         />
         <Input
@@ -122,4 +123,3 @@ export default function SearchBar({
     </div>
   );
 }
-

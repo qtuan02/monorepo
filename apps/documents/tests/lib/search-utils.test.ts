@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import type { SearchResult } from "~/utils/search-utils";
 import type { ComponentMetadata } from "~/types/component-metadata";
 import type { HookMetadata } from "~/types/hook-metadata";
+import type { SearchResult } from "~/utils/search-utils";
 import {
   limitSearchResults,
   searchComponentsAndHooks,
