@@ -1,6 +1,7 @@
 {
-  "buildCommand": "pnpm build:vercel",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm --filter @monorepo/mcp run build:vercel",
   "outputDirectory": ".next",
-  "installCommand": "pnpm install",
   "framework": "nextjs"
 }

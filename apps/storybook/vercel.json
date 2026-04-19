@@ -1,8 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm --filter @monorepo/storybook build",
+  "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && pnpm exec turbo run build --filter=@monorepo/storybook",
   "outputDirectory": "storybook-static",
+  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",
