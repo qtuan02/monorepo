@@ -1,6 +1,17 @@
 import { useEffect } from "react";
-import { Code2, Layers, Package, Sparkles, Zap } from "lucide-react";
+import {
+  BookOpen,
+  Code2,
+  ExternalLink,
+  Layers,
+  Package,
+  PanelsTopLeft,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { Link } from "react-router";
+
+import { env } from "@monorepo/env/vite";
 
 import { useComponentMetadata } from "~/hooks/use-component-metadata";
 import { useHookMetadata } from "~/hooks/use-hook-metadata";
@@ -12,6 +23,11 @@ export default function HomePage() {
   useEffect(() => {
     document.title = "Documents";
   }, []);
+
+  const docsSiteUrl = env.VITE_DOCUMENTS_DOMAIN?.trim() ?? "";
+  const storybookSiteUrl = env.VITE_STORYBOOK_DOMAIN?.trim() ?? "";
+  const showRelatedSites =
+    docsSiteUrl.length > 0 || storybookSiteUrl.length > 0;
 
   const stats = [
     {
@@ -63,6 +79,87 @@ export default function HomePage() {
               item.
             </p>
           </header>
+
+          {showRelatedSites ? (
+            <section className="space-y-4">
+              <h2 className="text-foreground text-lg font-semibold">
+                Documentation &amp; Storybook
+              </h2>
+              <p className="text-muted-foreground max-w-2xl text-sm">
+                Cross-links use{" "}
+                <code className="bg-muted rounded px-1.5 py-0.5 text-xs">
+                  VITE_DOCUMENTS_DOMAIN
+                </code>{" "}
+                and{" "}
+                <code className="bg-muted rounded px-1.5 py-0.5 text-xs">
+                  VITE_STORYBOOK_DOMAIN
+                </code>{" "}
+                from the monorepo root{" "}
+                <code className="bg-muted rounded px-1.5 py-0.5 text-xs">
+                  .env
+                </code>
+                .
+              </p>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Link
+                  to="/"
+                  className="group border-border bg-card hover:border-primary flex items-center gap-4 rounded-xl border p-5 transition-all hover:shadow-md"
+                >
+                  <div className="border-border text-foreground flex size-12 shrink-0 items-center justify-center rounded-lg border">
+                    <BookOpen className="size-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-foreground font-semibold">
+                      UI Documentation
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      This app — components, hooks, and source.
+                    </div>
+                    {docsSiteUrl ? (
+                      <div className="text-muted-foreground mt-2 truncate text-xs">
+                        {docsSiteUrl}
+                      </div>
+                    ) : (
+                      <div className="text-muted-foreground mt-2 text-xs">
+                        Set{" "}
+                        <code className="bg-muted rounded px-1">
+                          VITE_DOCUMENTS_DOMAIN
+                        </code>{" "}
+                        to show the public URL.
+                      </div>
+                    )}
+                  </div>
+                </Link>
+                <a
+                  href={storybookSiteUrl || "#"}
+                  target={storybookSiteUrl ? "_blank" : undefined}
+                  rel={storybookSiteUrl ? "noopener noreferrer" : undefined}
+                  className={`group border-border bg-card flex items-center gap-4 rounded-xl border p-5 transition-all hover:shadow-md ${
+                    storybookSiteUrl
+                      ? "hover:border-primary"
+                      : "pointer-events-none opacity-60"
+                  }`}
+                >
+                  <div className="border-border text-foreground flex size-12 shrink-0 items-center justify-center rounded-lg border">
+                    <PanelsTopLeft className="size-6" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-foreground font-semibold">
+                      Storybook
+                    </div>
+                    <div className="text-muted-foreground text-sm">
+                      {storybookSiteUrl
+                        ? "Interactive stories for @monorepo/ui."
+                        : "Set VITE_STORYBOOK_DOMAIN in root .env"}
+                    </div>
+                  </div>
+                  {storybookSiteUrl ? (
+                    <ExternalLink className="text-muted-foreground size-5 shrink-0 transition-transform group-hover:translate-x-0.5" />
+                  ) : null}
+                </a>
+              </div>
+            </section>
+          ) : null}
 
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat) => (
