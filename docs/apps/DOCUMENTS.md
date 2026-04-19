@@ -13,15 +13,15 @@ The Documents application automatically generates documentation from TypeScript 
 - **Search functionality** for quick discovery
 - **Dark/Light theme** support
 
-## 🚀 Live Demo
+## Live site
 
-**Coming Soon** - Deployed on Vercel
+**[documents-ui.vercel.app](https://documents-ui.vercel.app)** (Vercel)
 
 ## ✨ Features
 
 ### Core Features
 
-- ✅ **Auto-generated Documentation** - Extracts metadata from TypeScript using ts-morph
+- ✅ **Structured documentation** — Metadata from `src/constants/*.json` and the preview registry
 - ✅ **Component Previews** - Live rendering of components with examples
 - ✅ **Props Tables** - Automatically generated from TypeScript interfaces
 - ✅ **Source Code Display** - Syntax-highlighted code viewer
@@ -59,10 +59,10 @@ The Documents application automatically generates documentation from TypeScript 
 - **TailwindCSS** - Utility-first CSS framework
 - **Lucide React** - Icon library
 
-### Code Processing
+### Data & previews
 
-- **ts-morph** - TypeScript AST manipulation for metadata extraction
-- **React** - Component rendering for previews
+- **Static metadata** — `components.json` / `hooks.json` under `src/constants/` (see [How metadata is loaded](#how-metadata-is-loaded))
+- **React** — Component rendering for previews
 
 ### Testing
 
@@ -109,21 +109,17 @@ apps/documents/
 │   ├── contexts/                # React contexts
 │   │   └── theme-context.tsx   # Theme provider
 │   │
-│   ├── generated/               # Auto-generated files
+│   ├── constants/               # Metadata & registry
 │   │   ├── components.json     # Component metadata
-│   │   ├── hooks.json          # Hook metadata
-│   │   ├── registry.tsx        # Component registry
-│   │   └── index.ts            # Exports
+│   │   ├── hooks.json            # Hook metadata
+│   │   ├── registry.tsx          # Component preview registry
+│   │   └── index.ts              # Re-exports
 │   │
 │   ├── app.tsx                  # Main app with routes
 │   ├── main.tsx                 # Entry point
 │   └── globals.css              # Global styles
 │
-├── scripts/
-│   └── generate-metadata.ts     # Metadata generation script
-│
 ├── tests/                       # Test files
-├── docs/                        # Empty (future use)
 ├── index.html                   # HTML template
 ├── vite.config.ts               # Vite configuration
 ├── vitest.config.ts             # Vitest configuration
@@ -142,28 +138,38 @@ apps/documents/
 
 ### Installation
 
+From the **monorepo root** (recommended):
+
 ```bash
-# From monorepo root
-cd apps/documents
 pnpm install
 ```
 
 ### Development
 
 ```bash
-# Generate metadata and start dev server
-pnpm dev
-
-# The app will be available at http://localhost:5173
+# From monorepo root
+pnpm dev:documents
 ```
+
+Or from `apps/documents`:
+
+```bash
+pnpm dev
+```
+
+Dev server runs on **port 3000** by default (`vite.config.ts`). The app reads env from the **repo root** `.env` (`envDir`).
 
 ### Build
 
 ```bash
-# Generate metadata and build for production
-pnpm build
+# From root (matches Vercel / turbo)
+pnpm exec turbo run build --filter=@monorepo/documents
+```
 
-# Preview production build
+Or from `apps/documents`:
+
+```bash
+pnpm build
 pnpm preview
 ```
 
@@ -177,34 +183,21 @@ pnpm test
 pnpm test:watch
 ```
 
-## 📖 How It Works
+## How it works
 
-### 1. Metadata Generation
+### How metadata is loaded
 
-The `generate-metadata.ts` script:
+Component and hook listings come from **`src/constants/components.json`** and **`src/constants/hooks.json`**, plus **`registry.tsx`** for preview wiring. Update those files when you add or change documented entries, and keep previews in sync with `packages/ui` / `packages/hook` as needed.
 
-1. Scans `packages/ui/src/components/**/*.tsx`
-2. Scans `packages/hook/src/hooks/**/*.ts`
-3. Uses `ts-morph` to extract TypeScript metadata
-4. Generates JSON files with component/hook metadata
-5. Creates `registry.tsx` for component previews
-
-```bash
-# Manually run metadata generation
-pnpm generate:docs
-```
-
-### 2. Documentation Display
+### Documentation display
 
 The app:
 
-1. Loads metadata from JSON files
-2. Renders component previews from `registry.tsx`
-3. Displays props tables from extracted TypeScript interfaces
-4. Shows source code with syntax highlighting
-5. Provides search across all metadata
+1. Loads metadata from the JSON files above
+2. Renders component previews via `registry.tsx`
+3. Shows props tables, source, and search over that data
 
-### 3. Routing
+### Routing
 
 SPA routing handled by React Router with Vercel rewrites:
 
@@ -264,47 +257,62 @@ Test coverage includes:
 - Theme switching
 - Routing behavior
 
-## 🚀 Deployment
+## Deployment
 
-### Vercel (Recommended)
+### Vercel
 
-The app is configured for Vercel deployment:
+`apps/documents/vercel.json` is set up for a **monorepo** install and **Turbo** build:
 
-1. **Build Command**: `pnpm build`
-2. **Output Directory**: `dist`
-3. **Framework**: Vite
-4. **Rewrites**: Configured for SPA routing
+- **Install**: `cd ../.. && pnpm install --frozen-lockfile`
+- **Build**: `cd ../.. && pnpm exec turbo run build --filter=@monorepo/documents`
+- **Output**: `dist`
+- **Framework**: Vite (SPA rewrites to `index.html`)
 
-```bash
-# Vercel will automatically:
-# 1. Install dependencies
-# 2. Run pnpm generate:docs
-# 3. Build with Vite
-# 4. Deploy to CDN
+Manual production deploys via GitHub Actions + deploy hooks are documented in [Vercel manual deploy](../others/VERCEL-DEPLOY.md).
+
+### Environment variables
+
+The UI works without extra env. For **cross-links** (home page) to public URLs, set optional **`VITE_`** variables in the **monorepo root** `.env` (and on the Vercel project):
+
+- `VITE_DOCUMENTS_DOMAIN`
+- `VITE_STORYBOOK_DOMAIN`
+
+Use the shared package in code — do **not** read `import.meta.env` in app source:
+
+```ts
+import { env } from "@monorepo/env/vite";
+
+// env.VITE_DOCUMENTS_DOMAIN, env.VITE_STORYBOOK_DOMAIN
 ```
 
-### Environment Variables
-
-No environment variables required for basic operation.
+See [`@monorepo/env`](../../packages/env/README.md).
 
 ## 🔧 Configuration
 
-### Vite Configuration
+### Vite configuration
+
+`envDir` points at the **monorepo root** so `.env` is shared; only `VITE_*` keys are exposed to the client (`envPrefix`).
 
 ```typescript
-// vite.config.ts
+// apps/documents/vite.config.ts (excerpt)
+import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  envDir: path.resolve(__dirname, "../.."),
+  envPrefix: "VITE_",
   plugins: [react()],
   resolve: {
     alias: {
-      "~": "/src",
+      "~": path.resolve(__dirname, "./src"),
     },
   },
+  server: { port: 3000 },
 });
 ```
+
+**Scripts note:** `package.json` runs Vite/Vitest via `node ../../node_modules/...` so the CLI always resolves from the **workspace root** `node_modules` (avoids broken local `node_modules/.bin` shims under `pnpm` + `node-linker=hoisted` on Windows).
 
 ### TypeScript Configuration
 
@@ -359,31 +367,38 @@ Components are organized into categories:
 - **Data Display** - Table, List, Badge, etc.
 - **Navigation** - Tabs, Menu, Breadcrumb, etc.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
-### Build Fails
+### `Cannot find module '...\node_modules\vite\bin\vite.js'` when running `pnpm dev`
+
+Usually a **broken local** `apps/documents/node_modules` (e.g. `.bin/vite` without a `vite` package). From the repo root:
 
 ```bash
-# Clean and rebuild
-pnpm clean
+# Remove the app’s node_modules only, then reinstall
+Remove-Item -Recurse -Force apps/documents/node_modules   # PowerShell
 pnpm install
-pnpm build
 ```
 
-### Routes Return 404
+Scripts intentionally call Vite/Vitest from **`../../node_modules/...`** to avoid relying on a broken shim.
 
-Ensure `vercel.json` has the rewrites configuration for SPA routing.
-
-### Metadata Not Updating
+### Build fails
 
 ```bash
-# Manually regenerate metadata
-pnpm generate:docs
+pnpm install
+pnpm exec turbo run build --filter=@monorepo/documents
 ```
 
-### Component Previews Not Showing
+### Routes return 404 on Vercel
 
-Check that components are exported in `registry.tsx`.
+Ensure `vercel.json` has SPA rewrites to `/index.html` (see [Routing](#routing)).
+
+### Metadata not updating
+
+Edit `src/constants/components.json`, `hooks.json`, and `registry.tsx` as needed; there is no separate `generate:docs` script in this app today.
+
+### Component previews not showing
+
+Confirm the component is registered in `registry.tsx` and listed in `components.json`.
 
 ## 📈 Future Enhancements
 
@@ -400,37 +415,25 @@ Potential future features (out of current scope):
 
 ## 🤝 Contributing
 
-### Adding New Components
+### Adding new components
 
-1. Create component in `packages/ui/src/components/`
-2. Add TypeScript interfaces for props
-3. Run `pnpm generate:docs` to update metadata
-4. Component will automatically appear in docs
+1. Add or update the component in `packages/ui/src/components/`
+2. Update `src/constants/components.json` and `src/constants/registry.tsx` (and previews as needed)
 
-### Adding New Hooks
+### Adding new hooks
 
-1. Create hook in `packages/hook/src/hooks/`
-2. Add JSDoc comments for documentation
-3. Run `pnpm generate:docs` to update metadata
-4. Hook will automatically appear in docs
+1. Add or update the hook in `packages/hook/src/hooks/`
+2. Update `src/constants/hooks.json` and any preview wiring
 
-## 📄 Related Documentation
+## Related documentation
 
-- [Main README](../../README.md) - Monorepo overview
-- [BMAD Workflow](../../docs/bmad/brief.md) - Project brief and workflow
-- [UI Package](../../packages/ui/README.md) - UI component library
-- [Hook Package](../../packages/hook/README.md) - React hooks library
-
-## 📞 Support
-
-For issues or questions:
-
-1. Check this documentation
-2. Review the [BMAD Guide](../../docs/others/BMAD-GUIDE.md)
-3. Contact the maintainer
+- [Main README](../../README.md) — Monorepo overview
+- [Storybook](./STORYBOOK.md) — UI Storybook
+- [Vercel manual deploy](../others/VERCEL-DEPLOY.md) — Deploy hooks & env on Vercel
+- [`@monorepo/env`](../../packages/env/README.md) — Environment validation
+- [UI Package](../../packages/ui/README.md) — UI component library
+- [Hook Package](../../packages/hook/README.md) — React hooks library
 
 ---
 
-**Status**: ✅ Live in Production  
-**Last Updated**: December 2025  
-**Version**: 1.0.0
+**Last updated**: April 2026
