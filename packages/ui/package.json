@@ -1,0 +1,51 @@
+{
+  "name": "@monorepo/ui",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./components/*": "./src/components/*.tsx",
+    "./utils/*": "./src/utils/*.ts"
+  },
+  "imports": {
+    "#components/*": "./src/components/*.tsx",
+    "#hooks/*": "./src/hooks/*.ts",
+    "#utils/cn": "./src/utils/cn.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "ui-add": "bunx shadcn@4.20.1 add && bunx biome check --write src && bun run guard:no-local-hooks",
+    "guard:no-local-hooks": "bun scripts/guard-no-local-hooks.ts"
+  },
+  "dependencies": {
+    "@base-ui/react": "catalog:",
+    "@monorepo/hook": "workspace:*",
+    "@shadcn/react": "^0.3.1",
+    "@tanstack/react-table": "catalog:tanstack-table9",
+    "class-variance-authority": "catalog:",
+    "clsx": "catalog:",
+    "cmdk": "^1.1.1",
+    "date-fns": "^4.4.0",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.5.0",
+    "lucide-react": "catalog:",
+    "react-day-picker": "^10.0.1",
+    "react-resizable-panels": "^4.12.3",
+    "recharts": "3.8.0",
+    "tailwind-merge": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/tailwind-config": "workspace:*",
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/react": "catalog:react19",
+    "react": "catalog:react19",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
+  },
+  "peerDependencies": {
+    "react": "catalog:react19"
+  }
+}
