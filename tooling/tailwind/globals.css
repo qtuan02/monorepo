@@ -1,0 +1,42 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./theme.css";
+
+@plugin "tailwind-scrollbar";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Base UI states orientation as a value attribute (`data-orientation="vertical"`),
+   not the bare `data-vertical` the shadcn registry styles against. Without these
+   two variants every `data-horizontal:`/`data-vertical:` utility in @monorepo/ui
+   compiles to nothing — which silently flattens sliders, scrollbars and tabs. */
+@custom-variant data-horizontal (&[data-orientation="horizontal"]);
+@custom-variant data-vertical (&[data-orientation="vertical"]);
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
+    /* iOS 26 Safari: dialog/drawer backdrops need `position: absolute` to cover the
+       visual viewport, which only works when the ancestor isn't statically positioned. */
+    position: relative;
+  }
+
+  /* Base UI quick-start: an isolated stacking context on the app's root element so
+     portaled popups (Dialog/Popover/Select/Tooltip/…) always render above page
+     content — no z-index conflict, on any app copied from the template. */
+  #root {
+    isolation: isolate;
+  }
+}
+
+@layer components {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+}

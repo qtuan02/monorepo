@@ -5,8 +5,8 @@ node_modules
 .pnp
 .pnp.js
 
-# testing
-coverage
+# Legacy apps keep their own (pnpm) install trees until they are migrated.
+legacy/**/node_modules
 
 # next.js
 .next/
@@ -26,14 +26,12 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.dockerfile
-.env.production
+# bun
+.bun-cache/
+
+# environment
+.env*
+!.env.example
 
 # vercel
 .vercel
@@ -42,11 +40,22 @@ yarn-error.log*
 dist/
 .cache
 
-# storybook static export
-apps/storybook/storybook-static/
-
 # turbo
 .turbo
 
-# tanstack
-.tanstack
+# testing
+coverage/
+.vitest/
+playwright-report/
+playwright/.cache/
+test-results/
+junit.xml
+
+# storybook static export
+storybook-static/
+
+# AI
+.claude/
+.cursor/
+settings.local.json
+.gitnexus/

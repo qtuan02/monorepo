@@ -1,57 +1,48 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.colorDecorators": true,
-  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "editor.defaultFormatter": "biomejs.biome",
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
   "[json]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.defaultFormatter": "biomejs.biome"
   },
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+  "[css]": {
+    "editor.defaultFormatter": "biomejs.biome"
   },
-  "eslint.runtime": "node",
-  "files.associations": {
-    "*.css": "tailwindcss"
-  },
-  "prettier.ignorePath": ".gitignore",
-  "tailwindCSS.classFunctions": ["cva", "cx", "cn"],
-  "typescript.enablePromptUseWorkspaceTsdk": true,
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "eslint.workingDirectories": [
-    { "pattern": "apps/*/" },
-    { "pattern": "packages/*/" },
-    { "pattern": "toolings/*/" }
-  ],
-  "i18n-ally.enabledFrameworks": ["next-intl"],
+  "editor.formatOnSave": true,
+  "editor.colorDecorators": true,
+  "i18n-ally.enabledFrameworks": ["react-i18next", "next-intl"],
   "i18n-ally.keystyle": "nested",
   "i18n-ally.editor.preferEditor": true,
   "i18n-ally.sourceLanguage": "vi",
   "i18n-ally.displayLanguage": "vi",
-  // "i18n-ally.localesPaths": ["apps/_template/messages"],
-  // "i18n-ally.localesPaths": ["apps/_portfolio/messages"],
-  "i18n-ally.localesPaths": ["apps/document/messages"],
+  "i18n-ally.localesPaths": ["packages/i18n/src/locales"],
+  "i18n-ally.pathMatcher": "{locale}.json",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.classFunctions": ["cva", "cx", "cn"],
+  "tailwindCSS.lint.cssConflict": "ignore",
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]?([^\"'`]+)[\"'`]?"],
     ["cn\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ],
-  "tailwindCSS.experimental.configFile": {
-    "packages/ui/src/globals.css": "packages/ui/**",
-    "apps/_template/src/app/[locale]/globals.css": "apps/_template/**",
-    "apps/_portfolio/src/app/[locale]/globals.css": "apps/_portfolio/**",
-    "apps/portfolio/src/app/globals.css": "apps/portfolio/**",
-    "apps/assistant-ai/app/globals.css": "apps/assistant-ai/**",
-    "apps/document/src/app/[locale]/globals.css": "apps/document/**",
-    "apps/storybook/src/styles.css": "apps/storybook/**"
-  }
+  ]
 }

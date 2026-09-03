@@ -1,0 +1,7 @@
+{
+  "name": "@monorepo/tsconfig",
+  "private": true,
+  "files": [
+    "*.json"
+  ]
+}

@@ -1,0 +1,85 @@
+name: CI
+
+# The Gate: `check`, `typecheck`, `test`, `build` — the same four commands
+# `bun run` locally, so running them by hand reproduces this workflow exactly.
+# Nothing else here is allowed to block a merge; when Playwright arrives with
+# the Template apps it lands as a fifth job with `continue-on-error: true`.
+#
+# Runs on a push to ANY branch, and there is deliberately no `pull_request`
+# trigger: a check is attached to the head commit, so a push-triggered run is
+# what a required status check on a PR resolves against anyway — adding the
+# second trigger would only run the same four jobs twice per PR.
+on:
+  push:
+  workflow_dispatch:
+
+# A newer push on the same ref cancels this run instead of finishing a check
+# nobody will read.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Keep Bun's global install cache inside the workspace so actions/cache can
+  # see it (see .github/actions/setup-workspace).
+  BUN_INSTALL_CACHE_DIR: ${{ github.workspace }}/.bun-cache
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+jobs:
+  # Biome: formatter + linter + import sorting in one pass over the whole tree.
+  # `legacy/` is excluded in biome.json, not here — ADR-0001.
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-workspace
+      - run: bun run check
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-workspace
+      - name: Restore Turbo cache
+        uses: actions/cache@v6
+        with:
+          path: .turbo/cache
+          key: turbo-typecheck-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-typecheck-${{ github.ref_name }}-
+      - run: bun run typecheck
+
+  # Vitest, jsdom. TZ=UTC is pinned inside each vitest.config.ts, so there is no
+  # shell prefix here (the prefix form is not valid on the Windows dev box).
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-workspace
+      - name: Restore Turbo cache
+        uses: actions/cache@v6
+        with:
+          path: .turbo/cache
+          key: turbo-test-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-test-${{ github.ref_name }}-
+      - run: bun run test
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-workspace
+      - name: Restore Turbo cache
+        uses: actions/cache@v6
+        with:
+          path: .turbo/cache
+          key: turbo-build-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-build-${{ github.ref_name }}-
+      - run: bun run build

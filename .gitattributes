@@ -1,0 +1,6 @@
+# Biome formats every file with LF (`biome.json` → `formatter.lineEnding`).
+# Force LF in the working tree too: this machine has `core.autocrlf=true`, and
+# without this line a fresh checkout would hand Biome CRLF files and fail
+# `bun run check` on line endings alone. Also keeps the `.claude` → `.agents`
+# symlink hashing identically on Windows and Linux.
+* text=auto eol=lf
