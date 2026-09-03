@@ -1,0 +1,108 @@
+{
+  "app": {
+    "title": "Template Web"
+  },
+  "common": {
+    "brand": "Monorepo",
+    "genericError": "Something went wrong, please try again.",
+    "retry": "Retry"
+  },
+  "language": {
+    "placeholder": "Select a language",
+    "vi": "Vietnamese",
+    "en": "English"
+  },
+  "header": {
+    "notification": "Notification",
+    "notificationUnread": "Notification (unread)",
+    "notificationDescription": "This is a sample reusable notification.",
+    "notificationSummary": "{name}: {count, plural, one {# new notification} other {# new notifications}}",
+    "toolbar": "Quick tools",
+    "department": {
+      "label": "Working department: {name}",
+      "current": "Outpatient dept."
+    },
+    "user": {
+      "initials": "RS",
+      "name": "Reception staff",
+      "role": "Reception"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "support": "Need help? Contact your organisation's system administrator.",
+    "version": "Version {version}"
+  },
+  "home": {
+    "title": "Modules",
+    "description": "Choose a module to get started.",
+    "modules": {
+      "dashboard": {
+        "title": "Dashboard",
+        "description": "Manage patients, appointments, and vital sign monitoring"
+      },
+      "pos": {
+        "title": "POS System",
+        "description": "Fast checkout, invoice and sales management"
+      },
+      "patients": {
+        "title": "Patient Management",
+        "description": "Records, medical history, and patient contacts"
+      },
+      "medications": {
+        "title": "Medication Management",
+        "description": "Pharmacy inventory, formulas, and e-prescriptions"
+      },
+      "analytics": {
+        "title": "Analytics & Reports",
+        "description": "Revenue analysis, patient ratios, and trends"
+      },
+      "appointments": {
+        "title": "Appointments",
+        "description": "Scheduling, clinic management, and reminders"
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign in",
+      "support": "Need help? Contact your organisation's system administrator.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "hero": {
+        "tagline": "The care management platform for clinics and hospitals",
+        "description": "One account for every module: patients, appointments, pharmacy and reporting.",
+        "highlights": {
+          "records": "Centralised records, looked up instantly",
+          "schedule": "Appointments and visit flow in real time",
+          "secure": "Role-based access, data kept protected"
+        }
+      }
+    },
+    "signOut": "Sign out",
+    "signOutConfirm": {
+      "title": "Sign out of the system?",
+      "description": "You will need to sign in again to keep working.",
+      "cancel": "Stay signed in",
+      "confirm": "Sign out"
+    }
+  },
+  "comingSoon": {
+    "title": "Not built yet",
+    "message": "This screen has a route but is not implemented in the template app.",
+    "backToHome": "Back to Home"
+  },
+  "notFound": {
+    "title": "404 Not Found",
+    "message": "The page you are looking for does not exist or has been moved.",
+    "backToHome": "Back to Home"
+  },
+  "internalServerError": {
+    "title": "Something went wrong",
+    "message": "The app hit an unexpected error. Please reload the page.",
+    "reload": "Reload page"
+  }
+}

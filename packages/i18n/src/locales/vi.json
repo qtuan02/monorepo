@@ -1,0 +1,108 @@
+{
+  "app": {
+    "title": "Template Web"
+  },
+  "common": {
+    "brand": "Monorepo",
+    "genericError": "Đã có lỗi xảy ra, vui lòng thử lại.",
+    "retry": "Thử lại"
+  },
+  "language": {
+    "placeholder": "Chọn ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "Tiếng Anh"
+  },
+  "header": {
+    "notification": "Thông báo",
+    "notificationUnread": "Thông báo (còn thông báo chưa đọc)",
+    "notificationDescription": "Đây là thông báo mẫu có thể tái sử dụng.",
+    "notificationSummary": "{name}: {count, plural, other {# thông báo mới}}",
+    "toolbar": "Công cụ nhanh",
+    "department": {
+      "label": "Khoa đang làm việc: {name}",
+      "current": "Khoa khám bệnh"
+    },
+    "user": {
+      "initials": "NV",
+      "name": "NV. Tiếp nhận",
+      "role": "Nhân viên tiếp nhận"
+    }
+  },
+  "footer": {
+    "rights": "Bản quyền đã được bảo hộ.",
+    "support": "Cần hỗ trợ? Liên hệ quản trị hệ thống của đơn vị.",
+    "version": "Phiên bản {version}"
+  },
+  "home": {
+    "title": "Phân hệ",
+    "description": "Chọn một phân hệ để bắt đầu làm việc.",
+    "modules": {
+      "dashboard": {
+        "title": "Bảng điều khiển",
+        "description": "Quản lý bệnh nhân, lịch hẹn, theo dõi dấu hiệu sinh tồn"
+      },
+      "pos": {
+        "title": "Hệ thống POS",
+        "description": "Thanh toán nhanh, quản lý hóa đơn và doanh số"
+      },
+      "patients": {
+        "title": "Quản lý bệnh nhân",
+        "description": "Hồ sơ, lịch sử bệnh án, liên hệ bệnh nhân"
+      },
+      "medications": {
+        "title": "Quản lý thuốc",
+        "description": "Kho thuốc, công thức, kê đơn điện tử"
+      },
+      "analytics": {
+        "title": "Thống kê & Báo cáo",
+        "description": "Phân tích doanh thu, tỷ lệ bệnh nhân, xu hướng"
+      },
+      "appointments": {
+        "title": "Lịch hẹn",
+        "description": "Đặt lịch, quản lý phòng khám, nhắc nhở"
+      }
+    }
+  },
+  "auth": {
+    "signIn": {
+      "title": "Đăng nhập",
+      "username": "Tài khoản",
+      "password": "Mật khẩu",
+      "submit": "Đăng nhập",
+      "support": "Cần hỗ trợ? Liên hệ quản trị hệ thống của đơn vị.",
+      "showPassword": "Hiện mật khẩu",
+      "hidePassword": "Ẩn mật khẩu",
+      "hero": {
+        "tagline": "Nền tảng quản lý y tế cho phòng khám và bệnh viện",
+        "description": "Một tài khoản duy nhất cho toàn bộ phân hệ: bệnh nhân, lịch hẹn, dược và báo cáo.",
+        "highlights": {
+          "records": "Hồ sơ bệnh án tập trung, tra cứu tức thì",
+          "schedule": "Lịch hẹn và luồng khám theo thời gian thực",
+          "secure": "Phân quyền theo vai trò, dữ liệu được bảo vệ"
+        }
+      }
+    },
+    "signOut": "Đăng xuất",
+    "signOutConfirm": {
+      "title": "Đăng xuất khỏi hệ thống?",
+      "description": "Bạn sẽ cần đăng nhập lại để tiếp tục làm việc.",
+      "cancel": "Ở lại",
+      "confirm": "Đăng xuất"
+    }
+  },
+  "comingSoon": {
+    "title": "Đang phát triển",
+    "message": "Màn hình này đã có đường dẫn nhưng chưa được xây dựng trong app mẫu.",
+    "backToHome": "Về trang chủ"
+  },
+  "notFound": {
+    "title": "404 Không tìm thấy",
+    "message": "Trang bạn đang tìm không tồn tại hoặc đã được di chuyển.",
+    "backToHome": "Về trang chủ"
+  },
+  "internalServerError": {
+    "title": "Đã có lỗi xảy ra",
+    "message": "Ứng dụng gặp sự cố ngoài dự kiến. Vui lòng tải lại trang.",
+    "reload": "Tải lại trang"
+  }
+}

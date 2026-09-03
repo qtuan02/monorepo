@@ -1,0 +1,27 @@
+{
+  "name": "@monorepo/env",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./vite/*": "./src/vite/*.ts",
+    "./next/*": "./src/next/*.ts",
+    "./*": "./src/*.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "catalog:next16",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
+  }
+}

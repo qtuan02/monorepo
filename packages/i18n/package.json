@@ -1,0 +1,53 @@
+{
+  "name": "@monorepo/i18n",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./languages": "./src/languages.ts",
+    "./change-language": "./src/change-language.ts",
+    "./i18next/*": "./src/i18next/*.ts",
+    "./next-intl/provider": "./src/next-intl/provider.tsx",
+    "./next-intl/*": "./src/next-intl/*.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "i18next": "catalog:",
+    "i18next-browser-languagedetector": "catalog:",
+    "i18next-icu": "catalog:",
+    "intl-messageformat": "catalog:",
+    "next-intl": "catalog:next16"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:*",
+    "@testing-library/react": "catalog:testing",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "jsdom": "catalog:testing",
+    "next": "catalog:next16",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "react-i18next": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
+  },
+  "peerDependencies": {
+    "next": "catalog:next16",
+    "react": "catalog:react19",
+    "react-i18next": "catalog:"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "react-i18next": {
+      "optional": true
+    }
+  }
+}
