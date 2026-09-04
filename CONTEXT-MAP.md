@@ -6,13 +6,14 @@ Các context còn lại là Turborepo workspace (`apps/*`, `packages/*`), mỗi 
 
 ## Contexts
 
-- [Root](./CONTEXT.md) — Reference · Target · Skeleton · Legacy app · Template app · Runtime · Flavor · Gate · Locale message.
+- [Root](./CONTEXT.md) — Reference · Target · Skeleton · Legacy app · Template app · Runtime · Flavor · Gate · Locale message · Publish shell.
 
 Chưa có context nào ở mức workspace. Skeleton đã đủ ba app (`_template_next`,
-`_template_vite`, `storybook`), tám package và hai tooling, nhưng chưa workspace nào chốt
-thuật ngữ **của riêng nó** — từ vựng đang dùng (Runtime, Flavor, Template app, Gate) đều
-là của context gốc. `CONTEXT.md` đầu tiên ở mức workspace sẽ được `/domain-modeling` tạo
-khi có thuật ngữ thật để ghi, không dựng sẵn file rỗng.
+`_template_vite`, `storybook`), tám package nguồn cộng hai Publish shell (ADR-0004) và hai
+tooling, nhưng chưa workspace nào chốt thuật ngữ **của riêng nó** — từ vựng đang dùng
+(Runtime, Flavor, Template app, Gate) đều là của context gốc. `CONTEXT.md` đầu tiên ở mức
+workspace sẽ được `/domain-modeling` tạo khi có thuật ngữ thật để ghi, không dựng sẵn file
+rỗng.
 
 `legacy/` **không** phải một context và cố ý nằm ngoài bản đồ này: các app trong đó đóng
 băng trên toolchain cũ, mô tả hình dạng repo đang rời khỏi. Bảng app → Runtime → Template

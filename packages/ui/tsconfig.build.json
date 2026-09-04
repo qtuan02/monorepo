@@ -3,6 +3,17 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
+
+    /**
+     * Its own incremental cache. The base preset points every config that
+     * extends it at `.cache/tsbuildinfo.json`, and in a full `turbo run
+     * typecheck` this build runs *concurrently* with the package's own
+     * `typecheck` — a different `include` and `noEmit: true`. Sharing one file
+     * makes each compilation invalidate the other's cache, and Turbo then
+     * intermittently reports "no output files found" for
+     * `@monorepo/ui#typecheck`, whose declared output that file is.
+     */
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.build.json",
     "declaration": true,
     "allowImportingTsExtensions": false,
     "rootDir": "src",

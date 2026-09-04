@@ -42,3 +42,7 @@ _Avoid_: CI, pipeline (rộng hơn — CI còn có `e2e` không chặn)
 **Locale message**:
 Chuỗi dịch trong `packages/i18n/src/locales/<code>.json`, viết theo cú pháp **ICU MessageFormat** để một file phục vụ mọi Flavor (next-intl đọc trực tiếp; i18next đọc qua `i18next-icu`).
 _Avoid_: translation string, resource, key dịch (đó là khoá, không phải chuỗi)
+
+**Publish shell**:
+Workspace `packages/<name>-public` chỉ gồm một `package.json` viết tay (tên npm `@fe-monorepo/<name>`, version, deps literal — không `catalog:`, không `workspace:`) và README; nhận `dist/` được build từ package nguồn `packages/<name>` và là thứ duy nhất Changesets nhìn thấy khi publish. Package nguồn vẫn `private`, source-only. Hiện có hai: `ui-public` và `hook-public`.
+_Avoid_: package public, bản publish, package npm (mơ hồ với package nguồn)

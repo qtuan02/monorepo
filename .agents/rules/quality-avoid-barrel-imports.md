@@ -106,3 +106,23 @@ Three packages read differently, and each divergence is deliberate:
 A new package takes the plain `"./*": "./src/*.ts"` shape. Splitting it per Flavor needs a second
 Runtime to serve; adding a root entry needs the same justification dayjs has — the root is one
 singleton, not a re-export of many modules.
+
+## The two Publish shells have a `dist/`, and it is still not a barrel
+
+`packages/ui-public` and `packages/hook-public` are the only workspaces in `packages/` with a build
+output at all (see [ADR-0004](../../docs/adr/0004-npm-publish-qua-publish-shell.md)): each is a
+hand-written `package.json` that npm publishes as `@fe-monorepo/ui` / `@fe-monorepo/hook`, filled by a
+**bundleless** rslib build that emits one `.js` plus one `.d.ts` per source file. Per-file output is the
+opposite of a barrel — nothing is funnelled through a shared entry — and each shell's `exports` map keeps
+the source package's shape, so a consumer outside the repo writes the specifier this repo already writes,
+with only the package name changed:
+
+```typescript
+import { Button } from "@monorepo/ui/components/button";        // in this repo
+import { Button } from "@fe-monorepo/ui/components/button";     // a consumer on npm
+import { useDebounce } from "@fe-monorepo/hook/use-debounce";   // the same, one level flatter
+```
+
+Neither shell declares a root entry, exactly as neither source package does — a bare
+`import { Button } from "@fe-monorepo/ui"` fails to resolve on npm the same way it fails here.
+`@monorepo/dayjs` remains the one root entry in the workspace, and it is not published.

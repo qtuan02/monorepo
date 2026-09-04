@@ -5,6 +5,6 @@
     // explicitly — this script is Node/Bun API only, no DOM.
     "types": ["node"]
   },
-  "include": ["publish-smoke.ts"],
+  "include": ["publish-smoke.ts", "verify-release.ts", "lib/*.ts"],
   "exclude": ["node_modules"]
 }

@@ -31,7 +31,7 @@ The section ID (in parentheses) is the filename prefix used to group rules
 ## 5. Code Quality (quality)
 
 **Impact:** HIGH
-**Description:** Day-to-day standards for readable, maintainable code: clarity over cleverness, `~/` + `@monorepo/*` import and named/default export conventions, avoiding barrel imports (every package is `private`, source-only and subpath-only — there is no `dist/` and no root entry except `@monorepo/dayjs`), comment guidelines, stable list keys, and styling with Tailwind `className` + `cn`.
+**Description:** Day-to-day standards for readable, maintainable code: clarity over cleverness, `~/` + `@monorepo/*` import and named/default export conventions, avoiding barrel imports (every package an app imports is `private`, source-only and subpath-only — the only `dist/` in `packages/` belongs to the two Publish shells, and there is no root entry except `@monorepo/dayjs`), comment guidelines, stable list keys, and styling with Tailwind `className` + `cn`.
 
 ## 6. Forms (forms)
 

@@ -27,12 +27,27 @@ scripts win and both files are wrong.
 
 Each is `turbo watch dev -F @monorepo/<app>...`, so the app's workspace dependencies rebuild as you
 edit them. Per-app: `cd apps/_template_vite && bun run dev`, or `bun run preview` to serve that
-app's production build.
+app's production build — `preview` binds the app's **E2E** port, not its dev port, so both can be
+up at once.
 
-The Next app's `dev` and `build` go through **`dotenv-cli`** (`dotenv -e ../../.env -- next …`).
-Next only auto-loads a `.env` beside its own `package.json`, and this repo deliberately keeps one at
-the root instead — dropping the `dotenv` prefix silently starts the app with no env at all, which
-surfaces as a t3-env validation throw rather than as a missing file.
+Neither number is written in a script or a config (the one literal left is `ENV PORT=3000` /
+`EXPOSE 3000` in `apps/_template_next/Dockerfile` — the port *inside* the container, which has its
+own network namespace and is deliberately unrelated to this pair; the comment there says so). Each
+app states both of its ports in `apps/<app>/ports.env` — `PORT` and `E2E_PORT`, one pair per app,
+dev `3000 + n` and e2e `3100 + n` — and everything else reads that file: `apps/<app>/ports.ts` for
+the two TypeScript configs (`vite.config.ts` takes `server.port` and `preview.port` from it, both `playwright.config.ts`
+take `E2E_PORT`), and dotenv-cli for the Next app's scripts. `apps/storybook` sits outside both bands
+on Storybook's own 6006, has no E2E server, and declares no `ports.env`. Moving a port is one edit in
+that file; `bun run gen:app` assigns a new app the lowest free pair the same way.
+
+The Next app's scripts go through **`dotenv-cli`**: `dev` and `start` as
+`dotenv -e ./ports.env -e ../../.env -- next …`, `build` with the root file only (`next build` takes
+no port). Next only auto-loads a `.env` beside its own `package.json`, and this repo deliberately
+keeps one at the root instead — dropping the `dotenv` prefix silently starts the app with no env at
+all, which surfaces as a t3-env validation throw rather than as a missing file. The `-e ./ports.env`
+comes **first** because dotenv-cli does not override a key already set: that is what lets
+Playwright's `webServer.env` put `PORT` in the environment and land the E2E server on the E2E port
+while `start` still defaults to the dev one.
 
 ## Build
 
@@ -41,9 +56,27 @@ surfaces as a t3-env validation throw rather than as a missing file.
 - `bun run clean` — `git clean -xdf node_modules`
 - `bun run clean:workspaces` — each workspace's own `clean` task
 
-Packages are **source-only**: `private: true`, `exports` pointing straight at `src/`, no build step
-and no `dist/`; nothing here is published to npm. So `build` only ever runs for the three apps; a package appears in the
-graph for ordering, not for output.
+Most packages are **source-only**: `private: true`, `exports` pointing straight at `src/`, no build
+step and no `dist/`. That still describes six of the ten — `api`, `dayjs`, `env`, `i18n`, `sentry`,
+`types` — plus both `tooling/*` workspaces, and each of those appears in the graph for ordering, not
+for output.
+
+The two exceptions are `@monorepo/ui` and `@monorepo/hook`. Both are still `private: true` and both
+still hand every app in this repo their `src/`, but each now carries a `build` task that compiles that
+same source into the matching **Publish shell** — `packages/ui-public/dist` and
+`packages/hook-public/dist`, the only two workspaces npm ever sees (ADR-0004). The task is rslib in
+**bundleless** mode, so one source file becomes one `.js` plus one `.d.ts` and the shells' subpath
+`exports` resolve file-for-file. `@monorepo/hook` runs `rslib build` directly; `@monorepo/ui` goes
+through `bun scripts/build.ts`, because two jobs bracket the compile — empty the shell's `dist/`
+first, then generate its `dist/globals.css` from `@monorepo/tailwind-config` and assert every relative
+import in the output resolves to a file that exists.
+
+So `bun run build` is every app plus those two packages, not the apps alone. Each of those two
+packages overrides `build.outputs` in its own `turbo.json` to a path **outside** itself
+(`"../ui-public/dist/**"`), which Turbo caches and restores correctly — a wiped shell `dist/` comes
+back whole on a `FULL TURBO` hit, which is why neither shell needs a `build` task of its own.
+`typecheck` and `test` both declare `dependsOn: ["^topo", "^build"]`, so those two builds are pulled
+into both of those graphs as well.
 
 ## Lint, format & typecheck
 
@@ -123,12 +156,65 @@ re-point the import — the path `sidebar.tsx` already took to reach
 ## Generators
 
 - `bun run gen:app` — scaffold a new app: prompts for the Runtime (`next` | `vite`), clones that
-  Template app, rewrites its name, Dockerfile ARGs and root scripts, then installs and formats
+  Template app, rewrites its name, Dockerfile ARGs and root scripts, **assigns it the next free
+  dev/E2E port pair in `apps/<app>/ports.env`**, then installs and formats. The pair is the lowest
+  slot whose *both* ports are free across every `apps/*/ports.env`, so deleting a generated app
+  returns its slot to the pool. The run's last line names the pair it took; confirm it by starting
+  the new app beside its Template, not with `bun run e2e` — Playwright reuses a server already on
+  the port, so a collision reads as a pass
 - `bun run gen:package` — a new `packages/*` workspace
 - `bun run gen:tooling` — a new `tooling/*` workspace
 
 These call the `gen` binary directly rather than `bunx turbo gen`, which truncates its JSON argument
 on Windows.
+
+## Publish (npm)
+
+- `bun run changeset` — write a release note for one or both Publish shells
+- `bun run publish:smoke` — pack both shells and install them into a throwaway consumer project
+- `bun run release` — **CI only**: fill both shells, then `changeset publish`
+
+`changeset` opens the Changesets prompt, and only `@fe-monorepo/ui` and `@fe-monorepo/hook` are ever
+offered: every other workspace is `private: true` and `.changeset/config.json` sets
+`privatePackages.version: false`, so a release plan cannot name an app, a `tooling/*` workspace, or a
+`@monorepo/*` package. Write one when the diff changes what someone **outside** the repo receives — a
+primitive under `packages/ui/src/components/`, a hook under `packages/hook/src/`, a shell's
+`exports` / `dependencies` / `peerDependencies`, the CSS entry (so anything in `tooling/tailwind/`),
+or the way the build fills `dist/` — and commit the generated `.changeset/<name>.md` alongside the
+change itself. [`.changeset/README.md`](../.changeset/README.md) is the long form, including why a
+change touching both packages needs **two** entries rather than one: `@fe-monorepo/ui` does not depend
+on `@fe-monorepo/hook`, it inlines the single hook it uses. Note also that
+`bun run changeset status --since=origin/main` — what the CI job runs — reads committed files only, so
+a new changeset has to be staged before its verdict means anything locally.
+
+`publish:smoke` is `bun scripts/publish-smoke.ts`, and it is the one seam that tests the *tarball*
+rather than the source. It builds both shells, `npm pack`s each of them (the same tool
+`changeset publish` shells out to), scaffolds a throwaway Vite + React 19 + Tailwind v4 project
+**outside** the workspace, installs the two tarballs the way a consumer would, then runs
+`tsc --noEmit` and `vite build` over it. Along the way it asserts exactly what only fails once
+published: no `catalog:` or `workspace:` range left in an installed manifest, no `@monorepo/` or
+`#components` / `#utils` / `#hooks` specifier left in a `dist/`, and — read back out of the CSS Vite
+emitted, not out of the shipped file — that the stylesheet actually reached the consumer's Tailwind.
+Pass `--keep` to leave the project on disk and print its path.
+
+Two things about running it here. It creates that project under the **operating system's** temp
+directory (`os.tmpdir()`), never `/tmp`, so it works unchanged on the Windows dev box; and it quotes
+every argument it spawns, because `bun`, `bunx` and `npm` are `.cmd` shims that only resolve through a
+shell, and a shell re-splits a tarball path sitting under `C:\Users\First Last\…`. It also installs
+from the network and builds a real project, so it takes minutes rather than seconds — which is why its
+CI job carries `continue-on-error: true` while it proves it is not flaky.
+
+`release` is `bun run build:publishable && changeset publish`, and **it is not a command to run by
+hand**. `.github/workflows/release.yml` invokes it as `changesets/action`'s `publish-script`, and
+there is no `NPM_TOKEN` anywhere in this repo: publishing authenticates through npm **trusted
+publishing**, where that job's `id-token: write` permission mints a short-lived OIDC token npm
+exchanges for publish rights — which turns on provenance attestation at the same time. Locally there
+is no token to mint, so the publish dies at npm having already rebuilt both shells. The same holds for
+`bun run version-packages` (`changeset version`): the action runs it as its `version-script` on a push
+to `main` that still carries a changeset, which is what opens the "Version Packages" PR, and merging
+that PR is what triggers the publish pass. `bun run build:publishable` is nothing but
+`turbo run build --filter @monorepo/ui --filter @monorepo/hook`, pulled out so that filter pair is
+written once — the `publish-smoke` CI job calls the same script.
 
 ## CI (GitHub Actions)
 
@@ -145,9 +231,19 @@ twice.
 | `build`     | `bun run build`     | breakage the first three miss — a bundler or Next config change |
 
 Those four are **the Gate**, and `bun run check && bun run typecheck && bun run test && bun run build`
-reproduces it exactly. A fifth job, `e2e`, runs when a `changes` job sees the diff touch `apps/`,
-`packages/`, `tooling/`, `bun.lock` or the workflow, and carries `continue-on-error: true` — it
-reports without blocking. Deleting that one line makes it a gate.
+reproduces it exactly. Four more jobs sit outside the Gate, each carrying `continue-on-error: true`
+— they report without blocking, and deleting that one line makes any of them a gate. Two of them,
+`e2e` and `docker`, run when a `changes` job sees the diff touch `apps/`, `packages/`, `tooling/`,
+`bun.lock` or the workflow; the other two, `changeset-status` and `publish-smoke`, run on a second
+output of that same job — `packages/{ui,hook,ui-public,hook-public}/`, `tooling/tailwind/`, `scripts/`,
+`.changeset/`, `bun.lock` and either workflow file. That is the published surface rather than an app,
+which is why `apps/` is deliberately absent from it (an app-only diff cannot change a tarball) and
+`.changeset/` just as deliberately absent from the first (a release note cannot change a screen).
+`e2e` drives Playwright over both
+Template apps. `docker` builds one image per app that ships a Dockerfile (`push: false`,
+`load: false`, GitHub Actions cache scoped per app), with the matrix derived by
+`find apps -mindepth 2 -maxdepth 2 -name Dockerfile` rather than listed — a migrate ticket adds no
+name anywhere.
 
 Three constraints on the `e2e` job, each of which has broken it before:
 
@@ -163,6 +259,36 @@ Three constraints on the `e2e` job, each of which has broken it before:
   it is the only thing making that path work.
 - The report is uploaded `if: always()`, because `continue-on-error` makes the job report green
   either way — the artifact is the only place a failure is visible.
+
+Two constraints on the `docker` job:
+
+- The build context is the **repo root**, never the app directory. Every pruner stage opens with
+  `COPY . .` + `bunx turbo prune`, and the Vite runner reads `apps/<app>/nginx.conf` out of that
+  context rather than out of a stage. `.dockerignore` is what keeps it small, and it deliberately
+  does not ignore `.env.example`, `apps/*/nginx.conf` or the lockfile.
+- It passes **no** `--build-arg`. Env does not reach these images through an ARG at all — the builder
+  does `COPY .env.${BUILD_ENV} .env` with `BUILD_ENV` already defaulting to `example`, and `gen:app`
+  has written each Dockerfile's `APP_DIRNAME`/`PROJECT` per app. Passing `BUILD_ENV` anyway would
+  warn on the Storybook image, which declares no such ARG.
+
+It builds images and never starts a container, so `docker build` is all it proves; a runtime check
+(the Vite image answering 404 for a missing file, the Next image serving an SSR page) needs
+`load: true` and a `docker run`, which this job does not do. And as with `e2e`, the job always
+reports green — with no artifact uploaded, the build log is the only place a failure shows.
+
+One constraint each on the publish pair:
+
+- `changeset-status` is additionally skipped on `main` itself, where `origin/main` **is** the commit
+  under test: `--since` would compare it against itself, find no changed package, and report green
+  without having asserted anything. It also has to `git fetch --no-tags origin main:refs/remotes/origin/main`
+  first — `actions/checkout` fetches the pushed ref and nothing else, so the command would otherwise
+  die on an unknown revision rather than on a missing changeset.
+- `publish-smoke` runs `bun run build:publishable` before the script, because the script packs `dist/`
+  and both shells' `dist/` are gitignored — empty on a fresh checkout. Only the two source packages
+  are built there; no app can change a tarball.
+
+Publishing itself is a **second workflow**, `.github/workflows/release.yml`, which runs only on `main`
+and is described under **Publish** above.
 
 ## Notes
 

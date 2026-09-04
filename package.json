@@ -20,6 +20,7 @@
     "e2e:headed:template-vite": "bun run --filter @monorepo/_template_vite e2e:headed",
     "e2e:headed:template-next": "bun run --filter @monorepo/_template_next e2e:headed",
     "publish:smoke": "bun scripts/publish-smoke.ts",
+    "verify:release": "bun scripts/verify-release.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "build:publishable": "turbo run build --filter @monorepo/ui --filter @monorepo/hook",

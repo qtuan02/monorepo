@@ -2,7 +2,8 @@
 
 A Bun + Turborepo workspace where every app is cloned from a **Template app** and every app runs
 through the same four-command **Gate**. Two Runtimes are supported today — a Vite SPA behind nginx,
-and Next.js App Router on Node — and a shared set of source-only packages serves both.
+and Next.js App Router on Node — and a shared set of source-only packages serves both, two of which
+also reach npm through a **Publish shell**.
 
 The full map for humans and agents is in **[`CLAUDE.md`](./CLAUDE.md)**; this file is the
 short path from a clone to a running app.
@@ -75,13 +76,25 @@ bun run check && bun run typecheck && bun run test && bun run build
 | `bun run test` | Vitest 5 — jsdom + Testing Library in the apps, node in most packages (`i18n` runs jsdom too) |
 | `bun run build` | every app and package |
 
-A fifth CI job runs Playwright when the diff touches `apps/`, `packages/`, `tooling/`, `bun.lock` or
-the workflow. It carries `continue-on-error: true`, so it reports without blocking a merge.
+Four more CI jobs sit outside the Gate, and every one of them carries `continue-on-error: true`, so
+each reports without blocking a merge. `e2e` (Playwright over both Template apps) and `docker` (one
+image build per app that ships a Dockerfile) run when the diff touches `apps/`, `packages/`,
+`tooling/`, `bun.lock` or the workflow; `changeset-status` (is a release note missing?) and
+`publish-smoke` (do the two shells still pack and install?) run when it touches the published
+surface.
 
 ```bash
 bun run e2e                        # both Template apps, headless
 bun run e2e:headed:template-vite   # one real browser window you can watch
+
+bun run changeset                  # write the release note for a change to either Publish shell
+bun run publish:smoke              # pack both shells, install them into a throwaway consumer project
 ```
+
+`bun run release` exists as well, but it is not a command to type: it builds the shells and calls
+`changeset publish`, and its one caller is
+[`.github/workflows/release.yml`](.github/workflows/release.yml) — running it by hand would push a
+version to npm from a working tree nothing verified.
 
 Every command, with the constraints attached to each, is in
 [`.agents/commands.md`](./.agents/commands.md).
@@ -109,6 +122,7 @@ same way.
 ```
 apps/          _template_next · _template_vite · storybook
 packages/      env · i18n · dayjs · hook · types · api · ui · sentry   (source-only, private)
+               ui-public · hook-public                                (Publish shells → npm)
 tooling/       tailwind · typescript
 turbo/         generators
 legacy/        frozen pre-rebuild apps — outside the workspace
@@ -116,9 +130,23 @@ docs/          adr/ · agents/ · research/
 .agents/       rules/ · skills/ · plans/ (the tracker) · commands.md · knowledge-base.md
 ```
 
-Packages are **source-only**: `private: true`, `exports` pointing straight at `src/`, no build step
-and no `dist/`. Import the concrete file — `@monorepo/ui/components/button`, not a package root.
-Nothing here is published to npm.
+Eight of the ten `packages/*` workspaces are the ones an app imports, and they are **source-only**:
+`private: true`, `exports` pointing straight at `src/`, and no `dist/` anything in this repo reads.
+Import the concrete file — `@monorepo/ui/components/button`, not a package root.
+
+The other two are the **Publish shells**, and they are how `packages/ui` and `packages/hook` reach
+npm without either of them stopping being private. Each source package gained an rslib `build`
+(bundleless — per-file ESM plus `.d.ts`) that fills the `dist/` of its shell, `packages/ui-public`
+and `packages/hook-public`: a hand-written `package.json` with literal dependency ranges — no
+`catalog:`, no `workspace:`, because npm can resolve neither — plus a README written for a consumer.
+The shells are the only workspaces Changesets versions and `npm publish` pushes, under the npm names
+`@fe-monorepo/ui` and `@fe-monorepo/hook`, which are deliberately not the `@monorepo/*` workspace
+names (see [ADR-0004](./docs/adr/0004-npm-publish-qua-publish-shell.md)). The published surface is
+subpath-only exactly as it is here — `@fe-monorepo/ui/components/button` — plus one CSS entry,
+`@fe-monorepo/ui/globals.css`. Releases run only from
+[`.github/workflows/release.yml`](.github/workflows/release.yml), which authenticates with npm
+**trusted publishing**: an OIDC token minted per run, provenance attestation for free, and no
+`NPM_TOKEN` anywhere in the repo.
 
 Two packages have **Flavors** — a per-Runtime subpath over a shared core:
 `@monorepo/env` (`./vite/*`, `./next/*`) and `@monorepo/i18n` (`./i18next/*`, `./next-intl/*`),
@@ -135,7 +163,9 @@ is maintained.
 
 Each comes back into `apps/` through its own migrate ticket, cloned onto the Template app for its
 Runtime. [`legacy/README.md`](./legacy/README.md) has the app → Runtime → target Template table and
-the list of things that no longer exist at the root (pnpm, ESLint, Prettier, rslib, changesets).
+the list of things that no longer exist at the root (pnpm, ESLint, Prettier) — plus the two that came
+back in a different shape, rslib and Changesets, now serving the Publish shells rather than every
+package.
 
 ## Working with agents
 

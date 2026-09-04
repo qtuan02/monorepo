@@ -215,6 +215,25 @@ function SaveBar({ onSave }: { onSave: () => void }) {
 <Button onClick={onSave}>Lưu</Button>
 ```
 
+## The theme reaches an outside consumer as a CSS entry of the shell
+
+Inside the workspace the theme arrives through `@monorepo/tailwind-config/globals`, and no app does
+anything else. A consumer who installed the published shell (`@fe-monorepo/ui`, see
+[ADR-0004](../../docs/adr/0004-npm-publish-qua-publish-shell.md)) has no workspace to import from, so the
+same CSS ships as an entry of the package — and it takes one line more than it looks, because Tailwind v4
+does not scan `node_modules`:
+
+```css
+@import "tailwindcss";
+@import "@fe-monorepo/ui/globals.css";
+@source "../node_modules/@fe-monorepo/ui/dist";
+```
+
+Drop the `@source` and every utility written inside the primitives compiles to nothing — the same
+silent failure the two `@custom-variant`s cause, one level further out: no CSS, no error, just unstyled
+components. Those two variants ride along in the shipped stylesheet, which is why importing it is not
+optional for a consumer either.
+
 ## Conventions
 
 - One component → one file; import by concrete path, never a barrel (see

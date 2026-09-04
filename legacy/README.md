@@ -22,11 +22,18 @@ by the root install.
 | `mcp/` | `apps/mcp` | Next.js | `apps/_template_next` |
 | `documents/` | `apps/documents` | Vite client (SPA) | `apps/_template_vite` |
 | `storybook/` | `apps/storybook` — Storybook 8.6 on Radix | Vite client | rebuilt from scratch as `apps/storybook` (Storybook 10 + Base UI); stories are re-authored, not ported |
-| `ui-public/` | `packages/ui-public` — `@fe-monorepo/ui`, rslib build, published to npm | — | folded into `packages/ui` (`@monorepo/ui`, source-only, Base UI). Publishing is dropped, see decision 3 |
-| `hook-public/` | `packages/hook-public` — `@fe-monorepo/hook`, published to npm | — | folded into `packages/hook` (source-only) |
-| `.changeset/` | root `.changeset` | — | nothing publishes any more; kept only so the release history is readable |
+| `ui-public/` | `packages/ui-public` — `@fe-monorepo/ui`, rslib build, published to npm | — | the source lives on as `packages/ui` (`@monorepo/ui`, source-only, Base UI) — that is what every app in this repo imports. Publishing came **back**, in a different shape: [ADR-0004](../docs/adr/0004-npm-publish-qua-publish-shell.md) recreates `packages/ui-public` at the root as a **Publish shell** — a hand-written `package.json` fed by an rslib `build` of `packages/ui`, and one of the only two workspaces Changesets versions and `npm publish`es. Written fresh; nothing from this directory is restored |
+| `hook-public/` | `packages/hook-public` — `@fe-monorepo/hook`, published to npm | — | same story: the source is `packages/hook` (source-only), and `packages/hook-public` is recreated at the root as the second **Publish shell** per [ADR-0004](../docs/adr/0004-npm-publish-qua-publish-shell.md). The npm names stay `@fe-monorepo/*` while the workspace names are `@monorepo/*` (decision 4) — deliberately two different names |
+| `.changeset/` | root `.changeset` | — | dead weight, and not the archive it was once described as: it holds only `README.md` and `config.json`. There is **no changelog and no release history in here** — `find legacy -iname "CHANGELOG*"` returns nothing; the published history lives on npm and in git. Changesets does come back at the root, but configured from scratch for the two Publish shells per [ADR-0004](../docs/adr/0004-npm-publish-qua-publish-shell.md), not copied from this config |
 | `docs/` | root `docs/{README.md,apps,others,packages}` — guides for the apps above | — | rewritten per app as it migrates; `docs/` at the root is now ADRs, agent docs and research |
 | `.env` (untracked) | root `.env` — the values these apps were last run with | — | the root `.env` now follows `.env.example`; this copy stays so a legacy app can still be booted |
+
+All of this is read-only history, and it has an end date: **ticket 07 of the `legacy-migrate` topic**
+([`07-delete-legacy.md`](../.agents/plans/legacy-migrate/07-delete-legacy.md)) deletes this whole
+directory — README included — once the four apps above have landed in `apps/`. Three rows are already
+superseded rather than merely waiting: `ui-public/`, `hook-public/` and `.changeset/` have live
+replacements at the root today, written fresh against the current surface per ADR-0004, so nothing in
+those three directories is a source for anything any more.
 
 ## Things that no longer exist at the root
 
@@ -37,8 +44,17 @@ Migrating an app means dropping these, not restoring them:
 - **ESLint + Prettier** — `toolings/eslint`, `toolings/prettier` and every
   per-package `eslint.config.ts` / `prettier` key. Biome does all three jobs now
   (decision 12).
-- **rslib + changesets** — packages are source-only, `private`, and export
-  subpaths straight out of `src/` (decision 3).
+- **rslib + changesets in the shape they had here.** Every package an app
+  imports is still source-only, `private`, and exports subpaths straight out of
+  `src/` (decision 3) — that holds for `packages/ui` and `packages/hook` too,
+  whose `build` output no app in this repo ever reads. What came back is
+  narrower and lives elsewhere: per
+  [ADR-0004](../docs/adr/0004-npm-publish-qua-publish-shell.md), those two
+  packages — and only those two — now carry an rslib `build` (bundleless,
+  per-file ESM + `.d.ts`) that fills the `dist/` of a Publish shell, and
+  Changesets versions the two shells rather than any package here. Migrating an
+  app gives it neither a build step nor a changeset, and restores nothing from
+  this tree.
 - **`packages/{env,hook,ui,sentry}`** as they were: rebuilt from the reference
   shape in tickets 02–05 rather than moved here. Read them at commit `7edc303`
   (`git show 7edc303:packages/ui/package.json`) if a detail is needed.

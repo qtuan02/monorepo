@@ -3,6 +3,13 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": false,
+
+    /**
+     * Its own incremental cache — `typecheck` and this build would otherwise
+     * share `.cache/tsbuildinfo.json`. See the longer note in
+     * `packages/ui/tsconfig.build.json`.
+     */
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.build.json",
     "declaration": true,
     "allowImportingTsExtensions": false,
     "rootDir": "src"

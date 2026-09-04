@@ -15,11 +15,14 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: path.join(process.cwd(), "..", ".."),
 
   /**
-   * Every workspace package is **source-only** — its `exports` map points at
-   * `.ts`/`.tsx` under `src/`, with no build step and no `dist/`. Next does not
-   * compile anything inside `node_modules` unless it is named here, and a
-   * workspace package is symlinked into `node_modules`, so leaving one out is a
-   * parse error on its first import rather than a resolution failure.
+   * Every workspace package an app imports is **source-only** — its `exports`
+   * map points at `.ts`/`.tsx` under `src/`, with no build step in between.
+   * (`@monorepo/ui` and `@monorepo/hook` do carry a `build`, but it writes into
+   * a Publish shell for npm and never into anything an app reads — ADR-0004.)
+   * Next does not compile anything inside `node_modules` unless it is named
+   * here, and a workspace package is symlinked into `node_modules`, so leaving
+   * one out is a parse error on its first import rather than a resolution
+   * failure.
    *
    * Add a package to this list the same moment you add it to `dependencies`.
    */
