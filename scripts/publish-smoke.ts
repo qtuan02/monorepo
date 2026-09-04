@@ -48,14 +48,17 @@ type Shell = {
   consumerCss: readonly string[];
   /** Vite plugins this shell's consumer needs. */
   vitePlugins: readonly VitePlugin[];
+  /** Substrings a named file inside this shell's `dist/` must carry. */
+  distFileMustContain?: Readonly<Record<string, readonly string[]>>;
+  /**
+   * Substrings the CSS the *consumer* builds must carry. This is the only way
+   * to prove a stylesheet shipped in a tarball reached the consumer's Tailwind
+   * — the file being present says nothing about it having been scanned.
+   */
+  builtCssMustContain?: readonly string[];
 };
 
-/**
- * Every published shell. Ticket 02 appends `@fe-monorepo/ui` here — with
- * `#components`/`#utils`/`#hooks` in `forbiddenInDist`, a `Button` import, the
- * `globals.css` entry plus its `@source` line, and the Tailwind Vite plugin —
- * and needs to change nothing below it.
- */
+/** Every published shell (ADR-0004). */
 const SHELLS: readonly Shell[] = [
   {
     dir: "packages/hook-public",
@@ -70,6 +73,60 @@ const SHELLS: readonly Shell[] = [
     consumerMarkup: "<p>{debouncedSearch}</p>",
     consumerCss: [],
     vitePlugins: [],
+  },
+  {
+    dir: "packages/ui-public",
+    name: "@fe-monorepo/ui",
+    source: "@monorepo/ui",
+    // `#components/*` and `#utils/cn` are that package's own Node subpath
+    // imports: they resolve from inside the workspace and from nowhere else, so
+    // one surviving into `dist/` is a tarball that installs and then fails to
+    // resolve.
+    forbiddenInDist: ["#components", "#utils", "#hooks"],
+    consumerDependencies: {
+      "@tailwindcss/vite": "^4.3.3",
+      tailwindcss: "^4.3.3",
+    },
+    consumerImports: [
+      'import { Button } from "@fe-monorepo/ui/components/button";',
+      // Sidebar is the one primitive that reaches the hook compiled into
+      // `dist/internal/`. Importing it is what makes `vite build` resolve that
+      // relative path — the specifier assertions below cannot check it.
+      'import { SidebarProvider } from "@fe-monorepo/ui/components/sidebar";',
+    ],
+    consumerBody: [],
+    consumerMarkup:
+      '<SidebarProvider><Button variant="outline">{search}</Button></SidebarProvider>',
+    consumerCss: [
+      // Exactly the three lines the shell's README tells a consumer to write.
+      '@import "tailwindcss";',
+      '@import "@fe-monorepo/ui/globals.css";',
+      '@source "../node_modules/@fe-monorepo/ui/dist";',
+    ],
+    vitePlugins: [
+      {
+        importLine: 'import tailwindcss from "@tailwindcss/vite";',
+        expression: "tailwindcss()",
+      },
+    ],
+    distFileMustContain: {
+      // Base UI states orientation as a value attribute; the shadcn registry
+      // styles against a bare `data-vertical:`. Drop these two and every such
+      // utility compiles to no CSS and no error.
+      "globals.css": [
+        '@custom-variant data-horizontal (&[data-orientation="horizontal"]);',
+        '@custom-variant data-vertical (&[data-orientation="vertical"]);',
+      ],
+    },
+    builtCssMustContain: [
+      // A Button base utility: proof the `@source` line made Tailwind scan the
+      // installed package, which it skips by default under node_modules.
+      ".whitespace-nowrap",
+      // Proof the two `@custom-variant`s reached the consumer's build — this
+      // selector exists only because `data-vertical:` utilities were found
+      // while scanning, and only because the CSS entry declared the variant.
+      "[data-orientation=vertical]",
+    ],
   },
 ];
 
@@ -175,6 +232,16 @@ function pack(shell: Shell, destination: string): string {
   return join(destination, filename);
 }
 
+/**
+ * Whether `text` imports from `specifier`. Matched on the quoted form rather
+ * than anywhere in the file: the published CSS entry carries the workspace's
+ * own comments, which name `@monorepo/ui` in prose. What must never survive is
+ * a *specifier* nothing outside this repo can resolve.
+ */
+function importsFrom(text: string, specifier: string): boolean {
+  return ['"', "'", "`"].some((quote) => text.includes(quote + specifier));
+}
+
 /** Reads every file under `root`, keyed by its path. */
 async function readFilesUnder(root: string): Promise<Map<string, string>> {
   const files = new Map<string, string>();
@@ -231,12 +298,72 @@ async function assertInstalledShell(
 
   const files = await readFilesUnder(dist);
   for (const specifier of [...FORBIDDEN_IN_DIST, ...shell.forbiddenInDist]) {
-    const offender = [...files].find(([, text]) => text.includes(specifier));
+    const offender = [...files].find(([, text]) =>
+      importsFrom(text, specifier),
+    );
     check(
       offender === undefined,
       `${shell.name} dist/ carries no \`${specifier}\` specifier${
         offender ? ` (found in ${offender[0]})` : ""
       }`,
+    );
+  }
+
+  for (const [name, expected] of Object.entries(
+    shell.distFileMustContain ?? {},
+  )) {
+    const text = files.get(join(dist, ...name.split("/")));
+    if (text === undefined) {
+      check(false, `${shell.name} ships dist/${name}`);
+      continue;
+    }
+    check(true, `${shell.name} ships dist/${name}`);
+
+    for (const fragment of expected) {
+      check(
+        text.includes(fragment),
+        `${shell.name} dist/${name} keeps \`${fragment}\``,
+      );
+    }
+  }
+}
+
+/**
+ * Asserts on the CSS Vite emitted, which exists at all only because Tailwind
+ * scanned the installed package: v4 skips `node_modules` unless an `@source`
+ * points at it, so a missing or misaimed `@source` line drops every utility the
+ * primitives use — with no error anywhere.
+ */
+async function assertBuiltCss(consumerRoot: string): Promise<void> {
+  const expected = SHELLS.flatMap((shell) =>
+    (shell.builtCssMustContain ?? []).map(
+      (fragment) => [shell.name, fragment] as const,
+    ),
+  );
+  if (expected.length === 0) {
+    return;
+  }
+
+  const built = await readFilesUnder(join(consumerRoot, "dist"));
+  const css = [...built]
+    .filter(([path]) => path.endsWith(".css"))
+    .map(([, text]) => text)
+    // Vite minifies, which drops the quotes around an attribute selector's
+    // value. Stripping them here lets an expectation be written one way and
+    // match whether or not the consumer minified.
+    .map((text) => text.replaceAll('"', "").replaceAll("'", ""))
+    .join("\n");
+
+  if (css === "") {
+    check(false, "the consumer's build emitted a stylesheet");
+    return; // every assertion below reads it
+  }
+  check(true, "the consumer's build emitted a stylesheet");
+
+  for (const [name, fragment] of expected) {
+    check(
+      css.includes(fragment),
+      `${name} reached the consumer's built CSS (\`${fragment}\`)`,
     );
   }
 }
@@ -406,6 +533,9 @@ async function main(): Promise<void> {
     step("Typecheck and build the consumer");
     run("bunx", ["tsc", "--noEmit"], consumerRoot);
     run("bunx", ["vite", "build"], consumerRoot);
+
+    step("Assert the shipped stylesheet reached the consumer's build");
+    await assertBuiltCss(consumerRoot);
   } finally {
     if (keep) {
       console.log(`\nKept the smoke workspace at ${workspace}`);
