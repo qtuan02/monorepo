@@ -20,6 +20,12 @@ storybook-static
 **/storybook-static
 .next
 **/.next
+# `react-router typegen` output — the React Router Runtime's `.next`. Regenerated
+# by every `typecheck` and every `react-router dev`, and it changes whenever
+# `src/routes.ts` does, so shipping it into the context busts the pruner layer
+# and the `bun install` beneath it on the next local build.
+.react-router
+**/.react-router
 
 # Tooling caches.
 .turbo
