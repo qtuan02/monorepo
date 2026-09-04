@@ -13,6 +13,10 @@ next-env.d.ts
 # production
 build
 
+# react-router typegen output (`react-router typegen`, and `react-router dev`
+# on every start). Regenerated, never edited — `typecheck` runs typegen first.
+.react-router/
+
 # misc
 .DS_Store
 *.pem

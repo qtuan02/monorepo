@@ -14,6 +14,8 @@
       "!**/.cache",
       "!**/.turbo",
       "!**/.next",
+      "!**/.react-router",
+      "!**/build",
       "!**/storybook-static",
       "!**/*.d.ts",
       "!**/*.svg"
