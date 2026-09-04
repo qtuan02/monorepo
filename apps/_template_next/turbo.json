@@ -4,6 +4,26 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
+      // Stated rather than left to the default, because this task cannot be
+      // cached and pretending otherwise cost a warning on every run.
+      //
+      // `next build` writes `.next/node_modules/<pkg>-<hash>` as **absolute**
+      // symlinks into this machine's `node_modules/.bun/…` — OpenTelemetry's
+      // import-in-the-middle and require-in-the-middle, pulled in by
+      // @sentry/nextjs. Their targets are 99 and 118 characters, past the
+      // 100-byte `linkname` field of the tar format Turbo writes its cache
+      // with, so the archive write fails with
+      // `WARNING IO error: provided value is too long when setting link name`
+      // and no cache entry is recorded. Three consecutive runs all reported
+      // `0 cached` — the task was already uncached; only the warning was new
+      // information.
+      //
+      // Excluding those paths from `outputs` is not the fix: Turbopack emits
+      // `externalRequire("require-in-the-middle-<hash>")` and resolves it
+      // through `.next/node_modules`, so a cache-restored build boots into
+      // `Cannot find module 'require-in-the-middle-<hash>'` (verified). The
+      // links are runtime artifacts, not trace leftovers.
+      "cache": false,
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
     },
     "dev": {

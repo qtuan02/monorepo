@@ -53,10 +53,10 @@
       "style": {
         "noNonNullAssertion": "error",
         "useImportType": {
-          "level": "warn",
+          "level": "error",
           "options": { "style": "separatedType" }
         },
-        "useExportType": "warn"
+        "useExportType": "error"
       },
       "nursery": {
         "noMisusedPromises": "error",
