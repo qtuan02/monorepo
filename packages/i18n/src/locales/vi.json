@@ -232,6 +232,66 @@
       "description": "Màn hình sau đăng nhập, giữ nguyên từ Template — nó là thứ session guard đang bảo vệ."
     }
   },
+  "assistantAi": {
+    "meta": {
+      "title": "Assistant AI",
+      "description": "Giao diện chat với model Gemini, gọi được tool thời tiết qua máy chủ MCP."
+    },
+    "nav": {
+      "chat": "Trò chuyện",
+      "dashboard": "Bảng điều khiển"
+    },
+    "chat": {
+      "welcomeTitle": "Xin chào",
+      "welcomeSubtitle": "Hãy đặt câu hỏi cho tôi!",
+      "inputLabel": "Nội dung tin nhắn",
+      "inputPlaceholder": "Gửi tin nhắn…",
+      "send": "Gửi tin nhắn",
+      "stop": "Dừng trả lời",
+      "scrollToBottom": "Xuống cuối cuộc trò chuyện",
+      "copy": "Sao chép",
+      "regenerate": "Trả lời lại",
+      "edit": "Sửa tin nhắn",
+      "cancelEdit": "Huỷ",
+      "saveEdit": "Cập nhật",
+      "previousBranch": "Câu trả lời trước",
+      "nextBranch": "Câu trả lời sau",
+      "reasoning": "Suy luận",
+      "modelLabel": "Chọn model",
+      "modelQuota": "{rpm} RPM • {tpm} TPM • {rpd} RPD",
+      "toolUsed": "Đã dùng tool {name}",
+      "toolArguments": "Tham số",
+      "toolResult": "Kết quả",
+      "toolToggle": "Ẩn hiện chi tiết tool"
+    },
+    "suggestions": {
+      "tools": {
+        "title": "Hãy cho tôi biết",
+        "label": "máy chủ MCP có những tool nào?"
+      },
+      "hello": {
+        "title": "Sử dụng",
+        "label": "tool hello-world"
+      },
+      "weather": {
+        "title": "Thời tiết",
+        "label": "hôm nay ở Hồ Chí Minh như thế nào?"
+      },
+      "forecast": {
+        "title": "Dự báo thời tiết",
+        "label": "ở Hồ Chí Minh như thế nào?"
+      }
+    },
+    "errors": {
+      "credential": "Khoá Gemini bị từ chối. Kiểm tra GOOGLE_GENERATIVE_AI_API_KEY rồi thử lại.",
+      "rateLimit": "Model đang quá tải hoặc đã hết hạn mức. Chọn model khác hoặc thử lại sau ít phút.",
+      "generic": "Không gọi được model. Vui lòng thử lại sau ít phút."
+    },
+    "dashboard": {
+      "title": "Bảng điều khiển",
+      "description": "Màn hình sau đăng nhập, giữ nguyên từ Template — nó là thứ session guard đang bảo vệ."
+    }
+  },
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",

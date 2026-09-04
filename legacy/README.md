@@ -18,7 +18,7 @@ by the root install.
 | --- | --- | --- | --- |
 | `_template/` | `apps/_template` — the old Next 15 starter every app was hand-copied from | Next.js | superseded by `apps/_template_next`; migrate nothing, delete once the other four are done |
 | `portfolio/` | `apps/portfolio` | Next.js | **migrated** — it is [`apps/portfolio`](../apps/portfolio) again, cloned onto `apps/_template_next` in [ticket 03](../.agents/plans/legacy-migrate/03-migrate-portfolio-env-convention.md). This directory is kept for comparison only, and goes with the rest at ticket 07 |
-| `assistant-ai/` | `apps/assistant-ai` | Next.js | `apps/_template_next` |
+| `assistant-ai/` | `apps/assistant-ai` | Next.js | **migrated** — it is [`apps/assistant-ai`](../apps/assistant-ai) again, cloned onto `apps/_template_next` in [ticket 05](../.agents/plans/legacy-migrate/05-migrate-assistant-ai.md), with the whole AI SDK stack taken to latest (`ai` 7, `@ai-sdk/google` 4, `@assistant-ui/react` 0.15) and no Radix dependency of its own. It calls `apps/mcp-weather` through `MCP_DOMAIN`. Kept for comparison only, deleted at ticket 07 |
 | `mcp/` | `apps/mcp` | Next.js | **migrated** — it came back under a new name, [`apps/mcp-weather`](../apps/mcp-weather), cloned onto `apps/_template_next` in [ticket 04](../.agents/plans/legacy-migrate/04-migrate-mcp-weather.md). The MCP contract is unchanged (`POST /api/mcp`, three tools, no auth), so a client already calling it needs no edit. Kept for comparison only, deleted at ticket 07 |
 | `documents/` | `apps/documents` | Vite client (SPA) | **migrated** — it is [`apps/documents`](../apps/documents) again, cloned onto `apps/_template_vite` in [ticket 06](../.agents/plans/legacy-migrate/06-migrate-documents-metadata-script.md). Its content is now generated from `packages/{ui,hook}/src` rather than hand-written, so nothing here is a source. Kept for comparison only, deleted at ticket 07 |
 | `storybook/` | `apps/storybook` — Storybook 8.6 on Radix | Vite client | rebuilt from scratch as `apps/storybook` (Storybook 10 + Base UI); stories are re-authored, not ported |
@@ -30,9 +30,10 @@ by the root install.
 
 All of this is read-only history, and it has an end date: **ticket 07 of the `legacy-migrate` topic**
 ([`07-delete-legacy.md`](../.agents/plans/legacy-migrate/07-delete-legacy.md)) deletes this whole
-directory — README included — once the four apps above have landed in `apps/`. Three of the four are
-there: `portfolio/` (ticket 03), `documents/` (ticket 06) and `mcp/` — now `apps/mcp-weather` —
-(ticket 04); `assistant-ai/` is what the date still waits on. Three further rows are superseded rather than merely waiting: `ui-public/`,
+directory — README included — once the four apps above have landed in `apps/`. **All four are
+there**: `portfolio/` (ticket 03), `mcp/` — now `apps/mcp-weather` — (ticket 04),
+`assistant-ai/` (ticket 05) and `documents/` (ticket 06), so ticket 07 is what the date now waits
+on rather than any further migration. Three further rows are superseded rather than merely waiting: `ui-public/`,
 `hook-public/` and `.changeset/` have live replacements at the root today, written fresh against the
 current surface per ADR-0004, so nothing in those three directories is a source for anything any more.
 

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      // This task cannot be cached, so it says so — and there is no `outputs`
+      // here, because `outputs` only means anything to the cache.
+      //
+      // `next build` writes `.next/node_modules/<pkg>-<hash>` as absolute
+      // symlinks into this machine's `node_modules/.bun/…` (OpenTelemetry's
+      // import-in-the-middle and require-in-the-middle, via @sentry/nextjs).
+      // Their targets overrun the 100-byte `linkname` field of the tar format
+      // Turbo caches with, so the archive write fails and no entry is recorded.
+      // Excluding them instead is not the fix: Turbopack resolves
+      // `externalRequire("<pkg>-<hash>")` through that directory, so a
+      // cache-restored build boots into `Cannot find module`.
+      //
+      // Measurements and the failed experiment:
+      // .agents/plans/personal-monorepo-rebuild/12-gate-cuoi-kiem-tay.md
+      "cache": false
+    },
+    "dev": {
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": [".cache/tsbuildinfo.json", ".next/types/**"]
+    }
+  }
+}

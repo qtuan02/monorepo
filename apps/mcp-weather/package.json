@@ -17,7 +17,7 @@
     "e2e:headed": "playwright test --project=watch --headed --workers=1"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "catalog:",
+    "@modelcontextprotocol/sdk": "catalog:ai-sdk",
     "@monorepo/api": "workspace:*",
     "@monorepo/env": "workspace:*",
     "@monorepo/i18n": "workspace:*",
