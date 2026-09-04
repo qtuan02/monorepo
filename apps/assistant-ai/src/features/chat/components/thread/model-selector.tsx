@@ -54,7 +54,7 @@ export default function ModelSelector() {
             <span className="flex w-full flex-col items-start gap-1 py-1">
               <span className="text-sm font-medium">{model.name}</span>
               <span className="text-xs leading-relaxed text-muted-foreground">
-                {tModel(model.id)}
+                {tModel(model.descriptionKey)}
               </span>
               <span className="text-[0.625rem] leading-tight text-muted-foreground/70">
                 {t("modelQuota", {

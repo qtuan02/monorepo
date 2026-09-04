@@ -17,6 +17,17 @@ export type GeminiModel =
 export interface GeminiModelInfo {
   id: GeminiModel;
   name: string;
+  /**
+   * The `assistantAi.models.*` key holding this model's one-line description.
+   *
+   * It is the id with each `.` written as `-`, and it is carried as a field
+   * rather than derived from `id` at the call site because next-intl reads `.`
+   * as its nesting separator: a key containing one is rejected outright at
+   * catalogue load — for every Next app in the workspace, since they all mount
+   * the same shared catalogue — and `t("gemini-2.5-flash")` would look for
+   * `gemini-2` → `5-flash` rather than the message that is actually there.
+   */
+  descriptionKey: string;
   /** Free-tier quotas, shown under each option so a rate limit is not a surprise. */
   rpm: string;
   tpm: string;
@@ -32,6 +43,7 @@ export const GEMINI_MODELS: readonly GeminiModelInfo[] = [
   {
     id: "gemini-2.5-flash-lite",
     name: "Gemini 2.5 Flash-Lite",
+    descriptionKey: "gemini-2-5-flash-lite",
     rpm: "10",
     tpm: "250K",
     rpd: "20",
@@ -39,6 +51,7 @@ export const GEMINI_MODELS: readonly GeminiModelInfo[] = [
   {
     id: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
+    descriptionKey: "gemini-2-5-flash",
     rpm: "15",
     tpm: "250K",
     rpd: "1.000",
@@ -46,6 +59,7 @@ export const GEMINI_MODELS: readonly GeminiModelInfo[] = [
   {
     id: "gemini-2.5-pro",
     name: "Gemini 2.5 Pro",
+    descriptionKey: "gemini-2-5-pro",
     rpm: "20",
     tpm: "500K",
     rpd: "2.000",
@@ -53,6 +67,7 @@ export const GEMINI_MODELS: readonly GeminiModelInfo[] = [
   {
     id: "gemini-2.0-flash",
     name: "Gemini 2.0 Flash",
+    descriptionKey: "gemini-2-0-flash",
     rpm: "15",
     tpm: "1M",
     rpd: "1.500",
@@ -60,6 +75,7 @@ export const GEMINI_MODELS: readonly GeminiModelInfo[] = [
   {
     id: "gemini-3-pro-preview",
     name: "Gemini 3 Pro Preview",
+    descriptionKey: "gemini-3-pro-preview",
     rpm: "5",
     tpm: "250K",
     rpd: "100",

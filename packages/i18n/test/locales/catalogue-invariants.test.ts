@@ -42,6 +42,28 @@ function flatten(
   return into;
 }
 
+/**
+ * Catalogue keys that contain a `.`, reported by the path that leads to each.
+ *
+ * It walks the raw object rather than reading `flatten`'s output, because that
+ * map joins path segments with a `.` — the very character being looked for, so
+ * a key holding one is indistinguishable there from real nesting.
+ */
+function dottedKeys(
+  value: unknown,
+  path: string[] = [],
+  into: string[] = [],
+): string[] {
+  if (typeof value === "string") return into;
+
+  for (const [key, child] of Object.entries(value as object)) {
+    if (key.includes(".")) into.push([...path, key].join(" > "));
+    dottedKeys(child, [...path, key], into);
+  }
+
+  return into;
+}
+
 const catalogues = new Map<LanguageCode, Map<string, string>>(
   languages.map((code) => [code, flatten(messages[code])]),
 );
@@ -70,6 +92,20 @@ describe.each(languages)("the %s catalogue", (code) => {
       .map(([key]) => key);
 
     expect(offenders).toEqual([]);
+  });
+
+  it("carries no key containing a dot", () => {
+    // next-intl reads `.` as its nesting separator, so a key holding one is
+    // rejected as INVALID_KEY when the catalogue loads — and because every
+    // Next app mounts this one catalogue, a single offender breaks the render
+    // of apps that never use the namespace it sits in. `t("gemini-2.5-flash")`
+    // would also resolve to a nested `5-flash` under `gemini-2` rather than to
+    // the message that is actually there.
+    //
+    // A model id is the shape that reaches for one: it is spelled with `-` in
+    // the catalogue and mapped back at the call site (see
+    // `apps/assistant-ai/src/constants/models.ts`).
+    expect(dottedKeys(messages[code])).toEqual([]);
   });
 });
 
