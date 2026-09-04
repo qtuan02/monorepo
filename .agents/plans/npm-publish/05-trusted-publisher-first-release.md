@@ -286,7 +286,7 @@ nó; `scripts/tsconfig.json` đã được nới `include` cho hai file mới).
 
 ### Những việc CHỈ con người làm được, đúng thứ tự
 
-1. Quyết cách xử lý `@fe-monorepo/ui@2.0.0` đã bị đốt (bảng A/B/C ở đầu file).
+1. ~~Quyết cách xử lý `@fe-monorepo/ui@2.0.0` đã bị đốt~~ — xong, phương án A (commit `fc94565`).
 2. npmjs.com → `@fe-monorepo/ui` → Settings → Trusted publishing → GitHub Actions.
 3. npmjs.com → `@fe-monorepo/hook` → Settings → Trusted publishing → GitHub Actions.
 4. GitHub → Settings → Actions → General → "Allow GitHub Actions to create and
@@ -297,3 +297,27 @@ nó; `scripts/tsconfig.json` đã được nới `include` cho hai file mới).
 
 _Chưa chạy._ Dán vào đây: URL hai run `release.yml`, số PR "Version Packages", số
 npm của runner, output `bun run verify:release`.
+
+### Đọc version ở đâu — hai luật ngược nhau, cả hai đều đúng
+
+Ghi lại vì hai luật này nhìn như mâu thuẫn (cùng nói về
+`packages/*-public/package.json`) và rất dễ áp nhầm chỗ:
+
+| | Đọc version từ đâu | Vì sao |
+| --- | --- | --- |
+| `scripts/verify-release.ts` | **manifest của shell** | Chạy *sau* khi PR "Version Packages" merge, trên `main` đã pull — lúc đó manifest chính là version đã publish. Và nó là nguồn duy nhất không mục khi hai shell trôi số khác nhau; số hard-code sẽ sai ở lần release kế tiếp. |
+| Trang cài đặt của `apps/documents` (topic `legacy-migrate`) | **không đọc manifest** | Render *trước* khi PR đó merge, nên manifest đang là số sẽ **không bao giờ tồn tại** trên npm (hôm nay `ui-public` ghi `2.0.0`, bản publish là `3.0.0`). Trang đó dùng `bun add @fe-monorepo/ui` không kèm version. |
+
+Khác nhau ở **thời điểm đọc so với lúc merge PR Version Packages**, không phải ở
+file. Hệ quả thứ hai: hai shell nay khác major (`ui` `3.0.0`, `hook` `2.0.0`),
+nên không có "một version dùng chung" — `bun add @fe-monorepo/ui@^3
+@fe-monorepo/hook@^3` là sai âm thầm. Vì thế `verify:release` bỏ cờ `--version=`
+và chỉ nhận `--ui-version=` / `--hook-version=` (commit `81ae2a0`).
+
+### Assert provenance đã được chứng minh là có phân biệt
+
+Chạy `bun run verify:release` lúc chưa release: nó đọc `hook@1.0.0` từ manifest,
+tìm thấy bản legacy đó trên npm, và **fail** đúng ở `dist.attestations`. Đó là
+câu trả lời đúng — `1.0.0` ngày xưa publish bằng token, không phải trusted
+publishing. Nghĩa là một dòng provenance xanh ở bước 6 thật sự có ý nghĩa, chứ
+không phải assert gật bừa mọi thứ nó tìm thấy.
