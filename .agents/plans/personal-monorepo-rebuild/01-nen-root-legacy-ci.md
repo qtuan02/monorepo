@@ -10,7 +10,7 @@ status: done
 
 > Chạy từ session ở reference (`E:\MedViet\frontend\medviet`), ghi sang `D:\Personal\monorepo` bằng đường dẫn tuyệt đối, lệnh dùng `--cwd`/`git -C` — xem "Cách chạy ticket" trong `decisions.md`. Không sửa gì ở reference.
 
-**Status:** done (chạy 2026-09-03, commit `1c9eaa1` trên nhánh `feat/upgrade`; ô CI chờ push — xem "Còn treo")
+**Status:** done (chạy 2026-09-03, commit `1c9eaa1` trên nhánh `feat/upgrade`; ô CI đã chứng minh 2026-09-04 bằng CI run #2 `d964157` — xem "Còn treo")
 
 - [x] `bun install` sinh `bun.lock`; `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `.npmrc` bị xoá; `workspaces.packages` = `apps/*`, `packages/*`, `tooling/*`; catalog root + catalogs đặt tên (`react19`, `tailwind4`, `tanstack-query5`, `react-router8`, `tanstack-table9`, `testing`, `next16`) với version `npm latest` ngày chạy — xem bảng version bên dưới. **Lệch ticket:** install chạy *sau* khi đã xoá file pnpm và dời Legacy, không migrate từ `pnpm-lock.yaml` — xem "Lệch so với ticket" #1
 - [x] `packageManager` Bun 1.4.0, `engines` Node ≥24.14.0 / Bun ≥1.2.0, `.nvmrc` `24.20.0` (Node 24 LTS hiện tại), `bunfig.toml` `linker = "isolated"`
@@ -21,7 +21,7 @@ status: done
 - [x] `legacy/` chứa `_template`, `portfolio`, `assistant-ai`, `mcp`, `documents`, `storybook`, `ui-public`, `hook-public`, `.changeset`; không nằm trong `workspaces.packages`; `legacy/README.md` liệt kê app → Runtime → Template đích
 - [x] `.env.example` root có hai nhóm biến (`PUBLIC_*`, `NEXT_PUBLIC_*`) với giá trị dev; `.gitignore` copy từ reference, thêm `.gitnexus/`, `legacy/**/node_modules`
 - [x] `docs/adr/0001..0003` và `CONTEXT.md` root của Target là bản chuyển từ `.agents/plans/personal-monorepo-rebuild/` (ADR đổi `status: accepted`, thêm `date: 2026-09-03`); `CONTEXT-MAP.md` root trỏ tới nó
-- [~] `.github/workflows/ci.yml` trên `oven-sh/setup-bun` với bốn job `check`/`typecheck`/`test`/`build`, cache theo `bun.lock` — **file đã viết, chưa push nên chưa chứng minh xanh**
+- [x] `.github/workflows/ci.yml` trên `oven-sh/setup-bun` với bốn job `check`/`typecheck`/`test`/`build`, cache theo `bun.lock` — **CI run #2 (`d964157`) xanh cả sáu job, 0 annotation**: `check` 41s · `typecheck` 15s · `test` 26s · `build` 39s (xem ticket 12 § "Bằng chứng — CI")
 - [x] Gate xanh local với 0 lỗi 0 warning
 
 ---
@@ -54,7 +54,8 @@ Khớp Phần B của research; không có số nào lệch.
 
 ## Còn treo
 
-- **Ô CI chưa tick:** commit nằm ở nhánh `feat/upgrade` (`1c9eaa1`), `dev` giữ nguyên tại `7edc303`. Cần `git push -u origin feat/upgrade` để workflow chạy lần đầu. Trigger là `push` trên **mọi** nhánh + `workflow_dispatch`; cố tình không có `pull_request` — check gắn vào commit, nên required check của một PR khớp luôn run của push, thêm trigger thứ hai chỉ chạy đúp bốn job.
+- **Ô CI đã tick (2026-09-04).** `git push -u origin feat/upgrade` là lần đầu nhánh này ra remote, nên cũng là lần đầu workflow chạy thật. Bằng chứng là **CI run #2** (`d964157`): cả sáu job xanh và `check-runs` trả về **0 annotation** — bốn job Gate đo `check` 41s · `typecheck` 15s · `test` 26s · `build` 39s. Đừng trích **run #1** (`2b89265`) làm bằng chứng: bốn job Gate xanh nhưng job `e2e` **đỏ** (image Playwright thiếu `unzip`), và `continue-on-error: true` khiến cả run vẫn báo `success`. Chi tiết ở ticket 12 § "Bằng chứng — CI".
+- **Thiết kế trigger giữ nguyên và vẫn đúng:** `push` trên **mọi** nhánh + `workflow_dispatch`; cố tình không có `pull_request` — check gắn vào commit, nên required check của một PR khớp luôn run của push, thêm trigger thứ hai chỉ chạy đúp bốn job.
 - **`README.md` root vẫn là bản pnpm/sáu app** — sai với repo hiện tại, nhưng nó là deliverable của ticket 11 (cần `dev:*` và `gen:app` đã tồn tại mới viết đủ). Đọc nó lúc này sẽ lạc đường.
 - **`turbo run test`/`build` in `WARNING No tasks were executed`** vì chưa package nào có script tương ứng. Exit code 0, không phải warning của Gate; tự hết từ ticket 02.
 - **`#root { isolation: isolate }` trong `tooling/tailwind/globals.css`** đúng cho Runtime Vite, nhưng App Router của Next không render vào `#root`. Ticket 08 phải quyết định selector tương đương cho Next (thêm vào globals hay đặt ở layout của app).

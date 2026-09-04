@@ -34,7 +34,16 @@
     "dev:template-vite": "turbo watch dev -F @monorepo/_template_vite...",
     "build:template-vite": "turbo run build -F @monorepo/_template_vite...",
     "dev:template-next": "turbo watch dev -F @monorepo/_template_next...",
-    "build:template-next": "turbo run build -F @monorepo/_template_next..."
+    "build:template-next": "turbo run build -F @monorepo/_template_next...",
+    "dev:portfolio": "turbo watch dev -F @monorepo/portfolio...",
+    "build:portfolio": "turbo run build -F @monorepo/portfolio...",
+    "e2e:headed:portfolio": "bun run --filter @monorepo/portfolio e2e:headed",
+    "dev:documents": "turbo watch dev -F @monorepo/documents...",
+    "build:documents": "turbo run build -F @monorepo/documents...",
+    "e2e:headed:documents": "bun run --filter @monorepo/documents e2e:headed",
+    "dev:mcp-weather": "turbo watch dev -F @monorepo/mcp-weather...",
+    "build:mcp-weather": "turbo run build -F @monorepo/mcp-weather...",
+    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed"
   },
   "workspaces": {
     "packages": [
@@ -45,6 +54,7 @@
     "catalog": {
       "@base-ui/react": "^1.7.0",
       "@hookform/resolvers": "^5.9.1",
+      "@modelcontextprotocol/sdk": "^1.30.0",
       "@rolldown/plugin-babel": "^0.2.3",
       "@rslib/core": "~1.0.0",
       "@t3-oss/env-core": "0.13.11",
@@ -60,6 +70,9 @@
       "i18next-icu": "^2.4.4",
       "intl-messageformat": "^11.2.14",
       "lucide-react": "1.40.0",
+      "motion": "^13.2.0",
+      "next-themes": "^0.4.6",
+      "oxc-parser": "^0.148.0",
       "postcss": "^8.5.28",
       "react-error-boundary": "^6.1.4",
       "react-hook-form": "^7.87.0",
@@ -73,11 +86,9 @@
     },
     "catalogs": {
       "next16": {
-        "@next/third-parties": "16.3.4",
         "@sentry/nextjs": "^10.73.0",
         "@t3-oss/env-nextjs": "0.13.11",
         "dotenv-cli": "^11.0.0",
-        "jiti": "^2.7.0",
         "next": "16.3.4",
         "next-intl": "^4.14.2"
       },

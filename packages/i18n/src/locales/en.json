@@ -104,5 +104,252 @@
     "title": "Something went wrong",
     "message": "The app hit an unexpected error. Please reload the page.",
     "reload": "Reload page"
+  },
+  "portfolio": {
+    "meta": {
+      "title": "Huynh Quoc Tuan",
+      "description": "Frontend Developer with 3+ years of experience building scalable web applications with React.js and Next.js. Turning Figma designs into responsive interfaces, working with SSR/ISR, and keeping a strong focus on product quality."
+    },
+    "hero": {
+      "greeting": "Hi, I am Tuan",
+      "subtitle": "A passionate developer who enjoys learning, experimenting, and turning new technologies into practical products",
+      "avatarAlt": "Portrait of Huynh Quoc Tuan",
+      "zoomLabel": "Avatar zoom area"
+    },
+    "about": {
+      "title": "About",
+      "experience": "Frontend Developer with 3+ years of experience building and maintaining scalable web applications using React.js and Next.js. Experienced in turning Figma designs into clean, responsive interfaces, while building reusable components and keeping the codebase easy to maintain. Comfortable working with SSR, ISR, and state management to improve performance and user experience. Also able to support backend work when needed, with a strong focus on product quality, stability, and long-term growth.",
+      "mindset": "Good teamwork and communication. Fast learner with a strong adaptation mindset. Interested in performance optimization, source structure, and user experience. Able to work across frontend and backend when the project requires it."
+    },
+    "work": {
+      "title": "Work Experience",
+      "techStack": "Tech Stack:",
+      "toggle": "Toggle role details",
+      "items": {
+        "fptis": {
+          "role": "Software Engineer",
+          "period": "Feb 2026 – Present",
+          "bullets": {
+            "system": "Social Protection System — a large-scale government system for social protection management with multiple business modules and centralized data handling.",
+            "modules": "Developed and maintained core modules including category, social facility, staff, beneficiary, and user management.",
+            "screens": "Built data-heavy administrative screens featuring complex lists, forms, multi-filters, and pagination.",
+            "components": "Engineered reusable UI components for tables and inputs to ensure interface consistency and system scalability.",
+            "logic": "Collaborated on business logic implementation and API synchronization within a microservices and monorepo architecture.",
+            "stability": "Ensured system stability by handling data flow and performance issues across the full stack."
+          }
+        },
+        "arobid": {
+          "role": "Frontend Developer",
+          "period": "Feb 2025 – Feb 2026",
+          "bullets": {
+            "tradexpo": "TradeXpo — Digital Exhibition Platform: built core pages (home, event list, event detail, inner pages) and the full user journey from landing to event and booth interactions.",
+            "immersive": "Integrated a 3D/VR system using Shapespark through iframe and postMessage; developed gamification including check-in, booth interaction, product viewing, and rewards.",
+            "tracking": "Integrated CleverTap for user behavior tracking; optimized UX for media-heavy and dynamic pages; aligned implementation with Figma and product flow.",
+            "award": "TradeXpo contributed to the platform winning Excellent Digital Technology Solution at Vietnam Digital Awards 2025.",
+            "cms": "CMS Platform — News, FAQ, Career: built a shared CMS for multiple content types, with management pages for articles, categories, and structured content.",
+            "rendering": "Applied SSR and ISR for SEO, page speed, and search visibility; supported stable data flow across frontend and backend."
+          }
+        },
+        "dcorp": {
+          "role": "Frontend Developer",
+          "period": "Mar 2024 – Feb 2025",
+          "bullets": {
+            "omnichannel": "Omnichannel Order and Inventory — Highlands Coffee: order flows integrating Shopee, Grab, in-store POS, and internal systems; operational dashboards, goods receipt and issue, and inventory tracking.",
+            "dataset": "Handled large datasets and complex multi-state order workflows; contributed to business configuration screens for real-time retail operations.",
+            "emenu": "Digital e-Menu: menu, item details, shopping cart, order history; temporary bill for real-time spending estimates; cart logic optimized for frequent updates.",
+            "internal": "Internal management platform: data-heavy tables, multi-filters, search, pagination; reporting for call activities, work logs, and tax workflows; integrations with Omicall, ClickUp, and GDT.",
+            "uiSystem": "Internal UI system: reusable components across projects, standardized usage, Storybook documentation, layout fixes, and manual UI testing."
+          }
+        },
+        "wisdom": {
+          "role": "Software Engineer",
+          "period": "Mar 2023 – Sep 2023",
+          "bullets": {
+            "project": "Vehicle Maintenance System — joined from an early stage, working with the BA on requirements and maintenance workflows.",
+            "backend": "Developed backend services with Java Spring Boot and PostgreSQL; built frontend screens with Next.js.",
+            "modules": "Supported modules for vehicles, maintenance schedules, spare parts, and operational data."
+          }
+        }
+      }
+    },
+    "education": {
+      "title": "Education",
+      "items": {
+        "stu": {
+          "degree": "Bachelor of Engineering in Information Technology",
+          "period": "2020 – 2024"
+        }
+      }
+    },
+    "skills": {
+      "title": "Skills"
+    },
+    "contact": {
+      "title": "Contact",
+      "items": {
+        "birthday": "20/07/2002",
+        "phone": "(+84) 393 653 862",
+        "location": "District 7, Ho Chi Minh City, Vietnam",
+        "github": "github.com/qtuan02",
+        "email": "huynhquoctuan200702@gmail.com"
+      }
+    },
+    "hobbies": {
+      "title": "Hobbies",
+      "items": {
+        "sport": "Sport",
+        "reading": "Read book",
+        "travel": "Travel",
+        "music": "Listen to music",
+        "movies": "Watch movies"
+      }
+    },
+    "navbar": {
+      "home": "Home",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "theme": "Toggle theme"
+    }
+  },
+  "mcpWeather": {
+    "meta": {
+      "title": "MCP Weather",
+      "description": "An MCP server serving OpenWeatherMap data to AI assistants."
+    },
+    "nav": {
+      "overview": "Overview",
+      "dashboard": "Dashboard"
+    },
+    "home": {
+      "title": "MCP Weather",
+      "description": "A Model Context Protocol server. Clients POST to {endpoint} and get three weather tools back; the web pages here are only a placeholder."
+    },
+    "tools": {
+      "title": "Tools it serves"
+    },
+    "dashboard": {
+      "title": "Dashboard",
+      "description": "The screen behind sign-in, kept from the Template — it is what the session guard protects."
+    }
+  },
+  "documents": {
+    "meta": {
+      "brand": "@fe-monorepo",
+      "title": "@fe-monorepo docs",
+      "description": "How to install, import and use the @fe-monorepo/ui and @fe-monorepo/hook packages.",
+      "pageTitle": "{page} · @fe-monorepo docs"
+    },
+    "nav": {
+      "sections": "Contents",
+      "gettingStarted": "Getting started",
+      "components": "Components",
+      "hooks": "Hooks",
+      "toggleSidebar": "Toggle the navigation sidebar",
+      "openMenu": "Open menu",
+      "npm": "View on npm",
+      "storybook": "Open Storybook"
+    },
+    "search": {
+      "label": "Filter the list",
+      "placeholder": "Filter by name…",
+      "empty": "No result for “{query}”.",
+      "clear": "Clear the filter"
+    },
+    "home": {
+      "title": "Getting started",
+      "description": "Two packages published from this workspace: 63 Base UI primitives and 5 React hooks. Both are subpath-only, so you import the one file you need.",
+      "install": {
+        "title": "Install",
+        "description": "Add the package to your project.",
+        "note": "Both packages are ESM only and ship no CommonJS build."
+      },
+      "peers": {
+        "title": "Peer dependencies",
+        "description": "You install these yourself; they are not dependencies of the package.",
+        "packageColumn": "Package",
+        "rangeColumn": "Range"
+      },
+      "css": {
+        "title": "Set up the stylesheet",
+        "description": "Two lines in your Tailwind v4 entry, and one that matters more than it looks.",
+        "sourceWarning": "Tailwind v4 does not scan node_modules. Without the @source line every class inside the package compiles to nothing, with no error, and the components render unstyled.",
+        "fragmentNote": "globals.css is a fragment rather than a full Tailwind entry: it deliberately carries no @import “tailwindcss”, which is yours to own since tailwindcss is a peer dependency."
+      },
+      "example": {
+        "title": "Your first component",
+        "description": "Every primitive lives at its own subpath, named after its file."
+      },
+      "noRootEntry": {
+        "title": "There is no root entry",
+        "description": "There is no import { Button } from “@fe-monorepo/ui”. The root entry does not exist, so always name the subpath."
+      },
+      "next": {
+        "title": "Keep going",
+        "components": "Browse the primitives",
+        "hooks": "Browse the hooks"
+      }
+    },
+    "components": {
+      "title": "Components",
+      "description": "Every row is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
+      "count": "{count, plural, one {# component} other {# components}}",
+      "exportCount": "{count, plural, one {# export} other {# exports}}",
+      "columns": {
+        "subpath": "Subpath",
+        "exports": "Exports"
+      },
+      "detail": {
+        "import": "Import",
+        "exports": "Exports",
+        "demo": "Demo",
+        "demoDescription": "The interactive demo and the live props table live in Storybook.",
+        "demoLink": "Open {name} in Storybook",
+        "back": "Back to components"
+      }
+    },
+    "hooks": {
+      "title": "Hooks",
+      "description": "Five shared hooks, one subpath each on @fe-monorepo/hook.",
+      "count": "{count, plural, one {# hook} other {# hooks}}",
+      "exportCount": "{count, plural, one {# export} other {# exports}}",
+      "columns": {
+        "subpath": "Subpath",
+        "exports": "Exports"
+      },
+      "detail": {
+        "import": "Import",
+        "exports": "Exports",
+        "description": "Description",
+        "back": "Back to hooks"
+      },
+      "items": {
+        "use-debounce": {
+          "description": "Returns value again delay ms after it last changed."
+        },
+        "use-media-query": {
+          "description": "Subscribes to a CSS media query; SSR-safe through defaultValue and initializeWithValue."
+        },
+        "use-is-mobile": {
+          "description": "useMediaQuery pinned to the Tailwind md breakpoint (768px)."
+        },
+        "use-copy-to-clipboard": {
+          "description": "Returns [copiedText, copy]; copy resolves false when the Clipboard API is unavailable."
+        },
+        "use-isomorphic-layout-effect": {
+          "description": "useLayoutEffect in the browser, useEffect on the server."
+        }
+      }
+    },
+    "code": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyLabel": "Copy the snippet"
+    },
+    "notFound": {
+      "title": "Not found",
+      "component": "No component is named “{slug}”.",
+      "hook": "No hook is named “{slug}”.",
+      "back": "Back to getting started"
+    }
   }
 }

@@ -12,9 +12,32 @@ status: ready-for-agent
 
 ---
 
-## 1. Mỗi app khai **một** port, cả hai config cùng đọc
+## 1. Mỗi app khai **một** port, cả hai config cùng đọc — *đã giao cho `legacy-migrate` 01*
 
-**Triệu chứng.** `_template_vite` ghi cứng `3000` ở hai chỗ độc lập:
+> **Mục này không còn do ticket 13 làm.** Nó được nhận trọn bởi
+> [`.agents/plans/legacy-migrate/01-prefactor-port-hygiene-readme.md`](../legacy-migrate/01-prefactor-port-hygiene-readme.md),
+> vì mọi ticket migrate đều cần app sinh ra chạy được cạnh Template của nó, nên
+> khoản này là điều kiện tiên quyết của cả topic đó chứ không phải một khoản treo lẻ.
+> Vết đi đầy đủ: ticket 12 → ticket 13 §1 → `legacy-migrate` 01.
+>
+> **Hình dạng đã chốt ở bên đó** (khác gợi ý bên dưới ở chỗ nguồn là một file `.env`
+> chứ không phải một module TypeScript, để generator chỉ phải viết lại hai dòng số):
+> mỗi app khai `apps/<app>/ports.env` với đúng hai dòng `PORT=` và `E2E_PORT=` —
+> đây là **chỗ duy nhất** hai con số được viết — cạnh đó là `apps/<app>/ports.ts`,
+> một reader có kiểu đọc file ấy bằng `readFileSync` và xuất `DEV_PORT`/`E2E_PORT`
+> cho `vite.config.ts`/`next.config.ts` và `playwright.config.ts`. Cấp phát một cặp
+> mỗi app: dev `3000+n`, e2e `3100+n`. `apps/storybook` cố ý nằm ngoài hai dải (6006
+> của chính Storybook, và không có server E2E) nên không khai `ports.env`.
+>
+> **Năm ô dưới đây đã lật `[ ]`→`[x]` (2026-09-04), và lật *từ* `legacy-migrate` 01**,
+> sau khi smoke test generator của ticket đó chạy thật: app sinh ra nhận 3002/3102 và
+> 3003/3103, bốn dev server lên cùng lúc và mỗi cái trả 200 trên đúng cổng của nó.
+> **Bằng chứng đầy đủ nằm ở ticket đó**, không chép lại ở đây — §1 chỉ ghi rằng nó đã
+> xong và ai đã làm.
+>
+> `status` của ticket 13 **giữ nguyên `ready-for-agent`**: §2 và §3 vẫn treo đủ.
+
+**Triệu chứng (trạng thái lúc mở ticket — đã sửa, xem banner ngay trên).** `_template_vite` ghi cứng `3000` ở hai chỗ độc lập:
 
 - `apps/_template_vite/vite.config.ts` → `server.port: 3000`
 - `apps/_template_vite/playwright.config.ts` → `const PORT = 3000` **và** chuỗi `webServer.command` chứa `--port 3000 --strictPort`
@@ -23,17 +46,17 @@ Generator `app` (`turbo/generators/config.ts`) clone Template nguyên văn, nên
 
 **Ràng buộc khi sửa (ticket 07 đã cảnh báo, đừng bỏ qua).** Các literal port đang nằm **giữa những comment giải thích chính chúng** — ví dụ comment trong `playwright.config.ts` của `_template_next` nói rõ 3101 "deliberately not the dev port (3001) and not the Vite template's (3000)". Đổi bằng regex sẽ để lại những câu comment nói dối. Sửa tay từng chỗ, và cập nhật comment cùng lúc.
 
-**Gợi ý hình dạng, không bắt buộc.** Một nguồn duy nhất cho mỗi app mà cả `vite.config.ts`/`next.config.ts` lẫn `playwright.config.ts` đều import được (ví dụ `apps/<app>/ports.ts` xuất `DEV_PORT` và `E2E_PORT`), rồi generator ghi lại đúng file đó khi clone. Cân nhắc: file này chạy trong context config (Node/Bun trước bundler), nên nó không được import gì từ `src/`.
+**Gợi ý hình dạng, không bắt buộc.** Một nguồn duy nhất cho mỗi app mà cả `vite.config.ts`/`next.config.ts` lẫn `playwright.config.ts` đều import được (ví dụ `apps/<app>/ports.ts` xuất `DEV_PORT` và `E2E_PORT`), rồi generator ghi lại đúng file đó khi clone. Cân nhắc: file này chạy trong context config (Node/Bun trước bundler), nên nó không được import gì từ `src/`. *(Bản chốt ở `legacy-migrate` 01 tách gợi ý này làm đôi — `ports.env` giữ hai con số, `ports.ts` là reader — xem banner đầu mục.)*
 
-- [ ] `_template_vite` và `_template_next` mỗi app khai port ở đúng **một** chỗ; `vite.config.ts`/`next.config.ts`, `playwright.config.ts` và mọi script trong `package.json` đọc từ đó
-- [ ] Comment quanh các port cũ được viết lại cho khớp, không còn câu nào nhắc một literal đã biến mất
-- [ ] Generator `app` gán port mới cho app clone (không trùng Template, không trùng app đã sinh), và ghi lý do trong `turbo/generators/config.ts`
-- [ ] Kiểm bằng tay: sinh một app mỗi Runtime, chạy **song song** với chính Template của nó (`bun run dev:template-vite` + `bun run dev:<app mới>` cùng lúc), cả hai lên; rồi xoá app và revert root scripts như ticket 09 đã làm
-- [ ] Gate 4/4 xanh, 0 warning
+- [x] `_template_vite` và `_template_next` mỗi app khai port ở đúng **một** chỗ; `vite.config.ts`/`next.config.ts`, `playwright.config.ts` và mọi script trong `package.json` đọc từ đó — thực hiện ở `legacy-migrate` 01 (`ports.env` + `ports.ts`)
+- [x] Comment quanh các port cũ được viết lại cho khớp, không còn câu nào nhắc một literal đã biến mất — thực hiện ở `legacy-migrate` 01
+- [x] Generator `app` gán port mới cho app clone (không trùng Template, không trùng app đã sinh), và ghi lý do trong `turbo/generators/config.ts` — thực hiện ở `legacy-migrate` 01 (generator viết lại hai dòng số trong `ports.env` của bản clone)
+- [x] Kiểm bằng tay: sinh một app mỗi Runtime, chạy **song song** với chính Template của nó (`bun run dev:template-vite` + `bun run dev:<app mới>` cùng lúc), cả hai lên; rồi xoá app và revert root scripts như ticket 09 đã làm — smoke test này là acceptance criterion của `legacy-migrate` 01, kết quả ghi trong Notes của ticket đó
+- [x] Gate 4/4 xanh, 0 warning — Gate của lượt sửa port ghi ở `legacy-migrate` 01, không ghi lại ở đây
 
 ## 2. E2E của `_template_next` chạy đúng binary mà image chạy
 
-**Triệu chứng.** `apps/_template_next/playwright.config.ts` dùng `webServer.command` = `bun run build && dotenv -e ../../.env -- next start --port 3101`. Next 16 in ngay trong log e2e:
+**Triệu chứng.** `apps/_template_next/playwright.config.ts` dùng `webServer.command` = `bun run build && bun run start`, với E2E port truyền qua `webServer.env.PORT` đọc từ `apps/_template_next/ports.env` (`legacy-migrate` 01 đã đổi hình dạng này; trước đó là `dotenv -e ../../.env -- next start --port 3101`). Vì `webServer` nay đi qua **chính script `start` của app**, chuyển sang standalone là **một** sửa trong `package.json` chứ không phải hai chỗ phải giữ đồng bộ. Next 16 in ngay trong log e2e:
 
 ```
 ⚠ "next start" does not work with "output: standalone" configuration.

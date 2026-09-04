@@ -4,10 +4,11 @@ name: CI
 # `bun run` locally, so running them by hand reproduces this workflow exactly.
 # Nothing else here is allowed to block a merge. Four jobs sit outside it and
 # all four carry `continue-on-error: true` for a reason written at the job
-# itself: `e2e` (Playwright over both Template apps), `docker` (one image build
-# per app that ships a Dockerfile), `changeset-status` (a missing release note
-# on a diff that changes the published surface) and `publish-smoke` (the two
-# Publish shells packed and installed into a throwaway consumer project).
+# itself: `e2e` (Playwright over every app that ships a playwright.config.ts),
+# `docker` (one image build per app that ships a Dockerfile), `changeset-status`
+# (a missing release note on a diff that changes the published surface) and
+# `publish-smoke` (the two Publish shells packed and installed into a throwaway
+# consumer project).
 #
 # Runs on a push to ANY branch, and there is deliberately no `pull_request`
 # trigger: a check is attached to the head commit, so a push-triggered run is
@@ -216,11 +217,31 @@ jobs:
       # runs a real production build, and the PUBLIC_*/NEXT_PUBLIC_* values are
       # baked into the bundle at that point.
       - uses: ./.github/actions/setup-workspace
-      - name: E2E — _template_vite
-        run: bun run --filter @monorepo/_template_vite e2e
-      - name: E2E — _template_next
-        if: always()
-        run: bun run --filter @monorepo/_template_next e2e
+      # Every app that ships a `playwright.config.ts`, discovered rather than
+      # listed — the same trick the `docker` job plays with `Dockerfile`, and for
+      # the same reason: an app arriving from a migrate ticket is covered here
+      # with no edit to this file. The two Template apps were hard-coded until
+      # `portfolio` and `documents` landed and silently were not run, while the
+      # job still reported green because `changes.app` had already fired.
+      #
+      # `set +e` and the failure tally are load-bearing: without them the first
+      # red app ends the step and every later app goes unreported, which is the
+      # same blind spot one level down.
+      - name: E2E — every app with a Playwright config
+        run: |
+          set +e
+          failed=""
+          for config in apps/*/playwright.config.ts; do
+            app="$(basename "$(dirname "$config")")"
+            echo "::group::E2E — $app"
+            bun run --filter "@monorepo/$app" e2e
+            [ $? -eq 0 ] || failed="$failed $app"
+            echo "::endgroup::"
+          done
+          if [ -n "$failed" ]; then
+            echo "E2E failed for:$failed"
+            exit 1
+          fi
       # `continue-on-error` means the job always reports green, so the uploaded
       # report is the only place a failure is visible — upload it regardless.
       - name: Upload the Playwright reports
@@ -231,9 +252,8 @@ jobs:
         with:
           name: playwright-report
           path: |
-            apps/_template_vite/playwright-report/
-            apps/_template_vite/junit.xml
-            apps/_template_next/playwright-report/
+            apps/*/playwright-report/
+            apps/*/junit.xml
           retention-days: 7
           if-no-files-found: ignore
 

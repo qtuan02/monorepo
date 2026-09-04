@@ -104,5 +104,252 @@
     "title": "Đã có lỗi xảy ra",
     "message": "Ứng dụng gặp sự cố ngoài dự kiến. Vui lòng tải lại trang.",
     "reload": "Tải lại trang"
+  },
+  "portfolio": {
+    "meta": {
+      "title": "Huỳnh Quốc Tuấn",
+      "description": "Frontend Developer với hơn 3 năm kinh nghiệm xây dựng ứng dụng web mở rộng được bằng React.js và Next.js. Chuyển thiết kế Figma thành giao diện responsive, làm việc với SSR/ISR và đặt trọng tâm vào chất lượng sản phẩm."
+    },
+    "hero": {
+      "greeting": "Xin chào, mình là Tuấn",
+      "subtitle": "Một developer yêu nghề, thích học, thích thử nghiệm và biến công nghệ mới thành sản phẩm dùng được",
+      "avatarAlt": "Ảnh chân dung Huỳnh Quốc Tuấn",
+      "zoomLabel": "Vùng phóng to ảnh đại diện"
+    },
+    "about": {
+      "title": "Giới thiệu",
+      "experience": "Frontend Developer với hơn 3 năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Quen chuyển thiết kế Figma thành giao diện sạch, responsive, đồng thời dựng component tái sử dụng và giữ codebase dễ bảo trì. Thoải mái làm việc với SSR, ISR và quản lý state để cải thiện hiệu năng cùng trải nghiệm người dùng. Có thể hỗ trợ phần backend khi cần, luôn đặt trọng tâm vào chất lượng sản phẩm, sự ổn định và khả năng phát triển lâu dài.",
+      "mindset": "Làm việc nhóm và giao tiếp tốt. Học nhanh, tinh thần thích nghi cao. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng. Có thể làm cả frontend lẫn backend khi dự án cần."
+    },
+    "work": {
+      "title": "Kinh nghiệm làm việc",
+      "techStack": "Công nghệ:",
+      "toggle": "Xem chi tiết công việc",
+      "items": {
+        "fptis": {
+          "role": "Kỹ sư phần mềm",
+          "period": "02/2026 – Hiện tại",
+          "bullets": {
+            "system": "Social Protection System — hệ thống quản lý bảo trợ xã hội quy mô lớn của nhà nước, gồm nhiều phân hệ nghiệp vụ và dữ liệu được xử lý tập trung.",
+            "modules": "Phát triển và bảo trì các phân hệ lõi: danh mục, cơ sở trợ giúp xã hội, nhân sự, đối tượng thụ hưởng và quản lý người dùng.",
+            "screens": "Dựng các màn quản trị nặng dữ liệu với danh sách phức tạp, biểu mẫu, đa bộ lọc và phân trang.",
+            "components": "Xây dựng component tái sử dụng cho bảng và ô nhập liệu để giao diện nhất quán và hệ thống mở rộng được.",
+            "logic": "Phối hợp cài đặt nghiệp vụ và đồng bộ API trong kiến trúc microservices và monorepo.",
+            "stability": "Giữ hệ thống ổn định bằng cách xử lý luồng dữ liệu và các vấn đề hiệu năng xuyên suốt full stack."
+          }
+        },
+        "arobid": {
+          "role": "Lập trình viên Frontend",
+          "period": "02/2025 – 02/2026",
+          "bullets": {
+            "tradexpo": "TradeXpo — nền tảng triển lãm số: dựng các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
+            "immersive": "Tích hợp hệ thống 3D/VR bằng Shapespark qua iframe và postMessage; phát triển gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
+            "tracking": "Tích hợp CleverTap để đo hành vi người dùng; tối ưu trải nghiệm cho trang nhiều media và nội dung động; bám sát Figma và luồng sản phẩm.",
+            "award": "TradeXpo góp phần giúp nền tảng đạt giải Giải pháp công nghệ số xuất sắc tại Vietnam Digital Awards 2025.",
+            "cms": "CMS Platform — Tin tức, FAQ, Tuyển dụng: dựng CMS dùng chung cho nhiều loại nội dung, kèm các trang quản trị bài viết, danh mục và nội dung có cấu trúc.",
+            "rendering": "Áp dụng SSR và ISR cho SEO, tốc độ tải trang và khả năng hiển thị trên công cụ tìm kiếm; giữ luồng dữ liệu ổn định giữa frontend và backend."
+          }
+        },
+        "dcorp": {
+          "role": "Lập trình viên Frontend",
+          "period": "03/2024 – 02/2025",
+          "bullets": {
+            "omnichannel": "Omnichannel Order và Inventory — Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
+            "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái; tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",
+            "emenu": "Digital e-Menu: thực đơn, chi tiết món, giỏ hàng, lịch sử đơn; hoá đơn tạm để ước tính chi tiêu tức thời; tối ưu logic giỏ hàng cho tần suất cập nhật cao.",
+            "internal": "Nền tảng quản trị nội bộ: bảng dữ liệu lớn, đa bộ lọc, tìm kiếm, phân trang; báo cáo hoạt động cuộc gọi, nhật ký công việc và quy trình thuế; tích hợp Omicall, ClickUp và GDT.",
+            "uiSystem": "Hệ thống UI nội bộ: component dùng chung giữa các dự án, chuẩn hoá cách dùng, tài liệu bằng Storybook, sửa layout và kiểm thử giao diện thủ công."
+          }
+        },
+        "wisdom": {
+          "role": "Kỹ sư phần mềm",
+          "period": "03/2023 – 09/2023",
+          "bullets": {
+            "project": "Vehicle Maintenance System — tham gia từ giai đoạn đầu, làm việc cùng BA về yêu cầu và quy trình bảo dưỡng.",
+            "backend": "Phát triển dịch vụ backend bằng Java Spring Boot và PostgreSQL; dựng màn hình frontend bằng Next.js.",
+            "modules": "Hỗ trợ các phân hệ xe, lịch bảo dưỡng, phụ tùng và dữ liệu vận hành."
+          }
+        }
+      }
+    },
+    "education": {
+      "title": "Học vấn",
+      "items": {
+        "stu": {
+          "degree": "Kỹ sư Công nghệ thông tin",
+          "period": "2020 – 2024"
+        }
+      }
+    },
+    "skills": {
+      "title": "Kỹ năng"
+    },
+    "contact": {
+      "title": "Liên hệ",
+      "items": {
+        "birthday": "20/07/2002",
+        "phone": "(+84) 393 653 862",
+        "location": "Quận 7, TP. Hồ Chí Minh, Việt Nam",
+        "github": "github.com/qtuan02",
+        "email": "huynhquoctuan200702@gmail.com"
+      }
+    },
+    "hobbies": {
+      "title": "Sở thích",
+      "items": {
+        "sport": "Thể thao",
+        "reading": "Đọc sách",
+        "travel": "Du lịch",
+        "music": "Nghe nhạc",
+        "movies": "Xem phim"
+      }
+    },
+    "navbar": {
+      "home": "Trang chủ",
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "theme": "Đổi giao diện sáng tối"
+    }
+  },
+  "mcpWeather": {
+    "meta": {
+      "title": "MCP Weather",
+      "description": "Máy chủ MCP cung cấp dữ liệu thời tiết OpenWeatherMap cho trợ lý AI."
+    },
+    "nav": {
+      "overview": "Tổng quan",
+      "dashboard": "Bảng điều khiển"
+    },
+    "home": {
+      "title": "MCP Weather",
+      "description": "Máy chủ Model Context Protocol. Client gọi POST {endpoint} và nhận về ba tool thời tiết; các trang web ở đây chỉ là placeholder."
+    },
+    "tools": {
+      "title": "Tool đang phục vụ"
+    },
+    "dashboard": {
+      "title": "Bảng điều khiển",
+      "description": "Màn hình sau đăng nhập, giữ nguyên từ Template — nó là thứ session guard đang bảo vệ."
+    }
+  },
+  "documents": {
+    "meta": {
+      "brand": "@fe-monorepo",
+      "title": "Tài liệu @fe-monorepo",
+      "description": "Cách cài, import và dùng hai gói @fe-monorepo/ui và @fe-monorepo/hook.",
+      "pageTitle": "{page} · Tài liệu @fe-monorepo"
+    },
+    "nav": {
+      "sections": "Nội dung",
+      "gettingStarted": "Bắt đầu",
+      "components": "Component",
+      "hooks": "Hook",
+      "toggleSidebar": "Ẩn hiện thanh điều hướng",
+      "openMenu": "Mở menu",
+      "npm": "Xem trên npm",
+      "storybook": "Mở Storybook"
+    },
+    "search": {
+      "label": "Lọc danh sách",
+      "placeholder": "Lọc theo tên…",
+      "empty": "Không có kết quả cho “{query}”.",
+      "clear": "Xoá bộ lọc"
+    },
+    "home": {
+      "title": "Bắt đầu",
+      "description": "Hai gói được publish từ workspace này: 63 primitive Base UI và 5 React hook. Cả hai chỉ có subpath entry, nên bạn import đúng một file mình cần.",
+      "install": {
+        "title": "Cài đặt",
+        "description": "Thêm gói vào dự án của bạn.",
+        "note": "Cả hai gói là ESM thuần và không kèm bản CommonJS."
+      },
+      "peers": {
+        "title": "Peer dependency",
+        "description": "Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package.",
+        "packageColumn": "Gói",
+        "rangeColumn": "Phạm vi"
+      },
+      "css": {
+        "title": "Nối stylesheet",
+        "description": "Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó.",
+        "sourceWarning": "Tailwind v4 không quét node_modules. Thiếu dòng @source, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
+        "fragmentNote": "globals.css là một fragment chứ không phải entry Tailwind đầy đủ: nó cố ý không chứa @import “tailwindcss”, vì tailwindcss là peer dependency thuộc về bạn."
+      },
+      "example": {
+        "title": "Ví dụ đầu tiên",
+        "description": "Mỗi primitive nằm ở subpath mang đúng tên file của nó."
+      },
+      "noRootEntry": {
+        "title": "Không có root entry",
+        "description": "Không có import { Button } from “@fe-monorepo/ui”. Root entry không tồn tại, nên luôn gọi tên subpath."
+      },
+      "next": {
+        "title": "Đi tiếp",
+        "components": "Xem danh sách primitive",
+        "hooks": "Xem danh sách hook"
+      }
+    },
+    "components": {
+      "title": "Component",
+      "description": "Mỗi dòng là một subpath của @fe-monorepo/ui. Mở một dòng để đọc danh sách export và xem demo trên Storybook.",
+      "count": "{count, plural, other {# component}}",
+      "exportCount": "{count, plural, other {# export}}",
+      "columns": {
+        "subpath": "Subpath",
+        "exports": "Export"
+      },
+      "detail": {
+        "import": "Import",
+        "exports": "Export",
+        "demo": "Demo",
+        "demoDescription": "Bản demo tương tác và bảng props sống nằm trong Storybook.",
+        "demoLink": "Mở {name} trên Storybook",
+        "back": "Về danh sách component"
+      }
+    },
+    "hooks": {
+      "title": "Hook",
+      "description": "Năm hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
+      "count": "{count, plural, other {# hook}}",
+      "exportCount": "{count, plural, other {# export}}",
+      "columns": {
+        "subpath": "Subpath",
+        "exports": "Export"
+      },
+      "detail": {
+        "import": "Import",
+        "exports": "Export",
+        "description": "Mô tả",
+        "back": "Về danh sách hook"
+      },
+      "items": {
+        "use-debounce": {
+          "description": "Trả lại value sau delay mili-giây kể từ lần nó đổi gần nhất."
+        },
+        "use-media-query": {
+          "description": "Theo dõi một CSS media query; an toàn khi render phía server nhờ defaultValue và initializeWithValue."
+        },
+        "use-is-mobile": {
+          "description": "useMediaQuery ghim ở breakpoint md của Tailwind (768px)."
+        },
+        "use-copy-to-clipboard": {
+          "description": "Trả về [copiedText, copy]; copy resolve false khi trình duyệt không có Clipboard API."
+        },
+        "use-isomorphic-layout-effect": {
+          "description": "useLayoutEffect ở trình duyệt, useEffect ở phía server."
+        }
+      }
+    },
+    "code": {
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "copyLabel": "Sao chép đoạn mã"
+    },
+    "notFound": {
+      "title": "Không tìm thấy",
+      "component": "Không có component nào tên “{slug}”.",
+      "hook": "Không có hook nào tên “{slug}”.",
+      "back": "Về trang Bắt đầu"
+    }
   }
 }

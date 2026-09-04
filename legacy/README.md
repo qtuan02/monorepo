@@ -17,10 +17,10 @@ by the root install.
 | `legacy/` | Was | Runtime | Target Template |
 | --- | --- | --- | --- |
 | `_template/` | `apps/_template` — the old Next 15 starter every app was hand-copied from | Next.js | superseded by `apps/_template_next`; migrate nothing, delete once the other four are done |
-| `portfolio/` | `apps/portfolio` | Next.js | `apps/_template_next` |
+| `portfolio/` | `apps/portfolio` | Next.js | **migrated** — it is [`apps/portfolio`](../apps/portfolio) again, cloned onto `apps/_template_next` in [ticket 03](../.agents/plans/legacy-migrate/03-migrate-portfolio-env-convention.md). This directory is kept for comparison only, and goes with the rest at ticket 07 |
 | `assistant-ai/` | `apps/assistant-ai` | Next.js | `apps/_template_next` |
-| `mcp/` | `apps/mcp` | Next.js | `apps/_template_next` |
-| `documents/` | `apps/documents` | Vite client (SPA) | `apps/_template_vite` |
+| `mcp/` | `apps/mcp` | Next.js | **migrated** — it came back under a new name, [`apps/mcp-weather`](../apps/mcp-weather), cloned onto `apps/_template_next` in [ticket 04](../.agents/plans/legacy-migrate/04-migrate-mcp-weather.md). The MCP contract is unchanged (`POST /api/mcp`, three tools, no auth), so a client already calling it needs no edit. Kept for comparison only, deleted at ticket 07 |
+| `documents/` | `apps/documents` | Vite client (SPA) | **migrated** — it is [`apps/documents`](../apps/documents) again, cloned onto `apps/_template_vite` in [ticket 06](../.agents/plans/legacy-migrate/06-migrate-documents-metadata-script.md). Its content is now generated from `packages/{ui,hook}/src` rather than hand-written, so nothing here is a source. Kept for comparison only, deleted at ticket 07 |
 | `storybook/` | `apps/storybook` — Storybook 8.6 on Radix | Vite client | rebuilt from scratch as `apps/storybook` (Storybook 10 + Base UI); stories are re-authored, not ported |
 | `ui-public/` | `packages/ui-public` — `@fe-monorepo/ui`, rslib build, published to npm | — | the source lives on as `packages/ui` (`@monorepo/ui`, source-only, Base UI) — that is what every app in this repo imports. Publishing came **back**, in a different shape: [ADR-0004](../docs/adr/0004-npm-publish-qua-publish-shell.md) recreates `packages/ui-public` at the root as a **Publish shell** — a hand-written `package.json` fed by an rslib `build` of `packages/ui`, and one of the only two workspaces Changesets versions and `npm publish`es. Written fresh; nothing from this directory is restored |
 | `hook-public/` | `packages/hook-public` — `@fe-monorepo/hook`, published to npm | — | same story: the source is `packages/hook` (source-only), and `packages/hook-public` is recreated at the root as the second **Publish shell** per [ADR-0004](../docs/adr/0004-npm-publish-qua-publish-shell.md). The npm names stay `@fe-monorepo/*` while the workspace names are `@monorepo/*` (decision 4) — deliberately two different names |
@@ -30,10 +30,11 @@ by the root install.
 
 All of this is read-only history, and it has an end date: **ticket 07 of the `legacy-migrate` topic**
 ([`07-delete-legacy.md`](../.agents/plans/legacy-migrate/07-delete-legacy.md)) deletes this whole
-directory — README included — once the four apps above have landed in `apps/`. Three rows are already
-superseded rather than merely waiting: `ui-public/`, `hook-public/` and `.changeset/` have live
-replacements at the root today, written fresh against the current surface per ADR-0004, so nothing in
-those three directories is a source for anything any more.
+directory — README included — once the four apps above have landed in `apps/`. Three of the four are
+there: `portfolio/` (ticket 03), `documents/` (ticket 06) and `mcp/` — now `apps/mcp-weather` —
+(ticket 04); `assistant-ai/` is what the date still waits on. Three further rows are superseded rather than merely waiting: `ui-public/`,
+`hook-public/` and `.changeset/` have live replacements at the root today, written fresh against the
+current surface per ADR-0004, so nothing in those three directories is a source for anything any more.
 
 ## Things that no longer exist at the root
 

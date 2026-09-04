@@ -17,7 +17,7 @@ Mọi ticket được `/implement` **từ session mở ở reference** (`E:\MedV
 |---|---|---|---|
 | 1 | Legacy app | Dời 6 app + 2 package `-public` + changesets vào `legacy/`, ngoài `workspaces.packages`. Migrate sau, mỗi app một ticket riêng. | Gate xanh phải đạt trên Skeleton thật, không filter. ADR-0001. |
 | 2 | Template app | `apps/_template_next` (Next 16 App Router) + `apps/_template_vite` (SPA) + `apps/storybook`. React Router framework là Template thứ ba, làm sau. | Generator `app` phải biết Runtime. |
-| 3 | Publish npm | Bỏ. Mọi package `private: true`, source-only `exports: {"./*": "./src/*.ts"}`, không barrel, không build step. | Rule `quality-avoid-barrel-imports` áp toàn bộ. rslib/changesets không có trong Skeleton. |
+| 3 | Publish npm | Bỏ. Mọi package `private: true`, source-only `exports: {"./*": "./src/*.ts"}`, không barrel, không build step. | Rule `quality-avoid-barrel-imports` áp toàn bộ. rslib/changesets không có trong Skeleton. **Đảo một phần bởi [ADR-0004](../../../docs/adr/0004-npm-publish-qua-publish-shell.md) (2026-09-04): `ui`/`hook` có `build` đổ vào Publish shell; các package khác giữ nguyên.** |
 | 4 | Scope | Giữ `@monorepo/*`. | Import path legacy không đổi khi migrate. |
 | 5 | Packages | `env`, `ui`, `hook`, `dayjs`, `i18n`, `api`, `types`, `sentry`. | `api`/`types` là placeholder `template-service` như reference; `sentry` chỉ có Flavor Next. |
 | 6 | Vitest | **5.0.0** (latest tuyệt đối, đi trước reference 4.1.x). | Khi copy `vitest.config.ts`/`setup`/test từ reference phải xử lý: `clearMocks` mặc định true, `vi.mock` top-level, `-t` khớp `suite > test`, report vào `.vitest/`. `composeStories` + Vitest 5 chưa xác minh — ticket Storybook phải verify. |

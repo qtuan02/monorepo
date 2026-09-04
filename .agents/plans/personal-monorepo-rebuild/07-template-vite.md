@@ -10,7 +10,7 @@ status: done
 
 > Chạy từ session ở reference (`E:\MedViet\frontend\medviet`), ghi sang `D:\Personal\monorepo` bằng đường dẫn tuyệt đối, lệnh dùng `--cwd`/`git -C` — xem "Cách chạy ticket" trong `decisions.md`. Không sửa gì ở reference.
 
-**Status:** done (implement xong từ trước; xác minh lại 2026-09-04 — Gate 4/4 xanh, Playwright 7/7 xanh; ô docker build + CI chuyển sang ticket 12 — xem "Còn treo")
+**Status:** done (implement xong từ trước; xác minh lại 2026-09-04 — Gate 4/4 xanh, Playwright 7/7 xanh; ô CI đã chứng minh bằng CI run #2 `d964157`, ô docker build vẫn treo ở ticket 12 — xem "Còn treo")
 
 - [~] Cấu trúc `src/` giống reference; scope `@monorepo` — **có** `assets/icons`, `components/{exception,select}`, `constants/{routes,cookies}`, `features/{auth,layout,home}`, `hooks/api`, `libs/{http-client,i18n,dayjs,query-client,query-key-factory}`, `pages`, `stores`, `types`, `utils`, `env.ts`, `globals.css`, `vite-env.d.ts`. **Thiếu ba thứ ticket nêu và đó là chủ ý:** không có `components/page/`, không có `constants/layout.ts`, không có `components/exception/exception-state.tsx` — xem "Lệch so với ticket" #1
 - [x] React Router 8.3.x: import từ `react-router` / `react-router/dom`, không có `react-router-dom`; `ROUTES` constant + guard trong `features/auth/provider` giữ nguyên hình. Kiểm: mọi `from "react-router…"` trong `src/`+`test/`+`e2e/` đều là `"react-router"` (một specifier duy nhất), và `grep -rn react-router-dom` trên cả app (trừ `node_modules`) không trả gì
@@ -20,8 +20,8 @@ status: done
 - [x] Playwright 1.62.x: `testMatch` `.e2e.ts`, project `chromium` + `watch`, `webServer` build + preview `--strictPort`, `locale: vi-VN`; spec boot + sign-in (fixture `signIn(page)` qua `addInitScript`) xanh local. Chạy thật 2026-09-04: `cd apps/_template_vite && bunx playwright test --project=chromium` → **7 passed (6.0s)**, gồm `auth.e2e.ts` (redirect route protected → sign-in, redirect launcher → sign-in, hiện đủ hai field, từ chối password < 6 ký tự, mở thẳng launcher card khi đã sign-in) và `home.e2e.ts` (render app shell, boot không console error)
 - [~] Dockerfile bốn stage + `nginx.conf` SPA fallback; `docker build --build-arg BUILD_ENV=example` thành công (kiểm tay, ghi log) — **file đúng hình** (`base` → `pruner` `turbo prune --docker` → `builder` validate env + `ARG BUILD_ENV=example` → `nginx:stable-alpine` runner; `nginx.conf` có `try_files $uri $uri/ /index.html`, `no-store` cho index, `immutable` cho `/assets/`), **nhưng chưa có log `docker build` nào được ghi**; chuyển sang ticket 12
 - [x] `turbo.json` app flip `dev` persistent; root scripts `dev:template-vite`/`build:template-vite` — cả ba có
-- [x] CI thêm job `e2e` `continue-on-error: true`, ảnh Playwright khớp version, chỉ chạy khi diff chạm `apps/`/`packages/`/`tooling/`, không route qua Turbo — `.github/workflows/ci.yml:136-158`: `needs: changes`, `if: needs.changes.outputs.app == 'true'`, `continue-on-error: true`, `image: mcr.microsoft.com/playwright:v1.62.1-noble` (khớp pin `@playwright/test` 1.62.1 không caret), gọi `bun run --filter @monorepo/_template_vite e2e` trực tiếp
-- [~] Gate xanh local và trên CI — **local xanh** (4/4, exit 0), **CI chưa chứng minh** (`feat/upgrade` chưa push)
+- [x] CI thêm job `e2e` `continue-on-error: true`, ảnh Playwright khớp version, chỉ chạy khi diff chạm `apps/`/`packages/`/`tooling/`, không route qua Turbo — job `e2e` trong `.github/workflows/ci.yml` (trích theo tên job, không theo số dòng: số dòng đã trôi một lần khi job `docker` được thêm): `needs: changes`, `if: needs.changes.outputs.app == 'true'`, `continue-on-error: true`, `image: mcr.microsoft.com/playwright:v1.62.1-noble` (khớp pin `@playwright/test` 1.62.1 không caret), gọi `bun run --filter @monorepo/_template_vite e2e` trực tiếp
+- [x] Gate xanh local và trên CI — **local xanh** (4/4, exit 0); **CI run #2 (`d964157`) xanh cả sáu job, 0 annotation**: `check` 41s · `typecheck` 15s · `test` 26s · `build` 39s, và job `e2e` (cả hai Template) 132s (xem ticket 12 § "Bằng chứng — CI")
 
 ---
 
@@ -58,7 +58,7 @@ Một lượt review đối kháng đã chạy trên toàn bộ diff của Skele
 
 - **Ô docker build** để nguyên chưa tick, chuyển sang **ticket 12** — ticket đó đã đòi thêm một thứ mà chỉ container mới trả lời được: `_template_vite` phải trả **404 cho file không tồn tại** thay vì trả index.html.
 
-- **Ô CI** — nhánh `feat/upgrade` chưa push.
+- **Ô CI đã tick (2026-09-04)** — **CI run #2** (`d964157`) xanh cả sáu job với **0 annotation**, gồm job `e2e` chạy cả hai Template trong 132s. Đáng ghi vì chính ticket này viết ra job `e2e` với `continue-on-error: true` và cảnh báo nó sẽ che lỗi: ở **run #1** (`2b89265`) nó che thật — bốn job Gate xanh, `e2e` **đỏ** vì image Playwright thiếu `unzip`, mà cả run vẫn báo `success`. Nên chỉ trích run #2. Lưu ý ranh giới: run #2 chứng minh `e2e` **chạy được trên CI**, không biến `e2e` thành merge gate — `continue-on-error: true` vẫn còn nguyên. Chi tiết ở ticket 12 § "Bằng chứng — CI".
 
 - **Build log có warning**, và ticket 12 đòi *0 warning trong log build*:
 
@@ -71,4 +71,6 @@ Một lượt review đối kháng đã chạy trên toàn bộ diff của Skele
 
   Chunk `vendor` là 684.28 kB (gzip 219.15 kB) — trên ngưỡng mặc định 500 kB. Exit code 0 nên Gate không đỏ, nhưng US44 đòi 0 warning. Đáng chú ý là config **đã** khai `codeSplitting` mà lời khuyên của warning vẫn trỏ đúng vào nó, tức là nhóm `vendor` một cục là nguyên nhân. Phải quyết: chia nhỏ thật, hay nâng `build.chunkSizeWarningLimit` kèm lý do. `@monorepo/storybook` có **cùng** warning (ticket 06) — nên quyết một lần cho cả hai.
 
-- **Port 3000 bị ghi cứng ở hai chỗ** (`vite.config.ts` `server.port`, `playwright.config.ts` `const PORT` + `--port 3000 --strictPort` trong `webServer.command`), và generator `gen:app` clone nguyên văn — nên app đầu tiên sinh từ template này va port với chính nó. Smoke test của **ticket 09** đã ghi đầy đủ; bản sửa bền vững (mỗi app khai **một** port mà cả hai config cùng đọc) thuộc ticket này. Lưu ý khi sửa: các literal port đang nằm giữa những comment giải thích chính chúng, nên đổi bằng regex sẽ biến comment thành lời nói dối.
+- **Đã xử lý ở `legacy-migrate` 01 (2026-09-04).** Mỗi app khai cặp port đúng **một** chỗ ở `apps/<app>/ports.env`, `apps/<app>/ports.ts` là reader chung cho `vite.config.ts` và `playwright.config.ts`, và generator `gen:app` gán cặp còn trống thấp nhất rồi ghi thẳng vào `ports.env` của bản clone. E2E của Template này chuyển 3000 → **3100**; không còn `const PORT` hay `--port 3000 --strictPort` ở đâu nữa. Văn bản gốc của khoản treo, giữ làm bối cảnh:
+
+  > **Port 3000 bị ghi cứng ở hai chỗ** (`vite.config.ts` `server.port`, `playwright.config.ts` `const PORT` + `--port 3000 --strictPort` trong `webServer.command`), và generator `gen:app` clone nguyên văn — nên app đầu tiên sinh từ template này va port với chính nó. Smoke test của **ticket 09** đã ghi đầy đủ; bản sửa bền vững (mỗi app khai **một** port mà cả hai config cùng đọc) thuộc ticket này. Lưu ý khi sửa: các literal port đang nằm giữa những comment giải thích chính chúng, nên đổi bằng regex sẽ biến comment thành lời nói dối.

@@ -27,11 +27,47 @@ nào map nhóm này sang nhóm kia.
 Cái giá phải trả — và là cái được chấp nhận có chủ ý — là một giá trị dùng chung
 (ví dụ `BASE_DOMAIN_API`) xuất hiện **hai lần** trong `.env` root, một lần cho
 mỗi tiền tố. `.env` vẫn là **một file duy nhất ở root**; app Next nạp nó bằng
-`dotenv -e ../../.env -- next dev` vì `next dev`/`next build` chỉ đọc `.env`
-nằm trong thư mục app.
+`dotenv -e ./ports.env -e ../../.env -- next dev` vì `next dev`/`next build` chỉ
+đọc `.env` nằm trong thư mục app.
 
 Vì tiền tố khác nhau, hai Flavor **không** chia sẻ base schema; thứ chúng chia
 sẻ là những mảnh không phụ thuộc Runtime (hiện có `http-url`).
+
+## Đặt tên key theo app
+
+Tiền tố (`PUBLIC_` / `NEXT_PUBLIC_` / không tiền tố) trả lời câu hỏi *ai đọc
+được biến này*. Còn **phần tên ngay sau tiền tố** trả lời câu hỏi *app nào sở
+hữu nó*:
+
+| Giá trị | Tên key | Ví dụ |
+| --- | --- | --- |
+| Mọi app đều đọc | key trần của Template | `PUBLIC_BASE_DOMAIN_API`, `NEXT_PUBLIC_SENTRY_DSN` |
+| Chỉ **một** app đọc | mang tên app | `PUBLIC_DOCUMENTS_STORYBOOK_URL`, `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` |
+| Secret của **một** app | mang tên app, không tiền tố | `MCP_WEATHER_OPENWEATHERMAP_API_KEY` |
+
+Lý do nằm ở chỗ **chỉ có đúng một `.env` ở root cho cả workspace** (ADR-0003):
+mọi app trong `apps/` đọc cùng file đó — app Vite qua `envDir: "../../"`, app
+Next qua `dotenv -e ../../.env --`. Nên hai app dùng chung một tên key **không
+phải** là chia sẻ một giá trị mặc định: nó có nghĩa là mỗi app đang build bằng
+giá trị của app kia, và người sửa file `.env` không có cách nào biết mình đang
+đổi cho ai.
+
+Cụ thể: `apps/portfolio` cần một DSN Sentry riêng (project `portfolio_v1`, khác
+project của Template). Nếu nó mượn `NEXT_PUBLIC_SENTRY_DSN` thì một máy dev bật
+Sentry cho Template sẽ vô tình bắn lỗi của portfolio sang đúng project đó — và
+ngược lại. Vì vậy nó khai `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN`, còn key trần ở
+trên vẫn thuộc về Template. Tương tự, `apps/documents` khai
+`PUBLIC_DOCUMENTS_STORYBOOK_URL`: chỉ site tài liệu mới có khái niệm "URL
+Storybook", nên một key trần `PUBLIC_STORYBOOK_URL` sẽ hứa với người đọc
+`.env.example` một điều không đúng. Và `apps/mcp-weather` khai
+`MCP_WEATHER_OPENWEATHERMAP_API_KEY` chứ không giữ `OPENWEATHERMAP_API_KEY` như
+bản trong `legacy/`: một key trần cho một nhà cung cấp bên thứ ba là chỗ dễ va
+nhất, vì app thứ hai cần cùng loại key sẽ tưởng nó đang dùng chung thay vì đang
+ghi đè.
+
+Đổi lại, mỗi key mang tên app **phải** được khai trong `env.ts` của đúng app đó
+và thêm vào `.env.example` kèm một dòng comment nói app nào sở hữu — vì tên key
+là thứ duy nhất còn lại để tra ngược từ `.env` về app.
 
 ## Flavor `vite`
 

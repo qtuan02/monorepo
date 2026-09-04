@@ -8,7 +8,13 @@
  */
 
 import { execSync } from "node:child_process";
-import { cpSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import type { PlopTypes } from "@turbo/gen";
 
@@ -42,11 +48,6 @@ interface RuntimeSpec {
   template: string;
   /** What the `runtime` prompt shows for this choice. */
   description: string;
-  /**
-   * Where this Runtime's Template app hard-codes its ports. Prose for the
-   * follow-up the generator prints — see the last action of `appGenerator`.
-   */
-  portFiles: string;
 }
 
 const RUNTIMES = {
@@ -54,13 +55,10 @@ const RUNTIMES = {
     template: "_template_next",
     description:
       "next — Next.js 16 App Router, SSR/SEO, Node standalone runner",
-    portFiles: "package.json (--port) and playwright.config.ts (const PORT)",
   },
   vite: {
     template: "_template_vite",
     description: "vite — SPA behind a login, no crawler, nginx runner",
-    portFiles:
-      "vite.config.ts (server.port) and playwright.config.ts (const PORT)",
   },
 } as const satisfies Record<Runtime, RuntimeSpec>;
 
@@ -85,6 +83,143 @@ const APP_ARTIFACTS = new Set([
   "test-results",
   "playwright-report",
 ]);
+
+/**
+ * Every app states its two ports in `apps/<app>/ports.env` and nowhere else, so
+ * the generator has one file to read when it looks for a free pair and one to
+ * rewrite when it has found one. A dotenv file rather than a TS module for two
+ * reasons: the Next Runtime's `dev`/`start` scripts feed it straight to
+ * dotenv-cli, and Biome does not handle the extension — so no formatter can
+ * reshape the two lines these patterns match.
+ */
+const PORTS_FILE = "ports.env";
+const DEV_PORT_LINE = /^PORT=(\d+)/m;
+const E2E_PORT_LINE = /^E2E_PORT=(\d+)/m;
+
+/**
+ * One pair per app: dev `3000 + n`, e2e `3100 + n`. Two bands a hundred apart
+ * rather than adjacent numbers, so an app's dev server and its E2E server can
+ * never be mistaken for each other's — which matters more than it looks,
+ * because `reuseExistingServer` would hand a spec run the wrong server and
+ * still report green.
+ *
+ * `apps/storybook` sits on Storybook's conventional 6006, outside the bands and
+ * with no E2E server, so it declares no `ports.env` and this scan skips it.
+ */
+const DEV_PORT_BASE = 3000;
+const E2E_PORT_BASE = 3100;
+const PORT_BAND_SIZE = 100;
+
+interface PortPair {
+  dev: number;
+  e2e: number;
+}
+
+/**
+ * Reads one app's pair, or null when that app declares none.
+ *
+ * A regex over the file rather than an import: this generator runs as plain
+ * Node under plop, which cannot load a TypeScript module. `ports.env` is data,
+ * so this reader and the two lines `assignPorts` writes match by construction —
+ * and it throws on a file that declares only one of them, because a half-read
+ * pair would hand out a port something is already listening on.
+ */
+function readPorts(appDir: string): PortPair | null {
+  const file = path.join(appDir, PORTS_FILE);
+  if (!existsSync(file)) return null;
+
+  const source = readFileSync(file, "utf8");
+  const dev = DEV_PORT_LINE.exec(source)?.[1];
+  const e2e = E2E_PORT_LINE.exec(source)?.[1];
+
+  if (!dev || !e2e) {
+    throw new Error(
+      `${file} does not declare both \`PORT=<number>\` and \`E2E_PORT=<number>\` on their own lines, which is the shape turbo/generators/config.ts reads and writes.`,
+    );
+  }
+  return { dev: Number(dev), e2e: Number(e2e) };
+}
+
+/**
+ * The lowest slot whose *both* ports are free, so deleting a generated app
+ * returns its pair to the pool instead of burning it forever.
+ *
+ * The fresh clone is already on disk and still holds the Template's numbers, so
+ * it is skipped by name — counting it would rule out the Template's own slot,
+ * which was never free to begin with. A port declared outside the bands (an app
+ * migrated back from `legacy/` with one of its own) is still read, so a number
+ * cannot be handed out twice — for every app that declares a `ports.env`. An app
+ * that states its port some other way is invisible to this scan, the way
+ * `apps/storybook` is, so a migrated app landing inside either band has to
+ * declare `ports.env` like the rest.
+ */
+function nextFreePortPair(root: string, skipApp: string): PortPair {
+  const appsDir = path.join(root, "apps");
+  const taken = new Set<number>();
+
+  for (const entry of readdirSync(appsDir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name === skipApp) continue;
+
+    const pair = readPorts(path.join(appsDir, entry.name));
+    if (!pair) continue;
+
+    taken.add(pair.dev);
+    taken.add(pair.e2e);
+  }
+
+  for (let slot = 0; slot < PORT_BAND_SIZE; slot += 1) {
+    const dev = DEV_PORT_BASE + slot;
+    const e2e = E2E_PORT_BASE + slot;
+    if (!taken.has(dev) && !taken.has(e2e)) return { dev, e2e };
+  }
+
+  throw new Error(
+    `apps/ has used every slot in the ${DEV_PORT_BASE}/${E2E_PORT_BASE} port bands. Widen both in turbo/generators/config.ts rather than hand-picking a number.`,
+  );
+}
+
+/**
+ * Give the fresh clone its own ports.
+ *
+ * `cpSync` copies `ports.env` verbatim, so without this the clone holds the
+ * Template's pair — the collision moves file but survives. The dev half of it
+ * is loud; the E2E half is not, because `reuseExistingServer` hands the new
+ * app's specs the Template's server and the run still looks green. That is what
+ * makes this a correctness fix rather than an ergonomic one.
+ *
+ * It throws on a missing file, for the reason `renameInApp` does: plop counts a
+ * rewrite that changed nothing as a success, and here that would ship exactly
+ * the collision this action exists to prevent.
+ */
+function assignPorts(
+  plop: PlopTypes.NodePlopAPI,
+): PlopTypes.CustomActionFunction {
+  return (answers) => {
+    const name = readName(answers);
+    if (!name) return "No ports assigned";
+
+    const root = plop.getDestBasePath();
+    const appDir = path.join(root, "apps", name);
+
+    if (!readPorts(appDir)) {
+      throw new Error(
+        `apps/${name}/${PORTS_FILE} is missing — the Template app no longer declares its ports there, so turbo/generators/config.ts has to change with it.`,
+      );
+    }
+
+    const { dev, e2e } = nextFreePortPair(root, name);
+    const target = path.join(appDir, PORTS_FILE);
+    const before = readFileSync(target, "utf8");
+
+    writeFileSync(
+      target,
+      before
+        .replace(DEV_PORT_LINE, `PORT=${dev}`)
+        .replace(E2E_PORT_LINE, `E2E_PORT=${e2e}`),
+    );
+    return `apps/${name} took ports ${dev} (dev) and ${e2e} (e2e)`;
+  };
+}
 
 function readName(answers: object): string | null {
   return "name" in answers && typeof answers.name === "string"
@@ -294,6 +429,7 @@ function appGenerator(
       // name, and both Template apps spell the two ARGs the same way.
       renameInApp(plop, "Dockerfile", (app) => `ARG APP_DIRNAME=${app}`),
       renameInApp(plop, "Dockerfile", (app) => `ARG PROJECT=@monorepo/${app}`),
+      assignPorts(plop),
       {
         // Root keeps one script per app rather than a fan-out task. Both
         // Runtimes take the same three, because Turbo drives `dev`/`build`
@@ -315,18 +451,19 @@ function appGenerator(
         },
       },
       installAndFormat(plop, "apps", ["package.json"]),
-      // Last, so it is the final line the run prints. A Template app states its
-      // dev and E2E ports as literals, and the clone copies them verbatim — so
-      // a generated app collides with the app it came from. The dev collision
-      // is loud; the E2E one is not, because `reuseExistingServer` hands the
-      // new app's specs the *other* app's server and the run still looks green.
+      // Last, so it is the final line the run prints — after `bun install`'s
+      // noise. Re-read from disk rather than remembered, so it reports what the
+      // app actually holds once every earlier action has run.
       (answers) => {
         const name = readName(answers);
         const runtime = readRuntime(answers);
         if (!name || !runtime) return "No port follow-up to print";
 
-        const { template, portFiles } = RUNTIMES[runtime];
-        return `NEXT: apps/${name} still holds apps/${template}'s ports. Give it free ones in ${portFiles} before you run the two side by side or run \`bun run e2e\` (Playwright reuses a server already on the port, so a collision reads as a pass).`;
+        const { template } = RUNTIMES[runtime];
+        const pair = readPorts(path.join(plop.getDestBasePath(), "apps", name));
+        if (!pair) return "No port follow-up to print";
+
+        return `NEXT: apps/${name} listens on ${pair.dev} (dev) and ${pair.e2e} (e2e), declared once in apps/${name}/${PORTS_FILE}. Start it beside apps/${template} to confirm — \`bun run e2e\` cannot prove it, because Playwright reuses a server already on the port and a collision reads as a pass.`;
       },
     ],
   };

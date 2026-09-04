@@ -80,6 +80,31 @@ export const emrPatientService = new EmrPatientService(httpClient);
 which then flows through the hook (`useQuery<unknown, …>`) and into the component — a service that
 names no payload type is worth less than no service at all.
 
+## The one exception: a third-party API that exactly one app calls
+
+`@monorepo/api` models **the backends this workspace owns** — the origin
+`*_BASE_DOMAIN_API` names, reached through one `HttpClient` whose `baseURL` and auth come from the
+app's `env`. A third-party API is a different animal: its own origin, its own credential in a
+querystring or header, its own payload vocabulary, and — crucially — usually **one** consumer. Put it
+in the package and every app in the workspace inherits a dependency it will never call, plus a service
+whose `HttpClient` cannot be the app's own.
+
+So when an integration is (a) third-party, (b) called by exactly one app, and (c) authenticated by a
+key that app declares itself, it stays in that app's slice under `~/features/<feat>/server/` — a
+plain function over `fetch`, not a service class:
+
+```typescript
+// ✅ apps/mcp-weather/src/features/weather/server/openweathermap.ts — a provider
+//    with one consumer, its own origin, and its own key in the querystring
+const url = new URL(`${OPENWEATHERMAP_BASE_URL}/${endpoint}`);
+url.searchParams.set("appid", env.MCP_WEATHER_OPENWEATHERMAP_API_KEY);
+```
+
+All three conditions have to hold. The moment a **second** app needs the same provider, it moves to
+`@monorepo/api` as a service class like any other — otherwise the two copies drift, which is the
+failure this whole rule exists to prevent. And this is never a licence for the app's *own* backend to
+be called with a bare `fetch` from a slice: that always goes through the package.
+
 ## Each endpoint declares its own params — there is no shared request bag
 
 A method's params type is named for that endpoint (`EmrPatientListParams`), and lives beside the

@@ -15,6 +15,7 @@
   "include": [
     "src",
     "test",
+    "ports.ts",
     "vite.config.ts",
     "vitest.config.ts",
     "vitest.setup.ts",

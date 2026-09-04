@@ -1,3 +1,5 @@
+> **Đã được thay thế — đóng băng.** Nội dung còn giá trị của file này (URL endpoint, ba tool, key cần, app nào đang gọi) đã được viết lại trong [`apps/mcp-weather/README.md`](../../../apps/mcp-weather/README.md) khi app migrate ở [ticket 04](../../../.agents/plans/legacy-migrate/04-migrate-mcp-weather.md). Mọi lệnh `pnpm` và mọi con số port dưới đây đều đã sai với repo hiện tại. File này bị xoá cùng cả `legacy/` ở ticket 07.
+
 Model Context Protocol (MCP) server that provides weather data tools via OpenWeatherMap API.
 
 ## Getting Started

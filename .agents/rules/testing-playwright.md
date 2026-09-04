@@ -68,9 +68,11 @@ the Vitest ones do.
 
 ## The Next Runtime runs the same harness against a real server
 
-`_template_next`'s `webServer` builds and then runs **`next start`** rather than `vite preview`, on
-its own port (3101 — deliberately neither its dev port nor the Vite template's 3000, so a leftover
-dev server cannot answer these specs from a stale module graph). That makes E2E the only place
+`_template_next`'s `webServer` builds and then runs the app's own `start` script — **`next start`**
+rather than `vite preview` — on that app's own E2E port (3101, declared in
+`apps/_template_next/ports.env` and forced onto the server through `webServer.env.PORT`). Every app
+declares one dev port and one E2E port a hundred above it, so a leftover dev server can never answer
+these specs from a stale module graph. That makes E2E the only place
 server-only behaviour can be asserted at all, and the specs there use Playwright's `request` fixture
 to fetch the document **raw** — no browser, no hydration — so anything asserted off it demonstrably
 came from the server: content and `<title>` present before JS, `lang` on the html element, a real 404

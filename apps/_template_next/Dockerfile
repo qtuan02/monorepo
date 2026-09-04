@@ -62,7 +62,9 @@ ARG APP_DIRNAME
 
 ENV NODE_ENV=production
 # `server.js` binds these; a container that binds 127.0.0.1 is unreachable from
-# outside itself.
+# outside itself. This 3000 is the port INSIDE the container, deliberately
+# independent of `ports.env`: a container has its own network namespace, so it
+# cannot collide with a dev or E2E server, and `gen:app` does not rewrite it.
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 

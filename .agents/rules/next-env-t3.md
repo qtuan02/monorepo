@@ -69,9 +69,19 @@ export const env = createEnv({
 ## One root `.env`, loaded by dotenv-cli; the image validates it by import
 
 `next dev` / `next build` only load a `.env` sitting **inside the app directory**, so the app's own
-scripts name the single root one — `"dev": "dotenv -e ../../.env -- next dev --port 3001"`, with the
-same prefix on `build`, `start` and Playwright's `webServer`. `.env.example` carries both prefixes
-side by side; a value both Runtimes need is spelled twice, on purpose, never through a mapping layer.
+scripts name the single root one — `"dev": "dotenv -e ./ports.env -e ../../.env -- next dev"`, the
+same prefix on `start`, and `"build": "dotenv -e ../../.env -- next build"` (a build listens on
+nothing, so it needs no port file). `.env.example` carries both prefixes side by side; a value both
+Runtimes need is spelled twice, on purpose, never through a mapping layer.
+
+The two ports the app listens on are **not** in either of those files: they live in
+`apps/<app>/ports.env`, handed to dotenv-cli **first** because Next has no config-level port option
+and `PORT` is the only channel left besides a `--port` flag — which is why no script spells one.
+`ports.env` is deliberately not named `.env*` and sits outside Vite's `envDir`, so no bundler ever
+loads it as app config: the repo-root `.env` is still the one source of app config and ADR-0003 is
+unchanged. Playwright's `webServer` spells no dotenv prefix at all — it runs the app's own `start`
+script and forces the E2E port through `webServer.env.PORT`, which wins because dotenv-cli never
+overrides a variable that is already set.
 
 The Dockerfile then runs the very module the app parses at runtime, so a bad variable fails the build
 — named — instead of shipping a server that breaks on its first request, and the two cannot drift:

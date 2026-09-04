@@ -69,6 +69,8 @@ Dựng **Skeleton** trong chính Target: root Bun + Turbo + Biome + TypeScript 7
 47. As a maintainer of legacy apps, I want từng app trong `legacy/` vẫn mở được bằng toolchain cũ của nó cho tới khi được migrate, so that không có app nào mất hẳn khả năng chạy trong lúc chờ.
 48. As a maintainer of legacy apps, I want một ghi chú trong `legacy/README` liệt kê từng app, Runtime của nó, và Template đích khi migrate, so that ticket migrate sau này có điểm bắt đầu.
 
+> **Ghi chú US45 (2026-09-04).** Spec này **chưa** chuyển `done` được: US45 đòi `docker build` chạy **bằng tay** ít nhất một lần, và cho tới lúc này chưa có lần nào — ticket `legacy-migrate/02` mới chỉ *viết* job `docker` trong `.github/workflows/ci.yml`, job đó chưa chạy lượt nào, nên theo `docs/agents/triage-labels.md` (`done` = "Implemented **and** verified") vế verified còn trống, đúng như ticket 12 vẫn `ready-for-human`. Khi job xanh lần đầu, người đóng spec phải chọn dứt khoát và ghi lại: hoặc sửa US45 nói job CI thay cho lượt chạy tay, hoặc giữ nguyên US45 và chạy một lượt `docker build` thật trên máy có Docker.
+
 ## Implementation Decisions
 
 **Cấu trúc Skeleton.** `apps/` = `_template_next`, `_template_vite`, `storybook`. `packages/` = `env`, `ui`, `hook`, `dayjs`, `i18n`, `api`, `types`, `sentry`. `tooling/` = `tailwind`, `typescript` (đổi tên từ `toolings/`, bỏ `eslint`/`prettier`). `legacy/` = sáu app cũ + `ui-public` + `hook-public` + `.changeset`, không nằm trong `workspaces.packages` (ADR-0001). `turbo/generators` giữ vị trí cũ. Scope `@monorepo/*`.

@@ -1,5 +1,7 @@
 # Documentation Overview
 
+> **Đóng băng — tài liệu này có từ trước bản Skeleton rebuild và không còn được bảo trì; nhiều link trong đó đã chết.** Cụ thể: mọi link `../apps/*` và `../packages/*` (`../apps/portfolio/README.md`, `../packages/{ui,hook,ui-public,hook-public,env}/README.md`) đều chết vì `legacy/` không có thư mục `apps/` hay `packages/` — sáu app cũ nằm thẳng ở `legacy/<app>/`; và `./others/VERCEL-DEPLOY.md` chết vì `legacy/docs/others/` chỉ còn `CHANGESET.md`. `packages/db` thì chưa bao giờ được chép vào `legacy/`: nó chỉ được nhắc trong `./packages/DATABASE.MD`, một file mà chính README này không link tới. Còn sống: `../README.md`, `./apps/*.md`, `./others/CHANGESET.md`, `./packages/SENTRY.md`. Tài liệu thật của repo hiện tại là `CLAUDE.md` ở root cùng `docs/{adr,agents,research}/`; xem [`legacy/README.md`](../README.md) để biết app nào đi về Template nào.
+
 Welcome to the monorepo documentation! This directory contains comprehensive guides for all applications, packages, and development workflows.
 
 ## 📁 Documentation Structure
