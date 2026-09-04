@@ -4,11 +4,11 @@ import { ActionBarPrimitive, MessagePrimitive } from "@assistant-ui/react";
 import { PencilIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { BranchPicker } from "./branch-picker";
-import { TooltipIconButton } from "./tooltip-icon-button";
+import BranchPicker from "./branch-picker";
+import TooltipIconButton from "./tooltip-icon-button";
 
 /** One visitor turn, right-aligned, with an edit action that opens the edit composer. */
-export function UserMessage() {
+export default function UserMessage() {
   const t = useTranslations("assistantAi.chat");
 
   return (

@@ -6,10 +6,10 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@monorepo/ui/utils/cn";
 
-import { TooltipIconButton } from "./tooltip-icon-button";
+import TooltipIconButton from "./tooltip-icon-button";
 
 /** Moves between regenerated answers. Hidden entirely while there is only one. */
-export function BranchPicker({
+export default function BranchPicker({
   className,
   ...rest
 }: BranchPickerPrimitive.Root.Props) {

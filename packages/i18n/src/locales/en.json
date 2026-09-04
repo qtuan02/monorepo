@@ -264,6 +264,13 @@
       "toolResult": "Result",
       "toolToggle": "Toggle tool details"
     },
+    "models": {
+      "gemini-2.5-flash-lite": "The lightest and cheapest of the five",
+      "gemini-2.5-flash": "The stable default — speed against quality",
+      "gemini-2.5-pro": "Deeper answers, slower turns",
+      "gemini-2.0-flash": "The previous generation, kept for comparison",
+      "gemini-3-pro-preview": "The newest generation, still in preview"
+    },
     "suggestions": {
       "tools": {
         "title": "Tell me",
@@ -283,7 +290,7 @@
       }
     },
     "errors": {
-      "credential": "The Gemini key was rejected. Check GOOGLE_GENERATIVE_AI_API_KEY and try again.",
+      "credential": "The server has no valid Gemini key configured. Please contact an administrator.",
       "rateLimit": "The model is overloaded or out of quota. Pick another model or try again in a few minutes.",
       "generic": "The model could not be reached. Please try again in a few minutes."
     },

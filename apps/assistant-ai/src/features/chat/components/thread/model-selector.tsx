@@ -20,8 +20,9 @@ import { useModelStore } from "~/stores/use-model-store";
  * destructured store read, so this only re-renders when the value it shows
  * changes (`.agents/rules/zustand-global.md`).
  */
-export function ModelSelector() {
+export default function ModelSelector() {
   const t = useTranslations("assistantAi.chat");
+  const tModel = useTranslations("assistantAi.models");
   const selectedModel = useModelStore((state) => state.selectedModel);
   const setSelectedModel = useModelStore((state) => state.setSelectedModel);
 
@@ -52,6 +53,9 @@ export function ModelSelector() {
           <SelectItem key={model.id} value={model.id}>
             <span className="flex w-full flex-col items-start gap-1 py-1">
               <span className="text-sm font-medium">{model.name}</span>
+              <span className="text-xs leading-relaxed text-muted-foreground">
+                {tModel(model.id)}
+              </span>
               <span className="text-[0.625rem] leading-tight text-muted-foreground/70">
                 {t("modelQuota", {
                   rpm: model.rpm,

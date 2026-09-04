@@ -7,6 +7,7 @@
     "clean": "git clean -xdf .cache .next .turbo node_modules",
     "dev": "dotenv -e ./ports.env -e ../../.env -- next dev",
     "build": "dotenv -e ../../.env -- next build",
+    "build:vercel": "next build",
     "start": "dotenv -e ./ports.env -e ../../.env -- next start",
     "typecheck": "next typegen && tsc --noEmit --emitDeclarationOnly false",
     "test": "vitest run",
@@ -17,7 +18,6 @@
   },
   "dependencies": {
     "@ai-sdk/google": "catalog:ai-sdk",
-    "@ai-sdk/react": "catalog:ai-sdk",
     "@assistant-ui/react": "catalog:ai-sdk",
     "@assistant-ui/react-ai-sdk": "catalog:ai-sdk",
     "@assistant-ui/react-markdown": "catalog:ai-sdk",

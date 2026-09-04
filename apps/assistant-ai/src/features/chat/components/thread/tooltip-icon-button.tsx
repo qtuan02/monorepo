@@ -16,15 +16,15 @@ type TooltipIconButtonProps = ComponentPropsWithRef<typeof Button> & {
 };
 
 /**
- * An icon-only button whose label lives in a tooltip **and** in a visually
- * hidden span, so a screen reader announces it and Playwright can address it by
- * accessible name.
+ * An icon-only button. The label is both the tooltip's text and the button's
+ * `aria-label`, so a screen reader announces it without opening the tooltip and
+ * Playwright can address the control by accessible name.
  *
  * Base UI composes through `render` rather than Radix's `asChild`, which is why
  * the Button is handed to the trigger as an element instead of wrapped by it —
  * and why the `Slottable` the app this replaced needed is gone.
  */
-export function TooltipIconButton({
+export default function TooltipIconButton({
   children,
   tooltip,
   side = "bottom",

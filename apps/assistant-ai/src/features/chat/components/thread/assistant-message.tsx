@@ -8,11 +8,11 @@ import {
 import { CheckIcon, CopyIcon, RefreshCwIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { BranchPicker } from "./branch-picker";
-import { MarkdownText } from "./markdown-text";
+import BranchPicker from "./branch-picker";
+import MarkdownText from "./markdown-text";
 import { Reasoning, ReasoningGroup } from "./reasoning";
-import { ToolFallback } from "./tool-fallback";
-import { TooltipIconButton } from "./tooltip-icon-button";
+import ToolFallback from "./tool-fallback";
+import TooltipIconButton from "./tooltip-icon-button";
 
 /**
  * One assistant turn: its parts, then the error region, then the actions.
@@ -23,7 +23,7 @@ import { TooltipIconButton } from "./tooltip-icon-button";
  * deciding anything itself. It is also the seam the E2E asserts on: a broken key
  * has to end as visible text here, never as a spinner that never stops.
  */
-export function AssistantMessage() {
+export default function AssistantMessage() {
   const t = useTranslations("assistantAi.chat");
 
   return (

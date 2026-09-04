@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { ComposerPrimitive, ThreadPrimitive } from "@assistant-ui/react";
 import { ArrowDownIcon, ArrowUpIcon, SquareIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -9,23 +8,24 @@ import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import { TooltipProvider } from "@monorepo/ui/components/tooltip";
 import { cn } from "@monorepo/ui/utils/cn";
 
+import { THREAD_WIDTH_STYLE } from "../../constants/layout";
 import { CHAT_SUGGESTION_KEYS } from "../../constants/suggestions";
-import { AssistantMessage } from "./assistant-message";
-import { EditComposer } from "./edit-composer";
-import { ModelSelector } from "./model-selector";
-import { UserMessage } from "./user-message";
+import AssistantMessage from "./assistant-message";
+import EditComposer from "./edit-composer";
+import ModelSelector from "./model-selector";
+import UserMessage from "./user-message";
 
 /**
- * The chat surface. `--thread-max-width` is set once here and read by every
- * message row below, which is the one measurement several sibling files have to
- * agree on (`.agents/rules/quality-styling-tailwind.md`).
+ * The chat surface. Every message row below reads `--thread-max-width` from
+ * here; the value itself lives in `../../constants/layout`, because the
+ * skeleton this is swapped in for has to match it and cannot inherit it.
  */
-export function Thread() {
+export default function Thread() {
   return (
     <TooltipProvider>
       <ThreadPrimitive.Root
         className="@container flex min-h-0 flex-1 flex-col bg-background"
-        style={{ "--thread-max-width": "44rem" } as CSSProperties}
+        style={THREAD_WIDTH_STYLE}
       >
         <ThreadPrimitive.Viewport className="relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll px-4">
           <div className="sticky top-0 z-10 mb-2 flex justify-end bg-background/80 py-2 backdrop-blur-sm">

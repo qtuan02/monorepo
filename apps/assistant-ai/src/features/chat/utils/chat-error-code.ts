@@ -3,7 +3,7 @@
  * causes the UI has a message for.
  *
  * It returns a **code**, not a sentence: the message a visitor reads comes from
- * the shared catalogue (`assistantAi.chat.errors.*`), so it follows the locale
+ * the shared catalogue (`assistantAi.errors.*`), so it follows the locale
  * like every other string in the app. Returning text here would hard-code one
  * language into a route handler that sits outside `[locale]`.
  *

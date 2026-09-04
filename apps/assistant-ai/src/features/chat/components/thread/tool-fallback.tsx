@@ -18,7 +18,7 @@ import {
  * tool result (see `~/features/chat/server/stream-chat.ts`), so the JSON here is
  * for someone checking the answer rather than for reading first.
  */
-export const ToolFallback: ToolCallMessagePartComponent = ({
+const ToolFallback: ToolCallMessagePartComponent = ({
   toolName,
   argsText,
   result,
@@ -56,3 +56,5 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
     </Collapsible>
   );
 };
+
+export default ToolFallback;

@@ -45,8 +45,16 @@ export const env = createEnv({
      * in this workspace. Optional: with it unset the app is a plain Gemini chat,
      * which is exactly what a developer without the weather server running
      * should get instead of a boot failure.
+     *
+     * App-named, unlike the key above and unlike the `MCP_DOMAIN` the app this
+     * replaced used. That app owned its own `.env`; here one root `.env` serves
+     * every app (ADR-0003), and "the MCP server" is a name this repo invented for
+     * something only this app reads — so a second app pointing at a *different*
+     * MCP server would silently overwrite it. The exception that lets the Gemini
+     * key keep its bare name does not stretch to cover this one: that name
+     * belongs to `@ai-sdk/google`, this one does not belong to anybody.
      */
-    MCP_DOMAIN: httpUrlSchema.optional(),
+    ASSISTANT_AI_MCP_DOMAIN: httpUrlSchema.optional(),
   },
   client: {
     /**

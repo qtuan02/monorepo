@@ -8,12 +8,15 @@ import { googleProvider } from "./chat-model";
 import { loadMcpTools } from "./mcp-tools";
 
 /**
- * How many model calls one turn may make. A tool call and its answer are two
- * steps, so the default of one would end the turn on the tool result and leave
- * the visitor looking at raw JSON — which is what the app this replaced did for
- * every tool except `get-weather`, the one it special-cased.
+ * How many model calls one turn may make — the same budget the app this replaced
+ * used. A tool call and its answer are two steps, so the default of one would end
+ * the turn on the tool result and leave the visitor looking at raw JSON.
+ *
+ * What changed is not the number but *who gets it*: the old app opened this path
+ * for `get-weather` alone, through an `if` on the tool's name, so every other
+ * tool stopped on its own output.
  */
-const MAX_STEPS = 5;
+const MAX_STEPS = 3;
 
 /**
  * Sent only when tools are actually available, so a plain chat is not primed to

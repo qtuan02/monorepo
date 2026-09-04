@@ -1,6 +1,6 @@
-import type { CSSProperties } from "react";
-
 import { Skeleton } from "@monorepo/ui/components/skeleton";
+
+import { THREAD_WIDTH_STYLE } from "../constants/layout";
 
 /**
  * What the prerendered shell shows where the chat surface will be.
@@ -20,7 +20,7 @@ export function ChatSkeleton() {
     <div
       aria-hidden
       className="mx-auto flex min-h-0 w-full max-w-(--thread-max-width) flex-1 flex-col gap-4 px-4 py-2"
-      style={{ "--thread-max-width": "44rem" } as CSSProperties}
+      style={THREAD_WIDTH_STYLE}
     >
       <Skeleton className="h-8 w-[13rem] self-end rounded-md" />
 

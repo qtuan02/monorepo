@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@monorepo/ui/components/button";
 
 /** What a user message turns into while it is being edited. */
-export function EditComposer() {
+export default function EditComposer() {
   const t = useTranslations("assistantAi.chat");
 
   return (

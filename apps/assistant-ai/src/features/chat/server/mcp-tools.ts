@@ -20,14 +20,14 @@ import { MCP_ENDPOINT_PATH } from "../constants/endpoints";
  * protocol version the server does not speak.
  */
 async function connectMcpClient(): Promise<Client | undefined> {
-  if (!env.MCP_DOMAIN) return undefined;
+  if (!env.ASSISTANT_AI_MCP_DOMAIN) return undefined;
 
   const client = new Client({ name: "assistant-ai-client", version: "1.0.0" });
 
   try {
     await client.connect(
       new StreamableHTTPClientTransport(
-        new URL(MCP_ENDPOINT_PATH, env.MCP_DOMAIN),
+        new URL(MCP_ENDPOINT_PATH, env.ASSISTANT_AI_MCP_DOMAIN),
       ),
     );
     return client;

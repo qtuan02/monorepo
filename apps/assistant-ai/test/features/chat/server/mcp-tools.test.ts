@@ -2,7 +2,7 @@
 //
 // The rest of this app's suite runs on jsdom, where t3-env treats the process as
 // a browser and refuses to hand out a `server` variable. This file reaches
-// `MCP_DOMAIN` and `GOOGLE_GENERATIVE_AI_API_KEY` through `~/env`, so it needs
+// `ASSISTANT_AI_MCP_DOMAIN` and `GOOGLE_GENERATIVE_AI_API_KEY` through `~/env`, so it needs
 // the environment where those reads are legal. Both values come from
 // `vitest.config.ts` and are fake — the MCP SDK is mocked below, so nothing
 // leaves the machine.
@@ -136,8 +136,8 @@ describe("loadMcpTools", () => {
     ).toBe("Error executing get-weather: city not found");
   });
 
-  it("degrades to a plain chat when MCP_DOMAIN is unset", async () => {
-    vi.stubEnv("MCP_DOMAIN", "");
+  it("degrades to a plain chat when ASSISTANT_AI_MCP_DOMAIN is unset", async () => {
+    vi.stubEnv("ASSISTANT_AI_MCP_DOMAIN", "");
     const loadMcpTools = await importLoadMcpTools();
 
     const { tools } = await loadMcpTools();

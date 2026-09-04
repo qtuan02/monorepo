@@ -16,7 +16,7 @@ import remarkGfm from "remark-gfm";
 import { useCopyToClipboard } from "@monorepo/hook/use-copy-to-clipboard";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import { TooltipIconButton } from "./tooltip-icon-button";
+import TooltipIconButton from "./tooltip-icon-button";
 
 function MarkdownTextImpl() {
   return (
@@ -33,7 +33,7 @@ function MarkdownTextImpl() {
  * answer re-renders on each chunk and re-parsing the whole document per token is
  * what makes a long answer stutter.
  */
-export const MarkdownText = memo(MarkdownTextImpl);
+const MarkdownText = memo(MarkdownTextImpl);
 
 function CodeHeader({ language, code }: CodeHeaderProps) {
   const t = useTranslations("assistantAi.chat");
@@ -57,6 +57,8 @@ function CodeHeader({ language, code }: CodeHeaderProps) {
     </div>
   );
 }
+
+export default MarkdownText;
 
 const markdownComponents = memoizeMarkdownComponents({
   h1: ({ className, ...props }) => (

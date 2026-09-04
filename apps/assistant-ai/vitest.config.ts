@@ -39,7 +39,7 @@ export default defineConfig({
       // Optional in `~/env`, but the MCP specs need a value to exercise the
       // branch where a server IS configured. The SDK client is mocked, so
       // nothing connects to it.
-      MCP_DOMAIN: "http://localhost:3004",
+      ASSISTANT_AI_MCP_DOMAIN: "http://localhost:3004",
     },
     // Vitest 5 flipped this default from `false` to `true`. Stated explicitly so
     // a reader can tell the value was chosen rather than inherited.

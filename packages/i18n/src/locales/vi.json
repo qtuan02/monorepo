@@ -264,6 +264,13 @@
       "toolResult": "Kết quả",
       "toolToggle": "Ẩn hiện chi tiết tool"
     },
+    "models": {
+      "gemini-2.5-flash-lite": "Bản nhẹ, nhanh và tiết kiệm nhất",
+      "gemini-2.5-flash": "Bản ổn định, cân bằng tốc độ và chất lượng",
+      "gemini-2.5-pro": "Bản nâng cao, trả lời sâu hơn nhưng chậm hơn",
+      "gemini-2.0-flash": "Thế hệ trước, giữ lại để so sánh",
+      "gemini-3-pro-preview": "Thế hệ mới nhất, còn ở bản xem trước"
+    },
     "suggestions": {
       "tools": {
         "title": "Hãy cho tôi biết",
@@ -283,7 +290,7 @@
       }
     },
     "errors": {
-      "credential": "Khoá Gemini bị từ chối. Kiểm tra GOOGLE_GENERATIVE_AI_API_KEY rồi thử lại.",
+      "credential": "Máy chủ chưa được cấu hình khoá Gemini hợp lệ. Vui lòng liên hệ người quản trị.",
       "rateLimit": "Model đang quá tải hoặc đã hết hạn mức. Chọn model khác hoặc thử lại sau ít phút.",
       "generic": "Không gọi được model. Vui lòng thử lại sau ít phút."
     },

@@ -9,7 +9,7 @@ import {
 import { useLocale } from "next-intl";
 
 import { useModelStore } from "~/stores/use-model-store";
-import { Thread } from "../components/thread/thread";
+import Thread from "../components/thread/thread";
 import { CHAT_API_PATH } from "../constants/endpoints";
 
 /**

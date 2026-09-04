@@ -14,7 +14,7 @@ import {
   CollapsibleTrigger,
 } from "@monorepo/ui/components/collapsible";
 
-import { MarkdownText } from "./markdown-text";
+import MarkdownText from "./markdown-text";
 
 /** One reasoning part. Consecutive ones are wrapped by `ReasoningGroup` below. */
 const ReasoningImpl: ReasoningMessagePartComponent = () => <MarkdownText />;

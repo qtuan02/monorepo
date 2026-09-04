@@ -16,15 +16,17 @@ Ba biến trong `.env` **ở root repo** (`.env.example` có sẵn dòng kèm gi
 | Biến | Bắt buộc | Là gì |
 | --- | --- | --- |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | **có** | Khoá Gemini, lấy ở <https://aistudio.google.com/apikey>. Server-only, không prefix. Thiếu là `next build` (và bước `import './src/env.ts'` trong `Dockerfile`) đỏ ngay kèm tên biến, chứ không ship một app chat lúc nào cũng lỗi. `.env.example` để placeholder nên `docker build` trần và CI vẫn xanh. |
-| `MCP_DOMAIN` | không | Origin của máy chủ MCP, ví dụ `http://localhost:3004` (chính là `apps/mcp-weather`). Bỏ trống thì app vẫn chạy, chỉ là chat thuần không có tool — đúng thứ một người chưa bật máy chủ MCP nên nhận. |
+| `ASSISTANT_AI_MCP_DOMAIN` | không | Origin của máy chủ MCP, ví dụ `http://localhost:3004` (chính là `apps/mcp-weather`). Bỏ trống thì app vẫn chạy, chỉ là chat thuần không có tool — đúng thứ một người chưa bật máy chủ MCP nên nhận. |
 | `NEXT_PUBLIC_ASSISTANT_AI_SENTRY_DSN` | không | DSN Sentry của **project riêng** app này. Rỗng = SDK cài nhưng tắt. |
 
-Hai biến đầu **không** mang tên app, khác quy ước ở `packages/env/README.md`, và
-mỗi cái có lý do riêng: `GOOGLE_GENERATIVE_AI_API_KEY` là tên `@ai-sdk/google`
-tài liệu hoá — app thứ hai muốn Gemini sẽ muốn đúng key của cùng một project
-Google, chứ không phải key riêng; còn `MCP_DOMAIN` là tên AC của ticket viết ra.
-Nếu sau này có app thứ hai trỏ vào một máy chủ MCP **khác**, `MCP_DOMAIN` là dòng
-đầu tiên phải đổi thành `ASSISTANT_AI_MCP_DOMAIN`.
+Chỉ **một** biến không mang tên app: `GOOGLE_GENERATIVE_AI_API_KEY`, vì đó là tên
+`@ai-sdk/google` tài liệu hoá — biến một người đã export sẵn trong shell, và app
+thứ hai muốn Gemini sẽ muốn đúng key của **cùng một project Google** chứ không
+phải key riêng. Ngoại lệ đó chỉ áp cho tên do SDK bên ngoài đặt, nên
+`ASSISTANT_AI_MCP_DOMAIN` **không** nằm trong nó: "máy chủ MCP" là cái tên repo
+này tự nghĩ ra, và một app thứ hai trỏ vào một máy chủ MCP khác sẽ ghi đè lên nó
+trong đúng một file `.env` ở root (ADR-0003). AC của ticket viết `MCP_DOMAIN`;
+quy ước ở `packages/env/README.md` thắng — xem Notes của ticket 05.
 
 Chạy cả hai app cạnh nhau để thử tool:
 
@@ -54,7 +56,7 @@ tin được.
 
 ```text
 ChatTemplate (client)                        route.ts                  streamChat()
-  AssistantChatTransport   ──POST /api/chat──▶  (mỏng: validate body,  ──▶  loadMcpTools() ──▶ MCP_DOMAIN/api/mcp
+  AssistantChatTransport   ──POST /api/chat──▶  (mỏng: validate body,  ──▶  loadMcpTools() ──▶ ASSISTANT_AI_MCP_DOMAIN + /api/mcp
   + prepareSendMessagesRequest                   resolve locale)             streamText(googleProvider(model))
     (thêm `model` + `locale`)
 ```
@@ -62,7 +64,7 @@ ChatTemplate (client)                        route.ts                  streamCha
 | Thứ | Ở đâu | Ghi chú |
 | --- | --- | --- |
 | Route handler | `src/app/api/chat/route.ts` | Mỏng: đọc body, ép kiểu `model`/`locale`, lấy catalogue rồi giao cho slice. Nằm **ngoài** `[locale]`, và matcher của `proxy.ts` đã loại `/api` — nên locale phải đi trong body chứ không lấy từ URL được. |
-| Gọi model | `src/features/chat/server/stream-chat.ts` | `streamText` + `stopWhen: stepCountIs(5)` khi có tool, nên model **viết được câu tóm tắt sau khi tool trả về** thay vì dừng ở cục JSON. Bản cũ chỉ mở đường đó cho riêng `get-weather` bằng một nhánh `if`; các tool còn lại dừng ngay sau tool result. |
+| Gọi model | `src/features/chat/server/stream-chat.ts` | `streamText` + `stopWhen: stepCountIs(3)` khi có tool — đúng ngân sách bước của bản cũ, nên model **viết được câu tóm tắt sau khi tool trả về** thay vì dừng ở cục JSON. Thay đổi không phải con số mà là **tool nào được hưởng**: bản cũ chỉ mở đường đó cho riêng `get-weather` bằng một nhánh `if`, nên mọi tool khác dừng ngay trên output của chính nó. |
 | Provider | `src/features/chat/server/chat-model.ts` | `createGoogleGenerativeAI({ apiKey: env.… })`, không dùng instance `google` có sẵn — instance đó tự đọc `process.env`, tức là đưa giá trị quan trọng nhất ra ngoài schema `~/env.ts` và ngoài `noProcessEnv` của Biome. |
 | Client MCP | `src/features/chat/server/mcp-tools.ts` | `@modelcontextprotocol/sdk` — **cùng một SDK, cùng một dòng catalog** với máy chủ ở `apps/mcp-weather`, nên client không trôi sang một phiên bản protocol server không nói. Mở và đóng theo từng request, vì máy chủ đó stateless (không có `Mcp-Session-Id` để giữ). |
 | Phân loại lỗi | `src/features/chat/utils/chat-error-code.ts` | Hàm **thuần** trả về một mã (`credential` / `rateLimit` / `generic`); câu chữ lấy từ `assistantAi.errors.*` nên lỗi cũng theo ngôn ngữ. Mặc định của AI SDK là chuỗi `"An error occurred."` cho mọi thứ — key sai và hết quota trông y hệt nhau. |
@@ -115,9 +117,11 @@ bunx playwright test --project=chromium          # từ thư mục app này
 
 E2E chạy trên **bản build** ở cổng 3105 (`ports.env`). Nó **không** gọi model
 thật: CI build bằng key placeholder của `.env.example`, nên một lượt gửi kết thúc
-bằng alert lỗi — và đó chính là điều được kiểm, "không treo". Mã lỗi nào ứng với
-nguyên nhân nào thì ghim ở `test/features/chat/utils/chat-error-code.test.ts`,
-không cần mạng.
+bằng alert lỗi. Spec chốt đúng thứ chứng minh được dù lượt đó hỏng vì lý do gì —
+alert mang **một trong ba câu của chính app này**, đọc từ catalogue chứ không gõ
+lại, chứ không phải chuỗi thô của provider hay một ô rỗng. Nguyên nhân nào ứng
+với câu nào thì ghim không cần mạng ở
+`test/features/chat/utils/chat-error-code.test.ts`.
 
 ## Deploy
 
