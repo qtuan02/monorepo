@@ -15,3 +15,5 @@ Khi root của Target đổi sang Bun + Biome + `packages/ui` trên Base UI, sá
 ## Consequences
 
 Gate của Skeleton là gate thật ngay từ bước 1. Đổi lại, cho tới khi migrate xong, app trong `legacy/` chỉ chạy được bằng toolchain cũ (pnpm) trong thư mục của nó, và không có gì trong repo ngăn nó thối dần.
+
+Đã thực hiện xong ngày 2026-09-04: bốn app về `apps/` qua ticket 03–06 của topic `legacy-migrate` (`portfolio`, `mcp` → `mcp-weather`, `assistant-ai`, `documents`), hai package `-public` được viết lại thành Publish shell ở `packages/` theo [ADR-0004](./0004-npm-publish-qua-publish-shell.md), `_template` và Storybook 8.6 bị bỏ hẳn thay vì migrate, và `legacy/` đã xoá ở ticket 07. Git history giữ nguyên — trạng thái trước khi dựng lại đọc được ở commit `7edc303`.

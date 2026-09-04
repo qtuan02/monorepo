@@ -120,12 +120,12 @@ same way.
 ## Layout
 
 ```
-apps/          _template_next · _template_vite · storybook
+apps/          _template_next · _template_vite · portfolio · documents
+               mcp-weather · assistant-ai · storybook
 packages/      env · i18n · dayjs · hook · types · api · ui · sentry   (source-only, private)
                ui-public · hook-public                                (Publish shells → npm)
 tooling/       tailwind · typescript
 turbo/         generators
-legacy/        frozen pre-rebuild apps — outside the workspace
 docs/          adr/ · agents/ · research/
 .agents/       rules/ · skills/ · plans/ (the tracker) · commands.md · knowledge-base.md
 ```
@@ -152,20 +152,6 @@ Two packages have **Flavors** — a per-Runtime subpath over a shared core:
 `@monorepo/env` (`./vite/*`, `./next/*`) and `@monorepo/i18n` (`./i18next/*`, `./next-intl/*`),
 with the language registry and the ICU message catalogue shared by both
 ([ADR-0002](./docs/adr/0002-i18n-one-package-many-flavors-icu-messages.md)).
-
-## `legacy/`
-
-Six apps and two published packages from before the rebuild live in [`legacy/`](./legacy/),
-**outside** `workspaces.packages` — `bun install`, `turbo run` and `biome check` never reach them
-([ADR-0001](./docs/adr/0001-legacy-apps-outside-workspace.md)). Git history is intact and each one
-still runs from inside its own directory on the toolchain it was written against, but nothing there
-is maintained.
-
-Each comes back into `apps/` through its own migrate ticket, cloned onto the Template app for its
-Runtime. [`legacy/README.md`](./legacy/README.md) has the app → Runtime → target Template table and
-the list of things that no longer exist at the root (pnpm, ESLint, Prettier) — plus the two that came
-back in a different shape, rslib and Changesets, now serving the Publish shells rather than every
-package.
 
 ## Working with agents
 

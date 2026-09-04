@@ -1,6 +1,6 @@
 # Personal Monorepo — Agent Documentation Index
 
-- **[../CLAUDE.md](../CLAUDE.md)** — the main guide: project structure, the two Runtimes, the Flavor model, `legacy/`, one-way data flow, where to put what, commands
+- **[../CLAUDE.md](../CLAUDE.md)** — the main guide: project structure, the two Runtimes, the Flavor model, one-way data flow, where to put what, commands
 - **[rules/](rules/)** — the engineering rules (source of truth); the section registry is [rules/\_sections.md](rules/_sections.md) and the scaffold for a new rule is [rules/\_template.md](rules/_template.md)
 - **[skills/](skills/)** — scenario guides, vendored as real files. The 25 from `mattpocock/skills` and `vercel-labs/agent-skills` are pinned by source + content hash in [../skills-lock.json](../skills-lock.json); re-sync those with the `skills` CLI rather than hand-editing one. The six `gitnexus-*` are **not** in the lock — `npx gitnexus analyze` rewrites them
 - **[commands.md](commands.md)** — the full command reference: setup, dev, the Gate, E2E, generators, CI, and the constraints on each

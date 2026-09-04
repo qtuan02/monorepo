@@ -147,8 +147,8 @@ function readPorts(appDir: string): PortPair | null {
  * The fresh clone is already on disk and still holds the Template's numbers, so
  * it is skipped by name — counting it would rule out the Template's own slot,
  * which was never free to begin with. A port declared outside the bands (an app
- * migrated back from `legacy/` with one of its own) is still read, so a number
- * cannot be handed out twice — for every app that declares a `ports.env`. An app
+ * that arrived with one of its own) is still read, so a number cannot be handed
+ * out twice — for every app that declares a `ports.env`. An app
  * that states its port some other way is invisible to this scan, the way
  * `apps/storybook` is, so a migrated app landing inside either band has to
  * declare `ports.env` like the rest.

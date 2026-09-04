@@ -2,8 +2,8 @@
 
 Máy chủ **Model Context Protocol** cung cấp dữ liệu thời tiết OpenWeatherMap cho
 trợ lý AI. Chạy Runtime **Next.js 16 App Router**, clone từ `apps/_template_next`
-bằng `bun run gen:app` (ticket `legacy-migrate/04`), thay cho `legacy/mcp` đã
-đóng băng.
+bằng `bun run gen:app` (ticket `legacy-migrate/04`), thay cho app `mcp` của bản
+trước khi dựng lại repo — đã xoá, còn đọc được trong git history.
 
 Sản phẩm của app này là **một endpoint**, không phải một màn hình:
 
@@ -188,7 +188,7 @@ DSN đọc từ `NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN` và truyền vào `initSent
 mạng, không log rác (xem `packages/sentry/src/options.ts`).
 
 `next.config.ts` gọi `withSentry(...)` **không kèm `org`/`project`**, khác
-`apps/portfolio`. Bản cũ (`legacy/mcp`) chưa bao giờ dùng Sentry nên không có
+`apps/portfolio`. Bản cũ (app `mcp`) chưa bao giờ dùng Sentry nên không có
 project nào để kế thừa, và bịa ra một slug không tồn tại chỉ làm bước upload
 source map đỏ trong CI. Khi project Sentry thật được tạo, thêm
 `{ org, project }` ở đó là đủ.

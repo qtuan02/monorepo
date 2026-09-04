@@ -188,7 +188,6 @@ mutating, polling. What a crawler has to read comes from a cached server read in
   - **Override order matters**: overrides apply in sequence and the last wins, so the broad
     `apps/**` env rules come first and the `env.ts` / `*.config.*` exemption after. Reversed, the
     broad rule re-enables `noProcessEnv` on exactly the files that need it.
-  - `legacy/` is excluded here, not in CI (ADR-0001).
 - **The React Compiler lint rules do not exist here, and that is an accepted gap.**
   `eslint-plugin-react-hooks@7` enabled 17 rules; Biome's `react` domain covers 2. The other 15 are
   compiler-powered (`static-components`, `set-state-in-effect`, `purity`, …). The compiler *does*
@@ -314,20 +313,19 @@ ADR-0004, and none of it is visible from a single file.
   `React.ReactElement<unknown, string | React.JSXElementConstructor<any>>`, arriving through
   `useRender.ComponentProps`; a test asserting "no `any`" would be red forever and mean nothing.
 
-## Legacy (`legacy/`)
+## The legacy tree
 
-Six apps and two `-public` packages, outside `workspaces.packages` — not installed, not built, not
-linted (ADR-0001). Each is frozen on the toolchain it had, and comes back into `apps/` through its
-own migrate ticket. `legacy/README.md` carries the app → Runtime → target Template table.
+Everything that predates the Skeleton was held frozen outside `workspaces.packages` and has now been
+migrated away and deleted (ADR-0001). It stays reachable in git history, and two pointers are worth
+keeping because a later decision may need tracing:
 
-`legacy/ui-public` and `legacy/hook-public` share their names with the two Publish shells and are not
-them: they are the **frozen originals** that put `@fe-monorepo/ui` 1.0.2 and `@fe-monorepo/hook` 1.0.0
-on npm, which is where `packages/{ui,hook}-public` took their starting versions from. Nothing builds
-into the legacy pair, and Changesets never sees them.
+- The **frozen originals** of `ui-public` / `hook-public` put `@fe-monorepo/ui` 1.0.2 and
+  `@fe-monorepo/hook` 1.0.0 on npm, which is where `packages/{ui,hook}-public` took their starting
+  versions from. Nothing in the repo builds into them any more, and Changesets never saw them.
+- The pre-Skeleton state of `packages/{env,hook,ui,sentry}` is readable at commit `7edc303`.
 
-Do not mine a legacy app for terminology, patterns, or "how we do X here": they describe the shape
-this repo is deliberately moving away from. The pre-Skeleton state of `packages/{env,hook,ui,sentry}`
-is readable at commit `7edc303` if a decision ever needs tracing.
+What those trees describe is the shape this repo deliberately moved away from — read them for
+history, never for terminology or "how we do X here".
 
 ## AI tooling
 

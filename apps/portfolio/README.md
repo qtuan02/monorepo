@@ -2,8 +2,8 @@
 
 Site CV cá nhân — một màn hình public, không đăng nhập, không gọi backend. Chạy
 Runtime **Next.js 16 App Router**, clone từ `apps/_template_next` bằng
-`bun run gen:app` (ticket `legacy-migrate/03`), thay cho `legacy/portfolio` đã
-đóng băng.
+`bun run gen:app` (ticket `legacy-migrate/03`), thay cho app `portfolio` của bản
+trước khi dựng lại repo — đã xoá, còn đọc được trong git history.
 
 Lý do nó là Next chứ không phải Vite: toàn bộ giá trị của trang này nằm ở **HTML
 đầu tiên**. Nhà tuyển dụng mở link, LinkedIn unfurl thẻ social, Google index —
@@ -159,7 +159,7 @@ deploy thật trước khi coi ticket là đóng.
 ## Sentry
 
 Wrap ở `next.config.ts` qua `@monorepo/sentry/next-config` với
-`{ org: "sentry", project: "portfolio_v1" }` (lấy từ `legacy/portfolio`); DSN
+`{ org: "sentry", project: "portfolio_v1" }` (kế thừa từ bản cũ); DSN
 đọc từ `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` và truyền vào `initSentryClient`
 trong `src/instrumentation-client.ts`, cùng `initSentryForRuntime` trong
 `src/instrumentation.ts` — hàm này ở `src/sentry-runtime.config.ts` là chỗ

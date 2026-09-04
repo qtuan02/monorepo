@@ -90,10 +90,6 @@ Biome runs from the root because its `types` domain does whole-project inference
 fan-out would mean one project scan per workspace. Scope it by path instead:
 `bunx biome check apps/_template_next`.
 
-`legacy/` is excluded in `biome.json`, not in CI. Those apps are frozen on their old toolchain until
-a migrate ticket brings each one back into `apps/` (ADR-0001), and linting them would produce
-thousands of findings nobody is allowed to act on.
-
 ## Tests
 
 - `bun run test` — Vitest 5 across every workspace that declares a `test` script

@@ -3,7 +3,8 @@
 Giao diện chat với model **Gemini**, và model gọi được tool của máy chủ MCP thời
 tiết (`apps/mcp-weather`). Chạy Runtime **Next.js 16 App Router**, clone từ
 `apps/_template_next` bằng `bun run gen:app` (ticket `legacy-migrate/05`), thay
-cho `legacy/assistant-ai` đã đóng băng và cho `legacy/docs/apps/ASSISTANT-AI.md`.
+cho app `assistant-ai` và tài liệu `ASSISTANT-AI.md` của bản trước khi dựng lại
+repo — cả hai đã xoá, còn đọc được trong git history.
 
 ```bash
 bun run dev:assistant-ai      # http://localhost:3005

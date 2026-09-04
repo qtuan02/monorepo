@@ -25,31 +25,25 @@ resolved.
 ```
 /
 ├── CONTEXT-MAP.md                     ← points at each context (grown lazily)
-├── CONTEXT.md                         ← the root context: Runtime, Flavor, Legacy app, Gate, …
+├── CONTEXT.md                         ← the root context: Runtime, Flavor, Template app, Gate, …
 ├── docs/adr/                          ← system-wide decisions
 ├── apps/
 │   └── _template_vite/
 │       ├── CONTEXT.md
 │       └── docs/adr/                  ← app-specific decisions
-├── packages/
-│   └── <pkg>/
-│       ├── CONTEXT.md
-│       └── docs/adr/                  ← package-specific decisions
-└── legacy/                            ← NOT a context: frozen apps awaiting migration (ADR-0001)
+└── packages/
+    └── <pkg>/
+        ├── CONTEXT.md
+        └── docs/adr/                  ← package-specific decisions
 ```
-
-`legacy/` is deliberately outside the map. Its apps are frozen on their old toolchain until a
-migrate ticket brings each one back into `apps/`, so their vocabulary describes a shape this repo
-is moving *away* from. Read `legacy/README.md` for the app → Runtime → target Template table; do
-not mine a legacy app for terminology.
 
 ## Use the glossary's vocabulary
 
 When your output names a domain concept (a ticket title, a refactor proposal, a hypothesis, a test
 name), use the term as the relevant `CONTEXT.md` defines it, and avoid the synonyms it lists under
 _Avoid_. The root glossary is load-bearing here: **Runtime**, **Flavor**, **Template app**,
-**Legacy app**, **Skeleton** and **Gate** each mean something narrower than their everyday
-reading, and the whole repo is organised around those distinctions.
+**Skeleton** and **Gate** each mean something narrower than their everyday reading, and the whole
+repo is organised around those distinctions.
 
 If the concept you need isn't in a glossary yet, that's a signal — either you're inventing language
 the project doesn't use (reconsider), or there's a real gap (note it for `/domain-modeling`).
@@ -58,4 +52,4 @@ the project doesn't use (reconsider), or there's a real gap (note it for `/domai
 
 If your output contradicts an existing ADR, surface it explicitly rather than silently overriding:
 
-> _Contradicts ADR-0001 (legacy apps outside the workspace) — but worth reopening because…_
+> _Contradicts ADR-NNNN (its title) — but worth reopening because…_

@@ -16,8 +16,8 @@ import {
 } from "~/features/weather/utils/format-weather";
 
 /**
- * The MCP server itself: three tools, no auth, exactly the contract the `mcp`
- * app in `legacy/` served — a client that already talks to this endpoint must
+ * The MCP server itself: three tools, no auth, exactly the contract the legacy
+ * `mcp` app served — a client that already talks to this endpoint must
  * not have to change.
  *
  * A **factory**, not a module singleton. `Server.connect(transport)` binds one

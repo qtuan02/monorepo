@@ -19,10 +19,6 @@ _Avoid_: repo mới, monorepo cá nhân, source ở D
 Trạng thái của Target sau bước setup: root config + `packages/*` + `tooling/*` + các Template app + Storybook, gate xanh, chưa có app nghiệp vụ nào.
 _Avoid_: base, khung, bộ khung
 
-**Legacy app**:
-Một app hoặc package của Target từ trước khi dựng Skeleton, đã dời vào `legacy/` — ngoài `workspaces.packages`, không install/build/lint, chờ được migrate thành app trong `apps/`.
-_Avoid_: app cũ, source hiện tại, app đóng băng
-
 **Template app**:
 App mẫu trong `apps/` được clone (bằng generator `app`) để tạo app mới; mỗi Template app ứng với đúng một Runtime. Hiện có `_template_next` và `_template_vite`; `_template_reactrouter` sẽ thêm khi có Runtime React Router framework.
 _Avoid_: starter, boilerplate, app mẫu

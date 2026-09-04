@@ -61,7 +61,7 @@ trên vẫn thuộc về Template. Tương tự, `apps/documents` khai
 Storybook", nên một key trần `PUBLIC_STORYBOOK_URL` sẽ hứa với người đọc
 `.env.example` một điều không đúng. Và `apps/mcp-weather` khai
 `MCP_WEATHER_OPENWEATHERMAP_API_KEY` chứ không giữ `OPENWEATHERMAP_API_KEY` như
-bản trong `legacy/`: một key trần cho một nhà cung cấp bên thứ ba là chỗ dễ va
+bản cũ: một key trần cho một nhà cung cấp bên thứ ba là chỗ dễ va
 nhất, vì app thứ hai cần cùng loại key sẽ tưởng nó đang dùng chung thay vì đang
 ghi đè.
 
@@ -80,7 +80,7 @@ SDK tự đọc `process.env` — nếu không thì key quan trọng nhất củ
 `env.ts` và ngoài `noProcessEnv` của Biome, tức là mất đúng thứ ADR-0003 mua về.
 
 Và nó **hẹp**: chỉ tên do SDK bên ngoài đặt mới được miễn. Cùng app đó khai
-`ASSISTANT_AI_MCP_DOMAIN` chứ không phải `MCP_DOMAIN` như bản trong `legacy/`,
+`ASSISTANT_AI_MCP_DOMAIN` chứ không phải `MCP_DOMAIN` như bản cũ,
 vì "máy chủ MCP" là cái tên repo này tự nghĩ ra — không ai bên ngoài đọc nó, nên
 nó rơi thẳng vào hàng đầu tiên của bảng trên.
 

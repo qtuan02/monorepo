@@ -20,8 +20,8 @@ bun run --filter @monorepo/documents dev       # http://localhost:3003
 | Env | `src/env.ts` | Flavor `vite` của `@monorepo/env`; `.env` **ở root repo**, tới qua `envDir: "../../"` + `envPrefix: "PUBLIC_"` (**không** `VITE_`). |
 | Router | `src/pages/main.tsx` | `react-router` 8 declarative; mọi path lấy từ `~/constants/routes.ts`. |
 | Guard | *(không có)* | Site public: `ProtectedRoute` / `GuestRoute`, slice `auth`, `use-auth-store` và cả `~/libs/http-client` của Template đã bị **xoá** thay vì để không dùng. Catch-all 404 giữ nguyên. |
-| Metadata | `scripts/generate-docs-metadata.ts` | Xem mục dưới — đây là thứ thay `src/constants/*.json` viết tay của bản legacy. |
-| Demo | Storybook | Site này **không** render preview. 63 file preview thủ công của bản legacy bị bỏ; mỗi trang primitive link sang trang docs của nó trên Storybook. |
+| Metadata | `scripts/generate-docs-metadata.ts` | Xem mục dưới — đây là thứ thay `src/constants/*.json` viết tay của bản cũ. |
+| Demo | Storybook | Site này **không** render preview. 63 file preview thủ công của bản cũ bị bỏ; mỗi trang primitive link sang trang docs của nó trên Storybook. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA; image thì builder Bun → `nginx:stable-alpine` như Template. |
 
 ## Env
@@ -42,8 +42,8 @@ một schema — không có gì để lệch nhau. `test/env.test.ts` đối chi
 
 ## Nạp metadata
 
-> Mục này thay §"How metadata is loaded" của `legacy/docs/apps/DOCUMENTS.md`.
-> Bản legacy nạp `src/constants/components.json` + `hooks.json` **viết tay**, cộng
+> Mục này thay §"How metadata is loaded" của tài liệu `DOCUMENTS.md` bản cũ.
+> Bản đó nạp `src/constants/components.json` + `hooks.json` **viết tay**, cộng
 > `registry.tsx` trỏ tới 63 preview thủ công — thêm một primitive là ba chỗ phải
 > sửa tay, và không có gì báo khi quên. Bản này sinh metadata từ chính source.
 
@@ -92,7 +92,7 @@ làm cache của app miss đúng lúc cần.
 
 ## Bảng route
 
-> Mục này thay §"Routing" của `legacy/docs/apps/DOCUMENTS.md`. Path lấy từ
+> Mục này thay §"Routing" của tài liệu `DOCUMENTS.md` bản cũ. Path lấy từ
 > `~/constants/routes.ts`; hai path động có builder riêng, không ai nội suy tay.
 
 | Path | Hằng số | Page | Trang gì |

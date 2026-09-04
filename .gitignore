@@ -5,9 +5,6 @@ node_modules
 .pnp
 .pnp.js
 
-# Legacy apps keep their own (pnpm) install trees until they are migrated.
-legacy/**/node_modules
-
 # next.js
 .next/
 out/

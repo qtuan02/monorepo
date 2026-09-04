@@ -16,8 +16,7 @@
       "!**/.next",
       "!**/storybook-static",
       "!**/*.d.ts",
-      "!**/*.svg",
-      "!legacy"
+      "!**/*.svg"
     ]
   },
   "formatter": {

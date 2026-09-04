@@ -11,9 +11,6 @@
 node_modules
 **/node_modules
 
-# Legacy apps are outside workspaces.packages and are never built in an image.
-legacy
-
 # Build output — every stage rebuilds from source.
 dist
 **/dist

@@ -33,7 +33,6 @@ env:
 
 jobs:
   # Biome: formatter + linter + import sorting in one pass over the whole tree.
-  # `legacy/` is excluded in biome.json, not here — ADR-0001.
   check:
     name: check
     runs-on: ubuntu-latest
@@ -157,11 +156,8 @@ jobs:
       # here — the app arrives carrying the Dockerfile its Template shipped, and
       # the next push builds it. Deleting an app removes its build the same way.
       #
-      # Scoped to `apps/` deliberately: `legacy/` holds four more Dockerfiles
-      # for frozen apps that sit outside `workspaces.packages` (ADR-0001), so
-      # their `turbo prune` stage cannot resolve and the build would fail on
-      # something nobody maintains. `-maxdepth 2` keeps it to an app's own
-      # Dockerfile and out of anything vendored below it.
+      # `-maxdepth 2` keeps it to an app's own Dockerfile and out of anything
+      # vendored below it.
       - id: apps
         shell: bash
         run: |
