@@ -143,6 +143,15 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - uses: actions/checkout@v7
+      # The fourth constraint, and the one that actually broke the first run:
+      # `oven-sh/setup-bun` extracts Bun's archive by shelling out to `unzip`,
+      # and this image ships none. Without it the composite action below dies on
+      # "Unable to locate executable file: unzip", and every later step then
+      # fails with exit 127 on `bun: command not found` — a failure that names
+      # Bun and blames the wrong thing. The Gate jobs never hit it because they
+      # run on the bare ubuntu-latest image, which has unzip.
+      - name: Install unzip (setup-bun needs it, this image has none)
+        run: apt-get update && apt-get install -y --no-install-recommends unzip
       # Also seeds `.env`, which both apps genuinely need here: each webServer
       # runs a real production build, and the PUBLIC_*/NEXT_PUBLIC_* values are
       # baked into the bundle at that point.
@@ -156,7 +165,9 @@ jobs:
       # report is the only place a failure is visible — upload it regardless.
       - name: Upload the Playwright reports
         if: always()
-        uses: actions/upload-artifact@v5
+        # v7, not v5: v5 targets Node 20, which the runner now force-migrates to
+        # 24 with a deprecation annotation on every run.
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           path: |

@@ -140,7 +140,7 @@ after  (en): Friday, 04/09/2026
 
 ## Còn treo
 
-> **Ba khoản dưới đây hiện không ticket nào sở hữu.** Ticket 07 viết bản sửa port "thuộc ticket này", ticket 08 viết bản sửa `next start`/standalone "thuộc ticket này" — nhưng cả hai đã `status: done`, và ticket 12 chỉ liệt kê lại chứ không nhận. Ghi ra đây để chỗ hổng là hữu hình: chúng cần một ticket 13, không phải một mục "Còn treo".
+> **Ba khoản dưới đây đã được giao cho [ticket 13](./13-khoan-treo-cua-07-08.md).** Ticket 07 viết bản sửa port "thuộc ticket này", ticket 08 viết bản sửa `next start`/standalone "thuộc ticket này" — nhưng cả hai đã `status: done`, và ticket 12 chỉ liệt kê lại chứ không nhận, nên ba khoản đó có một lúc không ticket nào sở hữu. Ticket 13 nhận cả ba (cộng `<html lang>`), `status: ready-for-agent`. Phần mô tả bên dưới giữ nguyên làm bối cảnh của lượt này.
 
 - **Ba ô `docker build` và hai kiểm container (404 của `_template_vite`, trang SSR của `_template_next`) không chạy được:** máy này **không còn Docker**. `C:\Program Files\Docker` rỗng, `%LOCALAPPDATA%\Programs\DockerDesktop` chỉ còn `tmp-delete`, `Get-Command docker/podman` không trả gì, `wsl -l -v` báo không có distribution nào. Không suy đoán thay: ba Dockerfile đã được đọc và đúng hình (ticket 06/07/08 ghi từng dòng), nhưng "đúng hình" không phải "build được". Cần chạy lại ô này trên một máy có Docker, hoặc để job CI dựng image.
 
