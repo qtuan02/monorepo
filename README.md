@@ -72,7 +72,7 @@ bun run check && bun run typecheck && bun run test && bun run build
 | --- | --- |
 | `bun run check` | Biome — formatter, linter and import sorting in one pass over the whole repo |
 | `bun run typecheck` | `tsc --noEmit` (TypeScript 7) across every workspace |
-| `bun run test` | Vitest 5 — jsdom + Testing Library in the apps, node in the packages |
+| `bun run test` | Vitest 5 — jsdom + Testing Library in the apps, node in most packages (`i18n` runs jsdom too) |
 | `bun run build` | every app and package |
 
 A fifth CI job runs Playwright when the diff touches `apps/`, `packages/`, `tooling/`, `bun.lock` or
@@ -142,8 +142,9 @@ the list of things that no longer exist at the root (pnpm, ESLint, Prettier, rsl
 - [`CLAUDE.md`](./CLAUDE.md) — the structure, the data flow, and where to put what
 - [`.agents/rules/`](./.agents/rules/) — the engineering rules, indexed in
   [`.agents/README.md`](./.agents/README.md)
-- [`.agents/skills/`](./.agents/skills/) — vendored skills, pinned in
-  [`skills-lock.json`](./skills-lock.json)
+- [`.agents/skills/`](./.agents/skills/) — vendored skills; the 25 installed by the `skills` CLI
+  are pinned in [`skills-lock.json`](./skills-lock.json), the six `gitnexus-*` are owned by
+  `gitnexus analyze`
 - [`.agents/plans/`](./.agents/plans/) — the issue tracker: markdown, in-repo, one folder per topic
   ([`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md))
 - [`.mcp.json`](./.mcp.json) — Context7 and GitNexus at project scope

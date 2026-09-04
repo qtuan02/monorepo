@@ -42,7 +42,7 @@ surfaces as a t3-env validation throw rather than as a missing file.
 - `bun run clean:workspaces` — each workspace's own `clean` task
 
 Packages are **source-only**: `private: true`, `exports` pointing straight at `src/`, no build step
-and no `dist/` (decision 3). So `build` only ever runs for the three apps; a package appears in the
+and no `dist/`; nothing here is published to npm. So `build` only ever runs for the three apps; a package appears in the
 graph for ordering, not for output.
 
 ## Lint, format & typecheck
@@ -77,7 +77,8 @@ Tests live in `<workspace>/test/`, mirroring the `src/` path of the file under t
 specs sit beside that tree in `<app>/e2e/*.e2e.ts` — the suffix is what keeps the two runners from
 collecting each other's files.
 
-**Vitest 5, not 4** (decision 6). Two of its breaking changes bite when copying a config or a test
+**Vitest 5, not 4** — a deliberate choice to run ahead of the reference monorepo, which is still on
+4.x. Two of its breaking changes bite when copying a config or a test
 in from elsewhere: `clearMocks` now defaults to **`true`** (so every config here states it
 explicitly, since an omitted value now means the opposite of what it used to), and Vitest 5 no
 longer searches parent directories for a config — every workspace that runs tests needs its own
@@ -103,7 +104,10 @@ through a `bun run` script: launching Chromium from a `bun run` script hangs on 
 
 - `bun run --filter @monorepo/ui ui-add` — add a shadcn primitive into `packages/ui/src/components/`
 
-It runs `bunx shadcn@latest add`, then Biome, then `scripts/guard-no-local-hooks.ts`. That guard is
+It runs `bunx shadcn@4.20.1 add`, then Biome, then `scripts/guard-no-local-hooks.ts`. The CLI
+version is pinned, not `@latest`, and deliberately: the `#hooks` arrangement below is built around
+how 4.20.x resolves aliases, so an unpinned CLI could change that behaviour under the guard without
+anything failing loudly. That guard is
 meant to fire: `components.json` points the CLI's `hooks` alias at `#hooks`, a directory that
 deliberately does not exist, because the CLI 4.20.x cannot be pointed at `@monorepo/hook` directly
 (it validates every alias against the target package's `exports`, and a subpath-only package
@@ -150,9 +154,13 @@ Three constraints on the `e2e` job, each of which has broken it before:
 - The container tag must match `@playwright/test` in the `testing` catalog **exactly** (1.62.1) —
   the image bakes in the browser revision that version expects, which is why the catalog pins it
   without a caret. Bump both together.
-- It must not go through `turbo run`: Turbo filters the environment in strict mode and swallows the
-  image's `PLAYWRIGHT_BROWSERS_PATH`, which surfaces as `Executable doesn't exist` for browsers
-  sitting right there on disk.
+- `PLAYWRIGHT_BROWSERS_PATH` has to survive into the test process. Turbo filters the environment in
+  strict mode, and swallowing that variable surfaces as `Executable doesn't exist` for browsers
+  sitting right there on disk. It is guarded twice: `turbo.json` declares it in the `e2e` task's
+  `passThroughEnv`, and the CI job additionally calls each app's own script
+  (`bun run --filter @monorepo/_template_vite e2e`) rather than `turbo run e2e`. Keep the
+  `passThroughEnv` entry if you touch that task — `bun run e2e` locally *does* go through Turbo, and
+  it is the only thing making that path work.
 - The report is uploaded `if: always()`, because `continue-on-error` makes the job report green
   either way — the artifact is the only place a failure is visible.
 

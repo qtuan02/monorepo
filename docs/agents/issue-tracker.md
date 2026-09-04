@@ -40,10 +40,10 @@ status: ready-for-agent
 # 07 — Template app on Vite
 ```
 
-`status` uses the five role strings from [`triage-labels.md`](./triage-labels.md), plus `done`
-for a ticket that has been implemented and verified. A ticket that is done records **how** it was
-verified in its own body — the commands run and what they returned — so the next ticket can trust
-the baseline without re-deriving it.
+[`triage-labels.md`](./triage-labels.md) holds the complete set of `status` values — the five
+canonical triage roles plus `in-progress` and `done` — and `status` never takes a value outside it.
+A ticket that is `done` records **how** it was verified in its own body: the commands run and what
+they returned, so the next ticket can trust the baseline without re-deriving it.
 
 A spec may carry more frontmatter keys when they are useful (`date`, `adr`, `research`,
 `decisions`, `glossary`); only `status` is required.
@@ -83,9 +83,9 @@ Used by `/wayfinder`. The **map** is one file; the **children** are tickets besi
 - **Child ticket**: `NN-<slug>.md` in the same directory, with `status` in frontmatter and a
   `type` key recording `research` / `prototype` / `grilling` / `task`.
 - **Blocking**: the `**Blocked by:**` line above.
-- **Frontier**: the lowest-numbered ticket that is unblocked, not `done`, and not claimed.
-- **Claim**: set `status: claimed` and save it before doing any work — that write is what stops a
-  second session picking up the same ticket.
+- **Frontier**: the lowest-numbered ticket that is unblocked and still `ready-for-agent`.
+- **Claim**: set `status: in-progress` and save it before doing any work — that write is what stops
+  a second session picking up the same ticket.
 - **Resolve**: append the answer under an `## Answer` heading, set `status: done`, then append a
   one-line pointer to the map's Decisions-so-far.
 

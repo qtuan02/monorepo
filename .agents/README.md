@@ -2,7 +2,7 @@
 
 - **[../CLAUDE.md](../CLAUDE.md)** — the main guide: project structure, the two Runtimes, the Flavor model, `legacy/`, one-way data flow, where to put what, commands
 - **[rules/](rules/)** — the engineering rules (source of truth); the section registry is [rules/\_sections.md](rules/_sections.md) and the scaffold for a new rule is [rules/\_template.md](rules/_template.md)
-- **[skills/](skills/)** — scenario guides, vendored as real files and pinned by source + content hash in [../skills-lock.json](../skills-lock.json). Re-sync with the `skills` CLI rather than hand-editing one
+- **[skills/](skills/)** — scenario guides, vendored as real files. The 25 from `mattpocock/skills` and `vercel-labs/agent-skills` are pinned by source + content hash in [../skills-lock.json](../skills-lock.json); re-sync those with the `skills` CLI rather than hand-editing one. The six `gitnexus-*` are **not** in the lock — `npx gitnexus analyze` rewrites them
 - **[commands.md](commands.md)** — the full command reference: setup, dev, the Gate, E2E, generators, CI, and the constraints on each
 - **[knowledge-base.md](knowledge-base.md)** — project facts and gotchas that are not obvious from one file: the Flavor model, the env pipeline, the ICU catalogue invariants, the `ui-add` hooks alias, the Base UI orientation variants
 - **[plans/](plans/)** — the tracker: one folder per topic holding `spec.md` + `NN-*.md`, each with a `status` in its front-matter. No GitLab, no GitHub Issues (decision 17). The conventions are written up in [../docs/agents/issue-tracker.md](../docs/agents/issue-tracker.md)

@@ -181,7 +181,10 @@ mutating, polling. What a crawler has to read comes from a cached server read in
   - It runs once from the root because the `types` domain does whole-project inference.
   - `formatter.indentStyle: "space"` — Biome defaults to **tab**; without it every file is rewritten.
   - `css.parser.tailwindDirectives: true` — otherwise the Tailwind v4 `@theme` blocks fail to parse.
-  - `linter.domains.next` is on alongside `react`, `turborepo` and `types`.
+  - Three domains are on repo-wide — `react` and `turborepo` (`recommended`) and `types` (`all`).
+    The **`next` domain is not**: it is enabled in an override scoped to
+    `apps/_template_next/**`, because its rules only make sense inside a Next app. Adding a second
+    Next app means adding it to that override's `includes`, not turning the domain on globally.
   - **Override order matters**: overrides apply in sequence and the last wins, so the broad
     `apps/**` env rules come first and the `env.ts` / `*.config.*` exemption after. Reversed, the
     broad rule re-enables `noProcessEnv` on exactly the files that need it.
@@ -239,6 +242,10 @@ is readable at commit `7edc303` if a decision ever needs tracing.
   `gitnexus:start` marker. `--skip-agents-md` opts out of both if it ever needs to.
 - `.mcp.json` registers Context7 and GitNexus at **project** scope with no credentials in it. A
   Context7 API key, if you have one, belongs in your user-level config, not in this file.
-- Skills are **vendored** — real files under `.agents/skills/`, pinned by source and content hash in
-  `skills-lock.json`. Re-sync with the `skills` CLI rather than hand-editing one, or the hash drifts
-  and `experimental_install` can no longer restore it.
+- Skills are **vendored** — real files under `.agents/skills/` — but they come from **two owners**,
+  and only one of them is in the lock. The 25 installed by the `skills` CLI (23 from
+  `mattpocock/skills`, 2 from `vercel-labs/agent-skills`) are pinned by source and content hash in
+  `skills-lock.json`; re-sync those with the CLI rather than hand-editing one, or the hash drifts
+  and `skills experimental_install` can no longer restore it. The six `gitnexus-*` skills have
+  **no** lock entry: `npx gitnexus analyze` writes them, and `skills update` neither knows about nor
+  restores them.

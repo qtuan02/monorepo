@@ -86,7 +86,7 @@ monorepo/
 ├── turbo/generators/            ← three plop generators: `package`, `tooling`, `app`. `app` prompts for the **Runtime** (`next` | `vite`), clones the matching Template app, rewrites its name / Dockerfile ARGs / root scripts, then installs and formats. Run through the `gen` binary, never `bunx turbo gen` (it truncates arguments on Windows)
 ├── .agents/                     ← AI resources  [`.claude` → `.agents` symlink, git mode 120000 — clone with `core.symlinks=true`]
 │   ├── rules/                  ← 46 rules across 11 prefix clusters (+ `_sections.md`, `_template.md`)
-│   ├── skills/                 ← 31 vendored skills (23 mattpocock, 2 Vercel, 6 `gitnexus-*`), pinned in `skills-lock.json`
+│   ├── skills/                 ← 31 vendored skills. The 25 from `mattpocock/skills` (23) and `vercel-labs/agent-skills` (2) are pinned in `skills-lock.json`; the six `gitnexus-*` are **not** in the lock — `gitnexus analyze` owns them
 │   ├── plans/                  ← the tracker (§7b, §9): one folder per topic, `spec.md` + `NN-*.md`
 │   ├── commands.md             ← the full command reference (§6 is its short form)
 │   ├── knowledge-base.md       ← project facts and gotchas that no single file shows
@@ -385,7 +385,7 @@ dùng GitLab, không dùng GitHub Issues, không dùng `glab`/`gh` — xem §7b 
 
 ## §7b · Plans (`.agents/plans/`) — đây là tracker
 
-`.agents/settings.json` sets `"plansDirectory": ".agents/plans"`, so Claude Code's own plan-mode output lands there — but in this repo the directory is more than a scratch space: **it is the issue tracker** (decision 17). One folder per topic, holding a `spec.md` and numbered ticket files `NN-<slug>.md`, each with a `status` in its front-matter (`ready-for-agent`, `in-progress`, `done`, …). There is no external service to sync with, and no `glab`/`gh`.
+`.agents/settings.json` sets `"plansDirectory": ".agents/plans"`, so Claude Code's own plan-mode output lands there — but in this repo the directory is more than a scratch space: **it is the issue tracker** (decision 17). One folder per topic, holding a `spec.md` and numbered ticket files `NN-<slug>.md`, each with a `status` in its front-matter. The value set is closed and lives in [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md): the five triage roles plus `in-progress` and `done`. There is no external service to sync with, and no `glab`/`gh`.
 
 New work starts here: `/to-spec` writes the `spec.md`, `/to-tickets` splits it into `NN-*.md`, `/implement` picks one up and updates its `status`. A ticket that is finished stays in place as history — where a finished ticket and a rule disagree, **the rule wins**.
 
