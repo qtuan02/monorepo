@@ -37,13 +37,27 @@ export interface CreateI18nOptions {
  * catalogue's syntax is ICU throughout — `{name}`, not `{{name}}`, and a single
  * `{count, plural, ...}` message instead of a suffixed key pair. A leftover
  * `{{name}}` does not throw: it renders literally.
+ *
+ * The detector is registered **only where there is a document**, and that is not
+ * defensive tidiness — it is what makes the singleton's language predictable in
+ * an SSR Runtime. Its name says browser, but only its cookie/storage lookups are
+ * guarded by `typeof document`; the `navigator` lookup is guarded by
+ * `typeof navigator`, which Node 24 provides. So on a Node server this module
+ * would otherwise initialize to the host's ICU locale — `en` on a stock image,
+ * `vi` under Bun, which has no `navigator` — and the same build would disagree
+ * with itself between `bun run dev` and the container. Without the detector the
+ * singleton lands on `fallbackLng` on every server, which is what
+ * `_template_reactrouter` clones per request from (`createRequestI18n`) and what
+ * its `~/libs/dayjs` bridge then pins the process-wide dayjs locale to.
  */
 export function createI18n({
   cookieName,
   cookieDomain,
 }: CreateI18nOptions): I18n {
-  i18next
-    .use(LanguageDetector)
+  const instance =
+    typeof document === "undefined" ? i18next : i18next.use(LanguageDetector);
+
+  instance
     .use(ICU)
     .use(initReactI18next)
     .init({
@@ -63,6 +77,16 @@ export function createI18n({
         lookupCookie: cookieName,
         cookieMinutes: 525600, // one year
         cookieDomain,
+        // The detector's own default is `SameSite=Strict`, and that is wrong for
+        // a language cookie the moment a server reads it: a Strict cookie is
+        // withheld on a cross-site top-level navigation, so a visitor arriving
+        // from a search result or an email link presents no cookie, an SSR
+        // Runtime negotiates from `Accept-Language` instead, and the client then
+        // caches that guess back over the choice the visitor actually made.
+        // `Lax` is exactly the "sent on a top-level GET navigation" semantics
+        // this needs. `path` has to be repeated: the serializer's default object
+        // is used only when no options object is passed at all.
+        cookieOptions: { path: "/", sameSite: "lax" },
       },
     });
 

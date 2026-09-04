@@ -2,7 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import HomeRoute, { loader } from "~/routes/home";
+import i18n from "~/libs/i18n";
+import HomeRoute, { loader, meta } from "~/routes/home";
 
 /**
  * The wiring proof for this Runtime's test setup, and the reason
@@ -39,5 +40,42 @@ describe("route: home", () => {
     // template renders what the loader returned. A component that ignored
     // `loaderData` would still pass the heading assertion above.
     expect(screen.getByText(appEnv)).toBeInTheDocument();
+  });
+});
+
+/**
+ * `meta` is the half of the route module that runs OUTSIDE the React tree, so
+ * it cannot reach the request's i18next instance through a provider. It reads
+ * the language root's loader put in `matches[0].loaderData` and translates with
+ * `getFixedT`, which is the one i18next call that is safe on a shared server
+ * singleton — it fixes a language for the returned `t` without moving the
+ * instance's own.
+ */
+function titleFor(language: string) {
+  const descriptors = meta({
+    loaderData: { appEnv: "local" },
+    matches: [{ loaderData: { language } }],
+  } as unknown as Parameters<typeof meta>[0]);
+
+  return descriptors.find((descriptor) => "title" in descriptor);
+}
+
+describe("route: home meta", () => {
+  it("names the tab in the language of the request", () => {
+    expect(titleFor("vi")).toEqual({
+      title: "Template React Router — Monorepo (local)",
+    });
+    expect(titleFor("en")).toEqual({
+      title: "React Router Template — Monorepo (local)",
+    });
+  });
+
+  it("leaves the singleton's own language where it was", () => {
+    titleFor("en");
+
+    // The failure this guards against is silent and cross-request: a `meta`
+    // that switched the singleton would translate its own title correctly and
+    // hand every render still in flight the wrong language.
+    expect(i18n.resolvedLanguage).toBe("vi");
   });
 });

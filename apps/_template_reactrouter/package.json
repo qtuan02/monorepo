@@ -17,13 +17,17 @@
     "e2e:headed": "playwright test --project=watch --headed --workers=1"
   },
   "dependencies": {
+    "@monorepo/dayjs": "workspace:*",
     "@monorepo/env": "workspace:*",
     "@monorepo/i18n": "workspace:*",
+    "@monorepo/ui": "workspace:*",
     "@react-router/node": "catalog:react-router8",
     "@react-router/serve": "catalog:react-router8",
     "isbot": "catalog:",
+    "lucide-react": "catalog:",
     "react": "catalog:react19",
     "react-dom": "catalog:react19",
+    "react-i18next": "catalog:",
     "react-router": "catalog:react-router8",
     "zod": "catalog:"
   },
@@ -37,6 +41,7 @@
     "@tailwindcss/vite": "catalog:tailwind4",
     "@testing-library/jest-dom": "catalog:testing",
     "@testing-library/react": "catalog:testing",
+    "@testing-library/user-event": "catalog:testing",
     "@types/babel__core": "^7.20.5",
     "@types/node": "catalog:",
     "@types/react": "catalog:react19",

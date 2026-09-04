@@ -7,9 +7,9 @@ import { expect, test } from "@playwright/test";
  * demonstrably came from the server rather than from JavaScript that ran after
  * paint.
  *
- * The `request` fixture does not inherit the project's `locale`, so the header
- * is sent by hand; once the i18n ticket lands, that header is what decides the
- * language of this response.
+ * The `request` fixture inherits neither the project's `locale` nor a cookie
+ * jar, which is what makes it the right tool for i18n too: every case states the
+ * exact headers the server negotiates from.
  */
 test.describe("server rendering", () => {
   test("sends the home page complete, before any JavaScript runs", async ({

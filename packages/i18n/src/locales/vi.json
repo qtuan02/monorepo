@@ -351,5 +351,33 @@
       "hook": "Không có hook nào tên “{slug}”.",
       "back": "Về trang Bắt đầu"
     }
+  },
+  "templateReactRouter": {
+    "home": {
+      "meta": {
+        "title": "Template React Router — Monorepo ({appEnv})",
+        "description": "Template app cho Runtime React Router 8 framework mode: SSR qua react-router-serve, cùng hệ sinh thái Vite với Template SPA."
+      },
+      "eyebrow": "Runtime · React Router framework mode",
+      "title": "Template React Router",
+      "lead": "Trang này được server render và gửi đi hoàn chỉnh trước khi bất kỳ JavaScript nào chạy. Clone app này khi cần SSR/SEO mà vẫn muốn ở trong hệ sinh thái Vite — cùng bundler, cùng React Compiler, cùng cây thư mục src/ với Template SPA.",
+      "specs": {
+        "render": {
+          "label": "Render",
+          "value": "SSR, ssr: true"
+        },
+        "runner": {
+          "label": "Runner",
+          "value": "react-router-serve"
+        },
+        "routeTable": {
+          "label": "Bảng route",
+          "value": "src/routes.ts + href()"
+        },
+        "environment": {
+          "label": "Môi trường"
+        }
+      }
+    }
   }
 }

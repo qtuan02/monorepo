@@ -1,57 +1,77 @@
+import { useTranslation } from "react-i18next";
+
 type HomeTemplateProps = {
   /** The environment this bundle was built against, resolved by the route's loader. */
   appEnv: string;
 };
 
 /**
- * The home screen, rendered on the server before any JavaScript runs.
+ * The home screen, rendered on the server before any JavaScript runs — in the
+ * language `root.tsx`'s middleware negotiated for this request, because
+ * `entry.server` wraps the tree in an i18next instance fixed to it. So the same
+ * `useTranslation()` a client component would write produces translated markup
+ * in the first response here.
  *
- * The strings are literals for now. The i18n ticket moves them into the shared
- * ICU catalogue under a `templateReactRouter.*` namespace and threads the
- * negotiated language down from `root.tsx`; until then a literal is honest,
- * where a half-wired `t()` would not be.
+ * No `<main>` and no `min-h-dvh`: the `layout` slice owns both, and this renders
+ * into `BodyTemplate`'s `<Outlet />`.
  */
 export default function HomeTemplate({ appEnv }: HomeTemplateProps) {
+  const { t } = useTranslation();
+
   return (
-    <main className="container mx-auto flex min-h-dvh flex-col justify-center gap-8 px-4 py-12 sm:px-6 lg:px-8">
+    <section className="flex flex-col gap-8 py-12">
       <header className="flex flex-col gap-3">
         <p className="text-muted-foreground text-xs font-medium tracking-widest uppercase">
-          Runtime · React Router framework mode
+          {t("templateReactRouter.home.eyebrow")}
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-          Template React Router
+          {t("templateReactRouter.home.title")}
         </h1>
+        {/* The lead carries no markup of its own. A catalogue message may not
+            hold a rich-text tag — it is the one construct the i18next and
+            next-intl Flavors cannot agree on, and
+            `catalogue-invariants.test.ts` fails any message containing one — so
+            the path it used to wrap in a <code> is plain prose instead. */}
         <p className="text-muted-foreground max-w-prose text-sm leading-relaxed">
-          Trang này được server render và gửi đi hoàn chỉnh trước khi bất kỳ
-          JavaScript nào chạy. Clone app này khi cần SSR/SEO mà vẫn muốn ở trong
-          hệ sinh thái Vite — cùng bundler, cùng React Compiler, cùng cây{" "}
-          <code className="bg-muted rounded px-1 py-0.5 text-xs">src/</code> với
-          Template SPA.
+          {t("templateReactRouter.home.lead")}
         </p>
       </header>
 
       <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="border-border rounded-lg border p-4">
-          <dt className="text-muted-foreground text-xs font-medium">Render</dt>
-          <dd className="mt-1 text-sm font-medium">SSR, ssr: true</dd>
-        </div>
-        <div className="border-border rounded-lg border p-4">
-          <dt className="text-muted-foreground text-xs font-medium">Runner</dt>
-          <dd className="mt-1 text-sm font-medium">react-router-serve</dd>
+          <dt className="text-muted-foreground text-xs font-medium">
+            {t("templateReactRouter.home.specs.render.label")}
+          </dt>
+          <dd className="mt-1 text-sm font-medium">
+            {t("templateReactRouter.home.specs.render.value")}
+          </dd>
         </div>
         <div className="border-border rounded-lg border p-4">
           <dt className="text-muted-foreground text-xs font-medium">
-            Route table
+            {t("templateReactRouter.home.specs.runner.label")}
           </dt>
-          <dd className="mt-1 text-sm font-medium">src/routes.ts + href()</dd>
+          <dd className="mt-1 text-sm font-medium">
+            {t("templateReactRouter.home.specs.runner.value")}
+          </dd>
         </div>
         <div className="border-border rounded-lg border p-4">
           <dt className="text-muted-foreground text-xs font-medium">
-            Environment
+            {t("templateReactRouter.home.specs.routeTable.label")}
           </dt>
+          <dd className="mt-1 text-sm font-medium">
+            {t("templateReactRouter.home.specs.routeTable.value")}
+          </dd>
+        </div>
+        <div className="border-border rounded-lg border p-4">
+          <dt className="text-muted-foreground text-xs font-medium">
+            {t("templateReactRouter.home.specs.environment.label")}
+          </dt>
+          {/* The one value that is not a catalogue string: it comes from the
+              loader, so a screen that ignored `loaderData` would show nothing
+              here. */}
           <dd className="mt-1 text-sm font-medium">{appEnv}</dd>
         </div>
       </dl>
-    </main>
+    </section>
   );
 }

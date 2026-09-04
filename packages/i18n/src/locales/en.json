@@ -351,5 +351,33 @@
       "hook": "No hook is named “{slug}”.",
       "back": "Back to getting started"
     }
+  },
+  "templateReactRouter": {
+    "home": {
+      "meta": {
+        "title": "React Router Template — Monorepo ({appEnv})",
+        "description": "Template app for the React Router 8 framework-mode Runtime: SSR through react-router-serve, on the same Vite toolchain as the SPA Template."
+      },
+      "eyebrow": "Runtime · React Router framework mode",
+      "title": "React Router Template",
+      "lead": "This page is server rendered and sent complete before any JavaScript runs. Clone this app when you need SSR/SEO without leaving the Vite toolchain — the same bundler, the same React Compiler and the same src/ tree as the SPA Template.",
+      "specs": {
+        "render": {
+          "label": "Render",
+          "value": "SSR, ssr: true"
+        },
+        "runner": {
+          "label": "Runner",
+          "value": "react-router-serve"
+        },
+        "routeTable": {
+          "label": "Route table",
+          "value": "src/routes.ts + href()"
+        },
+        "environment": {
+          "label": "Environment"
+        }
+      }
+    }
   }
 }
