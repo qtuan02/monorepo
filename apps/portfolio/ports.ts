@@ -11,7 +11,7 @@
  * Playwright loads this file as CommonJS, where `import.meta` is a syntax
  * error.
  *
- * This file is byte-identical in both Template apps on purpose, so it names
+ * This file is byte-identical in every Template app on purpose, so it names
  * neither the app nor a Runtime-specific config file — which config reads which
  * export is stated at the exports themselves.
  *
@@ -39,14 +39,21 @@ function readPort(line: string, pattern: RegExp): number {
 
 /**
  * The port `bun run dev` binds — and, in the Next Runtime, `bun run start` too.
- * Only a Vite Runtime imports this binding (its `vite.config.ts` takes
- * `server.port` from it); a Next app's scripts read the same `PORT=` line
- * straight out of `ports.env` through dotenv-cli, so there this export exists to
- * make a `ports.env` missing that line throw while a config loads.
+ *
+ * A Runtime whose dev server is Vite imports this binding and hands it to
+ * `server.port` in its own `vite.config.ts` — that is the Vite SPA Runtime and
+ * the React Router framework Runtime, since `react-router dev` *is* a Vite dev
+ * server. A Next app has no config-level port option, so its scripts read the
+ * same `PORT=` line straight out of `ports.env` through dotenv-cli, and there
+ * this export exists to make a `ports.env` missing that line throw while a
+ * config loads.
  */
 export const DEV_PORT = readPort("PORT=<number>", /^PORT=(\d+)/m);
 /**
- * The production server Playwright starts for `bun run e2e`. Both Runtimes
- * import this one — Vite as `preview.port`, Next as `webServer.env.PORT`.
+ * The production server Playwright starts for `bun run e2e`. Every Runtime
+ * imports this one, but not into the same place: the Vite SPA Runtime has a
+ * second config-level server and takes it as `preview.port`, while the Next and
+ * React Router framework Runtimes start a real Node process that reads only
+ * `PORT`, so there it goes through `webServer.env.PORT`.
  */
 export const E2E_PORT = readPort("E2E_PORT=<number>", /^E2E_PORT=(\d+)/m);
