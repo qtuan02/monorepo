@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: done
 ---
 
 # 05 — Migrate `assistant-ai` lên `_template_next` với bộ AI SDK mới nhất
@@ -8,7 +8,7 @@ status: ready-for-human
 
 **Blocked by:** 04 — `mcp-weather` là dependency runtime (MCP_DOMAIN) và là mẫu cho route handler + env server; 03 — quy ước env.
 
-**Status:** `ready-for-human` (2026-09-04) — xem Notes: 6/7 ô đã đạt, ô cuối chờ một lượt chạy CI.
+**Status:** `done` (2026-09-04) — 7/7. Ô cuối đóng bằng run CI `33881207486`; xem mục bằng chứng ở cuối.
 
 ## Acceptance criteria
 
@@ -19,7 +19,7 @@ status: ready-for-human
 - [x] `env.ts`: `GOOGLE_GENERATIVE_AI_API_KEY` (server, bắt buộc ở môi trường thật, optional khi build với key giả — quyết cách để `next build` không cần key thật và ghi vào Notes), `MCP_DOMAIN` (server, optional, `httpUrlSchema`), `NEXT_PUBLIC_ASSISTANT_AI_SENTRY_DSN`; `.env.example`, Docker ARG cập nhật. — **đạt, với một sai lệch cố ý về tên key, xem Quyết định 2.**
 - [x] E2E trên bản build: màn chat render, ô nhập và nút gửi có accessible name; gửi một tin với key giả → UI hiện lỗi có cấu trúc thay vì treo (mock ở seam thấp nhất: provider hoặc fetch); một spec raw HTML + locale như Template. Xanh local và trên job `e2e` CI; job `docker` xanh. — **local đạt; CI còn trống, xem cuối Notes.**
 - [x] README `apps/assistant-ai` (thay `legacy/docs/apps/ASSISTANT-AI.md`): key Gemini, `MCP_DOMAIN` trỏ `mcp-weather`, model mặc định; `legacy/README.md` dòng `assistant-ai` cập nhật.
-- [ ] Gate xanh 0 warning; output vào Notes. — **Gate xanh (output bên dưới); ô này còn hở đúng job `docker` trên CI.**
+- [x] Gate xanh 0 warning; output vào Notes. — Gate xanh (output bên dưới), và `docker (assistant-ai)` **success** trong 3m52s ở run `33881207486`.
 
 ## Notes
 
@@ -297,3 +297,35 @@ URL run:
 job docker (assistant-ai):
 job e2e (assistant-ai):
 ```
+
+---
+
+## Bằng chứng — run CI đầu tiên phủ ticket này (2026-09-04)
+
+**Run URL:** https://github.com/qtuan02/monorepo/actions/runs/33881207486
+**Commit:** `380d0fc` trên `feat/upgrade` · **14/14 job `success`**
+
+Kết quả đọc bằng `gh run view 33881207486 --json jobs`, tức là **conclusion của từng job**, không
+phải dấu tick của run — `continue-on-error: true` làm run báo xanh kể cả khi một job đỏ, và đó
+chính là cái bẫy ticket 02 cảnh báo. Câu lệnh đối chứng:
+
+```bash
+gh run view 33881207486 --json jobs --jq '[.jobs[] | select(.conclusion != "success")] | length'
+# → 0
+```
+
+| Job | Kết quả | Thời gian |
+|---|---|---|
+| `check` · `typecheck` · `test` · `build` (Gate) | success | 43s · 43s · 58s · 2m21s |
+| `e2e` | success | 4m5s |
+| `docker (_template_vite)` | success | 1m40s |
+| `docker (_template_next)` | success | 2m39s |
+| `docker (storybook)` | success | 1m23s |
+| `docker (portfolio)` | success | 3m24s |
+| `docker (mcp-weather)` | success | 2m38s |
+| `docker (documents)` | success | 2m24s |
+| `docker (assistant-ai)` | success | 3m52s |
+| `publish-smoke` · `changeset-status` | success | 42s · 26s |
+
+Gate cũng được chạy lại trên máy trước khi push, xanh 4/4 0 warning: `check` 666 file no fixes ·
+`typecheck` 18/18 · `test` 14/14 · `build` 9/9 trong 2m18s.

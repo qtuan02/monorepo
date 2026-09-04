@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: done
 ---
 
 # 12 — Gate cuối 0 lỗi 0 warning và kiểm tay tổng
@@ -8,7 +8,7 @@ status: ready-for-human
 
 **Blocked by:** 11 — Skills, MCP, GitNexus, docs.
 
-**Status:** `ready-for-human` (chạy 2026-09-04 trên nhánh `feat/upgrade`, commit `0708b4b` → `d964157`; **bảy trong chín ô xong**, hai ô còn lại đều là Docker — nay đã có **đường chạy**, chưa có **kết quả**: xem "Bằng chứng — job `docker` trên CI")
+**Status:** `done` (2026-09-04) — **chín trên chín ô**. Hai ô Docker đã đóng: `docker build` bằng run CI `33881207486` (bảy job matrix, tất cả `success`), và hai kiểm container bằng một lượt `docker run` thật trên máy sau khi Docker Desktop được cài lại. Xem "Bằng chứng — job `docker` trên CI" và "Bằng chứng — hai kiểm container".
 
 > **Vì sao vẫn chưa phải `done` (cập nhật 2026-09-04, ticket `legacy-migrate/02`).** `docs/agents/triage-labels.md` định nghĩa `done` là "Implemented **and** verified, with the verification recorded in the ticket's own body". Hai vế đó nay tách hẳn nhau:
 >
@@ -23,10 +23,10 @@ status: ready-for-human
 - [x] `bun install --frozen-lockfile` không thay đổi `bun.lock`
 - [x] `bun run check`: 0 error, 0 warning (nâng các rule đang `warn` lên `error` — xem "Quyết định của lượt này" #4); `bun run typecheck`, `bun run test`, `bun run build` xanh, không warning trong log build (bốn nguồn warning đã xử lý — #1–#3)
 - [x] `bunx playwright test --project=chromium` xanh cho cả hai template — **7/7 (`_template_vite`) và 6/6 (`_template_next`)** local; job `e2e` trên CI **xanh** ở run #2 (vẫn `continue-on-error`), sau khi sửa một lỗi mà chỉ CI mới lộ — xem "Bằng chứng — CI"
-- [ ] `docker build` thành công cho `_template_vite`, `_template_next`, `storybook` — **job CI đã có, chưa có run**: `legacy-migrate/02` thêm job `docker` non-blocking dựng cả ba image; ô này tick khi run đầu tiên xanh (xem "Bằng chứng — job `docker` trên CI")
-- [ ] container `_template_vite` trả 404 cho file không tồn tại thay vì index; container `_template_next` trả trang SSR — **tách khỏi ô trên và vẫn treo**: job `docker` dựng image chứ không chạy container (`load: false`), nên nó không chứng minh được hai kiểm này (xem "Còn treo")
+- [x] `docker build` thành công cho `_template_vite`, `_template_next`, `storybook` — run `33881207486` xanh cho **cả bảy** image (ba app này cộng bốn app migrate), đọc theo conclusion từng job (xem "Bằng chứng — job `docker` trên CI")
+- [x] container `_template_vite` trả 404 cho file không tồn tại thay vì index; container `_template_next` trả trang SSR — chứng minh bằng `docker run` trên máy (Docker Desktop 29.7.2), **không** bằng job CI, vốn vẫn chỉ build (xem "Bằng chứng — hai kiểm container")
 - [x] Storybook mở thật: checklist orientation của ticket 06 tick lại; `_template_vite` đổi ngôn ngữ đổi weekday trên clock; `_template_next` đổi `[locale]` đổi nội dung SSR
-- [~] `docs/research/personal-monorepo-rebuild.md` (bản research) và thư mục plan này được copy sang Target (`docs/research/`, `.agents/plans/personal-monorepo-rebuild/`) với mọi ticket `status: done`; bản ở reference giữ nguyên làm lịch sử — **copy xong**, ticket 01–11 đều `status: done`; **hai chỗ cố ý lệch chữ của ô này:** ticket này và `spec.md` là `ready-for-human` chứ không `done` (lý do ngay trên), và `adr/` + `CONTEXT.md` **không** được copy vì chúng đã được *chuyển* về `docs/adr/` và root ở ticket 01 (xem `decisions.md` § "Ghi chú khi copy")
+- [~] `docs/research/personal-monorepo-rebuild.md` (bản research) và thư mục plan này được copy sang Target (`docs/research/`, `.agents/plans/personal-monorepo-rebuild/`) với mọi ticket `status: done`; bản ở reference giữ nguyên làm lịch sử — **copy xong**, ticket 01–11 đều `status: done`; **một chỗ cố ý lệch chữ của ô này:** ticket này nay đã `done` (2026-09-04), nhưng `spec.md` vẫn **chưa** — không phải vì ticket này, mà vì `13-khoan-treo-cua-07-08.md` còn 8 ô mở, và `adr/` + `CONTEXT.md` **không** được copy vì chúng đã được *chuyển* về `docs/adr/` và root ở ticket 01 (xem `decisions.md` § "Ghi chú khi copy")
 - [x] Ghi vào `decisions.md` mọi chỗ version thực tế khác số ngày 2026-09-03
 
 ---
@@ -117,7 +117,7 @@ Sửa: một step `apt-get install -y --no-install-recommends unzip` **trước*
 
 ## Bằng chứng — job `docker` trên CI (2026-09-04, ticket `legacy-migrate/02`)
 
-**Trạng thái: đường chạy đã có, bằng chứng thì chưa.** Đọc mục này như một phiếu còn trống chứ không như một kết quả.
+**Trạng thái: đã có bằng chứng (2026-09-04).** Phiếu bên dưới đã điền — xem "Kết quả" ở cuối mục. Phần mô tả giữa giữ nguyên văn của lượt viết ticket, làm lịch sử.
 
 ### Đã làm
 
@@ -173,17 +173,84 @@ bun -e 'const d = Bun.YAML.parse(await Bun.file(".github/workflows/ci.yml").text
 2. Cả ba job matrix — `docker (_template_next)`, `docker (_template_vite)`, `docker (storybook)` — báo **success**. Nhớ: `continue-on-error: true` làm cả workflow báo `success` kể cả khi ba job này đỏ, nên phải mở từng job chứ không nhìn dấu tick của run.
 3. URL run được dán vào đây thay cho dòng dưới:
 
-   > **Run URL:** _(chưa có — điền `https://github.com/<owner>/<repo>/actions/runs/<id>` sau lượt push đầu tiên)_
+   > **Run URL:** https://github.com/qtuan02/monorepo/actions/runs/33881207486
+   > (commit `380d0fc`, nhánh `feat/upgrade`, 2026-09-04)
    >
    > | Job matrix | Kết quả | Thời gian |
    > |---|---|---|
-   > | `docker (_template_next)` | _(chưa chạy)_ | — |
-   > | `docker (_template_vite)` | _(chưa chạy)_ | — |
-   > | `docker (storybook)` | _(chưa chạy)_ | — |
+   > | `docker (_template_next)` | **success** | 2m39s |
+   > | `docker (_template_vite)` | **success** | 1m40s |
+   > | `docker (storybook)` | **success** | 1m23s |
+   > | `docker (portfolio)` | **success** | 3m24s |
+   > | `docker (mcp-weather)` | **success** | 2m38s |
+   > | `docker (documents)` | **success** | 2m24s |
+   > | `docker (assistant-ai)` | **success** | 3m52s |
+   >
+   > Bảy chứ không phải ba: matrix suy ra từ `find apps -name Dockerfile`, nên bốn app về sau
+   > của topic `legacy-migrate` được phủ mà không sửa gì trong `ci.yml` — đúng như mục "Đã làm"
+   > ở trên dự đoán. Cả run: **14/14 job `success`**.
+   >
+   > Đọc theo **conclusion từng job**, không theo dấu tick của run:
+   >
+   > ```bash
+   > gh run view 33881207486 --json jobs --jq '[.jobs[] | select(.conclusion != "success")] | length'
+   > # → 0
+   > ```
+   >
+   > Dự đoán "`ARG BUN_VERSION=1` tag trôi có thể làm đúng một image đỏ" ở cuối mục này **không
+   > xảy ra** lượt này — `_template_next` xanh. Rủi ro vẫn còn nguyên vì tag vẫn trôi; nó chỉ
+   > chưa nổ.
 
 4. Ô 6 (hai kiểm container) đã được xử lý — hoặc chứng minh, hoặc chuyển sang một ticket có tên. Job này **không** chứng minh nó: xem "Còn treo".
 
 Nếu một image đỏ: sửa Dockerfile đó, ghi nguyên nhân vào đây và vào `legacy-migrate/02` § Notes — đó chính là việc ô này chờ từ đầu. Một ứng viên đã biết trước: `apps/_template_next/Dockerfile:1` ghim `ARG BUN_VERSION=1` (tag trôi) trong khi hai file kia ghim `1.4.0`, nên một bản Bun mới có thể làm đúng một image đỏ mà hai image kia xanh.
+
+## Bằng chứng — hai kiểm container (2026-09-04)
+
+Ô 6 nói rõ job `docker` **không** chứng minh được nó: job chạy `push: false, load: false` nên
+image không bao giờ tồn tại ở dạng chạy được trên runner. Hai kiểm này vì thế chạy trên máy, sau
+khi Docker Desktop được cài lại (`docker info` → `29.7.2 linux`; lúc viết ticket `command -v docker`
+còn rỗng).
+
+```bash
+docker build -f apps/_template_vite/Dockerfile -t smoke-tpl-vite:local .   # 103MB
+docker run -d --name smoke-vite -p 8091:80 smoke-tpl-vite:local
+
+docker build -f apps/_template_next/Dockerfile -t smoke-tpl-next:local .   # 326MB
+docker run -d --name smoke-next -p 8092:3000 smoke-tpl-next:local
+```
+
+Không truyền `--build-arg` nào, đúng như mục "tiền đề sai" ở trên đã chốt: `BUILD_ENV` mặc định
+là `example` và `.env.example` nằm sẵn trong context.
+
+**`_template_vite` — 404 cho file không tồn tại, không phải `index.html`:**
+
+| Request | Status | Ghi chú |
+|---|---|---|
+| `GET /` | 200 | trang SPA |
+| `GET /assets/nope-1234.js` | **404** | body là trang 404 của nginx, **không** phải `index.html` |
+| `GET /some/spa/route` | 200 | history fallback — đúng, route SPA *phải* trả index |
+
+Đây là điều ô này thật sự hỏi: history fallback chỉ được áp cho **route**, không được nuốt một
+asset thiếu thành 200. Body của request thứ hai:
+
+```html
+<html><head><title>404 Not Found</title></head>
+<body><center><h1>404 Not Found</h1></center><hr><center>nginx/1.30.4</center></body></html>
+```
+
+**`_template_next` — trả trang SSR:**
+
+| Request | Status | Ghi chú |
+|---|---|---|
+| `GET /` | 200 | `<html lang="vi"`, `<title>Phân hệ · Template Web</title>`, 59.665 byte |
+| `GET /en` | 200 | prefix locale hoạt động trong image |
+| `GET /nope-route` | **404** | status thật, không phải trang 200 rỗng |
+
+59KB nội dung ở request đầu tiên, đọc bằng `curl` — không trình duyệt, không hydration — nên nó
+đến từ server chứ không từ JS.
+
+Container và image đã xoá sau khi đo (`docker rm -f`, `docker rmi -f`); không còn gì sót lại.
 
 ## Bằng chứng — kiểm tay (2026-09-04)
 
@@ -245,20 +312,20 @@ after  (en): Friday, 04/09/2026
 
 > **Ba khoản dưới đây đã được giao cho [ticket 13](./13-khoan-treo-cua-07-08.md).** Ticket 07 viết bản sửa port "thuộc ticket này", ticket 08 viết bản sửa `next start`/standalone "thuộc ticket này" — nhưng cả hai đã `status: done`, và ticket 12 chỉ liệt kê lại chứ không nhận, nên ba khoản đó có một lúc không ticket nào sở hữu. Ticket 13 nhận cả ba (cộng `<html lang>`), `status: ready-for-agent`. Phần mô tả bên dưới giữ nguyên làm bối cảnh của lượt này.
 
-- **Ba ô `docker build` — đã có đường chạy (cập nhật 2026-09-04).** Đoạn dưới giữ nguyên làm bối cảnh của lượt gốc; phần "hoặc để job CI dựng image" nay **đã làm**, xem "Bằng chứng — job `docker` trên CI". Còn lại đúng một việc: push và đọc run.
+- **Ba ô `docker build` — ĐÃ XONG (2026-09-04).** Nhánh đã push, run `33881207486` xanh cho cả bảy image, đọc theo conclusion từng job. Không còn khoản treo nào ở đây. Đoạn dưới giữ nguyên làm bối cảnh của lượt gốc.
 
   > **Ba ô `docker build` và hai kiểm container (404 của `_template_vite`, trang SSR của `_template_next`) không chạy được:** máy này **không còn Docker**. `C:\Program Files\Docker` rỗng, `%LOCALAPPDATA%\Programs\DockerDesktop` chỉ còn `tmp-delete`, `Get-Command docker/podman` không trả gì, `wsl -l -v` báo không có distribution nào. Không suy đoán thay: ba Dockerfile đã được đọc và đúng hình (ticket 06/07/08 ghi từng dòng), nhưng "đúng hình" không phải "build được". Cần chạy lại ô này trên một máy có Docker, hoặc để job CI dựng image.
 
-- **Hai kiểm container vẫn treo, và job `docker` không gỡ được chúng.** Job dựng image với `push: false` + `load: false` — nó không bao giờ khởi động một container, nên nó chứng minh "image build được" chứ không chứng minh "container trả 404 cho file không tồn tại" hay "container trả trang SSR". Đó là lý do ô cũ được tách làm hai ô ở đầu ticket: một ô CI đóng được, một ô thì không.
+- **Hai kiểm container — ĐÃ XONG (2026-09-04), bằng đường 2.** Docker Desktop được cài lại trên máy (`docker info` → `29.7.2 linux`), hai image được build và `docker run` thật, kết quả ở "Bằng chứng — hai kiểm container". Đường 1 (`load: true` trong CI) **không** được chọn và `ci.yml` không đổi — nó vẫn `load: false`, đúng AC của `legacy-migrate/02`. Phân tích gốc giữ nguyên vì nó vẫn đúng: job `docker` không bao giờ khởi động container, nên CI vẫn không thay được lượt chạy tay này nếu cần đo lại.
 
   Hai đường đi tiếp, chọn một và ghi vào ticket nhận:
 
   1. **Mở rộng job `docker`**: `load: true` cho riêng hai Template (buộc build single-platform), rồi `docker run -d -p` + `curl` — một lượt cho 404 của nginx, một lượt cho HTML SSR của Next. Đắt hơn (phải export mọi layer sang daemon của runner) nhưng khép kín trong CI.
   2. **Chạy tay một lần trên máy có Docker** và dán kết quả vào đây — đúng nghĩa `ready-for-human` của `triage-labels.md`, và cũng là thứ US45 của `spec.md` viết ("bằng tay").
 
-  Chưa chọn trong lượt này vì AC của `legacy-migrate/02` viết thẳng `load: false`, nên đổi sang `load: true` sẽ là làm khác ticket chứ không phải làm đúng nó. Khoản này cần một ticket riêng — nó **chưa** có chủ.
+  Đã chọn **đường 2** (2026-09-04), đúng lý do viết sẵn ở đây: đổi sang `load: true` sẽ là làm khác `legacy-migrate/02` chứ không phải làm đúng nó. Khoản này không cần ticket riêng nữa.
 
-  Có thử đường vòng gần nhất — chạy thẳng `node .next/standalone/apps/_template_next/server.js` (đúng binary image sẽ chạy) sau khi copy `public` + `.next/static` vào — và nó **chết trên Windows** với `EPERM: operation not permitted, stat …\.next\standalone\node_modules\.bun\next@…\node_modules\react`: Node không stat được symlink mà `next build` sinh trong standalone. Đây là giới hạn của Windows, không phải của image (runner là `node:24-alpine`), nên nó cũng không thay thế được lượt Docker.
+  Lượt gốc có thử đường vòng gần nhất — chạy thẳng `node .next/standalone/apps/_template_next/server.js` (đúng binary image sẽ chạy) sau khi copy `public` + `.next/static` vào — và nó **chết trên Windows** với `EPERM: operation not permitted, stat …\.next\standalone\node_modules\.bun\next@…\node_modules\react`: Node không stat được symlink mà `next build` sinh trong standalone. Đây là giới hạn của Windows, không phải của image (runner là `node:24-alpine`), nên nó cũng không thay thế được lượt Docker.
 
 - **Job `e2e` vẫn `continue-on-error: true`.** Nó đã xanh một lần (run #2) — nhưng run #1 cho thấy đúng cái giá của cờ đó: job đỏ mà cả workflow vẫn báo `success`, và nếu không đi đọc từng job thì không ai biết. Xoá dòng đó biến E2E thành gate thật; nên làm sau vài run nữa để chắc suite không flaky, và đó là một quyết định, không phải một khoản treo kỹ thuật.
 

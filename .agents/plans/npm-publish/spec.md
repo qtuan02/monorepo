@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: ready-for-human
 date: 2026-09-04
 adr: ../../../docs/adr/0004-npm-publish-qua-publish-shell.md, ../../../docs/adr/0001-legacy-apps-outside-workspace.md
 research: ../../../docs/research/legacy-unfreeze-and-npm-publish.md

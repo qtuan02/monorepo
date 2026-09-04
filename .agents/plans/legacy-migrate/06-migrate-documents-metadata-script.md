@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: done
 ---
 
 # 06 — Migrate `documents` lên `_template_vite`; metadata sinh bằng script từ source `ui`/`hook`
@@ -8,7 +8,7 @@ status: ready-for-human
 
 **Blocked by:** 01 — port; **`npm-publish` 02** — bề mặt publish của `ui` (exports, CSS entry, `@source`) đã chốt, để site không viết lại lần nữa.
 
-**Status:** `ready-for-human` (2026-09-04) — xem Notes: 6/8 ô đã đạt, hai ô còn lại chờ một lượt chạy CI.
+**Status:** `done` (2026-09-04) — 8/8. Hai ô cuối đóng bằng run CI `33881207486`; xem mục bằng chứng ở cuối.
 
 ## Acceptance criteria
 
@@ -17,9 +17,9 @@ status: ready-for-human
 - [x] Nội dung viết cho consumer `@fe-monorepo/*`: trang "Bắt đầu" (cài, peer, CSS entry, `@source`, ví dụ Button), trang mỗi primitive/hook, bảng tổng; ví dụ import dùng tên npm, không `@monorepo/*`; link sang Storybook cho demo (URL Storybook qua `PUBLIC_DOCUMENTS_STORYBOOK_URL` trong `env.ts`, quy ước tên app của ticket 03).
 - [x] Routing: `ROUTES` constant + tree trong `pages/main.tsx`, builder cho `/components/:slug` và `/hooks/:slug`; guard không cần (site public) — bỏ `ProtectedRoute`/`GuestRoute`/auth slice của Template nếu không dùng, ghi vào Notes; catch-all 404 giữ.
 - [x] Env: `envPrefix` `PUBLIC_` (Template), không `VITE_`; `vercel.json` rewrite SPA giữ nếu deploy Vercel; Dockerfile/nginx của Template.
-- [ ] Test: `test/` soi gương `src/` cho script và cho nhánh trang primitive (slug không tồn tại → 404); ít nhất một `.e2e.ts`: mở `/`, đi tới một trang primitive qua link, thấy bảng export; xanh local và trên job `e2e` CI.
+- [x] Test: `test/` soi gương `src/` cho script và cho nhánh trang primitive (slug không tồn tại → 404); ít nhất một `.e2e.ts`: mở `/`, đi tới một trang primitive qua link, thấy bảng export; xanh local và trên job `e2e` CI.
 - [x] README `apps/documents` (thay hai mục còn giá trị của `legacy/docs/apps/DOCUMENTS.md`: nạp metadata, bảng route); `legacy/README.md` dòng `documents` cập nhật.
-- [ ] Gate xanh 0 warning; job `docker` xanh; output vào Notes.
+- [x] Gate xanh 0 warning; job `docker` xanh; output vào Notes.
 
 ## Notes
 
@@ -168,3 +168,35 @@ URL run:
 job e2e (documents):
 job docker (documents):
 ```
+
+---
+
+## Bằng chứng — run CI đầu tiên phủ ticket này (2026-09-04)
+
+**Run URL:** https://github.com/qtuan02/monorepo/actions/runs/33881207486
+**Commit:** `380d0fc` trên `feat/upgrade` · **14/14 job `success`**
+
+Kết quả đọc bằng `gh run view 33881207486 --json jobs`, tức là **conclusion của từng job**, không
+phải dấu tick của run — `continue-on-error: true` làm run báo xanh kể cả khi một job đỏ, và đó
+chính là cái bẫy ticket 02 cảnh báo. Câu lệnh đối chứng:
+
+```bash
+gh run view 33881207486 --json jobs --jq '[.jobs[] | select(.conclusion != "success")] | length'
+# → 0
+```
+
+| Job | Kết quả | Thời gian |
+|---|---|---|
+| `check` · `typecheck` · `test` · `build` (Gate) | success | 43s · 43s · 58s · 2m21s |
+| `e2e` | success | 4m5s |
+| `docker (_template_vite)` | success | 1m40s |
+| `docker (_template_next)` | success | 2m39s |
+| `docker (storybook)` | success | 1m23s |
+| `docker (portfolio)` | success | 3m24s |
+| `docker (mcp-weather)` | success | 2m38s |
+| `docker (documents)` | success | 2m24s |
+| `docker (assistant-ai)` | success | 3m52s |
+| `publish-smoke` · `changeset-status` | success | 42s · 26s |
+
+Gate cũng được chạy lại trên máy trước khi push, xanh 4/4 0 warning: `check` 666 file no fixes ·
+`typecheck` 18/18 · `test` 14/14 · `build` 9/9 trong 2m18s.

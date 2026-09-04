@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: done
 ---
 
 # 04 — Migrate `mcp` thành `mcp-weather` trên `_template_next`, giữ nguyên hợp đồng MCP
@@ -8,7 +8,7 @@ status: ready-for-human
 
 **Blocked by:** 03 — quy ước env key theo tên app và đường e2e/docker đã được chứng minh trên portfolio.
 
-**Status:** `ready-for-human` (2026-09-04) — xem Notes: 5/6 ô đã đạt, ô cuối chờ một lượt chạy CI.
+**Status:** `done` (2026-09-04) — 6/6. Ô cuối đóng bằng run CI `33881207486`; xem mục bằng chứng ở cuối.
 
 ## Acceptance criteria
 
@@ -17,7 +17,7 @@ status: ready-for-human
 - [x] `env.ts`: `OPENWEATHERMAP_API_KEY` (server, không prefix, tên có prefix app hay không — theo quy ước ticket 03, ghi lựa chọn vào Notes) và `NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN`; `.env.example` và Docker ARG cập nhật; e2e chạy được với key giả (mock fetch tới OpenWeatherMap tại seam thấp nhất có thể, hoặc tool trả lỗi có cấu trúc khi key giả — hợp đồng MCP vẫn được chứng minh).
 - [x] E2E bằng `request` fixture trên bản build (`next start`): `initialize` → `tools/list` trả đúng ba tên tool; một `tools/call` `hello-world` trả đúng; xanh local và trên job `e2e` CI.
 - [x] `vercel.json` giữ nếu bản cũ có; README `apps/mcp-weather` ghi URL endpoint, ba tool, key cần, app nào đang gọi (`assistant-ai` qua `MCP_DOMAIN`, và BE ngoài repo); nội dung `legacy/docs/apps/MCP.md` được thay thế; `legacy/README.md` dòng `mcp` cập nhật tên mới và trạng thái.
-- [ ] Không còn `@modelcontextprotocol/sdk ^1.0`, `@t3-oss/env-nextjs` trực tiếp, `jiti`; Gate xanh 0 warning; job `docker` xanh; output vào Notes.
+- [x] Không còn `@modelcontextprotocol/sdk ^1.0`, `@t3-oss/env-nextjs` trực tiếp, `jiti`; Gate xanh 0 warning; job `docker` xanh; output vào Notes. — kiểm lại cả ba: catalog `ai-sdk` ghim `@modelcontextprotocol/sdk: ^1.30.0` (hai app đều `catalog:ai-sdk`), `@t3-oss/env-nextjs` chỉ còn trong `packages/env` chứ không app nào khai trực tiếp, và `jiti` không còn ở đâu.
 
 ## Notes
 
@@ -233,3 +233,35 @@ URL run:
 job docker (mcp-weather):
 job e2e (mcp-weather):
 ```
+
+---
+
+## Bằng chứng — run CI đầu tiên phủ ticket này (2026-09-04)
+
+**Run URL:** https://github.com/qtuan02/monorepo/actions/runs/33881207486
+**Commit:** `380d0fc` trên `feat/upgrade` · **14/14 job `success`**
+
+Kết quả đọc bằng `gh run view 33881207486 --json jobs`, tức là **conclusion của từng job**, không
+phải dấu tick của run — `continue-on-error: true` làm run báo xanh kể cả khi một job đỏ, và đó
+chính là cái bẫy ticket 02 cảnh báo. Câu lệnh đối chứng:
+
+```bash
+gh run view 33881207486 --json jobs --jq '[.jobs[] | select(.conclusion != "success")] | length'
+# → 0
+```
+
+| Job | Kết quả | Thời gian |
+|---|---|---|
+| `check` · `typecheck` · `test` · `build` (Gate) | success | 43s · 43s · 58s · 2m21s |
+| `e2e` | success | 4m5s |
+| `docker (_template_vite)` | success | 1m40s |
+| `docker (_template_next)` | success | 2m39s |
+| `docker (storybook)` | success | 1m23s |
+| `docker (portfolio)` | success | 3m24s |
+| `docker (mcp-weather)` | success | 2m38s |
+| `docker (documents)` | success | 2m24s |
+| `docker (assistant-ai)` | success | 3m52s |
+| `publish-smoke` · `changeset-status` | success | 42s · 26s |
+
+Gate cũng được chạy lại trên máy trước khi push, xanh 4/4 0 warning: `check` 666 file no fixes ·
+`typecheck` 18/18 · `test` 14/14 · `build` 9/9 trong 2m18s.

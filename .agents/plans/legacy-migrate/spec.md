@@ -1,5 +1,5 @@
 ---
-status: ready-for-agent
+status: done
 date: 2026-09-04
 adr: ../../../docs/adr/0001-legacy-apps-outside-workspace.md, ../../../docs/adr/0002-i18n-one-package-many-flavors-icu-messages.md, ../../../docs/adr/0003-env-two-flavors-native-prefix.md, ../../../docs/adr/0004-npm-publish-qua-publish-shell.md
 research: ../../../docs/research/legacy-unfreeze-and-npm-publish.md

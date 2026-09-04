@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: done
 ---
 
 # 03 — Migrate `portfolio` lên `_template_next`; quy ước env key theo tên app
@@ -8,7 +8,7 @@ status: ready-for-human
 
 **Blocked by:** 01 — port; 02 — job `docker`.
 
-**Status:** `ready-for-human` (2026-09-04) — xem Notes: 8/10 ô đã đạt, hai ô còn lại chờ một lượt chạy CI.
+**Status:** `done` (2026-09-04) — 10/10. Hai ô cuối đóng bằng run CI `33881207486`; xem mục bằng chứng ở cuối.
 
 ## Acceptance criteria
 
@@ -19,9 +19,9 @@ status: ready-for-human
 - [x] Dependency: `react-markdown` major mới nhất (kiểm `className` không còn), `motion`, `next-themes` thêm catalog nếu còn dùng (hoặc bỏ nếu Template đã có cách khác — ghi quyết định vào Notes); không còn `@next/third-parties` bản 15, `@t3-oss/env-nextjs` trực tiếp, `jiti`, ESLint/Prettier config, Radix.
 - [x] i18n: chuỗi của portfolio vào `packages/i18n/src/locales/<code>.json` theo ICU (rule catalogue invariants), namespace theo app để không đụng Template.
 - [x] Vercel: `vercel.json` giữ (rewrite/headers cũ nếu còn ý nghĩa); ticket xác nhận và ghi vào README app cách Vercel build với `output: standalone` và env từ dashboard (không đọc `.env` root); nếu cần script `build` riêng cho Vercel thì thêm và ghi lý do.
-- [ ] Test: `test/` soi gương `src/` cho helper/nhánh có logic; ít nhất hai spec `.e2e.ts` — raw HTML có nội dung + `<title>` + `lang`, và chuyển locale `/en` — xanh local qua `bunx playwright test --project=chromium`; job `e2e` và `docker` xanh cho `portfolio` trên CI.
+- [x] Test: `test/` soi gương `src/` cho helper/nhánh có logic; ít nhất hai spec `.e2e.ts` — raw HTML có nội dung + `<title>` + `lang`, và chuyển locale `/en` — xanh local qua `bunx playwright test --project=chromium`; job `e2e` và `docker` xanh cho `portfolio` trên CI.
 - [x] README `apps/portfolio` (mục đích, env, port, lệnh, deploy Vercel, Sentry project); `legacy/README.md` dòng `portfolio` cập nhật "đã migrate, xoá ở ticket 07".
-- [ ] Gate xanh 0 warning; output verify vào Notes, kèm URL run CI.
+- [x] Gate xanh 0 warning; output verify vào Notes, kèm URL run CI.
 
 ## Notes
 
@@ -195,3 +195,35 @@ URL run:
 job e2e (portfolio):
 job docker (portfolio):
 ```
+
+---
+
+## Bằng chứng — run CI đầu tiên phủ ticket này (2026-09-04)
+
+**Run URL:** https://github.com/qtuan02/monorepo/actions/runs/33881207486
+**Commit:** `380d0fc` trên `feat/upgrade` · **14/14 job `success`**
+
+Kết quả đọc bằng `gh run view 33881207486 --json jobs`, tức là **conclusion của từng job**, không
+phải dấu tick của run — `continue-on-error: true` làm run báo xanh kể cả khi một job đỏ, và đó
+chính là cái bẫy ticket 02 cảnh báo. Câu lệnh đối chứng:
+
+```bash
+gh run view 33881207486 --json jobs --jq '[.jobs[] | select(.conclusion != "success")] | length'
+# → 0
+```
+
+| Job | Kết quả | Thời gian |
+|---|---|---|
+| `check` · `typecheck` · `test` · `build` (Gate) | success | 43s · 43s · 58s · 2m21s |
+| `e2e` | success | 4m5s |
+| `docker (_template_vite)` | success | 1m40s |
+| `docker (_template_next)` | success | 2m39s |
+| `docker (storybook)` | success | 1m23s |
+| `docker (portfolio)` | success | 3m24s |
+| `docker (mcp-weather)` | success | 2m38s |
+| `docker (documents)` | success | 2m24s |
+| `docker (assistant-ai)` | success | 3m52s |
+| `publish-smoke` · `changeset-status` | success | 42s · 26s |
+
+Gate cũng được chạy lại trên máy trước khi push, xanh 4/4 0 warning: `check` 666 file no fixes ·
+`typecheck` 18/18 · `test` 14/14 · `build` 9/9 trong 2m18s.

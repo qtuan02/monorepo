@@ -1,5 +1,5 @@
 ---
-status: ready-for-human
+status: done
 ---
 
 # 02 — Job CI `docker` build không push cho mọi app có Dockerfile
@@ -8,7 +8,9 @@ status: ready-for-human
 
 **Blocked by:** None (can start immediately). Không cần máy Docker local — runner Ubuntu của GitHub Actions có Docker sẵn.
 
-**Status:** `ready-for-human` (2026-09-04) — **không phải `done`, và không thể là `done` từ máy này.**
+**Status:** `done` (2026-09-04) — ba ô còn lại đã đóng bằng run CI thật, xem "Bằng chứng — run CI đầu tiên phủ ticket này" ở cuối. Đoạn dưới giữ nguyên làm lịch sử của lượt viết ticket, khi máy đó chưa có `gh` lẫn Docker.
+
+> **Lịch sử — trạng thái lúc viết ticket:** `ready-for-human` (2026-09-04) — **không phải `done`, và không thể là `done` từ máy này.**
 Ba trên sáu ô tick (#2 matrix, #5 docs, #6 Gate) và có bằng chứng trong Notes; hai ô còn lại (#3 job
 xanh cho cả ba app, #4 lật ticket 12 + `spec.md`) đòi một lượt chạy trên GitHub Actions, mà máy này
 không dựng được image (`command -v docker` rỗng) và không đọc được run (không có `gh`). Theo
@@ -29,10 +31,10 @@ tiền đề build ARG của nó sai, xem bảng dưới.
 
 ## Acceptance criteria
 
-- [ ] `ci.yml` có job `docker` với `continue-on-error: true` (cùng lý do và cùng câu ghi điều kiện chuyển sang chặn như job `e2e`), matrix theo app có Dockerfile (khởi điểm: `_template_vite`, `_template_next`, `storybook`), kích hoạt qua job `changes` với path filter `apps/<app>/**`, `packages/**`, `tooling/**`, `bun.lock`, workflow file; dùng `docker/build-push-action` với `push: false`, `load: false`, cache GitHub Actions, build ARG lấy từ `.env.example` (giá trị dev, không secret).
+- [x] `ci.yml` có job `docker` với `continue-on-error: true` (cùng lý do và cùng câu ghi điều kiện chuyển sang chặn như job `e2e`), matrix theo app có Dockerfile (khởi điểm: `_template_vite`, `_template_next`, `storybook`), kích hoạt qua job `changes` với path filter `apps/<app>/**`, `packages/**`, `tooling/**`, `bun.lock`, workflow file; dùng `docker/build-push-action` với `push: false`, `load: false`, cache GitHub Actions, build ARG lấy từ `.env.example` (giá trị dev, không secret).
 - [x] Matrix đọc danh sách app từ một chỗ dễ thêm (một biến YAML ở đầu workflow hoặc `find apps -name Dockerfile`), có comment nói ticket migrate chỉ cần thêm tên app (hoặc không cần gì nếu dùng `find`).
-- [ ] Job xanh cho cả ba app trên CI của PR này; nếu một Dockerfile đỏ, sửa Dockerfile (đó chính là việc ticket 12 chờ) và ghi lại nguyên nhân vào Notes và vào ticket 12.
-- [ ] Ticket 12 của topic cũ: cập nhật thân bài với URL run, đặt `status: done`; `spec.md` của topic cũ về `done` nếu đó là khoản cuối cùng nó chờ (đọc lại "Còn treo" của 12 trước khi đổi).
+- [x] Job xanh cho cả ba app trên CI của PR này; nếu một Dockerfile đỏ, sửa Dockerfile (đó chính là việc ticket 12 chờ) và ghi lại nguyên nhân vào Notes và vào ticket 12. — **xanh cho bảy app, không phải ba**: matrix suy ra từ đĩa nên bốn app migrate (`portfolio`, `mcp-weather`, `documents`, `assistant-ai`) tự được phủ, đúng như ticket dự đoán. Không Dockerfile nào đỏ.
+- [x] Ticket 12 của topic cũ: cập nhật thân bài với URL run, đặt `status: done`; `spec.md` của topic cũ về `done` nếu đó là khoản cuối cùng nó chờ (đọc lại "Còn treo" của 12 trước khi đổi). — ticket 12 đã `done`. **`spec.md` của topic cũ giữ nguyên**, vì 12 *không* phải khoản cuối: `13-khoan-treo-cua-07-08.md` còn 8 ô mở và vẫn `ready-for-agent`.
 - [x] CLAUDE.md §6 và `.agents/commands.md`: câu về CI mô tả thêm job `docker` (non-blocking, khi nào chạy); glossary **Gate** không đổi.
 - [x] Gate xanh 0 warning (chỉ YAML và docs thay đổi; ghi cách đã kiểm YAML vào Notes).
 
@@ -232,3 +234,35 @@ Hai session viết song song vào một cây, ownership đã thống nhất bằ
 này) — chỗ hỏng là bước **stage**, không phải bước thoả thuận. Bài học cho lượt sau: khi biết có
 session khác đang viết, `git add <đường dẫn cụ thể>` chứ đừng `git add .`/`git commit -a`, và commit
 phần của mình sớm thay vì để uncommitted lâu trong cây chung.
+
+---
+
+## Bằng chứng — run CI đầu tiên phủ ticket này (2026-09-04)
+
+**Run URL:** https://github.com/qtuan02/monorepo/actions/runs/33881207486
+**Commit:** `380d0fc` trên `feat/upgrade` · **14/14 job `success`**
+
+Kết quả đọc bằng `gh run view 33881207486 --json jobs`, tức là **conclusion của từng job**, không
+phải dấu tick của run — `continue-on-error: true` làm run báo xanh kể cả khi một job đỏ, và đó
+chính là cái bẫy ticket 02 cảnh báo. Câu lệnh đối chứng:
+
+```bash
+gh run view 33881207486 --json jobs --jq '[.jobs[] | select(.conclusion != "success")] | length'
+# → 0
+```
+
+| Job | Kết quả | Thời gian |
+|---|---|---|
+| `check` · `typecheck` · `test` · `build` (Gate) | success | 43s · 43s · 58s · 2m21s |
+| `e2e` | success | 4m5s |
+| `docker (_template_vite)` | success | 1m40s |
+| `docker (_template_next)` | success | 2m39s |
+| `docker (storybook)` | success | 1m23s |
+| `docker (portfolio)` | success | 3m24s |
+| `docker (mcp-weather)` | success | 2m38s |
+| `docker (documents)` | success | 2m24s |
+| `docker (assistant-ai)` | success | 3m52s |
+| `publish-smoke` · `changeset-status` | success | 42s · 26s |
+
+Gate cũng được chạy lại trên máy trước khi push, xanh 4/4 0 warning: `check` 666 file no fixes ·
+`typecheck` 18/18 · `test` 14/14 · `build` 9/9 trong 2m18s.
