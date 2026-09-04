@@ -98,7 +98,18 @@ export function SelectLanguage({
           that package is not edited from an app: the control here is a flag the
           whole 36px square is already a target for, so a second glyph beside it
           only crowds the header bar. */}
-      <SelectTrigger className={cn("[&>svg]:hidden", triggerClassName)}>
+      <SelectTrigger
+        className={cn(
+          "[&>svg]:hidden",
+          // SelectValue is `flex-1`, so it spans the whole trigger and the
+          // trigger's own `justify-center` has nothing left to centre — in
+          // `compact` the flag is the only visible content, so it would sit at
+          // the value's left edge inside a square button. Centre it inside the
+          // value instead, which is where the spare width actually is.
+          compact && "*:data-[slot=select-value]:justify-center",
+          triggerClassName,
+        )}
+      >
         <SelectValue placeholder={t("language.placeholder")}>
           <LanguageOption language={currentLanguage} hideLabel={compact} />
         </SelectValue>
