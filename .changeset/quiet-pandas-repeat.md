@@ -4,7 +4,9 @@
 
 Base UI, 63 primitive / 5 hook, API mới hoàn toàn.
 
-`2.0.0` viết lại từ đầu, không phải bản nâng cấp của `1.0.2`. 42 primitive trên
+`3.0.0` viết lại từ đầu, không phải bản nâng cấp của `1.0.2` — số `2.0.0` bị bỏ
+qua vì nó đã bị publish rồi unpublish hồi 25/11/2025 và npm không cho dùng lại
+một version đã dùng, nên bản kế tiếp phải nhảy qua nó. 42 primitive trên
 Radix bị thay bằng 63 primitive shadcn style `base-vega` trên Base UI, nên
 `asChild` không còn (dùng `render`), state attribute là dạng bare
 (`data-open`/`data-checked`) thay vì `data-[state=…]`, và mọi props đi theo Base

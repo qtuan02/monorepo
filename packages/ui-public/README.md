@@ -6,10 +6,11 @@
 declarations. No barrel, no root entry — you import the primitive you need by its own
 subpath, so a bundler ships only that file.
 
-> `2.0.0` is a rewrite, not an upgrade. The `1.0.2` line published 42 Radix-based
+> `3.0.0` is a rewrite, not an upgrade. The `1.0.2` line published 42 Radix-based
 > components from the pre-Skeleton codebase; this line publishes the current Base UI set.
 > Every component's props, composition and state attributes changed — treat it as a new
-> package.
+> package. There is no `2.0.0`: that version was published and unpublished in November
+> 2025, and npm never lets a version number be reused, so this line skips it.
 
 ## Install
 

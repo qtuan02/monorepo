@@ -46,7 +46,23 @@ không thuộc phạm vi file này):
 | B | Đặt `version` về `2.0.0` và đổi changeset của `ui` thành `patch` | `2.0.1` | CHANGELOG ghi breaking change dưới mục "Patch Changes" — sai ngữ nghĩa, và semver nói dối với người cài |
 | C | Xin npm support giải phóng `2.0.0` | `2.0.0` | Chính sách nói thẳng là không; đừng chặn release để chờ |
 
-Chọn xong thì cập nhật cả `spec.md`/ticket 03 Notes cho khớp, rồi mới chạy checklist dưới.
+**ĐÃ CHỌN (2026-09-04): phương án A.** Chủ repo quyết. Đã áp dụng, nên phần
+chặn ở trên là lịch sử — không còn phải quyết gì trước khi merge:
+
+- `packages/ui-public/package.json` → `version: 2.0.0`; `hook-public` giữ `1.0.0`.
+- `.changeset/quiet-pandas-repeat.md` giữ `major`, sửa câu mở đầu thành `3.0.0` và
+  nói rõ vì sao nhảy qua `2.0.0`.
+- `spec.md` (dòng 19, 46, 60, 66, 90, 108), ticket 03 Notes và
+  `packages/ui-public/README.md` đã cập nhật theo. Ticket 01/02 giữ nguyên như history.
+
+Release plan sau khi sửa, kiểm bằng `bunx changeset status --output`:
+
+```
+@fe-monorepo/ui:   2.0.0 -> 3.0.0 (major)
+@fe-monorepo/hook: 1.0.0 -> 2.0.0 (major)
+```
+
+**Mọi chỗ dưới đây viết `<v>` là: `ui` = `3.0.0`, `hook` = `2.0.0`.**
 
 ## Checklist cho người
 

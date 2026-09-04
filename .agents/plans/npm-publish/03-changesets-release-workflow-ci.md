@@ -203,3 +203,27 @@ thật ở bất kỳ đâu.
 
 `CONTEXT.md`, `CONTEXT-MAP.md`, `decisions.md` và một loạt file của topic khác vẫn
 lệch trong working tree; commit của ticket này không chạm tới chúng.
+
+### Sửa sau, ngày 2026-09-04 — quyết định version của ticket này bị lật
+
+Quyết trong AC ở trên ("shell khởi điểm khai `1.0.2`/`1.0.0`, changeset `major`
+đưa cả hai lên `2.0.0`") **không chạy được cho `ui`**. Ticket 05 kiểm registry và
+thấy `@fe-monorepo/ui@2.0.0` đã từng được publish rồi unpublish ngày 25/11/2025;
+npm không cho tái sử dụng một version đã dùng, nên `changeset version` sẽ ra
+`2.0.0` ngon lành rồi `npm publish` chết với `E403` — sau khi bump đã merge vào
+`main`.
+
+Đã chọn phương án A của ticket 05: `packages/ui-public/package.json` đặt
+`version: 2.0.0`, giữ changeset `major`, nên `ui` publish ra **`3.0.0`**.
+`hook` không dính (chỉ từng có `1.0.0`) và vẫn ra `2.0.0`.
+
+```
+$ bunx changeset status --output=…
+@fe-monorepo/ui:   2.0.0 -> 3.0.0 (major)
+@fe-monorepo/hook: 1.0.0 -> 2.0.0 (major)
+```
+
+Hai shell lệch số nhau là chấp nhận được: chúng độc lập, `ui` không depend
+`hook`. `spec.md`, `.changeset/quiet-pandas-repeat.md` và
+`packages/ui-public/README.md` đã cập nhật theo. Ticket 01/02 giữ nguyên như
+history (CLAUDE.md §7b: ticket đã xong là lịch sử, rule/spec mới thắng).
