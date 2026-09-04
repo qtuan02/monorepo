@@ -40,12 +40,20 @@ bun run dev:template-reactrouter    # http://localhost:3005
 - **`PUBLIC_*` được inline vào cả hai bundle.** `build/server/index.js` chứa
   `PUBLIC_APP_ENV: "local"` như một chuỗi literal, không phải một lần đọc lúc
   chạy — nên đổi `.env` xong phải build lại, đúng như Runtime Vite.
-- **Giá trị của key `server` không bao giờ tới client.** Vite chỉ thay
-  `import.meta.env`, còn `process.env.X` thì để nguyên; trong bundle browser nó
-  bị viết lại thành một object rỗng, nên đọc ra `undefined`. Khai báo schema
-  (tên key + validator) **vẫn nằm** trong bundle client — thứ biến mất là **giá
-  trị**, và thứ bảo vệ là `onInvalidAccess` của env-core: đọc key `server` từ
-  client thì **throw nêu đúng tên key**, chứ không im lặng trả `undefined`.
+- **Giá trị của key `server` không bao giờ tới client** — nhưng khai báo thì có,
+  và phân biệt hai thứ đó là cả vấn đề. Hôm nay `env.ts` thậm chí không vào
+  `build/client`: consumer duy nhất của nó là `loader` của route home, mà build
+  cắt `loader` khỏi client graph, nên cả module bị tree-shake. Ngay khi có code
+  client đọc `env` — `~/libs/http-client.ts` ở ticket sau là ca đầu tiên — thì
+  khai báo schema (**tên key + validator**) nằm trong bundle browser, vì
+  `createEnv` được gọi với cùng một options object ở cả hai graph. Thứ **không**
+  nằm ở đó là **giá trị**: Vite chỉ thay `import.meta.env`, còn
+  `process.env.X` thì viết lại thành một object rỗng, nên đọc ra `undefined`.
+  Và thứ bảo vệ là `onInvalidAccess` của env-core: đọc key `server` từ client
+  thì **throw nêu đúng tên key**, chứ không im lặng trả `undefined`. Cả hai vế
+  đều đã kiểm bằng tay — vế bundle bằng một lần đọc `env` tạm từ template, vế
+  throw bằng `packages/env/test/react-router` (`isServer: false`) và bằng
+  `test/env.test.ts` khi nó còn chạy trên jsdom.
 - **Guard là `typeof process`, không phải `import.meta.env.SSR`.** Cả hai đều an
   toàn trong bundle browser, nhưng chỉ `typeof process` còn đúng khi module được
   chạy bằng Bun/Node trần — mà đó chính là cách `prebuild` (và Dockerfile sau

@@ -18,6 +18,10 @@ import HomeRoute, { loader } from "~/routes/home";
  */
 describe("route: home", () => {
   it("renders its slice template from the loader's data", async () => {
+    // Bound once rather than re-called inside the assertion below: the moment
+    // the auth ticket lets a loader read the request, a second bare call breaks
+    // for a reason that has nothing to do with what is being asserted.
+    const { appEnv } = loader();
     const Stub = createRoutesStub([
       { path: "/", Component: HomeRoute, loader },
     ]);
@@ -34,6 +38,6 @@ describe("route: home", () => {
     // repo-root `.env` through Vite's `envDir`, so the assertion is that the
     // template renders what the loader returned. A component that ignored
     // `loaderData` would still pass the heading assertion above.
-    expect(screen.getByText(loader().appEnv)).toBeInTheDocument();
+    expect(screen.getByText(appEnv)).toBeInTheDocument();
   });
 });
