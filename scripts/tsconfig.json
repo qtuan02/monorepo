@@ -1,0 +1,10 @@
+{
+  "extends": "@monorepo/tsconfig/base.json",
+  "compilerOptions": {
+    // tsgo 7 does not auto-include node_modules/@types, so `node` is named
+    // explicitly — this script is Node/Bun API only, no DOM.
+    "types": ["node"]
+  },
+  "include": ["publish-smoke.ts", "verify-release.ts", "lib/*.ts"],
+  "exclude": ["node_modules"]
+}

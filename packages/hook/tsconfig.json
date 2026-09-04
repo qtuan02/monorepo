@@ -2,15 +2,8 @@
   "extends": "@monorepo/tsconfig/base.json",
   "compilerOptions": {
     "lib": ["ES2022", "dom", "dom.iterable"],
-    "jsx": "preserve",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "outDir": "./dist",
-    "declaration": true,
-    "declarationMap": true
+    "jsx": "preserve"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "rslib.config.ts"],
+  "exclude": ["node_modules"]
 }

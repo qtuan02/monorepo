@@ -1,0 +1,25 @@
+{
+  "name": "@monorepo/dayjs",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/dayjs.ts",
+    "./*": "./src/*.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "dayjs": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
+  }
+}

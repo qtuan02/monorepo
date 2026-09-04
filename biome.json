@@ -1,0 +1,166 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "main"
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/.cache",
+      "!**/.turbo",
+      "!**/.next",
+      "!**/storybook-static",
+      "!**/*.d.ts",
+      "!**/*.svg"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 80,
+    "lineEnding": "lf"
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "jsxQuoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all",
+      "arrowParentheses": "always",
+      "bracketSpacing": true,
+      "bracketSameLine": false,
+      "quoteProperties": "asNeeded"
+    }
+  },
+  "json": { "parser": { "allowComments": true } },
+  "css": { "parser": { "tailwindDirectives": true } },
+  "linter": {
+    "enabled": true,
+    "domains": {
+      "react": "recommended",
+      "turborepo": "recommended",
+      "types": "all"
+    },
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noNonNullAssertion": "error",
+        "useImportType": {
+          "level": "error",
+          "options": { "style": "separatedType" }
+        },
+        "useExportType": "error"
+      },
+      "nursery": {
+        "noMisusedPromises": "error",
+        "useSortedClasses": "off"
+      }
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "identifierOrder": "natural",
+            "sortBareImports": false,
+            "groups": [
+              [":NODE:", ":BUN:"],
+              {
+                "type": true,
+                "source": [
+                  ":PACKAGE:",
+                  ":PACKAGE_WITH_PROTOCOL:",
+                  ":URL:",
+                  "!@monorepo/**"
+                ]
+              },
+              ["react", "react/**", "react-native*", "react-native*/**"],
+              [
+                ":PACKAGE:",
+                ":PACKAGE_WITH_PROTOCOL:",
+                ":URL:",
+                "!@monorepo/**"
+              ],
+              ":BLANK_LINE:",
+              { "type": true, "source": ["@monorepo/**"] },
+              "@monorepo/**",
+              ":BLANK_LINE:",
+              { "type": true, "source": [":ALIAS:", ":PATH:"] },
+              ":ALIAS:",
+              ":PATH:"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noProcessEnv": "error",
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "process": "Use `import { env } from '~/env'` — the app's env module parses the repo-root .env once (import.meta.env for a Vite app, t3-env for a Next app) instead of reading process.env at the call site."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/_template_next/**"],
+      "linter": { "domains": { "next": "recommended" } }
+    },
+    {
+      "includes": ["packages/ui/src/components/**"],
+      "linter": {
+        "rules": {
+          "a11y": "off",
+          "suspicious": { "noDocumentCookie": "off" }
+        }
+      }
+    },
+    {
+      "includes": ["apps/storybook/src/stories/**"],
+      "linter": {
+        "rules": {
+          "a11y": "off",
+          "suspicious": { "noArrayIndexKey": "off" }
+        }
+      }
+    },
+    {
+      "includes": ["**/env.ts", "**/*.config.*"],
+      "linter": {
+        "rules": {
+          "style": { "noProcessEnv": "off", "noRestrictedImports": "off" },
+          "suspicious": { "noUndeclaredEnvVars": "off" }
+        }
+      }
+    },
+    {
+      "includes": ["apps/*/scripts/**"],
+      "linter": {
+        "rules": {
+          "style": { "noProcessEnv": "off" },
+          "suspicious": { "noUndeclaredEnvVars": "off" }
+        }
+      }
+    }
+  ]
+}

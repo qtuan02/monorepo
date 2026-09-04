@@ -2,38 +2,161 @@
   "name": "monorepo",
   "private": true,
   "engines": {
-    "node": ">=22.21.0",
-    "pnpm": ">=10.19.0"
+    "node": ">=24.14.0",
+    "bun": ">=1.2.0"
   },
-  "packageManager": "pnpm@10.19.0",
+  "packageManager": "bun@1.4.0",
   "scripts": {
+    "gen:package": "gen run package",
+    "gen:tooling": "gen run tooling",
+    "gen:app": "gen run app",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
-    "dev": "turbo watch dev --continue",
     "build": "turbo run build",
     "typecheck": "turbo run typecheck",
-    "format": "turbo run format --continue -- --cache --cache-location .cache/.prettiercache",
-    "format:fix": "turbo run format --continue -- --write --cache --cache-location .cache/.prettiercache",
-    "lint": "turbo run lint --continue -- --cache --cache-location .cache/.eslintcache",
-    "lint:fix": "turbo run lint --continue -- --fix --cache --cache-location .cache/.eslintcache",
-    "dev:_template": "turbo watch dev -F @monorepo/_template",
-    "dev:portfolio": "turbo watch dev -F @monorepo/portfolio",
-    "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai",
-    "dev:mcp": "turbo watch dev -F @monorepo/mcp",
-    "dev:documents": "turbo watch dev -F @monorepo/documents",
-    "dev:storybook": "turbo watch dev -F @monorepo/storybook",
-    "build:package:ui": "turbo run build:package -F @monorepo/ui",
-    "build:package:hook": "turbo run build:package -F @monorepo/hook",
+    "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "e2e": "turbo run e2e",
+    "e2e:headed:template-vite": "bun run --filter @monorepo/_template_vite e2e:headed",
+    "e2e:headed:template-next": "bun run --filter @monorepo/_template_next e2e:headed",
+    "publish:smoke": "bun scripts/publish-smoke.ts",
+    "verify:release": "bun scripts/verify-release.ts",
     "changeset": "changeset",
-    "changeset:version": "changeset version",
-    "changeset:publish": "changeset publish"
+    "version-packages": "changeset version",
+    "build:publishable": "turbo run build --filter @monorepo/ui --filter @monorepo/hook",
+    "release": "bun run build:publishable && changeset publish",
+    "check": "biome check .",
+    "check:changed": "biome check --changed --no-errors-on-unmatched .",
+    "check:fix": "biome check --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "dev:storybook": "turbo watch dev -F @monorepo/storybook...",
+    "dev:template-vite": "turbo watch dev -F @monorepo/_template_vite...",
+    "build:template-vite": "turbo run build -F @monorepo/_template_vite...",
+    "dev:template-next": "turbo watch dev -F @monorepo/_template_next...",
+    "build:template-next": "turbo run build -F @monorepo/_template_next...",
+    "dev:portfolio": "turbo watch dev -F @monorepo/portfolio...",
+    "build:portfolio": "turbo run build -F @monorepo/portfolio...",
+    "e2e:headed:portfolio": "bun run --filter @monorepo/portfolio e2e:headed",
+    "dev:documents": "turbo watch dev -F @monorepo/documents...",
+    "build:documents": "turbo run build -F @monorepo/documents...",
+    "e2e:headed:documents": "bun run --filter @monorepo/documents e2e:headed",
+    "dev:mcp-weather": "turbo watch dev -F @monorepo/mcp-weather...",
+    "build:mcp-weather": "turbo run build -F @monorepo/mcp-weather...",
+    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed",
+    "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai...",
+    "build:assistant-ai": "turbo run build -F @monorepo/assistant-ai...",
+    "e2e:headed:assistant-ai": "bun run --filter @monorepo/assistant-ai e2e:headed"
+  },
+  "workspaces": {
+    "packages": [
+      "apps/*",
+      "packages/*",
+      "tooling/*"
+    ],
+    "catalog": {
+      "@base-ui/react": "^1.7.0",
+      "@hookform/resolvers": "^5.9.1",
+      "@rolldown/plugin-babel": "^0.2.3",
+      "@rslib/core": "~1.0.0",
+      "@t3-oss/env-core": "0.13.11",
+      "@types/node": "^24.13.3",
+      "@vitejs/plugin-react": "6.1.1",
+      "axios": "^1.20.0",
+      "babel-plugin-react-compiler": "1.0.0",
+      "class-variance-authority": "0.7.1",
+      "clsx": "^2.1.1",
+      "dayjs": "^1.11.23",
+      "i18next": "^26.4.1",
+      "i18next-browser-languagedetector": "^8.2.1",
+      "i18next-icu": "^2.4.4",
+      "intl-messageformat": "^11.2.14",
+      "lucide-react": "1.40.0",
+      "motion": "^13.2.0",
+      "next-themes": "^0.4.6",
+      "oxc-parser": "^0.148.0",
+      "postcss": "^8.5.28",
+      "react-error-boundary": "^6.1.4",
+      "react-hook-form": "^7.87.0",
+      "react-i18next": "^17.0.13",
+      "remark-gfm": "^4.0.1",
+      "tailwind-merge": "^3.6.0",
+      "tw-animate-css": "1.4.0",
+      "typescript": "~7.0.2",
+      "vite": "8.2.2",
+      "zod": "^4.5.4",
+      "zustand": "5.0.15"
+    },
+    "catalogs": {
+      "ai-sdk": {
+        "@ai-sdk/google": "^4.0.63",
+        "@ai-sdk/react": "^4.0.95",
+        "@assistant-ui/react": "^0.15.18",
+        "@assistant-ui/react-ai-sdk": "^1.4.9",
+        "@assistant-ui/react-markdown": "^0.14.14",
+        "@modelcontextprotocol/sdk": "^1.30.0",
+        "ai": "^7.0.92"
+      },
+      "next16": {
+        "@sentry/nextjs": "^10.73.0",
+        "@t3-oss/env-nextjs": "0.13.11",
+        "dotenv-cli": "^11.0.0",
+        "next": "16.3.4",
+        "next-intl": "^4.14.2"
+      },
+      "react-router8": {
+        "@react-router/dev": "8.3.1",
+        "@react-router/node": "8.3.1",
+        "@react-router/serve": "8.3.1",
+        "react-router": "8.3.1"
+      },
+      "react19": {
+        "@types/react": "19.2.18",
+        "@types/react-dom": "19.2.7",
+        "react": "19.2.8",
+        "react-dom": "19.2.8"
+      },
+      "storybook10": {
+        "@storybook/addon-docs": "10.6.0",
+        "@storybook/react": "10.6.0",
+        "@storybook/react-vite": "10.6.0",
+        "storybook": "10.6.0"
+      },
+      "tailwind4": {
+        "@tailwindcss/postcss": "^4.3.3",
+        "@tailwindcss/vite": "^4.3.3",
+        "tailwind-scrollbar": "4.0.2",
+        "tailwindcss": "^4.3.3"
+      },
+      "tanstack-query5": {
+        "@tanstack/react-query": "^5.102.8",
+        "@tanstack/react-query-devtools": "^5.102.8"
+      },
+      "tanstack-table9": {
+        "@tanstack/react-table": "^9.2.4",
+        "@tanstack/react-virtual": "^3.14.10"
+      },
+      "testing": {
+        "@playwright/test": "1.62.1",
+        "@testing-library/jest-dom": "^7.0.1",
+        "@testing-library/react": "^16.3.3",
+        "@testing-library/user-event": "^14.6.7",
+        "@vitest/coverage-v8": "^5.0.0",
+        "jsdom": "^30.0.1",
+        "vitest": "^5.0.0"
+      }
+    }
   },
   "devDependencies": {
-    "@changesets/cli": "^2.27.9",
-    "@monorepo/prettier-config": "workspace:*",
-    "prettier": "catalog:",
-    "turbo": "^2.5.8",
+    "@biomejs/biome": "2.5.12",
+    "@changesets/cli": "^3.0.1",
+    "@monorepo/tsconfig": "workspace:*",
+    "@turbo/gen": "^2.10.12",
+    "@types/node": "catalog:",
+    "turbo": "^2.10.12",
     "typescript": "catalog:"
   },
-  "prettier": "@monorepo/prettier-config"
+  "overrides": {
+    "@types/react": "19.2.18"
+  }
 }

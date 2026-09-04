@@ -1,0 +1,44 @@
+name: Setup workspace
+description: >
+  Pin Node and Bun, restore Bun's install cache, install the workspace, and
+  seed the root .env. Every Gate job starts here so the four of them cannot
+  drift apart.
+
+runs:
+  using: composite
+  steps:
+    # Bun is the package manager AND the runtime for Turbo's own scripts, but
+    # `tsc`, Vitest and the bundlers still run on Node — so the version in
+    # `.nvmrc` is what `engines.node` actually promises, not a formality.
+    - name: Pin Node from .nvmrc
+      uses: actions/setup-node@v7
+      with:
+        node-version-file: .nvmrc
+
+    # Reads the version out of `packageManager` in package.json, so the
+    # lockfile and the binary that wrote it can never disagree.
+    - name: Pin Bun from packageManager
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version-file: package.json
+
+    # BUN_INSTALL_CACHE_DIR is set at the workflow level so this path and the
+    # one Bun writes to are the same directory.
+    - name: Restore Bun install cache
+      uses: actions/cache@v6
+      with:
+        path: .bun-cache
+        key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+        restore-keys: |
+          bun-${{ runner.os }}-
+
+    - name: Install
+      shell: bash
+      run: bun install --frozen-lockfile
+
+    # Turbo hashes `.env` (globalDependencies) and every app reads the repo-root
+    # file through its own `env.ts`, so a job without it fails on a missing
+    # PUBLIC_*/NEXT_PUBLIC_* rather than on anything it set out to check.
+    - name: Seed .env
+      shell: bash
+      run: cp .env.example .env

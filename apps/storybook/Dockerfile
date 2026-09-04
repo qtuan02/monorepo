@@ -1,77 +1,50 @@
-# 1) Build-time arguments (can be overridden with --build-arg)
-ARG NODE_VERSION=22
+# Global Arguments
+ARG BUN_VERSION=1.4.0
 ARG APP_DIRNAME=storybook
 ARG PROJECT=@monorepo/storybook
 ARG NODE_ENV=production
-ARG VERSION=local
 
-# 2) Base Alpine image + libc6-compat (fixes Node runtime issues)
-FROM node:${NODE_VERSION}-alpine AS alpine
-RUN apk update
-RUN apk add --no-cache libc6-compat
+# Step 1: Base Layer
+FROM oven/bun:${BUN_VERSION}-alpine AS base
+RUN apk update && apk add --no-cache libc6-compat
 
-# 3) Base image for all stages: enable corepack, install turbo, configure pnpm store
-FROM alpine AS base
-RUN corepack enable
-RUN npm install turbo@2.5.5 --global
-RUN pnpm config set store-dir ~/.pnpm-store
-
-# 4) Pruner stage: prune the monorepo to only keep code + deps needed for PROJECT
+# Step 2: Pruner Layer
 FROM base AS pruner
 ARG PROJECT
 WORKDIR /app
 COPY . .
-RUN turbo prune --scope=${PROJECT} --docker
+RUN bunx turbo prune ${PROJECT} --docker
 
-# 5) Builder stage: install deps from pruned lockfile and build the target app
+# Step 3: Builder Layer
 FROM base AS builder
 ARG PROJECT
-ARG APP_DIRNAME
-ARG VERSION
-
-# Build environment setup
-ENV CI=true
-ENV VERSION=${VERSION}
-WORKDIR /app
 ARG NODE_ENV
-ENV BUILD_ENV=${NODE_ENV}
-ENV NODE_ENV=production
 
-# 5.1) Copy pruned lockfile/workspace + package manifests
-COPY --from=pruner /app/.env.${BUILD_ENV} .env
-COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-COPY --from=pruner /app/out/pnpm-workspace.yaml ./pnpm-workspace.yaml
+WORKDIR /app
 COPY --from=pruner /app/out/json/ .
+COPY --from=pruner /app/out/bun.lock ./bun.lock
+COPY --from=pruner /app/bunfig.toml ./bunfig.toml
 
-# 5.2) Install dependencies (with cache for faster rebuilds)
-RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store pnpm install --frozen-lockfile && pnpm approve-builds
+RUN --mount=type=cache,id=bun-cache,target=/root/.bun/install/cache \
+    bun install --frozen-lockfile
 
-# 5.3) Copy full pruned source code and build the target project
 COPY --from=pruner /app/out/full/ .
-RUN pnpm build --filter=${PROJECT}
 
-# 6) Runner stage: final lightweight image with nginx to serve static files
-FROM nginx:alpine AS runner
+# No `.env.<BUILD_ENV>` COPY like the app images: Storybook previews
+# @monorepo/ui and reads no PUBLIC_* at all, so NODE_ENV is the whole of its
+# build config. Set after `bun install`, so that step still sees the
+# devDependencies the build needs.
+ENV NODE_ENV=${NODE_ENV}
+
+RUN bun run build --filter=${PROJECT}
+
+# Step 4: Runner Layer
+FROM nginx:stable-alpine AS runner
 ARG APP_DIRNAME
 
-# Copy nginx config for SPA routing (Storybook manager + iframe assets)
-RUN echo 'server { \
-    listen 3000; \
-    server_name localhost; \
-    root /usr/share/nginx/html; \
-    index index.html; \
-    location / { \
-        try_files $uri $uri/ /index.html; \
-    } \
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|json|map)$ { \
-        expires 1y; \
-        add_header Cache-Control "public, immutable"; \
-    } \
-}' > /etc/nginx/conf.d/default.conf
+RUN rm -rf /usr/share/nginx/html/*
+COPY --from=builder /app/apps/${APP_DIRNAME}/dist /usr/share/nginx/html
+COPY --from=builder /app/apps/${APP_DIRNAME}/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built static files (Storybook: storybook-static, not dist)
-COPY --from=builder /app/apps/${APP_DIRNAME}/storybook-static /usr/share/nginx/html
-
-# 7) Expose the port and run nginx
-EXPOSE 3000
+EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

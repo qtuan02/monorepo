@@ -1,236 +1,133 @@
-# Assistant AI Application
+# `@monorepo/assistant-ai`
 
-A modern chat application built with [assistant-ui](https://github.com/Yonom/assistant-ui) that connects to Google Gemini API for AI-powered conversations.
-
-## Overview
-
-This application provides a chat interface for interacting with Google's Gemini AI model, featuring:
-
-- **Modern Chat UI**: Built with assistant-ui components
-- **Google Gemini Integration**: Uses Gemini 2.5 Flash model via Vercel AI SDK
-- **Streaming Responses**: Real-time streaming of AI responses
-- **Reasoning Support**: Displays AI reasoning process when available
-- **Markdown Support**: Renders markdown content with syntax highlighting
-- **Attachment Support**: File attachment capabilities
-- **Tool Support**: Handles AI tool calls and responses
-
-## Project Structure
-
-```
-assistant-ai/
-├── app/
-│   ├── api/
-│   │   └── chat/
-│   │       └── route.ts        # Chat API endpoint
-│   ├── assistant.tsx          # Main assistant component
-│   ├── layout.tsx              # Root layout
-│   ├── page.tsx               # Home page
-│   └── globals.css             # Global styles
-├── components/
-│   ├── attachment.tsx         # File attachment component
-│   ├── markdown-text.tsx       # Markdown renderer
-│   ├── reasoning.tsx           # Reasoning display component
-│   ├── thread.tsx              # Chat thread component
-│   ├── tool-fallback.tsx       # Tool call fallback
-│   └── tooltip-icon-button.tsx # Icon button with tooltip
-├── env.ts                      # Environment variable validation
-└── next.config.ts              # Next.js configuration
-```
-
-## Features
-
-### Chat Interface
-
-- **Thread Management**: Organized chat threads
-- **Message Streaming**: Real-time message streaming
-- **Markdown Rendering**: Full markdown support with syntax highlighting
-- **Reasoning Display**: Shows AI reasoning process
-- **Tool Calls**: Handles AI tool invocations
-
-### AI Integration
-
-- **Model**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)
-- **Streaming**: Real-time response streaming
-- **Reasoning**: Supports reasoning mode for detailed explanations
-- **Error Handling**: Graceful error handling and fallbacks
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js >= 22.21.0
-- pnpm >= 10.19.0
-- Google Gemini API key
-
-### Installation
-
-1. Install dependencies:
-
-   ```bash
-   pnpm install
-   ```
-
-2. Configure environment variables in root `.env`:
-
-   ```env
-   GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key-here
-   ```
-
-3. Run development server:
-
-   ```bash
-   pnpm dev
-   ```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-### Build
+Giao diện chat với model **Gemini**, và model gọi được tool của máy chủ MCP thời
+tiết (`apps/mcp-weather`). Chạy Runtime **Next.js 16 App Router**, clone từ
+`apps/_template_next` bằng `bun run gen:app` (ticket `legacy-migrate/05`), thay
+cho app `assistant-ai` và tài liệu `ASSISTANT-AI.md` của bản trước khi dựng lại
+repo — cả hai đã xoá, còn đọc được trong git history.
 
 ```bash
-pnpm build
+bun run dev:assistant-ai      # http://localhost:3005
 ```
 
-### Production
+## Cần gì để chạy
+
+Ba biến trong `.env` **ở root repo** (`.env.example` có sẵn dòng kèm giải thích):
+
+| Biến | Bắt buộc | Là gì |
+| --- | --- | --- |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | **có** | Khoá Gemini, lấy ở <https://aistudio.google.com/apikey>. Server-only, không prefix. Thiếu là `next build` (và bước `import './src/env.ts'` trong `Dockerfile`) đỏ ngay kèm tên biến, chứ không ship một app chat lúc nào cũng lỗi. `.env.example` để placeholder nên `docker build` trần và CI vẫn xanh. |
+| `ASSISTANT_AI_MCP_DOMAIN` | không | Origin của máy chủ MCP, ví dụ `http://localhost:3004` (chính là `apps/mcp-weather`). Bỏ trống thì app vẫn chạy, chỉ là chat thuần không có tool — đúng thứ một người chưa bật máy chủ MCP nên nhận. |
+| `NEXT_PUBLIC_ASSISTANT_AI_SENTRY_DSN` | không | DSN Sentry của **project riêng** app này. Rỗng = SDK cài nhưng tắt. |
+
+Chỉ **một** biến không mang tên app: `GOOGLE_GENERATIVE_AI_API_KEY`, vì đó là tên
+`@ai-sdk/google` tài liệu hoá — biến một người đã export sẵn trong shell, và app
+thứ hai muốn Gemini sẽ muốn đúng key của **cùng một project Google** chứ không
+phải key riêng. Ngoại lệ đó chỉ áp cho tên do SDK bên ngoài đặt, nên
+`ASSISTANT_AI_MCP_DOMAIN` **không** nằm trong nó: "máy chủ MCP" là cái tên repo
+này tự nghĩ ra, và một app thứ hai trỏ vào một máy chủ MCP khác sẽ ghi đè lên nó
+trong đúng một file `.env` ở root (ADR-0003). AC của ticket viết `MCP_DOMAIN`;
+quy ước ở `packages/env/README.md` thắng — xem Notes của ticket 05.
+
+Chạy cả hai app cạnh nhau để thử tool:
 
 ```bash
-pnpm start
+bun run dev:mcp-weather       # http://localhost:3004 — endpoint ở /api/mcp
+bun run dev:assistant-ai      # http://localhost:3005
 ```
 
-## Dependencies
+## Model
 
-### Core Dependencies
+Danh sách nằm ở `src/constants/models.ts`, mặc định `gemini-2.5-flash`. Người
+dùng đổi bằng `ModelSelector` ở đầu màn chat; lựa chọn giữ trong
+`~/stores/use-model-store.ts` (Zustand global + `persist`, key
+`assistant-ai-model`). **Chỉ có id model được persist** — không có token nào ở
+`localStorage`, session của app vẫn là cookie `HttpOnly` như mọi app Next ở đây.
 
-- `next` - Next.js framework
-- `react` & `react-dom` - React library
-- `@assistant-ui/react` - Assistant UI components
-- `@assistant-ui/react-ai-sdk` - AI SDK integration
-- `@assistant-ui/react-markdown` - Markdown rendering
-- `@ai-sdk/google` - Google AI SDK adapter
-- `ai` - Vercel AI SDK
-- `motion` - Animation library
-- `lucide-react` - Icons
-- `zustand` - State management
-- `remark-gfm` - GitHub Flavored Markdown support
+Một id đã bị gỡ khỏi danh sách mà còn nằm trong `localStorage` của một người dùng
+cũ sẽ bị `merge` của store loại và quay về mặc định; một id lạ gửi lên trong body
+request cũng bị route handler loại như vậy — body do trình duyệt viết nên không
+tin được.
 
-### Shared Packages
+> Bản cũ liệt kê `gemini-3.0-pro-preview`, một id **không tồn tại** trên API của
+> Google, nên chọn nó là 404 ngay lượt đầu. Đã sửa thành `gemini-3-pro-preview`
+> và ghim bằng test.
 
-- `@monorepo/ui` - Shared UI components
-- `@monorepo/env` - Environment variable management
+## Một lượt chat đi qua đâu
 
-## Architecture
+```text
+ChatTemplate (client)                        route.ts                  streamChat()
+  AssistantChatTransport   ──POST /api/chat──▶  (mỏng: validate body,  ──▶  loadMcpTools() ──▶ ASSISTANT_AI_MCP_DOMAIN + /api/mcp
+  + prepareSendMessagesRequest                   resolve locale)             streamText(googleProvider(model))
+    (thêm `model` + `locale`)
+```
 
-### Frontend
+| Thứ | Ở đâu | Ghi chú |
+| --- | --- | --- |
+| Route handler | `src/app/api/chat/route.ts` | Mỏng: đọc body, ép kiểu `model`/`locale`, lấy catalogue rồi giao cho slice. Nằm **ngoài** `[locale]`, và matcher của `proxy.ts` đã loại `/api` — nên locale phải đi trong body chứ không lấy từ URL được. |
+| Gọi model | `src/features/chat/server/stream-chat.ts` | `streamText` + `stopWhen: stepCountIs(3)` khi có tool — đúng ngân sách bước của bản cũ, nên model **viết được câu tóm tắt sau khi tool trả về** thay vì dừng ở cục JSON. Thay đổi không phải con số mà là **tool nào được hưởng**: bản cũ chỉ mở đường đó cho riêng `get-weather` bằng một nhánh `if`, nên mọi tool khác dừng ngay trên output của chính nó. |
+| Provider | `src/features/chat/server/chat-model.ts` | `createGoogleGenerativeAI({ apiKey: env.… })`, không dùng instance `google` có sẵn — instance đó tự đọc `process.env`, tức là đưa giá trị quan trọng nhất ra ngoài schema `~/env.ts` và ngoài `noProcessEnv` của Biome. |
+| Client MCP | `src/features/chat/server/mcp-tools.ts` | `@modelcontextprotocol/sdk` — **cùng một SDK, cùng một dòng catalog** với máy chủ ở `apps/mcp-weather`, nên client không trôi sang một phiên bản protocol server không nói. Mở và đóng theo từng request, vì máy chủ đó stateless (không có `Mcp-Session-Id` để giữ). |
+| Phân loại lỗi | `src/features/chat/utils/chat-error-code.ts` | Hàm **thuần** trả về một mã (`credential` / `rateLimit` / `generic`); câu chữ lấy từ `assistantAi.errors.*` nên lỗi cũng theo ngôn ngữ. Mặc định của AI SDK là chuỗi `"An error occurred."` cho mọi thứ — key sai và hết quota trông y hệt nhau. |
+| Màn chat | `src/features/chat/templates/chat.template.tsx` | Default export, `"use client"` — runtime của assistant-ui là object của trình duyệt. Transport dựng **một lần** trong `useState`; model đọc **lúc gửi** qua `useModelStore.getState()`, nên đổi model có hiệu lực ngay ở lượt sau chứ không phải dựng lại transport. |
 
-The frontend uses React Server Components and Client Components:
+## Vì sao chat nằm sau `<Suspense>`
 
-- **Server Components**: Layout and page structure
-- **Client Components**: Interactive chat interface
-- **State Management**: Zustand for client state
-- **Animations**: Motion library for smooth animations
+`src/app/[locale]/(shell)/page.tsx` bọc `ChatTemplate` trong `<Suspense>` với
+`ChatSkeleton`. Đây **không** phải trang trí: runtime của assistant-ui sinh id
+tin nhắn bằng `Math.random()` ngay trong render, và dưới `cacheComponents` một
+Client Component đọc giá trị không ổn định lúc prerender làm **hỏng cả
+`next build`** (`Next.js encountered the unstable value Math.random()`).
+`<Suspense>` là cách Next tài liệu hoá để đẩy nhánh đó ra khỏi prerender.
 
-### API Route
+Hệ quả phải nói thẳng: HTML máy chủ gửi cho crawler là **vỏ** (metadata, `lang`,
+header, skeleton), không phải khung chat. Đó là ranh giới cố ý — một cuộc hội
+thoại là của riêng từng người và không có gì để đưa vào kết quả tìm kiếm — và
+`e2e/server-rendering.e2e.ts` kiểm đúng phần vỏ đó.
 
-The `/api/chat` route:
+## Khác gì bản cũ
 
-1. Receives chat messages from the client
-2. Converts messages to model format
-3. Streams responses from Google Gemini
-4. Returns streaming response to client
+- **Bộ AI SDK lên latest**: `ai` 5 → **7**, `@ai-sdk/google` 2 → **4**,
+  `@assistant-ui/react` 0.11 → **0.15**, `@assistant-ui/react-ai-sdk` 1.1 →
+  **1.4**. Tất cả qua catalog `ai-sdk` ở `package.json` root.
+- **Không còn Radix trực tiếp**: `@radix-ui/react-slot` bị gỡ; UI dựng từ
+  `@monorepo/ui` (Base UI), composition bằng prop `render` thay `asChild`.
+  (`@assistant-ui/react` vẫn phụ thuộc `radix-ui` bên trong nó — đó là
+  transitive, không phải dep của app này.)
+- **130 dòng chuyển JSON Schema → zod biến mất**: `jsonSchema()` của `ai` nhận
+  thẳng schema MCP công bố. Bản chuyển tay cũ im lặng rơi mọi ràng buộc nó không
+  nhận ra và trả `z.any()`, tức là một enum bắt buộc đến tay model thành "gì cũng
+  được".
+- **`app/` ở root → `src/app/[locale]/`**, i18n qua `@monorepo/i18n`
+  (namespace `assistantAi.*`), env qua Flavor `next` của `@monorepo/env`, test
+  dưới `test/` soi gương `src/`.
+- **Bỏ `components/attachment.tsx` (240 dòng)**: đính kèm cần một
+  `AttachmentAdapter` khai trong runtime, bản cũ chưa bao giờ khai — nên khối UI
+  đó không bao giờ hiển thị được gì.
+- **Reasoning đơn giản hơn**: vẫn gập/mở được, nhưng bỏ shimmer + gradient +
+  scroll-lock. Chúng chạy trên `data-[state=open]` của Radix và hai keyframe
+  không tồn tại trong `@monorepo/tailwind-config`; giữ chúng đồng nghĩa thêm
+  animation token riêng cho app chỉ để trang trí.
 
-### AI Integration
+## Chạy kiểm
 
-- **SDK**: Vercel AI SDK (`ai`)
-- **Adapter**: Google AI SDK adapter (`@ai-sdk/google`)
-- **Model**: `gemini-2.5-flash`
-- **Features**: Streaming, reasoning support
+```bash
+bun run check && bun run typecheck && bun run test && bun run build
+bunx playwright test --project=chromium          # từ thư mục app này
+```
 
-## Key Components
+E2E chạy trên **bản build** ở cổng 3105 (`ports.env`). Nó **không** gọi model
+thật: CI build bằng key placeholder của `.env.example`, nên một lượt gửi kết thúc
+bằng alert lỗi. Spec chốt đúng thứ chứng minh được dù lượt đó hỏng vì lý do gì —
+alert mang **một trong ba câu của chính app này**, đọc từ catalogue chứ không gõ
+lại, chứ không phải chuỗi thô của provider hay một ô rỗng. Nguyên nhân nào ứng
+với câu nào thì ghim không cần mạng ở
+`test/features/chat/utils/chat-error-code.test.ts`.
 
-### Thread Component
+## Deploy
 
-Main chat interface component that handles:
-
-- Message display
-- Input handling
-- Streaming updates
-- Tool call rendering
-
-### Markdown Text
-
-Renders markdown content with:
-
-- Syntax highlighting
-- Code blocks
-- GitHub Flavored Markdown support
-
-### Reasoning Component
-
-Displays AI reasoning process when available, showing:
-
-- Reasoning steps
-- Thought process
-- Decision making
-
-## Environment Variables
-
-Required environment variables:
-
-- `GOOGLE_GENERATIVE_AI_API_KEY` - Google Gemini API key
-
-Optional (configured via `@monorepo/env`):
-
-- `NEXT_PUBLIC_ENV` - Environment (local, development, production)
-
-## Deployment
-
-The app is configured for Vercel deployment with:
-
-- API route optimization
-- Environment variable validation
-- Build optimization
-
-## Live Application
-
-- **Production**: [Assistant AI](https://chat-assistant-ai-tuan.vercel.app/)
-
-## Differences from Template
-
-This app has a different structure from the template:
-
-1. **No `src/` folder**: Uses Next.js App Router directly
-2. **No i18n**: Single language (English)
-3. **No Sentry**: Error tracking not configured
-4. **Different dependencies**: AI-focused dependencies
-5. **Simpler structure**: Focused on chat functionality
-
-## Development
-
-### Code Style
-
-- Follows monorepo ESLint and Prettier configurations
-- TypeScript for type safety
-- Server Components by default
-- Client Components only when needed
-
-### Best Practices
-
-- Use Server Components for static content
-- Use Client Components for interactivity
-- Proper error handling
-- Type safety with TypeScript
-- Performance optimization
-
-## Resources
-
-- [Assistant UI Documentation](https://assistant-ui.com/)
-- [Vercel AI SDK](https://sdk.vercel.ai/docs)
-- [Google Gemini API](https://ai.google.dev/)
-- [Next.js Documentation](https://nextjs.org/docs)
-
-## Support
-
-For questions or issues:
-
-- Check the main monorepo `README.md`
-- Review `.cursor/rules/` for coding guidelines
-- See `docs/apps/ASSISTANT-AI.md` for additional details
+Vercel, qua `vercel.json` cạnh `Dockerfile` — `build:vercel` gọi `next build`
+trần vì trên Vercel không có `.env` ở root, giá trị đến từ dashboard. `Dockerfile`
+của Template giữ nguyên: image nhận env bằng **file**
+(`COPY .env.${BUILD_ENV} .env`), nên không có build ARG nào phải cập nhật khi
+thêm biến.

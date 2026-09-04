@@ -1,6 +1,9 @@
 {
-  "extends": "@monorepo/tsconfig/compiled-package.json",
-  "compilerOptions": {},
-  "include": ["*.ts", "src"],
+  "extends": "@monorepo/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "preserve"
+  },
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

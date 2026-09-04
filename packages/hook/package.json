@@ -2,33 +2,23 @@
   "name": "@monorepo/hook",
   "private": true,
   "type": "module",
-  "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    "./*": "./src/*.ts"
   },
+  "license": "MIT",
   "scripts": {
-    "build:package": "rslib build && node scripts/copy-dist.js",
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+    "build": "rslib build",
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@monorepo/eslint-config": "workspace:*",
-    "@monorepo/prettier-config": "workspace:*",
     "@monorepo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "@types/react": "catalog:react19",
-    "@types/react-dom": "catalog:react19",
-    "@rsbuild/plugin-react": "catalog:",
     "@rslib/core": "catalog:",
-    "eslint": "catalog:",
-    "postcss": "catalog:",
-    "prettier": "catalog:",
+    "@types/react": "catalog:react19",
+    "react": "catalog:react19",
     "typescript": "catalog:"
   },
-  "dependencies": {
-    "react-dom": "catalog:react19"
-  },
-  "prettier": "@monorepo/prettier-config"
+  "peerDependencies": {
+    "react": "catalog:react19"
+  }
 }

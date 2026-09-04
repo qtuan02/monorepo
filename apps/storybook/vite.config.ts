@@ -1,20 +1,23 @@
-import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
+// Docs: https://vite.dev/config/
+// Storybook's builder-vite auto-discovers this file. `react()` is required here
+// — @storybook/react-vite does not inject it, and without it every .stories.tsx
+// fails to parse with an error that never mentions React.
+//
+// No React Compiler pass here, unlike apps/_template_vite: this is a workshop
+// that ships nothing, and the compiler's memoization would sit between a story
+// and the render a reviewer is inspecting.
+//
+// Tailwind runs through PostCSS in this app (postcss.config.mjs → the shared
+// @monorepo/tailwind-config), not the Vite plugin, so it is deliberately absent
+// from `plugins`.
 export default defineConfig({
-  envDir: path.resolve(__dirname, "../.."),
-  envPrefix: "VITE_",
   plugins: [react()],
-  build: {
-    outDir: "storybook-static",
-  },
-  preview: {
-    port: 4173,
-  },
   resolve: {
-    alias: {
-      "~": path.resolve(__dirname, "./src"),
-    },
+    // Vite 8 reads the `~/*` alias straight out of tsconfig.json, so the alias
+    // is declared once, there.
+    tsconfigPaths: true,
   },
 });

@@ -3,29 +3,23 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./client": "./src/client.ts",
-    "./edge": "./src/edge.ts",
-    "./server": "./src/server.ts"
+    "./*": "./src/*.ts"
   },
+  "license": "MIT",
   "scripts": {
-    "clean": "git clean -xdf .cache .next .turbo node_modules",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
+    "clean": "git clean -xdf .cache .turbo node_modules",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentry/nextjs": "catalog:next15",
-    "@sentry/profiling-node": "catalog:next15",
-    "next": "catalog:next15"
+    "@sentry/nextjs": "catalog:next16"
   },
   "devDependencies": {
-    "@monorepo/eslint-config": "workspace:*",
-    "@monorepo/prettier-config": "workspace:*",
     "@monorepo/tsconfig": "workspace:*",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
+    "@types/node": "catalog:",
+    "next": "catalog:next16",
     "typescript": "catalog:"
   },
-  "prettier": "@monorepo/prettier-config"
+  "peerDependencies": {
+    "next": "catalog:next16"
+  }
 }

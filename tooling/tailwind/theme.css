@@ -1,0 +1,195 @@
+@theme inline {
+  --breakpoint-3xl: 1600px;
+  --breakpoint-4xl: 2000px;
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-mono);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-code: var(--code);
+  --color-code-foreground: var(--code-foreground);
+  --color-code-highlight: var(--code-highlight);
+  --color-code-number: var(--code-number);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
+}
+
+/*
+ * Palette ported from web-emr's `public/assets/css/root.css` (the EMR brand).
+ * Each token below names the web-emr variable and hex it came from, so a value
+ * can be traced back to the source of truth rather than re-guessed.
+ */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(0.9794 0.0013 286.38); /* web-emr body bg #f8f8f9 */
+  --foreground: oklch(0.4134 0.0432 258.79); /* --normal #3d4c63 */
+  --card: oklch(1 0 0); /* --whites #ffffff — cards sit above the tinted bg */
+  --card-foreground: oklch(0.4134 0.0432 258.79);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.4134 0.0432 258.79);
+  --primary: oklch(0.6591 0.1012 181.55); /* --primary-brand #38a696 */
+  --primary-foreground: oklch(
+    1 0 0
+  ); /* --whites — matches web-emr's white-on-brand */
+  --secondary: oklch(0.9642 0 0); /* --bg-secondary #f3f3f3 */
+  --secondary-foreground: oklch(0.3211 0 0); /* --text-primary #333333 */
+  --muted: oklch(0.9642 0 0); /* --bg-secondary #f3f3f3 */
+  --muted-foreground: oklch(0.5032 0 0); /* --text-secondary #646464 */
+  --accent: oklch(
+    0.987 0.018 188.41
+  ); /* --primary-hover #eefffd — antd row/option hover */
+  --accent-foreground: oklch(0.5992 0.082 182.46); /* --primary-text #3e9084 */
+  --destructive: oklch(0.6831 0.2105 12.4); /* --danger-main #ff5075 */
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.6853 0.1346 160.83); /* --success-main #36b37e */
+  --success-foreground: oklch(
+    0.3211 0 0
+  ); /* #333 reads AA on this green; white does not */
+  --warning: oklch(0.8308 0.1314 68.79); /* --warning-main #ffb762 */
+  --warning-foreground: oklch(0.3211 0 0);
+  --info: oklch(0.6749 0.1578 249.84); /* --info-main #3b9bf3 */
+  --info-foreground: oklch(0.3211 0 0);
+  --border: oklch(0.9551 0 0); /* --border_tbl #f0f0f0 */
+  --input: oklch(
+    0.9158 0 0
+  ); /* #e3e3e3 — a step darker so fields read on the tinted bg */
+  --ring: oklch(
+    0.8919 0.0466 184.56
+  ); /* --primary-active #bae6df — web-emr's focus outline */
+  /* Charts are web-emr's status palette (bin/color.json), not a single-hue ramp:
+     brand → reviewing → completed → waiting → missing. */
+  --chart-1: oklch(0.6591 0.1012 181.55); /* #38a696 brand */
+  --chart-2: oklch(
+    0.6749 0.1578 249.84
+  ); /* #3b9bf3 reviewing / waiting-approval */
+  --chart-3: oklch(0.6853 0.1346 160.83); /* #36b37e completed / archived */
+  --chart-4: oklch(0.8308 0.1314 68.79); /* #ffb762 waiting-for-review */
+  --chart-5: oklch(0.6831 0.2105 12.4); /* #ff5075 missing / supplementing */
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.4134 0.0432 258.79);
+  --sidebar-primary: oklch(0.6591 0.1012 181.55);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.987 0.018 188.41);
+  --sidebar-accent-foreground: oklch(0.5992 0.082 182.46);
+  --sidebar-border: oklch(0.9551 0 0);
+  --sidebar-ring: oklch(0.8919 0.0466 184.56);
+  --surface: oklch(0.9881 0 0); /* --bg-teriary #fbfbfb */
+  --surface-foreground: var(--foreground);
+  --code: var(--surface);
+  --code-foreground: var(--surface-foreground);
+  --code-highlight: oklch(0.9642 0 0); /* --bg-secondary #f3f3f3 */
+  --code-number: oklch(0.6268 0 0); /* --text-teriary #888888 */
+  --selection: oklch(0.6591 0.1012 181.55);
+  --selection-foreground: oklch(1 0 0);
+}
+
+/*
+ * web-emr ships no dark theme, so this is derived rather than ported: the
+ * neutral dark surfaces are kept and only the brand-carrying tokens are
+ * retinted. The status colors (destructive/success/warning/info + charts) are
+ * deliberately identical to light — a status hue must not shift meaning
+ * between themes.
+ */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(
+    0.7893 0.0875 183.49
+  ); /* --primary-brand_mid #75cdc0 — brand lifted for dark */
+  --primary-foreground: oklch(
+    0.28 0.0382 184.2
+  ); /* deep teal, 7.7:1 on the above */
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(
+    0.35 0.0382 184.2
+  ); /* dark teal wash, mirrors --primary-hover's role */
+  --accent-foreground: oklch(
+    0.8919 0.0466 184.56
+  ); /* --primary-active #bae6df */
+  --destructive: oklch(0.6831 0.2105 12.4); /* --danger-main #ff5075 */
+  --destructive-foreground: oklch(1 0 0);
+  --success: oklch(0.6853 0.1346 160.83); /* --success-main #36b37e */
+  --success-foreground: oklch(0.3211 0 0);
+  --warning: oklch(0.8308 0.1314 68.79); /* --warning-main #ffb762 */
+  --warning-foreground: oklch(0.3211 0 0);
+  --info: oklch(0.6749 0.1578 249.84); /* --info-main #3b9bf3 */
+  --info-foreground: oklch(0.3211 0 0);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.6591 0.1012 181.55); /* --primary-brand #38a696 */
+  --chart-1: oklch(
+    0.7893 0.0875 183.49
+  ); /* #75cdc0 — brand, lifted to clear the dark bg */
+  --chart-2: oklch(0.6749 0.1578 249.84); /* #3b9bf3 */
+  --chart-3: oklch(0.6853 0.1346 160.83); /* #36b37e */
+  --chart-4: oklch(0.8308 0.1314 68.79); /* #ffb762 */
+  --chart-5: oklch(0.6831 0.2105 12.4); /* #ff5075 */
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.7893 0.0875 183.49);
+  --sidebar-primary-foreground: oklch(0.28 0.0382 184.2);
+  --sidebar-accent: oklch(0.35 0.0382 184.2);
+  --sidebar-accent-foreground: oklch(0.8919 0.0466 184.56);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.6591 0.1012 181.55);
+  --surface: oklch(0.2 0 0);
+  --surface-foreground: oklch(0.708 0 0);
+  --code: var(--surface);
+  --code-foreground: var(--surface-foreground);
+  --code-highlight: oklch(0.27 0 0);
+  --code-number: oklch(0.72 0 0);
+  --selection: oklch(0.7893 0.0875 183.49);
+  --selection-foreground: oklch(0.28 0.0382 184.2);
+}

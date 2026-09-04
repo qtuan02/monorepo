@@ -1,187 +1,205 @@
 # @fe-monorepo/ui
 
-A collection of reusable UI components built with [Radix UI](https://www.radix-ui.com/) and [Tailwind CSS](https://tailwindcss.com/), following the [shadcn/ui](https://ui.shadcn.com/) design pattern.
+63 [shadcn](https://ui.shadcn.com) primitives in the `base-vega` style, built on
+[Base UI](https://base-ui.com) rather than Radix, published from the
+[`monorepo`](https://github.com/qtuan02/monorepo) workspace as ESM with per-file type
+declarations. No barrel, no root entry — you import the primitive you need by its own
+subpath, so a bundler ships only that file.
 
-## Installation
+> `3.0.0` is a rewrite, not an upgrade. The `1.0.2` line published 42 Radix-based
+> components from the pre-Skeleton codebase; this line publishes the current Base UI set.
+> Every component's props, composition and state attributes changed — treat it as a new
+> package. There is no `2.0.0`: that version was published and unpublished in November
+> 2025, and npm never lets a version number be reused, so this line skips it.
+
+## Install
 
 ```bash
-npm install @fe-monorepo/ui
-# or
-pnpm add @fe-monorepo/ui
-# or
-yarn add @fe-monorepo/ui
+bun add @fe-monorepo/ui
+# npm install @fe-monorepo/ui
 ```
 
-## Prerequisites
+### Peer dependencies
 
-This package requires:
+| Peer | Range |
+| --- | --- |
+| `react` | `>=19` |
+| `react-dom` | `>=19` |
+| `tailwindcss` | `^4` |
 
-- **React** 19 or higher
-- **Tailwind CSS** v4.x
+The package is ESM-only (`"type": "module"`) and ships no CommonJS build. It does **not**
+depend on `@fe-monorepo/hook`: the one hook it uses internally is compiled into its own
+`dist/`, so installing the UI package pulls in no sibling.
 
-## Setup
+## Set up the stylesheet
 
-### 1. Import Styles
-
-Add the following import to your `globals.css` file:
+Two lines in your Tailwind v4 entry, and one that matters more than it looks:
 
 ```css
+/* src/index.css */
+@import "tailwindcss";
 @import "@fe-monorepo/ui/globals.css";
+
+/* Tailwind v4 does not scan node_modules. Without this line every class inside the
+   package compiles to nothing and the components render unstyled. Adjust the path so it
+   points at the installed package from wherever this file lives. */
+@source "../node_modules/@fe-monorepo/ui/dist";
 ```
 
-### 2. Configure Tailwind CSS
+`@fe-monorepo/ui/globals.css` is a **fragment**, not a full Tailwind entry: it carries the
+theme tokens, the `dark` variant, this package's base layer and the two `data-orientation`
+variants the primitives style against — but not `@import "tailwindcss"` itself, which is
+yours to own since `tailwindcss` is a peer dependency.
 
-This package uses Tailwind CSS v4 with CSS variables for theming. The theme and CSS variables are already included in the `globals.css` file.
+The base layer is opinionated, so here is all of it: `border-border` and `outline-ring/50`
+on `*`; `background`/`foreground` plus `position: relative` on `body` (iOS 26 Safari needs a
+non-static ancestor or dialog and drawer backdrops miss the visual viewport);
+`isolation: isolate` on `#root`, which gives portaled popups a stacking context of their own
+and is simply inert if your app root has another id; and one `.flex-center` utility. If you
+would rather own those yourself, copy the file out of `node_modules` and import your copy.
 
-Make sure your `postcss.config.js` is configured to use Tailwind CSS v4:
+Those two variants are the reason the stylesheet is not optional:
 
-```js
-export default {
-  plugins: {
-    "@tailwindcss/postcss": {},
-  },
-};
+```css
+@custom-variant data-horizontal (&[data-orientation="horizontal"]);
+@custom-variant data-vertical (&[data-orientation="vertical"]);
 ```
 
-### 3. Import Styles in Your App
-
-Import your CSS file in your app's entry point (e.g., `app/layout.tsx` for Next.js or `main.tsx` for Vite):
-
-```tsx
-import "./globals.css";
-```
-
-### 4. Setup Dark Mode (Optional)
-
-If you want dark mode support, install and configure `next-themes`:
-
-```bash
-npm install next-themes
-```
-
-Then wrap your app with the `ThemeProvider`:
-
-```tsx
-import { ThemeProvider } from "next-themes";
-
-export function Providers({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      {children}
-    </ThemeProvider>
-  );
-}
-```
+Base UI states orientation as a *value* attribute (`data-orientation="vertical"`), while
+the shadcn registry styles against a bare `data-vertical:`. Without the two variants,
+every such utility compiles to no CSS and no error — sliders lose their height, scrollbars
+their width, and a tabs list stretches to full height.
 
 ## Usage
 
-Import components from the package:
+Every primitive lives at its own subpath, named after its file:
 
 ```tsx
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@fe-monorepo/ui";
+import { Button } from "@fe-monorepo/ui/components/button";
+import { Field, FieldError, FieldLabel } from "@fe-monorepo/ui/components/field";
+import { cn } from "@fe-monorepo/ui/utils/cn";
 
-export function MyComponent() {
+function SaveRow({ invalid }: { invalid: boolean }) {
   return (
-    <div>
-      <Button>Click me</Button>
-      <Card>
-        <CardHeader>
-          <CardTitle>Card Title</CardTitle>
-        </CardHeader>
-        <CardContent>Card content</CardContent>
-      </Card>
-    </div>
+    <Field data-invalid={invalid}>
+      <FieldLabel htmlFor="name">Name</FieldLabel>
+      <Button className={cn("mt-2", invalid && "opacity-50")}>Save</Button>
+    </Field>
   );
 }
 ```
 
-### Import Individual Components
+There is no `import { Button } from "@fe-monorepo/ui"` — the root entry does not exist.
 
-You can also import components individually:
+### Composition is `render`, not `asChild`
+
+Base UI has no `asChild`/`Slot`. To render a primitive as a different element, hand that
+element to its `render` prop:
 
 ```tsx
-import { Button } from "@fe-monorepo/ui/components/button";
-import { cn } from "@fe-monorepo/ui/libs/cn";
+<DialogTrigger render={<Button variant="outline">Open</Button>} />
 ```
 
-## Available Components
+The one exception is a link that looks like a button: style the link with
+`buttonVariants` instead of rendering it through `Button`, which assumes a native
+`<button>`.
 
-This package includes the following components:
+```tsx
+<a href="/home" className={cn(buttonVariants({ variant: "ghost" }))}>Home</a>
+```
 
-- Accordion
-- Alert Dialog
-- Aspect Ratio
-- Avatar
-- Badge
-- Breadcrumb
-- Button
-- Calendar
-- Checkbox
-- Collapsible
-- Command
-- Context Menu
-- Dialog
-- Drawer
-- Dropdown Menu
-- Form
-- Hover Card
-- Input
-- Input OTP
-- Label
-- Menubar
-- Navigation Menu
-- Pagination
-- Popover
-- Progress
-- Radio Group
-- Resizable
-- Scroll Area
-- Select
-- Separator
-- Sheet
-- Skeleton
-- Slider
-- Sonner (Toast)
-- Switch
-- Table
-- Tabs
-- Textarea
-- Toggle
-- Toggle Group
-- Tooltip
+### State attributes are bare
+
+`data-open`, `data-closed`, `data-checked`, `data-disabled` — not Radix's
+`data-[state=open]`. Orientation is the exception noted above.
+
+## Primitives
+
+Every row is `@fe-monorepo/ui/components/<subpath>`.
+
+| Subpath | Exports |
+| --- | --- |
+| `accordion` | `Accordion`, `AccordionContent`, `AccordionItem`, `AccordionTrigger` |
+| `alert-dialog` | `AlertDialog`, `AlertDialogAction`, `AlertDialogCancel`, `AlertDialogContent`, `AlertDialogDescription`, `AlertDialogFooter`, `AlertDialogHeader`, `AlertDialogMedia`, `AlertDialogOverlay`, `AlertDialogPortal`, `AlertDialogTitle`, `AlertDialogTrigger` |
+| `alert` | `Alert`, `AlertAction`, `AlertDescription`, `AlertTitle` |
+| `aspect-ratio` | `AspectRatio` |
+| `attachment` | `Attachment`, `AttachmentAction`, `AttachmentActions`, `AttachmentContent`, `AttachmentDescription`, `AttachmentGroup`, `AttachmentMedia`, `AttachmentTitle`, `AttachmentTrigger` |
+| `avatar` | `Avatar`, `AvatarBadge`, `AvatarFallback`, `AvatarGroup`, `AvatarGroupCount`, `AvatarImage` |
+| `badge` | `Badge`, `badgeVariants` |
+| `breadcrumb` | `Breadcrumb`, `BreadcrumbEllipsis`, `BreadcrumbItem`, `BreadcrumbLink`, `BreadcrumbList`, `BreadcrumbPage`, `BreadcrumbSeparator` |
+| `bubble` | `Bubble`, `BubbleContent`, `BubbleGroup`, `BubbleReactions` |
+| `button-group` | `ButtonGroup`, `ButtonGroupSeparator`, `ButtonGroupText`, `buttonGroupVariants` |
+| `button` | `Button`, `buttonVariants` |
+| `calendar` | `Calendar`, `CalendarDayButton` |
+| `card` | `Card`, `CardAction`, `CardContent`, `CardDescription`, `CardFooter`, `CardHeader`, `CardTitle` |
+| `carousel` | `Carousel`, `CarouselApi`, `CarouselContent`, `CarouselItem`, `CarouselNext`, `CarouselPrevious`, `useCarousel` |
+| `chart` | `ChartContainer`, `ChartLegend`, `ChartLegendContent`, `ChartStyle`, `ChartTooltip`, `ChartTooltipContent` |
+| `checkbox` | `Checkbox` |
+| `collapsible` | `Collapsible`, `CollapsibleContent`, `CollapsibleTrigger` |
+| `combobox` | `Combobox`, `ComboboxChip`, `ComboboxChips`, `ComboboxChipsInput`, `ComboboxCollection`, `ComboboxContent`, `ComboboxEmpty`, `ComboboxGroup`, `ComboboxInput`, `ComboboxItem`, `ComboboxLabel`, `ComboboxList`, `ComboboxSeparator`, `ComboboxTrigger`, `ComboboxValue`, `useComboboxAnchor` |
+| `command` | `Command`, `CommandDialog`, `CommandEmpty`, `CommandGroup`, `CommandInput`, `CommandItem`, `CommandList`, `CommandSeparator`, `CommandShortcut` |
+| `context-menu` | `ContextMenu`, `ContextMenuCheckboxItem`, `ContextMenuContent`, `ContextMenuGroup`, `ContextMenuItem`, `ContextMenuLabel`, `ContextMenuPortal`, `ContextMenuRadioGroup`, `ContextMenuRadioItem`, `ContextMenuSeparator`, `ContextMenuShortcut`, `ContextMenuSub`, `ContextMenuSubContent`, `ContextMenuSubTrigger`, `ContextMenuTrigger` |
+| `data-table` | `createDataTableColumnHelper`, `DataTable`, `DataTableColumnHeader`, `DataTableFeatures`, `dataTableFeatures` |
+| `date-picker` | `DatePicker`, `DatePickerInput`, `DateRangePicker` |
+| `dialog` | `Dialog`, `DialogClose`, `DialogContent`, `DialogDescription`, `DialogFooter`, `DialogHeader`, `DialogOverlay`, `DialogPortal`, `DialogTitle`, `DialogTrigger` |
+| `direction` | `DirectionProvider`, `useDirection` |
+| `drawer` | `Drawer`, `DrawerClose`, `DrawerContent`, `DrawerDescription`, `DrawerFooter`, `DrawerHeader`, `DrawerOverlay`, `DrawerPortal`, `DrawerSwipeHandle`, `DrawerTitle`, `DrawerTrigger` |
+| `dropdown-menu` | `DropdownMenu`, `DropdownMenuCheckboxItem`, `DropdownMenuContent`, `DropdownMenuGroup`, `DropdownMenuItem`, `DropdownMenuLabel`, `DropdownMenuPortal`, `DropdownMenuRadioGroup`, `DropdownMenuRadioItem`, `DropdownMenuSeparator`, `DropdownMenuShortcut`, `DropdownMenuSub`, `DropdownMenuSubContent`, `DropdownMenuSubTrigger`, `DropdownMenuTrigger` |
+| `empty` | `Empty`, `EmptyContent`, `EmptyDescription`, `EmptyHeader`, `EmptyMedia`, `EmptyTitle` |
+| `field` | `Field`, `FieldContent`, `FieldDescription`, `FieldError`, `FieldGroup`, `FieldLabel`, `FieldLegend`, `FieldSeparator`, `FieldSet`, `FieldTitle` |
+| `hover-card` | `HoverCard`, `HoverCardContent`, `HoverCardTrigger` |
+| `input-group` | `InputGroup`, `InputGroupAddon`, `InputGroupButton`, `InputGroupInput`, `InputGroupText`, `InputGroupTextarea` |
+| `input-otp` | `InputOTP`, `InputOTPGroup`, `InputOTPSeparator`, `InputOTPSlot` |
+| `input` | `Input` |
+| `item` | `Item`, `ItemActions`, `ItemContent`, `ItemDescription`, `ItemFooter`, `ItemGroup`, `ItemHeader`, `ItemMedia`, `ItemSeparator`, `ItemTitle` |
+| `kbd` | `Kbd`, `KbdGroup` |
+| `label` | `Label` |
+| `marker` | `Marker`, `MarkerContent`, `MarkerIcon`, `markerVariants` |
+| `menubar` | `Menubar`, `MenubarCheckboxItem`, `MenubarContent`, `MenubarGroup`, `MenubarItem`, `MenubarLabel`, `MenubarMenu`, `MenubarPortal`, `MenubarRadioGroup`, `MenubarRadioItem`, `MenubarSeparator`, `MenubarShortcut`, `MenubarSub`, `MenubarSubContent`, `MenubarSubTrigger`, `MenubarTrigger` |
+| `message-scroller` | `MessageScroller`, `MessageScrollerButton`, `MessageScrollerContent`, `MessageScrollerItem`, `MessageScrollerProvider`, `MessageScrollerViewport`, `useMessageScroller`, `useMessageScrollerScrollable`, `useMessageScrollerVisibility` |
+| `message` | `Message`, `MessageAvatar`, `MessageContent`, `MessageFooter`, `MessageGroup`, `MessageHeader` |
+| `native-select` | `NativeSelect`, `NativeSelectOptGroup`, `NativeSelectOption` |
+| `navigation-menu` | `NavigationMenu`, `NavigationMenuContent`, `NavigationMenuIndicator`, `NavigationMenuItem`, `NavigationMenuLink`, `NavigationMenuList`, `NavigationMenuPositioner`, `NavigationMenuTrigger`, `navigationMenuTriggerStyle` |
+| `pagination` | `Pagination`, `PaginationContent`, `PaginationEllipsis`, `PaginationItem`, `PaginationLink`, `PaginationNext`, `PaginationPrevious` |
+| `popover` | `Popover`, `PopoverContent`, `PopoverDescription`, `PopoverHeader`, `PopoverTitle`, `PopoverTrigger` |
+| `progress` | `Progress`, `ProgressIndicator`, `ProgressLabel`, `ProgressTrack`, `ProgressValue` |
+| `questionnaire` | `Questionnaire`, `QuestionnaireActions`, `QuestionnaireChoice`, `QuestionnaireChoiceDescription`, `QuestionnaireChoices`, `QuestionnaireDescription`, `QuestionnaireError`, `QuestionnaireInput`, `QuestionnaireItem`, `QuestionnaireNext`, `QuestionnairePrevious`, `QuestionnaireProgress`, `QuestionnaireSkip`, `QuestionnaireSubmit`, `QuestionnaireTitle` |
+| `radio-group` | `RadioGroup`, `RadioGroupItem` |
+| `resizable` | `ResizableHandle`, `ResizablePanel`, `ResizablePanelGroup` |
+| `scroll-area` | `ScrollArea`, `ScrollBar` |
+| `select` | `Select`, `SelectContent`, `SelectGroup`, `SelectItem`, `SelectLabel`, `SelectScrollDownButton`, `SelectScrollUpButton`, `SelectSeparator`, `SelectTrigger`, `SelectValue` |
+| `separator` | `Separator` |
+| `sheet` | `Sheet`, `SheetClose`, `SheetContent`, `SheetDescription`, `SheetFooter`, `SheetHeader`, `SheetTitle`, `SheetTrigger` |
+| `sidebar` | `Sidebar`, `SidebarContent`, `SidebarFooter`, `SidebarGroup`, `SidebarGroupAction`, `SidebarGroupContent`, `SidebarGroupLabel`, `SidebarHeader`, `SidebarInput`, `SidebarInset`, `SidebarMenu`, `SidebarMenuAction`, `SidebarMenuBadge`, `SidebarMenuButton`, `SidebarMenuItem`, `SidebarMenuSkeleton`, `SidebarMenuSub`, `SidebarMenuSubButton`, `SidebarMenuSubItem`, `SidebarProvider`, `SidebarRail`, `SidebarSeparator`, `SidebarTrigger`, `useSidebar` |
+| `skeleton` | `Skeleton` |
+| `slider` | `Slider` |
+| `spinner` | `Spinner` |
+| `switch` | `Switch` |
+| `table` | `Table`, `TableBody`, `TableCaption`, `TableCell`, `TableFooter`, `TableHead`, `TableHeader`, `TableRow` |
+| `tabs` | `Tabs`, `TabsContent`, `TabsList`, `TabsTrigger`, `tabsListVariants` |
+| `textarea` | `Textarea` |
+| `toast` | `createToastManager`, `Toast`, `ToastAction`, `ToastClose`, `ToastContent`, `ToastDescription`, `Toaster`, `ToastPortal`, `ToastProvider`, `ToastTitle`, `ToastViewport`, `toast`, `useToastManager` |
+| `toggle-group` | `ToggleGroup`, `ToggleGroupItem` |
+| `toggle` | `Toggle`, `toggleVariants` |
+| `tooltip` | `Tooltip`, `TooltipContent`, `TooltipProvider`, `TooltipTrigger` |
 
 ## Utilities
 
-### `cn` utility
+| Subpath | Exports |
+| --- | --- |
+| `@fe-monorepo/ui/utils/cn` | `cn(...inputs)` — `twMerge(clsx(...))`, the merge every primitive uses for its `className` |
+| `@fe-monorepo/ui/utils/build-pagination-pages` | `buildPaginationPages(...)` — the page/ellipsis list behind `Pagination` |
 
-The package exports a `cn` utility function for merging class names:
+## Storybook
 
-```tsx
-import { cn } from "@fe-monorepo/ui";
+Every primitive is previewed, with its variants and props tables, in the workspace's
+Storybook: [`apps/storybook`](https://github.com/qtuan02/monorepo/tree/main/apps/storybook).
+Run it locally with `bun run dev:storybook` from a clone.
 
-<div className={cn("base-class", condition && "conditional-class")} />;
-```
+## TypeScript
 
-## Customization
-
-The package includes a default theme with CSS variables. All theme variables are defined in the `globals.css` file and can be customized by overriding the CSS variables in your own CSS file.
-
-## Resources
-
-- [shadcn/ui Documentation](https://ui.shadcn.com/) - Design system inspiration
-- [Radix UI Documentation](https://www.radix-ui.com/) - Underlying component primitives
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs) - Styling framework
-- [Tailwind CSS v4 Documentation](https://tailwindcss.com/docs/v4-beta) - Latest Tailwind CSS version
-- [next-themes Documentation](https://github.com/pacocoursey/next-themes) - Dark mode support
+Each subpath resolves its own `.d.ts`, so `moduleResolution: "Bundler"` (or `"NodeNext"`)
+picks up types with no `paths` entry and no `@types/*` package.
 
 ## License
 

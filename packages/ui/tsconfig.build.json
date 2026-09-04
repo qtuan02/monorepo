@@ -1,21 +1,28 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "lib": ["ES2022", "dom", "dom.iterable"],
-    "jsx": "react-jsx",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "outDir": "./dist",
+    "noEmit": false,
+
+    /**
+     * Its own incremental cache. The base preset points every config that
+     * extends it at `.cache/tsbuildinfo.json`, and in a full `turbo run
+     * typecheck` this build runs *concurrently* with the package's own
+     * `typecheck` — a different `include` and `noEmit: true`. Sharing one file
+     * makes each compilation invalidate the other's cache, and Turbo then
+     * intermittently reports "no output files found" for
+     * `@monorepo/ui#typecheck`, whose declared output that file is.
+     */
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.build.json",
     "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": false,
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "isolatedModules": true,
-    "skipLibCheck": true
+    "allowImportingTsExtensions": false,
+    "rootDir": "src",
+    "paths": {
+      "#components/*": ["./src/components/*"],
+      "#utils/cn": ["./src/utils/cn"],
+      "#hooks/*": ["./src/hooks/*"]
+    }
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules"]
 }

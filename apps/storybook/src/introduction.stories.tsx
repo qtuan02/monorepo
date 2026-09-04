@@ -1,19 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  BookOpen,
-  ExternalLink,
-  Layers,
-  Package,
-  Palette,
-  PanelsTopLeft,
-  Sparkles,
-  Zap,
-} from "lucide-react";
-
-import { env } from "@monorepo/env/vite";
 
 const meta = {
   title: "Storybook/Introduction",
+  tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
   },
@@ -23,227 +12,71 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+const stack = [
+  "React 19",
+  "Base UI",
+  "Tailwind v4",
+  "Vite 8",
+  "Storybook 10",
+  "Bun workspaces",
+];
+
 function IntroductionContent() {
-  const docsUrl = env.VITE_DOCUMENTS_DOMAIN?.trim() ?? "";
-  const storybookUrl = env.VITE_STORYBOOK_DOMAIN?.trim() ?? "";
-  const showRelatedSites = docsUrl.length > 0 || storybookUrl.length > 0;
-
-  const highlights = [
-    {
-      icon: Layers,
-      title: "Component catalog",
-      description:
-        "Mỗi component trong @monorepo/ui có story riêng: biến thể, kích thước và trạng thái tương tác để bạn đối chiếu nhanh với design.",
-    },
-    {
-      icon: Palette,
-      title: "Tailwind & theme",
-      description:
-        "Giao diện dùng cùng token và @source như app documents — preview sát với production.",
-    },
-    {
-      icon: Sparkles,
-      title: "Radix + shadcn-style",
-      description:
-        "Primitive có sẵn accessibility; stories minh họa dialog, menu, sheet và các pattern phức tạp.",
-    },
-  ];
-
-  const tips = [
-    {
-      icon: Zap,
-      title: "Điều hướng",
-      description: "Dùng sidebar trái để chọn nhóm UI/* và mở từng story.",
-    },
-    {
-      icon: BookOpen,
-      title: "Docs & Controls",
-      description:
-        "Tab Docs xem mô tả; tab Controls chỉnh props trực tiếp (khi story hỗ trợ).",
-    },
-    {
-      icon: Package,
-      title: "Monorepo",
-      description:
-        "Stories nằm trong packages/ui/src/stories — import trực tiếp từ source, không cần build package trước khi dev.",
-    },
-  ];
-
   return (
-    <div className="bg-background text-foreground min-h-[calc(100vh-2rem)]">
-      <div className="mx-auto max-w-5xl space-y-12 px-6 py-10 md:py-14">
-        <header className="space-y-4">
-          <p className="text-muted-foreground text-sm font-medium tracking-wide uppercase">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="mx-auto max-w-3xl space-y-10 px-6 py-16">
+        <header className="space-y-3">
+          <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
             @monorepo/ui
           </p>
-          <h1 className="text-4xl font-bold tracking-tight md:text-5xl">
-            Storybook
+          <h1 className="text-4xl font-bold tracking-tight">
+            The component workshop
           </h1>
-          <p className="text-muted-foreground max-w-2xl text-lg leading-relaxed">
-            Không gian xem trước tương tác cho thư viện giao diện dùng chung
-            trong monorepo — cùng tinh thần với trang{" "}
-            <span className="text-foreground font-medium">Documents</span>: rõ
-            ràng, có cấu trúc, dễ lướt.
+          <p className="max-w-xl text-base leading-relaxed text-muted-foreground">
+            Every primitive shared across this monorepo, rendered in isolation.
+            One story file per component, on the shadcn <code>base-vega</code>{" "}
+            style over Base UI — so a change here is visible before it reaches
+            an app.
           </p>
         </header>
 
-        {showRelatedSites ? (
-          <section className="space-y-4">
-            <h2 className="text-lg font-semibold tracking-tight">
-              Documents &amp; Storybook
-            </h2>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <a
-                href={docsUrl || "#"}
-                target={docsUrl ? "_blank" : undefined}
-                rel={docsUrl ? "noopener noreferrer" : undefined}
-                className={`group border-border bg-card flex items-center gap-4 rounded-xl border p-5 transition-all hover:shadow-md ${
-                  docsUrl
-                    ? "hover:border-primary"
-                    : "pointer-events-none opacity-60"
-                }`}
-              >
-                <div className="border-border bg-background flex size-12 shrink-0 items-center justify-center rounded-lg border">
-                  <BookOpen className="size-6" aria-hidden />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold">UI Documentation</div>
-                  <div className="text-muted-foreground text-sm">
-                    {docsUrl
-                      ? "Ứng dụng documents — components, hooks, source."
-                      : "Thiếu VITE_DOCUMENTS_DOMAIN"}
-                  </div>
-                  {docsUrl ? (
-                    <div className="text-muted-foreground mt-2 truncate text-xs">
-                      {docsUrl}
-                    </div>
-                  ) : null}
-                </div>
-                {docsUrl ? (
-                  <ExternalLink className="text-muted-foreground size-5 shrink-0" />
-                ) : null}
-              </a>
-              <div className="border-border bg-card group flex items-center gap-4 rounded-xl border p-5">
-                <div className="border-border bg-background flex size-12 shrink-0 items-center justify-center rounded-lg border">
-                  <PanelsTopLeft className="size-6" aria-hidden />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-semibold">Storybook</div>
-                  <div className="text-muted-foreground text-sm">
-                    Bạn đang xem preview tại đây.
-                  </div>
-                  {storybookUrl ? (
-                    <div className="text-muted-foreground mt-2 truncate text-xs">
-                      {storybookUrl}
-                    </div>
-                  ) : (
-                    <div className="text-muted-foreground mt-2 text-xs">
-                      Set{" "}
-                      <code className="bg-muted rounded px-1">
-                        VITE_STORYBOOK_DOMAIN
-                      </code>{" "}
-                      để hiển thị URL public.
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="grid gap-4 sm:grid-cols-3">
-          <div className="border-border bg-card rounded-xl border p-5 shadow-sm">
-            <div className="text-muted-foreground mb-1 text-xs font-medium uppercase">
-              Phạm vi
-            </div>
-            <div className="text-3xl font-bold tabular-nums">UI</div>
-            <div className="text-muted-foreground mt-1 text-sm">
-              Form controls → overlays → navigation
-            </div>
-          </div>
-          <div className="border-border bg-card rounded-xl border p-5 shadow-sm">
-            <div className="text-muted-foreground mb-1 text-xs font-medium uppercase">
-              Stack
-            </div>
-            <div className="text-lg leading-snug font-semibold">
-              React 19 · Tailwind v4 · Storybook 8
-            </div>
-            <div className="text-muted-foreground mt-1 text-sm">
-              Vite build, workspace pnpm
-            </div>
-          </div>
-          <div className="border-border bg-card rounded-xl border p-5 shadow-sm">
-            <div className="text-muted-foreground mb-1 text-xs font-medium uppercase">
-              Gợi ý
-            </div>
-            <div className="text-lg leading-snug font-semibold">
-              Bắt đầu từ UI/Button
-            </div>
-            <div className="text-muted-foreground mt-1 text-sm">
-              Rồi thử Dialog, Select, Form
-            </div>
-          </div>
+        <section className="space-y-3">
+          <h2 className="font-semibold">Getting around</h2>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>
+              → Pick a component from the{" "}
+              <strong className="text-foreground">sidebar</strong> on the left.
+            </li>
+            <li>
+              → The <strong className="text-foreground">Docs</strong> tab is
+              generated from the component's props.
+            </li>
+            <li>
+              → The <strong className="text-foreground">Controls</strong> tab
+              edits those props live.
+            </li>
+          </ul>
         </section>
 
-        <section className="space-y-6">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Vì sao dùng Storybook?
-          </h2>
-          <div className="grid gap-6 md:grid-cols-3">
-            {highlights.map((item) => (
-              <div
-                key={item.title}
-                className="border-border bg-card hover:border-primary/30 rounded-xl border p-6 transition-colors"
-              >
-                <div className="border-border mb-4 inline-flex rounded-lg border p-3">
-                  <item.icon className="size-6" aria-hidden />
-                </div>
-                <h3 className="mb-2 font-semibold">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {item.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-6">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Cách dùng nhanh
-          </h2>
-          <div className="grid gap-4 md:grid-cols-3">
-            {tips.map((item) => (
-              <div
-                key={item.title}
-                className="border-border bg-muted/30 flex gap-4 rounded-xl border p-5"
-              >
-                <div className="border-border bg-background max-h-11 max-w-11 shrink-0 rounded-lg border p-2.5">
-                  <item.icon className="size-5" aria-hidden />
-                </div>
-                <div>
-                  <h3 className="mb-1 font-semibold">{item.title}</h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <footer className="text-muted-foreground border-border border-t pt-8 text-sm">
-          <p>
-            Chạy local:{" "}
-            <code className="bg-muted rounded-md px-2 py-0.5 text-xs">
-              pnpm dev:storybook
-            </code>
-            {" · "}
-            Build tĩnh:{" "}
-            <code className="bg-muted rounded-md px-2 py-0.5 text-xs">
-              pnpm --filter @monorepo/storybook build
-            </code>
+        <section className="space-y-3">
+          <h2 className="font-semibold">What this workshop is for</h2>
+          <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+            jsdom lays nothing out, so the unit suite cannot see a slider that
+            lost its height or a tabs list that stretched. Those failures are
+            visual and only show up here — check orientation on Slider, Tabs,
+            ScrollArea and Separator, and check that Dialog, Popover and Tooltip
+            render above the page rather than behind it.
           </p>
-        </footer>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-semibold">Stack</h2>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            {stack.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

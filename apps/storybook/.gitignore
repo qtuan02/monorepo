@@ -1,1 +1,4 @@
-storybook-static
+# Everything else (node_modules, dist, .cache, .turbo, .vitest, storybook-static)
+# is already ignored by the repo root .gitignore — only Storybook's own crash log
+# needs a line of its own.
+*storybook.log

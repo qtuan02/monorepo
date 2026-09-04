@@ -1,0 +1,23 @@
+@import "@monorepo/tailwind-config/globals";
+
+/**
+ * Tailwind v4: scan classes from workspace UI package.
+ * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
+ */
+@source "../../../packages/ui";
+
+/**
+ * The shared globals isolate `#root` — the mount point every app in this
+ * monorepo uses — so a Base UI popup portaled to <body> always paints above the
+ * page. Storybook mounts nowhere near `#root`, and its preview iframe carries
+ * *two* roots: `#storybook-root` for the Canvas tab and `#storybook-docs` for
+ * the autodocs renderer. Every story here is tagged `autodocs`, so both are
+ * surfaces a reviewer opens — isolating only one would leave the Docs tab as
+ * the place where a high z-index inside a story can cover the
+ * dialog/popover/tooltip it opened, and a reviewer would be checking stacking
+ * behaviour the apps never have.
+ */
+#storybook-root,
+#storybook-docs {
+  isolation: isolate;
+}

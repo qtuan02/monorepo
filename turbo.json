@@ -7,13 +7,6 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$"],
-      "outputs": [".cache/tsbuildinfo.json", "dist/**"],
-      "env": ["DATABASE_URL"]
-    },
-    "build:package": {
-      "dependsOn": ["^build:package"],
-      "inputs": ["$TURBO_DEFAULT$"],
       "outputs": [".cache/tsbuildinfo.json", "dist/**"]
     },
     "dev": {
@@ -21,52 +14,37 @@
       "cache": false,
       "persistent": false
     },
-    "start": {
-      "dependsOn": ["^build"],
-      "cache": false,
-      "persistent": true
-    },
-    "format": {
-      "outputs": [".cache/.prettiercache"],
-      "outputLogs": "new-only"
-    },
-    "lint": {
-      "dependsOn": ["^topo", "^build"],
-      "outputs": [".cache/.eslintcache"]
-    },
     "typecheck": {
       "dependsOn": ["^topo", "^build"],
       "outputs": [".cache/tsbuildinfo.json"]
     },
+    "test": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": []
+    },
+    "test:coverage": {
+      "dependsOn": ["^topo", "^build"],
+      "outputs": ["coverage/**"]
+    },
+    "e2e": {
+      "dependsOn": ["^topo", "^build"],
+      "cache": false,
+      "passThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH"]
+    },
     "clean": {
       "cache": false
-    },
-    "//#clean": {
-      "cache": false
-    },
-    "push": {
-      "cache": false,
-      "interactive": true
-    },
-    "studio": {
-      "cache": false,
-      "persistent": true
     },
     "ui-add": {
       "cache": false,
       "interactive": true
     }
   },
-  "globalEnv": [],
+  "globalEnv": ["PUBLIC_*", "NEXT_PUBLIC_*"],
+  "globalDependencies": [".env"],
   "globalPassThroughEnv": [
     "NODE_ENV",
-    "NEXT_RUNTIME",
     "CI",
-    "VERCEL",
-    "VERCEL_ENV",
-    "VERCEL_URL",
     "npm_lifecycle_event",
-    "VITE_DOCUMENTS_DOMAIN",
-    "VITE_STORYBOOK_DOMAIN"
+    "NEXT_RUNTIME"
   ]
 }

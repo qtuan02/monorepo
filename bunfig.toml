@@ -1,0 +1,3 @@
+[install]
+# Match pnpm's isolated node_modules layout for a monorepo.
+linker = "isolated"

@@ -1,105 +1,178 @@
-# @monorepo/env
+# `@monorepo/env`
 
-Shared environment variable validation package using `@t3-oss/env-nextjs` and Zod.
+Validate biến môi trường **một lần, lúc module load**, và trả về object đã
+typed. Sai hoặc thiếu biến thì throw ngay với message đọc được — thay vì lòi ra
+sau đó dưới dạng một `baseURL` `undefined` khiến mọi request bắn về chính origin
+của app.
 
-## Overview
+Package có **hai Flavor**, mỗi Flavor là một biến thể theo Runtime nằm dưới
+subpath riêng của cùng package:
 
-This package provides centralized, type-safe environment variable validation for all applications in the monorepo. It ensures that all environment variables are validated at build time and provides type-safe access throughout the codebase.
+| Subpath | Runtime | Tiền tố | Nền |
+| --- | --- | --- | --- |
+| `@monorepo/env/vite/*` | Vite client (SPA) | `PUBLIC_` | zod `safeParse` |
+| `@monorepo/env/next/*` | Next.js App Router | `NEXT_PUBLIC_` | `@t3-oss/env-nextjs` |
+| `@monorepo/env/*` | không phụ thuộc Runtime | — | dùng chung cho cả hai |
 
-## Features
+## Vì sao hai tiền tố
 
-- **Type Safety**: TypeScript types generated from Zod schemas
-- **Build-time Validation**: Environment variables are validated during build
-- **Runtime Validation**: Runtime checks ensure variables are valid
-- **Centralized Configuration**: Single source of truth for environment variables
+Xem [`docs/adr/0003-env-two-flavors-native-prefix.md`](../../docs/adr/0003-env-two-flavors-native-prefix.md).
 
-## Usage
+Tóm tắt: Next **chỉ** inline biến `NEXT_PUBLIC_*` vào bundle client, và không có
+cách nào map một tên khác vào đó (`experimental__runtimeEnv` chỉ đổi *nguồn* giá
+trị, không đổi việc Next có inline hay không). Vite thì inline theo `envPrefix`
+tự cấu hình được. Nên mỗi Runtime **giữ tiền tố chuẩn của nó**, và không có lớp
+nào map nhóm này sang nhóm kia.
 
-### In Applications
+Cái giá phải trả — và là cái được chấp nhận có chủ ý — là một giá trị dùng chung
+(ví dụ `BASE_DOMAIN_API`) xuất hiện **hai lần** trong `.env` root, một lần cho
+mỗi tiền tố. `.env` vẫn là **một file duy nhất ở root**; app Next nạp nó bằng
+`dotenv -e ./ports.env -e ../../.env -- next dev` vì `next dev`/`next build` chỉ
+đọc `.env` nằm trong thư mục app.
 
-```typescript
-import { env } from "@monorepo/env";
+Vì tiền tố khác nhau, hai Flavor **không** chia sẻ base schema; thứ chúng chia
+sẻ là những mảnh không phụ thuộc Runtime (hiện có `http-url`).
 
-// Access validated environment variables
-const nodeEnv = env.NODE_ENV; // Type: "development" | "production" | "test"
-const apiKey = env.GOOGLE_GENERATIVE_AI_API_KEY; // Type: string | undefined
+## Đặt tên key theo app
+
+Tiền tố (`PUBLIC_` / `NEXT_PUBLIC_` / không tiền tố) trả lời câu hỏi *ai đọc
+được biến này*. Còn **phần tên ngay sau tiền tố** trả lời câu hỏi *app nào sở
+hữu nó*:
+
+| Giá trị | Tên key | Ví dụ |
+| --- | --- | --- |
+| Mọi app đều đọc | key trần của Template | `PUBLIC_BASE_DOMAIN_API`, `NEXT_PUBLIC_SENTRY_DSN` |
+| Chỉ **một** app đọc | mang tên app | `PUBLIC_DOCUMENTS_STORYBOOK_URL`, `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` |
+| Secret của **một** app | mang tên app, không tiền tố | `MCP_WEATHER_OPENWEATHERMAP_API_KEY` |
+
+Lý do nằm ở chỗ **chỉ có đúng một `.env` ở root cho cả workspace** (ADR-0003):
+mọi app trong `apps/` đọc cùng file đó — app Vite qua `envDir: "../../"`, app
+Next qua `dotenv -e ../../.env --`. Nên hai app dùng chung một tên key **không
+phải** là chia sẻ một giá trị mặc định: nó có nghĩa là mỗi app đang build bằng
+giá trị của app kia, và người sửa file `.env` không có cách nào biết mình đang
+đổi cho ai.
+
+Cụ thể: `apps/portfolio` cần một DSN Sentry riêng (project `portfolio_v1`, khác
+project của Template). Nếu nó mượn `NEXT_PUBLIC_SENTRY_DSN` thì một máy dev bật
+Sentry cho Template sẽ vô tình bắn lỗi của portfolio sang đúng project đó — và
+ngược lại. Vì vậy nó khai `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN`, còn key trần ở
+trên vẫn thuộc về Template. Tương tự, `apps/documents` khai
+`PUBLIC_DOCUMENTS_STORYBOOK_URL`: chỉ site tài liệu mới có khái niệm "URL
+Storybook", nên một key trần `PUBLIC_STORYBOOK_URL` sẽ hứa với người đọc
+`.env.example` một điều không đúng. Và `apps/mcp-weather` khai
+`MCP_WEATHER_OPENWEATHERMAP_API_KEY` chứ không giữ `OPENWEATHERMAP_API_KEY` như
+bản cũ: một key trần cho một nhà cung cấp bên thứ ba là chỗ dễ va
+nhất, vì app thứ hai cần cùng loại key sẽ tưởng nó đang dùng chung thay vì đang
+ghi đè.
+
+### Ngoại lệ: tên key do một SDK bên ngoài đặt
+
+Quy ước trên nói về những key **repo này tự đặt tên**. Có một loại key nó không
+đặt tên: biến mà chính SDK của nhà cung cấp tài liệu hoá và đọc mặc định.
+`apps/assistant-ai` giữ nguyên `GOOGLE_GENERATIVE_AI_API_KEY` — đó là tên
+`@ai-sdk/google` công bố, là biến một người đã export sẵn trong shell, và app
+thứ hai muốn Gemini muốn đúng key của **cùng một project Google** chứ không phải
+một key riêng, nên đây không phải chỗ dễ va như một key OpenWeatherMap.
+
+Ngoại lệ này có giá của nó và app phải trả: giá trị vẫn đi qua schema, và provider
+nhận nó **tường minh** (`createGoogleGenerativeAI({ apiKey: env.… })`) thay vì để
+SDK tự đọc `process.env` — nếu không thì key quan trọng nhất của app nằm ngoài
+`env.ts` và ngoài `noProcessEnv` của Biome, tức là mất đúng thứ ADR-0003 mua về.
+
+Và nó **hẹp**: chỉ tên do SDK bên ngoài đặt mới được miễn. Cùng app đó khai
+`ASSISTANT_AI_MCP_DOMAIN` chứ không phải `MCP_DOMAIN` như bản cũ,
+vì "máy chủ MCP" là cái tên repo này tự nghĩ ra — không ai bên ngoài đọc nó, nên
+nó rơi thẳng vào hàng đầu tiên của bảng trên.
+
+Đổi lại, mỗi key mang tên app **phải** được khai trong `env.ts` của đúng app đó
+và thêm vào `.env.example` kèm một dòng comment nói app nào sở hữu — vì tên key
+là thứ duy nhất còn lại để tra ngược từ `.env` về app.
+
+## Flavor `vite`
+
+```ts
+// apps/<app>/src/env.ts
+import * as z from "zod";
+
+import { createEnv } from "@monorepo/env/vite/create-env";
+import { baseEnvSchema } from "@monorepo/env/vite/schema";
+
+const appEnvSchema = baseEnvSchema.extend({
+  PUBLIC_ANALYTICS_ID: z.string().min(1),
+});
+
+export const env = createEnv(appEnvSchema, import.meta.env);
 ```
 
-### Extending in Apps
+`createEnv(schema, runtimeEnv)` nhận `runtimeEnv` như một tham số chứ không tự
+đọc `import.meta.env`, nên package vẫn dùng được ngoài Vite (script Bun/Node,
+chính test của package này).
 
-Each app can extend the base environment configuration:
+## Flavor `next`
 
-```typescript
-// apps/my-app/src/env.ts
-import { createEnv } from "@t3-oss/env-nextjs";
+```ts
+// apps/<app>/src/env.ts
+import * as z from "zod";
 
-import { env as envBase } from "@monorepo/env";
+import { createEnv } from "@monorepo/env/next/create-env";
 
 export const env = createEnv({
-  server: {},
-  client: {},
-  experimental__runtimeEnv: {},
-  extends: [envBase], // Extend base configuration
+  // Không tiền tố: Next không đưa vào bundle client, t3-env đọc thẳng
+  // `process.env`.
+  server: {
+    DATABASE_URL: z.url(),
+    AUTH_SECRET: z.string().min(1),
+  },
+  // Chỉ những biến client app này thêm vào; ba biến base đã có sẵn.
+  client: {
+    NEXT_PUBLIC_ANALYTICS_ID: z.string().min(1),
+  },
+  clientRuntimeEnv: {
+    NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
+    NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
+    NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
+    NEXT_PUBLIC_ANALYTICS_ID: process.env.NEXT_PUBLIC_ANALYTICS_ID,
+  },
 });
 ```
 
-## Environment Variables
+Ba ràng buộc, cả ba đều là lý do API có hình dạng như trên:
 
-### Server Variables
+1. **`clientRuntimeEnv` phải viết trong `env.ts` của app**, dưới dạng literal
+   `process.env.NEXT_PUBLIC_*`. Next chỉ thay thế tĩnh những literal đó trong
+   code **do nó compile**; nếu package này tự đọc `process.env` hộ, giá trị sẽ
+   là `undefined` trong browser (trừ khi app khai `transpilePackages`). Đây là
+   lý do base key vẫn phải liệt kê ở đây, dù schema của chúng đã nằm sẵn trong
+   package.
+2. **Biến base khai dưới `client`, không phải `server`.** Một key
+   `NEXT_PUBLIC_*` khai nhầm vào `server` sẽ *biến mất* khỏi object khi module
+   chạy phía client — đọc ra `undefined` mà không throw gì cả.
+3. **Biến `server` không cần khai runtime value**: wrapper dùng
+   `experimental__runtimeEnv`, nên t3-env lấy chúng từ `process.env`.
 
-- `NODE_ENV` - Node environment (development, production, test)
-- `DISCORD_TOKEN` - Discord bot token (optional)
-- `MONGODB_URL` - MongoDB connection URL (optional)
-- `GOOGLE_GENERATIVE_AI_API_KEY` - Google Gemini API key (optional)
+4. **`shared` là block tuỳ chọn** cho biến đọc được ở cả hai phía mà không mang
+   tiền tố (`NODE_ENV`, `APP_TIER`…). t3-env validate chúng ở cả hai nửa, nên giá
+   trị của chúng phải nằm trong `clientRuntimeEnv` — type của option ép đúng điều
+   đó.
 
-### Client Variables
+Kết quả trả về là một Proxy đã typed: đọc một biến `server` từ code client sẽ
+throw, và mọi key không khai báo đều là lỗi typecheck.
 
-- `NEXT_PUBLIC_ENV` - Public environment identifier (optional)
-- `NEXT_PUBLIC_TEMPLATE_DOMAIN` - Template app domain (optional)
-- `NEXT_PUBLIC_PORTFOLIO_DOMAIN` - Portfolio domain (optional)
-- `NEXT_PUBLIC_ASSISTANT_AI_DOMAIN` - Assistant AI domain (optional)
-- `NEXT_PUBLIC_SENTRY_TEMPLATE_DSN` - Sentry DSN for template (optional)
-- `NEXT_PUBLIC_SENTRY_PORTFOLIO_DSN` - Sentry DSN for portfolio (optional)
-- `NEXT_PUBLIC_GOOGLE_ANALYTICS` - Google Analytics ID (optional)
-- `NEXT_PUBLIC_GOOGLE_TAG_MANAGER` - Google Tag Manager ID (optional)
+## Phần dùng chung (ngoài mọi Flavor)
 
-Vite apps (`apps/documents`, `apps/storybook`) should import validated env from **`@monorepo/env/vite`** (not `import.meta.env` in app source):
+`@monorepo/env/http-url` xuất `httpUrlSchema` — `z.url({ protocol: /^https?$/ })`.
+Chặt hơn `z.url()` (vốn nhận cả `"localhost:8000"`, đọc `localhost:` như một
+scheme) và lỏng hơn `z.httpUrl()` (vốn đòi domain public nên loại
+`http://localhost:3000`).
 
-```ts
-import { env } from "@monorepo/env/vite";
+## Test
 
-const docs = env.VITE_DOCUMENTS_DOMAIN;
+Vitest 5, `environment: "node"`. Flavor `next` test được **không cần Next
+runtime**: t3-env chỉ cần một object giá trị, và nó *throw* chứ không
+`process.exit`. Mọi test truyền `isServer: true` — nếu không, t3-env tự đoán
+server/client bằng `typeof window`, và dưới một test environment có DOM nó sẽ
+**âm thầm bỏ qua** phần `server` thay vì validate.
+
+```bash
+bun run --filter @monorepo/env test
 ```
-
-Root `.env` keys (optional):
-
-- `VITE_DOCUMENTS_DOMAIN` — public URL of the Documents app
-- `VITE_STORYBOOK_DOMAIN` — public URL of Storybook
-- `VITE_SKIP_ENV_VALIDATION` — set to `true` to skip validation (e.g. local tooling)
-
-## Configuration
-
-All environment variables are optional by default. To make them required, modify the schema in `src/index.ts`:
-
-```typescript
-// Make a variable required
-GOOGLE_GENERATIVE_AI_API_KEY: z.string(), // Remove .optional()
-```
-
-## Best Practices
-
-1. **Always use this package**: Do not read `process.env` or `import.meta.env` directly in app source — use `@monorepo/env` or `@monorepo/env/vite`
-2. **Extend, don't duplicate**: Apps should extend the base config
-3. **Type safety**: Let TypeScript guide you with autocomplete
-4. **Validation**: All variables are validated at build time
-
-## Dependencies
-
-- `@t3-oss/env-nextjs` — Next.js-oriented `createEnv` (default export `@monorepo/env`)
-- `@t3-oss/env-core` — Core `createEnv` used by `@monorepo/env/vite`
-- `zod` — Schema validation
-
-## Related Documentation
-
-- [T3 Env Documentation](https://env.t3.gg/)
-- [Zod Documentation](https://zod.dev/)

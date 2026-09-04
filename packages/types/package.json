@@ -1,0 +1,17 @@
+{
+  "name": "@monorepo/types",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

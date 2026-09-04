@@ -1,0 +1,69 @@
+@import "@monorepo/tailwind-config/globals";
+
+/**
+ * Tailwind v4: scan classes from the workspace UI package.
+ * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
+ */
+@source "../../../packages/ui";
+
+/**
+ * `theme.css` maps every `font-*` utility onto a variable the **app** owns
+ * (`@theme inline { --font-sans: var(--font-sans) }`), so an app that defines
+ * none renders `font-sans` as nothing at all. A system stack rather than a
+ * webfont: `next/font/google` downloads at build time, which would make
+ * `docker build` — and CI — depend on reaching Google.
+ */
+@layer base {
+  :root {
+    --font-sans:
+      ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+      sans-serif;
+    --font-heading: var(--font-sans);
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+}
+
+/**
+ * The theme wipe.
+ *
+ * `~/features/layout/components/theme-toggle-button` starts a View Transition
+ * and stamps `data-theme-transition` on `<html>` to say which way the swap is
+ * going; everything the animation actually does is here. The legacy component
+ * built this CSS as a template literal and appended a `<style>` element to the
+ * document on every click, then removed it three seconds later — four variants'
+ * worth, of which one was ever used.
+ *
+ * `@supports` keeps it out of browsers with no View Transitions API, where the
+ * toggle just swaps the class with no animation.
+ */
+@supports (view-transition-name: root) {
+  ::view-transition-old(root) {
+    animation: none;
+  }
+
+  ::view-transition-new(root) {
+    animation: portfolio-wipe-in-dark 0.4s ease-out;
+  }
+
+  :root[data-theme-transition="to-light"]::view-transition-new(root) {
+    animation-name: portfolio-wipe-in-light;
+  }
+}
+
+@keyframes portfolio-wipe-in-dark {
+  from {
+    clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  }
+  to {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+@keyframes portfolio-wipe-in-light {
+  from {
+    clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);
+  }
+  to {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
