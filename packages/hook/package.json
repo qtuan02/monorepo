@@ -7,11 +7,13 @@
   },
   "license": "MIT",
   "scripts": {
+    "build": "rslib build",
     "clean": "git clean -xdf .cache .turbo node_modules",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:*",
+    "@rslib/core": "catalog:",
     "@types/react": "catalog:react19",
     "react": "catalog:react19",
     "typescript": "catalog:"
