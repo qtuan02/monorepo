@@ -8,7 +8,7 @@
 
 /* Base UI states orientation as a value attribute (`data-orientation="vertical"`),
    not the bare `data-vertical` the shadcn registry styles against. Without these
-   two variants every `data-horizontal:`/`data-vertical:` utility in @monorepo/ui
+   two variants every `data-horizontal:`/`data-vertical:` utility in the UI package
    compiles to nothing — which silently flattens sliders, scrollbars and tabs. */
 @custom-variant data-horizontal (&[data-orientation="horizontal"]);
 @custom-variant data-vertical (&[data-orientation="vertical"]);

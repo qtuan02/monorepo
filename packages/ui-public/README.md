@@ -50,6 +50,13 @@ theme tokens, the `dark` variant, this package's base layer and the two `data-or
 variants the primitives style against — but not `@import "tailwindcss"` itself, which is
 yours to own since `tailwindcss` is a peer dependency.
 
+The base layer is opinionated, so here is all of it: `border-border` and `outline-ring/50`
+on `*`; `background`/`foreground` plus `position: relative` on `body` (iOS 26 Safari needs a
+non-static ancestor or dialog and drawer backdrops miss the visual viewport);
+`isolation: isolate` on `#root`, which gives portaled popups a stacking context of their own
+and is simply inert if your app root has another id; and one `.flex-center` utility. If you
+would rather own those yourself, copy the file out of `node_modules` and import your copy.
+
 Those two variants are the reason the stylesheet is not optional:
 
 ```css

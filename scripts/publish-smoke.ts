@@ -232,16 +232,6 @@ function pack(shell: Shell, destination: string): string {
   return join(destination, filename);
 }
 
-/**
- * Whether `text` imports from `specifier`. Matched on the quoted form rather
- * than anywhere in the file: the published CSS entry carries the workspace's
- * own comments, which name `@monorepo/ui` in prose. What must never survive is
- * a *specifier* nothing outside this repo can resolve.
- */
-function importsFrom(text: string, specifier: string): boolean {
-  return ['"', "'", "`"].some((quote) => text.includes(quote + specifier));
-}
-
 /** Reads every file under `root`, keyed by its path. */
 async function readFilesUnder(root: string): Promise<Map<string, string>> {
   const files = new Map<string, string>();
@@ -298,9 +288,7 @@ async function assertInstalledShell(
 
   const files = await readFilesUnder(dist);
   for (const specifier of [...FORBIDDEN_IN_DIST, ...shell.forbiddenInDist]) {
-    const offender = [...files].find(([, text]) =>
-      importsFrom(text, specifier),
-    );
+    const offender = [...files].find(([, text]) => text.includes(specifier));
     check(
       offender === undefined,
       `${shell.name} dist/ carries no \`${specifier}\` specifier${
@@ -335,6 +323,10 @@ async function assertInstalledShell(
  * primitives use — with no error anywhere.
  */
 async function assertBuiltCss(consumerRoot: string): Promise<void> {
+  // Unlike `assertInstalledShell`, this runs once for every shell rather than
+  // per shell: the consumer's build emits one stylesheet from all of them, so
+  // there is nothing per-shell to open — only per-shell expectations to check
+  // against the single result.
   const expected = SHELLS.flatMap((shell) =>
     (shell.builtCssMustContain ?? []).map(
       (fragment) => [shell.name, fragment] as const,

@@ -68,9 +68,11 @@ depend `@fe-monorepo/hook`) bằng hai mảnh trong `rslib.config.ts`:
 Hai hệ quả cần biết trước khi sửa:
 
 - **`../internal/` đúng vì mọi file output nằm sâu đúng một cấp** (`components/`, `utils/`).
-  Thêm một file ngay `src/*.tsx` mà nó import hook thì đường dẫn đó sai. Smoke test import
-  `SidebarProvider` chính là để `vite build` phải resolve đường này — assert specifier không
-  bắt được lỗi đường dẫn.
+  Thêm một file ngay `src/*.tsx` mà nó import hook thì đường dẫn đó sai. Hai thứ chặn:
+  `assertRelativeImportsResolve()` trong `scripts/build.ts` (thêm sau code review — xem cuối
+  file) làm build đỏ ngay, và smoke test import `SidebarProvider` nên `vite build` cũng phải
+  resolve đường này thật. Assert specifier thì **không** bắt được, vì nó đọc đường dẫn *nói
+  gì* chứ không phải nó *tới đâu*.
 - **Vendor cả 5 hook, không chỉ closure 3 file.** Bundleless chỉ emit file nằm trong entry,
   nên danh sách chọn tay sẽ đẻ ra import treo (`./use-media-query.js` không tồn tại) vào ngày
   đồ thị import của `hook` đổi. 5 file = 2.6 kB, và không file nào với tới được từ `exports`
@@ -116,10 +118,6 @@ một trong hai `@custom-variant`. Không bước nào chép tay.
 
 ### Smoke test: hai thay đổi ngoài việc thêm shell
 
-- **Assert specifier đổi sang khớp dạng có nháy** (`importsFrom`). `dist/globals.css` mang
-  theo comment của chính repo, trong đó có chữ `@monorepo/ui` ở dạng văn xuôi; thứ phải chặn
-  là một **specifier** không ai ngoài repo resolve được, nên khớp `"@monorepo/` (và hai loại
-  nháy còn lại) đúng ý hơn khớp substring trần.
 - **Assert CSS build ra strip nháy trước khi so.** Vite minify, nên
   `[data-orientation="vertical"]` ra thành `[data-orientation=vertical]`. Hai fragment đang
   assert: `.whitespace-nowrap` (utility gốc của Button — bằng chứng `@source` khiến Tailwind
@@ -135,10 +133,10 @@ một trong hai `@custom-variant`. Không bước nào chép tay.
   quanh rslib: dọn `dist/` của shell trước, sinh CSS sau. `cleanDistPath` để `false` ở **cả
   hai** lib — dist root của `lib[0]` là thư mục **cha** của `lib[1]`, nên để rslib dọn là mở
   cửa cho race. (Ticket 01 chỉ có một lib nên `cleanDistPath: true` ở đó là đủ.)
-- **Range `dependencies` là caret dựng từ version đã resolve trong `bun.lock`**
-  (`@base-ui/react@1.7.0` → `^1.7.0`), kể cả những package repo pin cứng trong catalog
-  (`lucide-react`, `recharts`, `class-variance-authority`, …). Pin cứng trong một package
-  publish ép consumer cài trùng bản — đúng thứ caret sinh ra để tránh.
+- **Range `dependencies` chép đúng range workspace khai**, sau khi giải `catalog:` ra giá trị
+  thật: catalog nói `^1.7.0` thì shell nói `^1.7.0`, catalog nói `1.40.0` thì shell nói
+  `1.40.0`. Bản publish do đó rộng đúng bằng repo, không rộng hơn. (Bản đầu nới hết thành
+  caret; xem "Sửa sau `/code-review`".)
 - **`date-fns` giữ làm `dependencies` trực tiếp** dù không file nào trong `packages/ui/src`
   import nó (nó là dep của `react-day-picker`). Spec liệt kê tường minh; để lại là vô hại.
 - **`any` trong `.d.ts` có, nhưng không rò từ đây**: mọi chỗ đều là
@@ -158,3 +156,66 @@ không thêm `.changeset/` (ticket 03), không thêm job CI (ticket 03), không 
 `CONTEXT.md`, `CONTEXT-MAP.md` và `decisions.md` vẫn lệch khỏi HEAD trong working tree — đó là
 phần thuật ngữ **Publish shell** viết ở giai đoạn `/to-spec`, ticket 01 cũng để lại. Nó thuộc
 ticket 04; đừng commit lẻ.
+
+### Sửa sau `/code-review`
+
+Hai review agent (Standards + Spec) chạy trên commit `816c39f`. Hai trục **độc lập** chỉ ra
+cùng hai chỗ, nên cả hai đều sửa:
+
+- **Pin lại 5 dependency mà repo cố tình pin cứng.** Shell đang nới tất cả thành caret; đúng
+  ra range publish phải **chép đúng range workspace khai** (giải `catalog:` ra giá trị thật),
+  chứ không tự nới. Đã đổi `class-variance-authority` `^0.7.1`→`0.7.1`, `lucide-react`
+  `^1.40.0`→`1.40.0`, `recharts` `^3.8.0`→`3.8.0`, `tailwind-scrollbar` `^4.0.2`→`4.0.2`,
+  `tw-animate-css` `^1.4.0`→`1.4.0`. 11 dep còn lại giữ caret vì workspace cũng khai caret.
+  Lý lẽ "caret cho consumer dedupe" trong bản đầu sai chỗ: nó **phát minh** một quyết định
+  version mới thay vì chuyển tiếp quyết định repo đã cân nhắc, và cho consumer cài minor mà
+  Gate chưa từng chạy qua.
+- **Bỏ `importsFrom`, trả assert về `text.includes()` như ticket 01.** Bản đầu nới hợp đồng
+  assert (substring → dạng có nháy) chỉ vì `dist/globals.css` mang comment nhắc `@monorepo/ui`
+  ở dạng văn xuôi — tức là sửa cái thước thay vì sửa cái sai. Cái sai thật: một file publish
+  không nên trỏ người đọc tới package không tồn tại trên npm. Đã sửa đúng một cụm từ trong
+  `tooling/tailwind/globals.css` ("in `@monorepo/ui`" → "in the UI package"), và
+  `buildGlobalsCss` giờ **throw** nếu file sinh ra còn chuỗi `@monorepo/`, kèm câu chỉ thẳng
+  chỗ phải sửa. Assert của `hook-public` do đó không bị đụng tới, và lỗi lộ ở build chứ không
+  phải ở smoke test.
+
+Ngoài ra, sửa theo trục Standards:
+
+- **Thêm `assertRelativeImportsResolve()` vào `scripts/build.ts`.** Reviewer chỉ đúng chỗ yếu
+  nhất của thiết kế: prefix `../internal/` trong `externals` chỉ đúng khi mọi file output nằm
+  sâu đúng một cấp, và **không gì** chặn một `src/x.tsx` mới làm nó sai — assert specifier
+  kiểm tra đường dẫn *nói gì*, không kiểm tra nó *tới đâu*. Guard mới duyệt mọi `.js`/`.d.ts`
+  trong `dist/` và kiểm tra từng specifier tương đối resolve ra file có thật (`.d.ts` map
+  `.js`→`.d.ts`). **Đã test ngược:** đổi prefix thành `../../internal/` → build đỏ với
+  `sidebar.js → ../../internal/use-is-mobile.js`. Nó cũng phủ luôn nỗi lo "vendor thiếu file
+  trong closure".
+- **Ghi rõ vì sao `run()` trong `packages/ui/scripts/build.ts` không quote argument** như bản
+  trong `scripts/publish-smoke.ts`: mọi argument ở đây là literal không dấu cách, còn đường
+  duy nhất có thể có dấu cách (cwd) đi qua option chứ không qua command line. Hai bản shim
+  lệch nhau là **có lý do**, không phải drift.
+- **Comment cho `assertBuiltCss`** giải thích vì sao nó chạy một lần cho mọi shell trong khi
+  `assertInstalledShell` chạy per-shell: consumer build ra **một** stylesheet từ tất cả.
+
+Theo trục Spec:
+
+- **README nói hết base layer nó ship.** Story 4 chỉ nói "theme token + hai `@custom-variant`",
+  còn fragment thật mang thêm `*`, `body` (kể cả `position: relative`), `#root` và
+  `.flex-center`. Giữ nguyên nội dung (spec cấm chép tay, nên phải sinh từ `globals.css` thật)
+  nhưng README giờ liệt kê đủ, nói vì sao có `position: relative`, nói `#root` là vô hại nếu
+  app dùng id khác, và chỉ đường cho ai muốn tự sở hữu phần đó.
+
+Ba finding **không** sửa, có lý do:
+
+- **CLAUDE.md §1/§6, README, `.agents/commands.md` giờ sai.** Đúng, và đó là toàn bộ nội dung
+  **ticket 04**; ticket này ghi rõ "không đụng". Giống hệt tình trạng ticket 01 để lại.
+- **`@shadcn/react ^0.3.1` là dep `0.x` không có trong danh sách spec liệt kê.** Nó có thật
+  trong `packages/ui/src` (`message-scroller.tsx`, `questionnaire.tsx` import
+  `@shadcn/react/*`), range chép đúng workspace, nên đây là spec liệt kê thiếu chứ không phải
+  code thừa. Ghi lại ở đây thay vì sửa spec.
+- **`any` trong `.d.ts` (story 3) chỉ đạt một phần và không có assert máy nào giữ.** Đúng.
+  `any` đến từ `React.ReactElement<unknown, string | React.JSXElementConstructor<any>>` — kiểu
+  của chính React — nên một assert "không `any`" sẽ đỏ vĩnh viễn và vô nghĩa. Ticket 04 nên ghi
+  giới hạn này vào ADR-0004 thay vì thêm test.
+
+Gate sau khi sửa: `check` 367 file 0 warning, `typecheck` 14/14, `test` 10/10, `build` 5/5,
+`publish:smoke` xanh.
