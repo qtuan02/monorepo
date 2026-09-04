@@ -1,4 +1,4 @@
-ARG BUN_VERSION=1
+ARG BUN_VERSION=1.4.0
 ARG NODE_VERSION=24
 ARG APP_DIRNAME=_template_next
 ARG PROJECT=@monorepo/_template_next
@@ -77,6 +77,16 @@ WORKDIR /app
 COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/.next/standalone ./
 COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/.next/static ./apps/${APP_DIRNAME}/.next/static
 COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/public ./apps/${APP_DIRNAME}/public
+
+# The environment file the builder was given, beside `server.js`. Next's
+# standalone server calls `loadEnvConfig` on its own cwd at boot, so this is
+# what makes a **server-only** variable exist at runtime: every `NEXT_PUBLIC_*`
+# was inlined at build time, but an unprefixed secret stays in `process.env`
+# and is in no bundle. Without it `apps/mcp-weather` boots straight into
+# `Invalid environment: MCP_WEATHER_OPENWEATHERMAP_API_KEY` and answers 500 to
+# every request. dotenv never overwrites a variable that is already set, so
+# `docker run -e KEY=…` still wins over the baked file.
+COPY --from=builder --chown=node:node /app/.env ./apps/${APP_DIRNAME}/.env
 
 # Non-root. The `node` user ships with the base image, so there is nothing to
 # create.

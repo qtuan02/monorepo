@@ -96,6 +96,12 @@ bun run e2e:headed:portfolio                            # cùng spec, một cử
 docker build -f apps/portfolio/Dockerfile -t portfolio .
 ```
 
+Runner copy thêm `.env` (bản `.env.<BUILD_ENV>` mà builder đã dùng) vào cạnh
+`server.js`: `NEXT_PUBLIC_*` đã được inline lúc build, nhưng một biến **server**
+không tiền tố thì không nằm trong bundle nào — nó phải có mặt trong `process.env`
+lúc chạy. Standalone server gọi `loadEnvConfig` trên cwd của nó nên đọc được file
+này; dotenv không ghi đè biến đã set, nên `docker run -e KEY=…` vẫn thắng.
+
 Trên Windows gọi E2E bằng `bunx playwright test` với cwd là thư mục app: chạy
 runner qua một `bun run` script có thể treo lúc launch Chromium.
 
@@ -136,9 +142,17 @@ header `Accept-Language`.
 `vercel.json` trỏ install/build về root repo và gọi script **`build:vercel`**:
 
 ```jsonc
-"installCommand": "cd ../.. && bun install --frozen-lockfile",
-"buildCommand":   "cd ../.. && bun run --filter @monorepo/portfolio build:vercel",
+"installCommand": "cd ../.. && npx --yes bun@1.4.0 install --frozen-lockfile",
+"buildCommand":   "cd ../.. && npx --yes bun@1.4.0 run --filter @monorepo/portfolio build:vercel",
 ```
+
+Cả hai lệnh gọi bun qua `npx --yes bun@1.4.0` chứ không phải `bun` trần: image
+build của Vercel mang bun **của nó** (1.3.14 tại thời điểm viết) và không có cách
+nào ghim — `packageManager` chỉ được đọc khi bật `ENABLE_EXPERIMENTAL_COREPACK`,
+còn `bunVersion` trong `vercel.json` chọn runtime của Function chứ không phải
+builder. Bun đó không đọc nổi `bun.lock` của repo (`lockfileVersion: 2`, do bun
+1.4 ghi) và deploy đỏ ngay ở bước install với `UnknownLockfileVersion`. Ghim ở
+lệnh là chỗ duy nhất còn lại.
 
 `build:vercel` là `next build` **trần**, không có tiền tố `dotenv -e ../../.env`
 như script `build` chuẩn của Template. Lý do: trên Vercel **không có `.env` ở

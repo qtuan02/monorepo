@@ -48,6 +48,12 @@ bunx playwright test --project=chromium               # từ trong thư mục ap
 docker build -f apps/_template_next/Dockerfile -t template-next .   # builder Bun → runner Node
 ```
 
+Runner copy thêm `.env` (bản `.env.<BUILD_ENV>` mà builder đã dùng) vào cạnh
+`server.js`: `NEXT_PUBLIC_*` đã được inline lúc build, nhưng một biến **server**
+không tiền tố thì không nằm trong bundle nào — nó phải có mặt trong `process.env`
+lúc chạy. Standalone server gọi `loadEnvConfig` trên cwd của nó nên đọc được file
+này; dotenv không ghi đè biến đã set, nên `docker run -e KEY=…` vẫn thắng.
+
 E2E dựng bản production thật rồi chạy **chính script `start` của app**, với
 `PORT` do `webServer.env` truyền vào (E2E port khai ở `ports.env`) — không còn
 cờ `--port` ở đâu cả. Rồi assert trên **HTML thô** qua fixture `request`: nội
