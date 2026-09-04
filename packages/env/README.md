@@ -65,25 +65,6 @@ bản cũ: một key trần cho một nhà cung cấp bên thứ ba là chỗ d�
 nhất, vì app thứ hai cần cùng loại key sẽ tưởng nó đang dùng chung thay vì đang
 ghi đè.
 
-### Ngoại lệ: tên key do một SDK bên ngoài đặt
-
-Quy ước trên nói về những key **repo này tự đặt tên**. Có một loại key nó không
-đặt tên: biến mà chính SDK của nhà cung cấp tài liệu hoá và đọc mặc định.
-`apps/assistant-ai` giữ nguyên `GOOGLE_GENERATIVE_AI_API_KEY` — đó là tên
-`@ai-sdk/google` công bố, là biến một người đã export sẵn trong shell, và app
-thứ hai muốn Gemini muốn đúng key của **cùng một project Google** chứ không phải
-một key riêng, nên đây không phải chỗ dễ va như một key OpenWeatherMap.
-
-Ngoại lệ này có giá của nó và app phải trả: giá trị vẫn đi qua schema, và provider
-nhận nó **tường minh** (`createGoogleGenerativeAI({ apiKey: env.… })`) thay vì để
-SDK tự đọc `process.env` — nếu không thì key quan trọng nhất của app nằm ngoài
-`env.ts` và ngoài `noProcessEnv` của Biome, tức là mất đúng thứ ADR-0003 mua về.
-
-Và nó **hẹp**: chỉ tên do SDK bên ngoài đặt mới được miễn. Cùng app đó khai
-`ASSISTANT_AI_MCP_DOMAIN` chứ không phải `MCP_DOMAIN` như bản cũ,
-vì "máy chủ MCP" là cái tên repo này tự nghĩ ra — không ai bên ngoài đọc nó, nên
-nó rơi thẳng vào hàng đầu tiên của bảng trên.
-
 Đổi lại, mỗi key mang tên app **phải** được khai trong `env.ts` của đúng app đó
 và thêm vào `.env.example` kèm một dòng comment nói app nào sở hữu — vì tên key
 là thứ duy nhất còn lại để tra ngược từ `.env` về app.

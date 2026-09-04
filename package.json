@@ -43,10 +43,7 @@
     "e2e:headed:documents": "bun run --filter @monorepo/documents e2e:headed",
     "dev:mcp-weather": "turbo watch dev -F @monorepo/mcp-weather...",
     "build:mcp-weather": "turbo run build -F @monorepo/mcp-weather...",
-    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed",
-    "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai...",
-    "build:assistant-ai": "turbo run build -F @monorepo/assistant-ai...",
-    "e2e:headed:assistant-ai": "bun run --filter @monorepo/assistant-ai e2e:headed"
+    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed"
   },
   "workspaces": {
     "packages": [
@@ -89,13 +86,7 @@
     },
     "catalogs": {
       "ai-sdk": {
-        "@ai-sdk/google": "^4.0.63",
-        "@ai-sdk/react": "^4.0.95",
-        "@assistant-ui/react": "^0.15.18",
-        "@assistant-ui/react-ai-sdk": "^1.4.9",
-        "@assistant-ui/react-markdown": "^0.14.14",
-        "@modelcontextprotocol/sdk": "^1.30.0",
-        "ai": "^7.0.92"
+        "@modelcontextprotocol/sdk": "^1.30.0"
       },
       "next16": {
         "@sentry/nextjs": "^10.73.0",

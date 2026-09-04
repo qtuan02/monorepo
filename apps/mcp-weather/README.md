@@ -54,8 +54,6 @@ tế cần bảng ánh xạ hoặc Geocoding API, nằm ngoài phạm vi ticket 
 
 ## Ai đang gọi nó
 
-- `apps/assistant-ai` (ticket `legacy-migrate/05`), qua biến `MCP_DOMAIN` trỏ vào
-  URL đầy đủ của endpoint này.
 - Một backend **ngoài repo**. Đó là lý do ticket migrate cấm đổi hợp đồng và cấm
   thêm auth cho `/api/mcp`.
 

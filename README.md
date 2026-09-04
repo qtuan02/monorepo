@@ -121,7 +121,7 @@ same way.
 
 ```
 apps/          _template_next · _template_vite · portfolio · documents
-               mcp-weather · assistant-ai · storybook
+               mcp-weather · storybook
 packages/      env · i18n · dayjs · hook · types · api · ui · sentry   (source-only, private)
                ui-public · hook-public                                (Publish shells → npm)
 tooling/       tailwind · typescript

@@ -102,9 +102,8 @@ describe.each(languages)("the %s catalogue", (code) => {
     // would also resolve to a nested `5-flash` under `gemini-2` rather than to
     // the message that is actually there.
     //
-    // A model id is the shape that reaches for one: it is spelled with `-` in
-    // the catalogue and mapped back at the call site (see
-    // `apps/assistant-ai/src/constants/models.ts`).
+    // A model id is the shape that reaches for one: spell it with `-` in the
+    // catalogue and map it back at the call site.
     expect(dottedKeys(messages[code])).toEqual([]);
   });
 });
