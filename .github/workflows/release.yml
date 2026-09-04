@@ -1,0 +1,157 @@
+name: Release
+
+# The publish path for the two Publish shells — `@fe-monorepo/ui` and
+# `@fe-monorepo/hook` (ADR-0004). Nothing else in the workspace is publishable:
+# every other package is `private: true`, and `.changeset/config.json` sets
+# `privatePackages.version: false`, so a release plan can only ever name those
+# two. `bun run changeset status` prints that plan locally.
+#
+# Two passes over `main`, both of them this one workflow:
+#
+#   1. A push to `main` carrying at least one file in `.changeset/` makes
+#      `changesets/action` open (or update) the "Version Packages" PR — it runs
+#      `version-script`, which bumps the two shells, writes their CHANGELOG.md,
+#      and deletes the changesets it consumed. Nothing is published.
+#   2. Merging that PR pushes to `main` with no changesets left, so the action
+#      runs `publish-script` instead: build the two source packages into the
+#      shells, `changeset publish`, then push a git tag and cut a GitHub Release
+#      per published version.
+#
+# There is deliberately NO `NPM_TOKEN` anywhere — not in the repo secrets, not
+# in this file. Publishing authenticates with npm **trusted publishing**: the
+# `id-token: write` permission below lets the runner mint a short-lived OIDC
+# token that npm exchanges for publish rights, which also turns on provenance
+# attestation for free. A long-lived token would be a worse credential proving
+# less. The flip side is that it only works once someone has configured the
+# trusted publisher on npmjs.com for each package, naming this repository AND
+# this workflow's file name — `release.yml`. Renaming this file breaks
+# publishing until that setting is renamed with it (see ticket 05 of
+# `.agents/plans/npm-publish/`).
+on:
+  push:
+    branches: [main]
+  # For the first run, and for re-driving a release whose push-triggered run was
+  # cancelled. Still only meaningful on `main` — the action's own version PR is
+  # opened against the branch it runs on.
+  workflow_dispatch:
+
+# Serialize rather than cancel: `cancel-in-progress` here could kill a run
+# between `npm publish` and the git tag, leaving a version on npm that points at
+# no commit.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BUN_INSTALL_CACHE_DIR: ${{ github.workspace }}/.bun-cache
+  TURBO_TELEMETRY_DISABLED: 1
+  DO_NOT_TRACK: 1
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    # The trigger already narrows the push to `main`, but `workflow_dispatch`
+    # does not: it can be fired from any branch, and the action reads
+    # `pr-base-branch` from `github.ref_name`. Dispatched from a feature branch
+    # with no changesets on it, the action would go straight to
+    # `publish-script` and put `@fe-monorepo/*` on npm from an unmerged branch.
+    # The concurrency group would not stop it either — a different ref is a
+    # different group.
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      # Commit the version bump and push the release tags.
+      contents: write
+      # Open and update the "Version Packages" PR. This also needs "Allow GitHub
+      # Actions to create and approve pull requests" enabled in the repository
+      # settings (Settings → Actions → General) — a permission block cannot
+      # grant it, and without it the action fails on the PR, not on the publish.
+      pull-requests: write
+      # Trusted publishing. This is what replaces NPM_TOKEN.
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # `changeset publish` reads the git history to work out what is
+          # already tagged, and the action pushes the release tags afterwards.
+          fetch-depth: 0
+          # The action pushes the version commit and the tags through the GitHub
+          # API rather than the git CLI (`push-with-git-cli` defaults to false),
+          # so nothing here needs credentials left on disk.
+          persist-credentials: false
+
+      # The same composite action every Gate job in `ci.yml` starts with: Node
+      # from `.nvmrc`, Bun from `packageManager`, the cached
+      # `bun install --frozen-lockfile`, and the seeded `.env` Turbo hashes.
+      # Reusing it is what makes "the same Bun version as ci.yml" structural
+      # instead of a number copied between two files.
+      - uses: ./.github/actions/setup-workspace
+
+      # Trusted publishing landed in npm 11.5.1. The npm bundled with Node 24
+      # is well past that today, but that is a property of whatever `.nvmrc`
+      # currently pins rather than a promise — so measure it, print the number,
+      # and only then decide. There is no silent fallback to a token here: too
+      # old means no publish at all.
+      - name: Check npm can do trusted publishing (>= 11.5.1)
+        shell: bash
+        run: |
+          required=11.5.1
+          current=$(npm --version)
+          echo "npm on this runner: $current (trusted publishing needs >= $required)"
+          if [ "$(printf '%s\n%s\n' "$required" "$current" | sort -V | head -n1)" != "$required" ]; then
+            echo "Below the floor — upgrading npm."
+            npm install -g npm@latest
+            current=$(npm --version)
+            echo "npm after the upgrade: $current"
+          fi
+          if [ "$(printf '%s\n%s\n' "$required" "$current" | sort -V | head -n1)" != "$required" ]; then
+            echo "::error::npm $current cannot do trusted publishing; >= $required is required."
+            exit 1
+          fi
+
+      # The Gate, in the same order and with the same four commands as `ci.yml`
+      # — run here too rather than depended on, because a required check passing
+      # on some earlier commit says nothing about the commit about to be
+      # published. `build` is the one that fills both shells' `dist/`.
+      - run: bun run check
+      - run: bun run typecheck
+      - run: bun run test
+      - run: bun run build
+
+      # The combined action = `select-mode` + `version` + `publish` in one job.
+      # Changesets' own docs prefer splitting those into separate jobs so that
+      # `id-token: write` is scoped to the publish alone; one job is chosen here
+      # because the Gate above has to run once against the exact commit being
+      # published either way, and splitting would mean running it twice or
+      # trusting an artifact between jobs.
+      #
+      # The input names below are v2's. v1 spelled the same three
+      # `publish`/`version`/`createGithubReleases`, and an input a version does
+      # not declare is not an error — it is simply never read, so a v1 name here
+      # would leave the action running its default `changeset version` and never
+      # publishing at all. v2 is also the only line that matches
+      # `@changesets/cli` 3.x, and `@v2` resolves to a branch: that repo
+      # publishes no moving major tag.
+      # Pinned to a release, not to `@v2` — which in this repo is a mutable
+      # BRANCH, not a moving major tag (changesets/action publishes no `v2`
+      # tag at all). `actions/checkout@v7` and friends above are GitHub's own
+      # moving majors; this is a third-party action holding `contents: write`
+      # and npm publish rights, so it gets the stricter pin. Bump it
+      # deliberately.
+      - name: Version or publish
+        uses: changesets/action@v2.1.1
+        with:
+          version-script: bun run version-packages
+          publish-script: bun run release
+          # Already the default in v2; spelled out because "a git tag and a
+          # GitHub Release per published version" is a promise this repo makes
+          # in ADR-0004, not an incidental.
+          create-github-releases: true
+          # The action defaults both of these to the bare string "Version
+          # Packages". Overridden so the release commit reads like every other
+          # commit on `main` — this repo writes Conventional Commits, and the
+          # one commit nobody hand-writes should not be the one that breaks the
+          # convention. It is still the same PR the docs call "Version
+          # Packages"; only the words changed.
+          commit-message: "chore(release): version packages"
+          pr-title: "chore(release): version packages"

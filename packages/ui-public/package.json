@@ -1,6 +1,6 @@
 {
   "name": "@fe-monorepo/ui",
-  "version": "2.0.0",
+  "version": "1.0.2",
   "description": "63 shadcn primitives in the base-vega style, built on Base UI — subpath-only, ESM, React 19, Tailwind v4.",
   "keywords": [
     "react",

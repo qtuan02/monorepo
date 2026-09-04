@@ -2,8 +2,12 @@ name: CI
 
 # The Gate: `check`, `typecheck`, `test`, `build` — the same four commands
 # `bun run` locally, so running them by hand reproduces this workflow exactly.
-# Nothing else here is allowed to block a merge: Playwright has now arrived with
-# the Template apps as a fifth job, and it carries `continue-on-error: true`.
+# Nothing else here is allowed to block a merge. Four jobs sit outside it and
+# all four carry `continue-on-error: true` for a reason written at the job
+# itself: `e2e` (Playwright over both Template apps), `docker` (one image build
+# per app that ships a Dockerfile), `changeset-status` (a missing release note
+# on a diff that changes the published surface) and `publish-smoke` (the two
+# Publish shells packed and installed into a throwaway consumer project).
 #
 # Runs on a push to ANY branch, and there is deliberately no `pull_request`
 # trigger: a check is attached to the head commit, so a push-triggered run is
@@ -84,15 +88,35 @@ jobs:
             turbo-build-${{ github.ref_name }}-
       - run: bun run build
 
-  # Scopes the E2E job below without scoping the trigger. The four Gate jobs are
-  # required checks and must run on every push, so `on.push.paths` is not an
-  # option — the filtering has to happen per-job, and a plain `git diff` does it
-  # without a third-party action.
+  # Scopes the four non-blocking jobs below — `e2e`, `docker`,
+  # `changeset-status` and `publish-smoke` — without scoping the trigger. The
+  # four Gate jobs are required checks and must run on every push, so
+  # `on.push.paths` is not an option — the filtering has to happen per-job, and
+  # a plain `git diff` does it without a third-party action.
+  #
+  # TWO outputs, because the two pairs genuinely want different paths — which is
+  # the split the single-`app` version of this comment said to make only once
+  # that became true:
+  #
+  #   `app`     — what can change the behaviour Playwright drives is exactly
+  #               what can change the bytes that land in an image, so `e2e` and
+  #               `docker` still share one regex.
+  #   `publish` — what can change the two Publish shells' published bytes, or
+  #               the way those bytes are proven: the two source packages, the
+  #               two shells, the Tailwind tooling `dist/globals.css` is
+  #               generated from, `scripts/` (where the smoke test itself lives
+  #               — editing it has to re-run it), `.changeset/`, and both
+  #               workflow files. Deliberately NOT `apps/` — an app-only diff
+  #               cannot change a tarball — and `.changeset/` is just as
+  #               deliberately absent from `app`, since a release note cannot
+  #               change a screen.
   changes:
     name: changes
     runs-on: ubuntu-latest
     outputs:
       app: ${{ steps.filter.outputs.app }}
+      publish: ${{ steps.filter.outputs.publish }}
+      apps: ${{ steps.apps.outputs.apps }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -100,22 +124,56 @@ jobs:
       - id: filter
         shell: bash
         run: |
+          app_paths='^(apps/|packages/|tooling/|bun\.lock$|\.github/workflows/ci\.yml$)'
+          publish_paths='^(packages/(ui|hook|ui-public|hook-public)/|tooling/tailwind/|scripts/|\.changeset/|bun\.lock$|\.github/workflows/(ci|release)\.yml$)'
           before='${{ github.event.before }}'
           # A brand-new branch (before is all zeros) or a workflow_dispatch (no
           # `before` at all) has no usable base — treat it as touched rather
-          # than silently skipping E2E on the first push of a branch.
+          # than silently skipping E2E and the image builds on the first push of
+          # a branch.
           if [ -z "$before" ] \
             || [ "$before" = "0000000000000000000000000000000000000000" ] \
             || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
             echo "app=true" >> "$GITHUB_OUTPUT"
+            echo "publish=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          if git diff --name-only "$before" "${{ github.sha }}" \
-            | grep -qE '^(apps/|packages/|tooling/|bun\.lock$|\.github/workflows/ci\.yml$)'; then
-            echo "app=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "app=false" >> "$GITHUB_OUTPUT"
-          fi
+          changed=$(git diff --name-only "$before" "${{ github.sha }}")
+          for name in app publish; do
+            case "$name" in
+              app) pattern="$app_paths" ;;
+              publish) pattern="$publish_paths" ;;
+            esac
+            if printf '%s\n' "$changed" | grep -qE "$pattern"; then
+              echo "$name=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "$name=false" >> "$GITHUB_OUTPUT"
+            fi
+          done
+      # The `docker` matrix is DERIVED, never listed. An app that has a
+      # Dockerfile gets an image build; there is no name to add anywhere, so a
+      # migrate ticket that brings an app back into `apps/` has nothing to do
+      # here — the app arrives carrying the Dockerfile its Template shipped, and
+      # the next push builds it. Deleting an app removes its build the same way.
+      #
+      # Scoped to `apps/` deliberately: `legacy/` holds four more Dockerfiles
+      # for frozen apps that sit outside `workspaces.packages` (ADR-0001), so
+      # their `turbo prune` stage cannot resolve and the build would fail on
+      # something nobody maintains. `-maxdepth 2` keeps it to an app's own
+      # Dockerfile and out of anything vendored below it.
+      - id: apps
+        shell: bash
+        run: |
+          # Built with coreutils rather than `jq`: an app directory name is
+          # already a bare identifier, so quoting and joining it by hand is the
+          # whole transformation, and it stays runnable on the Windows dev box
+          # where `jq` is not installed.
+          apps=$(find apps -mindepth 2 -maxdepth 2 -name Dockerfile \
+            | sed -E 's#^apps/([^/]+)/Dockerfile$#"\1"#' \
+            | sort \
+            | paste -sd, -)
+          echo "apps=[$apps]" >> "$GITHUB_OUTPUT"
+          echo "docker matrix: [$apps]"
 
   # Playwright, over both Template apps in one job. Four constraints, each of
   # which has broken this job before — three here, and a fourth written at the
@@ -131,9 +189,10 @@ jobs:
   #   3. `continue-on-error: true` while the suite proves it is not flaky, so it
   #      reports without blocking. Deleting that one line makes E2E a real gate.
   #
-  # Each app's `webServer` builds and serves the app itself, on its own port
-  # (3000 for the Vite template, 3101 for the Next one), so the two steps cannot
-  # collide even though they share a runner.
+  # Each app's `webServer` builds and serves the app itself, on its own E2E port
+  # (3100 for the Vite Template, 3101 for the Next one — each declared in that
+  # app's `apps/<app>/ports.env`), so the two steps cannot collide even though
+  # they share a runner.
   e2e:
     name: e2e
     needs: changes
@@ -177,3 +236,138 @@ jobs:
             apps/_template_next/playwright-report/
           retention-days: 7
           if-no-files-found: ignore
+
+  # One image build per app that ships a Dockerfile — build only. Nothing is
+  # pushed, nothing is published, nothing is deployed from here. It exists
+  # because "the Dockerfile is the right shape" and "the image builds" are two
+  # different claims, and only the second one keeps the self-host path honest as
+  # apps arrive one migrate ticket at a time.
+  #
+  # Four constraints, each of which breaks this job quietly rather than loudly:
+  #
+  #   1. The build context is the REPO ROOT, never the app directory. Every
+  #      pruner stage opens with `COPY . .` + `bunx turbo prune`, and the Vite
+  #      runner reads `apps/<app>/nginx.conf` out of the CONTEXT rather than out
+  #      of a stage. `.dockerignore` is what keeps that context small, and it
+  #      deliberately does not ignore `.env.example`, `apps/*/nginx.conf` or the
+  #      lockfile — narrowing either one breaks the image, not the job config.
+  #   2. NO `--build-arg`, on purpose. Env does not reach these images through an
+  #      ARG at all: the builder does `COPY .env.${BUILD_ENV} .env`, and
+  #      `BUILD_ENV` already defaults to `example`, so the committed
+  #      `.env.example` is what gets copied in. `APP_DIRNAME` and `PROJECT` are
+  #      rewritten per app by `bun run gen:app`, so each Dockerfile already names
+  #      itself correctly. Passing `BUILD_ENV` anyway would warn on the Storybook
+  #      image, which declares no such ARG because it reads no PUBLIC_* at all.
+  #   3. NOT routed through `turbo run`, for the same reason `e2e` is not. There
+  #      is no `docker` task in turbo.json, and adding one would put Turbo's
+  #      strict-mode environment filtering between this job and buildx.
+  #   4. `continue-on-error: true` while the matrix proves it is stable across a
+  #      few runs, so it reports without blocking. Deleting that one line makes
+  #      the image builds a real gate.
+  #
+  # What it does NOT prove: it never starts a container. The two runtime checks
+  # ticket 12 of `personal-monorepo-rebuild` also asks for — `_template_vite`
+  # answering 404 for a missing file, `_template_next` serving an SSR page —
+  # need `load: true` and a `docker run`, and are out of scope here.
+  #
+  # And as with `e2e`, `continue-on-error` means the job always reports green:
+  # with no artifact to upload, the build log is the only place a failure shows.
+  docker:
+    name: docker (${{ matrix.app }})
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      # One red image must not cancel the others — the point of the matrix is to
+      # learn which apps build, not to stop at the first that does not.
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.changes.outputs.apps) }}
+    steps:
+      # No `setup-workspace` here, unlike every other job: the builder stage runs
+      # its own `bun install --frozen-lockfile` against the pruned lockfile
+      # inside the image, and reads `.env.example` straight from the context. A
+      # runner-side Bun, Node or `.env` would be built and then thrown away.
+      - uses: actions/checkout@v7
+      # buildx is what makes `type=gha` cache available at all; the stock docker
+      # driver on the runner cannot import or export it. v4 and v7 are the
+      # current majors and the first that run on node24 — v3/v6 run node20 and
+      # the runner stamps a deprecation annotation on every leg, which is the
+      # same reason `actions/upload-artifact` is pinned at v7 above.
+      - uses: docker/setup-buildx-action@v4
+      - name: Build the image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          push: false
+          # Nothing runs the image, so importing it into the runner's docker
+          # daemon would only cost an export of every layer.
+          load: false
+          # Scoped per app: one shared scope would have three images evicting
+          # each other's layers out of the repo's cache budget on every run.
+          cache-from: type=gha,scope=docker-${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=docker-${{ matrix.app }}
+
+  # Reminds a PR that changes the published surface but carries no changeset.
+  # `changeset status --since=origin/main` lists the release plan against the
+  # base branch and exits non-zero when a publishable package changed with
+  # nothing to describe it (`.changeset/README.md` says where that line is).
+  #
+  # `continue-on-error: true`, and this one may well stay that way: "did this
+  # diff change what a consumer gets" is a judgment call, and a job that guesses
+  # it wrong blocks a refactor for nothing. Turn it into a gate only if the
+  # opposite failure starts happening — a shipped version whose CHANGELOG says
+  # nothing about the change in it.
+  changeset-status:
+    name: changeset-status
+    needs: changes
+    # Skipped on `main` itself, where `origin/main` IS the commit under test:
+    # `--since` would compare it against itself, find no changed package, and
+    # report green without having asserted anything.
+    if: needs.changes.outputs.publish == 'true' && github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-workspace
+      # `actions/checkout` fetches the pushed ref, not every branch, so
+      # `origin/main` does not exist on disk until it is asked for by name.
+      # Without this the command dies on an unknown revision rather than
+      # reporting a missing changeset.
+      - name: Fetch the base branch
+        run: git fetch --no-tags origin main:refs/remotes/origin/main
+      - name: Changeset status against origin/main
+        run: bun run changeset status --since=origin/main
+
+  # The consumer smoke test: `npm pack` each Publish shell, install both
+  # tarballs into a throwaway Vite + React 19 + Tailwind v4 project outside the
+  # workspace, then typecheck and build it the way someone who ran
+  # `bun add @fe-monorepo/ui` would. It is the one seam that proves the *tarball*
+  # works rather than the source — a `catalog:` range npm cannot resolve, a
+  # `#components/*` specifier that only resolves from inside `packages/ui`, or a
+  # subpath missing from `exports` fails here instead of on npm.
+  #
+  # `continue-on-error: true` while it proves it is not flaky across a few runs
+  # — it builds a real project from the network, which is a new class of
+  # flakiness for this repo. Once it has been green through a handful of pushes,
+  # delete that one line: unlike `changeset-status`, what this job asserts is not
+  # a judgment call, and a red run means a broken tarball.
+  publish-smoke:
+    name: publish-smoke
+    needs: changes
+    if: needs.changes.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-workspace
+      # The script packs `dist/`, so the shells have to be filled first. Only
+      # the two source packages are built — the apps have nothing to do with a
+      # tarball.
+      - name: Build the two source packages
+        run: bun run build:publishable
+      - run: bun run publish:smoke

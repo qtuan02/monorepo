@@ -20,6 +20,10 @@
     "e2e:headed:template-vite": "bun run --filter @monorepo/_template_vite e2e:headed",
     "e2e:headed:template-next": "bun run --filter @monorepo/_template_next e2e:headed",
     "publish:smoke": "bun scripts/publish-smoke.ts",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "build:publishable": "turbo run build --filter @monorepo/ui --filter @monorepo/hook",
+    "release": "bun run build:publishable && changeset publish",
     "check": "biome check .",
     "check:changed": "biome check --changed --no-errors-on-unmatched .",
     "check:fix": "biome check --write .",
@@ -121,6 +125,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.12",
+    "@changesets/cli": "^3.0.1",
     "@monorepo/tsconfig": "workspace:*",
     "@turbo/gen": "^2.10.12",
     "@types/node": "catalog:",
