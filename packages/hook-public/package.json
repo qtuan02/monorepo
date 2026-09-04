@@ -1,32 +1,38 @@
 {
   "name": "@fe-monorepo/hook",
-  "type": "module",
-  "license": "MIT",
   "version": "1.0.0",
+  "description": "Generic React hooks used across the fe-monorepo apps — subpath-only, ESM, React 19.",
+  "keywords": [
+    "react",
+    "hooks",
+    "react-19",
+    "typescript"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "homepage": "https://github.com/qtuan02/monorepo/tree/main/packages/hook-public",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qtuan02/monorepo.git",
+    "directory": "packages/hook-public"
+  },
   "publishConfig": {
     "access": "public"
   },
   "files": [
     "dist",
     "README.md",
-    "package.json"
+    "CHANGELOG.md"
   ],
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./hooks/*": {
-      "types": "./dist/hooks/*.d.ts",
-      "require": "./dist/hooks/*.cjs",
-      "import": "./dist/hooks/*.js",
-      "default": "./dist/hooks/*.js"
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "import": "./dist/*.js"
     }
   },
   "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
+    "react": ">=19",
+    "react-dom": ">=19"
   }
 }

@@ -1,9 +1,12 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
-    "expo.vscode-expo-tools",
-    "esbenp.prettier-vscode",
+    "biomejs.biome",
+    "bradlc.vscode-tailwindcss",
     "yoavbls.pretty-ts-errors",
-    "bradlc.vscode-tailwindcss"
+    "lokalise.i18n-ally"
+  ],
+  "unwantedRecommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode"
   ]
 }

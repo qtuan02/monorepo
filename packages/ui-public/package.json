@@ -1,83 +1,67 @@
 {
   "name": "@fe-monorepo/ui",
-  "type": "module",
+  "version": "2.0.0",
+  "description": "63 shadcn primitives in the base-vega style, built on Base UI — subpath-only, ESM, React 19, Tailwind v4.",
+  "keywords": [
+    "react",
+    "react-19",
+    "base-ui",
+    "shadcn",
+    "tailwindcss",
+    "ui-components",
+    "typescript"
+  ],
   "license": "MIT",
-  "version": "1.0.2",
+  "type": "module",
+  "sideEffects": [
+    "./dist/globals.css"
+  ],
+  "homepage": "https://github.com/qtuan02/monorepo/tree/main/packages/ui-public",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qtuan02/monorepo.git",
+    "directory": "packages/ui-public"
+  },
   "publishConfig": {
     "access": "public"
   },
   "files": [
     "dist",
     "README.md",
-    "package.json"
+    "CHANGELOG.md"
   ],
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./libs/*": {
-      "types": "./dist/libs/*.d.ts",
-      "require": "./dist/libs/*.cjs",
-      "import": "./dist/libs/*.js",
-      "default": "./dist/libs/*.js"
-    },
     "./components/*": {
       "types": "./dist/components/*.d.ts",
-      "require": "./dist/components/*.cjs",
-      "import": "./dist/components/*.js",
-      "default": "./dist/components/*.js"
+      "import": "./dist/components/*.js"
+    },
+    "./utils/*": {
+      "types": "./dist/utils/*.d.ts",
+      "import": "./dist/utils/*.js"
     },
     "./globals.css": "./dist/globals.css"
   },
-  "peerDependencies": {
-    "react": ">=18",
-    "react-dom": ">=18"
-  },
   "dependencies": {
-    "@hookform/resolvers": "catalog:",
-    "@radix-ui/react-accordion": "^1.2.11",
-    "@radix-ui/react-alert-dialog": "^1.1.15",
-    "@radix-ui/react-aspect-ratio": "^1.1.7",
-    "@radix-ui/react-avatar": "^1.1.11",
-    "@radix-ui/react-checkbox": "^1.3.2",
-    "@radix-ui/react-collapsible": "^1.1.12",
-    "@radix-ui/react-context-menu": "^2.2.16",
-    "@radix-ui/react-dialog": "^1.1.14",
-    "@radix-ui/react-dropdown-menu": "^2.1.16",
-    "@radix-ui/react-hover-card": "^1.1.14",
-    "@radix-ui/react-label": "^2.1.7",
-    "@radix-ui/react-menubar": "^1.1.16",
-    "@radix-ui/react-navigation-menu": "^1.2.14",
-    "@radix-ui/react-popover": "^1.1.14",
-    "@radix-ui/react-progress": "^1.1.8",
-    "@radix-ui/react-radio-group": "^1.3.8",
-    "@radix-ui/react-scroll-area": "^1.2.10",
-    "@radix-ui/react-select": "^2.2.6",
-    "@radix-ui/react-separator": "^1.1.7",
-    "@radix-ui/react-slider": "^1.3.6",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-switch": "^1.2.6",
-    "@radix-ui/react-tabs": "^1.1.13",
-    "@radix-ui/react-toggle": "^1.1.10",
-    "@radix-ui/react-toggle-group": "^1.1.11",
-    "@radix-ui/react-tooltip": "^1.2.8",
-    "class-variance-authority": "catalog:",
+    "@base-ui/react": "^1.7.0",
+    "@shadcn/react": "^0.3.1",
+    "@tanstack/react-table": "^9.2.4",
+    "class-variance-authority": "0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "date-fns": "^4.1.0",
-    "embla-carousel-react": "catalog:",
-    "input-otp": "^1.4.2",
-    "lucide-react": "catalog:",
-    "next-themes": "^0.4.6",
-    "react-day-picker": "^9.11.1",
-    "react-hook-form": "catalog:",
-    "react-resizable-panels": "^3.0.6",
-    "sonner": "catalog:",
-    "tailwind-merge": "catalog:",
-    "vaul": "^1.1.2",
-    "zod": "catalog:"
+    "date-fns": "^4.4.0",
+    "embla-carousel-react": "^8.6.0",
+    "input-otp": "^1.5.0",
+    "lucide-react": "1.40.0",
+    "react-day-picker": "^10.0.1",
+    "react-resizable-panels": "^4.12.3",
+    "recharts": "3.8.0",
+    "tailwind-merge": "^3.6.0",
+    "tailwind-scrollbar": "4.0.2",
+    "tw-animate-css": "1.4.0"
+  },
+  "peerDependencies": {
+    "react": ">=19",
+    "react-dom": ">=19",
+    "tailwindcss": "^4"
   }
 }

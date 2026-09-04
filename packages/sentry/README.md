@@ -1,145 +1,35 @@
-# @monorepo/sentry
+# `@monorepo/sentry`
 
-Sentry integration package for error tracking and performance monitoring.
+Wrapper mỏng quanh `@sentry/nextjs` — **chỉ có Flavor Next** (quyết định 5). App
+Vite không kéo package này theo, và không có subpath nào cho nó.
 
-## Overview
+Package là source-only, `exports` subpath, không barrel, không build step: mỗi
+symbol nằm trong file mang đúng tên nó.
 
-This package provides Sentry integration for Next.js applications with separate configurations for client, server, and edge runtimes. It includes error tracking, performance monitoring, and session replay.
+| Subpath | Dùng ở | Nội dung |
+| --- | --- | --- |
+| `@monorepo/sentry/client` | `src/instrumentation-client.ts` | `initSentryClient`, `captureRouterTransitionStart` |
+| `@monorepo/sentry/server` | `src/instrumentation.ts` (`NEXT_RUNTIME === "nodejs"`) | `initSentryServer` |
+| `@monorepo/sentry/edge` | `src/instrumentation.ts` (`NEXT_RUNTIME === "edge"`) | `initSentryEdge` |
+| `@monorepo/sentry/capture-request-error` | `src/instrumentation.ts` | `captureRequestError` |
+| `@monorepo/sentry/next-config` | `next.config.ts` | `withSentry` |
+| `@monorepo/sentry/options` | — | `SentryRuntimeOptions`, `buildSentryInitOptions` |
 
-## Features
+## Không có DSN thì SDK tắt
 
-- **Error Tracking**: Automatic error capture and reporting
-- **Performance Monitoring**: Transaction tracing and performance metrics
-- **Session Replay**: User session recording for debugging
-- **Source Maps**: Automatic source map upload
-- **Multi-runtime Support**: Client, server, and edge configurations
+`buildSentryInitOptions` đặt `enabled: Boolean(dsn)`. Thiếu
+`NEXT_PUBLIC_SENTRY_DSN` trong `.env` thì SDK vẫn được cài nhưng im lặng: không
+request, không log, mọi lời gọi `Sentry.*` trong app là no-op. Nhờ vậy ba file
+instrumentation gọi thẳng `initSentry*` mà không cần `if` — và một bản clone
+repo chưa có credential vẫn `next build` được.
 
-## Usage
+`tracesSampleRate` mặc định **0**, cố ý: một template lỡ bật 100% sẽ đốt quota
+của project thật ngay lần đầu ai đó dán DSN vào.
 
-### Basic Setup
+## Ba runtime, ba file
 
-```typescript
-// apps/my-app/sentry.server.config.ts
-import * as Sentry from "@sentry/nextjs";
+Next nạp chúng ở ba thời điểm khác nhau, nên chúng là ba module riêng chứ không
+phải ba nhánh `if` trong một file: build edge không được kéo theo SDK của Node.
 
-import init from "@monorepo/sentry/server";
-
-init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN });
-
-export default Sentry.withSentryConfig(nextConfig, {
-  org: "sentry",
-  project: "my-app",
-});
-```
-
-### Client-side
-
-```typescript
-// apps/my-app/instrumentation-client.ts
-import init from "@monorepo/sentry/client";
-
-init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN });
-```
-
-### Server-side
-
-```typescript
-// apps/my-app/instrumentation.ts
-import { Sentry } from "@monorepo/sentry";
-
-Sentry.init({
-  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  // Additional configuration
-});
-```
-
-### Edge Runtime
-
-```typescript
-// apps/my-app/sentry.edge.config.ts
-import init from "@monorepo/sentry/edge";
-
-init({ dsn: process.env.NEXT_PUBLIC_SENTRY_DSN });
-```
-
-## Exports
-
-### Main Export
-
-```typescript
-import { Sentry } from "@monorepo/sentry";
-
-// Use Sentry APIs
-Sentry.captureException(error);
-Sentry.captureMessage("Something went wrong");
-```
-
-### Client Export
-
-```typescript
-import init from "@monorepo/sentry/client";
-
-init({ dsn: "your-dsn" });
-```
-
-### Server Export
-
-```typescript
-import init from "@monorepo/sentry/server";
-
-init({ dsn: "your-dsn" });
-```
-
-### Edge Export
-
-```typescript
-import init from "@monorepo/sentry/edge";
-
-init({ dsn: "your-dsn" });
-```
-
-## Configuration
-
-### Client Configuration
-
-- **Session Replay**: Enabled with 10% sample rate
-- **Error Replay**: 100% sample rate for errors
-- **Browser Tracing**: Enabled for performance monitoring
-- **Profiling**: Enabled with 100% sample rate
-
-### Server Configuration
-
-- **Node Profiling**: Enabled for performance profiling
-- **Request Tracing**: Enabled for API route monitoring
-- **Default PII**: Enabled (sends IP and headers)
-
-### Edge Configuration
-
-- **Request Tracing**: Enabled
-- **Default PII**: Enabled
-
-## Environment Variables
-
-- `NEXT_PUBLIC_SENTRY_DSN` - Sentry DSN for your project
-- `SENTRY_ORG` - Sentry organization (for source maps)
-- `SENTRY_PROJECT` - Sentry project name (for source maps)
-- `SENTRY_AUTH_TOKEN` - Sentry auth token (for source maps)
-
-## Best Practices
-
-1. **DSN Configuration**: Use environment variables for DSN
-2. **Sample Rates**: Adjust sample rates based on traffic
-3. **Source Maps**: Always upload source maps for better error tracking
-4. **Error Boundaries**: Use React error boundaries with Sentry
-5. **Performance**: Monitor performance with transaction tracing
-
-## Dependencies
-
-- `@sentry/nextjs` - Next.js Sentry SDK
-- `@sentry/profiling-node` - Node.js profiling integration
-- `next` - Next.js framework
-
-## Related Documentation
-
-- [Sentry Next.js Documentation](https://docs.sentry.io/platforms/javascript/guides/nextjs/)
-- [Sentry Integration Documentation](../../docs/packages/SENTRY.md)
+Xem `apps/_template_next/src/instrumentation.ts` và
+`apps/_template_next/src/instrumentation-client.ts` để có bản wiring đầy đủ.

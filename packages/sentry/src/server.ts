@@ -1,19 +1,16 @@
 import * as Sentry from "@sentry/nextjs";
-import { nodeProfilingIntegration } from "@sentry/profiling-node";
 
-const init = ({ dsn = "" }: { dsn?: string }) =>
-  Sentry.init({
-    dsn: dsn,
-    // Adds request headers and IP for users, for more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-    sendDefaultPii: true,
-    // @ts-expect-error - Type incompatibility between @sentry/profiling-node and @sentry/core
-    integrations: [nodeProfilingIntegration()],
-    // We recommend adjusting this value in production, or using `tracesSampler`
-    // for finer control
-    tracesSampleRate: 1.0,
-    profileSessionSampleRate: 1.0,
-    profileLifecycle: "trace",
-  });
+import type { SentryRuntimeOptions } from "./options";
+import { buildSentryInitOptions } from "./options";
 
-export default init;
+/**
+ * Node-runtime init, called from the app's `register()` in
+ * `src/instrumentation.ts` when `process.env.NEXT_RUNTIME === "nodejs"`.
+ *
+ * Server values are read when the process boots, not inlined at build time —
+ * which is what lets one standalone image be promoted between environments with
+ * a different DSN each time.
+ */
+export function initSentryServer(options: SentryRuntimeOptions): void {
+  Sentry.init(buildSentryInitOptions(options));
+}

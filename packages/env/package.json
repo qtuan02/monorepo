@@ -1,32 +1,27 @@
 {
   "name": "@monorepo/env",
-  "type": "module",
-  "license": "MIT",
   "private": true,
+  "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./vite": "./src/vite.ts"
+    "./vite/*": "./src/vite/*.ts",
+    "./next/*": "./src/next/*.ts",
+    "./*": "./src/*.ts"
   },
+  "license": "MIT",
   "scripts": {
-    "clean": "git clean -xdf .cache .turbo dist node_modules",
-    "format": "prettier --check . --ignore-path ../../.gitignore",
-    "lint": "eslint",
-    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
-  },
-  "devDependencies": {
-    "@monorepo/eslint-config": "workspace:*",
-    "@monorepo/prettier-config": "workspace:*",
-    "@monorepo/tsconfig": "workspace:*",
-    "@types/node": "catalog:",
-    "@t3-oss/env-nextjs": "catalog:next15",
-    "eslint": "catalog:",
-    "prettier": "catalog:",
-    "typescript": "catalog:",
-    "vite": "catalog:"
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@t3-oss/env-core": "catalog:",
+    "@t3-oss/env-nextjs": "catalog:next16",
     "zod": "catalog:"
   },
-  "prettier": "@monorepo/prettier-config"
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
+  }
 }

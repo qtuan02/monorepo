@@ -1,6 +1,12 @@
 {
   "extends": "@monorepo/tsconfig/base.json",
-  "compilerOptions": {},
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    // tsgo 7 does not auto-include node_modules/@types, so `node` is named
+    // explicitly — `withSentry` reads `process.env.CI`.
+    "types": ["node"],
+    "jsx": "preserve"
+  },
   "include": ["src"],
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules"]
 }
