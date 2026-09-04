@@ -1,0 +1,7 @@
+@import "@monorepo/tailwind-config/globals";
+
+/**
+ * Tailwind v4: scan classes from workspace UI package.
+ * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
+ */
+@source "../../../packages/ui";

@@ -1,0 +1,24 @@
+{
+  "extends": "@monorepo/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    // tsgo 7 does not auto-include node_modules/@types, so `node` is named
+    // explicitly for the config files.
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  // vitest.setup.ts is included so its `@testing-library/jest-dom/vitest` import
+  // registers the DOM matcher types (toBeInTheDocument, …) on vitest's Assertion.
+  "include": [
+    "src",
+    "test",
+    ".storybook",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "vitest.setup.ts"
+  ],
+  "exclude": ["node_modules", "dist", "storybook-static"]
+}

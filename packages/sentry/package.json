@@ -1,0 +1,25 @@
+{
+  "name": "@monorepo/sentry",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "license": "MIT",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo node_modules",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sentry/nextjs": "catalog:next16"
+  },
+  "devDependencies": {
+    "@monorepo/tsconfig": "workspace:*",
+    "@types/node": "catalog:",
+    "next": "catalog:next16",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "next": "catalog:next16"
+  }
+}

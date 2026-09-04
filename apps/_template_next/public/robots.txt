@@ -1,0 +1,5 @@
+# Served verbatim at /robots.txt. `public/` holds only what must be fetched by a
+# fixed, unhashed name a bundler cannot rewrite — everything the UI renders is a
+# static import from `src/assets/` instead.
+User-agent: *
+Allow: /

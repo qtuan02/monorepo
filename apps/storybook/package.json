@@ -1,0 +1,48 @@
+{
+  "name": "@monorepo/storybook",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "clean": "git clean -xdf .cache .turbo .vitest dist node_modules",
+    "preview": "vite preview --outDir dist",
+    "dev": "storybook dev -p 6006",
+    "build": "storybook build --output-dir dist",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "catalog:",
+    "@monorepo/ui": "workspace:*",
+    "react": "catalog:react19",
+    "react-dom": "catalog:react19",
+    "react-hook-form": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@monorepo/tailwind-config": "workspace:*",
+    "@monorepo/tsconfig": "workspace:*",
+    "@storybook/addon-docs": "catalog:storybook10",
+    "@storybook/react": "catalog:storybook10",
+    "@storybook/react-vite": "catalog:storybook10",
+    "@tailwindcss/postcss": "catalog:tailwind4",
+    "@testing-library/jest-dom": "catalog:testing",
+    "@testing-library/react": "catalog:testing",
+    "@testing-library/user-event": "catalog:testing",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "@vitejs/plugin-react": "catalog:",
+    "jsdom": "catalog:testing",
+    "lucide-react": "catalog:",
+    "recharts": "3.8.0",
+    "storybook": "catalog:storybook10",
+    "tailwind-scrollbar": "catalog:tailwind4",
+    "tailwindcss": "catalog:tailwind4",
+    "tw-animate-css": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:testing"
+  }
+}

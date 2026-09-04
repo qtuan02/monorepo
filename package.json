@@ -7,6 +7,9 @@
   },
   "packageManager": "bun@1.4.0",
   "scripts": {
+    "gen:package": "gen run package",
+    "gen:tooling": "gen run tooling",
+    "gen:app": "gen run app",
     "clean": "git clean -xdf node_modules",
     "clean:workspaces": "turbo run clean",
     "build": "turbo run build",
@@ -14,11 +17,18 @@
     "test": "turbo run test",
     "test:coverage": "turbo run test:coverage",
     "e2e": "turbo run e2e",
+    "e2e:headed:template-vite": "bun run --filter @monorepo/_template_vite e2e:headed",
+    "e2e:headed:template-next": "bun run --filter @monorepo/_template_next e2e:headed",
     "check": "biome check .",
     "check:changed": "biome check --changed --no-errors-on-unmatched .",
     "check:fix": "biome check --write .",
     "format": "biome format .",
-    "format:fix": "biome format --write ."
+    "format:fix": "biome format --write .",
+    "dev:storybook": "turbo watch dev -F @monorepo/storybook...",
+    "dev:template-vite": "turbo watch dev -F @monorepo/_template_vite...",
+    "build:template-vite": "turbo run build -F @monorepo/_template_vite...",
+    "dev:template-next": "turbo watch dev -F @monorepo/_template_next...",
+    "build:template-next": "turbo run build -F @monorepo/_template_next..."
   },
   "workspaces": {
     "packages": [
@@ -75,6 +85,12 @@
         "@types/react-dom": "19.2.7",
         "react": "19.2.8",
         "react-dom": "19.2.8"
+      },
+      "storybook10": {
+        "@storybook/addon-docs": "10.6.0",
+        "@storybook/react": "10.6.0",
+        "@storybook/react-vite": "10.6.0",
+        "storybook": "10.6.0"
       },
       "tailwind4": {
         "@tailwindcss/postcss": "^4.3.3",

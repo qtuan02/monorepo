@@ -1,0 +1,58 @@
+# What `docker build` must NOT ship into the build context. Every
+# apps/*/Dockerfile opens its pruner stage with `COPY . .`; the builder stage
+# then runs its own `bun install --frozen-lockfile` against the pruned lockfile,
+# so nothing below is ever used from the context.
+#
+# Deliberately NOT ignored, because the Dockerfiles read them from the context:
+#   - `.env.example` / `.env.<BUILD_ENV>`  → COPY .env.${BUILD_ENV} .env
+#   - `apps/*/nginx.conf`                  → copied into the nginx runner stage
+#   - `package.json`, `turbo.json`, `bun.lock`, `bunfig.toml` → `turbo prune`
+
+node_modules
+**/node_modules
+
+# Legacy apps are outside workspaces.packages and are never built in an image.
+legacy
+
+# Build output — every stage rebuilds from source.
+dist
+**/dist
+build
+**/build
+storybook-static
+**/storybook-static
+.next
+**/.next
+
+# Tooling caches.
+.turbo
+**/.turbo
+.cache
+**/.cache
+.bun-cache
+*.tsbuildinfo
+**/*.tsbuildinfo
+
+# Test artefacts.
+.vitest
+**/.vitest
+test-results
+**/test-results
+playwright-report
+**/playwright-report
+blob-report
+**/blob-report
+coverage
+**/coverage
+**/junit.xml
+
+# History. `turbo prune` walks the filesystem, not git.
+.git
+.gitignore
+.gitattributes
+
+# Editor / OS noise.
+.vscode
+.idea
+.DS_Store
+Thumbs.db

@@ -41,5 +41,10 @@
   },
   "globalEnv": ["PUBLIC_*", "NEXT_PUBLIC_*"],
   "globalDependencies": [".env"],
-  "globalPassThroughEnv": ["NODE_ENV", "CI", "npm_lifecycle_event"]
+  "globalPassThroughEnv": [
+    "NODE_ENV",
+    "CI",
+    "npm_lifecycle_event",
+    "NEXT_RUNTIME"
+  ]
 }

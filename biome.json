@@ -45,7 +45,6 @@
     "enabled": true,
     "domains": {
       "react": "recommended",
-      "next": "recommended",
       "turborepo": "recommended",
       "types": "all"
     },
@@ -123,6 +122,10 @@
           }
         }
       }
+    },
+    {
+      "includes": ["apps/_template_next/**"],
+      "linter": { "domains": { "next": "recommended" } }
     },
     {
       "includes": ["packages/ui/src/components/**"],

@@ -2,8 +2,8 @@ name: CI
 
 # The Gate: `check`, `typecheck`, `test`, `build` — the same four commands
 # `bun run` locally, so running them by hand reproduces this workflow exactly.
-# Nothing else here is allowed to block a merge; when Playwright arrives with
-# the Template apps it lands as a fifth job with `continue-on-error: true`.
+# Nothing else here is allowed to block a merge: Playwright has now arrived with
+# the Template apps as a fifth job, and it carries `continue-on-error: true`.
 #
 # Runs on a push to ANY branch, and there is deliberately no `pull_request`
 # trigger: a check is attached to the head commit, so a push-triggered run is
@@ -83,3 +83,85 @@ jobs:
           restore-keys: |
             turbo-build-${{ github.ref_name }}-
       - run: bun run build
+
+  # Scopes the E2E job below without scoping the trigger. The four Gate jobs are
+  # required checks and must run on every push, so `on.push.paths` is not an
+  # option — the filtering has to happen per-job, and a plain `git diff` does it
+  # without a third-party action.
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: filter
+        shell: bash
+        run: |
+          before='${{ github.event.before }}'
+          # A brand-new branch (before is all zeros) or a workflow_dispatch (no
+          # `before` at all) has no usable base — treat it as touched rather
+          # than silently skipping E2E on the first push of a branch.
+          if [ -z "$before" ] \
+            || [ "$before" = "0000000000000000000000000000000000000000" ] \
+            || ! git cat-file -e "$before^{commit}" 2>/dev/null; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if git diff --name-only "$before" "${{ github.sha }}" \
+            | grep -qE '^(apps/|packages/|tooling/|bun\.lock$|\.github/workflows/ci\.yml$)'; then
+            echo "app=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "app=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Playwright, over both Template apps in one job. Three constraints, each of
+  # which has broken this job before:
+  #
+  #   1. The container tag MUST match `@playwright/test` in the `testing`
+  #      catalog exactly (1.62.1) — the image bakes in the browser revision that
+  #      version expects, which is why the catalog pins it without a caret. Bump
+  #      the tag and the catalog entry together, never one alone.
+  #   2. NOT routed through `turbo run`. Turbo filters the environment in strict
+  #      mode and swallows the image's PLAYWRIGHT_BROWSERS_PATH, which surfaces
+  #      as "Executable doesn't exist" with the browsers sitting on disk.
+  #   3. `continue-on-error: true` while the suite proves it is not flaky, so it
+  #      reports without blocking. Deleting that one line makes E2E a real gate.
+  #
+  # Each app's `webServer` builds and serves the app itself, on its own port
+  # (3000 for the Vite template, 3101 for the Next one), so the two steps cannot
+  # collide even though they share a runner.
+  e2e:
+    name: e2e
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v7
+      # Also seeds `.env`, which both apps genuinely need here: each webServer
+      # runs a real production build, and the PUBLIC_*/NEXT_PUBLIC_* values are
+      # baked into the bundle at that point.
+      - uses: ./.github/actions/setup-workspace
+      - name: E2E — _template_vite
+        run: bun run --filter @monorepo/_template_vite e2e
+      - name: E2E — _template_next
+        if: always()
+        run: bun run --filter @monorepo/_template_next e2e
+      # `continue-on-error` means the job always reports green, so the uploaded
+      # report is the only place a failure is visible — upload it regardless.
+      - name: Upload the Playwright reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: |
+            apps/_template_vite/playwright-report/
+            apps/_template_vite/junit.xml
+            apps/_template_next/playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
