@@ -42,8 +42,12 @@ import {
  *
  * Run it with `bun run verify:release`. It reads the version to check from each
  * shell's own `package.json`, which after the "Version Packages" PR is merged
- * *is* the released version; pass `--version=2.0.0` to override both, or
- * `--keep` to leave the temporary project on disk.
+ * *is* the released version — and is the only source that stays right, because
+ * the two shells are **not** on the same number: `ui` skipped a burned `2.0.0`
+ * and released `3.0.0` while `hook` released `2.0.0` (see ticket 05). So an
+ * override is per shell — `--ui-version=3.0.1`, `--hook-version=2.0.1` — and a
+ * bare `--version=` would have to be wrong for one of them, so it is rejected.
+ * `--keep` leaves the temporary project on disk.
  *
  * It only passes once that release exists on npm: run before one, `npm view`
  * answers E404 and the script exits non-zero, which is the correct answer.
@@ -58,9 +62,22 @@ function property(value: unknown, key: string): unknown {
 
 /** The version each shell is expected to be on npm, and where that came from. */
 async function expectedVersion(shell: Shell): Promise<string> {
+  // A single `--version=` cannot be right for both shells any more, and
+  // silently applying it to both turns into an E404 on whichever shell is not
+  // on that number — a failure that reads like a broken release rather than a
+  // bad flag. Reject it and name the two that work.
+  if (process.argv.some((argument) => argument.startsWith("--version="))) {
+    throw new Error(
+      "`--version=` applies to both shells, which are on different versions. " +
+        "Use `--ui-version=` and/or `--hook-version=`.",
+    );
+  }
+
+  const flag =
+    shell.dir === "packages/ui-public" ? "--ui-version=" : "--hook-version=";
   const override = process.argv
-    .find((argument) => argument.startsWith("--version="))
-    ?.slice("--version=".length);
+    .find((argument) => argument.startsWith(flag))
+    ?.slice(flag.length);
   if (override) {
     return override;
   }
