@@ -114,14 +114,14 @@ monorepo/
 ├── .agents/                     ← AI resources  [`.claude` → `.agents` symlink, git mode 120000 — clone with `core.symlinks=true`]
 │   ├── rules/                  ← 46 rules across 11 prefix clusters (+ `_sections.md`, `_template.md`)
 │   ├── skills/                 ← 31 vendored skills. The 25 from `mattpocock/skills` (23) and `vercel-labs/agent-skills` (2) are pinned in `skills-lock.json`; the six `gitnexus-*` are **not** in the lock — `gitnexus analyze` owns them
-│   ├── plans/                  ← the tracker (§7b, §9): one folder per topic, `spec.md` + `NN-*.md`
+│   ├── plans/                  ← the **former** tracker, frozen read-only at the switch to GitHub Issues (§7b, §9): 3 topics, `spec.md` + `NN-*.md`. Still `plansDirectory`, so plan-mode scratch lands here
 │   ├── commands.md             ← the full command reference (§6 is its short form)
 │   ├── knowledge-base.md       ← project facts and gotchas that no single file shows
 │   ├── README.md               ← the per-rule index
 │   └── settings.json           ← `plansDirectory`
 ├── docs/
 │   ├── adr/                    ← ADR-0001 (the legacy apps held outside the workspace, since migrated and deleted) · ADR-0002 (one i18n package, many Flavors, ICU messages) · ADR-0003 (env two Flavors, native prefixes) · ADR-0004 (npm publish through a Publish shell)
-│   ├── agents/                 ← the config the workflow skills read: `issue-tracker.md` (the `.agents/plans/` layout) · `triage-labels.md` · `domain.md` (§9)
+│   ├── agents/                 ← the config the workflow skills read: `issue-tracker.md` (GitHub Issues + the `gh` commands) · `triage-labels.md` · `domain.md` (§9)
 │   └── research/               ← background research notes
 ├── .github/workflows/           ← `ci.yml` — the Gate on GitHub Actions: `check` · `typecheck` · `test` · `build` blocking, plus four non-blocking jobs (`e2e`, `docker`, `changeset-status`, `publish-smoke`). `release.yml` — the publish path for the two shells, on `main` only; its **file name is load-bearing**, because npm's trusted publisher is configured against it (ADR-0004)
 ├── .changeset/                  ← the release notes Changesets consumes, plus `config.json` (`privatePackages.version: false`). Written with `bun run changeset`, never by hand-bumping a shell's `version`
@@ -423,16 +423,20 @@ import sorting, `noProcessEnv`, …). Nhớ đọc rule **đúng Runtime** của
 
 ### Spec / ticket
 
-Nằm trong **`.agents/plans/<topic>/`** dưới dạng markdown (`spec.md` + `NN-*.md`), không
-dùng GitLab, không dùng GitHub Issues, không dùng `glab`/`gh` — xem §7b và §9.
+Nằm trên **GitHub Issues** của `qtuan02/monorepo`, thao tác qua `gh`: một issue nhãn `spec`
+với các ticket là sub-issue, và **số issue chính là danh tính ticket** (`/implement 42` = `#42`).
+Không dùng GitLab, không dùng `glab`. `.agents/plans/` là tracker **cũ**, nay đóng băng chỉ để
+đọc — xem §7b và §9.
 
-## §7b · Plans (`.agents/plans/`) — đây là tracker
+## §7b · Issue tracker — GitHub Issues; `.agents/plans/` đã đóng băng
 
-`.agents/settings.json` sets `"plansDirectory": ".agents/plans"`, so Claude Code's own plan-mode output lands there — but in this repo the directory is more than a scratch space: **it is the issue tracker** (decision 17). One folder per topic, holding a `spec.md` and numbered ticket files `NN-<slug>.md`, each with a `status` in its front-matter. The value set is closed and lives in [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md): the five triage roles plus `in-progress` and `done`. There is no external service to sync with, and no `glab`/`gh`.
+Work is tracked as **GitHub issues** on [`qtuan02/monorepo`](https://github.com/qtuan02/monorepo), through the `gh` CLI. `/to-spec` opens one tracking issue labelled `spec`, `/to-tickets` opens its tickets as **sub-issues**, `/implement` claims one by assigning it and closes it once the verification is in a comment. The issue **number** is a ticket's identity — `/implement 42` means `#42` — so the old per-topic `NN-` numbering, and its ambiguity across topics, is gone. Blocking is GitHub's **native issue dependencies**, not a prose line. The label vocabulary is closed and lives in [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md): the five triage roles as real repository labels, plus the two states GitHub already expresses without one — an **assignee** means in-progress, a **closed** issue means done.
 
-New work starts here: `/to-spec` writes the `spec.md`, `/to-tickets` splits it into `NN-*.md`, `/implement` picks one up and updates its `status`. A ticket that is finished stays in place as history — where a finished ticket and a rule disagree, **the rule wins**.
+The setup is **done**: `gh` 2.100.0 authenticated as `qtuan02` with the `repo` scope, Issues enabled, and the label set created (the reproduction recipe is in `triage-labels.md`). Two things to keep in mind. The repo is **public**, so an issue body is world-readable — the same discipline as a committed file. And on Windows a shell started before the install keeps the old `PATH`, so `gh` reads as "not recognized" while sitting in `C:\Program Files\GitHub CLI\`; call it by full path or restart the shell.
 
-> **Architecture and design docs go to `docs/`**, not here — ADRs in `docs/adr/`, research in `docs/research/`. Glossary terms go to `CONTEXT.md` (root) or a workspace's own `CONTEXT.md`, listed in `CONTEXT-MAP.md`.
+`.agents/plans/` was the tracker until the switch (decision 17). Its 3 topics and 25 numbered tickets (plus their specs) stay in place, **read-only**: nothing writes there again, but they are still worth reading — a finished ticket records how it was verified, and `spec.md` / `decisions.md` carry reasoning that never became a rule. Cite them by path. `.agents/settings.json` still points `plansDirectory` at the directory so Claude Code's plan-mode output has a home; that output is scratch, not a ticket. A finished ticket, wherever it lives, loses to a rule: where the two disagree, **the rule wins**.
+
+> **Architecture and design docs go to `docs/`**, not into an issue — ADRs in `docs/adr/`, research in `docs/research/`. Glossary terms go to `CONTEXT.md` (root) or a workspace's own `CONTEXT.md`, listed in `CONTEXT-MAP.md`.
 
 ---
 
@@ -457,11 +461,11 @@ When adding cross-cutting content (e.g. a new workspace package, or a Flavor of 
 
 ### Issue tracker
 
-Markdown in **`.agents/plans/<topic>/`**: a `spec.md` plus numbered `NN-*.md` tickets carrying a `status` in their front-matter (decision 17). No GitLab, no GitHub Issues, no CLI. [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md) writes this layout up for the workflow skills that look for a tracker config: the frontmatter, the `**Blocked by:**` edge, and what "publish to the tracker", "fetch the ticket" and "comment on an issue" each mean when the tracker is a directory.
+**GitHub Issues** on [`qtuan02/monorepo`](https://github.com/qtuan02/monorepo), driven by the `gh` CLI: a `spec`-labelled tracking issue with its tickets as sub-issues, and blocking through GitHub's native issue dependencies. [`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md) writes it up for the workflow skills that look for a tracker config — the commands, what "publish to the tracker", "fetch the ticket" and "comment on an issue" each mean, the `gh` prerequisite, and the cut-over that leaves `.agents/plans/` frozen as history.
 
 ### Triage labels
 
-The label vocabulary the `triage` skill sorts into — the label string equals the role name (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). Applied as the `status` field of a ticket rather than a service-side label, so there is nothing to create before it can be used. [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md) carries the mapping, plus the one value the five roles cannot express (`done`) and what `ready-for-human` is reserved for.
+The label vocabulary the `triage` skill sorts into — the label string equals the role name (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`), applied as a **real repository label**, so the set has to be created once before first use. [`docs/agents/triage-labels.md`](./docs/agents/triage-labels.md) carries the mapping, the `gh label create` loop, the two states GitHub expresses without a label (an assignee is in-progress, a closed issue is done), and what `ready-for-human` is reserved for.
 
 ### Domain docs
 
@@ -470,7 +474,7 @@ Multi-context: the root [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) points at [`CONTEXT
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **monorepo** (4968 symbols, 9297 relationships, 224 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **monorepo** (3950 symbols, 7912 relationships, 211 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

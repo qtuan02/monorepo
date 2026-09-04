@@ -161,6 +161,6 @@ with the language registry and the ICU message catalogue shared by both
 - [`.agents/skills/`](./.agents/skills/) — vendored skills; the 25 installed by the `skills` CLI
   are pinned in [`skills-lock.json`](./skills-lock.json), the six `gitnexus-*` are owned by
   `gitnexus analyze`
-- [`.agents/plans/`](./.agents/plans/) — the issue tracker: markdown, in-repo, one folder per topic
-  ([`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md))
+- [`.agents/plans/`](./.agents/plans/) — the former in-repo tracker, frozen as history; new work is
+  tracked as GitHub Issues ([`docs/agents/issue-tracker.md`](./docs/agents/issue-tracker.md))
 - [`.mcp.json`](./.mcp.json) — Context7 and GitNexus at project scope
