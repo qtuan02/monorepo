@@ -5,6 +5,7 @@
   "exports": {
     "./vite/*": "./src/vite/*.ts",
     "./next/*": "./src/next/*.ts",
+    "./react-router/*": "./src/react-router/*.ts",
     "./*": "./src/*.ts"
   },
   "license": "MIT",
@@ -15,6 +16,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@t3-oss/env-core": "catalog:",
     "@t3-oss/env-nextjs": "catalog:next16",
     "zod": "catalog:"
   },

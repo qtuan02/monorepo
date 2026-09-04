@@ -1,6 +1,6 @@
 import { defineConfig } from "vitest/config";
 
-// Both Flavors parse a plain object, so this package needs no DOM and no setup
+// Every Flavor parses a plain object, so this package needs no DOM and no setup
 // file — `node` is the whole environment, and it is also what pins t3-env's
 // `typeof window` probe to the server side. TZ is pinned at module scope so it
 // survives a pool change (a `TZ=UTC` command prefix is not valid PowerShell
