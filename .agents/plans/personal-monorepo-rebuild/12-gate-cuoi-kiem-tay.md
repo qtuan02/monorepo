@@ -8,16 +8,16 @@ status: ready-for-human
 
 **Blocked by:** 11 — Skills, MCP, GitNexus, docs.
 
-**Status:** `ready-for-human` (chạy 2026-09-04 trên nhánh `feat/upgrade`, commit `0708b4b` + hai commit docs; sáu trong tám ô xong)
+**Status:** `ready-for-human` (chạy 2026-09-04 trên nhánh `feat/upgrade`, commit `0708b4b` → `d964157`; **bảy trong tám ô xong**, ô còn lại là Docker)
 
-> **Vì sao không phải `done`.** `docs/agents/triage-labels.md` định nghĩa `done` là "Implemented **and** verified", và định nghĩa `ready-for-human` là bước "genuinely cannot be automated — clicking through a third-party dashboard, entering a credential, looking at a rendered page with human eyes". Hai ô còn lại đúng loại đó: `docker build` cần một **máy có Docker** (máy này không còn), và ô CI cần một lần **push** lên remote. Không có gì để agent làm tiếp trong repo. Đánh `done` ở đây sẽ là frontmatter nói khác thân bài, và sẽ làm hỏng đúng thứ `done` dùng để làm — điều kiện gỡ block của ticket sau.
+> **Vì sao không phải `done`.** `docs/agents/triage-labels.md` định nghĩa `done` là "Implemented **and** verified", và định nghĩa `ready-for-human` là bước "genuinely cannot be automated — clicking through a third-party dashboard, entering a credential, looking at a rendered page with human eyes". Ô `docker build` đúng loại đó: nó cần một **máy có Docker**, và máy này không còn. Không có gì để agent làm tiếp trong repo. Đánh `done` ở đây sẽ là frontmatter nói khác thân bài, và sẽ làm hỏng đúng thứ `done` dùng để làm — điều kiện gỡ block của ticket sau.
 >
 > `spec.md` giữ cùng trạng thái vì US45 (`docker build` ba image bằng tay) chưa được chứng minh lần nào.
 
 - [x] Clone mới với `git clone -c core.symlinks=true`; `git ls-files -s .claude` trả mode 120000 và `.claude/rules` đọc được
 - [x] `bun install --frozen-lockfile` không thay đổi `bun.lock`
 - [x] `bun run check`: 0 error, 0 warning (nâng các rule đang `warn` lên `error` — xem "Quyết định của lượt này" #4); `bun run typecheck`, `bun run test`, `bun run build` xanh, không warning trong log build (bốn nguồn warning đã xử lý — #1–#3)
-- [~] `bunx playwright test --project=chromium` xanh cho cả hai template — **7/7 (`_template_vite`) và 6/6 (`_template_next`)**; job `e2e` trên CI **chưa chứng minh** (`feat/upgrade` chưa push, cùng lý do ticket 01)
+- [x] `bunx playwright test --project=chromium` xanh cho cả hai template — **7/7 (`_template_vite`) và 6/6 (`_template_next`)** local; job `e2e` trên CI **xanh** ở run #2 (vẫn `continue-on-error`), sau khi sửa một lỗi mà chỉ CI mới lộ — xem "Bằng chứng — CI"
 - [ ] `docker build` thành công cho `_template_vite`, `_template_next`, `storybook`; container `_template_vite` trả 404 cho file không tồn tại thay vì index; container `_template_next` trả trang SSR — **không chạy được: máy này không còn Docker** (xem "Còn treo")
 - [x] Storybook mở thật: checklist orientation của ticket 06 tick lại; `_template_vite` đổi ngôn ngữ đổi weekday trên clock; `_template_next` đổi `[locale]` đổi nội dung SSR
 - [~] `docs/research/personal-monorepo-rebuild.md` (bản research) và thư mục plan này được copy sang Target (`docs/research/`, `.agents/plans/personal-monorepo-rebuild/`) với mọi ticket `status: done`; bản ở reference giữ nguyên làm lịch sử — **copy xong**, ticket 01–11 đều `status: done`; **hai chỗ cố ý lệch chữ của ô này:** ticket này và `spec.md` là `ready-for-human` chứ không `done` (lý do ngay trên), và `adr/` + `CONTEXT.md` **không** được copy vì chúng đã được *chuyển* về `docs/adr/` và root ở ticket 01 (xem `decisions.md` § "Ghi chú khi copy")
@@ -81,6 +81,33 @@ Chạy `bunx playwright test --project=chromium` với cwd là thư mục app (k
 - `apps/_template_next` → **6 passed (15.6s)** — `server-rendering.e2e.ts` (5) + `locale-switch.e2e.ts` (1).
 
 Ghi chú: log của `_template_next` vẫn in `⚠ "next start" does not work with "output: standalone" configuration`. Đây là warning của **e2e**, không phải của `build`, nên không chặn ô "0 warning trong log build" — nhưng nó vẫn là khoản treo của ticket 08 (xem "Còn treo").
+
+## Bằng chứng — CI (2026-09-04, hai run đầu tiên của repo)
+
+`git push -u origin feat/upgrade` là lần đầu nhánh này ra remote, nên đây cũng là lần đầu workflow chạy thật — ô CI treo từ ticket 01.
+
+**Run #1** (commit `2b89265`): bốn job Gate **xanh** (`check` 38s · `typecheck` 28s · `test` 45s · `build` 44s), job `e2e` **đỏ**. Vì `continue-on-error: true` nên cả run vẫn báo `success` — đúng thứ ticket 07 cảnh báo là sẽ che lỗi, và ở đây nó che thật.
+
+Lỗi chỉ CI mới lộ được, không máy local nào gặp:
+
+```
+Error: Unable to locate executable file: unzip.
+```
+
+`oven-sh/setup-bun` giải nén archive của Bun bằng cách gọi `unzip`, và image `mcr.microsoft.com/playwright:v1.62.1-noble` **không có** `unzip`. Composite action `setup-workspace` chết ở đó, rồi cả hai step E2E chết tiếp với **exit 127** (`bun: command not found`) — một thông báo chỉ tay vào Bun và đổ lỗi sai chỗ. Bốn job Gate không dính vì chúng chạy trên `ubuntu-latest` trần, vốn có `unzip`.
+
+Sửa: một step `apt-get install -y --no-install-recommends unzip` **trước** `setup-workspace` trong job `e2e`, ghi thành ràng buộc thứ tư trong khối comment của job đó (ba cái trước đều đã từng làm hỏng job này). Nhân tiện gỡ luôn annotation deprecation duy nhất còn lại — `actions/upload-artifact@v5` nhắm Node 20, nâng lên `v7`.
+
+**Run #2** (commit `d964157`): **cả sáu job xanh**, và `check-runs` trả về **0 annotation** — không warning nào, kể cả deprecation.
+
+| Job | Kết quả | Thời gian |
+|---|---|---|
+| `changes` | success | 6s |
+| `check` | success | 41s |
+| `typecheck` | success | 15s |
+| `test` | success | 26s |
+| `build` | success | 39s |
+| `e2e` (cả hai Template) | success | 132s |
 
 ## Bằng chứng — kiểm tay (2026-09-04)
 
@@ -146,7 +173,7 @@ after  (en): Friday, 04/09/2026
 
   Có thử đường vòng gần nhất — chạy thẳng `node .next/standalone/apps/_template_next/server.js` (đúng binary image sẽ chạy) sau khi copy `public` + `.next/static` vào — và nó **chết trên Windows** với `EPERM: operation not permitted, stat …\.next\standalone\node_modules\.bun\next@…\node_modules\react`: Node không stat được symlink mà `next build` sinh trong standalone. Đây là giới hạn của Windows, không phải của image (runner là `node:24-alpine`), nên nó cũng không thay thế được lượt Docker.
 
-- **Ô CI:** `feat/upgrade` vẫn chưa có trên remote (`origin` = `github.com/qtuan02/monorepo`), nên chưa workflow run nào nhìn thấy Skeleton. Cần `git push -u origin feat/upgrade` để bốn job Gate + job `e2e` chạy lần đầu trên commit cuối. Đây là ô cuối cùng còn thiếu ngoài Docker.
+- **Job `e2e` vẫn `continue-on-error: true`.** Nó đã xanh một lần (run #2) — nhưng run #1 cho thấy đúng cái giá của cờ đó: job đỏ mà cả workflow vẫn báo `success`, và nếu không đi đọc từng job thì không ai biết. Xoá dòng đó biến E2E thành gate thật; nên làm sau vài run nữa để chắc suite không flaky, và đó là một quyết định, không phải một khoản treo kỹ thuật.
 
 - **`next start` với `output: "standalone"`** — khoản treo của ticket 08 vẫn nguyên. Log e2e in `⚠ "next start" does not work with "output: standalone"`, và hệ quả thật vẫn đúng như ticket 08 viết: e2e không kiểm thứ Docker ship. Không sửa trong lượt này vì (a) nó nằm ngoài ô của ticket 12 — warning ở log e2e, không ở log build — và (b) bản sửa cần thêm một bước copy `public` + `.next/static` vào standalone **chạy được trên cả Windows và Linux**, tức là một script chứ không phải một dòng `cp`. Script `start` trong `package.json` dính cùng vấn đề.
 

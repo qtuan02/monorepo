@@ -117,8 +117,9 @@ jobs:
             echo "app=false" >> "$GITHUB_OUTPUT"
           fi
 
-  # Playwright, over both Template apps in one job. Three constraints, each of
-  # which has broken this job before:
+  # Playwright, over both Template apps in one job. Four constraints, each of
+  # which has broken this job before — three here, and a fourth written at the
+  # `unzip` step that fixes it:
   #
   #   1. The container tag MUST match `@playwright/test` in the `testing`
   #      catalog exactly (1.62.1) — the image bakes in the browser revision that
