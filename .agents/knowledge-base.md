@@ -216,6 +216,15 @@ mutating, polling. What a crawler has to read comes from a cached server read in
 - **`#root { isolation: isolate }` in the Tailwind globals is Vite-only.** Next's App Router does
   not render into `#root`; the Next Template establishes the same stacking context in its own
   layout.
+- **`@monorepo/_template_next#build` is the one Turbo task that never caches**, and its `turbo.json`
+  says `"cache": false` so it stops claiming otherwise. `next build` emits
+  `.next/node_modules/<pkg>-<hash>` as absolute symlinks into `node_modules/.bun/…`
+  (import-in-the-middle and require-in-the-middle, via `@sentry/nextjs`) whose targets overrun the
+  100-byte `linkname` field of the tar format Turbo caches with, so the archive write failed and no
+  entry was ever recorded — the task was uncached long before the flag said so. Dropping those paths
+  from `outputs` restores caching and breaks the build: Turbopack resolves
+  `externalRequire("<pkg>-<hash>")` through that directory, so the restored server dies on
+  `Cannot find module`. Expect every Next build, local and CI, to run cold.
 
 ## Legacy (`legacy/`)
 

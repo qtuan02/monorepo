@@ -6,27 +6,20 @@ const config: StorybookConfig = {
   addons: ["@storybook/addon-docs"],
   framework: "@storybook/react-vite",
 
-  // The two chunks over Vite's 500 kB advisory are Storybook's own —
-  // `iframe.js` (~1.23 MB) and `DocsRenderer` (~754 kB) — emitted by the
-  // builder, not by anything in `src/`. There is no chunking decision here to
-  // make differently, and this app is an internal catalogue that ships to no
-  // user, so the threshold is raised just above them rather than leaving a
-  // warning nobody can act on. Same call as apps/_template_vite, which sets its
-  // own limit in vite.config.ts.
+  // Two build warnings, both about Storybook's own output rather than anything
+  // in `src/`: the chunks over Vite's 500 kB advisory are `iframe.js` and
+  // `DocsRenderer`, and `pluginTimings` names `storybook:react-docgen-plugin`
+  // and `vite:css`. Neither is tunable from this repo, and `pluginTimings` only
+  // fires above a 3s build, so it came and went with machine load.
   //
-  // It has to be set here, not in ../vite.config.ts: builder-vite composes its
-  // own `build` block over the discovered config and drops the setting.
-  // `viteFinal` runs after that merge and is the only place it sticks.
+  // Two traps in silencing them. It has to be `viteFinal`, not
+  // ../vite.config.ts, which builder-vite composes its own `build` block over;
+  // and `checks` has to sit under `rolldownOptions` — Vite 8 accepts the
+  // `rollupOptions` alias for what it maps itself, but drops Rolldown-only
+  // inputs from it.
   //
-  // `checks.pluginTimings` goes off for the same reason and is silenced the
-  // same way. Rolldown emits it once a build passes 3s with plugin hooks
-  // dominating, which here is `storybook:react-docgen-plugin` (4,500-odd calls,
-  // one per component it documents) and `vite:css`. Both belong to Storybook,
-  // neither is tunable from this repo, and the 3s trigger means the warning
-  // comes and goes with machine load — a build gate that flips on how busy the
-  // laptop is teaches nothing. Note the key is `rolldownOptions`, not
-  // `rollupOptions`: Vite 8 accepts both for the options it maps itself, but
-  // `checks` is a Rolldown-only input and is dropped from the Rollup-named one.
+  // Numbers and the reasoning:
+  // ../../../.agents/plans/personal-monorepo-rebuild/12-gate-cuoi-kiem-tay.md
   viteFinal: (viteConfig) => ({
     ...viteConfig,
     build: {

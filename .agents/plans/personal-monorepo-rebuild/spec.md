@@ -1,10 +1,10 @@
 ---
-status: done
+status: ready-for-human
 date: 2026-09-03
-adr: 0001-legacy-apps-outside-workspace, 0002-i18n-one-package-many-flavors-icu-messages, 0003-env-two-flavors-native-prefix (nháp tại ./adr/, chuyển về docs/adr/ của Target ở ticket đầu)
-research: docs/research/personal-monorepo-rebuild.md
+adr: ../../../docs/adr/0001-legacy-apps-outside-workspace.md, ../../../docs/adr/0002-i18n-one-package-many-flavors-icu-messages.md, ../../../docs/adr/0003-env-two-flavors-native-prefix.md
+research: ../../../docs/research/personal-monorepo-rebuild.md
 decisions: ./decisions.md
-glossary: ./CONTEXT.md
+glossary: ../../../CONTEXT.md
 tracker: markdown trong thư mục này (không glab, không gh)
 ---
 

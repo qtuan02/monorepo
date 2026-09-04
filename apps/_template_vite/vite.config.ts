@@ -37,12 +37,12 @@ export default defineConfig({
     open: true,
   },
   build: {
-    // `vendor` below is deliberately one chunk, and at ~684 kB (219 kB gzip)
-    // it trips Vite's 500 kB advisory. Splitting it would silence the warning
-    // without moving a byte off the critical path — React, the router, Query,
-    // Base UI and i18n all load at first paint either way — so the honest
-    // change is the threshold, not the chunking. Kept low enough that a real
-    // regression (a heavy dependency landing in the app chunk) still speaks up.
+    // `vendor` below is deliberately one chunk, and trips Vite's 500 kB
+    // advisory. Splitting it would silence the warning without moving a byte
+    // off the critical path — React, the router, Query, Base UI and i18n all
+    // load at first paint either way — so the threshold moves, not the
+    // chunking. Kept low enough that a heavy dependency landing in the app
+    // chunk still speaks up.
     chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {

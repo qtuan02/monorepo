@@ -1,5 +1,5 @@
 ---
-status: done
+status: ready-for-human
 ---
 
 # 12 — Gate cuối 0 lỗi 0 warning và kiểm tay tổng
@@ -8,7 +8,11 @@ status: done
 
 **Blocked by:** 11 — Skills, MCP, GitNexus, docs.
 
-**Status:** done (chạy 2026-09-04 trên nhánh `feat/upgrade`, commit `0708b4b` + commit của lượt docs này; **hai ô Docker không chạy được** vì máy không còn Docker, và **ô CI chờ push** — xem "Còn treo")
+**Status:** `ready-for-human` (chạy 2026-09-04 trên nhánh `feat/upgrade`, commit `0708b4b` + hai commit docs; sáu trong tám ô xong)
+
+> **Vì sao không phải `done`.** `docs/agents/triage-labels.md` định nghĩa `done` là "Implemented **and** verified", và định nghĩa `ready-for-human` là bước "genuinely cannot be automated — clicking through a third-party dashboard, entering a credential, looking at a rendered page with human eyes". Hai ô còn lại đúng loại đó: `docker build` cần một **máy có Docker** (máy này không còn), và ô CI cần một lần **push** lên remote. Không có gì để agent làm tiếp trong repo. Đánh `done` ở đây sẽ là frontmatter nói khác thân bài, và sẽ làm hỏng đúng thứ `done` dùng để làm — điều kiện gỡ block của ticket sau.
+>
+> `spec.md` giữ cùng trạng thái vì US45 (`docker build` ba image bằng tay) chưa được chứng minh lần nào.
 
 - [x] Clone mới với `git clone -c core.symlinks=true`; `git ls-files -s .claude` trả mode 120000 và `.claude/rules` đọc được
 - [x] `bun install --frozen-lockfile` không thay đổi `bun.lock`
@@ -16,7 +20,7 @@ status: done
 - [~] `bunx playwright test --project=chromium` xanh cho cả hai template — **7/7 (`_template_vite`) và 6/6 (`_template_next`)**; job `e2e` trên CI **chưa chứng minh** (`feat/upgrade` chưa push, cùng lý do ticket 01)
 - [ ] `docker build` thành công cho `_template_vite`, `_template_next`, `storybook`; container `_template_vite` trả 404 cho file không tồn tại thay vì index; container `_template_next` trả trang SSR — **không chạy được: máy này không còn Docker** (xem "Còn treo")
 - [x] Storybook mở thật: checklist orientation của ticket 06 tick lại; `_template_vite` đổi ngôn ngữ đổi weekday trên clock; `_template_next` đổi `[locale]` đổi nội dung SSR
-- [x] `docs/research/personal-monorepo-rebuild.md` (bản research) và thư mục plan này được copy sang Target (`docs/research/`, `.agents/plans/personal-monorepo-rebuild/`) với mọi ticket `status: done`; bản ở reference giữ nguyên làm lịch sử
+- [~] `docs/research/personal-monorepo-rebuild.md` (bản research) và thư mục plan này được copy sang Target (`docs/research/`, `.agents/plans/personal-monorepo-rebuild/`) với mọi ticket `status: done`; bản ở reference giữ nguyên làm lịch sử — **copy xong**, ticket 01–11 đều `status: done`; **hai chỗ cố ý lệch chữ của ô này:** ticket này và `spec.md` là `ready-for-human` chứ không `done` (lý do ngay trên), và `adr/` + `CONTEXT.md` **không** được copy vì chúng đã được *chuyển* về `docs/adr/` và root ở ticket 01 (xem `decisions.md` § "Ghi chú khi copy")
 - [x] Ghi vào `decisions.md` mọi chỗ version thực tế khác số ngày 2026-09-03
 
 ---
@@ -58,7 +62,7 @@ that file through `dotenv -e ../../.env --` (ADR-0003).
 
 > **Một chỗ bất đối xứng đáng ghi, không sửa trong lượt này:** ở cùng lần chạy thiếu `.env` đó, `_template_vite` và `storybook` **build xanh**. Vite nướng `import.meta.env.PUBLIC_*` lúc build nhưng `createEnv` của app chỉ chạy trong **browser**, nên thiếu `.env` sinh ra một bundle hỏng chứ không phải một build đỏ. Thứ duy nhất bắt được là bước validate tường minh trong Dockerfile (`bun -e "import './src/env.ts';"`), tức là chỉ ở đường image. App Next thì đỏ ngay lúc build vì `env.ts` của nó bị import từ một server action. Nếu muốn hai Runtime hành xử giống nhau thì `_template_vite` cần một bước validate trong script `build`, và đó là một ticket riêng.
 
-## Bằng chứng — Gate trên cây làm việc (2026-09-04, commit `0708b4b`)
+## Bằng chứng — Gate trên cây làm việc (2026-09-04, commit `0708b4b`, chạy lại sau lượt `/code-review`)
 
 | Lệnh | Exit | Đuôi log |
 |---|---|---|
@@ -135,6 +139,8 @@ after  (en): Friday, 04/09/2026
 ---
 
 ## Còn treo
+
+> **Ba khoản dưới đây hiện không ticket nào sở hữu.** Ticket 07 viết bản sửa port "thuộc ticket này", ticket 08 viết bản sửa `next start`/standalone "thuộc ticket này" — nhưng cả hai đã `status: done`, và ticket 12 chỉ liệt kê lại chứ không nhận. Ghi ra đây để chỗ hổng là hữu hình: chúng cần một ticket 13, không phải một mục "Còn treo".
 
 - **Ba ô `docker build` và hai kiểm container (404 của `_template_vite`, trang SSR của `_template_next`) không chạy được:** máy này **không còn Docker**. `C:\Program Files\Docker` rỗng, `%LOCALAPPDATA%\Programs\DockerDesktop` chỉ còn `tmp-delete`, `Get-Command docker/podman` không trả gì, `wsl -l -v` báo không có distribution nào. Không suy đoán thay: ba Dockerfile đã được đọc và đúng hình (ticket 06/07/08 ghi từng dòng), nhưng "đúng hình" không phải "build được". Cần chạy lại ô này trên một máy có Docker, hoặc để job CI dựng image.
 

@@ -1,6 +1,6 @@
 # Quyết định đã chốt — dựng lại `D:\Personal\monorepo` theo khuôn `medviet`
 
-> Phiên grill ngày 2026-09-03. Nghiên cứu nền: `docs/research/personal-monorepo-rebuild.md`. Glossary: `./CONTEXT.md`. ADR nháp: `./adr/`. Bước tiếp theo: `/to-spec` → `spec.md` trong thư mục này, rồi `/to-tickets` → `NN-*.md`. Không dùng glab; mọi thứ ở đây, và không có file nào trong Target được sửa cho tới khi ticket đầu tiên chạy.
+> Phiên grill ngày 2026-09-03. Nghiên cứu nền: [`docs/research/personal-monorepo-rebuild.md`](../../../docs/research/personal-monorepo-rebuild.md). Glossary: [`CONTEXT.md`](../../../CONTEXT.md) ở root (nháp ở đây lúc grill, đã chuyển đi — xem § "Ghi chú khi copy" cuối file). ADR: [`docs/adr/0001..0003`](../../../docs/adr/), cùng đường đi. Bước tiếp theo lúc đó: `/to-spec` → `spec.md` trong thư mục này, rồi `/to-tickets` → `NN-*.md`. Không dùng glab; mọi thứ ở đây, và không có file nào trong Target được sửa cho tới khi ticket đầu tiên chạy.
 
 ## Cách chạy ticket
 
@@ -66,7 +66,16 @@ Ba ghi chú, không phải lệch version:
 
 ## Ghi chú khi copy thư mục plan sang Target (ticket 12)
 
-`adr/` và `CONTEXT.md` trong thư mục plan này là **bản nháp**. Bản đang có hiệu lực đã được chuyển về Target ở ticket 01: ADR ở `docs/adr/0001..0003` (đã đổi `status: accepted` + thêm `date`), glossary ở `CONTEXT.md` **root** của Target và được `CONTEXT-MAP.md` trỏ tới. Hai bản nháp được giữ lại ở đây làm lịch sử của phiên grill; khi hai bên khác nhau thì bản ở `docs/adr/` và root `CONTEXT.md` thắng.
+Thư mục này được nháp ở reference (`medviet`) vì Target chưa có `.agents/` cho tới ticket 11; bản trong repo này là bản chính thức từ ticket 12 trở đi, bản ở reference đóng băng làm lịch sử.
+
+**`adr/` và `CONTEXT.md` cố ý KHÔNG được copy sang.** Hai thứ đó đã được *chuyển* — không phải sao chép — về đúng chỗ của chúng ở ticket 01, đúng như `docs/agents/issue-tracker.md` mô tả (`adr/` = "drafted here, **moved** to `docs/adr/` when the first ticket runs"; `CONTEXT.md` = "before it **moves** to the workspace it belongs to"):
+
+- ADR → [`docs/adr/0001..0003`](../../../docs/adr/), `status: accepted` + `date: 2026-09-03`. Bản nháp vẫn là `status: proposed` và không có `date`, nên giữ nó ở đây vừa trùng lặp vừa sai với §8 của `CLAUDE.md`.
+- Glossary → [`CONTEXT.md`](../../../CONTEXT.md) ở root, được [`CONTEXT-MAP.md`](../../../CONTEXT-MAP.md) trỏ tới. Bản nháp còn viết Target ở ngôi thứ ba ("monorepo cá nhân tại `D:\Personal\monorepo`"), câu đó chỉ đúng khi đọc từ reference.
+
+Bản nháp của cả hai còn trong lịch sử phiên grill ở reference nếu cần đối chiếu.
+
+**Ký hiệu checkbox dùng trong các ticket ở đây:** `[x]` xong, `[ ]` chưa, `[~]` xong một phần — luôn kèm câu giải thích ngay trên dòng đó và một mục trong `## Còn treo`. `issue-tracker.md` không quy định ký hiệu nào, đây là quy ước của riêng thư mục topic này và được dùng nhất quán từ ticket 01.
 
 ## Chưa quyết (ngoài phạm vi Skeleton, để ticket migrate app)
 
