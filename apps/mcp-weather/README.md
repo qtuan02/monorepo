@@ -184,9 +184,22 @@ như script `build` chuẩn: trên Vercel **không có `.env` ở root** — bi�
 Environment Variables trong dashboard và đã nằm sẵn trong `process.env` lúc
 build, nên tiền tố dotenv ở đó vừa thừa vừa đỏ vì không tìm thấy file.
 
-Nghĩa là **cả hai** key ở mục Env phải khai trong dashboard Vercel cho Production
-lẫn Preview — thiếu `MCP_WEATHER_OPENWEATHERMAP_API_KEY` thì build đỏ, đúng như
-thiết kế.
+Nghĩa là dashboard Vercel phải khai **bốn** key cho cả Production lẫn Preview —
+không phải chỉ hai key riêng của app ở bảng trên. Hai key còn lại đến từ
+`baseClientSchema` của `@monorepo/env/next/schema`, mà mọi app Next đều kế thừa;
+ở local chúng nằm sẵn trong `.env` ở root nên không ai thấy, còn trên Vercel thì
+không có file nào để kế thừa:
+
+| Key | Nguồn | Bắt buộc |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_ENV` | base schema | **Có** |
+| `NEXT_PUBLIC_BASE_DOMAIN_API` | base schema | **Có** |
+| `MCP_WEATHER_OPENWEATHERMAP_API_KEY` | app | **Có** |
+| `NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN` | app | Không |
+
+Thiếu bất kỳ key bắt buộc nào thì `build:vercel` đỏ ngay ở
+`Failed to collect page data for /api/mcp` — `src/env.ts` parse lúc module load,
+đúng như thiết kế.
 
 `output: "standalone"` trong `next.config.ts` bị Vercel **bỏ qua** (Vercel dùng
 Build Output API riêng), nên nó không cản deploy zero-config; nó ở đó cho runner

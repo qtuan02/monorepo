@@ -30,7 +30,6 @@ export default defineConfig({
       // are not read from the repo-root `.env`, so a developer's local values
       // can never change an assertion.
       NEXT_PUBLIC_APP_ENV: "test",
-      NEXT_PUBLIC_BASE_DOMAIN: "http://localhost:3004",
       NEXT_PUBLIC_BASE_DOMAIN_API: "http://localhost:8000",
       // Required in `~/env`, so the node-environment specs that import the
       // OpenWeatherMap helper can parse it. Deliberately not a real key: those

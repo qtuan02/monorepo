@@ -5,7 +5,6 @@ import { createEnv } from "../../src/next/create-env";
 
 const VALID_CLIENT_ENV = {
   NEXT_PUBLIC_APP_ENV: "local",
-  NEXT_PUBLIC_BASE_DOMAIN: "http://localhost:3001",
   NEXT_PUBLIC_BASE_DOMAIN_API: "http://localhost:8000",
 };
 
@@ -52,7 +51,9 @@ describe("createEnv — the next Flavor", () => {
 
   it("throws when a URL carries a scheme other than http(s)", () => {
     expect(() =>
-      createBaseEnv({ NEXT_PUBLIC_BASE_DOMAIN: "ftp://files.example.test" }),
+      createBaseEnv({
+        NEXT_PUBLIC_BASE_DOMAIN_API: "ftp://files.example.test",
+      }),
     ).toThrow(/Invalid environment/);
   });
 
@@ -110,7 +111,7 @@ describe("createEnv — the next Flavor", () => {
       isServer: false,
     });
 
-    expect(env.NEXT_PUBLIC_BASE_DOMAIN).toBe("http://localhost:3001");
+    expect(env.NEXT_PUBLIC_BASE_DOMAIN_API).toBe("http://localhost:8000");
   });
 
   it("still validates the base client keys on the client", () => {

@@ -30,7 +30,6 @@ export default defineConfig({
       // are not read from the repo-root `.env`, so a developer's local values
       // can never change an assertion.
       NEXT_PUBLIC_APP_ENV: "test",
-      NEXT_PUBLIC_BASE_DOMAIN: "http://localhost:3002",
       NEXT_PUBLIC_BASE_DOMAIN_API: "http://localhost:8000",
       NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN: "http://localhost:3002",
     },
