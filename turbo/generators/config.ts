@@ -38,7 +38,7 @@ interface DistTags {
  * below — `satisfies` makes the compiler demand the second edit — and nothing
  * else in this file has to change: every branch on a Runtime reads RUNTIMES.
  */
-type Runtime = "next" | "vite";
+type Runtime = "next" | "vite" | "reactrouter";
 
 interface RuntimeSpec {
   /**
@@ -60,6 +60,11 @@ const RUNTIMES = {
     template: "_template_vite",
     description: "vite — SPA behind a login, no crawler, nginx runner",
   },
+  reactrouter: {
+    template: "_template_reactrouter",
+    description:
+      "reactrouter — React Router 8 framework mode, SSR/SEO, Node react-router-serve runner",
+  },
 } as const satisfies Record<Runtime, RuntimeSpec>;
 
 const RUNTIME_CHOICES = Object.entries(RUNTIMES).map(([value, spec]) => ({
@@ -71,11 +76,18 @@ const RUNTIME_CHOICES = Object.entries(RUNTIMES).map(([value, spec]) => ({
  * These can sit inside a Template app's folder but must never be cloned: each
  * one is a build or test artifact the root .gitignore drops. `.next` and
  * `test-results` are the two the reference generator never had to think about.
+ *
+ * `.next`, `build` and `.react-router` are each one Runtime's build output, and
+ * one Runtime naming its output `build` is why the plainest word in the repo
+ * sits in this set. The filter matches a basename anywhere in the cloned tree,
+ * so no Template app may ever carry a *source* folder called `build`.
  */
 const APP_ARTIFACTS = new Set([
   "node_modules",
   "dist",
   ".next",
+  "build",
+  ".react-router",
   ".cache",
   ".turbo",
   ".vitest",
@@ -431,9 +443,10 @@ function appGenerator(
       renameInApp(plop, "Dockerfile", (app) => `ARG PROJECT=@monorepo/${app}`),
       assignPorts(plop),
       {
-        // Root keeps one script per app rather than a fan-out task. Both
-        // Runtimes take the same three, because Turbo drives `dev`/`build`
-        // through the app's own package.json and Playwright through `--filter`.
+        // Root keeps one script per app rather than a fan-out task. All
+        // three Runtimes take the same three, because Turbo drives
+        // `dev`/`build` through the app's own package.json and Playwright
+        // through `--filter`.
         type: "modify",
         path: "package.json",
         transform(content, answers) {
