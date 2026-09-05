@@ -1,48 +1,81 @@
 {
+  // ─── Biome — the one formatter, linter and import sorter (biome.json) ──────
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.biome": "explicit",
     "source.organizeImports.biome": "explicit"
   },
-  "editor.defaultFormatter": "biomejs.biome",
-  "[javascript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[javascriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[typescriptreact]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[json]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "[css]": {
-    "editor.defaultFormatter": "biomejs.biome"
-  },
-  "editor.formatOnSave": true,
-  "editor.colorDecorators": true,
-  "i18n-ally.enabledFrameworks": ["react-i18next", "next-intl"],
-  "i18n-ally.keystyle": "nested",
-  "i18n-ally.editor.preferEditor": true,
-  "i18n-ally.sourceLanguage": "vi",
-  "i18n-ally.displayLanguage": "vi",
-  "i18n-ally.localesPaths": ["packages/i18n/src/locales"],
-  "i18n-ally.pathMatcher": "{locale}.json",
-  "files.associations": {
-    "*.css": "tailwindcss"
-  },
-  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "[javascript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[javascriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescript]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[typescriptreact]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[json]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[jsonc]": { "editor.defaultFormatter": "biomejs.biome" },
+  "[css]": { "editor.defaultFormatter": "biomejs.biome" },
+  // `files.associations` below relabels every `.css` file as `tailwindcss`, so
+  // the `[css]` scope never matches one. The Biome extension does support that
+  // language id, so it has to be named too — otherwise CSS silently stops
+  // formatting on save.
+  "[tailwindcss]": { "editor.defaultFormatter": "biomejs.biome" },
+
+  // ─── TypeScript 7 (the native compiler) ───────────────────────────────────
+  // `node_modules/typescript/lib` ships `tsc.js` plus a platform executable and
+  // NO `tsserver.js`, so the built-in JS/TS extension cannot load the workspace
+  // version at all. The `TypeScript 7` extension (TypeScriptTeam.native-preview)
+  // can, and this flag is exactly what its "Enable" command writes here — so the
+  // editor typechecks with the same compiler `bun run typecheck` runs.
+  "js/ts.experimental.useTsgo": true,
+  // Read by that extension, which resolves the directory to the native exe.
   "typescript.tsdk": "node_modules/typescript/lib",
+  // ...and the built-in extension must never offer to start from that path:
+  // there is no `tsserver.js` there for it to run.
+  "typescript.enablePromptUseWorkspaceTsdk": false,
+  // Auto-imports come out as `~/…` / `@monorepo/…` / `#components/…` rather than
+  // a `../../` chain — see `.agents/rules/quality-imports.md`.
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+
+  // ─── Tailwind v4 ──────────────────────────────────────────────────────────
+  "files.associations": { "*.css": "tailwindcss" },
   "tailwindCSS.classFunctions": ["cva", "cx", "cn"],
   "tailwindCSS.lint.cssConflict": "ignore",
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(((?:[^()]|\\([^()]*\\))*)\\)", "[\"'`]?([^\"'`]+)[\"'`]?"],
     ["cn\\(((?:[^()]|\\([^()]*\\))*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+  ],
+  // v4 has no `tailwind.config.js`: the CSS entry IS the config, and this
+  // workspace has one per app plus the shared source they all `@import`. Left to
+  // guess, the extension picks a single entry and every other app gets
+  // completions built from the wrong `@source` set — a class that exists shows
+  // as unknown, and vice versa. Each entry maps a file to the tree it governs.
+  "tailwindCSS.experimental.configFile": {
+    "tooling/tailwind/globals.css": "tooling/tailwind/**",
+    "packages/ui/src/globals.css": "packages/ui/**",
+    "apps/_template_vite/src/globals.css": "apps/_template_vite/**",
+    "apps/_template_next/src/globals.css": "apps/_template_next/**",
+    "apps/_template_reactrouter/src/globals.css": "apps/_template_reactrouter/**",
+    "apps/documents/src/globals.css": "apps/documents/**",
+    "apps/portfolio/src/globals.css": "apps/portfolio/**",
+    "apps/mcp-weather/src/globals.css": "apps/mcp-weather/**",
+    "apps/storybook/src/globals.css": "apps/storybook/**"
+  },
+  // Class names live inside strings — `className="…"`, `cn("…")`, `cva("…")` —
+  // where VS Code offers no suggestions by default.
+  "editor.quickSuggestions": { "strings": "on" },
+  "editor.colorDecorators": true,
+
+  // ─── i18n-ally ────────────────────────────────────────────────────────────
+  // One catalogue for every app (ADR-0002): the i18next Flavor serves the Vite
+  // and React Router Runtimes, next-intl serves the Next one.
+  "i18n-ally.enabledFrameworks": ["react-i18next", "next-intl"],
+  "i18n-ally.localesPaths": ["packages/i18n/src/locales"],
+  "i18n-ally.pathMatcher": "{locale}.json",
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.sourceLanguage": "vi",
+  "i18n-ally.displayLanguage": "vi",
+  "i18n-ally.editor.preferEditor": true,
+  // `LocaleMessages` forces every locale to carry the same keys, so a key added
+  // to `vi.json` alone fails to compile. Writing the empty counterpart into
+  // `en.json` at the same time keeps the type happy by construction.
+  "i18n-ally.keepFulfilled": true
 }

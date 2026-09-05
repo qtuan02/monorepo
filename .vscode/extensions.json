@@ -1,9 +1,23 @@
 {
   "recommendations": [
+    // The whole lint/format/import-sort toolchain — one root biome.json.
     "biomejs.biome",
+    // TypeScript 7 is the native compiler and ships no `tsserver.js`; without
+    // this extension the editor falls back to VS Code's bundled TypeScript.
+    "typescriptteam.native-preview",
     "bradlc.vscode-tailwindcss",
     "yoavbls.pretty-ts-errors",
-    "lokalise.i18n-ally"
+    // One shared ICU catalogue for all three Runtimes (ADR-0002).
+    "lokalise.i18n-ally",
+    // The two test runners: Vitest under `test/`, Playwright over `*.e2e.ts`.
+    "vitest.explorer",
+    "ms-playwright.playwright",
+    // `.env.example` and every app's `ports.env`.
+    "mikestead.dotenv",
+    // `.github/workflows/ci.yml` — the four-job Gate plus the four that report.
+    "github.vscode-github-actions",
+    // One Dockerfile per app, built by the non-blocking `docker` CI job.
+    "ms-azuretools.vscode-docker"
   ],
   "unwantedRecommendations": [
     "dbaeumer.vscode-eslint",
