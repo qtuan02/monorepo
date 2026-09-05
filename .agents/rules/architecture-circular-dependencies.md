@@ -28,7 +28,8 @@ From lowest to highest:
   ↓
 ~/features/<domain>                        (templates + components for a domain)
   ↓
-~/pages                                    (the route tree — the top; `src/app` in the Next Runtime)
+~/pages                                    (the route tree — the top. `src/app` in the Next Runtime;
+                                            `src/routes` + `src/routes.ts` in the React Router one)
 ```
 
 > **The Next Runtime substitutes the top layer, and adds nothing below it.** In `_template_next`
@@ -43,6 +44,19 @@ From lowest to highest:
 >   [[next-data-fetching]]).
 > - A slice's `guard/` sits at the same height as the Vite Runtime's `provider/`: it is exposed
 >   **upward** to `src/proxy.ts` and imports downward from `~/libs` (see [[next-proxy-guards]]).
+
+> **The React Router Runtime substitutes the same top layer, and reads identically.** In
+> `_template_reactrouter` the top is `src/routes/**`, declared in the route config `src/routes.ts`.
+> The same two consequences hold, one file name at a time:
+>
+> - A route module's `loader` or `action` may import `~/libs` and `@monorepo/api` directly — the top
+>   layer reaching the service layer, still downward, not a bypass. `src/routes/sign-in.tsx` imports
+>   `~/libs/session.server` exactly this way. What it may **not** do is point back: no `~/libs`,
+>   `~/hooks` or `~/features` module may import from `src/routes` (see [[reactrouter-loader-vs-query]],
+>   [[reactrouter-server-modules]]).
+> - A slice's `middleware/` sits at the same height as `provider/` and `guard/`: exposed **upward** to
+>   `src/routes.ts`, importing downward from `~/libs` — `~/features/auth/middleware/require-session.ts`
+>   imports `~/libs/session.server` and nothing above it (see [[reactrouter-middleware-guards]]).
 
 **Rules:**
 
