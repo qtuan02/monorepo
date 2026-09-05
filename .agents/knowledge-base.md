@@ -7,28 +7,39 @@ time to establish. For coding conventions see [`rules/`](rules/); for structure 
 Everything here was verified against this repo. When one of these stops being true, edit the entry
 rather than adding a second one beside it.
 
-## The two Runtimes, and what "Flavor" buys
+## The three Runtimes, and what "Flavor" buys
 
-An app has exactly one **Runtime** — **Vite client** (SPA behind nginx) or **Next.js** (App Router,
-Node standalone). The Runtime decides which Template app it was cloned from and which **Flavor** of
-the Runtime-dependent packages it uses. Two packages have Flavors; the rest have none.
+An app has exactly one **Runtime** — **Vite client** (SPA behind nginx), **Next.js** (App Router,
+Node standalone), or **React Router framework mode** (one Vite build emitting a server bundle,
+served by `react-router-serve` on Node). The Runtime decides which Template app it was cloned from
+and which **Flavor** of the Runtime-dependent packages it uses. Two packages have Flavors; the rest
+have none.
 
-| Package             | Flavors                                     | Shared, outside every Flavor            |
-| ------------------- | ------------------------------------------- | --------------------------------------- |
-| `@monorepo/env`     | `./vite/*` (`createEnv`), `./next/*` (t3-env) | `@monorepo/env/http-url`                |
-| `@monorepo/i18n`    | `./i18next/*` (Vite), `./next-intl/*` (Next) | `languages.ts` + `locales/<code>.json`  |
-| `@monorepo/sentry`  | Next only — there is no Vite Flavor         | —                                       |
-| `api` `dayjs` `hook` `types` `ui` | none — Runtime-agnostic       | everything                              |
+| Package            | Flavors                                                        | Shared, outside every Flavor           |
+| ------------------ | -------------------------------------------------------------- | -------------------------------------- |
+| `@monorepo/env`    | `./vite/*`, `./next/*` (t3-env), `./react-router/*` (env-core) | `@monorepo/env/http-url`               |
+| `@monorepo/i18n`   | `./i18next/*` (Vite + React Router), `./next-intl/*` (Next)    | `languages.ts` + `locales/<code>.json` |
+| `@monorepo/sentry` | Next only — no Vite or React Router app depends on it          | —                                      |
+| `api` `dayjs` `hook` `types` `ui` | none — Runtime-agnostic                                        | everything                             |
+
+**Three env Flavors against two i18n Flavors is deliberate, not a gap.** The React Router Runtime
+reads messages through the **i18next** Flavor, exactly as a Vite app does, so i18n needs no third
+one. It needs a third env Flavor because it builds server code and client code out of **one** Vite
+build, and is the only Runtime with a `server` block sitting beside a `PUBLIC_` client one — the
+`vite` Flavor knows a single `PUBLIC_` schema and has nowhere to put a secret, and the `next`
+Flavor's `server` block is welded to `NEXT_PUBLIC_` (ADR-0006).
 
 The point of a Flavor is that the **shared half stays one thing**. A language added to
-`languages.ts` reaches both Runtimes; a message edited in `locales/vi.json` reaches both. If you
-find yourself about to duplicate something into both Flavors, it belongs in the shared half instead.
+`languages.ts` reaches every Runtime; a message edited in `locales/vi.json` reaches all of them. If
+you find yourself about to duplicate something across Flavors, it belongs in the shared half
+instead.
 
 ## Environment (`.env` at the root, build-per-env)
 
 There is **one `.env`**, at the repo root, gitignored, copied from the committed `.env.example`. Two
-prefixes live in it, and each Runtime reads its own natively (ADR-0003) — there is no adapter layer
-translating between them, deliberately.
+client prefixes live in it beside an unprefixed server-only group, and each Runtime reads what it
+needs natively (ADR-0003, ADR-0006) — there is no adapter layer translating between them,
+deliberately. The React Router Runtime is the one that reads **both** channels of that single file.
 
 1. **Vite Flavor** — `createEnv(schema, import.meta.env)` with the `PUBLIC_` prefix, the same shape
    as the reference monorepo. `vite.config.ts` sets `envDir: "../../"` and `envPrefix: "PUBLIC_"`,
@@ -37,33 +48,66 @@ translating between them, deliberately.
 2. **Next Flavor** — `@t3-oss/env-nextjs` with the `NEXT_PUBLIC_` prefix and a real `server` /
    `client` / `shared` split. Server-only variables carry **no prefix at all** — Next reads
    `process.env` directly for those.
-3. **`clientRuntimeEnv` values must be written as literals.** Next inlines
+3. **React Router Flavor** — `@t3-oss/env-core` with `clientPrefix: "PUBLIC_"` and a prefix-less
+   `server` block beside it (ADR-0006). Framework mode builds server code and client code out of
+   **one** Vite build, so `src/env.ts` is evaluated in **both** graphs, and everything odd-looking
+   in that file follows from it. `runtimeEnv` has to be the **full** map, both halves: env-core
+   reads only that object and never falls back to `process.env` per key the way the Next Flavor's
+   `experimental__runtimeEnv` does. The client keys are literal `import.meta.env.PUBLIC_*` reads for
+   the same reason item 4 gives on the Next side. And the server key is guarded
+   `typeof process === "undefined" ? undefined : process.env.X` — **not** `import.meta.env.SSR`,
+   which Vite folds to `false` in the client build but which nothing substitutes at all under a
+   bare Bun run: the `prebuild` step and the Dockerfile check would read it as `undefined`, drop
+   the `process.env` branch, and report the key missing every single time.
+4. **`clientRuntimeEnv` values must be written as literals.** Next inlines
    `process.env.NEXT_PUBLIC_FOO` by matching the *source text*; a computed or spread lookup is not
    rewritten, so it reads `undefined` in the browser and t3-env throws at boot. This is why that
    block in `env.ts` looks repetitive — it has to be.
-4. **The Next app loads `.env` through `dotenv-cli`.** Next only auto-loads a `.env` beside its own
-   `package.json`, and this repo keeps one at the root instead. Every `next` invocation in
-   `apps/_template_next/package.json` is prefixed `dotenv -e ../../.env --`; dropping it starts the
-   app with no env and surfaces as a t3-env validation throw, not as a missing file.
-5. **Docker is build-per-env.** The builder stage takes the `PUBLIC_*` / `NEXT_PUBLIC_*` values as
-   build `ARG`s, writes them to `.env`, and validates by **importing the app's own `env.ts`** before
-   the bundler runs. The check and the app therefore parse the same schema by construction, with
-   nothing to keep in sync — and a bad value fails the image build rather than the container boot.
-6. `turbo.json` declares both prefixes in `globalEnv` and `.env` in `globalDependencies`, so
-   changing a value busts the Turbo cache instead of serving a stale build.
+5. **`react-router build` does not evaluate `src/env.ts`**, where `next build` does. A missing
+   secret still builds green and still emits `build/server/index.js`, so
+   `apps/_template_reactrouter/package.json` carries an explicit `prebuild` —
+   `dotenv -e ../../.env -- bun -e "import './src/env.ts';"` — the same import the Dockerfile makes.
+6. **The two server-rendered apps load `.env` through `dotenv-cli`.** `next` only auto-loads a
+   `.env` beside its own `package.json` and `react-router-serve` reads no dotenv at all, while this
+   repo keeps one `.env` at the root — so every script that needs it names it. In
+   `apps/_template_next/package.json`: `build` takes `dotenv -e ../../.env --`, `dev` and `start`
+   take `dotenv -e ./ports.env -e ../../.env --`, the port file first because those two bind a port.
+   In `apps/_template_reactrouter/package.json`: `dev`, `prebuild` and `build` take
+   `-e ../../.env`, and only `start` adds `-e ./ports.env` in front — `react-router dev` is a Vite
+   dev server and takes its port from `vite.config.ts`, while `react-router-serve` reads `PORT` and
+   nothing else. Dropping one leaves `process.env` empty, which surfaces as a validation throw at
+   the first module to parse `env.ts` — not as a missing file. A Vite app needs none of this:
+   `envDir: "../../"` reaches the same file.
+7. **Docker is build-per-env.** The builder stage takes a `BUILD_ENV` `ARG` naming which
+   `.env.<BUILD_ENV>` file in the build context to `COPY` in as `.env` (defaulting to the committed
+   example), and validates by **importing the app's own `env.ts`** before the bundler runs. The
+   check and the app therefore parse the same schema by construction, with nothing to keep in sync —
+   and a bad value fails the image build rather than the container boot. The React Router image
+   copies that `.env` a **second** time, into the runner: its server key stays a live `process.env`
+   read inside `build/server/index.js`, evaluated at module load rather than inlined at build time,
+   and `react-router-serve` reads no dotenv — so its `CMD` runs
+   `node --env-file-if-exists=/app/.env` where the Next runner needs only `node server.js`.
+8. `turbo.json` declares both client prefixes in `globalEnv` and `.env` in `globalDependencies`, so
+   changing a value busts the Turbo cache instead of serving a stale build. The unprefixed
+   server-only keys are **not** in `globalEnv`: a change made *in the file* is hashed by
+   `globalDependencies`, but a value passed straight through the environment is not.
 
-Known soft spot: the Next Flavor casts t3-env's factory
-(`createT3Env as unknown as T3CreateEnv`), which hides a rename of any of t3-env's six option names
-(`experimental__runtimeEnv`, `emptyStringAsUndefined`, `shared`, `isServer`, `onValidationError`,
-`extends`) behind a green typecheck. Mitigation: the catalog pins `@t3-oss/env-nextjs` **exact** at
-`0.13.11`, and 17 runtime tests cover both the server and client branches. Treat a version bump of
-that package as a change that needs its tests actually run, not just typechecked.
+Known soft spot: **both t3-env-backed Flavors cast the library's factory**
+(`createT3Env as unknown as T3CreateEnv`), which hides a rename of an option name behind a green
+typecheck — the Next Flavor over t3-env's seven (`server`, `client`, `shared`,
+`experimental__runtimeEnv`, `emptyStringAsUndefined`, `isServer`, `onValidationError`), the React
+Router one over env-core's own set (`clientPrefix`, `runtimeEnv`, `onInvalidAccess`, …). Mitigation:
+the catalogs pin `@t3-oss/env-nextjs` and `@t3-oss/env-core` **exact** at `0.13.11`, and the
+package's 30 runtime tests (11 Next, 13 React Router, 6 Vite) cover the server and client branches
+of both. Treat a version bump of either package as a change that needs its tests actually run, not
+just typechecked.
 
 ## Internationalization — one ICU catalogue, two Flavors
 
 `packages/i18n` holds **one** language registry and **one** set of message files; the Flavors are
 just the two libraries reading them. Messages are **ICU MessageFormat**, which next-intl speaks
-natively and i18next reads through `i18next-icu`.
+natively and i18next reads through `i18next-icu`. Two Flavors still cover three Runtimes — the
+React Router one reads the catalogue through the i18next Flavor, the same as a Vite app.
 
 - **Adding a language** is two edits, both in the package: append the code to `src/languages.ts` and
   add `src/locales/<code>.json`. Nothing in `apps/` changes. The `messages` map is typed
@@ -77,7 +121,7 @@ natively and i18next reads through `i18next-icu`.
   - **No rich-text tag** (`<b>`, `<link>`, …). This is the one construct the two Flavors genuinely
     disagree on: `i18next-icu` forces `ignoreTag: true` and renders `<b>x</b>` verbatim, while
     next-intl expects the caller to supply a matching React element and throws when they don't. A
-    message carrying a tag cannot be correct in both Runtimes, so it is banned from the shared
+    message carrying a tag cannot be correct in both Flavors, so it is banned from the shared
     catalogue outright. Formatting that has to vary belongs in the component, around the message.
   - **Every language names the same ICU arguments.** A placeholder renamed in one language only
     still typechecks and still renders — wrongly, and only for the language nobody on the team
@@ -87,9 +131,21 @@ natively and i18next reads through `i18next-icu`.
   resolve. Messages are bundled, not fetched.
 - **`intl-messageformat` is a root-catalog entry because `i18next-icu` needs it.** It is declared a
   `peerDependency` (`>=10.3.3 <12.0.0`) with no `peerDependenciesMeta`, and is not bundled.
+- **The i18next Flavor now also runs on a server**, in the React Router Runtime, where the singleton
+  is a module-scope object shared by every request the process renders at once. `changeLanguage` on
+  a server path is therefore a race with no lock — whichever of two overlapping renders wrote last
+  decides the language *both* of them paint, which is invisible under hand-testing and shows up in
+  production as a page served in someone else's language. `entry.server.tsx` clones per request
+  instead (`createRequestI18n` → `cloneInstance({ lng, initAsync: false })`, which shares the
+  resource store and the ICU formatter, so it costs an object rather than a catalogue re-read). No
+  runtime assertion can catch the race, so `test/entry.server.test.ts` reads the entry as **text**
+  and fails on the string `changeLanguage`.
 - **The Next app must declare `transpilePackages: ["@monorepo/i18n"]`** — the package ships `.ts`
   source, not a build. And `proxy.ts` must write its matcher as a **literal**; Next reads the
-  matcher statically, so an imported constant is not seen.
+  matcher statically, so an imported constant is not seen. Neither Vite-built Runtime needs an
+  equivalent: Vite does not externalize a linked workspace dependency, it compiles the source
+  straight in — which the React Router Dockerfile pins by failing if any `@monorepo/` import
+  survives into `build/server/index.js`.
 - `next-intl` 4.14.x has **no `./proxy` entry** — the proxy factory imports `createMiddleware` from
   `next-intl/middleware`, which is the right module for a Next 16 `proxy.ts`.
 
@@ -113,7 +169,7 @@ natively and i18next reads through `i18next-icu`.
 
 ## TanStack Query defaults
 
-`~/libs/query-client.ts` (one per app, same content) sets `staleTime` 60s, `gcTime` 5min,
+`~/libs/query-client.ts` (one per app, same defaults) sets `staleTime` 60s, `gcTime` 5min,
 `placeholderData: keepPreviousData`, queries `retry: 1`, `refetchOnWindowFocus: false`, mutations
 `retry: 0`. It also installs a **global `MutationCache.onError`** that toasts every failed mutation
 exactly once. So a mutation hook or component must **not** re-toast; add a per-mutation `onError`
@@ -124,9 +180,17 @@ caller-option wrappers (`UseQueryOptionsWrapper`, `UseMutationOptionsWrapper`,
 `UseInfiniteQueryOptionsWrapper`). Those wrappers omit `queryKey`/`queryFn`/`mutationFn`, which is
 what makes it impossible for caller options to override the hook's own wiring.
 
-In the **Next** app, TanStack Query is for what happens *after* paint — filtering, paginating,
-mutating, polling. What a crawler has to read comes from a cached server read instead
-(`next-data-fetching.md`). One value never lives in both.
+**How that client is held differs by Runtime, and the divergence is deliberate.** The Vite Template
+exports a module singleton, because a browser tab is one visitor. The two server-rendered Templates
+export a `getQueryClient()` factory instead — on a server the module is loaded once per Node process
+and shared by every request being rendered, so a module-level client would serve one visitor's cache
+into the next visitor's HTML. Nothing fails at runtime when that is got wrong; the symptom is data
+in someone else's page.
+
+In both server-rendered Runtimes, TanStack Query is for what happens *after* paint — filtering,
+paginating, mutating, polling. What a crawler has to read comes from a cached server read in a Next
+app (`next-data-fetching.md`) and from a route module's `loader` in a React Router one
+(`reactrouter-loader-vs-query.md`). One value never lives in both.
 
 ## UI primitives (`@monorepo/ui`)
 
@@ -166,7 +230,12 @@ mutating, polling. What a crawler has to read comes from a cached server read in
   previous one and nothing warns. `setDayjsLocale` is registry-checked with a deliberate fallback,
   and matches on the language half so `"en-US"` still lands on `en`.
 - **The package does not import `@monorepo/i18n`** — it keeps its own locale registry by value,
-  which holds it at the foundation layer. The app bridges the two at `~/libs/dayjs.ts`.
+  which holds it at the foundation layer. The app bridges the two at `~/libs/dayjs.ts` — in the two
+  i18next Runtimes, that is: the Next Template does not depend on `@monorepo/dayjs` at all and
+  formats through next-intl. In the React Router app that bridge is **per process, not per
+  request**, so no server-rendered component may lean on the global locale — it threads the
+  request's language into `.locale()` itself, which is the same thing the React Compiler already
+  forces below.
 - **The React Compiler memoizes straight through the global locale.** dayjs's active locale is
   global mutable state React cannot see, so a component rendering `dddd` / `MMMM` / `.fromNow()`
   keeps painting the **old** language after a switch even though it re-rendered. Pass the resolved
@@ -191,9 +260,9 @@ mutating, polling. What a crawler has to read comes from a cached server read in
 - **The React Compiler lint rules do not exist here, and that is an accepted gap.**
   `eslint-plugin-react-hooks@7` enabled 17 rules; Biome's `react` domain covers 2. The other 15 are
   compiler-powered (`static-components`, `set-state-in-effect`, `purity`, …). The compiler *does*
-  run in both Templates, so a purity violation now makes it silently bail out on that component with
-  no lint signal. Two CRITICAL rules — `react-no-inline-components` and `react-effects-sync-only` —
-  are review-time discipline only.
+  run in all three Templates, so a purity violation now makes it silently bail out on that component
+  with no lint signal. Two CRITICAL rules — `react-no-inline-components` and
+  `react-effects-sync-only` — are review-time discipline only.
 - **Tailwind class sorting is deliberately off.** Biome's `useSortedClasses` is nursery, reads no
   config, and knows only the default preset — so the theme tokens, `tailwind-scrollbar` and
   `tw-animate-css` are invisible to it, and its fix is *unsafe*. Enabling it would produce churn
@@ -204,7 +273,9 @@ mutating, polling. What a crawler has to read comes from a cached server read in
   TypeScript-version-agnostic.
 - TS 6+ made `types` default to `[]` and started checking side-effect imports (`TS2882`), which is
   why the Vite app carries `src/vite-env.d.ts`: without it, `import "~/globals.css"` fails to
-  compile.
+  compile. The React Router app reaches the same types the other way — `"types": ["node",
+  "vite/client"]` in its tsconfig, no ambient file — since `src/env.ts` reads `import.meta.env` and
+  `root.tsx` imports the stylesheet as `./globals.css?url` rather than for its side effect.
 - **Path aliases**: `~/*` is declared **only** in each app's tsconfig `paths`, and Vite picks it up
   through `resolve.tsconfigPaths`. `@monorepo/*` resolves through Bun workspaces plus each package's
   `exports` — it is **not** a tsconfig alias.
@@ -212,11 +283,15 @@ mutating, polling. What a crawler has to read comes from a cached server read in
   pins `lineEnding: "lf"`; this machine has `core.autocrlf=true`. Without that line a fresh checkout
   hands Biome CRLF files and `bun run check` fails on line endings alone. It also keeps the
   `.claude` → `.agents` symlink hashing identically on Windows and Linux.
-- **`#root { isolation: isolate }` in the Tailwind globals is Vite-only.** Next's App Router does
-  not render into `#root`; the Next Template establishes the same stacking context in its own
-  layout.
-- **`@monorepo/_template_next#build` is the one Turbo task that never caches**, and its `turbo.json`
-  says `"cache": false` so it stops claiming otherwise. `next build` emits
+- **`#root { isolation: isolate }` in the Tailwind globals matches whatever carries that id, and
+  only the Vite app has a mount div.** Both server-rendered Runtimes render the document themselves;
+  the Next Template puts `id="root"` on its `<body>` to pick the rule up, while the React Router
+  Template's `<body>` carries no id, so the isolated stacking context Base UI's portaled popups
+  expect is not established there.
+- **Every Next app's `build` is a Turbo task that never caches** — `_template_next`, `portfolio` and
+  `mcp-weather` each say `"cache": false` in their own `turbo.json` so the task stops claiming
+  otherwise. The React Router app is NOT among them: its `build` caches normally, because nothing in
+  `build/**` is a symlink. `next build` emits
   `.next/node_modules/<pkg>-<hash>` as absolute symlinks into `node_modules/.bun/…`
   (import-in-the-middle and require-in-the-middle, via `@sentry/nextjs`) whose targets overrun the
   100-byte `linkname` field of the tar format Turbo caches with, so the archive write failed and no

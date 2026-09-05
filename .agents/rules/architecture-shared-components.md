@@ -15,8 +15,8 @@ than a style primitive** — composites that call a query hook, own state, or co
 
 | Folder | Holds | Export style | In |
 |---|---|---|---|
-| `exception/` | `not-found`, `coming-soon`, `internal-server-error` — plus `exception-state.tsx`, the shared anatomy, where more than one of them exists | default | both Templates |
-| `select/` | `select-language.tsx` — the language switcher | named | both Templates |
+| `exception/` | `not-found`, `coming-soon`, `internal-server-error` — plus `exception-state.tsx`, the shared anatomy, where more than one of them exists | default | all three Templates |
+| `select/` | `select-language.tsx` — the language switcher | named | all three Templates |
 | `page/` | `page-header.tsx`, `page-content.tsx` — the title band + content well every in-shell page opens with | named | `_template_next` |
 
 This is the composite half of [[architecture-feature-boundaries]]; it sits below the feature layer so
@@ -30,7 +30,7 @@ render it, and `page/` is here because an exception screen renders the same titl
 does, and a shared component may never import from `~/features`.
 
 `page/` and the shell line their left edges up through the same Tailwind container utilities written
-at each call site (`container mx-auto px-4 sm:px-6 lg:px-8`). Neither Template app lifts that string
+at each call site (`container mx-auto px-4 sm:px-6 lg:px-8`). No Template app lifts that string
 into a constant, and neither should you until a **third** element has to line up with the other two —
 a shared measurement earns a `~/constants/layout.ts` only once separate files would otherwise have to
 agree by hand (see [[quality-styling-tailwind]]).

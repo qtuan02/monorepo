@@ -172,9 +172,9 @@ jobs:
           echo "apps=[$apps]" >> "$GITHUB_OUTPUT"
           echo "docker matrix: [$apps]"
 
-  # Playwright, over both Template apps in one job. Four constraints, each of
-  # which has broken this job before — three here, and a fourth written at the
-  # `unzip` step that fixes it:
+  # Playwright, over every app that ships a `playwright.config.ts`, in one
+  # job. Four constraints, each of which has broken this job before — three
+  # here, and a fourth written at the `unzip` step that fixes it:
   #
   #   1. The container tag MUST match `@playwright/test` in the `testing`
   #      catalog exactly (1.62.1) — the image bakes in the browser revision that
@@ -209,9 +209,9 @@ jobs:
       # run on the bare ubuntu-latest image, which has unzip.
       - name: Install unzip (setup-bun needs it, this image has none)
         run: apt-get update && apt-get install -y --no-install-recommends unzip
-      # Also seeds `.env`, which both apps genuinely need here: each webServer
-      # runs a real production build, and the PUBLIC_*/NEXT_PUBLIC_* values are
-      # baked into the bundle at that point.
+      # Also seeds `.env`, which every one of them genuinely needs here: each
+      # webServer runs a real production build, and the PUBLIC_*/NEXT_PUBLIC_*
+      # values are baked into the bundle at that point.
       - uses: ./.github/actions/setup-workspace
       # Every app that ships a `playwright.config.ts`, discovered rather than
       # listed — the same trick the `docker` job plays with `Dockerfile`, and for
