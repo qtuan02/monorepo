@@ -19,6 +19,7 @@
     "e2e": "turbo run e2e",
     "e2e:headed:template-vite": "bun run --filter @monorepo/_template_vite e2e:headed",
     "e2e:headed:template-next": "bun run --filter @monorepo/_template_next e2e:headed",
+    "e2e:headed:template-reactrouter": "bun run --filter @monorepo/_template_reactrouter e2e:headed",
     "publish:smoke": "bun scripts/publish-smoke.ts",
     "verify:release": "bun scripts/verify-release.ts",
     "changeset": "changeset",
@@ -35,6 +36,8 @@
     "build:template-vite": "turbo run build -F @monorepo/_template_vite...",
     "dev:template-next": "turbo watch dev -F @monorepo/_template_next...",
     "build:template-next": "turbo run build -F @monorepo/_template_next...",
+    "dev:template-reactrouter": "turbo watch dev -F @monorepo/_template_reactrouter...",
+    "build:template-reactrouter": "turbo run build -F @monorepo/_template_reactrouter...",
     "dev:portfolio": "turbo watch dev -F @monorepo/portfolio...",
     "build:portfolio": "turbo run build -F @monorepo/portfolio...",
     "e2e:headed:portfolio": "bun run --filter @monorepo/portfolio e2e:headed",
@@ -43,10 +46,7 @@
     "e2e:headed:documents": "bun run --filter @monorepo/documents e2e:headed",
     "dev:mcp-weather": "turbo watch dev -F @monorepo/mcp-weather...",
     "build:mcp-weather": "turbo run build -F @monorepo/mcp-weather...",
-    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed",
-    "dev:assistant-ai": "turbo watch dev -F @monorepo/assistant-ai...",
-    "build:assistant-ai": "turbo run build -F @monorepo/assistant-ai...",
-    "e2e:headed:assistant-ai": "bun run --filter @monorepo/assistant-ai e2e:headed"
+    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed"
   },
   "workspaces": {
     "packages": [
@@ -71,6 +71,7 @@
       "i18next-browser-languagedetector": "^8.2.1",
       "i18next-icu": "^2.4.4",
       "intl-messageformat": "^11.2.14",
+      "isbot": "^5.2.2",
       "lucide-react": "1.40.0",
       "motion": "^13.2.0",
       "next-themes": "^0.4.6",
@@ -89,13 +90,7 @@
     },
     "catalogs": {
       "ai-sdk": {
-        "@ai-sdk/google": "^4.0.63",
-        "@ai-sdk/react": "^4.0.95",
-        "@assistant-ui/react": "^0.15.18",
-        "@assistant-ui/react-ai-sdk": "^1.4.9",
-        "@assistant-ui/react-markdown": "^0.14.14",
-        "@modelcontextprotocol/sdk": "^1.30.0",
-        "ai": "^7.0.92"
+        "@modelcontextprotocol/sdk": "^1.30.0"
       },
       "next16": {
         "@sentry/nextjs": "^10.73.0",

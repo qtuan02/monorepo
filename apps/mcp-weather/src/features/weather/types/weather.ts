@@ -5,9 +5,9 @@ import * as z from "zod";
  * hand back.
  *
  * They live in the slice rather than in `@monorepo/types` because no other
- * workspace speaks to OpenWeatherMap: `assistant-ai` reaches this app over the
- * MCP wire, where the contract is the JSON-RPC tool schema, not a TypeScript
- * type (see this app's README).
+ * workspace speaks to OpenWeatherMap: a consumer reaches this app over the MCP
+ * wire, where the contract is the JSON-RPC tool schema, not a TypeScript type
+ * (see this app's README).
  *
  * The response types mirror the provider's own JSON — `snake_case` fields and
  * all — so a mismatch shows up here rather than three call sites later. The

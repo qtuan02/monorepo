@@ -12,9 +12,9 @@ import { createEnv } from "@monorepo/env/next/create-env";
  * named — instead of surfacing later as an `undefined` baseURL that silently
  * sends every request to the app's own origin.
  *
- * The base client block (`NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_BASE_DOMAIN`,
- * `NEXT_PUBLIC_BASE_DOMAIN_API`) comes from `@monorepo/env/next/*`; this file
- * only declares what this app adds on top.
+ * The base client block (`NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_BASE_DOMAIN_API`)
+ * comes from `@monorepo/env/next/*`; this file only declares what this app adds
+ * on top.
  */
 export const env = createEnv({
   server: {
@@ -45,7 +45,6 @@ export const env = createEnv({
    */
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
-    NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
   },

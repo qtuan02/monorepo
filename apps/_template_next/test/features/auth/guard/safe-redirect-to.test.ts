@@ -42,6 +42,17 @@ describe("safeRedirectTo", () => {
     expect(safeRedirectTo("\\\\evil.example")).toBeUndefined();
   });
 
+  it("rejects a dot-segment path that normalises to a protocol-relative URL", () => {
+    // The origin check passes for every one of these — they resolve on the
+    // base — but WHATWG normalisation drops the `..`/`.` and keeps the empty
+    // segment after it, so the rebuilt path is `//evil.example`, and THAT is
+    // what would reach the `Location` header.
+    expect(safeRedirectTo("/..//evil.example")).toBeUndefined();
+    expect(safeRedirectTo("/.//evil.example")).toBeUndefined();
+    expect(safeRedirectTo("/a/..//evil.example")).toBeUndefined();
+    expect(safeRedirectTo("/%2e%2e//evil.example")).toBeUndefined();
+  });
+
   it("rejects a relative path, which is not a destination this app can honour", () => {
     expect(safeRedirectTo("dashboard")).toBeUndefined();
   });

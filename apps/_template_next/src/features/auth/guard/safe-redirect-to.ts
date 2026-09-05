@@ -43,5 +43,14 @@ export function safeRedirectTo(
 
   if (url.origin !== RESOLUTION_BASE) return undefined;
 
+  // The origin check alone is not enough. WHATWG path normalisation collapses
+  // `.` and `..` segments but keeps the EMPTY segment after them, so
+  // `/..//evil.example` (or `/.//`, `/a/..//`, `/%2e%2e//`) parses on this
+  // origin and comes back out as the protocol-relative `//evil.example` —
+  // which the browser, and React Router's own absolute-URL test, then read as
+  // https://evil.example/. The rebuilt value is what the caller will hand to
+  // `redirect()`, so it is the rebuilt value that has to be safe.
+  if (url.pathname.startsWith("//")) return undefined;
+
   return `${url.pathname}${url.search}${url.hash}`;
 }

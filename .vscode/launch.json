@@ -1,0 +1,159 @@
+{
+  // Debug configurations for the three Runtimes, Vitest and Playwright.
+  //
+  // Everything here launches through the app's OWN `dev` / test binary, never a
+  // duplicated command line: each app's `dev` script already hands its
+  // `ports.env` and the repo-root `.env` to dotenv-cli, so a config that spelled
+  // the port or the env file itself would be a second copy to keep in step.
+  //
+  // Docs: https://code.visualstudio.com/docs/editor/debugging
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // Breakpoints in a Server Component, a `"use cache"` loader, a Server
+      // Action or `proxy.ts`. `node-terminal` auto-attaches to the node process
+      // `next dev` starts, so no `--inspect` flag is needed.
+      "name": "Next: _template_next — server (:3001)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run dev",
+      "cwd": "${workspaceFolder}/apps/_template_next",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        // Turbopack reports server frames under a virtual `/turbopack/[project]`
+        // root; without this, breakpoints bind to a file VS Code cannot open.
+        // https://github.com/vercel/next.js/issues/62008
+        "/turbopack/[project]/*": "${workspaceFolder}/apps/_template_next/*"
+      }
+    },
+    {
+      "name": "Next: portfolio — server (:3002)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run dev",
+      "cwd": "${workspaceFolder}/apps/portfolio",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "/turbopack/[project]/*": "${workspaceFolder}/apps/portfolio/*"
+      }
+    },
+    {
+      "name": "Next: mcp-weather — server (:3004)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run dev",
+      "cwd": "${workspaceFolder}/apps/mcp-weather",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "/turbopack/[project]/*": "${workspaceFolder}/apps/mcp-weather/*"
+      }
+    },
+    {
+      // The React Router Runtime's server half — a route module's `loader` /
+      // `action`, a slice's `middleware/`, and `~/libs/*.server.ts`. None of it
+      // is reachable from the Chrome side, which is the whole point of the
+      // `.server.ts` build contract.
+      "name": "React Router: _template_reactrouter — server (:3005)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run dev",
+      "cwd": "${workspaceFolder}/apps/_template_reactrouter",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      // The browser half of any app — a Vite SPA end to end, or the hydrated
+      // half of a server-rendered one. Start that app's dev server first
+      // (`bun run dev:<app>`), then pick its URL here.
+      "name": "Chrome: client side (pick a running app)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "${input:appUrl}",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true
+    },
+    {
+      // Vitest is installed per workspace and resolves its config from the cwd,
+      // so the workspace has to be named rather than inferred from the open
+      // file. `--no-file-parallelism` keeps everything on one thread, which is
+      // what makes breakpoints bind reliably.
+      // Day to day the `vitest.explorer` extension is the easier path — it runs
+      // and debugs a single test from the gutter.
+      "name": "Vitest: current file (pick a workspace)",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/${input:vitestWorkspace}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "--no-file-parallelism", "${fileBasenameNoExtension}"],
+      "cwd": "${workspaceFolder}/${input:vitestWorkspace}",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "smartStep": true,
+      "console": "integratedTerminal"
+    },
+    {
+      // `bunx`, not `bun run`: on Windows launching Chromium out of a `bun run`
+      // script hangs — see `.agents/rules/testing-playwright.md`. The config's
+      // own `webServer` builds and serves the app, so nothing has to be started
+      // by hand first.
+      "name": "Playwright: debug e2e (pick an app)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bunx playwright test --project=chromium --debug",
+      "cwd": "${workspaceFolder}/apps/${input:e2eApp}"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "appUrl",
+      "type": "pickString",
+      "description": "Which dev server is running? (dev 3000+n — see apps/<app>/ports.env)",
+      "options": [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:3004",
+        "http://localhost:3005",
+        "http://localhost:6006"
+      ],
+      "default": "http://localhost:3000"
+    },
+    {
+      "id": "vitestWorkspace",
+      "type": "pickString",
+      "description": "Which workspace owns the test file?",
+      "options": [
+        "apps/_template_vite",
+        "apps/_template_next",
+        "apps/_template_reactrouter",
+        "apps/documents",
+        "apps/portfolio",
+        "apps/mcp-weather",
+        "apps/storybook",
+        "packages/api",
+        "packages/dayjs",
+        "packages/env",
+        "packages/i18n",
+        "packages/ui"
+      ],
+      "default": "apps/_template_vite"
+    },
+    {
+      "id": "e2eApp",
+      "type": "pickString",
+      "description": "Which app's Playwright specs?",
+      "options": [
+        "_template_vite",
+        "_template_next",
+        "_template_reactrouter",
+        "documents",
+        "portfolio",
+        "mcp-weather"
+      ],
+      "default": "_template_vite"
+    }
+  ]
+}

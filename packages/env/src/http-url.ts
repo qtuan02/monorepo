@@ -13,7 +13,7 @@ import * as z from "zod";
  * also demands a public domain, so it rejects http://localhost:3000 — which is
  * the real local config.
  *
- * Runtime-independent on purpose: it sits outside both Flavors because both
- * base schemas build on it, and so does an app adding a URL of its own.
+ * Runtime-independent on purpose: it sits outside every Flavor because all
+ * three base schemas build on it, and so does an app adding a URL of its own.
  */
 export const httpUrlSchema = z.url({ protocol: /^https?$/ });

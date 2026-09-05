@@ -1,7 +1,7 @@
 ---
 title: The next-intl Flavor — the Locale Lives in the URL, the Catalogue Is Shared ICU
 impact: HIGH
-impactDescription: One `[locale]` segment, three wiring files, and one ICU catalogue both Runtimes read — a language switch stays on the page and adds no second source of translations
+impactDescription: One `[locale]` segment, three wiring files, and one ICU catalogue every Runtime reads — a language switch stays on the page and adds no second source of translations
 tags: next, i18n, next-intl, app-router, icu, routing
 ---
 
@@ -69,7 +69,7 @@ It is a Client Component reading URL data, so under `cacheComponents` it renders
 **directly** by a Server Component (the RSC build swaps in a server variant that awaits them); the
 shared provider is `"use client"`, so nothing is inherited and passing them keeps the layout static.
 
-## One catalogue, ICU, two Runtimes
+## One catalogue, ICU, two Flavors
 
 A Locale message is **ICU MessageFormat** in `packages/i18n/src/locales/<code>.json`, and one object
 serves both Flavors: next-intl reads ICU natively, the i18next Flavor mounts `i18next-icu`. So the

@@ -9,8 +9,10 @@ process.env.TZ = "UTC";
 
 export default defineConfig({
   test: {
-    // The i18next Flavor detects a language from `document.cookie` and
-    // `navigator`, so it cannot be exercised under `node`.
+    // The i18next Flavor renders through react-i18next and detects a language
+    // from `document.cookie`, so the browser half of it needs a DOM. The one
+    // spec about the SERVER half opts back out with a `@vitest-environment
+    // node` pragma — see `test/i18next/create-i18n.server.test.ts`.
     environment: "jsdom",
     include: ["test/**/*.{test,spec}.{ts,tsx}"],
     env: { TZ: "UTC" },

@@ -54,8 +54,6 @@ tế cần bảng ánh xạ hoặc Geocoding API, nằm ngoài phạm vi ticket 
 
 ## Ai đang gọi nó
 
-- `apps/assistant-ai` (ticket `legacy-migrate/05`), qua biến `MCP_DOMAIN` trỏ vào
-  URL đầy đủ của endpoint này.
 - Một backend **ngoài repo**. Đó là lý do ticket migrate cấm đổi hợp đồng và cấm
   thêm auth cho `/api/mcp`.
 
@@ -124,6 +122,12 @@ bun run e2e:headed:mcp-weather                           # cùng spec, một c�
 docker build -f apps/mcp-weather/Dockerfile -t mcp-weather .
 ```
 
+Runner copy thêm `.env` (bản `.env.<BUILD_ENV>` mà builder đã dùng) vào cạnh
+`server.js`: `NEXT_PUBLIC_*` đã được inline lúc build, nhưng một biến **server**
+không tiền tố thì không nằm trong bundle nào — nó phải có mặt trong `process.env`
+lúc chạy. Standalone server gọi `loadEnvConfig` trên cwd của nó nên đọc được file
+này; dotenv không ghi đè biến đã set, nên `docker run -e KEY=…` vẫn thắng.
+
 Trên Windows gọi E2E bằng `bunx playwright test` với cwd là thư mục app: chạy
 runner qua một `bun run` script có thể treo lúc launch Chromium.
 
@@ -163,18 +167,39 @@ dưới lớp `fetch` — kể cả nhánh lỗi khi key sai — đã có unit t
 `vercel.json` trỏ install/build về root repo và gọi script **`build:vercel`**:
 
 ```jsonc
-"installCommand": "cd ../.. && bun install --frozen-lockfile",
-"buildCommand":   "cd ../.. && bun run --filter @monorepo/mcp-weather build:vercel",
+"installCommand": "cd ../.. && npx --yes bun@1.4.0 install --frozen-lockfile",
+"buildCommand":   "cd ../.. && npx --yes bun@1.4.0 run --filter @monorepo/mcp-weather build:vercel",
 ```
+
+Cả hai lệnh gọi bun qua `npx --yes bun@1.4.0` chứ không phải `bun` trần: image
+build của Vercel mang bun **của nó** (1.3.14 tại thời điểm viết) và không có cách
+nào ghim — `packageManager` chỉ được đọc khi bật `ENABLE_EXPERIMENTAL_COREPACK`,
+còn `bunVersion` trong `vercel.json` chọn runtime của Function chứ không phải
+builder. Bun đó không đọc nổi `bun.lock` của repo (`lockfileVersion: 2`, do bun
+1.4 ghi) và deploy đỏ ngay ở bước install với `UnknownLockfileVersion`. Ghim ở
+lệnh là chỗ duy nhất còn lại.
 
 `build:vercel` là `next build` **trần**, không có tiền tố `dotenv -e ../../.env`
 như script `build` chuẩn: trên Vercel **không có `.env` ở root** — biến đến từ
 Environment Variables trong dashboard và đã nằm sẵn trong `process.env` lúc
 build, nên tiền tố dotenv ở đó vừa thừa vừa đỏ vì không tìm thấy file.
 
-Nghĩa là **cả hai** key ở mục Env phải khai trong dashboard Vercel cho Production
-lẫn Preview — thiếu `MCP_WEATHER_OPENWEATHERMAP_API_KEY` thì build đỏ, đúng như
-thiết kế.
+Nghĩa là dashboard Vercel phải khai **bốn** key cho cả Production lẫn Preview —
+không phải chỉ hai key riêng của app ở bảng trên. Hai key còn lại đến từ
+`baseClientSchema` của `@monorepo/env/next/schema`, mà mọi app Next đều kế thừa;
+ở local chúng nằm sẵn trong `.env` ở root nên không ai thấy, còn trên Vercel thì
+không có file nào để kế thừa:
+
+| Key | Nguồn | Bắt buộc |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_ENV` | base schema | **Có** |
+| `NEXT_PUBLIC_BASE_DOMAIN_API` | base schema | **Có** |
+| `MCP_WEATHER_OPENWEATHERMAP_API_KEY` | app | **Có** |
+| `NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN` | app | Không |
+
+Thiếu bất kỳ key bắt buộc nào thì `build:vercel` đỏ ngay ở
+`Failed to collect page data for /api/mcp` — `src/env.ts` parse lúc module load,
+đúng như thiết kế.
 
 `output: "standalone"` trong `next.config.ts` bị Vercel **bỏ qua** (Vercel dùng
 Build Output API riêng), nên nó không cản deploy zero-config; nó ở đó cho runner

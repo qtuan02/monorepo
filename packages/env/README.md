@@ -5,16 +5,17 @@ typed. Sai hoặc thiếu biến thì throw ngay với message đọc được �
 sau đó dưới dạng một `baseURL` `undefined` khiến mọi request bắn về chính origin
 của app.
 
-Package có **hai Flavor**, mỗi Flavor là một biến thể theo Runtime nằm dưới
+Package có **ba Flavor**, mỗi Flavor là một biến thể theo Runtime nằm dưới
 subpath riêng của cùng package:
 
 | Subpath | Runtime | Tiền tố | Nền |
 | --- | --- | --- | --- |
 | `@monorepo/env/vite/*` | Vite client (SPA) | `PUBLIC_` | zod `safeParse` |
 | `@monorepo/env/next/*` | Next.js App Router | `NEXT_PUBLIC_` | `@t3-oss/env-nextjs` |
-| `@monorepo/env/*` | không phụ thuộc Runtime | — | dùng chung cho cả hai |
+| `@monorepo/env/react-router/*` | React Router 8 framework mode (SSR) | `PUBLIC_` cho client, không tiền tố cho server | `@t3-oss/env-core` |
+| `@monorepo/env/*` | không phụ thuộc Runtime | — | dùng chung cho cả ba |
 
-## Vì sao hai tiền tố
+## Vì sao mỗi Runtime giữ tiền tố riêng
 
 Xem [`docs/adr/0003-env-two-flavors-native-prefix.md`](../../docs/adr/0003-env-two-flavors-native-prefix.md).
 
@@ -30,8 +31,15 @@ mỗi tiền tố. `.env` vẫn là **một file duy nhất ở root**; app Next
 `dotenv -e ./ports.env -e ../../.env -- next dev` vì `next dev`/`next build` chỉ
 đọc `.env` nằm trong thư mục app.
 
-Vì tiền tố khác nhau, hai Flavor **không** chia sẻ base schema; thứ chúng chia
-sẻ là những mảnh không phụ thuộc Runtime (hiện có `http-url`).
+Vì tiền tố — và cách validate — khác nhau, các Flavor **không** chia sẻ base
+schema; thứ chúng chia sẻ là những mảnh không phụ thuộc Runtime (hiện có
+`http-url`). Kể cả `react-router` và `vite`, vốn dùng chung tiền tố
+`PUBLIC_`, cũng khai lại base block của mình: một Flavor không import Flavor
+khác, và hai hình dạng thật sự khác nhau — `vite` là một `z.object` được
+`safeParse` nguyên khối, `react-router` là dictionary từng key vì t3-env tách
+nửa server và nửa client ra trước khi parse. Phần trùng lặp đó được giữ trung
+thực bằng một test drift: bộ key `PUBLIC_*` của hai bên phải bằng nhau, nếu một
+bên thêm hoặc bớt key thì test đỏ.
 
 ## Đặt tên key theo app
 
@@ -64,25 +72,6 @@ Storybook", nên một key trần `PUBLIC_STORYBOOK_URL` sẽ hứa với ngư�
 bản cũ: một key trần cho một nhà cung cấp bên thứ ba là chỗ dễ va
 nhất, vì app thứ hai cần cùng loại key sẽ tưởng nó đang dùng chung thay vì đang
 ghi đè.
-
-### Ngoại lệ: tên key do một SDK bên ngoài đặt
-
-Quy ước trên nói về những key **repo này tự đặt tên**. Có một loại key nó không
-đặt tên: biến mà chính SDK của nhà cung cấp tài liệu hoá và đọc mặc định.
-`apps/assistant-ai` giữ nguyên `GOOGLE_GENERATIVE_AI_API_KEY` — đó là tên
-`@ai-sdk/google` công bố, là biến một người đã export sẵn trong shell, và app
-thứ hai muốn Gemini muốn đúng key của **cùng một project Google** chứ không phải
-một key riêng, nên đây không phải chỗ dễ va như một key OpenWeatherMap.
-
-Ngoại lệ này có giá của nó và app phải trả: giá trị vẫn đi qua schema, và provider
-nhận nó **tường minh** (`createGoogleGenerativeAI({ apiKey: env.… })`) thay vì để
-SDK tự đọc `process.env` — nếu không thì key quan trọng nhất của app nằm ngoài
-`env.ts` và ngoài `noProcessEnv` của Biome, tức là mất đúng thứ ADR-0003 mua về.
-
-Và nó **hẹp**: chỉ tên do SDK bên ngoài đặt mới được miễn. Cùng app đó khai
-`ASSISTANT_AI_MCP_DOMAIN` chứ không phải `MCP_DOMAIN` như bản cũ,
-vì "máy chủ MCP" là cái tên repo này tự nghĩ ra — không ai bên ngoài đọc nó, nên
-nó rơi thẳng vào hàng đầu tiên của bảng trên.
 
 Đổi lại, mỗi key mang tên app **phải** được khai trong `env.ts` của đúng app đó
 và thêm vào `.env.example` kèm một dòng comment nói app nào sở hữu — vì tên key
@@ -123,13 +112,12 @@ export const env = createEnv({
     DATABASE_URL: z.url(),
     AUTH_SECRET: z.string().min(1),
   },
-  // Chỉ những biến client app này thêm vào; ba biến base đã có sẵn.
+  // Chỉ những biến client app này thêm vào; hai biến base đã có sẵn.
   client: {
     NEXT_PUBLIC_ANALYTICS_ID: z.string().min(1),
   },
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
-    NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
     NEXT_PUBLIC_ANALYTICS_ID: process.env.NEXT_PUBLIC_ANALYTICS_ID,
   },
@@ -158,6 +146,76 @@ Ba ràng buộc, cả ba đều là lý do API có hình dạng như trên:
 Kết quả trả về là một Proxy đã typed: đọc một biến `server` từ code client sẽ
 throw, và mọi key không khai báo đều là lỗi typecheck.
 
+## Flavor `react-router`
+
+```ts
+// apps/<app>/src/env.ts
+import * as z from "zod";
+
+import { createEnv } from "@monorepo/env/react-router/create-env";
+
+export const env = createEnv({
+  // Không tiền tố: chỉ đọc được từ code chạy trên server (loader, action,
+  // entry.server). Đọc từ client sẽ throw.
+  server: {
+    SESSION_SECRET: z.string().min(1),
+  },
+  // Chỉ những biến client app này thêm vào; ba biến base đã có sẵn.
+  client: {
+    PUBLIC_ANALYTICS_ID: z.string().min(1),
+  },
+  runtimeEnv: {
+    PUBLIC_APP_ENV: import.meta.env.PUBLIC_APP_ENV,
+    PUBLIC_BASE_DOMAIN: import.meta.env.PUBLIC_BASE_DOMAIN,
+    PUBLIC_BASE_DOMAIN_API: import.meta.env.PUBLIC_BASE_DOMAIN_API,
+    PUBLIC_ANALYTICS_ID: import.meta.env.PUBLIC_ANALYTICS_ID,
+    // `import.meta.env.SSR` là `false` trong bundle client, nên nhánh đọc
+    // `process` bị loại hẳn thay vì throw ở đó.
+    SESSION_SECRET: import.meta.env.SSR
+      ? process.env.SESSION_SECRET
+      : undefined,
+  },
+});
+```
+
+Framework mode build **code server và code client trong cùng một bản build
+Vite**. Đó là lý do Runtime này cần Flavor riêng chứ không dùng lại `vite`:
+Flavor `vite` chỉ biết một schema `PUBLIC_` duy nhất, không có chỗ nào đặt
+secret.
+
+Ba ràng buộc, cả ba đều là lý do API có hình dạng như trên:
+
+1. **`runtimeEnv` là map đầy đủ, và phải viết trong `env.ts` của app.** env-core
+   đọc **chỉ** object này — nó không tự lấy từng key server ra khỏi
+   `process.env` như `experimental__runtimeEnv` của Flavor `next`. Nên map phải
+   liệt kê cả nửa client lẫn nửa server, dưới dạng literal
+   `import.meta.env.PUBLIC_*` cho client: Vite chỉ thay thế tĩnh những literal
+   `import.meta.env` trong code **do nó compile**, nếu package này tự đọc hộ
+   thì giá trị sẽ là `undefined` trong browser.
+
+   Và vì `env.ts` này chạy trong **cả hai** graph, phần đọc server phải viết
+   sao cho an toàn ở client. Vite thay `import.meta.env` nhưng để nguyên
+   `process.env.SESSION_SECRET`, đồng thời không define `process` trong bundle
+   browser — nên một read trần sẽ throw `ReferenceError: process is not
+   defined` ngay lúc module load, trước khi validation kịp chạy và với một lỗi
+   không nói gì về env. Bọc mỗi read server bằng `import.meta.env.SSR` (Vite
+   thay thành `false` ở client nên nhánh đó bị loại hẳn) hoặc bằng
+   `typeof process === "undefined"`; app nào muốn giữ dạng trần thì phải tự khai
+   `define` cho `process.env` trong Vite config của nó.
+2. **Base schema tự khai, không import từ `vite/schema`.** Cùng tiền tố
+   `PUBLIC_` không có nghĩa là dùng chung được: một Flavor không import Flavor
+   khác, và `vite` là `z.object` còn đây là dictionary. Đổi lại, test drift ở
+   `test/react-router/` bắt buộc hai bộ key phải khớp.
+3. **Đọc biến `server` từ client thì throw.** Object trả về là một Proxy: khi
+   module chạy phía client (`typeof window !== "undefined"`), env-core bỏ hẳn
+   dictionary `server`, và mọi lần đọc một key trong đó ném lỗi có nêu tên biến
+   — thay vì trả `undefined` âm thầm. Vì phân biệt server/client dựa trên tiền
+   tố, một key `PUBLIC_*` khai nhầm vào `server` **vẫn** đọc được ở client; thứ
+   gì browser được thấy thì khai ở `client`.
+
+`emptyStringAsUndefined` bật, giống Flavor `next`: một dòng trống trong `.env`
+là biến **thiếu**, không phải biến hợp lệ.
+
 ## Phần dùng chung (ngoài mọi Flavor)
 
 `@monorepo/env/http-url` xuất `httpUrlSchema` — `z.url({ protocol: /^https?$/ })`.
@@ -167,11 +225,13 @@ scheme) và lỏng hơn `z.httpUrl()` (vốn đòi domain public nên loại
 
 ## Test
 
-Vitest 5, `environment: "node"`. Flavor `next` test được **không cần Next
-runtime**: t3-env chỉ cần một object giá trị, và nó *throw* chứ không
-`process.exit`. Mọi test truyền `isServer: true` — nếu không, t3-env tự đoán
-server/client bằng `typeof window`, và dưới một test environment có DOM nó sẽ
-**âm thầm bỏ qua** phần `server` thay vì validate.
+Vitest 5, `environment: "node"`. Hai Flavor nền t3-env test được **không cần
+Next hay Vite**: t3-env chỉ cần một object giá trị, và nó *throw* chứ không
+`process.exit`. Mọi test nêu `isServer` rõ ràng — nếu không, t3-env tự đoán
+server/client bằng `typeof window`, và cách đoán đó sai theo cả hai hướng: dưới
+test environment có DOM nó **âm thầm bỏ qua** phần `server`, còn dưới `node`
+(runner của package này) nó không bao giờ chạm tới nửa client. Nên các case phía
+client truyền `isServer: false`.
 
 ```bash
 bun run --filter @monorepo/env test

@@ -41,11 +41,11 @@ describe("env", () => {
   });
 
   it("rejects a scheme-less base domain", async () => {
-    // A bare "localhost:3001" parses as the scheme "localhost:", which is why
+    // A bare "localhost:8000" parses as the scheme "localhost:", which is why
     // the shared schema pins http/https rather than using a plain `z.url()`.
-    vi.stubEnv("NEXT_PUBLIC_BASE_DOMAIN", "localhost:3001");
+    vi.stubEnv("NEXT_PUBLIC_BASE_DOMAIN_API", "localhost:8000");
 
-    await expect(importEnv()).rejects.toThrow(/NEXT_PUBLIC_BASE_DOMAIN/);
+    await expect(importEnv()).rejects.toThrow(/NEXT_PUBLIC_BASE_DOMAIN_API/);
   });
 
   it("rejects a Sentry DSN that is not an http(s) URL", async () => {

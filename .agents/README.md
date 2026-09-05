@@ -1,6 +1,6 @@
 # Personal Monorepo — Agent Documentation Index
 
-- **[../CLAUDE.md](../CLAUDE.md)** — the main guide: project structure, the two Runtimes, the Flavor model, one-way data flow, where to put what, commands
+- **[../CLAUDE.md](../CLAUDE.md)** — the main guide: project structure, the three Runtimes, the Flavor model, one-way data flow, where to put what, commands
 - **[rules/](rules/)** — the engineering rules (source of truth); the section registry is [rules/\_sections.md](rules/_sections.md) and the scaffold for a new rule is [rules/\_template.md](rules/_template.md)
 - **[skills/](skills/)** — scenario guides, vendored as real files. The 25 from `mattpocock/skills` and `vercel-labs/agent-skills` are pinned by source + content hash in [../skills-lock.json](../skills-lock.json); re-sync those with the `skills` CLI rather than hand-editing one. The six `gitnexus-*` are **not** in the lock — `npx gitnexus analyze` rewrites them
 - **[commands.md](commands.md)** — the full command reference: setup, dev, the Gate, E2E, generators, CI, and the constraints on each
@@ -14,26 +14,30 @@ triage-label vocabulary, domain-doc rules); [`../.mcp.json`](../.mcp.json) regis
 GitNexus at project scope; and `../.claude` is a symlink to this directory, which is why there is
 only one tree to maintain.
 
-The rules are adapted from the reference monorepo for **this** stack, and they cover two
-Runtimes. Shared by both: React 19 (React Compiler on) · TanStack Query v5 · Zod v4 +
+The rules are adapted from the reference monorepo for **this** stack, and they cover three
+Runtimes. Shared by all three: React 19 (React Compiler on) · TanStack Query v5 · Zod v4 +
 React Hook Form v7 · Tailwind v4 · shadcn `base-vega` on Base UI via `@monorepo/ui` ·
 dayjs via `@monorepo/dayjs` · TypeScript 7 · Biome 2 · Bun + Turbo · Vitest 5.
 **Vite Runtime** (`apps/_template_vite`): React Router 8 declarative, Zustand v5,
 i18next Flavor of `@monorepo/i18n`, `vite` Flavor of `@monorepo/env`.
 **Next Runtime** (`apps/_template_next`): Next 16 App Router with `cacheComponents`,
 `proxy.ts`, next-intl Flavor, `next` (t3-env) Flavor, `@monorepo/sentry`.
+**React Router Runtime** (`apps/_template_reactrouter`): React Router 8 **framework mode**,
+served by `react-router-serve` over the built `build/server/index.js`, route middleware over
+a signed session cookie, i18next Flavor of `@monorepo/i18n`, `react-router` Flavor of
+`@monorepo/env`.
 
 Rules are English so they stay diffable against the reference upstream; only `CLAUDE.md §7a`
 and the Vietnamese docs (`CONTEXT.md`, ADRs, plans) are in Vietnamese.
 
 ## Rules Index
 
-46 rules across 11 clusters, plus the two meta files.
+52 rules across 12 clusters, plus the two meta files.
 
 ### Architecture (6)
 
 - [architecture-vertical-slices](rules/architecture-vertical-slices.md) — organize by domain under `~/features`; a slice is a complete vertical
-- [architecture-circular-dependencies](rules/architecture-circular-dependencies.md) — imports point downward through the layers, in both Runtimes
+- [architecture-circular-dependencies](rules/architecture-circular-dependencies.md) — imports point downward through the layers, in all three Runtimes
 - [architecture-feature-boundaries](rules/architecture-feature-boundaries.md) — consume a slice through its public surface (`templates/`, `provider/`, `middleware`-shaped exports)
 - [architecture-features-modules](rules/architecture-features-modules.md) — framework-agnostic `@monorepo/api` service classes vs `~/hooks/api` query hooks
 - [architecture-ui-primitives](rules/architecture-ui-primitives.md) — use and extend the `@monorepo/ui` primitives (`render` prop, bare `data-open`, never `asChild`)
@@ -41,10 +45,21 @@ and the Vietnamese docs (`CONTEXT.md`, ADRs, plans) are in Vietnamese.
 
 ### Routing — Vite Runtime (2)
 
-`_template_vite` and its clones, on React Router 8 declarative. A Next app follows the `next` cluster instead; the two shapes never coexist in one app.
+`_template_vite` and its clones, on React Router 8 declarative. A Next or React Router framework-mode app follows its own cluster instead; the three shapes never coexist in one app.
 
 - [routing-constants](rules/routing-constants.md) — every path comes from the `ROUTES` table in `~/constants/routes.ts`; imports from `react-router` / `react-router/dom`
 - [routing-route-guards](rules/routing-route-guards.md) — auth/redirect guards at the route tree, in `~/features/auth/provider/` (`<ProtectedRoute>` / `<GuestRoute>`)
+
+### React Router framework mode — React Router Runtime (6)
+
+`_template_reactrouter` and its clones: React Router 8 framework mode, the route config in `src/routes.ts`, route middleware over a signed session cookie, served by `react-router-serve`.
+
+- [reactrouter-route-modules](rules/reactrouter-route-modules.md) — the route config is data in `src/routes.ts`; a module under `src/routes/` stays thin over the slice's template
+- [reactrouter-typed-href](rules/reactrouter-typed-href.md) — paths come from the typed `href()` typegen writes, not a `~/constants/routes.ts` table
+- [reactrouter-middleware-guards](rules/reactrouter-middleware-guards.md) — access control as route middleware in a slice's `middleware/`, over a signed session cookie
+- [reactrouter-loader-vs-query](rules/reactrouter-loader-vs-query.md) — a loader owns what the first HTML must carry, TanStack Query owns everything after paint
+- [reactrouter-server-modules](rules/reactrouter-server-modules.md) — the `.server.ts` suffix keeps server-only code (`~/libs/session.server.ts`) out of the browser bundle
+- [reactrouter-i18n-env](rules/reactrouter-i18n-env.md) — the i18next Flavor cloned per request, and the `react-router` Flavor of `@monorepo/env` with a `server` block beside `PUBLIC_`
 
 ### Next.js App Router — Next Runtime (6)
 

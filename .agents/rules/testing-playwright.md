@@ -20,7 +20,7 @@ order of magnitude faster.
 | A hook's key/`enabled`/`select` wiring | Vitest + RTL |
 | A full flow across routes (sign in → land on home) | Playwright |
 | The production build boots at all; the baked env config resolves | Playwright |
-| What the **server** sent before any JS ran (Next Runtime) | Playwright |
+| What the **server** sent before any JS ran (Next and React Router Runtimes) | Playwright |
 | Anything needing real layout, a real file download, or multiple tabs | Playwright |
 
 ## Layout and commands
@@ -39,8 +39,9 @@ bun run --filter @monorepo/_template_vite e2e e2e/home.e2e.ts   # one file
 bun run --filter @monorepo/_template_vite e2e --ui     # any flag forwards through `bun run --filter`
 ```
 
-There is one `e2e:headed:<app>` script per Template app (`…:template-vite`, `…:template-next`) rather
-than one root script, because the watched run is a single window over a single app's specs.
+There is one `e2e:headed:<app>` script per Template app (`…:template-vite`, `…:template-next`,
+`…:template-reactrouter`) rather than one root script, because the watched run is a single window over
+a single app's specs.
 
 On a **Windows** dev box, invoke the runner as `bunx playwright test` from the app directory instead
 — see "Running it locally on Windows" below for why.
@@ -66,27 +67,40 @@ for next-intl in the Next one. Without the pin, an assertion on user-visible tex
 English here and Vietnamese in a component test, so E2E assertions use the same Vietnamese strings
 the Vitest ones do.
 
-## The Next Runtime runs the same harness against a real server
+## The two server Runtimes run the same harness against a real server
 
-`_template_next`'s `webServer` builds and then runs the app's own `start` script — **`next start`**
-rather than `vite preview` — on that app's own E2E port (3101, declared in
-`apps/_template_next/ports.env` and forced onto the server through `webServer.env.PORT`). Every app
-declares one dev port and one E2E port a hundred above it, so a leftover dev server can never answer
-these specs from a stale module graph. That makes E2E the only place
-server-only behaviour can be asserted at all, and the specs there use Playwright's `request` fixture
-to fetch the document **raw** — no browser, no hydration — so anything asserted off it demonstrably
-came from the server: content and `<title>` present before JS, `lang` on the html element, a real 404
-status (see [[next-data-fetching]]).
+Both server-rendered Runtimes build and then run the app's own `start` script, so the config and the
+script can never run different binaries: **`next start`** in `_template_next`, and
+**`react-router-serve ./build/server/index.js`** in `_template_reactrouter`, where the Vite Runtime has
+`vite preview`. Each serves on that app's own E2E port (3101 and 3105, declared in
+`apps/<app>/ports.env` and forced onto the server through `webServer.env.PORT`). Every app declares one
+dev port and one E2E port a hundred above it, so a leftover dev server can never answer these specs
+from a stale module graph — and `react-router-serve` is where that line stops being tidiness: it takes
+its port from `PORT` and **nothing else**, no flag and no config file, and with `PORT` unset it picks
+the first free port instead of failing. The run then lands on some other server rather than refusing to
+start, which is a strictly worse failure than the Next one.
+
+A real server is what makes E2E the only place server-only behaviour can be asserted at all, and the
+specs in both Runtimes use Playwright's `request` fixture to fetch the document **raw** — no browser,
+no hydration — so anything asserted off it demonstrably came from the server: content and `<title>`
+present before JS, `lang` on the html element, a real 404 status (see [[next-data-fetching]],
+[[reactrouter-loader-vs-query]]).
 
 The `request` fixture does **not** inherit the project's `locale`, so those specs send
-`Accept-Language` themselves — next-intl negotiates from the header, and without it the raw document
-comes back in the wrong language while the browser-driven specs beside it look fine.
+`Accept-Language` themselves — the server negotiates the language off that header (next-intl in the
+Next Runtime, `@monorepo/i18n`'s `resolveLanguage` called from `root.tsx` in the React Router one), and
+without it the raw document comes back in the wrong language while the browser-driven specs beside it
+look fine.
 
 ## CI: automatic, non-blocking while it soaks
 
 The `e2e` job in [`.github/workflows/ci.yml`](../../.github/workflows/ci.yml) runs in the Playwright
 container (`mcr.microsoft.com/playwright:v1.62.1-noble` — the plain Ubuntu runner the four Gate jobs
-use ships no browser binaries), and covers **both** Template apps in one job, one step each.
+use ships no browser binaries), and covers **every app that ships a `playwright.config.ts`** — the
+step globs `apps/*/playwright.config.ts` rather than listing apps, so all three Template apps are run
+without an edit here, and so is any app a `gen:app` clone adds. `set +e` plus a failure tally around
+the loop is load-bearing: without them the first red app ends the step and every later app goes
+unreported.
 
 It carries `continue-on-error: true` while the suite proves it is not flaky, so it reports without
 blocking. Deleting that one line makes E2E a real merge gate. Because the job always reports green,
@@ -101,8 +115,7 @@ Three constraints the job depends on, each of which silently breaks it when chan
 - **Do not route the job through Turborepo.** `turbo run` filters the environment in strict mode, and
   the Playwright image passes its browser location in `PLAYWRIGHT_BROWSERS_PATH`. Turbo swallowing it
   is what makes the job fail with `Executable doesn't exist` while the browsers sit installed on disk.
-  The job calls `bun run --filter @monorepo/_template_vite e2e` (and the `_template_next` twin)
-  directly. The root `bun run e2e` **is** `turbo run e2e` — that is fine locally, where the browsers
+  The job calls `bun run --filter "@monorepo/$app" e2e` directly, once per discovered app. The root `bun run e2e` **is** `turbo run e2e` — that is fine locally, where the browsers
   are in Playwright's own default location and nothing has to be passed through.
 - **The path filter is a separate `changes` job, not `on.push.paths`.** The four Gate jobs are
   required checks and must run on every push, so the trigger cannot be narrowed; a plain

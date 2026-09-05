@@ -51,8 +51,7 @@ cộng `id` trong `src/features/home/constants/resume.ts` nếu là một mục 
 
 Hai key đều **mang tên app**, và đó là quy ước chứ không phải sở thích: `.env` ở
 root là **một** file dùng chung cho mọi app, nên mượn `NEXT_PUBLIC_SENTRY_DSN`
-sẽ đẩy lỗi của site này sang project Sentry của Template, còn mượn
-`NEXT_PUBLIC_BASE_DOMAIN` sẽ dựng sitemap theo port của Template. Giá trị dùng
+sẽ đẩy lỗi của site này sang project Sentry của Template. Giá trị dùng
 chung thì giữ key chung; giá trị của riêng một app thì `NEXT_PUBLIC_<APP>_…`
 (Next), `PUBLIC_<APP>_…` (Vite), `<APP>_…` cho secret server.
 
@@ -96,6 +95,12 @@ bun run e2e:headed:portfolio                            # cùng spec, một cử
 docker build -f apps/portfolio/Dockerfile -t portfolio .
 ```
 
+Runner copy thêm `.env` (bản `.env.<BUILD_ENV>` mà builder đã dùng) vào cạnh
+`server.js`: `NEXT_PUBLIC_*` đã được inline lúc build, nhưng một biến **server**
+không tiền tố thì không nằm trong bundle nào — nó phải có mặt trong `process.env`
+lúc chạy. Standalone server gọi `loadEnvConfig` trên cwd của nó nên đọc được file
+này; dotenv không ghi đè biến đã set, nên `docker run -e KEY=…` vẫn thắng.
+
 Trên Windows gọi E2E bằng `bunx playwright test` với cwd là thư mục app: chạy
 runner qua một `bun run` script có thể treo lúc launch Chromium.
 
@@ -136,9 +141,17 @@ header `Accept-Language`.
 `vercel.json` trỏ install/build về root repo và gọi script **`build:vercel`**:
 
 ```jsonc
-"installCommand": "cd ../.. && bun install --frozen-lockfile",
-"buildCommand":   "cd ../.. && bun run --filter @monorepo/portfolio build:vercel",
+"installCommand": "cd ../.. && npx --yes bun@1.4.0 install --frozen-lockfile",
+"buildCommand":   "cd ../.. && npx --yes bun@1.4.0 run --filter @monorepo/portfolio build:vercel",
 ```
+
+Cả hai lệnh gọi bun qua `npx --yes bun@1.4.0` chứ không phải `bun` trần: image
+build của Vercel mang bun **của nó** (1.3.14 tại thời điểm viết) và không có cách
+nào ghim — `packageManager` chỉ được đọc khi bật `ENABLE_EXPERIMENTAL_COREPACK`,
+còn `bunVersion` trong `vercel.json` chọn runtime của Function chứ không phải
+builder. Bun đó không đọc nổi `bun.lock` của repo (`lockfileVersion: 2`, do bun
+1.4 ghi) và deploy đỏ ngay ở bước install với `UnknownLockfileVersion`. Ghim ở
+lệnh là chỗ duy nhất còn lại.
 
 `build:vercel` là `next build` **trần**, không có tiền tố `dotenv -e ../../.env`
 như script `build` chuẩn của Template. Lý do: trên Vercel **không có `.env` ở
@@ -146,10 +159,22 @@ root** — biến môi trường đến từ Environment Variables trong dashboa
 project và đã nằm sẵn trong `process.env` lúc build, nên tiền tố dotenv ở đó vừa
 thừa vừa rủi ro (nó đỏ vì không tìm thấy file).
 
-Nghĩa là hai key ở mục **Env** phải được khai trong dashboard Vercel cho cả
-Production lẫn Preview, với `NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN` là **origin thật
-của deploy** — không phải `http://localhost:3002` — nếu không sitemap và
-`og:image` sẽ trỏ về localhost.
+Nghĩa là dashboard Vercel phải khai **bốn** key cho cả Production lẫn Preview —
+không phải chỉ hai key riêng của app ở mục **Env**. Hai key còn lại đến từ
+`baseClientSchema` của `@monorepo/env/next/schema`, mà mọi app Next đều kế thừa;
+ở local chúng nằm sẵn trong `.env` ở root nên không ai thấy, còn trên Vercel thì
+không có file nào để kế thừa:
+
+| Key | Nguồn | Bắt buộc |
+| --- | --- | --- |
+| `NEXT_PUBLIC_APP_ENV` | base schema | **Có** |
+| `NEXT_PUBLIC_BASE_DOMAIN_API` | base schema | **Có** |
+| `NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN` | app | **Có** |
+| `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` | app | Không |
+
+`NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN` phải là **origin thật của deploy** — không
+phải `http://localhost:3002` — nếu không sitemap và `og:image` sẽ trỏ về
+localhost.
 
 `output: "standalone"` trong `next.config.ts` bị Vercel **bỏ qua** (Vercel dùng
 Build Output API riêng), nên nó không cản deploy zero-config; nó ở đó cho runner

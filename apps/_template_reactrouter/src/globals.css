@@ -1,0 +1,10 @@
+@import "@monorepo/tailwind-config/globals";
+
+/**
+ * Tailwind v4 does not scan a workspace dependency's sources on its own, so
+ * every utility written inside `@monorepo/ui` would compile to nothing — no CSS
+ * and no error, just unstyled primitives. Named here from the moment this app
+ * renders its first primitive (the language Select).
+ * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
+ */
+@source "../../../packages/ui";

@@ -11,48 +11,67 @@ scripts win and both files are wrong.
 
 - `bun install` — install every workspace dependency (reads `bun.lock`, `bunfig.toml`)
 - Node **24 LTS** — `.nvmrc` pins `24.20.0`, `engines.node` reads `>=24.14.0`, and `@types/node`
-  tracks the same 24.x line. The build runs on Bun; Node is a *runtime* dependency only for the
-  Next Runtime, whose Docker runner is `node:24-alpine` running `node server.js`. The Vite
+  tracks the same 24.x line. The build runs on Bun; Node is a *runtime* dependency for the two
+  **server** Runtimes, whose Docker runners are both `node:24-alpine` — the Next one runs
+  `node server.js`, the React Router one
+  `node node_modules/@react-router/serve/bin.cjs ./build/server/index.js`. The Vite
   Runtime's runner is plain nginx and has no Node at all.
 - Bun — `engines.bun` reads `>=1.2.0`, but `packageManager` pins `bun@1.4.0`, which is the version
   to develop and run CI against.
 - Copy `.env.example` to `.env` at the repo root before the first `dev` or `build`. There is one
-  `.env` for the whole workspace; both Runtimes read it (ADR-0003).
+  `.env` for the whole workspace; all three Runtimes read it (ADR-0003, ADR-0006).
 
 ## Development
 
 - `bun run dev:template-vite` — the Vite Template app, `http://localhost:3000`
 - `bun run dev:template-next` — the Next Template app, `http://localhost:3001`
+- `bun run dev:template-reactrouter` — the React Router Template app, `http://localhost:3005`
 - `bun run dev:storybook` — Storybook, `http://localhost:6006`
 
 Each is `turbo watch dev -F @monorepo/<app>...`, so the app's workspace dependencies rebuild as you
 edit them. Per-app: `cd apps/_template_vite && bun run dev`, or `bun run preview` to serve that
-app's production build — `preview` binds the app's **E2E** port, not its dev port, so both can be
-up at once.
+app's production build — `preview` is a Vite-Runtime script and binds the app's **E2E** port, not
+its dev port, so both can be up at once. Neither server Runtime has a `preview` at all, and that is
+deliberate rather than an omission: `vite preview` serves static files and both of those builds
+carry a server bundle. Serve them with `bun run start` instead — `next start` and
+`react-router-serve` each take `PORT` from that app's `ports.env`, which is the **dev** port, and it
+is Playwright's `webServer.env.PORT` that moves them onto the E2E one.
 
-Neither number is written in a script or a config (the one literal left is `ENV PORT=3000` /
-`EXPOSE 3000` in `apps/_template_next/Dockerfile` — the port *inside* the container, which has its
-own network namespace and is deliberately unrelated to this pair; the comment there says so). Each
+Neither number is written in a script or a config (the literals left are `ENV PORT=3000` /
+`EXPOSE 3000` in the two server Templates' Dockerfiles, `apps/_template_next/Dockerfile` and
+`apps/_template_reactrouter/Dockerfile` — the port *inside* the container, which has its
+own network namespace and is deliberately unrelated to this pair; the comment in each says so). Each
 app states both of its ports in `apps/<app>/ports.env` — `PORT` and `E2E_PORT`, one pair per app,
 dev `3000 + n` and e2e `3100 + n` — and everything else reads that file: `apps/<app>/ports.ts` for
-the two TypeScript configs (`vite.config.ts` takes `server.port` and `preview.port` from it, both `playwright.config.ts`
-take `E2E_PORT`), and dotenv-cli for the Next app's scripts. `apps/storybook` sits outside both bands
+the TypeScript configs (a Vite-bundler app's `vite.config.ts` takes `server.port` from it, plus
+`preview.port` in the Vite Runtime, the only one with a preview server; every `playwright.config.ts`
+takes `E2E_PORT`), and dotenv-cli for the scripts of the two Runtimes with no config-level port —
+the Next app's `dev` and `start`, and the React Router app's `start`. `apps/storybook` sits outside both bands
 on Storybook's own 6006, has no E2E server, and declares no `ports.env`. Moving a port is one edit in
 that file; `bun run gen:app` assigns a new app the lowest free pair the same way.
 
-The Next app's scripts go through **`dotenv-cli`**: `dev` and `start` as
-`dotenv -e ./ports.env -e ../../.env -- next …`, `build` with the root file only (`next build` takes
-no port). Next only auto-loads a `.env` beside its own `package.json`, and this repo deliberately
-keeps one at the root instead — dropping the `dotenv` prefix silently starts the app with no env at
-all, which surfaces as a t3-env validation throw rather than as a missing file. The `-e ./ports.env`
-comes **first** because dotenv-cli does not override a key already set: that is what lets
-Playwright's `webServer.env` put `PORT` in the environment and land the E2E server on the E2E port
-while `start` still defaults to the dev one.
+Both server Runtimes' scripts go through **`dotenv-cli`**, for the same two reasons. The Next app
+runs `dev` and `start` as `dotenv -e ./ports.env -e ../../.env -- next …` and `build` with the root
+file only (`next build` takes no port); the React Router app runs `start` as
+`dotenv -e ./ports.env -e ../../.env -- react-router-serve ./build/server/index.js`, and its `dev`,
+`prebuild` and `build` with the root file only — `react-router dev` is a Vite dev server, so it
+takes its port from `vite.config.ts` like the Vite Template rather than from `PORT`. Neither
+framework auto-loads a `.env` outside its own app directory, and this repo deliberately keeps one at
+the root instead — dropping the `dotenv` prefix silently starts the app with no env at all, which
+surfaces as a validation throw rather than as a missing file. (`react-router build` does not
+evaluate `src/env.ts` at all, which is why that app carries a `prebuild` importing it under the same
+root file: a missing key fails there, by name, before `build` runs — ADR-0006.) The
+`-e ./ports.env` comes **first** because dotenv-cli does not override a key already set: that is
+what lets Playwright's `webServer.env` put `PORT` in the environment and land the E2E server on the
+E2E port while `start` still defaults to the dev one. It matters most for `react-router-serve`, an
+Express process whose only port channel is `PORT` and which, with `PORT` unset, picks the first free
+port rather than failing.
 
 ## Build
 
 - `bun run build` — build every package and app (Turbo)
-- `bun run build:template-vite` / `bun run build:template-next` — one app plus its dependencies
+- `bun run build:template-vite` / `build:template-next` / `build:template-reactrouter` — one app
+  plus its dependencies
 - `bun run clean` — `git clean -xdf node_modules`
 - `bun run clean:workspaces` — each workspace's own `clean` task
 
@@ -115,10 +134,11 @@ longer searches parent directories for a config — every workspace that runs te
 
 ## E2E (Playwright)
 
-- `bun run e2e` — both Template apps, headless; each `webServer` builds and serves the app itself,
-  so never start a `dev` server first
-- `bun run e2e:headed:template-vite` / `:template-next` — the same specs in one real browser window
-  (the `watch` project, which reuses a single context for the whole run)
+- `bun run e2e` — every app with an `e2e` task, headless: all three Template apps plus `portfolio`,
+  `documents` and `mcp-weather`. Each `webServer` builds and serves the app itself, so never start a
+  `dev` server first
+- `bun run e2e:headed:template-vite` / `:template-next` / `:template-reactrouter` — the same specs
+  in one real browser window (the `watch` project, which reuses a single context for the whole run)
 - `bunx playwright test e2e/home.e2e.ts` from inside the app directory — one spec
 
 Two projects share one spec tree. `chromium` is what CI and `bun run e2e` use: a fresh browser
@@ -151,7 +171,7 @@ re-point the import — the path `sidebar.tsx` already took to reach
 
 ## Generators
 
-- `bun run gen:app` — scaffold a new app: prompts for the Runtime (`next` | `vite`), clones that
+- `bun run gen:app` — scaffold a new app: prompts for the Runtime (`next` | `vite` | `reactrouter`), clones that
   Template app, rewrites its name, Dockerfile ARGs and root scripts, **assigns it the next free
   dev/E2E port pair in `apps/<app>/ports.env`**, then installs and formats. The pair is the lowest
   slot whose *both* ports are free across every `apps/*/ports.env`, so deleting a generated app
@@ -235,8 +255,12 @@ output of that same job — `packages/{ui,hook,ui-public,hook-public}/`, `toolin
 `.changeset/`, `bun.lock` and either workflow file. That is the published surface rather than an app,
 which is why `apps/` is deliberately absent from it (an app-only diff cannot change a tarball) and
 `.changeset/` just as deliberately absent from the first (a release note cannot change a screen).
-`e2e` drives Playwright over both
-Template apps. `docker` builds one image per app that ships a Dockerfile (`push: false`,
+`e2e` drives Playwright over every app that ships a
+`playwright.config.ts`, globbed rather than listed — the same trick `docker` plays with `Dockerfile`,
+and for the same reason: the two Template apps were hard-coded until `portfolio` and `documents`
+landed and silently were not run, while the job still reported green. `set +e` plus a failure tally
+around the loop is load-bearing too — without them the first red app ends the step and every later
+app goes unreported. `docker` builds one image per app that ships a Dockerfile (`push: false`,
 `load: false`, GitHub Actions cache scoped per app), with the matrix derived by
 `find apps -mindepth 2 -maxdepth 2 -name Dockerfile` rather than listed — a migrate ticket adds no
 name anywhere.
@@ -291,7 +315,10 @@ and is described under **Publish** above.
 - `turbo.json` defines `topo` (ordering only), `build`, `dev`, `typecheck`, `test`, `test:coverage`,
   `e2e`, `clean` and `ui-add`. Lint and format are **not** Turbo tasks.
 - Per-app `turbo.json` files `extends: ["//"]` and flip `dev.persistent: true` — that is why `dev:*`
-  holds the terminal. The Next app additionally adds `.next/types/**` to its `typecheck` outputs.
+  holds the terminal. Each server Runtime additionally names its typegen output in
+  `typecheck.outputs` — `.next/types/**` for the Next app, `.react-router/**` for the React Router
+  one, whose `react-router typegen` runs as the first half of that task, so a cache hit would
+  otherwise restore the tsbuildinfo without the `+types` files it was built from.
 - Versions are pinned with Bun **catalogs** in the root `package.json`: the default `catalog:` plus
   the named `next16`, `react19`, `react-router8`, `storybook10`, `tailwind4`, `tanstack-query5`,
   `tanstack-table9` and `testing`. Reference a catalog from a workspace `package.json`; never

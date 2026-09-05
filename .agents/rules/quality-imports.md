@@ -9,17 +9,24 @@ tags: imports, exports, modules, conventions
 
 **Impact: MEDIUM (Wrong import style breaks the build; consistent exports keep call sites predictable)**
 
-Two internal path shapes, and no others: `~/*` → `./src/*` (a per-app tsconfig `paths` alias) for
-anything inside the current app, and `@monorepo/<pkg>/<subpath>` for the workspace packages
-(`@monorepo/ui`, `@monorepo/api`, `@monorepo/hook`, `@monorepo/types`, `@monorepo/env`,
+Two internal path shapes are written by hand, and no others: `~/*` → `./src/*` (a per-app tsconfig
+`paths` alias) for anything inside the current app, and `@monorepo/<pkg>/<subpath>` for the workspace
+packages (`@monorepo/ui`, `@monorepo/api`, `@monorepo/hook`, `@monorepo/types`, `@monorepo/env`,
 `@monorepo/i18n`, `@monorepo/dayjs`, `@monorepo/sentry`). `@monorepo/*` resolves through Bun
 workspaces + each package's `exports` field — it is **not** a tsconfig alias. There is no `@/*`
-alias, and no deep relative chains (`../../../libs/...`). Both Runtimes spell `~/*` the same way,
+alias, and no deep relative chains (`../../../libs/...`). All three Runtimes spell `~/*` the same way,
 so a slice moves between them without an import rewrite.
 
 Every package is **subpath-only** — always name the file that holds the symbol. `@monorepo/dayjs` is
 the one package with a root entry, because its root is the configured singleton (see
 [[quality-avoid-barrel-imports]]).
+
+A third shape exists in the **React Router Runtime**, and it is generated: `import type { Route } from
+"./+types/<route>"`, the per-route types `react-router typegen` writes. It is neither a `paths` alias
+nor a relative sibling — `apps/_template_reactrouter/tsconfig.json` merges the generated tree into the
+source tree with `rootDirs: [".", "./.react-router/types"]`, so the specifier resolves only once
+typegen has run. Do not "fix" it into a `~/` path, and do not read `.react-router/**` as stray build
+junk: it is the output half of that app's `typecheck` task (see [[reactrouter-typed-href]]).
 
 ## Match the actual export style
 
@@ -30,7 +37,9 @@ error. The conventions here:
 |------|------|--------------|----------------|
 | Page | `~/pages/<name>-page.tsx` | **default** | `import HomePage from "~/pages/home-page"` |
 | Feature template | `~/features/<feat>/templates/<name>.template.tsx` | **default** | `import HomeTemplate from "~/features/home/templates/home.template"` |
-| Route guard | `~/features/auth/provider/<name>-route.tsx` | **default** | `import ProtectedRoute from "~/features/auth/provider/protected-route"` |
+| Route guard (**Vite** Runtime) | `~/features/auth/provider/<name>-route.tsx` | **default** | `import ProtectedRoute from "~/features/auth/provider/protected-route"` |
+| Route module (**React Router** Runtime) | `src/routes/<name>.tsx` | **both** — a **default** component plus named `loader` / `action` / `meta` / `middleware` / `ErrorBoundary` | `import ProtectedRoute, { loader, middleware } from "~/routes/protected"` |
+| Route middleware (**React Router** Runtime) | `~/features/auth/middleware/<name>.ts` | named | `import { requireSession } from "~/features/auth/middleware/require-session"` |
 | Feature component | `~/features/<feat>/components/<name>.tsx` | **default** | `import CardItem from "~/features/home/components/card-item"` |
 | Shared exception screen | `~/components/exception/<name>.tsx` | **default** | `import NotFound from "~/components/exception/not-found"` |
 | Shared composite | `~/components/<group>/<name>.tsx` | named | `import { PageHeader } from "~/components/page/page-header"` |
@@ -51,7 +60,9 @@ error. The conventions here:
 | Type | `~/features/<feat>/types/<name>.ts` | named | `import type { TemplateForm } from "~/features/home/types/template-form"` |
 
 Rule of thumb: **components, pages, and templates are default-exported** (the render surface);
-**hooks, services, stores, constants, and types are named.**
+**hooks, services, stores, constants, and types are named.** A React Router route module is the one
+file kind that is deliberately both — the framework renders its default export and resolves its named
+ones by name, so neither half is a style choice (see [[reactrouter-route-modules]]).
 
 ```typescript
 // ✅ named imports for the primitives, hooks, and stores
@@ -71,6 +82,8 @@ import { queryClient } from "../../../libs/query-client";
 
 Relative `./` imports are fine **within** a folder for tightly-coupled siblings (a template importing
 its own `./components/card-item`). Reach past one folder and you should be back on `~/` or `@monorepo/`.
+A React Router route module's `./+types/<route>` only looks like one of these and is exempt — it names
+a generated sibling that lives in another tree entirely (see [[reactrouter-typed-href]]).
 Never import through a folder barrel — see [[quality-avoid-barrel-imports]].
 
 ## `#` subpath imports — inside `@monorepo/ui` only

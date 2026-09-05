@@ -232,73 +232,6 @@
       "description": "Màn hình sau đăng nhập, giữ nguyên từ Template — nó là thứ session guard đang bảo vệ."
     }
   },
-  "assistantAi": {
-    "meta": {
-      "title": "Assistant AI",
-      "description": "Giao diện chat với model Gemini, gọi được tool thời tiết qua máy chủ MCP."
-    },
-    "nav": {
-      "chat": "Trò chuyện",
-      "dashboard": "Bảng điều khiển"
-    },
-    "chat": {
-      "welcomeTitle": "Xin chào",
-      "welcomeSubtitle": "Hãy đặt câu hỏi cho tôi!",
-      "inputLabel": "Nội dung tin nhắn",
-      "inputPlaceholder": "Gửi tin nhắn…",
-      "send": "Gửi tin nhắn",
-      "stop": "Dừng trả lời",
-      "scrollToBottom": "Xuống cuối cuộc trò chuyện",
-      "copy": "Sao chép",
-      "regenerate": "Trả lời lại",
-      "edit": "Sửa tin nhắn",
-      "cancelEdit": "Huỷ",
-      "saveEdit": "Cập nhật",
-      "previousBranch": "Câu trả lời trước",
-      "nextBranch": "Câu trả lời sau",
-      "reasoning": "Suy luận",
-      "modelLabel": "Chọn model",
-      "modelQuota": "{rpm} RPM • {tpm} TPM • {rpd} RPD",
-      "toolUsed": "Đã dùng tool {name}",
-      "toolArguments": "Tham số",
-      "toolResult": "Kết quả",
-      "toolToggle": "Ẩn hiện chi tiết tool"
-    },
-    "models": {
-      "gemini-2-5-flash-lite": "Bản nhẹ, nhanh và tiết kiệm nhất",
-      "gemini-2-5-flash": "Bản ổn định, cân bằng tốc độ và chất lượng",
-      "gemini-2-5-pro": "Bản nâng cao, trả lời sâu hơn nhưng chậm hơn",
-      "gemini-2-0-flash": "Thế hệ trước, giữ lại để so sánh",
-      "gemini-3-pro-preview": "Thế hệ mới nhất, còn ở bản xem trước"
-    },
-    "suggestions": {
-      "tools": {
-        "title": "Hãy cho tôi biết",
-        "label": "máy chủ MCP có những tool nào?"
-      },
-      "hello": {
-        "title": "Sử dụng",
-        "label": "tool hello-world"
-      },
-      "weather": {
-        "title": "Thời tiết",
-        "label": "hôm nay ở Hồ Chí Minh như thế nào?"
-      },
-      "forecast": {
-        "title": "Dự báo thời tiết",
-        "label": "ở Hồ Chí Minh như thế nào?"
-      }
-    },
-    "errors": {
-      "credential": "Máy chủ chưa được cấu hình khoá Gemini hợp lệ. Vui lòng liên hệ người quản trị.",
-      "rateLimit": "Model đang quá tải hoặc đã hết hạn mức. Chọn model khác hoặc thử lại sau ít phút.",
-      "generic": "Không gọi được model. Vui lòng thử lại sau ít phút."
-    },
-    "dashboard": {
-      "title": "Bảng điều khiển",
-      "description": "Màn hình sau đăng nhập, giữ nguyên từ Template — nó là thứ session guard đang bảo vệ."
-    }
-  },
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",
@@ -417,6 +350,57 @@
       "component": "Không có component nào tên “{slug}”.",
       "hook": "Không có hook nào tên “{slug}”.",
       "back": "Về trang Bắt đầu"
+    }
+  },
+  "templateReactRouter": {
+    "home": {
+      "meta": {
+        "title": "Template React Router — Monorepo ({appEnv})",
+        "description": "Template app cho Runtime React Router 8 framework mode: SSR qua react-router-serve, cùng hệ sinh thái Vite với Template SPA."
+      },
+      "eyebrow": "Runtime · React Router framework mode",
+      "title": "Template React Router",
+      "lead": "Trang này được server render và gửi đi hoàn chỉnh trước khi bất kỳ JavaScript nào chạy. Clone app này khi cần SSR/SEO mà vẫn muốn ở trong hệ sinh thái Vite — cùng bundler, cùng React Compiler, cùng cây thư mục src/ với Template SPA.",
+      "specs": {
+        "render": {
+          "label": "Render",
+          "value": "SSR, ssr: true"
+        },
+        "runner": {
+          "label": "Runner",
+          "value": "react-router-serve"
+        },
+        "routeTable": {
+          "label": "Bảng route",
+          "value": "src/routes.ts + href()"
+        },
+        "environment": {
+          "label": "Môi trường"
+        }
+      }
+    },
+    "module": {
+      "available": "Sẵn sàng",
+      "lead": "Một URL công khai cho mỗi phân hệ: trang này được server render từ catalogue, nên crawler đọc được tên và mô tả trước khi JavaScript chạy.",
+      "open": "Mở {name}",
+      "backToCatalogue": "Về danh sách phân hệ"
+    },
+    "about": {
+      "meta": {
+        "title": "Giới thiệu — Monorepo",
+        "description": "Trang tĩnh được prerender lúc build và phục vụ từ đĩa, không cần server render."
+      },
+      "eyebrow": "Prerender lúc build",
+      "title": "Giới thiệu",
+      "lead": "Template app cho Runtime React Router 8 framework mode. Trang này khác mọi trang còn lại ở một điểm: nó được render một lần lúc build, ghi ra build/client, và react-router-serve trả file đó từ đĩa mà không chạy loader nào.",
+      "body": "Vì được render lúc build, trang này mang ngôn ngữ mặc định của build chứ không đàm phán theo cookie hay Accept-Language của từng request. Sau khi hydrate, bộ chọn ngôn ngữ vẫn hoạt động bình thường."
+    },
+    "dashboard": {
+      "templates": {
+        "title": "Danh sách template",
+        "lead": "Phần này tải sau khi trang đã hiển thị, qua TanStack Query — nên nó không nằm trong HTML server gửi đi, và làm mới nó không chạy lại loader nào.",
+        "empty": "Chưa có template nào. Backend mẫu chưa chạy hoặc chưa có dữ liệu."
+      }
     }
   }
 }

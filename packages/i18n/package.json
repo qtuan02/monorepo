@@ -5,6 +5,7 @@
   "exports": {
     "./languages": "./src/languages.ts",
     "./change-language": "./src/change-language.ts",
+    "./resolve-language": "./src/resolve-language.ts",
     "./i18next/*": "./src/i18next/*.ts",
     "./next-intl/provider": "./src/next-intl/provider.tsx",
     "./next-intl/*": "./src/next-intl/*.ts"

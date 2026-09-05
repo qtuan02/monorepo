@@ -109,6 +109,29 @@ và gọi tên slug bị hụt. Vercel cần rewrite `/(.*)` → `/index.html` (
 `vercel.json`), nếu không refresh giữa `/components/button` sẽ 404 ở tầng hosting
 chứ không tới được router.
 
+## Deploy Vercel
+
+`vercel.json` trỏ install/build về root repo. Cả hai lệnh gọi bun qua
+`npx --yes bun@1.4.0` chứ không phải `bun` trần: image build của Vercel mang bun
+**của nó** (1.3.14 tại thời điểm viết) và không đọc nổi `bun.lock` của repo
+(`lockfileVersion: 2`, do bun 1.4 ghi) — deploy đỏ ngay ở bước install với
+`UnknownLockfileVersion`. Ghim ở lệnh là chỗ duy nhất còn lại: `packageManager`
+chỉ được đọc khi bật `ENABLE_EXPERIMENTAL_COREPACK`, còn `bunVersion` trong
+`vercel.json` chọn runtime của Function chứ không phải builder.
+
+Trên Vercel **không có `.env` ở root** — biến đến từ Environment Variables trong
+dashboard, và Vite gộp `process.env` khớp tiền tố `PUBLIC_` vào `import.meta.env`
+lúc build. Dashboard phải khai **bốn** key cho cả Production lẫn Preview; ba key
+đầu đến từ `baseEnvSchema` mà mọi app Vite kế thừa, nên ở local chúng nằm sẵn
+trong `.env` ở root và không ai thấy:
+
+| Key | Nguồn | Bắt buộc |
+| --- | --- | --- |
+| `PUBLIC_APP_ENV` | base schema | **Có** |
+| `PUBLIC_BASE_DOMAIN` | base schema | **Có** |
+| `PUBLIC_BASE_DOMAIN_API` | base schema | **Có** |
+| `PUBLIC_DOCUMENTS_STORYBOOK_URL` | app | **Có** |
+
 ## Chạy kiểm
 
 ```bash

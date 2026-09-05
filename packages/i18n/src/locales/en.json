@@ -232,73 +232,6 @@
       "description": "The screen behind sign-in, kept from the Template — it is what the session guard protects."
     }
   },
-  "assistantAi": {
-    "meta": {
-      "title": "Assistant AI",
-      "description": "A chat interface for Gemini models, with weather tools borrowed from an MCP server."
-    },
-    "nav": {
-      "chat": "Chat",
-      "dashboard": "Dashboard"
-    },
-    "chat": {
-      "welcomeTitle": "Hello",
-      "welcomeSubtitle": "Ask me anything!",
-      "inputLabel": "Message input",
-      "inputPlaceholder": "Send a message…",
-      "send": "Send message",
-      "stop": "Stop generating",
-      "scrollToBottom": "Scroll to the latest message",
-      "copy": "Copy",
-      "regenerate": "Regenerate",
-      "edit": "Edit message",
-      "cancelEdit": "Cancel",
-      "saveEdit": "Update",
-      "previousBranch": "Previous answer",
-      "nextBranch": "Next answer",
-      "reasoning": "Reasoning",
-      "modelLabel": "Choose a model",
-      "modelQuota": "{rpm} RPM • {tpm} TPM • {rpd} RPD",
-      "toolUsed": "Used tool {name}",
-      "toolArguments": "Arguments",
-      "toolResult": "Result",
-      "toolToggle": "Toggle tool details"
-    },
-    "models": {
-      "gemini-2-5-flash-lite": "The lightest and cheapest of the five",
-      "gemini-2-5-flash": "The stable default — speed against quality",
-      "gemini-2-5-pro": "Deeper answers, slower turns",
-      "gemini-2-0-flash": "The previous generation, kept for comparison",
-      "gemini-3-pro-preview": "The newest generation, still in preview"
-    },
-    "suggestions": {
-      "tools": {
-        "title": "Tell me",
-        "label": "which tools the MCP server offers"
-      },
-      "hello": {
-        "title": "Call",
-        "label": "the hello-world tool"
-      },
-      "weather": {
-        "title": "Weather",
-        "label": "in Ho Chi Minh City today"
-      },
-      "forecast": {
-        "title": "Forecast",
-        "label": "for Ho Chi Minh City"
-      }
-    },
-    "errors": {
-      "credential": "The server has no valid Gemini key configured. Please contact an administrator.",
-      "rateLimit": "The model is overloaded or out of quota. Pick another model or try again in a few minutes.",
-      "generic": "The model could not be reached. Please try again in a few minutes."
-    },
-    "dashboard": {
-      "title": "Dashboard",
-      "description": "The screen behind sign-in, kept from the Template — it is what the session guard protects."
-    }
-  },
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",
@@ -417,6 +350,57 @@
       "component": "No component is named “{slug}”.",
       "hook": "No hook is named “{slug}”.",
       "back": "Back to getting started"
+    }
+  },
+  "templateReactRouter": {
+    "home": {
+      "meta": {
+        "title": "React Router Template — Monorepo ({appEnv})",
+        "description": "Template app for the React Router 8 framework-mode Runtime: SSR through react-router-serve, on the same Vite toolchain as the SPA Template."
+      },
+      "eyebrow": "Runtime · React Router framework mode",
+      "title": "React Router Template",
+      "lead": "This page is server rendered and sent complete before any JavaScript runs. Clone this app when you need SSR/SEO without leaving the Vite toolchain — the same bundler, the same React Compiler and the same src/ tree as the SPA Template.",
+      "specs": {
+        "render": {
+          "label": "Render",
+          "value": "SSR, ssr: true"
+        },
+        "runner": {
+          "label": "Runner",
+          "value": "react-router-serve"
+        },
+        "routeTable": {
+          "label": "Route table",
+          "value": "src/routes.ts + href()"
+        },
+        "environment": {
+          "label": "Environment"
+        }
+      }
+    },
+    "module": {
+      "available": "Available",
+      "lead": "One public URL per module: this page is server rendered from the catalogue, so a crawler reads its name and description before any JavaScript runs.",
+      "open": "Open {name}",
+      "backToCatalogue": "Back to the module list"
+    },
+    "about": {
+      "meta": {
+        "title": "About — Monorepo",
+        "description": "A static page prerendered at build time and served from disk, with no server render."
+      },
+      "eyebrow": "Prerendered at build",
+      "title": "About",
+      "lead": "The Template app for the React Router 8 framework-mode Runtime. This page differs from every other one in a single way: it is rendered once at build time, written to build/client, and react-router-serve answers with that file from disk without running any loader.",
+      "body": "Because it is rendered at build time, this page carries the build's default language rather than negotiating from each request's cookie or Accept-Language. Once hydrated, the language switcher works as it does everywhere else."
+    },
+    "dashboard": {
+      "templates": {
+        "title": "Template list",
+        "lead": "This section loads after paint through TanStack Query — so it is not in the HTML the server sends, and refreshing it re-runs no loader.",
+        "empty": "No template yet. The sample backend is not running, or has no data."
+      }
     }
   }
 }

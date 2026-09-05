@@ -14,7 +14,6 @@ import { httpUrlSchema } from "../http-url";
  */
 export const baseClientSchema = {
   NEXT_PUBLIC_APP_ENV: z.string().min(1),
-  NEXT_PUBLIC_BASE_DOMAIN: httpUrlSchema,
   NEXT_PUBLIC_BASE_DOMAIN_API: httpUrlSchema,
 };
 

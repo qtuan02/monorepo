@@ -30,7 +30,6 @@ export default defineConfig({
       // are not read from the repo-root `.env`, so a developer's local values
       // can never change an assertion.
       NEXT_PUBLIC_APP_ENV: "test",
-      NEXT_PUBLIC_BASE_DOMAIN: "http://localhost:3001",
       NEXT_PUBLIC_BASE_DOMAIN_API: "http://localhost:8000",
     },
     // Vitest 5 flipped this default from `false` to `true`. Stated explicitly so

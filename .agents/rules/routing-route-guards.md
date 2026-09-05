@@ -9,14 +9,24 @@ tags: routing, auth, guards, protected-route, navigation
 
 **Impact: HIGH (Auth-in-page logic gets duplicated across every page and is impossible to keep consistent)**
 
-> **Scope: the Vite Runtime** — `_template_vite` and anything cloned from it. The Next Runtime
-> guards in `src/proxy.ts` over an `HttpOnly` cookie instead, because a guard that decides while
-> rendering has already let the server stream the guarded page — see [[next-proxy-guards]]. That
-> is a deliberate divergence; do not "synchronise" either side onto the other.
+> **Scope: the Vite Runtime** — `_template_vite` and anything cloned from it. Each of the other two
+> Runtimes answers the same question somewhere the server reaches first, because a guard that decides
+> while rendering has already let the server send the guarded page:
+>
+> - the **Next Runtime** guards in `src/proxy.ts` over an `HttpOnly` cookie, with the decision as a
+>   pure function under a slice's `guard/` — see [[next-proxy-guards]];
+> - the **React Router Runtime** guards with route middleware under `~/features/auth/middleware/`
+>   (`require-session.ts`, `guest-only.ts` in `apps/_template_reactrouter`), mounted on the pathless
+>   `layout()` that wraps the guarded group in `src/routes.ts` — see [[reactrouter-middleware-guards]].
+>
+> All three divergences are deliberate. Do not "synchronise" any one of the three onto another, and
+> never mix two shapes inside one app.
 
 Authentication and redirect decisions belong in **wrapper routes** — `<ProtectedRoute>` (requires a session) and `<GuestRoute>` (requires *no* session) — declared once at the route tree in `~/pages/main.tsx`. A guard renders `<Outlet />` (allow), `<Navigate to={…} replace />` (block), or a loading shell while the session check is in flight. Pages never check `token`, never redirect in a `useEffect`, and never render a login redirect themselves — they render their template and trust the hierarchy.
 
-**Where the guard files live:** `~/features/auth/provider/`, each **default-exported**:
+**Where the guard files live — in the Vite Runtime:** `~/features/auth/provider/`, each
+**default-exported** (the other two Runtimes file the same decision under `guard/` and `middleware/`
+respectively, one home per app, never two):
 
 | File | Guards | Blocks by redirecting to |
 |---|---|---|

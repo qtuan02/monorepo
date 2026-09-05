@@ -14,15 +14,25 @@ Every route path — both as a **definition** in `<Route path={…}>` and as a *
 constant in `~/constants/routes.ts`. String literals for routes are banned anywhere else. For dynamic
 segments, add a builder function next to its template constant.
 
-Both Runtimes keep this table, for the same reason from two directions: the Vite Runtime declares its
-tree by hand in `~/pages/main.tsx`, and the Next Runtime's App Router folder tree is not importable at
-all, so a literal path in a component would drift the moment a folder is renamed (see
-[[next-app-router-structure]] for what the Next Runtime hands `ROUTES` values to).
+**Two of the three Runtimes keep this table**, for the same reason from two directions: the Vite
+Runtime declares its tree by hand in `~/pages/main.tsx`, and the Next Runtime's App Router folder tree
+is not importable at all, so a literal path in a component would drift the moment a folder is renamed
+(see [[next-app-router-structure]] for what the Next Runtime hands `ROUTES` values to).
+
+The **React Router Runtime** keeps no such table — `apps/_template_reactrouter/src/constants/` holds
+only `cookies.ts`. Its path table is the route config in `src/routes.ts`, and `react-router typegen`
+turns that file into a typed `href()` whose argument is checked against it, so the guarantee this rule
+buys by convention that Runtime gets from the compiler instead (see [[reactrouter-typed-href]]).
 
 ## The router is React Router 8, and `react-router-dom` no longer exists
 
-The Vite Runtime is on **React Router 8, declarative mode**. There is exactly one package, and two
-entry points:
+**Two** Runtimes are on React Router 8, in different modes — the rest of this section is the Vite one.
+The Vite Runtime is on **declarative mode**: it mounts a `BrowserRouter` and declares `<Routes>` /
+`<Route>` by hand in `~/pages/main.tsx`. The React Router Runtime (`apps/_template_reactrouter`) is
+the same major in **framework mode**: there is no `BrowserRouter` to mount, the route table is
+`src/routes.ts`, and links go through typed `href()` — so do not reach for the shapes below there
+(see [[reactrouter-route-modules]], [[reactrouter-typed-href]]). What both share is the package layout:
+exactly one package, and two entry points:
 
 | Import from | Holds |
 |---|---|
@@ -86,6 +96,8 @@ navigate(ROUTES.DASHBOARD);
 - Adding a route = add the `ROUTES` entry, add the `<Route>` under the correct guard (see
   [[routing-route-guards]]), then reference the constant from every link and navigation.
 - E2E specs address the app the way a visitor does, but they route through `ROUTES` too, so a renamed
-  route fails to compile rather than 404-ing at runtime (see [[testing-playwright]]).
+  route fails to compile rather than 404-ing at runtime (see [[testing-playwright]]). In the React
+  Router Runtime that same compile-time guarantee comes from typed `href()` over the generated
+  `+types`, not from importing a constant (see [[reactrouter-typed-href]]).
 
 Reference: [`apps/_template_vite/src/constants/routes.ts`](../../apps/_template_vite/src/constants/routes.ts), [`apps/_template_vite/src/pages/main.tsx`](../../apps/_template_vite/src/pages/main.tsx), [React Router — Routing](https://reactrouter.com/start/declarative/routing)

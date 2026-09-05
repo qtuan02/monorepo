@@ -6,15 +6,14 @@ import { createEnv } from "@monorepo/env/next/create-env";
  * named — instead of surfacing later as an `undefined` origin that silently
  * turns every absolute URL in the sitemap into a relative one.
  *
- * The base client block (`NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_BASE_DOMAIN`,
- * `NEXT_PUBLIC_BASE_DOMAIN_API`) comes from `@monorepo/env/next/*`; this file
- * only declares what this app adds on top.
+ * The base client block (`NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_BASE_DOMAIN_API`)
+ * comes from `@monorepo/env/next/*`; this file only declares what this app adds
+ * on top.
  *
  * Both additions carry the app's own name. The repo-root `.env` is **one** file
  * shared by every Next app, so a value that belongs to a single app has to say
  * which app — borrowing `NEXT_PUBLIC_SENTRY_DSN` would send this site's errors
- * to the Template's Sentry project, and borrowing `NEXT_PUBLIC_BASE_DOMAIN`
- * would build its sitemap against the Template's port.
+ * to the Template's Sentry project.
  */
 export const env = createEnv({
   // No server-only variable: this site talks to no backend and holds no secret.
@@ -42,7 +41,6 @@ export const env = createEnv({
    */
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
-    NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
     NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN:
       process.env.NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN,

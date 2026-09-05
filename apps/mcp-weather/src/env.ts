@@ -12,9 +12,9 @@ import { createEnv } from "@monorepo/env/next/create-env";
  * named — instead of surfacing later as an `undefined` API key that turns every
  * weather tool call into a 401 nobody reads.
  *
- * The base client block (`NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_BASE_DOMAIN`,
- * `NEXT_PUBLIC_BASE_DOMAIN_API`) comes from `@monorepo/env/next/*`; this file
- * only declares what this app adds on top.
+ * The base client block (`NEXT_PUBLIC_APP_ENV`, `NEXT_PUBLIC_BASE_DOMAIN_API`)
+ * comes from `@monorepo/env/next/*`; this file only declares what this app adds
+ * on top.
  *
  * Both additions carry the app's own name. The repo-root `.env` is **one** file
  * shared by every Next app, so a value that belongs to a single app has to say
@@ -54,7 +54,6 @@ export const env = createEnv({
    */
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
-    NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
     NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN:
       process.env.NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN,

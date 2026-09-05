@@ -102,7 +102,6 @@ export type NextEnv<
  *   client: { NEXT_PUBLIC_ANALYTICS_ID: z.string().min(1) },
  *   clientRuntimeEnv: {
  *     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
- *     NEXT_PUBLIC_BASE_DOMAIN: process.env.NEXT_PUBLIC_BASE_DOMAIN,
  *     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
  *     NEXT_PUBLIC_ANALYTICS_ID: process.env.NEXT_PUBLIC_ANALYTICS_ID,
  *   },

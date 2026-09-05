@@ -1,0 +1,22 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      // Both halves of one build: `build/client` is what the static handler
+      // serves, `build/server/index.js` is what `react-router-serve` runs.
+      "outputs": ["build/**"]
+    },
+    "dev": {
+      "persistent": true
+    },
+    "typecheck": {
+      "dependsOn": ["^topo", "^build"],
+      // `react-router typegen` runs as the first half of this task, so its
+      // output belongs to the task's cache entry — otherwise a cache hit would
+      // restore the tsbuildinfo without the `+types` files it was built from.
+      "outputs": [".cache/tsbuildinfo.json", ".react-router/**"]
+    }
+  }
+}

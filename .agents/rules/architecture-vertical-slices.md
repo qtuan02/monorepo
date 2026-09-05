@@ -39,6 +39,9 @@ src/features/patient/            // ✅ everything "patient" in one place
   stores/        # feature-scoped Zustand stores, use-<name>-store.ts (see [[zustand-feature]])
   guard/         # Next Runtime only: the access decision this slice exposes to src/proxy.ts
                  # (see [[next-proxy-guards]]) — the Next counterpart of provider/
+  middleware/    # React Router Runtime only: the route middleware this slice exposes to
+                 # src/routes.ts (see [[reactrouter-middleware-guards]]) — that Runtime's
+                 # counterpart of provider/ and guard/
   server/        # Next Runtime only: cached server loaders (see [[next-data-fetching]])
   actions/       # Next Runtime only: Server Actions ("use server"), one per file
   hooks/         # feature-only hooks (server-data hooks stay in ~/hooks/api)
@@ -86,11 +89,17 @@ import type { PatientListFilters } from "~/features/patient/types/patient-list-f
 ## Conventions
 
 - Slice folder: `~/features/<domain>/` in kebab-case; no `.FuncID` suffix, no PascalCase folders.
-- Subfolders (all optional, add on demand): `templates/ components/ provider/ guard/ server/ actions/
-  types/ stores/ hooks/ utils/`.
+- Subfolders (all optional, add on demand): `templates/ components/ provider/ guard/ middleware/
+  server/ actions/ types/ stores/ hooks/ utils/`.
 - In a **Next Runtime** app the consumer above the slice is an App Router segment under `src/app/`
   rather than a page in `~/pages/`, and the slice may expose `guard/`, `server/` and `actions/`
   instead of `provider/`. Nothing else about the slice changes (see [[next-app-router-structure]]).
+- In a **React Router Runtime** app the consumer above the slice is a route module under `src/routes/`,
+  declared in the route config `src/routes.ts`, and the slice may expose `middleware/` instead of
+  `provider/` (see [[reactrouter-route-modules]]). It has no `server/` and no `actions/`: a route
+  module's own `loader` / `action` is where server work lives, so the slices in
+  `apps/_template_reactrouter` carry only `components/ constants/ middleware/ templates/ types/
+  utils/`.
 - Template files carry the `.template.tsx` dot suffix (`home.template.tsx`, `sign-in.template.tsx`);
   every other file in a slice stays plain kebab-case.
 - One standalone component → `components/<name>.tsx`; several interdependent parts → a
