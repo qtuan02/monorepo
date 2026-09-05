@@ -19,12 +19,16 @@ const RESOLUTION_BASE = "http://redirect.invalid";
  * and obvious; `/\evil.example` is not, and a `startsWith("//")` test waves it
  * through — the URL spec says a backslash in a special-scheme URL is a `/`, so
  * every browser resolves the `Location` header it produces to `https://evil.example/`.
- * Next embeds whatever `redirect()` is handed straight into the header without
+ * `redirect()` embeds whatever it is handed straight into the header without
  * normalising it, so this function is the only thing standing between the two.
  *
  * Resolving against an unreachable base and demanding the origin come back
  * unchanged catches that whole family at once, and rebuilding the return value
  * from the parsed parts means what the caller gets is what was actually parsed.
+ *
+ * Copied verbatim from `_template_next`'s `features/auth/guard/safe-redirect-to.ts`:
+ * the threat is the Runtime-independent half of a sign-in screen, so the two
+ * apps share the check rather than each keeping a slightly different one.
  */
 export function safeRedirectTo(
   value: FormDataEntryValue | null,

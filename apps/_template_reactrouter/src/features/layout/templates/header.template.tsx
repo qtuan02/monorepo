@@ -9,10 +9,13 @@ import HeaderClock from "../components/header/header-clock";
  * renders with its real value in the first HTML instead of reading the URL from
  * a client hook.
  *
- * No auth control yet — ticket #84 owns the session cookie and the guard, and
- * the Vite Template's `HeaderAuthButton` reads a store this app deliberately
- * does not have. The `TooltipProvider` that wrapped that bar went with it: it
- * existed for icon-only buttons, and the switcher carries its own label.
+ * No auth control, deliberately: the session is an `HttpOnly` cookie only the
+ * server reads, so the Vite Template's `HeaderAuthButton` — which reads a
+ * store this app does not have — has no counterpart here. Sign-in is the
+ * `/sign-in` screen a guarded route bounces to; sign-out is the POST form in
+ * the dashboard's `SessionCard`. The `TooltipProvider` that wrapped that bar
+ * went with it: it existed for icon-only buttons, and the switcher carries its
+ * own label.
  */
 export default function HeaderTemplate() {
   return (

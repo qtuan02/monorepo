@@ -72,8 +72,9 @@ interface SelectLanguageProps {
  *
  * It lives in `~/components` rather than inside the `layout` slice because a
  * shared component may not be reached into from another slice, and the header is
- * not its only consumer for long: the sign-in screen (#84) renders outside the
- * shell and would otherwise be the one screen with no way to switch language.
+ * not its only consumer: the sign-in screen
+ * (`~/features/auth/templates/sign-in.template`) renders outside the shell and
+ * would otherwise be the one screen with no way to switch language.
  */
 export function SelectLanguage({
   triggerClassName,

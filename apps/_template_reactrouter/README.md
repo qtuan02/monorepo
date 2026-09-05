@@ -10,14 +10,13 @@ Next thì clone `apps/_template_next`.
 bun run dev:template-reactrouter    # http://localhost:3005
 ```
 
-> **Trạng thái: đang dựng dần.** Khung tối thiểu (tracer bullet), **i18n + app
-> shell** và **Dockerfile** đã đi qua Gate — config, `root.tsx` với
-> `middleware`/`loader`, `routes.ts`, slice `layout` (header · body · footer),
-> route home dịch qua catalogue chung, typegen, `react-router-serve`, Vitest,
-> Playwright, image năm stage (builder Bun → runner Node). Những mảnh còn lại của
-> spec (#78) — auth bằng cookie session + middleware guard, `~/libs/http-client` +
-> TanStack Query, `/about` prerender, catch-all 404 — tới ở các ticket sau. Mọi
-> chỗ tạm đều có comment nói rõ ticket nào thay nó.
+> **Trạng thái: đang dựng dần.** Đã qua Gate: khung tối thiểu (tracer bullet),
+> **i18n + app shell**, **Dockerfile**, **trang public** (home catalogue trong
+> first HTML, `/modules/:slug` với 404 thật, `/about` prerender, catch-all 404)
+> và **auth SSR** (cookie session ký, middleware guard trên `layout()` pathless,
+> sign-in/sign-out bằng `action`, dashboard guarded). Mảnh còn lại của spec (#78)
+> là `~/libs/http-client` + TanStack Query trên dashboard (#85). Mọi chỗ tạm đều
+> có comment nói rõ ticket nào thay nó.
 
 ## Những quyết định đã cắm sẵn
 
@@ -37,7 +36,14 @@ bun run dev:template-reactrouter    # http://localhost:3005
 | i18next **clone** cho mỗi request | `src/entry.server.tsx` | Một tiến trình Node render mọi khách cùng lúc, nên đổi ngôn ngữ của singleton là một race không khoá: triệu chứng là trang render đúng — bằng ngôn ngữ của người khác. `createRequestI18n` clone (dùng chung resource store + formatter ICU), và `test/entry.server.test.ts` đọc file này dạng **text** để chặn việc gọi đổi ngôn ngữ lọt vào đây. |
 | Đổi ngôn ngữ **trước** `hydrateRoot` | `src/entry.client.tsx` | Client đọc lại `document.documentElement.lang` — thứ server đã render — rồi `changeLanguage` và **đợi** nó xong mới hydrate. Hydrate trước rồi đổi sau chính là cú nháy markup mà ticket này tồn tại để tránh. Lần gọi đó cũng ghi luôn cookie (`caches: ["cookie"]`), nên lần render server kế tiếp khớp sẵn. |
 | `<html lang>` đọc từ instance i18next | `Layout` trong `src/root.tsx` | Không đọc `loaderData`: `Layout` bọc cả `ErrorBoundary` (đường đó không có loader nào chạy), và đổi ngôn ngữ trong header không re-run loader — đọc loader thì thuộc tính này sẽ đứng yên. Đọc từ instance đang render thì luôn đúng, và đúng bằng giá trị `entry.client` đọc ngược lại. |
-| Shell là một route `layout()` | `src/routes.ts` · `src/routes/layout.tsx` | `layout()` không thêm segment: chrome mount một lần bao quanh các route thay vì mỗi route tự vẽ lại. Màn hình cần **không** có chrome (sign-in ở #84) nằm ngoài wrapper này, y như `_template_next` đặt `sign-in/` ngoài group `(shell)`. |
+| Shell là một route `layout()` | `src/routes.ts` · `src/routes/layout.tsx` | `layout()` không thêm segment: chrome mount một lần bao quanh các route thay vì mỗi route tự vẽ lại. Màn hình cần **không** có chrome (sign-in) nằm ngoài wrapper này, y như `_template_next` đặt `sign-in/` ngoài group `(shell)`. |
+| Catalogue trong `loader`, không trong Query | `src/routes/home.tsx` · `src/features/home/constants/home-catalogue.ts` | Thứ crawler phải đọc được trong HTML đầu tiên đi qua `loader`; TanStack Query (#85) chỉ cho việc sau paint. Catalogue là dữ liệu local để build không cần backend (`react-router build` chạy loader khi prerender); icon join theo id trong template, không nằm trong loader data. |
+| 404 có **hai** hình dạng | `src/routes/not-found.tsx` · `src/routes/module.tsx` | Catch-all `*` **return** `data(null, { status: 404 })` vì chính component nó là màn 404; `/modules/:slug` **throw** cùng thứ đó và giữ một `ErrorBoundary` ở mức route để shell còn bao quanh màn 404 — boundary của root thay cả shell. Splat nằm trong shell nhưng **ngoài** nhóm guarded, nên gõ sai URL thấy 404 chứ không bị đẩy về sign-in. |
+| `/about` prerender | `react-router.config.ts` | Literal path **duy nhất** của app (config chạy trước typegen). `express.static` của `react-router-serve` trả lời trước request handler: `GET /about` → 301 → `/about/`, `/about/` và `/about.data` phục vụ từ `build/client`, và tài liệu mang ngôn ngữ **lúc build** (vi) chứ không phải của khách — màn cần ngôn ngữ theo request thì không được đưa vào `prerender`. |
+| Session là cookie **ký**, `HttpOnly` | `src/libs/session.server.ts` | `createCookieSessionStorage` ký bằng `TEMPLATE_REACTROUTER_SESSION_SECRET`, `sameSite: "lax"`, 8 giờ, `secure` khi `PUBLIC_APP_ENV !== "local"`. Hậu tố `.server` là hợp đồng với build: import từ component là `react-router build` đỏ (đã kiểm một lần). Không có `~/stores/` — như Next Template. Test jsdom import route module chạm file này phải `vi.mock("~/libs/session.server")`. |
+| Guard là `middleware` trên `layout()` pathless **có `loader`** | `src/routes/protected.tsx` · `src/features/auth/middleware/` | Server middleware chỉ chạy khi có `.data` request, mà client navigation chỉ gọi server khi một route match có `loader` — thiếu `loader` là guard không chạy. Guard `throw replace(...)` để không để lại history entry; `redirectTo` là path đã chuẩn hoá (`normalizeRequestPath`), không phải `request.url` mang `.data`. `userContext` không có default: đọc ngoài guard là throw. |
+| `allowedActionOrigins` từ `PUBLIC_BASE_DOMAIN` | `react-router.config.ts` | React Router tự chặn action có `Origin` khác origin của `request.url` (CSRF check). Sau proxy TLS, trình duyệt gửi `Origin: https://host` còn `react-router-serve` dựng `request.url` là `http://host` (không set `trust proxy`) — thiếu dòng này thì mọi POST sign-in/sign-out trả 400 trên production. So theo host, không theo scheme. Resource route (`/sign-out`) **không** đi qua check đó nên `action` tự so `Origin` với `url.host`. |
+| Sign-in/out là `action`, sign-out **POST** | `src/routes/sign-in.tsx` · `src/routes/sign-out.tsx` | `<Form method="post">` chạy không cần JS; action không check credential (thay bằng service call thật), mint session, redirect qua `safeRedirectTo` (chép nguyên từ Next Template). Sign-out là resource route ngoài guard: `action` huỷ session, `loader` chỉ redirect về home nên một prefetch hay `<img src>` không đăng xuất được ai. |
 
 ## Env — một module, hai graph
 
@@ -142,8 +148,12 @@ chứ không phải JavaScript vẽ thêm sau paint. Fixture `request` không k�
 gửi `Accept-Language` (và `cookie`, cho ca "lựa chọn đã lưu thắng header") của
 riêng nó.
 
-Ba spec, ba lớp khác nhau: `server-rendering.e2e.ts` (tài liệu thô đi đủ),
+Năm spec, mỗi spec một seam: `server-rendering.e2e.ts` (tài liệu thô đi đủ),
 `i18n-negotiation.e2e.ts` (đàm phán ngôn ngữ trên tài liệu thô, gồm một ca hai
-request chồng nhau — bằng chứng hành vi rằng singleton i18next không bị đổi) và
+request chồng nhau — bằng chứng hành vi rằng singleton i18next không bị đổi),
 `shell.e2e.ts` (nửa trình duyệt: đổi ngôn ngữ tại chỗ, reload vẫn giữ, console
-không có lỗi hydration).
+không có lỗi hydration), `public-pages.e2e.ts` (catalogue trong HTML thô, 404
+thật cho slug lạ và path gõ sai, hành vi 301/`.data` của `/about` prerender) và
+`auth.e2e.ts` (nửa thô: 302 + `redirectTo`, `Set-Cookie` với `HttpOnly`/`SameSite=Lax`,
+cookie sửa một byte bị coi như không có session; nửa trình duyệt: đăng nhập qua
+form, `/sign-in` khi đã đăng nhập, `GET /sign-out` không đăng xuất, POST thì có).

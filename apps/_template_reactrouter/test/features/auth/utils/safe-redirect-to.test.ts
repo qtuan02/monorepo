@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { safeRedirectTo } from "~/features/auth/guard/safe-redirect-to";
+import { safeRedirectTo } from "~/features/auth/utils/safe-redirect-to";
 
 /**
- * `redirectTo` is attacker-controlled end to end — the proxy writes it into the
- * sign-in URL, the hidden field copies it verbatim out of `searchParams`, and
- * the Server Action hands whatever comes back to `redirect()`. Next does not
- * normalise that string: it goes into the `Location` header as written. So this
- * function is the only check, and every value below is a URL a browser resolves
- * to a different origin.
+ * `redirectTo` is attacker-controlled end to end — the guard writes it into the
+ * sign-in URL, the sign-in loader copies it into a hidden field, and the action
+ * hands whatever comes back to `redirect()`. React Router does not normalise
+ * that string: it goes into the `Location` header as written. So this function
+ * is the only check, and every value below is a URL a browser resolves to a
+ * different origin.
  */
 describe("safeRedirectTo", () => {
   it("keeps a path on this origin", () => {

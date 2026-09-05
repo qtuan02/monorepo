@@ -2,8 +2,8 @@ import { Outlet } from "react-router";
 
 /**
  * The page column every route renders into. It is its own template so the
- * layout's chrome and its content well can change independently — and so a
- * route-level guard (#84) can sit between the two.
+ * layout's chrome and its content well can change independently — and so the
+ * route-level guard (`~/routes/protected`) sits between the two.
  */
 export default function BodyTemplate() {
   // No top margin: `HeaderTemplate` is `sticky`, which still occupies its own
