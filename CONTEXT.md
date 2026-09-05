@@ -20,16 +20,20 @@ Trạng thái của Target sau bước setup: root config + `packages/*` + `tool
 _Avoid_: base, khung, bộ khung
 
 **Template app**:
-App mẫu trong `apps/` được clone (bằng generator `app`) để tạo app mới; mỗi Template app ứng với đúng một Runtime. Hiện có `_template_next` và `_template_vite`; `_template_reactrouter` sẽ thêm khi có Runtime React Router framework.
+App mẫu trong `apps/` được clone (bằng generator `app`) để tạo app mới; mỗi Template app ứng với đúng một Runtime. Có ba: `_template_vite`, `_template_next` và `_template_reactrouter`.
 _Avoid_: starter, boilerplate, app mẫu
 
 **Runtime**:
-Cách một app được thực thi, quyết định flavor nào của package dùng chung mà app đó dùng: **Vite client** (SPA, nginx), **Next.js** (App Router, Node standalone), và sau này **React Router framework** (SSR, `react-router-serve`).
+Cách một app được thực thi, quyết định Flavor nào của package dùng chung mà app đó dùng: **Vite client** (SPA, nginx), **Next.js** (App Router, Node standalone), và **React Router framework** (SSR, `react-router-serve`).
 _Avoid_: framework (mơ hồ với React), platform, môi trường
 
 **Flavor**:
 Biến thể theo Runtime của một package dùng chung, sống dưới một subpath riêng của cùng package (ví dụ `@monorepo/i18n/i18next/*` và `@monorepo/i18n/next-intl/*`). Phần không phụ thuộc Runtime (registry ngôn ngữ, locale JSON, base schema) nằm ngoài mọi flavor và được mọi flavor dùng chung.
 _Avoid_: adapter, variant, phiên bản
+
+**Route module**:
+Lớp mỏng ở tầng top của Runtime React Router framework — một file dưới `src/routes/` mà bảng route trỏ tới — sở hữu phần chỉ framework cung cấp được (`loader`, `action`, `meta`, `middleware`) và render template của slice; là hình dạng tương đương `~/pages/` của Vite client và `page.tsx` của Next.js.
+_Avoid_: page, screen, route file
 
 **Gate**:
 Bốn job chặn merge chạy trên toàn workspace: `check` (Biome), `typecheck`, `test`, `build`. Một bước setup chỉ được coi là xong khi Gate xanh với 0 lỗi và 0 warning.

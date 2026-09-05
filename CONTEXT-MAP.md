@@ -6,7 +6,7 @@ Các context còn lại là Turborepo workspace (`apps/*`, `packages/*`), mỗi 
 
 ## Contexts
 
-- [Root](./CONTEXT.md) — Reference · Target · Skeleton · Template app · Runtime · Flavor · Gate · Locale message · Publish shell.
+- [Root](./CONTEXT.md) — Reference · Target · Skeleton · Template app · Runtime · Flavor · Route module · Gate · Locale message · Publish shell.
 
 Chưa có context nào ở mức workspace. Repo đã có sáu app (hai Template, `portfolio`,
 `documents`, `mcp-weather`, `storybook`), tám package nguồn cộng hai Publish
