@@ -56,9 +56,9 @@ Một artboard low-fi thể hiện một hướng thẩm mỹ cho cùng đề b�
 _Avoid_: phương án, style, concept
 
 **Design canvas**:
-Artifact chạy editor Claude Design cho một topic, gồm nhiều artboard; có version — mỗi lần chủ repo sửa tay rồi Save, hoặc Claude re-seed rồi republish, là một version mới. Là nơi duy nhất design được xem và chỉnh sửa; nguồn thật vẫn là working files commit trong repo.
-_Avoid_: mockup (mơ hồ giữa canvas và một artboard), bản vẽ, design
+Tập artboard của một topic, sống **local** trong `docs/design/<topic>/artboards/`: các `.dc.html` cộng `canvas.json`, seed thành một file `.html` mở bằng browser để xem, pan/zoom và export. Không publish lên đâu cả, nên nó không có version của riêng nó — một **commit** của `artboards/` là bản duy nhất định danh được một design (ADR-0008 mục "Cập nhật 2026-09-05"). Nguồn thật là working files đã commit; file seeded chỉ là bao bì, gitignore.
+_Avoid_: mockup (mơ hồ giữa canvas và một artboard), bản vẽ, design, Artifact (canvas không phải một Artifact trên claude.ai)
 
 **Design handoff**:
-Tài liệu chuyển giao từ design sang spec và implement, viết sau khi Design canvas được chốt ở một version: screen inventory theo Runtime, component map (mỗi vùng UI → primitive/composite có sẵn hay cần thêm), token delta so với theme dùng chung, state list, và copy cần dịch. Là input của grill và được spec dẫn tới.
+Tài liệu chuyển giao từ design sang spec và implement, viết ở bước "chốt" (`/design-handoff <topic>`) trên một commit cụ thể của Design canvas: screen inventory theo Runtime, component map (mỗi vùng UI → primitive/composite có sẵn hay cần thêm), token delta so với theme dùng chung, state list, và copy cần dịch. Là input của grill và được spec dẫn tới.
 _Avoid_: design system (đụng với theme + primitive đã có), spec (handoff không quyết định kỹ thuật), tài liệu design

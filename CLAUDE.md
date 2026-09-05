@@ -439,8 +439,8 @@ một thư mục `docs/design/<topic>/`:
 3. Seed 2–4 **Direction** low-fi; chủ repo chọn một, ba cái còn lại ở lại trang thứ hai của canvas.
 4. Dựng **Design canvas** chi tiết — artboard cho desktop, dark, breakpoint hẹp nhất, và states.
 5. Vòng sửa: chủ repo mở file seeded bằng browser (xem, export PNG/PDF), nói cần đổi gì → Claude sửa
-   `.dc.html` → re-seed. **Local-only, không publish gì lên web**, nên không có nút Save và không có số
-   version; danh tính một bản chốt là **commit** của `artboards/`.
+   `.dc.html` → re-seed. **Local-only, không publish gì lên web** — vì sao và hệ quả: ADR-0008 mục
+   "Cập nhật 2026-09-05".
 6. `/design-handoff <topic>` khi chủ repo nói "chốt": extract → so → soát bằng `web-design-guidelines` →
    viết `design-handoff.md` sáu mục → commit.
 7. `/grill-with-docs` nhận handoff làm input; term mới cho một vùng UI vào `CONTEXT.md`.
@@ -523,7 +523,7 @@ The setup is **done**: `gh` 2.100.0 authenticated as `qtuan02` with the `repo` s
 
 - **New rule** — copy `.agents/rules/_template.md` (front-matter `title` / `impact` / `impactDescription` / `tags`; body with `❌`/`✅` Incorrect/Correct blocks). File name = `kebab-case-topic.md` matching an existing cluster prefix (register a new prefix in `.agents/rules/_sections.md` first). Keep it concise (~40–110 lines), write it in **English**, ground every example in code that actually exists in this repo, and state the Runtime it applies to when it applies to only one. Then add a row to the index in `.agents/README.md`.
 - **New ADR** — `docs/adr/NNNN-<slug>.md`, Vietnamese, with `status` + `date` front-matter, Considered Options and Consequences. Link it from the rule or the `CONTEXT.md` term it settles.
-- **New skill** — copy an existing `.agents/skills/<name>/SKILL.md` for shape, and load `writing-for-agents` first. A skill written here is **yours**: it gets no entry in `skills-lock.json`, and `npx skills@latest update` neither touches nor restores it. Never hand-edit a vendored skill instead — that drifts its hash and breaks `skills experimental_install`; re-sync it from upstream, or fork it under a new name.
+- **New skill** — copy an existing `.agents/skills/<name>/SKILL.md` for shape, and load `writing-for-agents` first. A skill written here is **yours**: it gets no entry in `skills-lock.json`, and `npx skills@latest update` neither touches nor restores it (`npx skills list` shows it as `Source: local`). Never hand-edit a vendored skill instead — that drifts its hash and breaks `skills experimental_install`; re-sync it from upstream, or fork it under a new name. **Language: a repo-own skill is written in Vietnamese** — unlike a rule, it has no upstream to stay diffable against, it produces Vietnamese artefacts, and §7a already makes Vietnamese the working language. Keep the `description` bilingual anyway: it is the pointer that decides when the skill fires, so it must carry the trigger phrasing in both languages the user actually types (`design-handoff` is the worked example).
 
 When adding cross-cutting content (e.g. a new workspace package, or a Flavor of an existing one), also update:
 
