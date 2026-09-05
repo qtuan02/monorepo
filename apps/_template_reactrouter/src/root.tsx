@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import {
   isRouteErrorResponse,
@@ -13,12 +14,14 @@ import {
 
 import { defaultLanguage } from "@monorepo/i18n/languages";
 import { resolveLanguage } from "@monorepo/i18n/resolve-language";
+import { Toaster } from "@monorepo/ui/components/toast";
 
 import type { Route } from "./+types/root";
 import { ExceptionState } from "~/components/exception/exception-state";
 import InternalServerError from "~/components/exception/internal-server-error";
 import { LANGUAGE_COOKIE_NAME } from "~/constants/cookies";
 import { languageContext } from "~/libs/language-context";
+import { getQueryClient } from "~/libs/query-client";
 import stylesheet from "./globals.css?url";
 
 export const links: Route.LinksFunction = () => [
@@ -72,6 +75,22 @@ export function Layout({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
 
   /*
+   * One QueryClient per render tree, created here rather than imported from a
+   * module that holds one: on the server this module is shared by every request
+   * at once, so a module-level client would serve one visitor's cached data to
+   * the next. `useState` with the factory as its lazy initializer is what scopes
+   * it — the server builds one per request and throws it away, the browser keeps
+   * the one it hydrated with for the life of the tab, and neither is lost when
+   * React re-runs the first render after a suspend.
+   *
+   * It sits in `Layout` rather than in `App` because React Router renders
+   * `Layout` around whichever of `App`, `ErrorBoundary` and `HydrateFallback` is
+   * current: inside `App` the provider would unmount the moment a route threw,
+   * and be rebuilt — with an empty cache — when the router swapped back.
+   */
+  const [queryClient] = useState(getQueryClient);
+
+  /*
    * Read off the i18next instance that is rendering this very tree — the
    * per-request clone on the server, the singleton in the browser — rather than
    * off `loaderData`. Three reasons, in the order they bite:
@@ -100,7 +119,12 @@ export function Layout({ children }: { children: ReactNode }) {
         <Links />
       </head>
       <body className="bg-background text-foreground min-h-dvh antialiased">
-        {children}
+        {/* `Toaster` is what makes the query client's global mutation-error
+            handler visible: it toasts every failed write once, and a manager
+            with no viewport mounted would drop the message silently. */}
+        <QueryClientProvider client={queryClient}>
+          <Toaster>{children}</Toaster>
+        </QueryClientProvider>
         <ScrollRestoration />
         <Scripts />
       </body>

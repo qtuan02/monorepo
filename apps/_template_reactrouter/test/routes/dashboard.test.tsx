@@ -1,10 +1,26 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { createRoutesStub, RouterContextProvider } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { userContext } from "~/features/auth/middleware/user-context";
 import i18n from "~/libs/i18n";
 import DashboardRoute, { loader, meta } from "~/routes/dashboard";
+import { render } from "../support/render";
+
+/**
+ * The screen's second data path reaches the network, and the seam for it is the
+ * service singleton — the same one `test/features/dashboard/components/
+ * template-list.test.tsx` mocks, where that half is actually asserted. Here it
+ * only has to stay quiet: this file is about what the loader put on screen. A
+ * promise that never settles leaves the list on its skeleton for the whole test.
+ *
+ * `render` is the shared one from `test/support`, because a stub renders the
+ * route module alone — the `QueryClientProvider` that `root.tsx`'s `Layout`
+ * supplies in the real app has to come from somewhere.
+ */
+vi.mock("~/libs/http-client", () => ({
+  templateService: { getTemplates: vi.fn(() => new Promise(() => {})) },
+}));
 
 const user = { id: "u-1", name: "Nguyễn Văn A" };
 

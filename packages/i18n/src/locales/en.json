@@ -394,6 +394,13 @@
       "title": "About",
       "lead": "The Template app for the React Router 8 framework-mode Runtime. This page differs from every other one in a single way: it is rendered once at build time, written to build/client, and react-router-serve answers with that file from disk without running any loader.",
       "body": "Because it is rendered at build time, this page carries the build's default language rather than negotiating from each request's cookie or Accept-Language. Once hydrated, the language switcher works as it does everywhere else."
+    },
+    "dashboard": {
+      "templates": {
+        "title": "Template list",
+        "lead": "This section loads after paint through TanStack Query — so it is not in the HTML the server sends, and refreshing it re-runs no loader.",
+        "empty": "No template yet. The sample backend is not running, or has no data."
+      }
     }
   }
 }

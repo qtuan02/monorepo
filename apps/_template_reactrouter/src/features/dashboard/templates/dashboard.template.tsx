@@ -2,6 +2,7 @@ import { useTranslation } from "react-i18next";
 
 import type { SessionUser } from "~/types/session-user";
 import SessionCard from "~/features/dashboard/components/session-card";
+import TemplateList from "~/features/dashboard/components/template-list";
 
 interface DashboardTemplateProps {
   /** Who is signed in, read by the route from the guard's context. */
@@ -16,6 +17,11 @@ interface DashboardTemplateProps {
  * Server rendered like every other template here, in the request's language,
  * because `entry.server` wraps the tree in an i18next instance fixed to it.
  * No `<main>` and no `min-h-dvh`: this renders into `BodyTemplate`'s outlet.
+ *
+ * The two halves are the lesson. `SessionCard` is loader data: it is in the
+ * first HTML because the page is about the session. `TemplateList` fetches
+ * itself after paint through TanStack Query, so refetching it never re-runs a
+ * loader — and its content is deliberately absent from what the server sends.
  */
 export default function DashboardTemplate({ user }: DashboardTemplateProps) {
   const { t } = useTranslation();
@@ -33,12 +39,15 @@ export default function DashboardTemplate({ user }: DashboardTemplateProps) {
 
       <SessionCard user={user} />
 
-      {/* #85 lands the second data path here: a client component over
-          `~/hooks/api` + TanStack Query, reading `templateService` after
-          paint, with its own skeleton and error state. It is deliberately
-          NOT in this ticket — the point of the split is that the session
-          above comes from the loader and the list below comes from Query,
-          and one value never lives in both. */}
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold tracking-tight">
+          {t("templateReactRouter.dashboard.templates.title")}
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          {t("templateReactRouter.dashboard.templates.lead")}
+        </p>
+        <TemplateList />
+      </section>
     </section>
   );
 }

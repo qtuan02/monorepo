@@ -17,12 +17,15 @@
     "e2e:headed": "playwright test --project=watch --headed --workers=1"
   },
   "dependencies": {
+    "@monorepo/api": "workspace:*",
     "@monorepo/dayjs": "workspace:*",
     "@monorepo/env": "workspace:*",
     "@monorepo/i18n": "workspace:*",
+    "@monorepo/types": "workspace:*",
     "@monorepo/ui": "workspace:*",
     "@react-router/node": "catalog:react-router8",
     "@react-router/serve": "catalog:react-router8",
+    "@tanstack/react-query": "catalog:tanstack-query5",
     "isbot": "catalog:",
     "lucide-react": "catalog:",
     "react": "catalog:react19",

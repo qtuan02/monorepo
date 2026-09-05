@@ -394,6 +394,13 @@
       "title": "Giới thiệu",
       "lead": "Template app cho Runtime React Router 8 framework mode. Trang này khác mọi trang còn lại ở một điểm: nó được render một lần lúc build, ghi ra build/client, và react-router-serve trả file đó từ đĩa mà không chạy loader nào.",
       "body": "Vì được render lúc build, trang này mang ngôn ngữ mặc định của build chứ không đàm phán theo cookie hay Accept-Language của từng request. Sau khi hydrate, bộ chọn ngôn ngữ vẫn hoạt động bình thường."
+    },
+    "dashboard": {
+      "templates": {
+        "title": "Danh sách template",
+        "lead": "Phần này tải sau khi trang đã hiển thị, qua TanStack Query — nên nó không nằm trong HTML server gửi đi, và làm mới nó không chạy lại loader nào.",
+        "empty": "Chưa có template nào. Backend mẫu chưa chạy hoặc chưa có dữ liệu."
+      }
     }
   }
 }

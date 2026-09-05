@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { RouterContextProvider } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
@@ -81,5 +83,58 @@ describe("root loader", () => {
     // what puts root's decision where a child route's `meta` can reach it, and
     // the request handed in here deliberately asks for no language at all.
     expect(loader(args)).toEqual({ language: "en" });
+  });
+});
+
+/**
+ * Read as TEXT, the same seam `test/entry.server.test.ts` uses: what has to hold
+ * is a property of the file, not the output of a call. A module-level
+ * `new QueryClient()` is correct in the Vite Template and wrong here — this
+ * module is loaded once per Node process and shared by every request being
+ * rendered at that moment, so one visitor's cache would reach the next. Nothing
+ * fails at runtime when it happens; the symptom is data in someone else's HTML.
+ */
+const source = readFileSync(resolve(process.cwd(), "src/root.tsx"), "utf8");
+
+/**
+ * Every source file except the factory itself, which is the one place the
+ * constructor belongs. Vite's `import.meta.glob` resolves the set at transform
+ * time, so a file added tomorrow is covered without anyone remembering to list
+ * it. `import: "default"` is what makes each value the file's text — without it
+ * the value is the module record and the type says otherwise, which is exactly
+ * how a check like this ends up reading `undefined` and passing on everything.
+ */
+const appSources = Object.entries(
+  import.meta.glob<string>("../src/**/*.{ts,tsx}", {
+    eager: true,
+    query: "?raw",
+    import: "default",
+  }),
+).filter(([path]) => !path.endsWith("src/libs/query-client.ts"));
+
+describe("root providers", () => {
+  it("builds the query client per render tree, never at module scope", () => {
+    expect(source).toContain("useState(getQueryClient)");
+  });
+
+  it("leaves the constructor to the factory, everywhere in src/", () => {
+    // Not `root.tsx` alone: the invariant is about the whole app. A
+    // `new QueryClient()` anywhere else is a module-level client by
+    // construction, and on a server that is one visitor's cache reaching the
+    // next — a failure with no runtime symptom of its own.
+    const offenders = appSources
+      .filter(([, text]) => text.includes("new QueryClient("))
+      .map(([path]) => path);
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("puts the provider in Layout, so an error render keeps it", () => {
+    // `Layout` wraps whichever of `App`, `ErrorBoundary` and `HydrateFallback`
+    // is current; inside `App` the provider would unmount on a thrown error and
+    // come back with an empty cache.
+    const layout = source.slice(source.indexOf("export function Layout"));
+
+    expect(layout).toContain("<QueryClientProvider client={queryClient}>");
   });
 });

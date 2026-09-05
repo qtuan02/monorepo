@@ -1,7 +1,12 @@
-import type { APIRequestContext } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import { BASE_URL } from "../playwright.config";
+import {
+  ACCEPT_VI,
+  locationOf,
+  SESSION_COOKIE,
+  signInRaw,
+} from "./support/session";
 
 /**
  * The session, asserted where it actually lives: on the wire. Everything in the
@@ -17,50 +22,6 @@ import { BASE_URL } from "../playwright.config";
  * `cookie` it sends, and the two that must not share a jar build a fresh
  * context of their own.
  */
-
-// Spelled out rather than imported from `~/constants/cookies`, for the same
-// reason the i18n spec spells the language cookie: what is asserted is the
-// contract with a browser, and a spec reading the same constant the server
-// reads would keep passing if the name changed under both.
-const SESSION_COOKIE = "template_reactrouter_session";
-
-const ACCEPT_VI = { "Accept-Language": "vi-VN,vi;q=0.9" };
-
-/** The `name=value` pair of the session cookie out of a `Set-Cookie` header. */
-function sessionPairOf(setCookie: string) {
-  const pair = setCookie
-    .split("\n")
-    .find((line) => line.startsWith(`${SESSION_COOKIE}=`))
-    ?.split(";")[0];
-
-  expect(pair).toBeDefined();
-
-  return pair ?? "";
-}
-
-/** Signs in through the raw endpoint and returns the cookie pair to send back. */
-async function signInRaw(request: APIRequestContext) {
-  const response = await request.post("/sign-in", {
-    form: { username: "template", password: "template" },
-    headers: ACCEPT_VI,
-    maxRedirects: 0,
-  });
-
-  expect(response.status()).toBe(302);
-
-  return sessionPairOf(response.headers()["set-cookie"] ?? "");
-}
-
-/** The `Location` header parsed against the server's own origin. */
-function locationOf(headers: Record<string, string>) {
-  const location = headers.location;
-
-  // A redirect with no `Location` is not a redirect; failing here names the
-  // missing header instead of letting `new URL` complain about an empty string.
-  if (!location) throw new Error("The response carries no Location header");
-
-  return new URL(location, BASE_URL);
-}
 
 test.describe("session guard, on the raw document", () => {
   test("answers a signed-out request for the dashboard with a redirect, not a page", async ({
