@@ -20,9 +20,9 @@ export function resolveLanguage(
   request: Request,
   cookieName: string,
 ): LanguageCode {
-  const chosen = readCookie(request.headers.get("cookie"), cookieName);
+  const chosen = readLanguageCookie(request.headers.get("cookie"), cookieName);
 
-  if (isLanguageCode(chosen)) {
+  if (chosen) {
     return chosen;
   }
 
@@ -35,6 +35,22 @@ export function resolveLanguage(
   }
 
   return defaultLanguage;
+}
+
+/**
+ * The stored language choice, or `undefined` when there is none or it names a
+ * language the registry does not have. Exported on its own because it reads a
+ * `document.cookie` string as well as a `Cookie` header — both are
+ * `name=value; name=value` — and a client entry needs exactly this half of
+ * `resolveLanguage`: what the visitor chose, with no header fallback.
+ */
+export function readLanguageCookie(
+  cookies: string | null,
+  cookieName: string,
+): LanguageCode | undefined {
+  const chosen = readCookie(cookies, cookieName);
+
+  return isLanguageCode(chosen) ? chosen : undefined;
 }
 
 /**

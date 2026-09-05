@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { defaultLanguage } from "../src/languages";
-import { resolveLanguage } from "../src/resolve-language";
+import { readLanguageCookie, resolveLanguage } from "../src/resolve-language";
 
 /**
  * `resolveLanguage` is the server-side twin of the two Flavors' own detection:
@@ -177,5 +177,25 @@ describe("the fallback", () => {
     expect(
       resolveLanguage(request({ "accept-language": "*" }), COOKIE_NAME),
     ).toBe(defaultLanguage);
+  });
+});
+
+describe("readLanguageCookie", () => {
+  it("reads a document.cookie string the same way it reads the header", () => {
+    // What `entry.client` hands it: the browser's own serialization, which
+    // has the header's shape.
+    expect(readLanguageCookie(`other=1; ${COOKIE_NAME}=en`, COOKIE_NAME)).toBe(
+      "en",
+    );
+  });
+
+  it("answers undefined rather than a default when nothing is stored", () => {
+    // No header fallback here on purpose: the caller asks what the visitor
+    // CHOSE, and a default would be indistinguishable from a choice.
+    expect(readLanguageCookie("", COOKIE_NAME)).toBeUndefined();
+    expect(readLanguageCookie(null, COOKIE_NAME)).toBeUndefined();
+    expect(
+      readLanguageCookie(`${COOKIE_NAME}=de`, COOKIE_NAME),
+    ).toBeUndefined();
   });
 });

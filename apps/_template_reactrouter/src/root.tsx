@@ -151,7 +151,8 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
    *
    * The `<main>` is here rather than inside `ExceptionState`: this boundary
    * replaces the whole shell, so it is the only thing left to carry the
-   * landmark, while the same component used under the shell (#85's 404) is
+   * landmark, while the same component used under the shell — the catch-all
+   * `~/routes/not-found` and the 404 boundary of `~/routes/module` — is
    * already inside `BodyTemplate`'s `<main>`.
    */
   if (!isRouteErrorResponse(error)) {

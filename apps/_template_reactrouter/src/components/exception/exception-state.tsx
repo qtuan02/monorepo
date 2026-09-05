@@ -6,14 +6,15 @@ interface ExceptionStateProps {
   /** The way out — a reload button, a link home. Optional: the framework's own
    *  status line has nothing useful to offer. */
   action?: ReactNode;
-  /** Fills the viewport. Used by the root error boundary, which replaces the
-   *  whole shell rather than rendering inside it. */
+  /** Fills the viewport. For a boundary that replaces the whole shell (root's);
+   *  a screen rendered inside the shell leaves it off, since `BodyTemplate`
+   *  already owns the column. */
   fullscreen?: boolean;
 }
 
 /**
  * The shared anatomy of every exception screen: heading, one line of prose, one
- * action. It exists so the error boundary and the catch-all 404 (#85) cannot
+ * action. It exists so the error boundary and the catch-all 404 cannot
  * drift into two different layouts, and so a new exception screen is a title and
  * a message rather than a new page design.
  *

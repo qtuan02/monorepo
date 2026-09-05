@@ -18,4 +18,39 @@ export default {
    * all three Runtimes.
    */
   appDirectory: "src",
+
+  /**
+   * The one route emitted as static HTML at build time, and the ONE place in
+   * this app a path is written as a literal rather than through `href()`: this
+   * config runs before typegen exists, so there is nothing typed to call yet.
+   *
+   * A literal list rather than `prerender: true`: `true` would also emit an
+   * `index.html` for `/`, and `react-router-serve`'s static middleware answers
+   * before the request handler does — so the home page would silently stop
+   * being server rendered and lose the per-request language negotiation the
+   * whole Runtime is here for.
+   */
+  prerender: ["/about"],
+
+  /**
+   * The host a form action may be posted from, on top of the request's own
+   * origin. Not optional in production: React Router refuses an action whose
+   * `Origin` header disagrees with `request.url`'s origin (its built-in CSRF
+   * check), and behind a TLS-terminating proxy — every non-`local` deployment
+   * of this image — the browser sends `Origin: https://host` while
+   * `react-router-serve` builds `request.url` as `http://host`, because it never
+   * sets Express's `trust proxy`. Without this line every sign-in and sign-out
+   * POST is answered 400 before the action runs. Matched on host, not scheme,
+   * which is exactly the difference the proxy introduces.
+   *
+   * `PUBLIC_BASE_DOMAIN` is the origin the app is built against, and this file
+   * runs under the same `dotenv -e ../../.env` as `build`. It is read directly
+   * rather than through `~/env` because the config runs before the app exists,
+   * and it is guarded because `react-router typegen` runs with no `.env` at all.
+   * Locally the two origins already agree, so the list is only ever consulted
+   * behind a proxy.
+   */
+  allowedActionOrigins: process.env.PUBLIC_BASE_DOMAIN
+    ? [new URL(process.env.PUBLIC_BASE_DOMAIN).host]
+    : [],
 } satisfies Config;

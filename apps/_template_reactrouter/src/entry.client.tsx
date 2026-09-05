@@ -1,10 +1,13 @@
-import { StrictMode, startTransition } from "react";
+import { StrictMode, startTransition, useEffect } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { I18nextProvider } from "react-i18next";
 import { HydratedRouter } from "react-router/dom";
 
+import type { LanguageCode } from "@monorepo/i18n/languages";
 import { defaultLanguage, isLanguageCode } from "@monorepo/i18n/languages";
+import { readLanguageCookie } from "@monorepo/i18n/resolve-language";
 
+import { LANGUAGE_COOKIE_NAME } from "~/constants/cookies";
 import i18n from "~/libs/i18n";
 // Side-effect import: keeps dayjs's locale following the active language, so a
 // `dddd` formatted outside a component is right after a switch too.
@@ -26,6 +29,50 @@ const serverLanguage = document.documentElement.lang;
 const language = isLanguageCode(serverLanguage)
   ? serverLanguage
   : defaultLanguage;
+
+/**
+ * The visitor's stored choice, read BEFORE the switch below — which is the
+ * only moment it can still be read. `changeLanguage` re-writes the language
+ * cookie with whatever it is handed (`caches: ["cookie"]`), so once the tree is
+ * being hydrated in the server's language, the cookie already says the same.
+ *
+ * Usually the two agree: the server negotiated from this very cookie. They
+ * disagree on a PRERENDERED document, which was rendered once at build time
+ * in the registry default and served off disk with no negotiation at all. For
+ * that page the stored choice has to survive hydration — see
+ * `RestoreStoredLanguage`.
+ */
+const storedLanguage = readLanguageCookie(
+  document.cookie,
+  LANGUAGE_COOKIE_NAME,
+);
+
+interface RestoreStoredLanguageProps {
+  language: LanguageCode | undefined;
+}
+
+/**
+ * Puts the visitor's stored choice back once hydration has committed. Rendered
+ * beside `<HydratedRouter>` — it emits no DOM, so the server's markup still
+ * matches — and its effect is what runs strictly AFTER React has attached to
+ * the document, which is the ordering nothing outside the tree can promise.
+ *
+ * The switch cannot happen before hydration: the markup on disk is in the
+ * build's language, and a tree hydrated in another one is the mismatch this
+ * whole file exists to avoid. So the page is hydrated as sent, then switched in
+ * place — and the switch re-writes the cookie, undoing the build-language value
+ * the pre-hydration switch cached. On a server-rendered page the two languages
+ * are equal and this does nothing.
+ */
+function RestoreStoredLanguage({ language }: RestoreStoredLanguageProps) {
+  useEffect(() => {
+    if (language && language !== i18n.resolvedLanguage) {
+      void i18n.changeLanguage(language);
+    }
+  }, [language]);
+
+  return null;
+}
 
 /*
  * The switch has to be RESOLVED before `hydrateRoot` is called, not merely
@@ -49,6 +96,7 @@ function hydrate() {
             is nothing to isolate. */}
         <I18nextProvider i18n={i18n}>
           <HydratedRouter />
+          <RestoreStoredLanguage language={storedLanguage} />
         </I18nextProvider>
       </StrictMode>,
     );

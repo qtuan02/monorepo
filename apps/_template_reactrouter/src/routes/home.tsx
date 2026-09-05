@@ -2,6 +2,7 @@ import { defaultLanguage } from "@monorepo/i18n/languages";
 
 import type { Route } from "./+types/home";
 import { env } from "~/env";
+import { HOME_CATALOGUE } from "~/features/home/constants/home-catalogue";
 import HomeTemplate from "~/features/home/templates/home.template";
 import i18n from "~/libs/i18n";
 
@@ -11,7 +12,8 @@ import i18n from "~/libs/i18n";
  *
  * It also fixes where this Runtime's two data paths meet: a `loader` for what a
  * crawler must read and what `meta` is built from, TanStack Query in a client
- * component for what happens after paint. One value never lives in both.
+ * component for what happens after paint. One value never lives in both. The
+ * catalogue is the crawler's half, which is why it is here and not in a hook.
  *
  * The build eliminates this export from the client bundle, which is what makes
  * it safe for a loader to read server-side config. Nothing here reaches a
@@ -19,13 +21,14 @@ import i18n from "~/libs/i18n";
  * Template's own screens have to resolve with no server running.
  */
 export function loader() {
-  return { appEnv: env.PUBLIC_APP_ENV };
+  return { appEnv: env.PUBLIC_APP_ENV, modules: HOME_CATALOGUE };
 }
 
 /**
  * `meta` is what a crawler reads, and it runs on the server for the first
  * render too. It is built from `loaderData` rather than from a second read, so
- * the tab and the page cannot describe different things.
+ * the tab and the page cannot describe different things — the keywords are the
+ * same module titles the catalogue grid renders.
  *
  * Translating it takes `getFixedT` rather than `useTranslation`, because this
  * runs outside the React tree: there is no provider in scope, so the request's
@@ -40,9 +43,10 @@ export function loader() {
  * would be a second decision to keep in step for no gain.
  */
 export function meta({ loaderData, matches }: Route.MetaArgs) {
-  // `?? defaultLanguage` even though the type says it is present: root exports
-  // an `ErrorBoundary`, so on an error render its loader never ran and the
-  // typed value is `undefined` at runtime.
+  // `?? defaultLanguage` because typegen types root's entry as possibly
+  // `undefined`. It is a type-level obligation rather than a branch: when
+  // root's loader fails the framework runs `meta` only up to root's own
+  // boundary, so this function never sees that render.
   const t = i18n.getFixedT(matches[0].loaderData?.language ?? defaultLanguage);
 
   return [
@@ -55,6 +59,12 @@ export function meta({ loaderData, matches }: Route.MetaArgs) {
       name: "description",
       content: t("templateReactRouter.home.meta.description"),
     },
+    {
+      name: "keywords",
+      content: loaderData.modules
+        .map((module) => t(`home.modules.${module.id}.title`))
+        .join(", "),
+    },
   ];
 }
 
@@ -64,5 +74,7 @@ export function meta({ loaderData, matches }: Route.MetaArgs) {
  * exactly as they do in the other two Runtimes.
  */
 export default function HomeRoute({ loaderData }: Route.ComponentProps) {
-  return <HomeTemplate appEnv={loaderData.appEnv} />;
+  return (
+    <HomeTemplate appEnv={loaderData.appEnv} modules={loaderData.modules} />
+  );
 }

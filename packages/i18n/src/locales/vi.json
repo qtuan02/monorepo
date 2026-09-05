@@ -378,6 +378,22 @@
           "label": "Môi trường"
         }
       }
+    },
+    "module": {
+      "available": "Sẵn sàng",
+      "lead": "Một URL công khai cho mỗi phân hệ: trang này được server render từ catalogue, nên crawler đọc được tên và mô tả trước khi JavaScript chạy.",
+      "open": "Mở {name}",
+      "backToCatalogue": "Về danh sách phân hệ"
+    },
+    "about": {
+      "meta": {
+        "title": "Giới thiệu — Monorepo",
+        "description": "Trang tĩnh được prerender lúc build và phục vụ từ đĩa, không cần server render."
+      },
+      "eyebrow": "Prerender lúc build",
+      "title": "Giới thiệu",
+      "lead": "Template app cho Runtime React Router 8 framework mode. Trang này khác mọi trang còn lại ở một điểm: nó được render một lần lúc build, ghi ra build/client, và react-router-serve trả file đó từ đĩa mà không chạy loader nào.",
+      "body": "Vì được render lúc build, trang này mang ngôn ngữ mặc định của build chứ không đàm phán theo cookie hay Accept-Language của từng request. Sau khi hydrate, bộ chọn ngôn ngữ vẫn hoạt động bình thường."
     }
   }
 }

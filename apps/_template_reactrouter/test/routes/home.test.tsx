@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { describe, expect, it } from "vitest";
 
+import { HOME_CATALOGUE } from "~/features/home/constants/home-catalogue";
 import i18n from "~/libs/i18n";
 import HomeRoute, { loader, meta } from "~/routes/home";
 
@@ -41,6 +42,26 @@ describe("route: home", () => {
     // `loaderData` would still pass the heading assertion above.
     expect(screen.getByText(appEnv)).toBeInTheDocument();
   });
+
+  it("renders every catalogue entry as a card linking to its module page", async () => {
+    const Stub = createRoutesStub([
+      { path: "/", Component: HomeRoute, loader },
+    ]);
+
+    render(<Stub initialEntries={["/"]} />);
+
+    // One card per catalogue entry, each a real link — this is the markup a
+    // crawler reads in the first HTML, so it has to come from the loader and
+    // not from anything fetched after paint.
+    expect(
+      await screen.findByRole("link", { name: /Bảng điều khiển/ }),
+    ).toHaveAttribute("href", "/modules/dashboard");
+    const cards = screen.getAllByRole("link", { name: /./ });
+    const moduleLinks = cards.filter((card) =>
+      card.getAttribute("href")?.startsWith("/modules/"),
+    );
+    expect(moduleLinks).toHaveLength(HOME_CATALOGUE.length);
+  });
 });
 
 /**
@@ -51,13 +72,15 @@ describe("route: home", () => {
  * singleton — it fixes a language for the returned `t` without moving the
  * instance's own.
  */
-function titleFor(language: string) {
-  const descriptors = meta({
-    loaderData: { appEnv: "local" },
+function descriptorsFor(language: string) {
+  return meta({
+    loaderData: { appEnv: "local", modules: HOME_CATALOGUE },
     matches: [{ loaderData: { language } }],
   } as unknown as Parameters<typeof meta>[0]);
+}
 
-  return descriptors.find((descriptor) => "title" in descriptor);
+function titleFor(language: string) {
+  return descriptorsFor(language).find((descriptor) => "title" in descriptor);
 }
 
 describe("route: home meta", () => {
@@ -67,6 +90,19 @@ describe("route: home meta", () => {
     });
     expect(titleFor("en")).toEqual({
       title: "React Router Template — Monorepo (local)",
+    });
+  });
+
+  it("lists the catalogue's module titles as keywords, from the same loader data", () => {
+    // Built from `loaderData`, not from a second read of the catalogue: the
+    // keywords and the cards on the page cannot name different modules.
+    expect(descriptorsFor("vi")).toContainEqual({
+      name: "keywords",
+      content: expect.stringContaining("Bảng điều khiển, Hệ thống POS"),
+    });
+    expect(descriptorsFor("en")).toContainEqual({
+      name: "keywords",
+      content: expect.stringContaining("Dashboard, POS System"),
     });
   });
 
