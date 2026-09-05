@@ -8,6 +8,11 @@ ARG NODE_ENV=production
 FROM oven/bun:${BUN_VERSION}-alpine AS base
 RUN apk update && apk add --no-cache libc6-compat
 
+# Step 1b: the Node binary the builder needs, taken from the very image the
+# runner is built on, so the version that prerenders is the version that serves.
+# See the builder's own note for why a Node is needed inside a Bun image at all.
+FROM node:${NODE_VERSION}-alpine AS node-bin
+
 # Step 2: Pruner Layer — the workspace, cut down to this app and its deps.
 FROM base AS pruner
 ARG PROJECT
@@ -64,6 +69,33 @@ ENV NODE_ENV=${NODE_ENV}
 # cwd, so the root one is invisible from inside `apps/`.
 RUN cd apps/${APP_DIRNAME} && bun --env-file=/app/.env -e "import './src/env.ts';"
 
+# The `node-bin` stage above and this COPY exist for one reason — `prerender` —
+# and they are the only place any of the three Templates needs a second runtime
+# inside its builder.
+#
+# `react-router build` does not render the prerendered routes in-process: it
+# starts a Vite PREVIEW SERVER and fetches `/about` and `/about.data` from it
+# over HTTP. That server loads `build/server/index.js`, which keeps
+# `react-dom/server` as a bare import — and react-dom's `exports` map answers
+# that specifier by CONDITION: `"bun"` resolves to `server.bun.js`, `"node"` to
+# `server.node.js`. Only the Node build exports `renderToPipeableStream`, which
+# is what `src/entry.server.tsx` imports.
+#
+# `oven/bun:*` ships a `node` at /usr/local/bun-node-fallback-bin that IS Bun, so
+# without a real Node the preview server resolves through the `bun` condition,
+# `build/server/index.js` fails at module load, and every prerender request comes
+# back 500. The failure names neither react-dom nor the condition — React Router
+# reports only `Prerender: Request failed for /about.data`, and the preview
+# server logs nothing — so it reads as a broken route rather than a missing
+# binary. It also cannot be reproduced on a dev box, where a real Node is on
+# PATH and the build is green; the image is the only place it happens.
+#
+# /usr/local/bin precedes the fallback directory in the base image's PATH, so
+# dropping the binary there is the whole fix — no apk index, no second toolchain,
+# and `apk add nodejs` is deliberately not used: Alpine's package is Node 22,
+# below the >=24.14.0 this workspace's `engines` requires.
+COPY --from=node-bin /usr/local/bin/node /usr/local/bin/node
+
 RUN bun run build --filter=${PROJECT}
 
 # The runner ships no `@monorepo/*` package at all: Vite does not externalize a
@@ -78,13 +110,17 @@ RUN ! grep -qE '^import[^;]*"@monorepo/' apps/${APP_DIRNAME}/build/server/index.
 
 # Step 4: Prod-deps Layer — the runtime dependency closure, and nothing else.
 # This Runtime has no `output: "standalone"` and no dependency tracer:
-# `react-router build` emits a bundle that still imports react, react-dom/server,
-# react-router, @react-router/node, isbot and zod by bare specifier, and
-# `@react-router/serve` is a real package that has to be on disk to be executed.
-# So the image carries a node_modules, and this stage is what keeps it to the
-# production half — a second, clean resolution rather than a slimming pass,
-# because `bun install --production` does not remove devDependencies already
-# written into an existing tree.
+# `react-router build` emits a bundle that still imports eleven packages by bare
+# specifier — react, react/jsx-runtime, react-dom, react-dom/server,
+# react-router, @react-router/node, react-i18next, @tanstack/react-query,
+# lucide-react, isbot and zod — and `@react-router/serve` is a real package that
+# has to be on disk to be executed. So the image carries a node_modules, and this
+# stage is what keeps it to the production half — a second, clean resolution
+# rather than a slimming pass, because `bun install --production` does not remove
+# devDependencies already written into an existing tree. Every one of those eleven
+# sits in `dependencies` rather than `devDependencies`, which is what makes
+# `--production` safe here; move one across and the container stops booting rather
+# than failing this build.
 FROM base AS prod-deps
 ARG NODE_ENV
 WORKDIR /app
