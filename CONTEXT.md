@@ -46,3 +46,19 @@ _Avoid_: translation string, resource, key dịch (đó là khoá, không phải
 **Publish shell**:
 Workspace `packages/<name>-public` chỉ gồm một `package.json` viết tay (tên npm `@fe-monorepo/<name>`, version, deps literal — không `catalog:`, không `workspace:`) và README; nhận `dist/` được build từ package nguồn `packages/<name>` và là thứ duy nhất Changesets nhìn thấy khi publish. Package nguồn vẫn `private`, source-only. Hiện có hai: `ui-public` và `hook-public`.
 _Avoid_: package public, bản publish, package npm (mơ hồ với package nguồn)
+
+**Design brief**:
+Đề bài của một pha design: màn hình/app/Runtime cần vẽ, ràng buộc từ research, và Direction đã chọn. Là thứ `research` bàn giao cho bước design và là input đầu tiên của Design canvas.
+_Avoid_: yêu cầu, mô tả, prompt
+
+**Direction**:
+Một artboard low-fi thể hiện một hướng thẩm mỹ cho cùng đề bài; bước design vẽ 2–4 Direction khác hẳn nhau để chủ repo chọn đúng một trước khi vẽ chi tiết.
+_Avoid_: phương án, style, concept
+
+**Design canvas**:
+Artifact chạy editor Claude Design cho một topic, gồm nhiều artboard; có version — mỗi lần chủ repo sửa tay rồi Save, hoặc Claude re-seed rồi republish, là một version mới. Là nơi duy nhất design được xem và chỉnh sửa; nguồn thật vẫn là working files commit trong repo.
+_Avoid_: mockup (mơ hồ giữa canvas và một artboard), bản vẽ, design
+
+**Design handoff**:
+Tài liệu chuyển giao từ design sang spec và implement, viết sau khi Design canvas được chốt ở một version: screen inventory theo Runtime, component map (mỗi vùng UI → primitive/composite có sẵn hay cần thêm), token delta so với theme dùng chung, state list, và copy cần dịch. Là input của grill và được spec dẫn tới.
+_Avoid_: design system (đụng với theme + primitive đã có), spec (handoff không quyết định kỹ thuật), tài liệu design
