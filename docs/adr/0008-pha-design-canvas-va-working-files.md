@@ -24,3 +24,28 @@ Workflow skill của repo (`/grill-with-docs` → `/to-spec` → `/to-tickets` �
 - Feedback ngoài chủ repo đi qua comment trên spec issue (comment trên Artifact không có với plan Pro/Max).
 - Bốn term mới trong `CONTEXT.md`: **Design brief**, **Direction**, **Design canvas**, **Design handoff**. Brief và handoff viết tiếng Việt theo §7a; `brief.md` do Claude viết ở đầu bước design từ research note + `theme.css` + `packages/ui`, chủ repo duyệt rồi mới seed Direction.
 - Điều kiện vận hành nằm ngoài code: tài khoản có capability Artifact `self`/`artifact` (đã xác minh trong phiên chốt ADR này) để Save hoạt động; không có nó thì bước sửa tay thu về xem + export PNG/PDF + nói cho Claude sửa.
+
+## Cập nhật 2026-09-05 — canvas chạy local-only, bản chốt là một commit
+
+Pilot [#95](https://github.com/qtuan02/monorepo/issues/95) chạy ngay sau khi ADR này được chấp nhận, và
+chủ repo chốt thêm một điều kiện ADR chưa lường: **không publish gì lên web** — không Artifact trên
+claude.ai, không dịch vụ ngoài. Design ở lại trong repo; `qtuan02/monorepo` vốn public nên mockup vốn đã
+public, không cần thêm một bản sao trên hạ tầng ngoài.
+
+Đây đúng là nhánh dự phòng đoạn cuối phần Consequences đã lường trước ("không có capability đó thì bước
+sửa tay thu về xem + export PNG/PDF + nói cho Claude sửa"), chỉ khác ở chỗ nó được chọn chứ không phải bị
+ép. Bốn chỗ trong ADR này phải đọc lại theo:
+
+- **Không có Artifact, không có URL, không có số version.** Danh tính một bản chốt là **commit** của
+  `docs/design/<topic>/artboards/`. Mọi chỗ trên nói "ghim URL + version" đọc là "ghim commit"; spec vẫn
+  trỏ một bản cụ thể chứ không phải "bản mới nhất".
+- **Không có nút Save**, vì Save cần một trang hosted. Vòng lặp là: chủ repo mở file seeded bằng browser,
+  nói cần đổi gì → Claude sửa `.dc.html` → re-seed → mở lại.
+- **`seed-canvas.mjs --extract` vẫn là công cụ đọc lại**, nhưng đối tượng của nó là file seeded local chứ
+  không phải một trang published. Không còn `Artifact read`, và không còn conflict giữa hai người Save.
+- **Capability Artifact không còn là điều kiện vận hành.** Điều kiện còn lại chỉ là skill `design` bundled
+  có mặt ở phiên đang chạy — `.agents/skills/design-handoff/SKILL.md` nói cách tìm `seed-canvas.mjs` của
+  nó thay vì hard-code một đường dẫn theo version Claude Code.
+
+Phần còn lại của ADR — design đứng trước grill, working files là nguồn thật, phân loại token delta,
+UI UX Pro Max giữ vai phụ, bốn term trong `CONTEXT.md` — không đổi.

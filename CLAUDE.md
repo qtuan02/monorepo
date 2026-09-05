@@ -131,7 +131,7 @@ monorepo/
 ├── turbo/generators/            ← three plop generators: `package`, `tooling`, `app`. `app` prompts for the **Runtime** (`next` | `vite` | `reactrouter`), clones the matching Template app, rewrites its name / Dockerfile ARGs / root scripts, then installs and formats. A Runtime is one entry in that file's `RUNTIMES` record — every branch reads it, so nothing else in the generator changes. Run through the `gen` binary, never `bunx turbo gen` (it truncates arguments on Windows)
 ├── .agents/                     ← AI resources  [`.claude` → `.agents` symlink, git mode 120000 — clone with `core.symlinks=true`]
 │   ├── rules/                  ← 52 rules across 12 prefix clusters (+ `_sections.md`, `_template.md`)
-│   ├── skills/                 ← 31 vendored skills. The 25 from `mattpocock/skills` (23) and `vercel-labs/agent-skills` (2) are pinned in `skills-lock.json`; the six `gitnexus-*` are **not** in the lock — `gitnexus analyze` owns them
+│   ├── skills/                 ← 32 skills. The 25 from `mattpocock/skills` (23) and `vercel-labs/agent-skills` (2) are vendored and pinned in `skills-lock.json`; the six `gitnexus-*` are vendored but **not** in the lock — `gitnexus analyze` owns them; and `design-handoff` is this repo's own, written per §8 and pinned by nothing. `design` is not in this tree at all — it ships with Claude Code (§7)
 │   ├── plans/                  ← the **former** tracker, frozen read-only at the switch to GitHub Issues (§7b, §9): 3 topics, `spec.md` + `NN-*.md`. Still `plansDirectory`, so plan-mode scratch lands here
 │   ├── commands.md             ← the full command reference (§6 is its short form)
 │   ├── knowledge-base.md       ← project facts and gotchas that no single file shows
@@ -230,7 +230,7 @@ Two things about the two server-rendered diagrams are load-bearing, and they hol
 | A unit / component test                       | `apps/<app>/test/<same path as under src>/<source>.test.ts(x)` — the `test/` tree mirrors `src/`; nothing under `src/` is a test                                                     | `testing-coverage.md`                                                    |
 | An E2E flow                                   | `apps/<app>/e2e/<flow>.e2e.ts` (Playwright; the `.e2e.ts` suffix keeps it out of Vitest)                                                                                             | `testing-playwright.md`                                                  |
 | An architectural decision worth recording     | `docs/adr/NNNN-<slug>.md` (Vietnamese, `status` + `date` front-matter). A glossary term goes in `CONTEXT.md`; a per-workspace term in that workspace's own `CONTEXT.md`, registered in `CONTEXT-MAP.md` | §8, §9                                                                   |
-| A design — canvas, artboards, handoff         | `docs/design/<topic>/` — `brief.md` (the problem and the Direction that won), the `<Name>.dc.html` artboards plus `canvas.json` the `design` skill seeds, and `design-handoff.md`, which is what grill and the spec then cite. The published canvas is where a design is looked at and edited; the committed working files are the source of truth, and the seeded `.html` beside them is gitignored packaging | ADR-0008                                                                 |
+| A design — canvas, artboards, handoff         | `docs/design/<topic>/` — `brief.md` (the problem and the Direction that won), the `<Name>.dc.html` artboards plus `canvas.json` the `design` skill seeds, and `design-handoff.md`, which is what grill and the spec then cite. The committed working files are the source of truth and a commit of `artboards/` **is** a design's version; the seeded `.html` beside them is gitignored packaging, opened in a browser to look at the canvas and export it | ADR-0008                                                                 |
 
 ### Path Aliases
 
@@ -361,12 +361,16 @@ Per-app `turbo.json` files `extends: ["//"]` and flip `dev.persistent: true` —
 
 A skill is a deeper, scenario-shaped guide (longer than a rule, narrower than a doc). Each lives in `skills/<name>/SKILL.md`.
 
-Skills are **vendored** — real files in this repo, not a runtime fetch — and pinned by source repository plus content hash in [`skills-lock.json`](skills-lock.json). Re-sync one with the `skills` CLI (`npx skills@latest update <name>`) rather than hand-editing it, or the hash drifts and `skills experimental_install` can no longer restore it. The workflow skills come from `mattpocock/skills`, two come from `vercel-labs/agent-skills`, and the `gitnexus-*` set is installed by `npx gitnexus analyze` alongside the GitNexus block at the bottom of this file.
+Most skills here are **vendored** — real files in this repo, not a runtime fetch — and pinned by source repository plus content hash in [`skills-lock.json`](skills-lock.json). Re-sync one with the `skills` CLI (`npx skills@latest update <name>`) rather than hand-editing it, or the hash drifts and `skills experimental_install` can no longer restore it. The workflow skills come from `mattpocock/skills`, two come from `vercel-labs/agent-skills`, and the `gitnexus-*` set is installed by `npx gitnexus analyze` alongside the GitNexus block at the bottom of this file.
 
-The main line runs `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/code-review` → `/handoff`. **Read §7a before running any of them** — it carries this repo's overrides (language, the Standards source for `/code-review`, the tracker, and the TDD loop).
+Two rows of the table below are **not** vendored, and neither is in the lock. `design` ships **with Claude Code** — it is not a file in this repo at all, so there is nothing to pin and nothing to re-sync; it arrives and updates with the CLI. `design-handoff` is **this repo's own**, written per §8: edit it directly, and `npx skills@latest update` neither touches nor restores it.
+
+The main line runs **design** → `/design-handoff` → `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/code-review` → `/handoff`. **Read §7a before running any of them** — it carries this repo's overrides (the design phase, language, the Standards source for `/code-review`, the tracker, and the TDD loop).
 
 | Skill                           | Read when                                                                                     |
 | ------------------------------- | --------------------------------------------------------------------------------------------- |
+| `design` *(bundled with Claude Code — not in `skills-lock.json`)* | Drawing a **Design canvas** for a topic: a brief, 2–4 Directions to choose from, then the detailed artboards under `docs/design/<topic>/`. The phase that runs **before** grill |
+| `design-handoff` *(this repo's own — not in `skills-lock.json`)* | Chốt a canvas and writing the **Design handoff** — `/design-handoff <topic>` extracts, compares, reviews, writes the six-section handoff, and commits |
 | `grill-with-docs`               | Stress-testing a feature idea while building the domain model (drives `domain-modeling` → `CONTEXT.md` + ADRs) |
 | `grill-me` / `grilling`         | Stress-testing a plan or decision without touching the domain docs                             |
 | `to-spec`                       | Turning a settled decision into a written spec                                                 |
@@ -422,6 +426,32 @@ The main line runs `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/imp
   vào Design handoff. Không sinh palette cho app đã có theme — token khai một lần ở
   `tooling/tailwind/theme.css` — không `--persist` thư mục `design-system/` vào repo, và
   skill `design` của họ cố ý **không** cài vì đè `/design` bundled; rules của repo thắng.
+
+### Pha design — tám bước, đứng trước grill
+
+Một màn hình mới đi qua pha **design** trước khi có dòng TSX nào, và nó đứng **trước** `/grill-with-docs`
+vì grill cần một artefact cụ thể để stress-test, còn skill `design` đã có vòng hỏi thẩm mỹ riêng — grill
+trước là lặp ([ADR-0008](./docs/adr/0008-pha-design-canvas-va-working-files.md)). Thứ tự thật, một topic
+một thư mục `docs/design/<topic>/`:
+
+1. `/research` khi câu hỏi cần đọc nguồn ngoài → note trong `docs/research/`.
+2. `/design` viết `brief.md` từ note + `theme.css` + danh mục primitive; **chủ repo duyệt** trước khi vẽ.
+3. Seed 2–4 **Direction** low-fi; chủ repo chọn một, ba cái còn lại ở lại trang thứ hai của canvas.
+4. Dựng **Design canvas** chi tiết — artboard cho desktop, dark, breakpoint hẹp nhất, và states.
+5. Vòng sửa: chủ repo mở file seeded bằng browser (xem, export PNG/PDF), nói cần đổi gì → Claude sửa
+   `.dc.html` → re-seed. **Local-only, không publish gì lên web**, nên không có nút Save và không có số
+   version; danh tính một bản chốt là **commit** của `artboards/`.
+6. `/design-handoff <topic>` khi chủ repo nói "chốt": extract → so → soát bằng `web-design-guidelines` →
+   viết `design-handoff.md` sáu mục → commit.
+7. `/grill-with-docs` nhận handoff làm input; term mới cho một vùng UI vào `CONTEXT.md`.
+8. `/to-spec` (dẫn tới handoff + commit, không dán artboard) → `/to-tickets` → `/implement` → `/code-review`.
+
+`brief.md` và `design-handoff.md` viết **tiếng Việt**, thuật ngữ English — như mọi artefact workflow khác.
+Token delta **thêm** là một ticket chặn các ticket UI; **đổi** một token brand hiện có cần ADR trước.
+`prototype/UI.md` quyết theo từng ticket, chỉ khi màn hình đã tồn tại và bố cục còn nghi ngờ. Sửa canvas
+sau khi spec đã mở vẫn được: một commit mới của `artboards/`, cập nhật handoff, một comment vào spec issue
+— spec trỏ một commit cụ thể, không bao giờ "bản mới nhất". `/implement` vẫn load
+`vercel-react-best-practices` + `web-design-guidelines` như mục trên đã bắt.
 
 ### Runtime nào — hỏi trước khi viết dòng đầu tiên
 
