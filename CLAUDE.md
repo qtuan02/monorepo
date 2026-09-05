@@ -414,6 +414,14 @@ The main line runs `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/imp
   Runtime Next; app Runtime Vite (SPA thuần) và app Runtime React Router (có SSR
   nhưng không có RSC) đều bỏ qua phần đó — với app React Router, nửa server-render
   của guidance nằm ở `reactrouter-loader-vs-query.md` và `reactrouter-server-modules.md`.
+- **UI UX Pro Max — vai phụ, cài global trên máy dev:** cần Python 3 trên máy; không pin
+  version, không dính Gate/CI, và **không** vendor vào `.agents/skills/`. Gọi thẳng
+  `C:\Users\Admin\.claude\skills\ui-ux-pro-max\scripts\search.py` — SKILL.md của họ viết
+  `${CLAUDE_PLUGIN_ROOT}`, biến đó rỗng khi cài bằng `skills` CLI. Chỉ hai việc: lấy style
+  direction khi app **chưa** có brand, và tra checklist theo `--stack` / `--domain` để bổ
+  vào Design handoff. Không sinh palette cho app đã có theme — token khai một lần ở
+  `tooling/tailwind/theme.css` — không `--persist` thư mục `design-system/` vào repo, và
+  skill `design` của họ cố ý **không** cài vì đè `/design` bundled; rules của repo thắng.
 
 ### Runtime nào — hỏi trước khi viết dòng đầu tiên
 
