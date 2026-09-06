@@ -17,7 +17,6 @@
       "!**/.react-router",
       "!**/build",
       "!**/storybook-static",
-      "!docs/design",
       "!**/*.d.ts",
       "!**/*.svg"
     ]
