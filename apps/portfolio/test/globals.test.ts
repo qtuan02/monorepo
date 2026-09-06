@@ -283,11 +283,27 @@ describe("where the override sits in the cascade", () => {
  * silence is the whole contract: what it does not re-declare, it inherits.
  */
 describe("composing with the print palette", () => {
-  it("replaces the neutrals and leaves all seven accent tokens alone", () => {
+  /**
+   * The print palette pins `primary` because something on paper is painted
+   * with it: the project card's source and demo links are `text-primary`, and
+   * the stylesheet prints each one's href after it in the same colour. The
+   * other five stay out of it — they are fills, hover washes and a focus ring,
+   * none of which a printer reproduces.
+   */
+  const PRINTED_ACCENT_TOKENS = ["primary", "primary-foreground"] as const;
+
+  it("replaces the neutrals, and only the accent that reaches paper as text", () => {
     expect(printPalette.background).toBeDefined();
     expect(printPalette["muted-foreground"]).toBeDefined();
 
+    for (const token of PRINTED_ACCENT_TOKENS) {
+      expect(printPalette[token], token).toBeDefined();
+    }
+
     for (const token of ACCENT_TOKENS) {
+      if ((PRINTED_ACCENT_TOKENS as readonly string[]).includes(token)) {
+        continue;
+      }
       expect(printPalette[token], token).toBeUndefined();
     }
   });
@@ -304,13 +320,19 @@ describe("composing with the print palette", () => {
       contrastRatio(inkOf("light", "primary"), paper),
     ).toBeGreaterThanOrEqual(4.5);
 
-    // The dark theme's lifted indigo is the weaker of the two on white: it
-    // clears the 3:1 a non-text mark needs, not the 4.5:1 of body copy. Nothing
-    // on the printed page paints text with it today — every use is a fill or an
-    // interaction state — and a future one has to darken this first.
+    // The dark theme's lifted indigo would be the weaker of the two on white —
+    // it clears the 3:1 a non-text mark needs, not the 4.5:1 of body copy — so
+    // it must not be what a reader in the dark theme prints. The print palette
+    // pins `primary` to the light value for exactly that reason; this asserts
+    // the pin, which is the thing that can regress, rather than the dark value
+    // it makes unreachable.
+    expect(contrastRatio(inkOf("dark", "primary"), paper)).toBeLessThan(4.5);
     expect(
-      contrastRatio(inkOf("dark", "primary"), paper),
-    ).toBeGreaterThanOrEqual(3);
+      contrastRatio(
+        oklchToRgb(parseOklch(declared(printPalette, "primary"))),
+        paper,
+      ),
+    ).toBeGreaterThanOrEqual(4.5);
 
     // The print palette's own body copy, re-confirmed against the same maths.
     expect(

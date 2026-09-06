@@ -222,6 +222,16 @@
     --muted: oklch(0.96 0 0);
     --muted-foreground: oklch(0.42 0 0);
     --border: oklch(0.8 0 0);
+    /* The accent has to come along, or "both themes print the same document"
+       stops being true for the one token that is still coloured on paper. The
+       dark theme's indigo is lightened for a dark ground (#7e89f9) and reads
+       3.07:1 on white — enough for a border, not for text. The project card's
+       source and demo links are `text-primary`, and the rule further down
+       prints each one's href after it in the same colour, so a reader who
+       happened to be in the dark theme would print the URLs at below AA. The
+       light values are the ones measured at 6.46:1. */
+    --primary: oklch(0.511 0.262 277);
+    --primary-foreground: oklch(1 0 0);
   }
 
   html,
