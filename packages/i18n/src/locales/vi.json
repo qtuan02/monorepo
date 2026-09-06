@@ -175,6 +175,45 @@
         }
       }
     },
+    "projects": {
+      "title": "Dự án cá nhân",
+      "type": {
+        "personal": "Cá nhân",
+        "company": "Công ty"
+      },
+      "links": {
+        "source": "Mã nguồn",
+        "sourceFrontend": "Mã nguồn (FE)",
+        "sourceBackend": "Mã nguồn (BE)",
+        "demo": "Xem demo"
+      },
+      "items": {
+        "monorepo": {
+          "description": "Workspace Bun + Turborepo với ba Runtime app sinh từ Template, dùng chung tám package source-only. Chính là site portfolio đang xem.",
+          "bullets": {
+            "runtimes": "Ba Runtime: Vite SPA, Next.js 16 App Router và React Router 8 framework mode, mỗi cái một Template để generator nhân bản.",
+            "gate": "Gate bốn lệnh (Biome, TS 7, Vitest 5, build) chạy y hệt trên GitHub Actions; E2E Playwright và Docker build tự phát hiện qua glob.",
+            "publish": "Publish @fe-monorepo/ui (63 primitive shadcn/Base UI) và @fe-monorepo/hook lên npm qua Changesets + OIDC trusted publishing, có smoke test tarball trước khi release."
+          }
+        },
+        "chat-socket": {
+          "description": "Ứng dụng chat thời gian thực full-stack: React 19 + Rsbuild ở client, Spring Boot ở server, nhắn tin qua STOMP trên WebSocket.",
+          "bullets": {
+            "auth": "Phiên đăng nhập bằng JWT access token + refresh token (cookie HttpOnly) trên Spring Security.",
+            "realtime": "Tin nhắn, trạng thái đã xem và presence online qua STOMP, lưu bằng Redis.",
+            "history": "Lịch sử tin nhắn phân trang theo cursor và ảo hoá bằng react-virtuoso; bạn bè, chat 1-1 và nhóm có vai trò."
+          }
+        },
+        "smart-rental": {
+          "description": "Cổng quản lý nhà trọ: dashboard KPI, sơ đồ phòng theo tầng, vòng đời hợp đồng và hoá đơn hàng loạt kèm QR thanh toán.",
+          "bullets": {
+            "portal": "React 19 + Rsbuild + React Router; TanStack Query/Table, dnd-kit, nuqs cho state trên URL, shadcn/Radix.",
+            "delivery": "Storybook cho component dùng chung; CI và deploy production lên Vercel qua GitHub Actions.",
+            "backend": "Backend Spring Boot 4 đa module (UUIDv7, Flyway) — user-service đã chạy, property-service đang làm."
+          }
+        }
+      }
+    },
     "education": {
       "title": "Học vấn",
       "items": {

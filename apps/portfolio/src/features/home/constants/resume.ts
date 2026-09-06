@@ -15,6 +15,8 @@ import type {
   EducationItem,
   HeroActionItem,
   HobbyItem,
+  ProjectItem,
+  ProjectSourceId,
   SkillGroup,
   WorkItem,
 } from "~/features/home/types/resume";
@@ -103,6 +105,82 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     bulletKeys: ["omnichannel", "dataset", "emenu", "internal", "uiSystem"],
   },
 ];
+
+/**
+ * The three projects a recruiter can open and check: each has a public
+ * repository and a live deployment. Order is by how much of the story each
+ * tells — the monorepo is the site being read, so it goes first.
+ */
+export const PROJECT_ITEMS: readonly ProjectItem[] = [
+  {
+    id: "monorepo",
+    name: "Personal Monorepo",
+    type: "personal",
+    techStack: [
+      "Bun",
+      "Turborepo",
+      "Next.js",
+      "React Router",
+      "Vite",
+      "GitHub Actions",
+    ],
+    source: [{ id: "repo", href: "https://github.com/qtuan02/monorepo" }],
+    demo: "https://portfolio-ui-2025.vercel.app",
+    bulletKeys: ["runtimes", "gate", "publish"],
+  },
+  {
+    id: "chat-socket",
+    name: "Real-time Chat",
+    type: "personal",
+    techStack: [
+      "React",
+      "Rsbuild",
+      "TanStack Query",
+      "Spring Boot",
+      "WebSocket",
+      "Redis",
+    ],
+    source: [
+      { id: "frontend", href: "https://github.com/qtuan02/chat-socket-fe" },
+      { id: "backend", href: "https://github.com/qtuan02/chat-socket-be" },
+    ],
+    demo: "https://chat-socket-fe.vercel.app",
+    bulletKeys: ["auth", "realtime", "history"],
+  },
+  {
+    id: "smart-rental",
+    name: "SmartRental",
+    type: "personal",
+    techStack: [
+      "React",
+      "Rsbuild",
+      "React Router",
+      "TanStack Query",
+      "Storybook",
+      "Spring Boot",
+    ],
+    source: [
+      { id: "frontend", href: "https://github.com/qtuan02/fe-motel-rsbuild" },
+      { id: "backend", href: "https://github.com/qtuan02/be-motel" },
+    ],
+    demo: "https://motel-management-portal.vercel.app",
+    bulletKeys: ["portal", "delivery", "backend"],
+  },
+];
+
+/**
+ * The label each kind of source link carries, as a message key. It sits beside
+ * the items rather than in the card because it is the same join the bullet
+ * keys make — structure on this side, the string on the catalogue side — and
+ * the constants test walks it for every locale.
+ */
+export const PROJECT_SOURCE_LABEL_KEYS: Readonly<
+  Record<ProjectSourceId, string>
+> = {
+  repo: "portfolio.projects.links.source",
+  frontend: "portfolio.projects.links.sourceFrontend",
+  backend: "portfolio.projects.links.sourceBackend",
+};
 
 export const EDUCATION_ITEMS: readonly EducationItem[] = [
   {
