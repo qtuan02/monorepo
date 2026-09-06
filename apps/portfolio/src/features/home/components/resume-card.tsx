@@ -94,7 +94,7 @@ export function ResumeCard({
   const headerContent = (
     <>
       <span className="flex w-full items-center justify-between gap-x-2">
-        <span className="inline-flex items-center text-xs leading-none font-semibold sm:text-sm">
+        <span className="inline-flex items-center text-sm leading-none font-semibold">
           {title}
           {hasBody && (
             <ChevronRightIcon
@@ -104,7 +104,7 @@ export function ResumeCard({
                 // to fade in from `opacity-0` on hover alone, which is an
                 // affordance a phone cannot show at all: a touch reader had no
                 // way to tell an expandable role from a plain one.
-                "size-4 translate-x-0 transform opacity-60 transition-all duration-300 ease-out group-focus-within:translate-x-1 group-focus-within:opacity-100 group-hover:translate-x-1 group-hover:opacity-100",
+                "size-4 translate-x-0 transform opacity-60 transition-all duration-300 ease-out group-focus-within:translate-x-1 group-focus-within:opacity-100 group-hover:translate-x-1 group-hover:opacity-100 print:hidden",
                 isExpanded ? "rotate-90" : "rotate-0",
               )}
             />
@@ -123,13 +123,13 @@ export function ResumeCard({
               <TooltipContent>{award.tooltip}</TooltipContent>
             </Tooltip>
           )}
-          <span className="text-right text-xs text-muted-foreground tabular-nums sm:text-sm">
+          <span className="text-right text-sm text-muted-foreground tabular-nums">
             {period}
           </span>
         </span>
       </span>
       {subtitle && (
-        <span className="text-xs font-normal text-foreground">{subtitle}</span>
+        <span className="text-sm font-normal text-foreground">{subtitle}</span>
       )}
     </>
   );
@@ -188,6 +188,9 @@ export function ResumeCard({
         {hasBody && (
           <motion.div
             id={bodyId}
+            // The hook the print stylesheet opens every row by: on paper there
+            // is no one to click, so a folded role would simply be missing.
+            data-slot="resume-card-body"
             // Folded, the body is still in the markup — that is what keeps a
             // crawler reading a role nobody clicked open — but `height: 0` hides
             // it from eyes only. Without `inert` a screen reader would read the
@@ -199,7 +202,7 @@ export function ResumeCard({
               height: isExpanded ? "auto" : 0,
             }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-2 overflow-hidden text-xs sm:text-sm"
+            className="mt-2 overflow-hidden text-[15px] leading-relaxed"
           >
             {bullets && bullets.length > 0 && (
               <ul className="list-inside list-disc space-y-1">
@@ -209,7 +212,7 @@ export function ResumeCard({
               </ul>
             )}
             {techStack && techStack.length > 0 && (
-              <p className="mt-2 text-xs sm:text-sm">
+              <p className="mt-2 text-sm">
                 <span className="font-semibold">{techStackLabel}</span>{" "}
                 <span className="text-muted-foreground">
                   {techStack.join(", ")}

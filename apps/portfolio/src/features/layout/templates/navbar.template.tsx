@@ -41,7 +41,7 @@ export default function NavbarTemplate() {
   const t = useTranslations();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex h-full max-h-14 origin-bottom">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex h-full max-h-14 origin-bottom print:hidden">
       {/* The fade the dock floats over: a fixed band masked to transparent at
           its top edge, so the page scrolls out of view rather than under a
           hard line. */}

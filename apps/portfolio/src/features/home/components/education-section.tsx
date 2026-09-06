@@ -20,9 +20,10 @@ export default function EducationSection({ delay }: EducationSectionProps) {
             {t("portfolio.education.title")}
           </h2>
         </BlurFade>
-        {EDUCATION_ITEMS.map((item, index) => (
-          <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
+        <BlurFade delay={delay + 0.08}>
+          {EDUCATION_ITEMS.map((item) => (
             <ResumeCard
+              key={item.id}
               href={item.href}
               logo={item.logo}
               altText={item.school}
@@ -31,8 +32,8 @@ export default function EducationSection({ delay }: EducationSectionProps) {
               period={t(`portfolio.education.items.${item.id}.period`)}
               toggleLabel={t("portfolio.work.toggle")}
             />
-          </BlurFade>
-        ))}
+          ))}
+        </BlurFade>
       </div>
     </section>
   );

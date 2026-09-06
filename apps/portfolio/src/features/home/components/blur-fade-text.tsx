@@ -2,7 +2,7 @@
 
 import type { Variants } from "motion/react";
 import type { ReactNode } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 
 import { cn } from "@monorepo/ui/utils/cn";
 
@@ -21,6 +21,12 @@ const ELEMENTS = {
   span: motion.span,
   h1: motion.h1,
 } as const satisfies Record<BlurFadeTextElement, unknown>;
+
+/** The same two tags without motion, for a reader who asked for none. */
+const STATIC_ELEMENTS = {
+  span: "span",
+  h1: "h1",
+} as const satisfies Record<BlurFadeTextElement, string>;
 
 interface BlurFadeTextProps {
   text: string;
@@ -47,21 +53,41 @@ export default function BlurFadeText({
   as = "span",
   className,
   delay = 0,
-  yOffset = 8,
+  yOffset = 12,
 }: BlurFadeTextProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   const variants: Variants = {
-    hidden: { y: yOffset, opacity: 0, filter: "blur(8px)" },
-    visible: { y: -yOffset, opacity: 1, filter: "blur(0px)" },
+    hidden: { y: yOffset, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
   };
+
+  if (prefersReducedMotion) {
+    const StaticElement = STATIC_ELEMENTS[as];
+
+    return (
+      <div className="flex">
+        <StaticElement
+          data-slot="blur-fade-text"
+          className={cn("inline-flex", className)}
+        >
+          {text}
+          {postFix}
+        </StaticElement>
+      </div>
+    );
+  }
+
   const Element = ELEMENTS[as];
 
   return (
     <div className="flex">
       <Element
+        data-slot="blur-fade-text"
         initial="hidden"
         animate="visible"
         variants={variants}
-        transition={{ repeat: 0, delay, ease: "easeOut" }}
+        transition={{ repeat: 0, delay, duration: 0.35, ease: "easeOut" }}
         className={cn("inline-flex", className)}
       >
         {text}

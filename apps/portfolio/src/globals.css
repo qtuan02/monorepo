@@ -67,3 +67,124 @@
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }
 }
+
+/**
+ * The dock is `fixed` at the bottom of the viewport, so anything the browser
+ * scrolls to — a Tab landing on the last contact link, a jump to `#contact` —
+ * can come to rest underneath it. The reserve is the dock's own height plus its
+ * margin and the fade band it floats over.
+ */
+@layer base {
+  html {
+    scroll-padding-bottom: 6rem;
+  }
+}
+
+/**
+ * A reader who has asked their operating system for less motion.
+ *
+ * `BlurFade`, `BlurFadeText` and the dock read the preference in JavaScript and
+ * render their resting state instead, but that answer arrives only once the page
+ * has hydrated. The server has already sent the animating markup by then, with
+ * motion's `opacity: 0` inline on it — so a reader who asked for no motion is
+ * shown a blank page until the JavaScript lands, and a blank page for good if it
+ * never does. The first rule here is what makes the content visible with no
+ * JavaScript at all; the JavaScript branch is the enhancement, not the guarantee.
+ *
+ * The rest is the motion CSS owns and JavaScript never sees: the theme wipe
+ * above, and the waving hand.
+ *
+ * Both are switched off by name rather than by a blanket `* { animation: none }`
+ * so that a future animation has to opt in here deliberately, and so nothing
+ * that merely *transitions* — the chevron, a hover colour — is flattened along
+ * with them.
+ */
+/* biome-ignore-start lint/complexity/noImportantStyles: the declarations
+   being overridden are inline styles written by `motion` at runtime, and an
+   inline style is only beaten by `!important`. */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot="blur-fade"],
+  [data-slot="blur-fade-text"] {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/**
+ * Print — this page *is* the CV, so the "download" the hero offers is the
+ * browser's own print dialog rather than a PDF kept in step by hand.
+ *
+ * Three things have to be undone, and all three are inline styles written by
+ * `motion`, which is why every rule here carries `!important`: a section that
+ * has not finished fading in would print at `opacity: 0`, and a work row nobody
+ * clicked open would print as a heading with no body — on paper there is no one
+ * to click.
+ */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  /* Paper is white, and a browser does not print background graphics unless
+     the reader ticks a box in the dialog. So a visitor who happens to be in
+     the dark theme when they hit "In CV" gets near-white text on white paper —
+     a CV that prints blank. The dark palette is replaced rather than merely
+     inverted, so both themes print the same document. */
+  :root,
+  .dark {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.2 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.2 0 0);
+    --secondary: oklch(0.96 0 0);
+    --secondary-foreground: oklch(0.2 0 0);
+    --muted: oklch(0.96 0 0);
+    --muted-foreground: oklch(0.42 0 0);
+    --border: oklch(0.8 0 0);
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  [data-slot="blur-fade"],
+  [data-slot="blur-fade-text"] {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+  }
+
+  [data-slot="resume-card-body"] {
+    height: auto !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* A printed link is a dead end unless it says where it goes. The contact
+     lines are exempt because their visible text already *is* the URL, and the
+     dock is `print:hidden` above, so nothing here doubles up. */
+  a[href^="http"]:not(#contact a)::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  /* The shell reserves room for a dock that is not on the page. */
+  main {
+    padding-bottom: 0 !important;
+  }
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end of the print and
+   reduced-motion overrides. */

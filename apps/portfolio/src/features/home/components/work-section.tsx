@@ -23,10 +23,11 @@ export default function WorkSection({ delay }: WorkSectionProps) {
         <BlurFade delay={delay}>
           <h2 className="text-xl font-bold">{t("portfolio.work.title")}</h2>
         </BlurFade>
-        <div className="flex flex-col gap-y-5">
-          {WORK_ITEMS.map((item, index) => (
-            <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
+        <BlurFade delay={delay + 0.08}>
+          <div className="flex flex-col gap-y-5">
+            {WORK_ITEMS.map((item, index) => (
               <ResumeCard
+                key={item.id}
                 // Progressive disclosure: the current role opens, the earlier
                 // ones fold away. Their bullets are still in the markup — the
                 // accordion only animates the body's height — so a crawler
@@ -57,9 +58,9 @@ export default function WorkSection({ delay }: WorkSectionProps) {
                 techStackLabel={t("portfolio.work.techStack")}
                 toggleLabel={t("portfolio.work.toggle")}
               />
-            </BlurFade>
-          ))}
-        </div>
+            ))}
+          </div>
+        </BlurFade>
       </div>
     </section>
   );

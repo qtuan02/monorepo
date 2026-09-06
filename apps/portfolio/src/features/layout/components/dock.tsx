@@ -3,7 +3,13 @@
 import type { MotionValue } from "motion/react";
 import type { ReactNode } from "react";
 import { createContext, useContext, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "motion/react";
 
 import { cn } from "@monorepo/ui/utils/cn";
 
@@ -83,10 +89,14 @@ export function DockIcon({ children, className }: DockIconProps) {
     return value - bounds.x - bounds.width / 2;
   });
 
+  // The magnification is the dock's only motion, and it is pointer-driven —
+  // exactly the kind a reader who asked for none should not get. Flattening the
+  // output range rather than skipping the hook keeps the hook order stable.
+  const prefersReducedMotion = useReducedMotion();
   const targetWidth = useTransform(
     distanceFromPointer,
     [-distance, 0, distance],
-    [40, magnification, 40],
+    prefersReducedMotion ? [40, 40, 40] : [40, magnification, 40],
   );
 
   const width = useSpring(targetWidth, {

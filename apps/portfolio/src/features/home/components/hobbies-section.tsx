@@ -17,22 +17,22 @@ export default function HobbiesSection({ delay }: HobbiesSectionProps) {
         <BlurFade delay={delay}>
           <h2 className="text-xl font-bold">{t("portfolio.hobbies.title")}</h2>
         </BlurFade>
-        <div className="flex flex-col gap-y-2">
-          {HOBBY_ITEMS.map((item, index) => {
-            const Icon = item.icon;
+        <BlurFade delay={delay + 0.08}>
+          <div className="flex flex-col gap-y-2">
+            {HOBBY_ITEMS.map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
-                <div className="flex items-center gap-x-2">
+              return (
+                <div key={item.id} className="flex items-center gap-x-2">
                   <Icon aria-hidden="true" className="size-4" />
-                  <span className="text-xs text-muted-foreground md:text-sm">
+                  <span className="text-sm text-muted-foreground">
                     {t(`portfolio.hobbies.items.${item.id}`)}
                   </span>
                 </div>
-              </BlurFade>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </BlurFade>
       </div>
     </section>
   );

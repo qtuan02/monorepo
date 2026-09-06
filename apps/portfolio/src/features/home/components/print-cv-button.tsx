@@ -22,7 +22,12 @@ export default function PrintCvButton() {
   const t = useTranslations();
 
   return (
-    <Button variant="outline" size="sm" onClick={() => window.print()}>
+    <Button
+      variant="outline"
+      size="sm"
+      className="print:hidden"
+      onClick={() => window.print()}
+    >
       <PrinterIcon aria-hidden="true" className="size-4" />
       {t("portfolio.hero.actions.print")}
     </Button>

@@ -22,14 +22,18 @@ export default function ContactSection({ delay }: ContactSectionProps) {
         <BlurFade delay={delay}>
           <h2 className="text-xl font-bold">{t("portfolio.contact.title")}</h2>
         </BlurFade>
-        <div className="flex flex-col gap-y-2">
-          {CONTACT_ITEMS.map((item, index) => {
-            const Icon = item.icon;
-            const label = t(`portfolio.contact.items.${item.id}`);
+        {/* One fade for the block. A fade per line put five animated elements
+            in one viewport, where the guideline this pass follows allows two —
+            and a list that arrives in sequence is a list nobody reads until it
+            has finished arriving. */}
+        <BlurFade delay={delay + 0.08}>
+          <div className="flex flex-col gap-y-2">
+            {CONTACT_ITEMS.map((item) => {
+              const Icon = item.icon;
+              const label = t(`portfolio.contact.items.${item.id}`);
 
-            return (
-              <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
-                <div className="flex items-center gap-x-2">
+              return (
+                <div key={item.id} className="flex items-center gap-x-2">
                   <Icon aria-hidden="true" className="size-4" />
                   {item.href ? (
                     <a
@@ -37,20 +41,20 @@ export default function ContactSection({ delay }: ContactSectionProps) {
                       {...(isExternalPage(item.href)
                         ? { target: "_blank", rel: "noreferrer" }
                         : {})}
-                      className="text-xs text-muted-foreground hover:underline md:text-sm"
+                      className="text-sm text-muted-foreground hover:underline"
                     >
                       {label}
                     </a>
                   ) : (
-                    <span className="text-xs text-muted-foreground md:text-sm">
+                    <span className="text-sm text-muted-foreground">
                       {label}
                     </span>
                   )}
                 </div>
-              </BlurFade>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </BlurFade>
       </div>
     </section>
   );

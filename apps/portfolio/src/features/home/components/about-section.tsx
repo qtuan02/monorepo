@@ -17,7 +17,7 @@ export default function AboutSection({ delay }: AboutSectionProps) {
           <h2 className="text-xl font-bold">{t("portfolio.about.title")}</h2>
         </BlurFade>
         <BlurFade delay={delay + 0.08}>
-          <div className="max-w-full space-y-2 text-sm text-muted-foreground">
+          <div className="max-w-full space-y-2 text-[15px] leading-relaxed text-muted-foreground">
             <p>{t("portfolio.about.experience")}</p>
             <p>{t("portfolio.about.mindset")}</p>
           </div>

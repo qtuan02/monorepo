@@ -52,7 +52,7 @@ export function Lens({
 
   return (
     <section
-      className="relative z-20 overflow-hidden rounded-xl"
+      className="relative z-20 overflow-hidden rounded-xl print:overflow-visible"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onMouseMove={handleMouseMove}
