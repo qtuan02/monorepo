@@ -38,8 +38,10 @@ interface ProjectCardProps {
   demoLabel: string;
 }
 
+// 14 px, the floor `ux#67` sets for meta — and these are controls, not labels:
+// the contact lines, the closest thing on the page, read at the same size.
 const linkClassName =
-  "inline-flex items-center gap-1 text-xs font-medium text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 /**
  * One project on the CV: a name, what kind of project it is, a two-line pitch,
@@ -81,7 +83,11 @@ export default function ProjectCard({
         <CardTitle>
           <h3 className="font-semibold">{name}</h3>
         </CardTitle>
-        <CardDescription className="text-xs leading-relaxed sm:text-sm">
+        {/* 15 px, the same as About's prose and a Work bullet. `ux#67` puts
+            the floor for body copy there, and a card is not an exemption: the
+            column is narrowest at `md`, which is exactly the width where 12 px
+            would be hardest to read. */}
+        <CardDescription className="text-[15px] leading-relaxed">
           {description}
         </CardDescription>
         <CardAction>
@@ -91,7 +97,7 @@ export default function ProjectCard({
 
       <CardContent className="flex-1">
         {bullets.length > 0 && (
-          <ul className="list-inside list-disc space-y-1 text-xs text-muted-foreground">
+          <ul className="list-inside list-disc space-y-1 text-[15px] leading-relaxed text-muted-foreground">
             {bullets.map((bullet) => (
               <li key={bullet.id}>{bullet.text}</li>
             ))}
