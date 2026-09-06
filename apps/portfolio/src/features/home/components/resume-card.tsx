@@ -1,17 +1,36 @@
 "use client";
 
 import type { StaticImageData } from "next/image";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ChevronRightIcon } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 
+import { Badge } from "@monorepo/ui/components/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@monorepo/ui/components/tooltip";
 import { cn } from "@monorepo/ui/utils/cn";
 
 /** One body line. `id` is the message-key segment, so it is stable and unique. */
 export interface ResumeBullet {
   id: string;
   text: string;
+}
+
+/** A prize the row wears next to its period, both halves already localized. */
+export interface ResumeAward {
+  /** The badge's own text — short enough to sit beside a date range. */
+  label: string;
+  /**
+   * The award's full name. A pointing device reads it in the tooltip; everyone
+   * else reads it because the row's toggle is `aria-describedby` it, since the
+   * badge itself takes no tab stop — it sits inside the toggle, and a second
+   * focusable control nested in a button would be invalid markup.
+   */
+  tooltip: string;
 }
 
 interface ResumeCardProps {
@@ -22,6 +41,8 @@ interface ResumeCardProps {
   subtitle?: string;
   /** A label such as "Feb 2025 – Feb 2026", already localized. */
   period: string;
+  /** Shown beside the period, for the rare row that won something. */
+  award?: ResumeAward;
   /** Where the row leads when it has no body of its own to expand. */
   href?: string;
   /** Already-localized body lines, each with the message key it came from. */
@@ -56,6 +77,7 @@ export function ResumeCard({
   title,
   subtitle,
   period,
+  award,
   href,
   bullets,
   techStack,
@@ -64,6 +86,8 @@ export function ResumeCard({
   defaultExpanded = false,
 }: ResumeCardProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const bodyId = useId();
+  const awardDescriptionId = useId();
 
   const hasBody = Boolean(bullets?.length || techStack?.length);
 
@@ -76,14 +100,32 @@ export function ResumeCard({
             <ChevronRightIcon
               aria-hidden="true"
               className={cn(
-                "size-4 translate-x-0 transform opacity-0 transition-all duration-300 ease-out group-hover:translate-x-1 group-hover:opacity-100",
+                // Visible at rest, brighter on hover and keyboard focus. It used
+                // to fade in from `opacity-0` on hover alone, which is an
+                // affordance a phone cannot show at all: a touch reader had no
+                // way to tell an expandable role from a plain one.
+                "size-4 translate-x-0 transform opacity-60 transition-all duration-300 ease-out group-focus-within:translate-x-1 group-focus-within:opacity-100 group-hover:translate-x-1 group-hover:opacity-100",
                 isExpanded ? "rotate-90" : "rotate-0",
               )}
             />
           )}
         </span>
-        <span className="text-right text-xs text-muted-foreground tabular-nums sm:text-sm">
-          {period}
+        <span className="flex items-center gap-x-2">
+          {award && (
+            <Tooltip>
+              {/* `render`, not `asChild`: Base UI dropped Radix's Slot, and the
+                  trigger's own default element is a `<button>` — which cannot
+                  be nested inside the accordion header's button. Rendering it
+                  as the `Badge` keeps the markup a single control. */}
+              <TooltipTrigger
+                render={<Badge variant="secondary">{award.label}</Badge>}
+              />
+              <TooltipContent>{award.tooltip}</TooltipContent>
+            </Tooltip>
+          )}
+          <span className="text-right text-xs text-muted-foreground tabular-nums sm:text-sm">
+            {period}
+          </span>
         </span>
       </span>
       {subtitle && (
@@ -111,6 +153,8 @@ export function ResumeCard({
           {hasBody ? (
             <button
               type="button"
+              aria-controls={bodyId}
+              aria-describedby={award ? awardDescriptionId : undefined}
               aria-expanded={isExpanded}
               aria-label={toggleLabel}
               onClick={() => setIsExpanded(!isExpanded)}
@@ -130,8 +174,25 @@ export function ResumeCard({
           )}
         </h3>
 
+        {award && (
+          // `aria-label` on the toggle replaces everything inside it, so the
+          // badge's own text is never announced — and the tooltip opens on
+          // hover, which a phone does not have. This is where the award reaches
+          // everyone else: a description is read *in addition* to a name, so it
+          // survives that `aria-label`.
+          <span className="sr-only" id={awardDescriptionId}>
+            {award.tooltip}
+          </span>
+        )}
+
         {hasBody && (
           <motion.div
+            id={bodyId}
+            // Folded, the body is still in the markup — that is what keeps a
+            // crawler reading a role nobody clicked open — but `height: 0` hides
+            // it from eyes only. Without `inert` a screen reader would read the
+            // bullets of a row that has just announced itself collapsed.
+            inert={!isExpanded}
             initial={false}
             animate={{
               opacity: isExpanded ? 1 : 0,

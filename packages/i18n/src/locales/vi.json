@@ -139,6 +139,12 @@
         "arobid": {
           "role": "Lập trình viên Frontend",
           "period": "03/2025 – 02/2026",
+          "awards": {
+            "vda2025": {
+              "label": "VDA 2025",
+              "tooltip": "Sản phẩm, dịch vụ, giải pháp công nghệ số xuất sắc — Vietnam Digital Awards 2025"
+            }
+          },
           "bullets": {
             "tradexpo": "TradeXpo — nền tảng triển lãm số: dựng các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
             "immersive": "Tích hợp hệ thống 3D/VR bằng Shapespark qua iframe và postMessage; phát triển gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",

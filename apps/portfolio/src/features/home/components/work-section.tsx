@@ -27,12 +27,28 @@ export default function WorkSection({ delay }: WorkSectionProps) {
           {WORK_ITEMS.map((item, index) => (
             <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
               <ResumeCard
-                defaultExpanded
+                // Progressive disclosure: the current role opens, the earlier
+                // ones fold away. Their bullets are still in the markup — the
+                // accordion only animates the body's height — so a crawler
+                // reads every role either way.
+                defaultExpanded={index === 0}
                 logo={item.logo}
                 altText={item.company}
                 title={item.company}
                 subtitle={t(`portfolio.work.items.${item.id}.role`)}
                 period={t(`portfolio.work.items.${item.id}.period`)}
+                award={
+                  item.award
+                    ? {
+                        label: t(
+                          `portfolio.work.items.${item.id}.awards.${item.award}.label`,
+                        ),
+                        tooltip: t(
+                          `portfolio.work.items.${item.id}.awards.${item.award}.tooltip`,
+                        ),
+                      }
+                    : undefined
+                }
                 bullets={item.bulletKeys.map((key) => ({
                   id: key,
                   text: t(`portfolio.work.items.${item.id}.bullets.${key}`),

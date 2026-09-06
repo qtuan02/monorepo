@@ -56,6 +56,17 @@ describe.each(languages)(
       }
     });
 
+    it("has a badge label and a tooltip for a work item that carries an award", () => {
+      for (const item of WORK_ITEMS) {
+        if (!item.award) continue;
+
+        const path = `portfolio.work.items.${item.id}.awards.${item.award}`;
+
+        expectMessage(locale, `${path}.label`);
+        expectMessage(locale, `${path}.tooltip`);
+      }
+    });
+
     it("has a degree and a period for each education item", () => {
       for (const item of EDUCATION_ITEMS) {
         expectMessage(locale, `portfolio.education.items.${item.id}.degree`);
@@ -96,6 +107,15 @@ describe("resume constants", () => {
     ];
 
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("carries an award badge on the one role that earned one", () => {
+    // A badge is a claim about a real prize, so it is worth pinning which rows
+    // make it: a stray `award` copied onto another row would publish a claim
+    // nobody would notice in review.
+    const withAward = WORK_ITEMS.filter((item) => item.award);
+
+    expect(withAward.map((item) => item.id)).toEqual(["arobid"]);
   });
 
   it("gives a contact line an href only when it leads somewhere", () => {

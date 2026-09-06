@@ -32,6 +32,16 @@ test.describe("server rendering", () => {
     // is only there if the slice itself rendered on the server.
     expect(html).toContain("app EMR mobile bằng Expo/React Native");
     expect(html).toContain("Kinh nghiệm làm việc");
+    // …and a bullet from the LAST row, which the section renders folded. The
+    // accordion only animates the body's height, so a folded role is still in
+    // the bytes a crawler reads — the whole reason progressive disclosure was
+    // safe to add here. Assert it on the oldest row, the one furthest from
+    // `defaultExpanded`.
+    expect(html).toContain("Highlands Coffee");
+    // The award badge itself. Its tooltip is not asserted here and could not
+    // be: Base UI portals the popup and only mounts it once open, so the full
+    // award name reaches a crawler through the row's own bullet instead.
+    expect(html).toContain("VDA 2025");
     // Three roles ship and no more. A dropped role coming back — a re-added
     // constants entry, or a stale message an edit re-pointed at — is not a
     // cosmetic regression: these bytes are what a crawler indexes and what a

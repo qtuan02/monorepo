@@ -139,6 +139,12 @@
         "arobid": {
           "role": "Frontend Developer",
           "period": "Mar 2025 – Feb 2026",
+          "awards": {
+            "vda2025": {
+              "label": "VDA 2025",
+              "tooltip": "Excellent Digital Technology Product, Service and Solution — Vietnam Digital Awards 2025"
+            }
+          },
           "bullets": {
             "tradexpo": "TradeXpo — Digital Exhibition Platform: built core pages (home, event list, event detail, inner pages) and the full user journey from landing to event and booth interactions.",
             "immersive": "Integrated a 3D/VR system using Shapespark through iframe and postMessage; developed gamification including check-in, booth interaction, product viewing, and rewards.",

@@ -77,6 +77,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "cms",
       "rendering",
     ],
+    award: "vda2025",
   },
   {
     id: "dcorp",

@@ -107,6 +107,99 @@ describe("ResumeCard", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
+  it("renders the award badge beside the period when the row carries one", () => {
+    render(
+      <ResumeCard
+        logo={logo}
+        altText="AROBID"
+        title="AROBID"
+        period="03/2025 – 02/2026"
+        award={{ label: "VDA 2025", tooltip: "Vietnam Digital Awards 2025" }}
+        bullets={bullets}
+        toggleLabel="Xem chi tiết công việc"
+      />,
+    );
+
+    expect(screen.getByText("VDA 2025")).toBeInTheDocument();
+    // The badge takes no tab stop — it sits inside the toggle — and the
+    // toggle's `aria-label` swallows its text, so the tooltip alone would leave
+    // the award readable by mouse only. The description is what carries it to a
+    // screen reader and to a phone.
+    expect(
+      screen.getByRole("button", { name: "Xem chi tiết công việc" }),
+    ).toHaveAccessibleDescription("Vietnam Digital Awards 2025");
+  });
+
+  it("renders no badge for a row with no award", () => {
+    render(
+      <ResumeCard
+        logo={logo}
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
+        bullets={bullets}
+        toggleLabel="Xem chi tiết công việc"
+      />,
+    );
+
+    expect(screen.queryByText("VDA 2025")).not.toBeInTheDocument();
+  });
+
+  it("takes a folded body out of the accessibility tree, but not out of the markup", async () => {
+    const user = userEvent.setup();
+
+    const { container } = render(
+      <ResumeCard
+        logo={logo}
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
+        bullets={bullets}
+        toggleLabel="Xem chi tiết công việc"
+      />,
+    );
+
+    const toggle = screen.getByRole("button", {
+      name: "Xem chi tiết công việc",
+    });
+    const bodySelector = `#${CSS.escape(toggle.getAttribute("aria-controls") ?? "")}`;
+
+    // In the markup either way — that is what keeps a crawler reading a folded
+    // role — but hidden from a screen reader, which would otherwise read
+    // bullets belonging to a row that has just announced itself collapsed.
+    expect(container.querySelector(bodySelector)).toHaveAttribute("inert");
+    expect(
+      screen.getByText("Monorepo frontend và module Khám sức khoẻ"),
+    ).toBeInTheDocument();
+
+    await user.click(toggle);
+
+    expect(container.querySelector(bodySelector)).not.toHaveAttribute("inert");
+  });
+
+  it("leaves the chevron visible at rest, so a touch device can see the row opens", () => {
+    // Asserting on the class list is the only seam jsdom has — it computes no
+    // layout, so a "is it visible?" question has no other answer here. The
+    // regression this guards is a real one and invisible in review: the row
+    // used to carry `opacity-0` with `group-hover:opacity-100`, an affordance
+    // that simply does not exist on a phone.
+    const { container } = render(
+      <ResumeCard
+        logo={logo}
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
+        bullets={bullets}
+        toggleLabel="Xem chi tiết công việc"
+      />,
+    );
+
+    const chevron = container.querySelector("button svg");
+
+    expect(chevron).not.toBeNull();
+    expect(chevron?.getAttribute("class")).not.toMatch(/(^|\s)opacity-0(\s|$)/);
+  });
+
   it("keeps the tech stack behind the same body as the bullets", () => {
     render(
       <ResumeCard
