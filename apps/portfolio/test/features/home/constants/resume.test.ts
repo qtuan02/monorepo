@@ -5,6 +5,7 @@ import { languages, messages } from "@monorepo/i18n/languages";
 import {
   CONTACT_ITEMS,
   EDUCATION_ITEMS,
+  HERO_ACTIONS,
   HOBBY_ITEMS,
   WORK_ITEMS,
 } from "~/features/home/constants/resume";
@@ -84,6 +85,20 @@ describe.each(languages)(
       }
     });
 
+    it("has the hero's positioning, current line and every quick action", () => {
+      // The hero is what a five-second reader and an unfurl preview see, so a
+      // key missing in one locale is the most expensive kind: it ships the key
+      // path itself as the sentence naming what the candidate does.
+      expectMessage(locale, "portfolio.hero.positioning");
+      expectMessage(locale, "portfolio.hero.current");
+
+      for (const action of HERO_ACTIONS) {
+        expectMessage(locale, `portfolio.hero.actions.${action.id}`);
+      }
+
+      expectMessage(locale, "portfolio.hero.actions.print");
+    });
+
     it("has every section heading the template renders", () => {
       for (const section of [
         "about",
@@ -128,6 +143,7 @@ describe("resume constants", () => {
       "phone",
       "github",
       "email",
+      "linkedin",
     ]);
     for (const item of withHref) {
       expect(item.href).not.toBe("#");

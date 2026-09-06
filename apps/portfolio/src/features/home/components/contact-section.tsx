@@ -2,19 +2,10 @@ import { useTranslations } from "next-intl";
 
 import BlurFade from "~/features/home/components/blur-fade";
 import { CONTACT_ITEMS } from "~/features/home/constants/resume";
+import { isExternalPage } from "~/features/home/utils/is-external-page";
 
 interface ContactSectionProps {
   delay: number;
-}
-
-/**
- * Only an http(s) destination is a page a new tab can hold. `tel:` and
- * `mailto:` hand off to another application, so `target="_blank"` there opens a
- * blank tab that is left behind — visible on desktop, and on iOS Safari it is
- * the difference between the dialer opening and nothing happening at all.
- */
-function isExternalPage(href: string): boolean {
-  return href.startsWith("http://") || href.startsWith("https://");
 }
 
 /**
@@ -26,7 +17,7 @@ export default function ContactSection({ delay }: ContactSectionProps) {
   const t = useTranslations();
 
   return (
-    <section id="contact" className="flex-1">
+    <section id="contact">
       <div className="flex min-h-0 flex-col gap-y-3">
         <BlurFade delay={delay}>
           <h2 className="text-xl font-bold">{t("portfolio.contact.title")}</h2>

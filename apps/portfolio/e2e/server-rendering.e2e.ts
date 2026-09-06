@@ -27,6 +27,12 @@ test.describe("server rendering", () => {
 
     // The greeting, which comes from the shell-adjacent hero section…
     expect(html).toContain("Xin chào, mình là Tuấn");
+    // …and the line that says what the candidate actually does. This one is
+    // the page's whole job in an unfurl preview and in the first five seconds
+    // of a scroll, so it has to be in the bytes rather than hydrated in.
+    expect(html).toContain(
+      "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
+    );
     // …and one bullet from inside the current work row, which is the assertion
     // that actually matters: a heading could come from the layout, but a bullet
     // is only there if the slice itself rendered on the server.
@@ -72,6 +78,9 @@ test.describe("server rendering", () => {
     // in one locale and falls back to a key path in the other is exactly what a
     // missing translation looks like, and only the raw document shows it.
     expect(html).toContain("EMR mobile app with Expo/React Native");
+    expect(html).toContain(
+      "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
+    );
   });
 
   test("the social card image is an absolute URL", async ({ request }) => {

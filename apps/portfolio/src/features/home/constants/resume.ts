@@ -13,6 +13,7 @@ import {
 import type {
   ContactItem,
   EducationItem,
+  HeroActionItem,
   HobbyItem,
   WorkItem,
 } from "~/features/home/types/resume";
@@ -21,6 +22,8 @@ import dcorpLogo from "~/assets/logos/dcorp.png";
 import medvietLogo from "~/assets/logos/medviet.png";
 import stuLogo from "~/assets/logos/stu.png";
 import { GithubIcon } from "~/components/icons/github-icon";
+import { LinkedinIcon } from "~/components/icons/linkedin-icon";
+import { PROFILE_LINKS } from "~/constants/profile";
 
 /**
  * The CV's structure. A plain module, deliberately **not** a `"use cache"`
@@ -132,16 +135,24 @@ export const SKILLS: readonly string[] = [
   "Microservices",
 ];
 
+/**
+ * The hero's link actions, in the order they sit along the row. Email leads,
+ * because for a CV the real call to action is a message — not a "hire me"
+ * button.
+ */
+export const HERO_ACTIONS: readonly HeroActionItem[] = [
+  { id: "email", href: PROFILE_LINKS.email, icon: MailIcon },
+  { id: "github", href: PROFILE_LINKS.github, icon: GithubIcon },
+  { id: "linkedin", href: PROFILE_LINKS.linkedin, icon: LinkedinIcon },
+];
+
 export const CONTACT_ITEMS: readonly ContactItem[] = [
   { id: "birthday", icon: CalendarIcon },
-  { id: "phone", icon: PhoneIcon, href: "tel:+84393653862" },
+  { id: "phone", icon: PhoneIcon, href: PROFILE_LINKS.phone },
   { id: "location", icon: MapPinIcon },
-  { id: "github", icon: GithubIcon, href: "https://github.com/qtuan02" },
-  {
-    id: "email",
-    icon: MailIcon,
-    href: "mailto:huynhquoctuan200702@gmail.com",
-  },
+  { id: "github", icon: GithubIcon, href: PROFILE_LINKS.github },
+  { id: "email", icon: MailIcon, href: PROFILE_LINKS.email },
+  { id: "linkedin", icon: LinkedinIcon, href: PROFILE_LINKS.linkedin },
 ];
 
 export const HOBBY_ITEMS: readonly HobbyItem[] = [

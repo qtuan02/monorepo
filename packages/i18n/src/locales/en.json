@@ -112,7 +112,14 @@
     },
     "hero": {
       "greeting": "Hi, I am Tuan",
-      "subtitle": "A passionate developer who enjoys learning, experimenting, and turning new technologies into practical products",
+      "positioning": "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
+      "current": "Currently building EMR/HIS products at MedViet — web and mobile for hospitals.",
+      "actions": {
+        "email": "Email",
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "print": "Print CV"
+      },
       "avatarAlt": "Portrait of Huynh Quoc Tuan",
       "zoomLabel": "Avatar zoom area"
     },
@@ -187,7 +194,8 @@
         "phone": "(+84) 393 653 862",
         "location": "District 7, Ho Chi Minh City, Vietnam",
         "github": "github.com/qtuan02",
-        "email": "huynhquoctuan200702@gmail.com"
+        "email": "huynhquoctuan200702@gmail.com",
+        "linkedin": "linkedin.com/in/tuan-huynh-916b792b7"
       }
     },
     "hobbies": {

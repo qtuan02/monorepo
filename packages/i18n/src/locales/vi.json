@@ -112,7 +112,14 @@
     },
     "hero": {
       "greeting": "Xin chào, mình là Tuấn",
-      "subtitle": "Một developer yêu nghề, thích học, thích thử nghiệm và biến công nghệ mới thành sản phẩm dùng được",
+      "positioning": "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
+      "current": "Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.",
+      "actions": {
+        "email": "Email",
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "print": "In CV"
+      },
       "avatarAlt": "Ảnh chân dung Huỳnh Quốc Tuấn",
       "zoomLabel": "Vùng phóng to ảnh đại diện"
     },
@@ -187,7 +194,8 @@
         "phone": "(+84) 393 653 862",
         "location": "Quận 7, TP. Hồ Chí Minh, Việt Nam",
         "github": "github.com/qtuan02",
-        "email": "huynhquoctuan200702@gmail.com"
+        "email": "huynhquoctuan200702@gmail.com",
+        "linkedin": "linkedin.com/in/tuan-huynh-916b792b7"
       }
     },
     "hobbies": {

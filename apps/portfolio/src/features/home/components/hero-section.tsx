@@ -5,11 +5,15 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@monorepo/ui/components/avatar";
+import { buttonVariants } from "@monorepo/ui/components/button";
 
 import avatar from "~/assets/avatar.jpg";
 import BlurFade from "~/features/home/components/blur-fade";
 import BlurFadeText from "~/features/home/components/blur-fade-text";
 import { Lens } from "~/features/home/components/lens";
+import PrintCvButton from "~/features/home/components/print-cv-button";
+import { HERO_ACTIONS } from "~/features/home/constants/resume";
+import { isExternalPage } from "~/features/home/utils/is-external-page";
 
 interface HeroSectionProps {
   delay: number;
@@ -36,12 +40,24 @@ export default function HeroSection({ delay }: HeroSectionProps) {
               yOffset={8}
               as="h1"
               text={t("portfolio.hero.greeting")}
-              postFix={<span className="animate-bounce">👋</span>}
+              // Decorative text, not an icon. A screen reader announcing
+              // "waving hand" after the name adds nothing and interrupts the
+              // one line that has to land.
+              postFix={
+                <span aria-hidden="true" className="animate-bounce">
+                  👋
+                </span>
+              }
             />
             <BlurFadeText
               className="max-w-[600px] md:text-xl"
               delay={delay}
-              text={t("portfolio.hero.subtitle")}
+              text={t("portfolio.hero.positioning")}
+            />
+            <BlurFadeText
+              className="max-w-[600px] text-sm text-muted-foreground md:text-base"
+              delay={delay}
+              text={t("portfolio.hero.current")}
             />
           </div>
           <BlurFade delay={delay}>
@@ -62,6 +78,29 @@ export default function HeroSection({ delay }: HeroSectionProps) {
             </Avatar>
           </BlurFade>
         </div>
+
+        <BlurFade delay={delay}>
+          <div className="flex flex-wrap items-center gap-2">
+            {HERO_ACTIONS.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <a
+                  key={action.id}
+                  href={action.href}
+                  {...(isExternalPage(action.href)
+                    ? { target: "_blank", rel: "noreferrer" }
+                    : {})}
+                  className={buttonVariants({ variant: "outline", size: "sm" })}
+                >
+                  <Icon aria-hidden="true" className="size-4" />
+                  {t(`portfolio.hero.actions.${action.id}`)}
+                </a>
+              );
+            })}
+            <PrintCvButton />
+          </div>
+        </BlurFade>
       </div>
     </section>
   );

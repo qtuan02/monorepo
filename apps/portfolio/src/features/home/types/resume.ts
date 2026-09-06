@@ -41,6 +41,19 @@ export interface EducationItem {
   logo: StaticImageData;
 }
 
+/**
+ * One of the hero's quick actions — the three that are links. Printing is the
+ * fourth and is not one of these: it acts on the current page rather than
+ * leading anywhere, so it is a button, and a button in a list of destinations
+ * would be a lie about what activating it does.
+ */
+export interface HeroActionItem {
+  /** Also the message key: `portfolio.hero.actions.<id>`. */
+  id: string;
+  href: string;
+  icon: IconComponent;
+}
+
 /** One contact line: an icon, the value's message key, and where it leads. */
 export interface ContactItem {
   /** Also the message key: `portfolio.contact.items.<id>`. */

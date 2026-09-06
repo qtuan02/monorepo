@@ -29,7 +29,10 @@ export default function HomeTemplate() {
       <WorkSection delay={SECTION_DELAY * 5} />
       <EducationSection delay={SECTION_DELAY * 7} />
       <SkillsSection delay={SECTION_DELAY * 9} />
-      <div className="flex gap-6">
+      {/* Stacked on a phone, two columns from `sm` with contact given the wider
+          one — side by side at 375 px an email address has nowhere to go but
+          out of the viewport. */}
+      <div className="grid gap-6 sm:grid-cols-[2fr_1fr]">
         <ContactSection delay={SECTION_DELAY * 9} />
         <HobbiesSection delay={SECTION_DELAY * 9} />
       </div>
