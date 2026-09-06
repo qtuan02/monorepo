@@ -32,6 +32,43 @@ export interface WorkItem {
   award?: string;
 }
 
+/**
+ * Which half of a project a source link points at. A full-stack project keeps
+ * two repositories, and a recruiter reading the card has to be able to tell
+ * the frontend one from the backend one before opening either — so the id is
+ * also what picks the link's label (see `PROJECT_SOURCE_LABEL_KEYS`).
+ */
+export type ProjectSourceId = "repo" | "frontend" | "backend";
+
+/** One repository link of a project. */
+export interface ProjectSource {
+  id: ProjectSourceId;
+  href: string;
+}
+
+/**
+ * One personal-project card. The same split as `WorkItem`: structure here,
+ * every reader-facing string in the catalogue under `portfolio.projects`.
+ * `name` stays here because a project name is a proper noun, and `techStack`
+ * because it is a list of product names. There is deliberately no image: a
+ * card with no picture renders as a card, not as a grey placeholder.
+ */
+export interface ProjectItem {
+  /** Also the message-key segment: `portfolio.projects.items.<id>.description`. */
+  id: string;
+  name: string;
+  /** Picks the type badge's label: `portfolio.projects.type.<type>`. */
+  type: "personal" | "company";
+  /** At most six — the cap is asserted in the constants test, not clipped at render. */
+  techStack: readonly string[];
+  /** Absent when there is nothing public to read; a link is rendered per entry. */
+  source?: readonly ProjectSource[];
+  /** A live deployment; absent when the project has none to show. */
+  demo?: string;
+  /** Message-key segments under `portfolio.projects.items.<id>.bullets`. */
+  bulletKeys: readonly string[];
+}
+
 /** One row of the education history — a link out, and no expandable body. */
 export interface EducationItem {
   /** Also the message-key segment: `portfolio.education.items.<id>.degree`. */

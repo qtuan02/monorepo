@@ -3,6 +3,7 @@ import ContactSection from "~/features/home/components/contact-section";
 import EducationSection from "~/features/home/components/education-section";
 import HeroSection from "~/features/home/components/hero-section";
 import HobbiesSection from "~/features/home/components/hobbies-section";
+import ProjectsSection from "~/features/home/components/projects-section";
 import SkillsSection from "~/features/home/components/skills-section";
 import WorkSection from "~/features/home/components/work-section";
 
@@ -27,14 +28,15 @@ export default function HomeTemplate() {
       <HeroSection delay={SECTION_DELAY} />
       <AboutSection delay={SECTION_DELAY * 3} />
       <WorkSection delay={SECTION_DELAY * 5} />
-      <EducationSection delay={SECTION_DELAY * 7} />
-      <SkillsSection delay={SECTION_DELAY * 9} />
+      <ProjectsSection delay={SECTION_DELAY * 7} />
+      <EducationSection delay={SECTION_DELAY * 9} />
+      <SkillsSection delay={SECTION_DELAY * 11} />
       {/* Stacked on a phone, two columns from `sm` with contact given the wider
           one — side by side at 375 px an email address has nowhere to go but
           out of the viewport. */}
       <div className="grid gap-6 sm:grid-cols-[2fr_1fr]">
-        <ContactSection delay={SECTION_DELAY * 9} />
-        <HobbiesSection delay={SECTION_DELAY * 9} />
+        <ContactSection delay={SECTION_DELAY * 11} />
+        <HobbiesSection delay={SECTION_DELAY * 11} />
       </div>
     </div>
   );

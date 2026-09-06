@@ -164,4 +164,32 @@ test.describe("server rendering", () => {
     expect(response?.status()).toBe(404);
     await expect(page.getByText("404 Không tìm thấy")).toBeVisible();
   });
+
+  test("the projects are in the first HTML, in both languages", async ({
+    request,
+  }) => {
+    // A card is the piece a recruiter's crawler is most likely to index — the
+    // repo names and demo URLs — so it must be in the bytes the server sends,
+    // not something that arrives once the fades have run.
+    const vi = await request.get(ROUTES.HOME, {
+      headers: { "Accept-Language": "vi" },
+    });
+
+    expect(vi.status()).toBe(200);
+
+    const viHtml = await vi.text();
+
+    expect(viHtml).toContain("Dự án cá nhân");
+    expect(viHtml).toContain("Personal Monorepo");
+    expect(viHtml).toContain('href="https://github.com/qtuan02/monorepo"');
+
+    // The literal path is the assertion — the English document lives at its
+    // own prefix, which `~/constants/routes` deliberately cannot express.
+    const en = await request.get("/en", {
+      headers: { "Accept-Language": "en" },
+    });
+
+    expect(en.status()).toBe(200);
+    expect(await en.text()).toContain("Personal Projects");
+  });
 });

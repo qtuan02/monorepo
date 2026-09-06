@@ -7,6 +7,8 @@ import {
   EDUCATION_ITEMS,
   HERO_ACTIONS,
   HOBBY_ITEMS,
+  PROJECT_ITEMS,
+  PROJECT_SOURCE_LABEL_KEYS,
   SKILL_GROUPS,
   WORK_ITEMS,
 } from "~/features/home/constants/resume";
@@ -69,6 +71,33 @@ describe.each(languages)(
       }
     });
 
+    it("has a type label, a description, every bullet and a label for every link of each project", () => {
+      for (const item of PROJECT_ITEMS) {
+        expectMessage(locale, `portfolio.projects.type.${item.type}`);
+        expectMessage(
+          locale,
+          `portfolio.projects.items.${item.id}.description`,
+        );
+
+        for (const key of item.bulletKeys) {
+          expectMessage(
+            locale,
+            `portfolio.projects.items.${item.id}.bullets.${key}`,
+          );
+        }
+
+        // The link labels are joined by the source's id, exactly as the card
+        // does it — so a renamed label key fails here, not as a key path
+        // printed under the card.
+        for (const source of item.source ?? []) {
+          expectMessage(locale, PROJECT_SOURCE_LABEL_KEYS[source.id]);
+        }
+        if (item.demo) {
+          expectMessage(locale, "portfolio.projects.links.demo");
+        }
+      }
+    });
+
     it("has a degree and a period for each education item", () => {
       for (const item of EDUCATION_ITEMS) {
         expectMessage(locale, `portfolio.education.items.${item.id}.degree`);
@@ -110,6 +139,7 @@ describe.each(languages)(
       for (const section of [
         "about",
         "work",
+        "projects",
         "education",
         "skills",
         "contact",
@@ -125,6 +155,7 @@ describe("resume constants", () => {
   it("keeps every id unique, since the id is both the React key and the message key", () => {
     const ids = [
       ...WORK_ITEMS.map((item) => item.id),
+      ...PROJECT_ITEMS.map((item) => item.id),
       ...EDUCATION_ITEMS.map((item) => item.id),
     ];
 
@@ -151,6 +182,28 @@ describe("resume constants", () => {
     const withAward = WORK_ITEMS.filter((item) => item.award);
 
     expect(withAward.map((item) => item.id)).toEqual(["arobid"]);
+  });
+
+  it("caps a project's tech stack at six badges", () => {
+    // Above six the chips wrap into a third line inside a card that is one of
+    // three across the column, and the design cuts at the data rather than
+    // rendering a "+n" overflow — so the cap is enforced where the data lives.
+    for (const item of PROJECT_ITEMS) {
+      expect(item.techStack.length, item.id).toBeLessThanOrEqual(6);
+    }
+  });
+
+  it("links every project out over https, and never to the same place twice", () => {
+    const hrefs = PROJECT_ITEMS.flatMap((item) => [
+      ...(item.source ?? []).map((source) => source.href),
+      ...(item.demo ? [item.demo] : []),
+    ]);
+
+    expect(hrefs.length).toBeGreaterThan(0);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
+    for (const href of hrefs) {
+      expect(href).toMatch(/^https:\/\//);
+    }
   });
 
   it("gives a contact line an href only when it leads somewhere", () => {
