@@ -1,7 +1,7 @@
 # Design brief — `portfolio-work-section`
 
 > Đề bài cho pha **design** của section **work** (Experience) trên trang CV `apps/portfolio`.
-> Viết bởi Claude ở đầu bước design theo ADR-0008; chủ repo duyệt trước khi seed Direction nào.
+> Viết bởi Claude ở đầu bước design theo ADR-0008; chủ repo duyệt trước khi vẽ Direction nào.
 > Nguồn: [`docs/research/ui-ux-skills-design-workflow.md`](../../research/ui-ux-skills-design-workflow.md),
 > [`tooling/tailwind/theme.css`](../../../tooling/tailwind/theme.css), danh mục primitive
 > [`packages/ui/src/components/`](../../../packages/ui/src/components).
@@ -76,7 +76,7 @@ Từ research note và rule của repo — mọi Direction phải nằm trong đ
 - **Mọi vùng UI phải quy được về** một primitive `@monorepo/ui`, một composite `~/components`, hoặc một mục "cần thêm" — kể cả khi bản vẽ tự do hơn code hiện tại.
 - **Copy là ICU trong `packages/i18n`**, `{name}` chứ không `{{name}}`, không rich-text tag. Text mới trên artboard = một key mới phải liệt kê ở handoff kèm `vi` + `en`.
 - **Icon là inline SVG** trong artboard (không emoji), map sang `lucide-react` `size-4`/`size-5` khi implement.
-- **Bố cục dùng flex/grid + `gap`** để sống qua drag-reorder trong canvas; ảnh nhúng base64 nên < ~70 KB.
+- **Bố cục dùng flex/grid + `gap`**, đặt được cạnh nhau ở nhiều kích thước khung; ảnh là `<img>` trỏ tương đối sang asset thật của app, không nhúng base64 và không copy vào `artboards/`.
 - **Server Component là mặc định.** Phần tương tác (đóng/mở, hover) là client island; chữ phải nằm trong HTML đầu tiên vì trang này là thứ crawler đọc.
 - **A11y không được lùi:** hàng hiện tại là accordion WAI-ARIA đúng chuẩn — một Tab stop, `aria-expanded`. Direction nào bỏ heading hoặc biến hàng thành `div` click được là một bước lùi phải nói rõ.
 - Section giữ `id="work"` — dock ở `~/features/layout/constants/navbar.ts` neo vào nó.
@@ -93,26 +93,28 @@ Không phải "làm cho đẹp hơn" chung chung. Ba điều cụ thể ở bả
 
 ## 6. Direction — 2–4 hướng low-fi để chủ repo chọn
 
-Sẽ seed sau khi brief được duyệt. Mỗi Direction là một artboard low-fi trả lời cùng ba vấn đề trên bằng một thái độ khác hẳn, và mỗi cái phải nói rõ: mở sẵn hay gập, tech stack hiển thị thế nào, thời gian thể hiện ra sao, và nó tốn thêm bao nhiêu token/primitive.
+Sẽ vẽ sau khi brief được duyệt. Mỗi Direction là một artboard low-fi trả lời cùng ba vấn đề trên bằng một thái độ khác hẳn, và mỗi cái phải nói rõ: mở sẵn hay gập, tech stack hiển thị thế nào, thời gian thể hiện ra sao, và nó tốn thêm bao nhiêu token/primitive.
 
-> **Direction đã chọn:** **A · Rail thời gian, gập mặc định** (2026-09-05). Một vạch dọc nối bốn logo thành dòng thời gian; vai trò hiện tại mở sẵn và mang viền `--primary` 2px, ba vai trò cũ gập lại còn ba chip + `+n công nghệ`. Ba hướng không chọn (B thẻ `Card`, C cột lịch editorial, D tóm tắt + chi tiết) giữ trên trang thứ hai của canvas để biết đã cân nhắc gì.
+> **Direction đã chọn:** **A · Rail thời gian, gập mặc định** (2026-09-05). Một vạch dọc nối bốn logo thành dòng thời gian; vai trò hiện tại mở sẵn và mang viền `--primary` 2px, ba vai trò cũ gập lại còn ba chip + `+n công nghệ`. Ba hướng không chọn (B thẻ `Card`, C cột lịch editorial, D tóm tắt + chi tiết) giữ ở mục 2 “Đã loại” của canvas để biết đã cân nhắc gì.
 
-## 7. Design canvas — **chỉ local, không publish**
+## 7. Design canvas — **chỉ local, không publish, không công cụ**
 
-Chủ repo chốt 2026-09-05: pha design **không dùng web**, không publish Artifact lên claude.ai. Canvas sống hoàn toàn trong repo.
+Chủ repo chốt 2026-09-05: pha design **không dùng web**, không publish Artifact lên claude.ai. Chốt tiếp 2026-09-06 ([#100](https://github.com/qtuan02/monorepo/issues/100)): cũng **không cài thêm gì** — bỏ seed, bỏ file bao bì. Canvas sống hoàn toàn trong repo, và phụ thuộc duy nhất để xem nó là **một browser**.
 
 | | |
 |---|---|
-| **Working files** (nguồn thật) | `docs/design/portfolio-work-section/artboards/` — bảy `.dc.html` + `canvas.json`, commit vào git |
-| **File để xem** | `docs/design/portfolio-work-section/portfolio-work-section.html` — 2,64 MB, sinh bằng `seed-canvas.mjs`, **gitignore** (chỉ là bao bì). Mở bằng browser: xem, pan/zoom, export PNG/PDF |
-| **Vòng sửa** | Chủ repo mở file trên, nói cần đổi gì → Claude sửa `.dc.html` → re-seed → mở lại. **Không có nút Save**: Save cần trang hosted, mà ở đây không có |
-| **Trang canvas** | `page-1` bản chi tiết Direction A (Main light · Dark · Mobile 390px · States) · `page-2` ba Direction đã loại |
+| **Canvas** | `docs/design/portfolio-work-section/artboards/` — bảy `.dc.html`, mỗi file một artboard, HTML tĩnh tự chứa, CSS inline lift từ `theme.css`. Đây **là** canvas, không phải nguồn để sinh ra nó |
+| **File để xem** | [`artboards/index.html`](./artboards/index.html) — lưới `<iframe>`, commit cùng chỗ. Double-click là mở; mục 1 Direction A (Main light · Dark · Mobile 390px · States), mục 2 “Đã loại” ba Direction B/C/D thu nhỏ |
+| **Ảnh** | `<img src>` trỏ tương đối sang `apps/portfolio/src/assets/logos/` — asset thật của app, không bản sao nào để trôi |
+| **Vòng sửa** | Chủ repo mở `index.html`, nói cần đổi gì → Claude sửa `.dc.html` → F5. Không seed, không re-seed, không nút Save (Save cần trang hosted, mà ở đây không có) |
 
-Đây đúng là nhánh dự phòng ADR-0008 đã lường trước ("không có capability đó thì bước sửa tay thu về xem + export PNG/PDF + nói cho Claude sửa"), nhưng nó **lệch** với AC "≥2 vòng Save trên canvas" của ticket #95 và với cách ADR-0008 mô tả vòng lặp. Chỗ lệch ghi ở comment #95; spec #92 và ADR-0008 cần sửa theo.
+Đây đúng là nhánh dự phòng ADR-0008 đã lường trước ("không có capability đó thì bước sửa tay thu về xem + export PNG/PDF + nói cho Claude sửa"), nhưng nó **lệch** với AC "≥2 vòng Save trên canvas" của ticket #95 và với cách ADR-0008 mô tả vòng lặp. Chỗ lệch ghi ở comment #95; ADR-0008 đã sửa theo ở hai mục "Cập nhật".
 
-> **Bản đã chốt:** bảy `.dc.html` + `canvas.json` trong [`artboards/`](./artboards) như chúng được commit
-> lần đầu (2026-09-05). Không có số version Artifact — danh tính một bản chốt ở đây là **commit** của
-> thư mục đó. Design handoff: [`design-handoff.md`](./design-handoff.md).
+> **Bản đã chốt:** bảy `.dc.html` + `index.html` trong [`artboards/`](./artboards) tại commit
+> [`f656899`](https://github.com/qtuan02/monorepo/commit/f656899271c2c346c143a265216299cb2522b47b).
+> Không có số version Artifact — danh tính một bản chốt ở đây là **commit** của thư mục đó, và commit
+> này thay bản đầu tiên (2026-09-05) vì #100 đổi cơ chế hiển thị chứ không đổi thiết kế.
+> Design handoff: [`design-handoff.md`](./design-handoff.md).
 
 ## 8. Phạm vi
 

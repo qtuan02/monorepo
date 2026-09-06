@@ -6,10 +6,15 @@
 > `/to-tickets` cắt ticket theo, và `/implement` mở cạnh ticket.
 >
 > **Direction đã chọn:** A · Rail thời gian, gập mặc định.
-> **Bản đã chốt:** working files trong `artboards/` — pilot [#95](https://github.com/qtuan02/monorepo/issues/95) · spec [#92](https://github.com/qtuan02/monorepo/issues/92)
+> **Bản đã chốt:** `artboards/` tại commit
+> [`f656899`](https://github.com/qtuan02/monorepo/commit/f656899271c2c346c143a265216299cb2522b47b)
+> — pilot [#95](https://github.com/qtuan02/monorepo/issues/95) · spec [#92](https://github.com/qtuan02/monorepo/issues/92)
 >
-> Không có URL Artifact và không có số version: pha design của repo này chạy **local-only** (brief §7).
-> Danh tính một bản chốt là **commit** của `artboards/`, không phải version của một Artifact.
+> Không có URL Artifact và không có số version: pha design của repo này chạy **local-only, zero-tooling**
+> (brief §7). Danh tính một bản chốt là **commit** của `artboards/` — commit trên là bản mới nhất, thay
+> commit đầu tiên (2026-09-05) vì [#100](https://github.com/qtuan02/monorepo/issues/100) đổi **cơ chế
+> hiển thị**, không đổi thiết kế: ảnh trỏ sang asset thật của app, `index.html` thay `canvas.json`. Xem
+> canvas bằng cách mở [`artboards/index.html`](./artboards/index.html) — không có bước seed nào.
 >
 > **Phạm vi:** pilot dừng ở đây. Handoff này **không** implement gì — redesign thật là một topic sau,
 > đi qua đúng pipeline từ `/grill-with-docs`.
