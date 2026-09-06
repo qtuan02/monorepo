@@ -88,18 +88,47 @@ test.describe("server rendering", () => {
     );
   });
 
-  test("the social card image is an absolute URL", async ({ request }) => {
-    const response = await request.get(ROUTES.HOME, {
-      headers: { "Accept-Language": "vi" },
-    });
-    const html = await response.text();
+  test("the social card is an absolute URL to a generated image, per locale", async ({
+    request,
+  }) => {
+    // `metadataBase` is what turns the route Next emits into an absolute URL —
+    // and it is the reason `NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN` is a required
+    // variable. A relative og:image is ignored by every unfurler.
+    const absoluteImage =
+      /<meta property="og:image" content="(https?:\/\/[^"]+\/opengraph-image[^"]*)"/;
 
-    // `metadataBase` is what turns the relative `/og-image.jpg` into an absolute
-    // URL — and it is the reason `NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN` is a
-    // required variable. A relative og:image is ignored by every unfurler.
-    expect(html).toMatch(
-      /<meta property="og:image" content="https?:\/\/[^"]+\/og-image\.jpg"/,
-    );
+    for (const [path, lang] of [
+      [ROUTES.HOME, "vi"],
+      ["/en", "en"],
+    ] as const) {
+      const html = await (
+        await request.get(path, { headers: { "Accept-Language": lang } })
+      ).text();
+
+      const imageUrl = html.match(absoluteImage)?.[1];
+      if (!imageUrl) {
+        throw new Error(`no absolute og:image in the document at ${path}`);
+      }
+      // The card is generated under the locale segment, so the URL says which
+      // language it renders in — that is what makes the `/en` share card
+      // English without a second static file.
+      expect(imageUrl).toContain(`/${lang}/opengraph-image`);
+      // The card serves Twitter/X too; there is no separate twitter-image.
+      expect(html).toContain('name="twitter:image"');
+
+      // The absolute URL points at the deployed origin, not this server — so
+      // its path is fetched here. `maxRedirects: 0` is the assertion that
+      // matters: an unfurler must get the bytes on the first request, and
+      // `as-needed` would 307 the default locale's image without the pass-
+      // through in `proxy.ts`.
+      const { pathname, search } = new URL(imageUrl);
+      const image = await request.get(`${pathname}${search}`, {
+        maxRedirects: 0,
+      });
+
+      expect(image.status(), `status of ${pathname}`).toBe(200);
+      expect(image.headers()["content-type"]).toBe("image/png");
+    }
   });
 
   test("robots.txt points at the sitemap and the sitemap lists both locales", async ({
