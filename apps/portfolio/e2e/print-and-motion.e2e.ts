@@ -3,13 +3,13 @@ import { expect, test } from "@playwright/test";
 import { ROUTES } from "../src/constants/routes";
 
 /**
- * Two behaviours a jsdom test structurally cannot see, because both are
- * decided by CSS the browser resolves and by what the *server* sent before any
- * JavaScript ran.
+ * Behaviours a jsdom test structurally cannot see, because each is decided by
+ * CSS the browser resolves or by what the *server* sent before any JavaScript
+ * ran.
  *
- * Both had a real bug in them when this suite was written, and neither showed
- * up anywhere else: the page printed blank from the dark theme, and a reader
- * with reduced motion was served markup that starts at `opacity: 0`.
+ * Two of them had a real bug in them when this suite was written, and neither
+ * showed up anywhere else: the page printed blank from the dark theme, and a
+ * reader with reduced motion was served markup that starts at `opacity: 0`.
  */
 test.describe("print", () => {
   test("prints as a CV: no chrome, every role open, black on white", async ({
@@ -48,6 +48,52 @@ test.describe("print", () => {
 
     // The dock is the app's whole screen chrome and means nothing on paper.
     await expect(page.locator('[data-slot="tooltip-provider"]')).toBeHidden();
+  });
+
+  test("prints an external link with the URL it points at", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.HOME);
+    await page.emulateMedia({ media: "print" });
+
+    // A printed link is a dead end unless the paper says where it goes, and the
+    // project cards are the only external links in the body of the CV. Reading
+    // the computed `content` resolves `attr(href)` to the real string, so this
+    // asserts what would be inked rather than the rule that produces it.
+    const projectLink = page.locator("#projects").getByRole("link").first();
+
+    await expect(projectLink).toBeAttached();
+
+    const href = await projectLink.getAttribute("href");
+    const printed = await projectLink.evaluate(
+      (node) => getComputedStyle(node, "::after").content,
+    );
+
+    expect(href).toBeTruthy();
+    expect(printed).toContain(href ?? "");
+  });
+
+  test("leaves a contact link alone, whose text is already the URL", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.HOME);
+    await page.emulateMedia({ media: "print" });
+
+    // `href^="http"` rather than the first link in the section: the first two
+    // contact lines are `mailto:` and `tel:`, which the print rule never
+    // matched in the first place. Asserting on one of those would pass with
+    // `:not(#contact a)` deleted from the stylesheet — a test with no teeth.
+    // The selector mirrors the rule it pins, which is why it names the
+    // attribute the rule keys on.
+    const contactLink = page.locator('#contact a[href^="http"]').first();
+
+    await expect(contactLink).toBeAttached();
+
+    const printed = await contactLink.evaluate(
+      (node) => getComputedStyle(node, "::after").content,
+    );
+
+    expect(printed).toBe("none");
   });
 });
 
