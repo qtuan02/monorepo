@@ -63,11 +63,24 @@
       color-scheme: light;
     }
 
-    /* "Đã loại": mỗi artboard thu nhỏ một nửa. Wrapper mang kích thước đã thu
-       nhỏ, iframe vẫn render ở kích thước thật rồi scale — nên bố cục bên trong
-       không đổi, chỉ nhỏ đi. */
-    .shrink { position: relative; overflow: hidden; }
-    .shrink > iframe { transform: scale(0.5); transform-origin: top left; }
+    /* "Đã loại": mỗi artboard thu nhỏ một nửa. iframe vẫn render ở kích thước
+       thật rồi scale — nên bố cục bên trong không đổi, chỉ nhỏ đi — còn wrapper
+       mang kích thước đã thu nhỏ để nó chiếm đúng chỗ trong lưới.
+       Kích thước artboard viết MỘT lần, ở `--w`/`--h` của wrapper: cả hai bên
+       tính ra từ đó, nên không có hai con số phải khớp tay. */
+    .shrink {
+      --scale: 0.5;
+      position: relative;
+      overflow: hidden;
+      width: calc(var(--w) * var(--scale) * 1px);
+      height: calc(var(--h) * var(--scale) * 1px);
+    }
+    .shrink > iframe {
+      width: calc(var(--w) * 1px);
+      height: calc(var(--h) * 1px);
+      transform: scale(var(--scale));
+      transform-origin: top left;
+    }
   </style>
 </head>
 <body>
@@ -124,22 +137,22 @@
   <div class="grid">
     <figure>
       <figcaption>B — thẻ nền trắng, chip công nghệ <span class="size">720 × 900</span></figcaption>
-      <div class="shrink" style="width: 360px; height: 450px;">
-        <iframe src="./DirectionB.dc.html" width="720" height="900" title="B · Thẻ nền trắng, chip công nghệ" loading="eager"></iframe>
+      <div class="shrink" style="--w: 720; --h: 900;">
+        <iframe src="./DirectionB.dc.html" title="B · Thẻ nền trắng, chip công nghệ" loading="eager"></iframe>
       </div>
     </figure>
 
     <figure>
       <figcaption>C — cột lịch bên trái, không hộp <span class="size">720 × 880</span></figcaption>
-      <div class="shrink" style="width: 360px; height: 440px;">
-        <iframe src="./DirectionC.dc.html" width="720" height="880" title="C · Cột lịch bên trái, không hộp" loading="eager"></iframe>
+      <div class="shrink" style="--w: 720; --h: 880;">
+        <iframe src="./DirectionC.dc.html" title="C · Cột lịch bên trái, không hộp" loading="eager"></iframe>
       </div>
     </figure>
 
     <figure>
       <figcaption>D — tóm tắt trước, chi tiết theo yêu cầu <span class="size">720 × 980</span></figcaption>
-      <div class="shrink" style="width: 360px; height: 490px;">
-        <iframe src="./DirectionD.dc.html" width="720" height="980" title="D · Tóm tắt trước, chi tiết theo yêu cầu" loading="eager"></iframe>
+      <div class="shrink" style="--w: 720; --h: 980;">
+        <iframe src="./DirectionD.dc.html" title="D · Tóm tắt trước, chi tiết theo yêu cầu" loading="eager"></iframe>
       </div>
     </figure>
   </div>
