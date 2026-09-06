@@ -163,18 +163,16 @@ const themes = {
   light: {
     override: declarationsOf(unconditional(globalsSource), ":root"),
     base: declarationsOf(themeSource, ":root"),
-    emrPrimary: "#38a696",
   },
   dark: {
     override: declarationsOf(unconditional(globalsSource), ".dark"),
     base: declarationsOf(themeSource, ".dark"),
-    emrPrimary: "#75cdc0",
   },
 };
 
 describe.each(Object.entries(themes))(
   "%s accent",
-  (_theme, { override, base, emrPrimary }) => {
+  (_theme, { override, base }) => {
     const colourTokens = Object.fromEntries(
       Object.entries(override).filter(([, value]) =>
         value.startsWith("oklch("),
@@ -241,13 +239,19 @@ describe.each(Object.entries(themes))(
       }
     });
 
-    it("does not touch tooling/tailwind: theme.css still carries the EMR teal", () => {
+    it("overrides the shared theme rather than restating its value", () => {
+      // Not a hard-coded EMR hex: `tooling/tailwind/theme.css` belongs to
+      // another workspace and is free to be rebranded, which would turn a
+      // pinned hex here red for a change this app did not make. What this app
+      // decides is that its accent is its OWN — so assert the two differ,
+      // whatever the shared value happens to be.
+      expect(base.primary).toBeDefined();
       expect(
         rgbDistance(
           oklchToRgb(parseOklch(base.primary ?? "")),
-          hexToRgb(emrPrimary),
+          oklchToRgb(parseOklch(colourTokens.primary ?? "")),
         ),
-      ).toBeLessThan(4);
+      ).toBeGreaterThan(4);
     });
   },
 );
