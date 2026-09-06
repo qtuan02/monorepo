@@ -30,22 +30,18 @@ export function generateStaticParams() {
  * The site-wide metadata, built from the shared catalogue so the tab title and
  * the social cards are translated with everything else.
  *
- * `metadataBase` is what turns the relative `/og-image.jpg` below into the
- * absolute URL every crawler and chat client demands — and it is why
- * `NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN` is a required variable rather than an
- * optional one.
+ * The social card itself is not listed here: `opengraph-image.tsx` beside this
+ * file generates it per locale, and a file-convention image outranks anything
+ * `openGraph.images` would say. `metadataBase` is still load-bearing — it is
+ * what turns the URL Next emits for that route into the absolute one every
+ * crawler and chat client demands, and why `NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN`
+ * is a required variable rather than an optional one.
  */
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations();
 
   const title = t("portfolio.meta.title");
   const description = t("portfolio.meta.description");
-  const image = {
-    url: "/og-image.jpg",
-    width: 1200,
-    height: 630,
-    alt: title,
-  };
 
   return {
     metadataBase: new URL(env.NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN),
@@ -59,13 +55,11 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       siteName: title,
-      images: [image],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
     },
     // A developer's own machine must not end up in a search index. Anywhere
     // else the default (indexable) applies, which is the whole point of the app.

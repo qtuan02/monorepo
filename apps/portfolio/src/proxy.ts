@@ -1,8 +1,10 @@
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 import { createI18nProxy } from "@monorepo/i18n/next-intl/create-proxy";
 
 import { routing } from "~/i18n/routing";
+import { isMetadataImagePath } from "~/utils/metadata-image-path";
 
 const negotiateLocale = createI18nProxy(routing);
 
@@ -18,8 +20,18 @@ const negotiateLocale = createI18nProxy(routing);
  * nobody can use or left a redirect pointing at a route that no longer exists.
  * The guard itself is not lost: it lives in `apps/_template_next` and arrives
  * with `gen:app` for an app that genuinely needs one.
+ *
+ * The one path that skips negotiation is a generated metadata image
+ * (`/vi/opengraph-image`): Next links it with its locale already in the URL,
+ * and `as-needed` would otherwise bounce the default locale's one through a
+ * 307 that a link unfurler may not follow. The decision is a pure function so
+ * it can be tested without a `NextRequest`.
  */
 export function proxy(request: NextRequest) {
+  if (isMetadataImagePath(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
   return negotiateLocale(request);
 }
 
