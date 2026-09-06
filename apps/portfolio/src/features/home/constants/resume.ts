@@ -18,9 +18,8 @@ import type {
 } from "~/features/home/types/resume";
 import arobidLogo from "~/assets/logos/arobid.png";
 import dcorpLogo from "~/assets/logos/dcorp.png";
-import fptisLogo from "~/assets/logos/fptis.jpg";
+import medvietLogo from "~/assets/logos/medviet.png";
 import stuLogo from "~/assets/logos/stu.png";
-import wisdomLogo from "~/assets/logos/wisdom.jpg";
 import { GithubIcon } from "~/components/icons/github-icon";
 
 /**
@@ -33,24 +32,25 @@ import { GithubIcon } from "~/components/icons/github-icon";
  */
 export const WORK_ITEMS: readonly WorkItem[] = [
   {
-    id: "fptis",
-    company: "FPT IS",
-    logo: fptisLogo,
+    id: "medviet",
+    company: "MedViet",
+    logo: medvietLogo,
     techStack: [
-      "Microservices",
-      "Monorepo",
-      "React.js",
-      "Java Spring Boot",
-      "PostgreSQL",
+      "Bun",
+      "Turborepo",
+      "React 19",
+      "Vite",
+      "Expo",
+      "React Native",
+      "NativeWind",
+      "TanStack Query",
+      "Zustand",
+      "Next.js",
+      "Redux",
+      ".NET 8",
+      "EF Core",
     ],
-    bulletKeys: [
-      "system",
-      "modules",
-      "screens",
-      "components",
-      "logic",
-      "stability",
-    ],
+    bulletKeys: ["monorepo", "mobile", "legacy", "dotnet"],
   },
   {
     id: "arobid",
@@ -72,6 +72,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "tradexpo",
       "immersive",
       "tracking",
+      "mobile",
       "award",
       "cms",
       "rendering",
@@ -95,20 +96,6 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "Monorepo",
     ],
     bulletKeys: ["omnichannel", "dataset", "emenu", "internal", "uiSystem"],
-  },
-  {
-    id: "wisdom",
-    company: "WISDOM ROBOTICS",
-    logo: wisdomLogo,
-    techStack: [
-      "Spring Boot",
-      "React.js",
-      "Spring Data JPA",
-      "PostgreSQL",
-      "Tailwind CSS",
-      "Redux",
-    ],
-    bulletKeys: ["project", "backend", "modules"],
   },
 ];
 

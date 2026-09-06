@@ -10,8 +10,8 @@ import { render } from "../../../support/render";
 const logo: StaticImageData = { src: "/logo.png", width: 48, height: 48 };
 
 const bullets = [
-  { id: "system", text: "Social Protection System" },
-  { id: "modules", text: "Danh mục, nhân sự, đối tượng thụ hưởng" },
+  { id: "monorepo", text: "Monorepo frontend và module Khám sức khoẻ" },
+  { id: "mobile", text: "App EMR mobile bằng Expo/React Native" },
 ];
 
 /**
@@ -25,9 +25,9 @@ describe("ResumeCard", () => {
     render(
       <ResumeCard
         logo={logo}
-        altText="FPT IS"
-        title="FPT IS"
-        period="02/2026 – Hiện tại"
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
         bullets={bullets}
         toggleLabel="Xem chi tiết công việc"
       />,
@@ -50,9 +50,9 @@ describe("ResumeCard", () => {
     render(
       <ResumeCard
         logo={logo}
-        altText="FPT IS"
-        title="FPT IS"
-        period="02/2026 – Hiện tại"
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
         bullets={bullets}
         toggleLabel="Xem chi tiết công việc"
       />,
@@ -74,9 +74,9 @@ describe("ResumeCard", () => {
       <ResumeCard
         defaultExpanded
         logo={logo}
-        altText="FPT IS"
-        title="FPT IS"
-        period="02/2026 – Hiện tại"
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
         bullets={bullets}
         toggleLabel="Xem chi tiết công việc"
       />,
@@ -112,9 +112,9 @@ describe("ResumeCard", () => {
       <ResumeCard
         defaultExpanded
         logo={logo}
-        altText="FPT IS"
-        title="FPT IS"
-        period="02/2026 – Hiện tại"
+        altText="MedViet"
+        title="MedViet"
+        period="03/2026 – Hiện tại"
         techStack={["React.js", "PostgreSQL"]}
         techStackLabel="Công nghệ:"
         toggleLabel="Xem chi tiết công việc"

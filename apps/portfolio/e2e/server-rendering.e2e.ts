@@ -27,16 +27,41 @@ test.describe("server rendering", () => {
 
     // The greeting, which comes from the shell-adjacent hero section…
     expect(html).toContain("Xin chào, mình là Tuấn");
-    // …and one bullet from inside a work row, which is the assertion that
-    // actually matters: a heading could come from the layout, but a bullet is
-    // only there if the slice itself rendered on the server.
-    expect(html).toContain("Social Protection System");
+    // …and one bullet from inside the current work row, which is the assertion
+    // that actually matters: a heading could come from the layout, but a bullet
+    // is only there if the slice itself rendered on the server.
+    expect(html).toContain("app EMR mobile bằng Expo/React Native");
     expect(html).toContain("Kinh nghiệm làm việc");
+    // Three roles ship and no more. A dropped role coming back — a re-added
+    // constants entry, or a stale message an edit re-pointed at — is not a
+    // cosmetic regression: these bytes are what a crawler indexes and what a
+    // recruiter's unfurl quotes, so the row would be published before anyone
+    // looked at the page. Asserting the absence is the only way to see it.
+    for (const dropped of ["FPT IS", "Social Protection", "Wisdom"]) {
+      expect(html, dropped).not.toContain(dropped);
+    }
 
     // The metadata built from the same catalogue.
     expect(html).toContain("<title>Huỳnh Quốc Tuấn</title>");
     expect(html).toContain('name="description"');
     expect(html).toContain('lang="vi"');
+  });
+
+  test("…and in English at its own prefix, with the same row gone", async ({
+    request,
+  }) => {
+    const response = await request.get("/en", {
+      headers: { "Accept-Language": "en" },
+    });
+
+    expect(response.status()).toBe(200);
+
+    const html = await response.text();
+
+    // The `en` half of the same bullet: a work row that renders on the server
+    // in one locale and falls back to a key path in the other is exactly what a
+    // missing translation looks like, and only the raw document shows it.
+    expect(html).toContain("EMR mobile app with Expo/React Native");
   });
 
   test("the social card image is an absolute URL", async ({ request }) => {

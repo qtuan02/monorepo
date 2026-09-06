@@ -108,7 +108,7 @@
   "portfolio": {
     "meta": {
       "title": "Huynh Quoc Tuan",
-      "description": "Frontend Developer with 3+ years of experience building scalable web applications with React.js and Next.js. Turning Figma designs into responsive interfaces, working with SSR/ISR, and keeping a strong focus on product quality."
+      "description": "Frontend developer with 2+ years of React.js and Next.js, shipping Expo/React Native apps and .NET backends, at home in monorepos, CI and design systems."
     },
     "hero": {
       "greeting": "Hi, I am Tuan",
@@ -118,7 +118,7 @@
     },
     "about": {
       "title": "About",
-      "experience": "Frontend Developer with 3+ years of experience building and maintaining scalable web applications using React.js and Next.js. Experienced in turning Figma designs into clean, responsive interfaces, while building reusable components and keeping the codebase easy to maintain. Comfortable working with SSR, ISR, and state management to improve performance and user experience. Also able to support backend work when needed, with a strong focus on product quality, stability, and long-term growth.",
+      "experience": "Frontend Developer with 2+ years of experience building and maintaining scalable web applications using React.js and Next.js. Frontend is home ground, and when a project has needed it I have shipped Expo/React Native apps as well as .NET 8, Spring Boot and PayloadCMS backends. Used to working in a monorepo with shared CI and a shared design system, turning Figma designs into clean, responsive interfaces, and comfortable with SSR, ISR and state management to improve performance and user experience.",
       "mindset": "Good teamwork and communication. Fast learner with a strong adaptation mindset. Interested in performance optimization, source structure, and user experience. Able to work across frontend and backend when the project requires it."
     },
     "work": {
@@ -126,25 +126,24 @@
       "techStack": "Tech Stack:",
       "toggle": "Toggle role details",
       "items": {
-        "fptis": {
+        "medviet": {
           "role": "Software Engineer",
-          "period": "Feb 2026 – Present",
+          "period": "Mar 2026 – Present",
           "bullets": {
-            "system": "Social Protection System — a large-scale government system for social protection management with multiple business modules and centralized data handling.",
-            "modules": "Developed and maintained core modules including category, social facility, staff, beneficiary, and user management.",
-            "screens": "Built data-heavy administrative screens featuring complex lists, forms, multi-filters, and pagination.",
-            "components": "Engineered reusable UI components for tables and inputs to ensure interface consistency and system scalability.",
-            "logic": "Collaborated on business logic implementation and API synchronization within a microservices and monorepo architecture.",
-            "stability": "Ensured system stability by handling data flow and performance issues across the full stack."
+            "monorepo": "Bootstrapped the shared frontend monorepo (Bun + Turborepo, React 19 + Vite, Vitest and Playwright in CI) and built the health-examination module on it: patient sign-in through IAM with captcha, exam sheets generated from a form server, and per-group saving and e-signature.",
+            "mobile": "Built the EMR mobile app with Expo/React Native (NativeWind, TanStack Query, Zustand): in-department patient list, medical records, lab results, QR scanning, sign-off dossiers and e-signature; restructured the app into a monorepo with an SDK service layer, and cleared an ANR by flattening date-grouped lists into a row stream.",
+            "legacy": "Maintained the legacy EMR web app (Next.js 14 + Redux): prescription and service-package screens, the labor chart, permissions and web configuration.",
+            "dotnet": "Implemented .NET 8 command and query handlers (EF Core, MediatR) on the HIS server for the medical service catalogue and prescription templates."
           }
         },
         "arobid": {
           "role": "Frontend Developer",
-          "period": "Feb 2025 – Feb 2026",
+          "period": "Mar 2025 – Feb 2026",
           "bullets": {
             "tradexpo": "TradeXpo — Digital Exhibition Platform: built core pages (home, event list, event detail, inner pages) and the full user journey from landing to event and booth interactions.",
             "immersive": "Integrated a 3D/VR system using Shapespark through iframe and postMessage; developed gamification including check-in, booth interaction, product viewing, and rewards.",
             "tracking": "Integrated CleverTap for user behavior tracking; optimized UX for media-heavy and dynamic pages; aligned implementation with Figma and product flow.",
+            "mobile": "Mobile App (React Native): maintained and fixed bugs in the app inside an Expo monorepo, porting shared Shadcn-style components to mobile.",
             "award": "TradeXpo contributed to the platform winning Excellent Digital Technology Solution at Vietnam Digital Awards 2025.",
             "cms": "CMS Platform — News, FAQ, Career: built a shared CMS for multiple content types, with management pages for articles, categories, and structured content.",
             "rendering": "Applied SSR and ISR for SEO, page speed, and search visibility; supported stable data flow across frontend and backend."
@@ -159,15 +158,6 @@
             "emenu": "Digital e-Menu: menu, item details, shopping cart, order history; temporary bill for real-time spending estimates; cart logic optimized for frequent updates.",
             "internal": "Internal management platform: data-heavy tables, multi-filters, search, pagination; reporting for call activities, work logs, and tax workflows; integrations with Omicall, ClickUp, and GDT.",
             "uiSystem": "Internal UI system: reusable components across projects, standardized usage, Storybook documentation, layout fixes, and manual UI testing."
-          }
-        },
-        "wisdom": {
-          "role": "Software Engineer",
-          "period": "Mar 2023 – Sep 2023",
-          "bullets": {
-            "project": "Vehicle Maintenance System — joined from an early stage, working with the BA on requirements and maintenance workflows.",
-            "backend": "Developed backend services with Java Spring Boot and PostgreSQL; built frontend screens with Next.js.",
-            "modules": "Supported modules for vehicles, maintenance schedules, spare parts, and operational data."
           }
         }
       }
