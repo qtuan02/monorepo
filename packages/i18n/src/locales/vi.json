@@ -185,7 +185,14 @@
       }
     },
     "skills": {
-      "title": "Kỹ năng"
+      "title": "Kỹ năng",
+      "groups": {
+        "frontend": "Frontend",
+        "mobile": "Mobile",
+        "backend": "Backend",
+        "devops": "DevOps & CI",
+        "tooling": "Công cụ"
+      }
     },
     "contact": {
       "title": "Liên hệ",

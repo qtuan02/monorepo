@@ -185,7 +185,14 @@
       }
     },
     "skills": {
-      "title": "Skills"
+      "title": "Skills",
+      "groups": {
+        "frontend": "Frontend",
+        "mobile": "Mobile",
+        "backend": "Backend",
+        "devops": "DevOps & CI",
+        "tooling": "Tooling"
+      }
     },
     "contact": {
       "title": "Contact",

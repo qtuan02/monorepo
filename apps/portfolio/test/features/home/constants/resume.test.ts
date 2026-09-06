@@ -7,6 +7,7 @@ import {
   EDUCATION_ITEMS,
   HERO_ACTIONS,
   HOBBY_ITEMS,
+  SKILL_GROUPS,
   WORK_ITEMS,
 } from "~/features/home/constants/resume";
 
@@ -99,6 +100,12 @@ describe.each(languages)(
       expectMessage(locale, "portfolio.hero.actions.print");
     });
 
+    it("has a label for every skill group", () => {
+      for (const group of SKILL_GROUPS) {
+        expectMessage(locale, `portfolio.skills.groups.${group.id}`);
+      }
+    });
+
     it("has every section heading the template renders", () => {
       for (const section of [
         "about",
@@ -122,6 +129,19 @@ describe("resume constants", () => {
     ];
 
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("keeps every skill group id unique and lists no skill twice", () => {
+    const ids = SKILL_GROUPS.map((group) => group.id);
+
+    expect(new Set(ids).size).toBe(ids.length);
+
+    // A skill in two groups is not a typo the compiler can see, and on screen
+    // it reads as padding — the section's claim is a map of what is known,
+    // not a longer list.
+    const skills = SKILL_GROUPS.flatMap((group) => group.skills);
+
+    expect(new Set(skills).size).toBe(skills.length);
   });
 
   it("carries an award badge on the one role that earned one", () => {

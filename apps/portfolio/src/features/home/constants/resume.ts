@@ -15,6 +15,7 @@ import type {
   EducationItem,
   HeroActionItem,
   HobbyItem,
+  SkillGroup,
   WorkItem,
 } from "~/features/home/types/resume";
 import arobidLogo from "~/assets/logos/arobid.png";
@@ -112,27 +113,55 @@ export const EDUCATION_ITEMS: readonly EducationItem[] = [
   },
 ];
 
-/** Product and language names — the same in every locale, so not translated. */
-export const SKILLS: readonly string[] = [
-  "JavaScript",
-  "TypeScript",
-  "React.js",
-  "Next.js",
-  "Zustand",
-  "Redux",
-  "TanStack Query",
-  "Spring Boot",
-  "Node.js",
-  "Express.js",
-  "PostgreSQL",
-  "MongoDB",
-  "Git",
-  "Figma",
-  "Docker",
-  "SSR",
-  "ISR",
-  "Monorepo",
-  "Microservices",
+/**
+ * The skill map, in five labelled rows rather than one flat strip.
+ *
+ * The order is the order it is read in, and it is an argument: frontend first
+ * because that is the depth being claimed, mobile and backend next because
+ * those are what "full-stack when the project needs it" has to be backed by,
+ * then the two rows about how the work is shipped. Names are product names and
+ * are not translated; the row labels are, and live under
+ * `portfolio.skills.groups.<id>`.
+ */
+export const SKILL_GROUPS: readonly SkillGroup[] = [
+  {
+    id: "frontend",
+    skills: [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "TanStack Query",
+      "Zustand",
+      "React Hook Form + Zod",
+      "Storybook",
+      "i18n",
+    ],
+  },
+  {
+    id: "mobile",
+    skills: ["React Native", "Expo", "NativeWind", "Reanimated"],
+  },
+  {
+    id: "backend",
+    skills: [
+      "Spring Boot",
+      ".NET 8",
+      "PayloadCMS",
+      "PostgreSQL",
+      "MongoDB",
+      "Redis",
+    ],
+  },
+  {
+    id: "devops",
+    skills: ["Docker", "GitHub Actions", "Vercel", "Turborepo", "Changesets"],
+  },
+  {
+    id: "tooling",
+    skills: ["Bun", "Biome", "Vitest", "Playwright", "Figma"],
+  },
 ];
 
 /**

@@ -42,6 +42,19 @@ export interface EducationItem {
 }
 
 /**
+ * One labelled row of the skills section.
+ *
+ * The group's label is copy and is translated; the skills themselves are
+ * product and language names, so they read the same in both locales and stay
+ * here as data — the same split the work rows make.
+ */
+export interface SkillGroup {
+  /** Also the message key: `portfolio.skills.groups.<id>`. */
+  id: string;
+  skills: readonly string[];
+}
+
+/**
  * One of the hero's quick actions — the three that are links. Printing is the
  * fourth and is not one of these: it acts on the current page rather than
  * leading anywhere, so it is a button, and a button in a list of destinations
