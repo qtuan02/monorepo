@@ -7,7 +7,7 @@
 >
 > **Direction đã chọn:** A · Rail thời gian, gập mặc định.
 > **Bản đã chốt:** `artboards/` tại commit
-> [`f656899`](https://github.com/qtuan02/monorepo/commit/f656899271c2c346c143a265216299cb2522b47b)
+> [`b3720a3`](https://github.com/qtuan02/monorepo/commit/b3720a3d4a3f1d823fccdda285cb979f94f74a56)
 > — pilot [#95](https://github.com/qtuan02/monorepo/issues/95) · spec [#92](https://github.com/qtuan02/monorepo/issues/92)
 >
 > Không có URL Artifact và không có số version: pha design của repo này chạy **local-only, zero-tooling**

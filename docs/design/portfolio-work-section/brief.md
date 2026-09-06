@@ -111,7 +111,7 @@ Chủ repo chốt 2026-09-05: pha design **không dùng web**, không publish Ar
 Đây đúng là nhánh dự phòng ADR-0008 đã lường trước ("không có capability đó thì bước sửa tay thu về xem + export PNG/PDF + nói cho Claude sửa"), nhưng nó **lệch** với AC "≥2 vòng Save trên canvas" của ticket #95 và với cách ADR-0008 mô tả vòng lặp. Chỗ lệch ghi ở comment #95; ADR-0008 đã sửa theo ở hai mục "Cập nhật".
 
 > **Bản đã chốt:** bảy `.dc.html` + `index.html` trong [`artboards/`](./artboards) tại commit
-> [`f656899`](https://github.com/qtuan02/monorepo/commit/f656899271c2c346c143a265216299cb2522b47b).
+> [`b3720a3`](https://github.com/qtuan02/monorepo/commit/b3720a3d4a3f1d823fccdda285cb979f94f74a56).
 > Không có số version Artifact — danh tính một bản chốt ở đây là **commit** của thư mục đó, và commit
 > này thay bản đầu tiên (2026-09-05) vì #100 đổi cơ chế hiển thị chứ không đổi thiết kế.
 > Design handoff: [`design-handoff.md`](./design-handoff.md).
