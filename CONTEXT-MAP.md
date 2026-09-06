@@ -7,12 +7,13 @@ Các context còn lại là Turborepo workspace (`apps/*`, `packages/*`), mỗi 
 ## Contexts
 
 - [Root](./CONTEXT.md) — Reference · Target · Skeleton · Template app · Runtime · Flavor · Route module · Gate · Locale message · Publish shell.
+- [`apps/portfolio`](./apps/portfolio/CONTEXT.md) — CV site.
 
-Chưa có context nào ở mức workspace. Repo đã có bảy app (ba Template, `portfolio`,
-`documents`, `mcp-weather`, `storybook`), tám package nguồn cộng hai Publish
-shell (ADR-0004) và hai tooling, nhưng chưa workspace nào chốt thuật ngữ **của riêng nó** — từ vựng đang dùng
-(Runtime, Flavor, Template app, Gate) đều là của context gốc. `CONTEXT.md` đầu tiên ở mức
-workspace sẽ được `/domain-modeling` tạo khi có thuật ngữ thật để ghi, không dựng sẵn file
+`apps/portfolio` là workspace **đầu tiên** chốt được một thuật ngữ của riêng nó, ở vòng
+grill 2026-09-06 của spec #103. Sáu app còn lại (ba Template, `documents`, `mcp-weather`,
+`storybook`), tám package nguồn cộng hai Publish shell (ADR-0004) và hai tooling vẫn chưa —
+từ vựng chúng dùng (Runtime, Flavor, Template app, Gate) đều là của context gốc. `CONTEXT.md`
+ở mức workspace được `/domain-modeling` tạo khi có thuật ngữ thật để ghi, không dựng sẵn file
 rỗng.
 
 ## Relationships

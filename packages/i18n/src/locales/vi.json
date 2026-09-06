@@ -178,8 +178,7 @@
     "projects": {
       "title": "Dự án cá nhân",
       "type": {
-        "personal": "Cá nhân",
-        "company": "Công ty"
+        "personal": "Cá nhân"
       },
       "links": {
         "source": "Mã nguồn",

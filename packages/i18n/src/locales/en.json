@@ -178,8 +178,7 @@
     "projects": {
       "title": "Personal Projects",
       "type": {
-        "personal": "Personal",
-        "company": "Company"
+        "personal": "Personal"
       },
       "links": {
         "source": "Source code",

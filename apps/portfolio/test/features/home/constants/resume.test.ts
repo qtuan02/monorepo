@@ -1,156 +1,22 @@
 import { describe, expect, it } from "vitest";
 
-import { languages, messages } from "@monorepo/i18n/languages";
-
 import {
   CONTACT_ITEMS,
   EDUCATION_ITEMS,
-  HERO_ACTIONS,
-  HOBBY_ITEMS,
   PROJECT_ITEMS,
-  PROJECT_SOURCE_LABEL_KEYS,
   SKILL_GROUPS,
   WORK_ITEMS,
 } from "~/features/home/constants/resume";
 
 /**
- * The CV is split down the middle: structure (ids, order, logos, which bullets
- * a role has) lives in the slice's constants, and every string a reader sees
- * lives in `@monorepo/i18n` under `portfolio.*`. The two halves are joined at
- * render time by the item's id — and next-intl renders a **missing key as the
- * key path**, so a typo or a dropped translation ships as `portfolio.work.…`
- * printed on the page instead of throwing anywhere.
+ * Invariants of the CV's **structure** — the half of the split that lives here
+ * rather than in `@monorepo/i18n`. None of these is a string a reader sees, and
+ * none of them is something the compiler can state.
  *
- * Nothing else catches that: the constants typecheck, the catalogue typechecks,
- * and neither knows about the other.
+ * That the ids in here resolve to a real message in every language, and that no
+ * message is left behind unread, is the join between the two halves and lives in
+ * `test/messages.test.ts`.
  */
-function readMessage(locale: string, path: string): unknown {
-  const segments = path.split(".");
-  let current: unknown = messages[locale as keyof typeof messages];
-
-  for (const segment of segments) {
-    if (typeof current !== "object" || current === null) return undefined;
-    current = (current as Record<string, unknown>)[segment];
-  }
-
-  return current;
-}
-
-function expectMessage(locale: string, path: string) {
-  const value = readMessage(locale, path);
-
-  expect(value, `${locale}: ${path}`).toBeTypeOf("string");
-  expect(String(value).trim(), `${locale}: ${path}`).not.toBe("");
-}
-
-describe.each(languages)(
-  "resume constants against the %s catalogue",
-  (locale) => {
-    it("has a role, a period and every bullet for each work item", () => {
-      for (const item of WORK_ITEMS) {
-        expectMessage(locale, `portfolio.work.items.${item.id}.role`);
-        expectMessage(locale, `portfolio.work.items.${item.id}.period`);
-
-        for (const key of item.bulletKeys) {
-          expectMessage(
-            locale,
-            `portfolio.work.items.${item.id}.bullets.${key}`,
-          );
-        }
-      }
-    });
-
-    it("has a badge label and a tooltip for a work item that carries an award", () => {
-      for (const item of WORK_ITEMS) {
-        if (!item.award) continue;
-
-        const path = `portfolio.work.items.${item.id}.awards.${item.award}`;
-
-        expectMessage(locale, `${path}.label`);
-        expectMessage(locale, `${path}.tooltip`);
-      }
-    });
-
-    it("has a type label, a description, every bullet and a label for every link of each project", () => {
-      for (const item of PROJECT_ITEMS) {
-        expectMessage(locale, `portfolio.projects.type.${item.type}`);
-        expectMessage(
-          locale,
-          `portfolio.projects.items.${item.id}.description`,
-        );
-
-        for (const key of item.bulletKeys) {
-          expectMessage(
-            locale,
-            `portfolio.projects.items.${item.id}.bullets.${key}`,
-          );
-        }
-
-        // The link labels are joined by the source's id, exactly as the card
-        // does it — so a renamed label key fails here, not as a key path
-        // printed under the card.
-        for (const source of item.source ?? []) {
-          expectMessage(locale, PROJECT_SOURCE_LABEL_KEYS[source.id]);
-        }
-        if (item.demo) {
-          expectMessage(locale, "portfolio.projects.links.demo");
-        }
-      }
-    });
-
-    it("has a degree and a period for each education item", () => {
-      for (const item of EDUCATION_ITEMS) {
-        expectMessage(locale, `portfolio.education.items.${item.id}.degree`);
-        expectMessage(locale, `portfolio.education.items.${item.id}.period`);
-      }
-    });
-
-    it("has a label for each contact and hobby line", () => {
-      for (const item of CONTACT_ITEMS) {
-        expectMessage(locale, `portfolio.contact.items.${item.id}`);
-      }
-
-      for (const item of HOBBY_ITEMS) {
-        expectMessage(locale, `portfolio.hobbies.items.${item.id}`);
-      }
-    });
-
-    it("has the hero's positioning, current line and every quick action", () => {
-      // The hero is what a five-second reader and an unfurl preview see, so a
-      // key missing in one locale is the most expensive kind: it ships the key
-      // path itself as the sentence naming what the candidate does.
-      expectMessage(locale, "portfolio.hero.positioning");
-      expectMessage(locale, "portfolio.hero.current");
-
-      for (const action of HERO_ACTIONS) {
-        expectMessage(locale, `portfolio.hero.actions.${action.id}`);
-      }
-
-      expectMessage(locale, "portfolio.hero.actions.print");
-    });
-
-    it("has a label for every skill group", () => {
-      for (const group of SKILL_GROUPS) {
-        expectMessage(locale, `portfolio.skills.groups.${group.id}`);
-      }
-    });
-
-    it("has every section heading the template renders", () => {
-      for (const section of [
-        "about",
-        "work",
-        "projects",
-        "education",
-        "skills",
-        "contact",
-        "hobbies",
-      ]) {
-        expectMessage(locale, `portfolio.${section}.title`);
-      }
-    });
-  },
-);
-
 describe("resume constants", () => {
   it("keeps every id unique, since the id is both the React key and the message key", () => {
     const ids = [
@@ -173,6 +39,22 @@ describe("resume constants", () => {
     const skills = SKILL_GROUPS.flatMap((group) => group.skills);
 
     expect(new Set(skills).size).toBe(skills.length);
+  });
+
+  it("ships exactly the three roles the CV claims, newest first", () => {
+    // A row coming back — a constants entry re-added by a merge, or a role
+    // copied in from the site's own history — is not a cosmetic regression:
+    // these rows are what a crawler indexes and what a recruiter's unfurl
+    // quotes, so the claim would be published before anyone looked at the page.
+    // Pinning the whole list catches any re-addition, where naming the roles
+    // that were dropped would only catch the ones already thought of — and
+    // would put those companies' names back into the repo, which is what the
+    // rebuild spent a ticket removing.
+    expect(WORK_ITEMS.map((item) => item.id)).toEqual([
+      "medviet",
+      "arobid",
+      "dcorp",
+    ]);
   });
 
   it("carries an award badge on the one role that earned one", () => {

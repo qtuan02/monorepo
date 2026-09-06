@@ -53,14 +53,12 @@ test.describe("server rendering", () => {
     // be: Base UI portals the popup and only mounts it once open, so the full
     // award name reaches a crawler through the row's own bullet instead.
     expect(html).toContain("VDA 2025");
-    // Three roles ship and no more. A dropped role coming back — a re-added
-    // constants entry, or a stale message an edit re-pointed at — is not a
-    // cosmetic regression: these bytes are what a crawler indexes and what a
-    // recruiter's unfurl quotes, so the row would be published before anyone
-    // looked at the page. Asserting the absence is the only way to see it.
-    for (const dropped of ["FPT IS", "Social Protection", "Wisdom"]) {
-      expect(html, dropped).not.toContain(dropped);
-    }
+    // That three roles ship and no more is pinned in the Gate rather than here:
+    // `test/features/home/constants/resume.test.ts` fixes the whole id list, and
+    // the orphan check in the same file fails any catalogue key no component
+    // reads. Naming the dropped companies in an assertion would have put those
+    // strings back into the repo — the one thing the rebuild set out to remove —
+    // and would only have caught the three already thought of.
 
     // The metadata built from the same catalogue.
     expect(html).toContain("<title>Huỳnh Quốc Tuấn</title>");

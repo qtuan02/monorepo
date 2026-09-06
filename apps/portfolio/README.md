@@ -18,13 +18,41 @@ bun run dev:portfolio     # http://localhost:3002
 
 | Thứ | Ở đâu | Ghi chú |
 | --- | --- | --- |
-| Nội dung CV | `src/features/home/` | Một slice. `templates/home.template.tsx` (default-export) xếp 8 section theo thứ tự đọc; `constants/resume.ts` giữ **cấu trúc** (id, thứ tự, logo, tech stack, bullet nào thuộc role nào), còn **mọi chuỗi người đọc thấy** nằm ở `@monorepo/i18n` dưới namespace `portfolio.*`. Hai nửa nối nhau bằng `id`. |
+| Nội dung CV | `src/features/home/` | Một slice. `templates/home.template.tsx` (default-export) xếp 8 section theo **thứ tự đọc** — Hero → About → Work → Projects → Skills → Education → Contact + Hobbies (hai cái cuối chung một hàng từ `sm`). `constants/resume.ts` giữ **cấu trúc** (id, thứ tự, logo, tech stack, bullet nào thuộc role nào), còn **mọi chuỗi người đọc thấy** nằm ở `@monorepo/i18n` dưới namespace `portfolio.*`. Hai nửa nối nhau bằng `id`. |
+| Ba section đáng nói | `src/features/home/components/` | **Work** là accordion (`resume-card.tsx`): chỉ row đầu mở sẵn, chevron luôn hiện — hover-only affordance thì trên điện thoại không tồn tại — và row Arobid mang badge giải VDA 2025. **Projects** là ba card có repo public + demo sống, tối đa sáu chip tech mỗi card (cap ép ở tầng dữ liệu, không clip lúc render). **Skills** là năm nhóm có nhãn (Frontend / Mobile / Backend / DevOps & CI / Tooling) hiện cùng lúc, không phải tab — tab giấu bốn nhóm khỏi lần đọc đầu và khỏi crawler hoàn toàn. |
 | Chrome | `src/features/layout/` | Dock nổi ở đáy viewport (`components/dock.tsx` + `templates/navbar.template.tsx`) và `provider/theme-provider.tsx` (next-themes). Không có header/footer — một CV không cần. |
 | Route module | `src/app/[locale]/(shell)/page.tsx` | Đúng một dòng `return <HomeTemplate />`. Không `generateMetadata` riêng: title/description của root layout đã mô tả chính trang này, thêm một bản nữa chỉ tạo chỗ cho hai bên lệch nhau. |
 | Metadata routes | `src/app/{manifest,robots,sitemap}.ts` | Theo convention App Router, nằm **ngoài** `[locale]`. Thay cho `robot.ts` (thiếu chữ `s`, nên Next chưa bao giờ nhận ra) và `sitemap.xml/route.ts` (trỏ vào endpoint không tồn tại) của bản cũ. Vì thế `public/robots.txt` của Template đã bị xoá — một URL chỉ được có một nguồn. |
 | `proxy.ts` | `src/proxy.ts` | Chỉ còn `negotiateLocale`, cộng một nhánh cho ảnh metadata sinh động (`/vi/opengraph-image`) đi thẳng — `as-needed` sẽ 307 URL đó về bản không prefix, mà crawler xem trước link cần nhận ảnh ngay ở request đầu; quyết định là hàm thuần `~/utils/metadata-image-path.ts`. Không route nào bị guard: đây là site public, nên slice `features/auth` + màn `sign-in` + nhóm route `dashboard` của Template bị bỏ hẳn thay vì giữ với danh sách prefix rỗng. Cơ chế guard không mất — nó vẫn nằm trong `apps/_template_next` và quay lại cùng `gen:app` cho app nào thật sự cần. |
 | Ảnh | `src/assets/` | Reach bằng **import**, không phải URL string trỏ `public/` — bundler resolve, hash và báo lỗi build khi đổi tên. `public/` chỉ còn `favicon.ico`, file duy nhất cần URL cố định — ảnh OG không còn là file tĩnh mà được sinh bởi `src/app/[locale]/opengraph-image.tsx` theo từng locale. |
 | Không có | — | `~/libs/`, `~/hooks/api/`, `~/stores/`, TanStack Query, `"use cache"`. Site không gọi API nào; nội dung là hằng số của slice, và `"use cache"` chỉ trả giá trị serializable trong khi cấu trúc CV mang `StaticImageData` cùng component icon. |
+
+## Motion, print và accent — ba thứ sống trong `src/globals.css`
+
+**Accent riêng.** `tooling/tailwind/theme.css` là palette của một sản phẩm EMR
+(teal `#38a696`), và một cái CV mặc màu thương hiệu của nơi làm việc thì đổi màu
+mỗi lần đổi việc. App override **bảy** token sang một hue indigo duy nhất (277) —
+cặp `primary`, focus ring, hover wash, text selection — và để nguyên status
+colour, chart, sidebar cho theme. Khối đó cố ý **không** nằm trong `@layer`:
+`theme.css` được kéo vào bằng `@import` trần nên `:root`/`.dark` của nó ở ngoài
+mọi layer, mà một khai báo không layer thắng khai báo trong layer bất kể thứ tự.
+Viết trong `@layer base` thì bảy dòng này compile, ship và **thua** — trang vẫn
+teal, không log gì cả.
+
+**Reduced motion.** `BlurFade` đọc `prefers-reduced-motion` bằng JavaScript, nhưng
+câu trả lời đó chỉ đến sau hydration — server đã gửi markup kèm `opacity: 0`
+inline của `motion` rồi. Nên nhánh CSS mới là cái bảo đảm: nó là thứ khiến nội
+dung hiện ra **khi chưa có JavaScript nào chạy**, JavaScript chỉ là phần tăng
+cường. Wipe theme và bàn tay vẫy tắt theo tên, không phải bằng
+`* { animation: none }`, để một animation tương lai phải tự khai vào đây.
+
+**Print.** Trang này **là** bản CV, nên "tải CV" ở hero là hộp thoại in của trình
+duyệt chứ không phải một file PDF phải giữ đồng bộ bằng tay. `@media print` hoàn
+tác ba thứ `motion` viết inline (fade dở dang in ra `opacity: 0`, row accordion
+chưa ai bấm in ra heading không thân), thay hẳn palette dark bằng light (trình
+duyệt không in background graphics, nên theme tối in ra là chữ trắng trên giấy
+trắng), và in href sau mỗi link ngoài — trừ khối Contact, nơi chữ hiện ra **đã
+là** URL.
 
 ## i18n
 
@@ -112,12 +140,31 @@ runner qua một `bun run` script có thể treo lúc launch Chromium.
 Cái được test là **quyết định**, không phải markup:
 
 - `test/features/home/constants/resume.test.ts` — mối nối giữa cấu trúc CV và
-  catalogue. next-intl render một key thiếu thành **chính đường dẫn key**, nên
-  một dòng dịch bị rớt sẽ hiện ra màn hình dưới dạng `portfolio.work.…` mà không
-  ném ở đâu cả; hai nửa typecheck độc lập và không nửa nào biết nửa kia.
+  catalogue, **cả hai chiều**. Chiều đi: next-intl render một key thiếu thành
+  **chính đường dẫn key**, nên một dòng dịch bị rớt sẽ hiện ra màn hình dưới dạng
+  `portfolio.work.…` mà không ném ở đâu cả; hai nửa typecheck độc lập và không
+  nửa nào biết nửa kia. Chiều về: một message **không component nào đọc** không
+  làm hỏng render nào, không fail typecheck nào và không hiện ở đâu cả — nên nó
+  tích lại, và người sửa `vi.json` tiếp theo không phân biệt được dòng nào còn
+  sống. Test dựng lại tập key app **có thể** đọc từ constants cộng mọi chuỗi
+  `"portfolio.…"` viết thẳng trong `src/`, rồi bắt phần dư. Cùng file cũng ghim
+  đúng danh sách ba role — một row quay lại là một lời khẳng định được publish
+  trước khi có ai nhìn trang.
+- `test/features/home/templates/home.template.test.tsx` — **thứ tự** section và
+  outline heading. Không chỗ nào khác thấy được: mỗi section là một component có
+  test riêng, còn template xếp chúng thì không có logic nào để typecheck — và hai
+  ticket thêm section song song đã làm lệch thứ tự đúng một lần, im lặng, vì mọi
+  section vẫn render.
 - `test/features/home/components/resume-card.test.tsx` — nhánh duy nhất của một
   hàng CV: có thân thì là accordion header (`<h3>` bọc `<button aria-expanded>`),
   không có thì là một `<a>` thật ra ngoài.
+- `test/globals.test.ts` + `test/support/contrast.ts` — bảy token accent, chỗ
+  đứng của chúng trong cascade, hue, và tỉ lệ contrast từng cặp ở cả hai theme.
+  Đọc CSS dưới dạng **text**: jsdom không tính style, và giá trị nằm trong custom
+  property mà chỉ một cascade thật resolve được. Rằng cascade thật sự resolve
+  đúng như file này khẳng định thì `e2e/accent.e2e.ts` kiểm, trong trình duyệt.
+- `test/utils/metadata-image-path.test.ts` — hàm thuần quyết định path nào của
+  ảnh metadata được `proxy.ts` cho đi thẳng.
 - `test/features/layout/components/theme-toggle-button.test.tsx` — theme kế tiếp,
   hướng wipe, và nhánh trình duyệt không có `startViewTransition`.
 - `test/features/layout/constants/navbar.test.ts` — item internal đi qua `ROUTES`
@@ -130,11 +177,21 @@ Cái được test là **quyết định**, không phải markup:
 
 E2E assert trên **HTML thô** qua fixture `request` (không browser, không
 hydration): lời chào, một **bullet mô tả công việc** — heading có thể đến từ
-shell, bullet thì chỉ có nếu slice thật sự render trên server — `<title>`,
-`lang`, `og:image` tuyệt đối, `robots.txt` / `sitemap.xml` /
+shell, bullet thì chỉ có nếu slice thật sự render trên server — một tên project
+cùng href repo của nó, `<title>`, `lang`, `og:image` tuyệt đối trỏ vào route sinh
+ảnh **theo locale** (và fetch chính URL đó với `maxRedirects: 0`: unfurler phải
+nhận byte ngay ở request đầu), `robots.txt` / `sitemap.xml` /
 `manifest.webmanifest`, 404 trả status thật, và `/en` phục vụ bản tiếng Anh.
 Fixture `request` **không** kế thừa `locale` của project, nên các spec đó tự gửi
 header `Accept-Language`.
+
+Ba spec còn lại cần một trình duyệt thật, vì thứ chúng kiểm là **layout đã tính**
+hoặc **cascade đã resolve** — hai thứ jsdom không có: `accent.e2e.ts` (bảy token
+ra đúng màu ở cả light lẫn dark), `print-and-motion.e2e.ts` (`emulateMedia` cho
+`print` và cho `prefers-reduced-motion`) và `viewport.e2e.ts` (không scroll
+ngang, cỡ chữ tối thiểu ở 375 px). `locale-switch.e2e.ts` đi cả hai đường: hai
+test đầu fetch thô, test cuối bấm thật vào switcher để xác nhận người đọc ở lại
+đúng trang.
 
 ## Deploy Vercel
 

@@ -29,8 +29,13 @@ export default function HomeTemplate() {
       <AboutSection delay={SECTION_DELAY * 3} />
       <WorkSection delay={SECTION_DELAY * 5} />
       <ProjectsSection delay={SECTION_DELAY * 7} />
-      <EducationSection delay={SECTION_DELAY * 9} />
-      <SkillsSection delay={SECTION_DELAY * 11} />
+      {/* Skills before Education: a recruiter reading this CV wants the stack
+          before the degree, and the design brief's reading order (§2) says so.
+          The two arrived from two tickets running in parallel and landed the
+          other way round — `test/features/home/templates/home.template.test.tsx`
+          is what stops that happening again. */}
+      <SkillsSection delay={SECTION_DELAY * 9} />
+      <EducationSection delay={SECTION_DELAY * 11} />
       {/* Stacked on a phone, two columns from `sm` with contact given the wider
           one — side by side at 375 px an email address has nowhere to go but
           out of the viewport. */}

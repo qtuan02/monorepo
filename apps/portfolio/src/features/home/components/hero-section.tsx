@@ -68,7 +68,18 @@ export default function HeroSection({ delay }: HeroSectionProps) {
                 ariaLabel={t("portfolio.hero.zoomLabel")}
               >
                 {/* `avatar.src` rather than a `/public` URL string: the import
-                    is what the bundler resolves, hashes and checks. */}
+                    is what the bundler resolves, hashes and checks.
+
+                    Not `next/image`, and not `priority` either — neither would
+                    do what it looks like. Base UI's `Avatar.Image` runs its own
+                    load check and mounts the `<img>` only once that resolves,
+                    so on the server this subtree renders `AvatarFallback` and
+                    the portrait is not in the first HTML at all. A fetch
+                    priority hint on an element the browser cannot discover
+                    until after hydration buys nothing; making this the LCP
+                    element means leaving `Avatar` behind, which is a design
+                    decision rather than a wiring one. The box is reserved
+                    either way by the root's `size-*`, so nothing shifts. */}
                 <AvatarImage
                   alt={t("portfolio.hero.avatarAlt")}
                   src={avatar.src}
