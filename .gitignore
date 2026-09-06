@@ -60,3 +60,5 @@ storybook-static/
 .cursor/
 settings.local.json
 .gitnexus/
+# `npx ui-ux-pro-max-cli init` vendors Python scripts under .agents/skills/ui-ux-pro-max; running them would leave bytecode there
+__pycache__/
