@@ -49,3 +49,52 @@ sửa tay thu về xem + export PNG/PDF + nói cho Claude sửa"), chỉ khác �
 
 Phần còn lại của ADR — design đứng trước grill, working files là nguồn thật, phân loại token delta,
 UI UX Pro Max giữ vai phụ, bốn term trong `CONTEXT.md` — không đổi.
+
+## Cập nhật 2026-09-06 — zero-tooling: artboard HTML tĩnh + `index.html`, skill `design` của repo
+
+Mục cập nhật trên bỏ được Artifact, nhưng vẫn để lại một lớp công cụ giữa chủ repo và design: skill
+`design` **bundled** phải có mặt ở đúng phiên đang chạy (hai file trong một thư mục tạm theo version
+Claude Code, phải `find` mỗi phiên), `node` để seed, một file seeded ≈2,5 MB gitignore, rồi `--extract`
+ngược lại khi chốt — cộng UI UX Pro Max cài global cần Python 3. Chủ repo đặt lại yêu cầu: **giảm phụ
+thuộc tối đa, không cài thêm bất kỳ thứ gì**, một dev clone repo là chạy được pha design.
+
+Note research [`design-phase-minimal-dependency.md`](../research/design-phase-minimal-dependency.md)
+(2026-09-06) chỉ ra phần lớn lớp đó là thừa: 7/7 artboard `.dc.html` của pilot đã là **HTML tĩnh thuần**
+mở thẳng bằng browser được; canvas mở từ `file://` là **Read-only** nên `--extract` luôn trả về đúng bản
+đã commit — hai bước đầu của `design-handoff` đang bảo vệ một trường hợp không thể xảy ra; và trên
+`file://` Chrome load được cả ảnh trỏ tương đối leo bốn cấp sang `apps/<app>/src/assets/` lẫn một
+`index.html` lưới `<iframe>`, không cần cờ nào. Quyết định: **phương án zero-tooling**. Sáu chỗ trên phải
+đọc lại theo:
+
+- **Không còn seed, không còn `--extract`, không còn file seeded.** Design canvas **là** tập
+  `artboards/*.dc.html` — mỗi file một artboard, HTML tĩnh tự chứa, CSS inline lift từ `theme.css` — cộng
+  một `index.html` commit cùng chỗ. Chủ repo double-click `index.html`; vòng sửa là nói cần đổi gì →
+  Claude sửa `.dc.html` → F5. Không có bước re-seed ở giữa, và bước chốt không đọc lại gì ngoài chính
+  các file đã commit.
+- **`canvas.json` bỏ ở mọi topic.** Thứ tự và phân trang của editor giờ là bố cục của `index.html` (mục 1
+  Direction đã chọn + artboard chi tiết, mục 2 "Đã loại" thu nhỏ); annotation đã nằm trong `brief.md`, và
+  Direction nào thắng cũng đọc từ `brief.md` chứ không phải từ metadata.
+- **Skill `design` là của repo**, `.agents/skills/design/`, viết theo §8 và **cố ý trùng tên** để đè bản
+  bundled trong project này. Nó không seed, không gọi `node`, không chạm mạng. Cùng với `design-handoff`,
+  đó là hai skill của repo không nằm trong `skills-lock.json`.
+- **Ảnh trỏ tương đối sang asset thật của app** (`apps/<app>/src/assets/…`), không copy vào `artboards/`
+  — hết mối lo một bản sao trôi khỏi bản gốc, và mockup nhìn đúng như màn hình thật.
+- **Đuôi `.dc.html` giữ nguyên, nhưng chỉ vì không đổi tên là đổi ít nhất** — không phải một lời hứa
+  "seed lại được khi cần": `canvas.json` đã bỏ, nên không còn đường quay lại canvas pan/zoom mà không
+  dựng lại metadata. Dòng `<script src="./support.js">` bỏ.
+- **UI UX Pro Max bỏ hẳn** — không còn vai phụ, không còn phụ thuộc Python nào repo phải nhớ. Note
+  research cũ [`ui-ux-skills-design-workflow.md`](../research/ui-ux-skills-design-workflow.md) giữ nguyên
+  làm lịch sử.
+
+Hệ quả trên hai file cấu hình: **hai dòng `docs/design/**/*.html` + `!docs/design/**/*.dc.html` trong
+`.gitignore` bỏ** — không còn bao bì để loại trừ, mọi file dưới `docs/design/` đều là nguồn thật và đều
+track. `!docs/design` trong `biome.json` **ở lại**, nhưng lý do đổi: không phải "output của một seed
+helper", mà là mockup Claude viết tay với inline style — format lại chỉ sinh diff ồn.
+
+Phụ thuộc còn lại của cả pha design: **một browser**. Phần còn lại của ADR — design đứng trước grill,
+working files commit là nguồn thật, một **commit** của `artboards/` định danh một bản chốt, phân loại
+token delta (thêm → ticket chặn; đổi token brand → ADR trước), bốn term trong `CONTEXT.md` — không đổi.
+Hai chỗ trong Consequences ở trên chỉ đổi **cách đọc**, không đổi ý: "chủ repo duyệt rồi mới seed
+Direction" đọc là "rồi mới **vẽ** Direction", và "bước 0 của skill `design`" nay là skill của repo, không
+phải bản bundled. Nghĩa của **Design canvas** trong `CONTEXT.md` cũng đã viết lại theo mục này, dù bản
+thân term thì vẫn là một trong bốn term đó.

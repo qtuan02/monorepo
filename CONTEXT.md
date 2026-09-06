@@ -56,8 +56,8 @@ Một artboard low-fi thể hiện một hướng thẩm mỹ cho cùng đề b�
 _Avoid_: phương án, style, concept
 
 **Design canvas**:
-Tập artboard của một topic, sống **local** trong `docs/design/<topic>/artboards/`: các `.dc.html` cộng `canvas.json`, seed thành một file `.html` mở bằng browser để xem, pan/zoom và export. Không publish lên đâu cả, nên nó không có version của riêng nó — một **commit** của `artboards/` là bản duy nhất định danh được một design (ADR-0008 mục "Cập nhật 2026-09-05"). Nguồn thật là working files đã commit; file seeded chỉ là bao bì, gitignore.
-_Avoid_: mockup (mơ hồ giữa canvas và một artboard), bản vẽ, design, Artifact (canvas không phải một Artifact trên claude.ai)
+Tập artboard của một topic, sống **local** trong `docs/design/<topic>/artboards/`: các `.dc.html` — mỗi file một artboard, HTML tĩnh tự chứa — cộng một `index.html` xếp chúng cạnh nhau (Direction đã chọn và các artboard chi tiết ở trên, các Direction đã loại ở dưới). Mở **thẳng** bằng browser, không seed, không công cụ nào ngoài browser. Không publish lên đâu cả, nên nó không có version của riêng nó — một **commit** của `artboards/` là bản duy nhất định danh được một design (ADR-0008, hai mục "Cập nhật"). Mọi file trong đó đều là nguồn thật và đều commit.
+_Avoid_: mockup (mơ hồ giữa canvas và một artboard), bản vẽ, design, Artifact (canvas không phải một Artifact trên claude.ai), file seeded (không còn tồn tại)
 
 **Design handoff**:
 Tài liệu chuyển giao từ design sang spec và implement, viết ở bước "chốt" (`/design-handoff <topic>`) trên một commit cụ thể của Design canvas: screen inventory theo Runtime, component map (mỗi vùng UI → primitive/composite có sẵn hay cần thêm), token delta so với theme dùng chung, state list, và copy cần dịch. Là input của grill và được spec dẫn tới.

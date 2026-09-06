@@ -55,14 +55,6 @@ junit.xml
 # storybook static export
 storybook-static/
 
-# seeded design canvas (`docs/design/<topic>/`). The `design` skill's
-# `seed-canvas.mjs` writes it — ~2.5 MB of inlined editor payload, regenerated
-# on every change and never hand-edited — and names it after the design rather
-# than a fixed name, so the extension is the only tell. The working artboards
-# `<Name>.dc.html` stay tracked; git takes the LAST match, so negation last.
-docs/design/**/*.html
-!docs/design/**/*.dc.html
-
 # AI
 .claude/
 .cursor/
