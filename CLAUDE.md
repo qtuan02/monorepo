@@ -131,7 +131,7 @@ monorepo/
 ├── turbo/generators/            ← three plop generators: `package`, `tooling`, `app`. `app` prompts for the **Runtime** (`next` | `vite` | `reactrouter`), clones the matching Template app, rewrites its name / Dockerfile ARGs / root scripts, then installs and formats. A Runtime is one entry in that file's `RUNTIMES` record — every branch reads it, so nothing else in the generator changes. Run through the `gen` binary, never `bunx turbo gen` (it truncates arguments on Windows)
 ├── .agents/                     ← AI resources  [`.claude` → `.agents` symlink, git mode 120000 — clone with `core.symlinks=true`]
 │   ├── rules/                  ← 52 rules across 12 prefix clusters (+ `_sections.md`, `_template.md`)
-│   ├── skills/                 ← 31 vendored skills. The 25 from `mattpocock/skills` (23) and `vercel-labs/agent-skills` (2) are pinned in `skills-lock.json`; the six `gitnexus-*` are **not** in the lock — `gitnexus analyze` owns them
+│   ├── skills/                 ← 38 vendored skills. The 25 from `mattpocock/skills` (23) and `vercel-labs/agent-skills` (2) are pinned in `skills-lock.json`; the six `gitnexus-*` are **not** in the lock — `gitnexus analyze` owns them; the seven from `nextlevelbuilder/ui-ux-pro-max-skill` (`ui-ux-pro-max` + `banner-design` `brand` `design` `design-system` `slides` `ui-styling`) are written by `npx ui-ux-pro-max-cli init --ai claude` and are not in the lock either — `npx ui-ux-pro-max-cli update` owns them, and Biome skips all seven (§7a)
 │   ├── plans/                  ← the **former** tracker, frozen read-only at the switch to GitHub Issues (§7b, §9): 3 topics, `spec.md` + `NN-*.md`. Still `plansDirectory`, so plan-mode scratch lands here
 │   ├── commands.md             ← the full command reference (§6 is its short form)
 │   ├── knowledge-base.md       ← project facts and gotchas that no single file shows
@@ -140,6 +140,7 @@ monorepo/
 ├── docs/
 │   ├── adr/                    ← ADR-0001 (the legacy apps held outside the workspace, since migrated and deleted) · ADR-0002 (one i18n package, many Flavors, ICU messages) · ADR-0003 (env two Flavors, native prefixes) · ADR-0004 (npm publish through a Publish shell) · ADR-0005 (the React Router framework-mode Runtime, built from primary docs rather than copied) · ADR-0006 (the third env Flavor, self-contained rather than importing the Vite one) · ADR-0007 (SSR auth — a signed cookie session guarded by route middleware)
 │   ├── agents/                 ← the config the workflow skills read: `issue-tracker.md` (GitHub Issues + the `gh` commands) · `triage-labels.md` · `domain.md` (§9)
+│   ├── guides/                 ← human-facing guides in Vietnamese — `skills-workflow.md` walks the skill chain (research → design → grill → spec → tickets → implement → review), explains every skill and every rule cluster, and records how UI UX Pro Max is meant to be installed and used without Python
 │   └── research/               ← background research notes
 ├── .github/workflows/           ← `ci.yml` — the Gate on GitHub Actions: `check` · `typecheck` · `test` · `build` blocking, plus four non-blocking jobs (`e2e`, `docker`, `changeset-status`, `publish-smoke`). `release.yml` — the publish path for the two shells, on `main` only; its **file name is load-bearing**, because npm's trusted publisher is configured against it (ADR-0004)
 ├── .changeset/                  ← the release notes Changesets consumes, plus `config.json` (`privatePackages.version: false`). Written with `bun run changeset`, never by hand-bumping a shell's `version`
@@ -361,7 +362,9 @@ A skill is a deeper, scenario-shaped guide (longer than a rule, narrower than a 
 
 Skills are **vendored** — real files in this repo, not a runtime fetch — and pinned by source repository plus content hash in [`skills-lock.json`](skills-lock.json). Re-sync one with the `skills` CLI (`npx skills@latest update <name>`) rather than hand-editing it, or the hash drifts and `skills experimental_install` can no longer restore it. The workflow skills come from `mattpocock/skills`, two come from `vercel-labs/agent-skills`, and the `gitnexus-*` set is installed by `npx gitnexus analyze` alongside the GitNexus block at the bottom of this file.
 
-The main line runs `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/code-review` → `/handoff`. **Read §7a before running any of them** — it carries this repo's overrides (language, the Standards source for `/code-review`, the tracker, and the TDD loop).
+A third set is not in the lock either: the seven skills `npx ui-ux-pro-max-cli init --ai claude` writes from `nextlevelbuilder/ui-ux-pro-max-skill` — `ui-ux-pro-max` (the core: a UX/style/stack lookup over local CSV data) and its six siblings. `npx ui-ux-pro-max-cli update` re-renders them; never hand-edit one. In this repo the core is used **read-only, without Python** — see §7a.
+
+The main line runs `/research` (only when outside sources are needed) → **design** (`ui-ux-pro-max`, §7a — only when there is UI, and always *before* grill, never in parallel with it) → `/grill-with-docs` → `/to-spec` (same session as the grill: it synthesizes, it does not interview) → `/to-tickets` → `/implement` per ticket (which ends by calling `/code-review` on that ticket itself) → `/code-review main` over the whole branch → `/handoff`. **Read §7a before running any of them** — it carries this repo's overrides (language, the design step, the Standards source for `/code-review`, the tracker, and the TDD loop). The human-facing walkthrough of the whole chain, every skill and every rule cluster is [`docs/guides/skills-workflow.md`](./docs/guides/skills-workflow.md).
 
 | Skill                           | Read when                                                                                     |
 | ------------------------------- | --------------------------------------------------------------------------------------------- |
@@ -389,6 +392,8 @@ The main line runs `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/imp
 | `vercel-react-best-practices`   | Re-renders, data fetching, bundle, async perf                                                  |
 | `web-design-guidelines`         | Visual polish, hierarchy, spacing, accessibility                                               |
 | `gitnexus-*` (six)              | Exploring architecture, impact analysis before an edit, debugging, safe refactors, the CLI     |
+| `ui-ux-pro-max`                 | The **design step** before grill: UX guidelines by category, stack guidance (`data/stacks/shadcn.csv`, `nextjs.csv`), style/palette reasoning for an app with no brand yet, the pre-delivery checklist. Read the CSVs with `Grep`/`Read`; never run `scripts/search.py` (§7a) |
+| `design` `design-system` `brand` `banner-design` `slides` `ui-styling` | The six siblings `npx ui-ux-pro-max-cli init` writes beside the core. Logo/CIP/banner/slide generation and token scaffolding for a brand from scratch — most need a Gemini/MuAPI key or `pip`, none is part of the chain here. `design` **overrides** Claude Code's bundled `/design` in this project |
 
 > Vercel renamed `react-best-practices` upstream; the installed directory is
 > **`vercel-react-best-practices`**. The content is the same guide the reference monorepo carries
@@ -412,6 +417,37 @@ The main line runs `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/imp
   Runtime Next; app Runtime Vite (SPA thuần) và app Runtime React Router (có SSR
   nhưng không có RSC) đều bỏ qua phần đó — với app React Router, nửa server-render
   của guidance nằm ở `reactrouter-loader-vs-query.md` và `reactrouter-server-modules.md`.
+
+### Bước design — `ui-ux-pro-max` đọc dữ liệu tĩnh, không Python, local-only
+
+Bước **design** đứng giữa `/research` và `/grill-with-docs`, chạy bằng skill `ui-ux-pro-max` (cài bằng
+`npx ui-ux-pro-max-cli init --ai claude` — không cần global bin, ghi vào `.claude/skills/` = `.agents/skills/`).
+Trong repo này nó là **kho dữ liệu đọc tĩnh**, không phải engine:
+
+- **Không chạy `scripts/search.py`** — script cần Python 3, repo không cài và sẽ không cài (ràng buộc của
+  chủ repo: không thêm phụ thuộc runtime). Chính SKILL.md dòng "If the user prefers not to install Python,
+  skip the CLI searches and rely on the Quick Reference sections above" là đường được phép. Đừng hỏi cài
+  Python, đừng thử `py -3`.
+- **Đọc bằng `Grep`/`Read`** trên `.agents/skills/ui-ux-pro-max/data/`: `ux-guidelines.csv` (theo
+  `Category`/keyword), `stacks/shadcn.csv` · `stacks/nextjs.csv` · `stacks/react.csv`,
+  `react-performance.csv`; `products.csv` → `ui-reasoning.csv` → `colors.csv` join cùng `No` **chỉ** cho một
+  app chưa có brand. Mỗi CSV một dòng một record, nên một hàng grep là một record trọn vẹn. Quick Reference và
+  Pre-Delivery Checklist nằm ngay trong SKILL.md.
+- **Không** `--design-system`, **không** `--persist` (tạo `design-system/<slug>/` ở cwd), **không** dùng
+  `colors.csv`/`typography.csv` cho app đã có `tooling/tailwind/theme.css` — brand và stack font là của
+  theme, không phải của CSV. Sáu sub-skill anh em (`design`, `design-system`, `brand`, `banner-design`,
+  `slides`, `ui-styling`) không nằm trong chuỗi: chúng cần API key hoặc `pip`, và không sinh gì repo cần.
+- **Đầu ra của bước design** là một tài liệu tiếng Việt cho grill: ràng buộc UX đã chọn (mỗi cái trỏ `No`
+  của hàng CSV), style direction (chỉ khi app chưa có theme), component map lên `@monorepo/ui` /
+  `~/components`, token delta so với `theme.css`, state list, copy cần dịch, câu hỏi mở. Nơi lưu và mẫu
+  chốt ở vòng grill đầu tiên dùng nó. Skill này **không vẽ mockup** — cần nhìn bố cục thì `prototype/UI.md`
+  trên route thật, sau khi đã có ticket.
+- Ở `/implement`, khi đụng primitive/theme, đọc hàng `stacks/shadcn.csv` tương ứng làm gợi ý; rule của
+  repo (`architecture-ui-primitives`, `quality-styling-tailwind`) **thắng** khi mâu thuẫn. Ở `/code-review`,
+  Pre-Delivery Checklist bổ sung trục Standards cho UI, không thay `.agents/rules/`.
+- Bảy thư mục này là **vendored**: không sửa tay (`npx ui-ux-pro-max-cli update` ghi đè), `biome.json` loại cả bảy khỏi
+  `files.includes` (≈1,4 MB JSON và mấy file `.cjs` không phải source của repo), `.gitignore` có
+  `__pycache__/` phòng ngày nào đó có Python. Mọi thứ local: không publish gì lên web/app.
 
 ### Runtime nào — hỏi trước khi viết dòng đầu tiên
 
@@ -513,7 +549,7 @@ Multi-context: the root [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) points at [`CONTEXT
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **monorepo** (4130 symbols, 8093 relationships, 211 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **monorepo** (4148 symbols, 8117 relationships, 211 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 

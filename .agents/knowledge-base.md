@@ -423,4 +423,10 @@ history, never for terminology or "how we do X here".
   `skills-lock.json`; re-sync those with the CLI rather than hand-editing one, or the hash drifts
   and `skills experimental_install` can no longer restore it. The six `gitnexus-*` skills have
   **no** lock entry: `npx gitnexus analyze` writes them, and `skills update` neither knows about nor
-  restores them.
+  restores them. A third owner, also outside the lock: the seven skills `npx ui-ux-pro-max-cli init --ai claude`
+  writes from `nextlevelbuilder/ui-ux-pro-max-skill` (`ui-ux-pro-max` + six siblings). `npx ui-ux-pro-max-cli update`
+  re-renders them, `npx ui-ux-pro-max-cli uninstall --ai claude` removes all seven, and there is no lock file at all.
+  The core's `scripts/search.py` needs Python 3, which this repo deliberately does not install — the
+  skill is used as static data (`Grep` over `data/*.csv`), per `CLAUDE.md` §7a. `biome.json` excludes
+  all seven directories, because they carry ~1.4 MB of JSON and a few `.cjs` files that are not this
+  repo's source.
