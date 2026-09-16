@@ -211,7 +211,7 @@
  * The dock is `fixed` at the bottom of the viewport, so anything the browser
  * scrolls to — a Tab landing on the last contact link, a jump to `#contact` —
  * can come to rest underneath it. The reserve is the dock's own height plus its
- * margin and the fade band it floats over.
+ * margin, its shadow, and a line of breathing room above the frame.
  */
 @layer base {
   html {
@@ -225,8 +225,8 @@
  * The page arrives at rest — there is no entrance animation, nothing starts at
  * `opacity: 0`, and the hero no longer waves — so the one motion left for the
  * preference to switch off is the motion CSS owns and JavaScript never sees:
- * the theme wipe above. The dock reads the preference in JavaScript and
- * handles its own.
+ * the theme wipe above. The dock has no motion of its own any more — its
+ * magnification went with the redesign — so there is nothing for it to read.
  *
  * Switched off by name rather than by a blanket `* { animation: none }` so
  * that a future animation has to opt in here deliberately, and so nothing

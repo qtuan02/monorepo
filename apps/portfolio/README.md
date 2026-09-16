@@ -43,7 +43,8 @@ teal, không log gì cả.
 vẫy: mọi thứ render ở trạng thái nghỉ, nên không có `opacity: 0` inline nào để
 CSS phải hoàn tác. Thứ còn lại là chuyển động do CSS sở hữu — wipe theme — tắt
 theo tên, không phải bằng `* { animation: none }`, để một animation tương lai
-phải tự khai vào đây. Dock tự đọc preference bằng JavaScript.
+phải tự khai vào đây. Dock không còn chuyển động nào (magnification đã bỏ ở
+redesign v2), nên không cần đọc preference.
 
 **Print.** Trang này **là** bản CV, nên "tải CV" ở hero là hộp thoại in của trình
 duyệt chứ không phải một file PDF phải giữ đồng bộ bằng tay. `@media print` hoàn

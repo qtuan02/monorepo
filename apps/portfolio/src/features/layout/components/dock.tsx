@@ -1,122 +1,37 @@
-"use client";
-
-import type { MotionValue } from "motion/react";
 import type { ReactNode } from "react";
-import { createContext, useContext, useRef } from "react";
-import {
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useSpring,
-  useTransform,
-} from "motion/react";
 
 import { cn } from "@monorepo/ui/utils/cn";
-
-const DEFAULT_MAGNIFICATION = 60;
-const DEFAULT_DISTANCE = 140;
-
-interface DockContextValue {
-  /** The pointer's page-x, or Infinity while the pointer is away. */
-  mouseX: MotionValue<number>;
-  /** Width, in pixels, an icon reaches directly under the pointer. */
-  magnification: number;
-  /** How far, in pixels, the magnification reaches either side. */
-  distance: number;
-}
-
-/**
- * The pointer position, passed by context rather than by cloning each child.
- *
- * The upstream component injected these three values with
- * `React.Children.map` + `cloneElement`, which typed every child as `any` and
- * only worked for a direct child. A context reads the same in a `.map`, in a
- * wrapper, and at any depth — and it is what lets `navbar.template.tsx` render
- * its icons through an array without the dock knowing anything about them.
- */
-const DockContext = createContext<DockContextValue | null>(null);
 
 interface DockProps {
   children: ReactNode;
   className?: string;
-  magnification?: number;
-  distance?: number;
 }
 
-/** The macOS-style bar: icons swell as the pointer travels along it. */
-export function Dock({
-  children,
-  className,
-  magnification = DEFAULT_MAGNIFICATION,
-  distance = DEFAULT_DISTANCE,
-}: DockProps) {
-  const mouseX = useMotionValue(Number.POSITIVE_INFINITY);
-
+/**
+ * The bar the dock's controls sit in: a square box with the page's hard edge
+ * and its solid offset shadow, and nothing that moves.
+ *
+ * The v1 dock was the macOS bar — a `motion` value tracked the pointer along
+ * it and a spring swelled whichever icon was underneath, which needed a context
+ * so every icon could read the same pointer. The redesign takes all of that
+ * out rather than flattening it: a hover changes a control's background, and
+ * a control is the size it is. So this is a `<nav>` and a class string, with
+ * no `"use client"` of its own — `navbar.template.tsx` is the client boundary,
+ * for the tooltips and the theme button, and this renders inside it.
+ *
+ * `gap-2` is part of the contract, not the look: each control is 48px and the
+ * gap keeps two of them at least 8px apart, so a thumb on a phone lands on one
+ * (`e2e/dock.e2e.ts` measures both).
+ */
+export function Dock({ children, className }: DockProps) {
   return (
-    <DockContext value={{ mouseX, magnification, distance }}>
-      <motion.div
-        onMouseMove={(event) => mouseX.set(event.pageX)}
-        onMouseLeave={() => mouseX.set(Number.POSITIVE_INFINITY)}
-        className={cn(
-          "mx-auto flex h-full w-max items-end rounded-full border p-2",
-          className,
-        )}
-      >
-        {children}
-      </motion.div>
-    </DockContext>
-  );
-}
-
-interface DockIconProps {
-  children?: ReactNode;
-  className?: string;
-}
-
-/** One slot in the dock. Its width tracks the pointer's distance from it. */
-export function DockIcon({ children, className }: DockIconProps) {
-  const context = useContext(DockContext);
-
-  if (!context) {
-    throw new Error("DockIcon must be rendered inside a Dock.");
-  }
-
-  const { mouseX, magnification, distance } = context;
-  const ref = useRef<HTMLDivElement>(null);
-
-  const distanceFromPointer = useTransform(mouseX, (value: number) => {
-    const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 };
-    return value - bounds.x - bounds.width / 2;
-  });
-
-  // The magnification is the dock's only motion, and it is pointer-driven —
-  // exactly the kind a reader who asked for none should not get. Flattening the
-  // output range rather than skipping the hook keeps the hook order stable.
-  const prefersReducedMotion = useReducedMotion();
-  const targetWidth = useTransform(
-    distanceFromPointer,
-    [-distance, 0, distance],
-    prefersReducedMotion ? [40, 40, 40] : [40, magnification, 40],
-  );
-
-  const width = useSpring(targetWidth, {
-    mass: 0.1,
-    stiffness: 150,
-    damping: 12,
-  });
-
-  return (
-    <motion.div
-      ref={ref}
-      // A live motion value, so there is no utility to reach for — this is the
-      // runtime-dynamic exception the styling rule reserves.
-      style={{ width }}
+    <nav
       className={cn(
-        "flex aspect-square items-center justify-center rounded-full",
+        "flex w-max items-center gap-2 border-2 border-border bg-background p-2 shadow-[4px_4px_0_0_var(--hard-shadow)]",
         className,
       )}
     >
       {children}
-    </motion.div>
+    </nav>
   );
 }

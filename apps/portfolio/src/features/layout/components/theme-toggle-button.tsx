@@ -5,6 +5,7 @@ import { MoonIcon, SunIcon } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@monorepo/ui/components/button";
+import { cn } from "@monorepo/ui/utils/cn";
 
 /**
  * `Document.startViewTransition` is not in the DOM lib this repo compiles
@@ -45,6 +46,7 @@ interface ThemeToggleButtonProps
  */
 export default function ThemeToggleButton({
   label,
+  className,
   onClick,
   ...props
 }: ThemeToggleButtonProps) {
@@ -74,7 +76,9 @@ export default function ThemeToggleButton({
       variant="ghost"
       size="icon"
       aria-label={label}
-      className="size-12 cursor-pointer rounded-full"
+      // Square by omission: `--radius` is 0 in this app, and the v1
+      // `rounded-full` was the one place this file said otherwise.
+      className={cn("size-12 cursor-pointer", className)}
       {...props}
       onClick={handleClick}
     >
