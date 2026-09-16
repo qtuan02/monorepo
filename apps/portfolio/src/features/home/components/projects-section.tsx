@@ -12,9 +12,12 @@ import {
  * real code. Same join as the work history: structure from the constants,
  * every string from the catalogue, keyed by the item's id.
  *
- * Three across from `md` is the grill's call (design §9, decision 9): on the
- * 2xl reading column that makes each card narrow, which is why the copy is
- * capped at two lines and three bullets.
+ * Two across from `sm`, and a lone last card spans both tracks. v2 first
+ * kept v1's three-across, which on the 2xl column squeezed each card into
+ * ~200 px (#123); in the 2/3 column the page has from `lg` two tracks are
+ * ~340 px each, and the third card — an odd one out in a two-column grid —
+ * takes the full row rather than leaving a hole beside it. The copy stays
+ * capped at two lines and three bullets so the cards read at one height.
  */
 export default function ProjectsSection() {
   const t = useTranslations();
@@ -29,7 +32,7 @@ export default function ProjectsSection() {
     <section id="projects">
       <div className="flex min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.projects.title")}</SectionHeading>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:[&>*:last-child:nth-child(odd)]:col-span-2">
           {PROJECT_ITEMS.map((item) => (
             <ProjectCard
               key={item.id}

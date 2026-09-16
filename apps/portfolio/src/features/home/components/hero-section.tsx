@@ -157,7 +157,7 @@ export default function HeroSection() {
               are overridden here rather than in `@monorepo/ui` — this page is
               the one that wants a square portrait. `print:border` thins its
               2px edge the way the block around it thins on paper. */}
-          <Avatar className="size-20 shrink-0 rounded-none border-2 border-border select-none after:rounded-none after:border-0 sm:size-28 md:size-36 print:border">
+          <Avatar className="size-20 shrink-0 rounded-none border-2 border-border select-none after:rounded-none after:border-0 sm:size-28 md:size-36 lg:size-44 print:border">
             {/* `avatar.src` rather than a `/public` URL string: the import is
                 what the bundler resolves, hashes and checks.
 

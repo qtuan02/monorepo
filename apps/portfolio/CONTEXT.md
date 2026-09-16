@@ -7,8 +7,9 @@ từ vựng riêng của app, chốt lần đầu ở vòng grill 2026-09-06.
 ## Language
 
 **CV site**:
-Chính app này: một trang, một cột, đọc theo thứ tự một bản CV — hero → giới thiệu → quá trình
-làm việc → dự án → kỹ năng → học vấn → liên hệ. Quá trình làm việc là phần chính; dự án cá nhân
+Chính app này: một trang, đọc theo thứ tự một bản CV — hero → giới thiệu → quá trình làm việc →
+dự án → kỹ năng → học vấn → liên hệ. Một cột trên điện thoại; từ desktop là **cột đọc** + **rail**
+(xem dưới), thứ tự DOM không đổi. Quá trình làm việc là phần chính; dự án cá nhân
 là phần phụ chứng minh bằng link. Người đọc là nhà tuyển dụng và crawler.
 _Avoid_: portfolio (gợi ý dự án đứng trước công việc), landing page, trang cá nhân
 
@@ -48,6 +49,20 @@ _Avoid_: drop shadow, elevation.
 Cách dark mode của app này quan hệ với light: nền gần đen, chữ + viền + bóng gần trắng — bản âm
 của light chứ không phải bản làm mờ. Hệ quả: mọi tỉ lệ tương phản đo lại riêng cho dark.
 _Avoid_: dark mode "dịu", dimmed.
+
+**Rail**:
+Cột 1/3 bên phải từ `lg`, dính khi cuộn, chứa phần tham chiếu — kỹ năng, học vấn, liên hệ, sở
+thích (section 5–8). Bên trái là **cột đọc** 2/3 — giới thiệu, quá trình làm việc, dự án (section
+2–4). Hero trải cả hai. Hai nhóm đúng là thứ tự DOM cắt làm đôi, nên không có gì được sắp lại
+về mặt đọc. (#123)
+_Avoid_: sidebar (gợi điều hướng), cột phụ.
+
+**Lún** (press):
+Trạng thái hover của một khối tiêu chuẩn *bấm được* — card dự án, hàng công việc/học vấn: khối
+dịch 2px về phía bóng và bóng rút từ 4px về 2px (`pressable` trên `StandardBlock`, utility
+`shadow-hard-pressed`). Khối tĩnh (giới thiệu, kỹ năng, liên hệ, sở thích) không lún, vì lún là
+lời hứa bấm được. Ngược với "nhấc" (lift) của v1.
+_Avoid_: lift, hover scale.
 
 **Neutral override**:
 Hai token `--foreground` và `--border` app đẩy về hai cực ở tầng app (`src/globals.css`, unlayered),
