@@ -252,11 +252,15 @@ test.describe("the standard block", () => {
 
       const shadow = await paint(page, shadowColour);
 
-      const expected = hexToRgb(PALETTE[theme]["--hard-shadow"]);
-
-      expect(rgbDistance(edge, expected), "border").toBeLessThan(SAME_COLOUR);
+      // Each against its own token. The two happen to share a value today,
+      // and comparing both to one of them would keep passing after the tokens
+      // were split while measuring the wrong thing.
       expect(
-        rgbDistance(shadow, expected),
+        rgbDistance(edge, hexToRgb(PALETTE[theme]["--border"])),
+        "border",
+      ).toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(shadow, hexToRgb(PALETTE[theme]["--hard-shadow"])),
         `shadow, declared as "${shadowColour}"`,
       ).toBeLessThan(SAME_COLOUR);
     });

@@ -70,10 +70,11 @@ interface ResumeCardProps {
  * **re-implementing** a primitive; arranging a slice's own layout inside the
  * slice's own block is what the block is for.
  *
- * Two typefaces, split by what the text is (design §7, decision 2): the
- * organisation's name, the period, the award and the tech stack are labels and
- * set in monospace; the role and the bullets are prose and stay in sans, so a
- * Vietnamese sentence that runs to three lines is not read in a code font.
+ * Two typefaces, split by what the text is (`docs/design/portfolio-redesign-v2.md`
+ * §7, decision 2): the organisation's name, the period, the award and the tech
+ * stack are labels and set in monospace; the role and the bullets are prose and
+ * stay in sans, so a Vietnamese sentence that runs to three lines is not read in
+ * a code font.
  *
  * The header wraps rather than shrinks. On a 375 px phone a monospace period
  * beside a monospace name does not fit on one line, and the alternative — the
@@ -132,11 +133,12 @@ export function ResumeCard({
                   as the `Badge` keeps the markup a single control. */}
               <TooltipTrigger
                 render={
-                  // The yellow's second and last role (design §7, decision 3):
-                  // the award, on the highlight pair, with the 1 px border a
-                  // shared control keeps. `outline` is the variant whose own
-                  // colours are the two being replaced, so nothing of the
-                  // primitive's fill is left underneath.
+                  // The yellow's second and last role — the award, on the
+                  // highlight pair, with the 1 px border a shared control
+                  // keeps (`docs/design/portfolio-redesign-v2.md` §7,
+                  // decision 3). `outline` is the variant whose own colours
+                  // are the two being replaced, so nothing of the primitive's
+                  // fill is left underneath.
                   <Badge
                     variant="outline"
                     className="border-border bg-highlight font-mono text-highlight-foreground"
@@ -166,8 +168,9 @@ export function ResumeCard({
             time and a rename is a build error rather than a silent 404.
 
             Square, with the block's own 2 px edge: the last round thing on a
-            page with no radius would be this logo (design §7, the consequence
-            drawn from decisions 5 and 7). */}
+            page with no radius would be this logo
+            (`docs/design/portfolio-redesign-v2.md` §7, the consequence drawn
+            from decisions 5 and 7). */}
         <Image
           src={logo}
           alt={altText}

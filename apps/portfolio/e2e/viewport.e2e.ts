@@ -37,7 +37,7 @@ async function fontSizeOf(element: Locator) {
   return Number.parseFloat(fontSize);
 }
 
-/** The sections fade in, but they are in the DOM from the first paint. */
+/** The home page at a given viewport, once its last section is in the DOM. */
 async function openHomeAt(page: Page, width: number, height: number) {
   await page.setViewportSize({ width, height });
   await page.goto(ROUTES.HOME);
@@ -62,6 +62,28 @@ test.describe("viewport", () => {
       expect(scrollWidth).toBeLessThanOrEqual(width);
     });
   }
+
+  test("never scrolls sideways on a 375 px phone in English either", async ({
+    page,
+  }) => {
+    // The other locale is the one with the longer labels: an English period
+    // ("Mar 2025 – Feb 2026") is wider than its Vietnamese counterpart, and it
+    // is set in monospace with `whitespace-nowrap`, so if a work row is ever
+    // going to push past the viewport, this is where. The literal `/en` is
+    // the URL a visitor types — the exception `testing-playwright` names.
+    await page.setViewportSize({ width: PHONE_WIDTH, height: 900 });
+    await page.goto("/en");
+
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Hobbies" }),
+    ).toBeAttached();
+
+    const scrollWidth = await page.evaluate(
+      () => document.documentElement.scrollWidth,
+    );
+
+    expect(scrollWidth).toBeLessThanOrEqual(PHONE_WIDTH);
+  });
 
   test("sets body copy to at least 15 px on a phone", async ({ page }) => {
     await openHomeAt(page, PHONE_WIDTH, 800);

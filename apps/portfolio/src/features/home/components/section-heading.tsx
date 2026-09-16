@@ -20,6 +20,12 @@ interface SectionHeadingProps {
  * a `getByRole("heading", { name })` in a spec matches the title alone.
  * `select-none` for the same reason on the visual side — copying a heading
  * should not paste a markdown mark in front of it.
+ *
+ * `text-lg` where v1 had `text-xl`: monospace, upper case and `tracking-widest`
+ * each widen a line, and at 20 px the longest title ("## KINH NGHIỆM LÀM VIỆC")
+ * runs to ~310 of the 343 px a 375 px phone leaves inside the gutters — one
+ * more character and it wraps. At 18 px the same weight and spacing still read
+ * as a heading, with room to spare.
  */
 export default function SectionHeading({ children }: SectionHeadingProps) {
   return (
