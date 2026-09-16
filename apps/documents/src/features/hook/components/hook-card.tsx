@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
-
-import { Badge } from "@monorepo/ui/components/badge";
 
 import type { DocsEntry } from "~/types/docs-catalogue";
+import { Tile } from "~/components/tile/tile";
 import { ROUTES } from "~/constants/routes";
 
 interface HookCardProps {
@@ -13,23 +11,21 @@ interface HookCardProps {
 /**
  * One hook in the list. Unlike a primitive it carries a sentence, because there
  * are only five of them and the published README already writes one for each —
- * the copy lives in the shared i18n catalogue, keyed by slug.
+ * the copy lives in the shared i18n catalogue, keyed by slug. Never wide: a
+ * hook has one export, so the grid stays even.
  */
 export default function HookCard({ entry }: HookCardProps) {
   const { t } = useTranslation();
 
   return (
-    <Link
+    <Tile
       to={ROUTES.hookBySlugPath(entry.slug)}
-      className="border-border bg-card hover:border-primary/50 focus-visible:ring-ring/50 flex flex-col gap-2 rounded-lg border p-4 transition-colors outline-none focus-visible:ring-2"
+      slug={entry.slug}
+      count={entry.exports.length}
     >
-      <span className="font-mono text-sm font-semibold">{entry.slug}</span>
-      <span className="text-muted-foreground text-sm">
+      <span className="text-muted-foreground mt-1 text-sm">
         {t(`documents.hooks.items.${entry.slug}.description`)}
       </span>
-      <Badge variant="secondary" className="w-fit">
-        {t("documents.hooks.exportCount", { count: entry.exports.length })}
-      </Badge>
-    </Link>
+    </Tile>
   );
 }

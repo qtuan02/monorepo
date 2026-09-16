@@ -62,7 +62,7 @@ export default function ComponentDetailTemplate() {
         slug={entry.slug}
         packageName={componentCatalogue.package}
         subpath={entry.subpath}
-        exportCount={t("documents.components.exportCount", {
+        exportSummary={t("documents.components.detail.exportSummary", {
           count: entry.exports.length,
         })}
         description={entry.description}

@@ -309,7 +309,8 @@
       "label": "Lọc danh sách",
       "placeholder": "Lọc theo tên…",
       "empty": "Không có kết quả cho “{query}”.",
-      "clear": "Xoá bộ lọc"
+      "clear": "Xoá bộ lọc",
+      "emptyHint": "Thử một từ khoá ngắn hơn, hoặc gõ đúng tên slug — ví dụ “dialog”."
     },
     "home": {
       "title": "Bắt đầu",
@@ -354,8 +355,9 @@
       "title": "Component",
       "description": "Mỗi dòng là một subpath của @fe-monorepo/ui. Mở một dòng để đọc danh sách export và xem demo trên Storybook.",
       "count": "{count, plural, other {# component}}",
-      "exportCount": "{count, plural, other {# export}}",
+      "exportPreviewMore": "{count, plural, other {+#}}",
       "detail": {
+        "exportSummary": "{count, plural, other {# export}}",
         "import": "Import",
         "exports": "Export",
         "storybook": "Mở trên Storybook",
@@ -367,8 +369,8 @@
       "title": "Hook",
       "description": "Năm hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
       "count": "{count, plural, other {# hook}}",
-      "exportCount": "{count, plural, other {# export}}",
       "detail": {
+        "exportSummary": "{count, plural, other {# export}}",
         "import": "Import",
         "exports": "Export",
         "prev": "Trước: {slug}",

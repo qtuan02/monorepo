@@ -36,7 +36,7 @@ test.describe("documents", () => {
       .click();
     await page
       .getByRole("link", {
-        name: new RegExp(`^${PRIMITIVE_SLUG} components/${PRIMITIVE_SLUG}`),
+        name: new RegExp(`^${PRIMITIVE_SLUG} `),
       })
       .click();
 
@@ -95,7 +95,9 @@ test.describe("documents", () => {
 
     // The list filters on a debounced value, so this assertion is the one that
     // waits it out — Playwright retries it, no sleep needed.
-    const card = page.getByRole("link", { name: /^avatar components\/avatar/ });
+    // The link's accessible name leads with the slug — a tile has no subpath
+    // line any more, so the slug is the whole anchor.
+    const card = page.getByRole("link", { name: /^avatar/ });
     await expect(card).toBeVisible();
     await card.click();
 

@@ -53,7 +53,7 @@ export default function HookDetailTemplate() {
         slug={entry.slug}
         packageName={hookCatalogue.package}
         subpath={entry.subpath}
-        exportCount={t("documents.hooks.exportCount", {
+        exportSummary={t("documents.hooks.detail.exportSummary", {
           count: entry.exports.length,
         })}
         // The sentence comes from the shared catalogue rather than the

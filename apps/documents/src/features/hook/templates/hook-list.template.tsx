@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useDebounce } from "@monorepo/hook/use-debounce";
 
 import { PageHeader } from "~/components/page/page-header";
+import { FilterEmpty } from "~/components/search/filter-empty";
 import { FilterInput } from "~/components/search/filter-input";
 import { hookCatalogue } from "~/constants/docs-catalogue";
 import { useDocumentTitle } from "~/hooks/use-document-title";
@@ -36,11 +37,9 @@ export default function HookListTemplate() {
       </div>
 
       {items.length === 0 ? (
-        <p className="text-muted-foreground py-10 text-center text-sm">
-          {t("documents.search.empty", { query: debouncedSearch })}
-        </p>
+        <FilterEmpty query={debouncedSearch} onClear={() => setSearch("")} />
       ) : (
-        <ul className="grid gap-3 pb-10 sm:grid-cols-2">
+        <ul className="grid gap-3.5 pb-10 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((entry) => (
             <li key={entry.slug}>
               <HookCard entry={entry} />

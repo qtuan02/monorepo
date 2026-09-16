@@ -15,7 +15,7 @@ interface DetailHeroProps {
   /** The subpath after the package name — `components/dialog`. */
   subpath: string;
   /** Already localised — "10 export". */
-  exportCount: string;
+  exportSummary: string;
   description?: string | null;
   npmUrl: string;
   /** Present on a primitive only: a hook has no Storybook page. */
@@ -44,7 +44,7 @@ export function DetailHero({
   slug,
   packageName,
   subpath,
-  exportCount,
+  exportSummary,
   description,
   npmUrl,
   storybookDocsId,
@@ -64,7 +64,7 @@ export function DetailHero({
         </h1>
         <p className="text-muted-foreground mt-2.5 font-mono text-[13.5px] break-all">
           <b className="text-foreground font-semibold">{packageName}</b>/
-          {subpath} · {exportCount}
+          {subpath} · {exportSummary}
         </p>
         {description ? (
           <p className="text-muted-foreground mt-3 max-w-prose text-sm">
