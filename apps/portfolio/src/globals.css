@@ -225,8 +225,9 @@
  * The sections arrive at rest — there is no entrance animation any more, so
  * nothing on the page starts at `opacity: 0` and there is nothing here to make
  * visible. What is left is the motion CSS owns and JavaScript never sees: the
- * theme wipe above, and the waving hand. The dock reads the preference in
- * JavaScript and handles its own.
+ * theme wipe above, and the waving hand. The dock has no motion of its own any
+ * more — its magnification went with the redesign — so there is nothing for
+ * it to read.
  *
  * Both are switched off by name rather than by a blanket `* { animation: none }`
  * so that a future animation has to opt in here deliberately, and so nothing
