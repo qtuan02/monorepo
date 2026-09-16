@@ -21,7 +21,9 @@ import { Link } from "~/i18n/navigation";
  * margin over the 44px floor — and a hover that changes the background to the
  * accent wash and nothing else. `--accent` is the token `src/globals.css`
  * declares for exactly this role; the ghost variant's own `bg-muted` hover is
- * the grey it replaces.
+ * the grey it replaces. The `dark:` entry is not a repeat: ghost also sets
+ * `dark:hover:bg-muted/50`, which the plain `hover:bg-accent` does not
+ * out-merge, so without it the dark theme would hover grey.
  */
 const dockControlClassName =
   "size-12 hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent";

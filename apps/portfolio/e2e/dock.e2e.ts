@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
@@ -22,7 +23,7 @@ const HARD_SHADOW = { light: "#0a0a0a", dark: "#fafafa" } as const;
 const SAME_COLOUR = 4;
 
 /** The four controls, in document order — each one carries its own name. */
-function dockControls(page: import("@playwright/test").Page) {
+function dockControls(page: Page) {
   return page.getByRole("navigation").locator("[aria-label]");
 }
 
@@ -153,9 +154,23 @@ test.describe("the dock", () => {
     expect(neighbourBefore).not.toBeNull();
 
     await github.hover();
-    // Give a spring, if one had survived, its time to settle: the v1 one
-    // reached its 60px peak well inside this.
-    await page.waitForTimeout(400);
+    // Nothing here is *waited for* — the claim is that nothing happens, which
+    // no web-first assertion can retry towards. So the page is given a few
+    // painted frames instead of a sleep: a spring, had one survived, writes a
+    // new width on every frame from the first, and the v1 one was several
+    // pixels off its rest size by the third.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          let frames = 3;
+          const tick = () => {
+            frames -= 1;
+            if (frames === 0) resolve();
+            else requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }),
+    );
 
     expect(await github.boundingBox()).toEqual(before);
     expect(await linkedin.boundingBox()).toEqual(neighbourBefore);

@@ -211,7 +211,7 @@
  * The dock is `fixed` at the bottom of the viewport, so anything the browser
  * scrolls to — a Tab landing on the last contact link, a jump to `#contact` —
  * can come to rest underneath it. The reserve is the dock's own height plus its
- * margin and the fade band it floats over.
+ * margin, its shadow, and a line of breathing room above the frame.
  */
 @layer base {
   html {
