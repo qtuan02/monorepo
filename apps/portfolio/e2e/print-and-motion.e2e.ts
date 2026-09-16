@@ -7,9 +7,8 @@ import { ROUTES } from "../src/constants/routes";
  * CSS the browser resolves or by what the *server* sent before any JavaScript
  * ran.
  *
- * Two of them had a real bug in them when this suite was written, and neither
- * showed up anywhere else: the page printed blank from the dark theme, and a
- * reader with reduced motion was served markup that starts at `opacity: 0`.
+ * One of them had a real bug in it when this suite was written, and it showed
+ * up nowhere else: the page printed blank from the dark theme.
  */
 test.describe("print", () => {
   test("prints as a CV: no chrome, every role open, black on white", async ({
@@ -98,25 +97,16 @@ test.describe("print", () => {
 });
 
 test.describe("prefers-reduced-motion", () => {
-  test("shows the page at rest, before any JavaScript has run", async ({
-    browser,
-  }) => {
+  test("switches the waving hand off", async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
 
     await page.goto(ROUTES.HOME);
 
-    // Read immediately: the guarantee has to hold on the bytes the server
-    // sent. `BlurFade` reads the preference in JavaScript too, but that answer
-    // arrives only after hydration — and the markup it hydrates carries
-    // motion's `opacity: 0`, so CSS is what makes the page visible meanwhile.
-    const opacity = await page
-      .locator('[data-slot="blur-fade"]')
-      .first()
-      .evaluate((element) => getComputedStyle(element).opacity);
-
-    expect(Number.parseFloat(opacity)).toBe(1);
-
+    // The sections arrive at rest for every reader now, so there is no opacity
+    // to assert on. What the preference still has to switch off is the motion
+    // CSS owns — the wave, and the theme wipe; the wave is the one a computed
+    // style can see without driving a view transition.
     const waveAnimation = await page
       .getByText("👋")
       .evaluate((element) => getComputedStyle(element).animationName);

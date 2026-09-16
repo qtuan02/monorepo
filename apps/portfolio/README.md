@@ -39,20 +39,18 @@ mọi layer, mà một khai báo không layer thắng khai báo trong layer bấ
 Viết trong `@layer base` thì bảy dòng này compile, ship và **thua** — trang vẫn
 teal, không log gì cả.
 
-**Reduced motion.** `BlurFade` đọc `prefers-reduced-motion` bằng JavaScript, nhưng
-câu trả lời đó chỉ đến sau hydration — server đã gửi markup kèm `opacity: 0`
-inline của `motion` rồi. Nên nhánh CSS mới là cái bảo đảm: nó là thứ khiến nội
-dung hiện ra **khi chưa có JavaScript nào chạy**, JavaScript chỉ là phần tăng
-cường. Wipe theme và bàn tay vẫy tắt theo tên, không phải bằng
-`* { animation: none }`, để một animation tương lai phải tự khai vào đây.
+**Reduced motion.** Không còn fade nào theo section: mọi section render ở trạng
+thái nghỉ, nên không có `opacity: 0` inline nào để CSS phải hoàn tác. Thứ còn
+lại là chuyển động do CSS sở hữu — wipe theme và bàn tay vẫy — tắt theo tên,
+không phải bằng `* { animation: none }`, để một animation tương lai phải tự khai
+vào đây. Dock tự đọc preference bằng JavaScript.
 
 **Print.** Trang này **là** bản CV, nên "tải CV" ở hero là hộp thoại in của trình
 duyệt chứ không phải một file PDF phải giữ đồng bộ bằng tay. `@media print` hoàn
-tác ba thứ `motion` viết inline (fade dở dang in ra `opacity: 0`, row accordion
-chưa ai bấm in ra heading không thân), thay hẳn palette dark bằng light (trình
-duyệt không in background graphics, nên theme tối in ra là chữ trắng trên giấy
-trắng), và in href sau mỗi link ngoài — trừ khối Contact, nơi chữ hiện ra **đã
-là** URL.
+tác một thứ `motion` viết inline (row accordion chưa ai bấm in ra heading không
+thân), thay hẳn palette dark bằng light (trình duyệt không in background
+graphics, nên theme tối in ra là chữ trắng trên giấy trắng), và in href sau mỗi
+link ngoài — trừ khối Contact, nơi chữ hiện ra **đã là** URL.
 
 ## i18n
 
