@@ -350,17 +350,12 @@
       "description": "Mỗi dòng là một subpath của @fe-monorepo/ui. Mở một dòng để đọc danh sách export và xem demo trên Storybook.",
       "count": "{count, plural, other {# component}}",
       "exportCount": "{count, plural, other {# export}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Export"
-      },
       "detail": {
         "import": "Import",
         "exports": "Export",
-        "demo": "Demo",
-        "demoDescription": "Bản demo tương tác và bảng props sống nằm trong Storybook.",
-        "demoLink": "Mở {name} trên Storybook",
-        "back": "Về danh sách component"
+        "storybook": "Mở trên Storybook",
+        "prev": "Trước: {slug}",
+        "next": "Sau: {slug}"
       }
     },
     "hooks": {
@@ -368,15 +363,11 @@
       "description": "Năm hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
       "count": "{count, plural, other {# hook}}",
       "exportCount": "{count, plural, other {# export}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Export"
-      },
       "detail": {
         "import": "Import",
         "exports": "Export",
-        "description": "Mô tả",
-        "back": "Về danh sách hook"
+        "prev": "Trước: {slug}",
+        "next": "Sau: {slug}"
       },
       "items": {
         "use-debounce": {

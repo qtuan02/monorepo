@@ -1,19 +1,16 @@
-import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router";
+import { useParams } from "react-router";
 
-import { Badge } from "@monorepo/ui/components/badge";
-import { buttonVariants } from "@monorepo/ui/components/button";
-import { cn } from "@monorepo/ui/utils/cn";
-
-import { ImportSnippet } from "~/components/code/import-snippet";
+import { DetailHero } from "~/components/detail/detail-hero";
+import { DetailPanels } from "~/components/detail/detail-panels";
+import { DetailToolbar } from "~/components/detail/detail-toolbar";
 import NotFound from "~/components/exception/not-found";
-import { DocsSection } from "~/components/page/docs-section";
-import { PageHeader } from "~/components/page/page-header";
-import { ExportTable } from "~/components/table/export-table";
-import { findHook } from "~/constants/docs-catalogue";
+import { GlassPanel } from "~/components/panel/glass-panel";
+import { findHook, hookCatalogue } from "~/constants/docs-catalogue";
+import { NPM_URLS } from "~/constants/packages";
 import { ROUTES } from "~/constants/routes";
 import { useDocumentTitle } from "~/hooks/use-document-title";
+import { catalogueNeighbours } from "~/utils/catalogue-neighbours";
 
 export default function HookDetailTemplate() {
   const { t } = useTranslation();
@@ -24,49 +21,54 @@ export default function HookDetailTemplate() {
 
   if (!entry) {
     return (
-      <NotFound
-        title={t("documents.notFound.title")}
-        message={t("documents.notFound.hook", { slug: slug ?? "" })}
-      />
+      <GlassPanel className="px-4 py-6 sm:px-8">
+        <NotFound
+          title={t("documents.notFound.title")}
+          message={t("documents.notFound.hook", { slug: slug ?? "" })}
+        />
+      </GlassPanel>
     );
   }
 
+  const { prev, next } = catalogueNeighbours(hookCatalogue.items, entry.slug);
+  const neighbour = (
+    target: typeof entry,
+    labelKey: "documents.hooks.detail.prev" | "documents.hooks.detail.next",
+  ) => ({
+    slug: target.slug,
+    to: ROUTES.hookBySlugPath(target.slug),
+    label: t(labelKey, { slug: target.slug }),
+  });
+
   return (
     <>
-      <PageHeader
-        title={entry.slug}
-        mono
+      <DetailToolbar
+        section={t("documents.nav.hooks")}
+        slug={entry.slug}
+        prev={prev && neighbour(prev, "documents.hooks.detail.prev")}
+        next={next && neighbour(next, "documents.hooks.detail.next")}
+      />
+
+      <DetailHero
+        slug={entry.slug}
+        packageName={hookCatalogue.package}
+        subpath={entry.subpath}
+        exportCount={t("documents.hooks.exportCount", {
+          count: entry.exports.length,
+        })}
         // The sentence comes from the shared catalogue rather than the
         // generator: a hook's source carries no JSDoc today, and the published
         // README already writes one line for each of the five.
         description={t(`documents.hooks.items.${entry.slug}.description`)}
-        meta={
-          <Badge variant="outline" className="font-mono">
-            {entry.subpath}
-          </Badge>
-        }
+        npmUrl={NPM_URLS.hook}
       />
 
-      <DocsSection title={t("documents.hooks.detail.import")}>
-        <ImportSnippet exports={entry.exports} importPath={entry.importPath} />
-      </DocsSection>
-
-      <DocsSection title={t("documents.hooks.detail.exports")}>
-        <ExportTable
-          exports={entry.exports}
-          label={t("documents.hooks.columns.exports")}
-        />
-      </DocsSection>
-
-      <div className="py-8">
-        <Link
-          to={ROUTES.HOOKS}
-          className={cn(buttonVariants({ variant: "ghost" }))}
-        >
-          <ArrowLeft className="size-4" />
-          {t("documents.hooks.detail.back")}
-        </Link>
-      </div>
+      <DetailPanels
+        exports={entry.exports}
+        importPath={entry.importPath}
+        importHeading={t("documents.hooks.detail.import")}
+        exportsHeading={t("documents.hooks.detail.exports")}
+      />
     </>
   );
 }

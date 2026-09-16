@@ -9,6 +9,8 @@ interface StorybookLinkProps {
   /** The docs id the generator derived, e.g. `storybook-button`. */
   docsId: string;
   children: string;
+  /** `outline` by default; the detail hero renders it as the solid action. */
+  variant?: NonNullable<Parameters<typeof buttonVariants>[0]>["variant"];
   className?: string;
 }
 
@@ -25,6 +27,7 @@ interface StorybookLinkProps {
 export function StorybookLink({
   docsId,
   children,
+  variant = "outline",
   className,
 }: StorybookLinkProps) {
   const href = `${env.PUBLIC_DOCUMENTS_STORYBOOK_URL}/?path=/docs/${docsId}--docs`;
@@ -34,7 +37,7 @@ export function StorybookLink({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={cn(buttonVariants({ variant: "outline" }), className)}
+      className={cn(buttonVariants({ variant }), className)}
     >
       <ExternalLink className="size-4" />
       {children}

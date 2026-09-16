@@ -42,17 +42,17 @@ test.describe("documents", () => {
       page.getByRole("heading", { level: 1, name: PRIMITIVE_SLUG }),
     ).toBeVisible();
 
-    // The export table — the thing the page exists to show.
-    await expect(
-      page.getByRole("cell", { name: "Button", exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("cell", { name: "buttonVariants", exact: true }),
-    ).toBeVisible();
+    // The export chips — the thing the page exists to show. A `listitem` has
+    // no accessible name from its content, so each is found by its text.
+    const chips = page.getByRole("listitem");
+    await expect(chips.filter({ hasText: /^Button$/ })).toBeVisible();
+    await expect(chips.filter({ hasText: /^buttonVariants$/ })).toBeVisible();
 
-    // And the import line a reader copies, spelled with the npm package name.
+    // And the import line a reader copies, spelled with the npm package name —
+    // the `from` narrows it to the snippet, since the hero's meta line names
+    // the same specifier.
     await expect(
-      page.getByText(`@fe-monorepo/ui/components/${PRIMITIVE_SLUG}`),
+      page.getByText(`from "@fe-monorepo/ui/components/${PRIMITIVE_SLUG}"`),
     ).toBeVisible();
   });
 
@@ -98,7 +98,28 @@ test.describe("documents", () => {
       page.getByRole("heading", { level: 1, name: "avatar" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("cell", { name: "Avatar", exact: true }),
+      page.getByRole("listitem").filter({ hasText: /^Avatar$/ }),
+    ).toBeVisible();
+  });
+
+  test("steps to the next primitive in catalogue order from a detail page", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.componentBySlugPath("dialog"));
+
+    // The toolbar's neighbours follow the generated catalogue, which the
+    // generator sorts — so after `dialog` comes `direction`, not a hand-picked
+    // sibling.
+    await page.getByRole("link", { name: "Sau: direction" }).click();
+
+    await expect(page).toHaveURL(
+      new RegExp(`${ROUTES.componentBySlugPath("direction")}$`),
+    );
+    await expect(
+      page.getByRole("heading", { level: 1, name: "direction" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Trước: dialog" }),
     ).toBeVisible();
   });
 

@@ -350,17 +350,12 @@
       "description": "Every row is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
       "count": "{count, plural, one {# component} other {# components}}",
       "exportCount": "{count, plural, one {# export} other {# exports}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Exports"
-      },
       "detail": {
         "import": "Import",
         "exports": "Exports",
-        "demo": "Demo",
-        "demoDescription": "The interactive demo and the live props table live in Storybook.",
-        "demoLink": "Open {name} in Storybook",
-        "back": "Back to components"
+        "storybook": "Open in Storybook",
+        "prev": "Previous: {slug}",
+        "next": "Next: {slug}"
       }
     },
     "hooks": {
@@ -368,15 +363,11 @@
       "description": "Five shared hooks, one subpath each on @fe-monorepo/hook.",
       "count": "{count, plural, one {# hook} other {# hooks}}",
       "exportCount": "{count, plural, one {# export} other {# exports}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Exports"
-      },
       "detail": {
         "import": "Import",
         "exports": "Exports",
-        "description": "Description",
-        "back": "Back to hooks"
+        "prev": "Previous: {slug}",
+        "next": "Next: {slug}"
       },
       "items": {
         "use-debounce": {

@@ -16,6 +16,12 @@ function renderAtSlug(slug: string) {
   );
 }
 
+function entryAt(index: number) {
+  const entry = hookCatalogue.items.at(index);
+  if (!entry) throw new Error(`no catalogue entry at ${index}`);
+  return entry;
+}
+
 describe("the hook detail page", () => {
   it("renders the hook's export and its sentence from the shared catalogue", () => {
     const entry = hookCatalogue.items.find(
@@ -29,8 +35,8 @@ describe("the hook detail page", () => {
       screen.getByRole("heading", { level: 1, name: entry.slug }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("cell", { name: "useDebounce" }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("listitem").map((chip) => chip.textContent),
+    ).toEqual(["useDebounce"]);
 
     // The description is the one field the generator does not supply for a
     // hook — it comes from `documents.hooks.items.<slug>.description`, so a
@@ -38,6 +44,9 @@ describe("the hook detail page", () => {
     expect(
       screen.getByText(/Trả lại value sau delay mili-giây/),
     ).toBeInTheDocument();
+
+    // A hook has no Storybook page, so the hero carries only the npm action.
+    expect(screen.queryByRole("link", { name: /Storybook/ })).toBeNull();
   });
 
   it("shows the consumer's npm specifier, with no `components/` prefix", () => {
@@ -52,6 +61,34 @@ describe("the hook detail page", () => {
     ).toBeInTheDocument();
   });
 
+  it("links to both neighbours in catalogue order from an entry in the middle", () => {
+    const [prev, entry, next] = [entryAt(0), entryAt(1), entryAt(2)];
+
+    renderAtSlug(entry.slug);
+
+    expect(
+      screen.getByRole("link", { name: `Trước: ${prev.slug}` }),
+    ).toHaveAttribute("href", ROUTES.hookBySlugPath(prev.slug));
+    expect(
+      screen.getByRole("link", { name: `Sau: ${next.slug}` }),
+    ).toHaveAttribute("href", ROUTES.hookBySlugPath(next.slug));
+  });
+
+  it("has no previous link on the first hook and no next link on the last", () => {
+    const first = renderAtSlug(entryAt(0).slug);
+    expect(screen.queryByRole("link", { name: /^Trước:/ })).toBeNull();
+    expect(
+      screen.getByRole("link", { name: `Sau: ${entryAt(1).slug}` }),
+    ).toBeInTheDocument();
+    first.unmount();
+
+    renderAtSlug(entryAt(-1).slug);
+    expect(screen.queryByRole("link", { name: /^Sau:/ })).toBeNull();
+    expect(
+      screen.getByRole("link", { name: `Trước: ${entryAt(-2).slug}` }),
+    ).toBeInTheDocument();
+  });
+
   it("404s in place for a slug no hook has", () => {
     renderAtSlug("use-not-a-hook");
 
@@ -59,6 +96,6 @@ describe("the hook detail page", () => {
       screen.getByRole("heading", { level: 1, name: "Không tìm thấy" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/use-not-a-hook/)).toBeInTheDocument();
-    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 });
