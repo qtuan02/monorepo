@@ -1,3 +1,6 @@
 {
-  "plansDirectory": ".agents/plans"
+  "plansDirectory": ".agents/plans",
+  "enabledPlugins": {
+    "ponytail@ponytail": true
+  }
 }

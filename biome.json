@@ -19,6 +19,7 @@
       "!**/storybook-static",
       "!**/*.d.ts",
       "!**/*.svg",
+      "!docs/design/**/*.html",
       "!.agents/skills/ui-ux-pro-max",
       "!.agents/skills/banner-design",
       "!.agents/skills/brand",

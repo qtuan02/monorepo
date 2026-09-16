@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup v3 — Prism · apps/documents</title>
+<style>
+  :root{
+    --bg:#eef2ff;--fg:#312e81;--fg2:#4c4a8a;--mute:#6b6a9a;
+    --primary:#4f46e5;--accent:#ea580c;--ring:#4f46e5;
+    --indigo:#4f46e5;--violet:#8b5cf6;--cyan:#22d3ee;--pink:#f472b6;--amber:#fbbf24;--lime:#a3e635;
+    --glass:rgba(255,255,255,.58);--glass-strong:rgba(255,255,255,.78);--glass-edge:rgba(255,255,255,.75);
+    --sh-1:0 1px 0 rgba(255,255,255,.7) inset;--sh-2:0 1px 2px rgba(49,46,129,.06);--sh-3:0 12px 32px -8px rgba(49,46,129,.22);--sh-4:0 32px 64px -16px rgba(79,70,229,.28);
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --r:18px;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font:15px/1.6 var(--sans);background:#b9bdd6;padding:28px;color:#222}
+  .note{max-width:1240px;margin:0 auto 14px;font-size:13px;color:#1a1a2e}
+  .frame{max-width:1240px;margin:0 auto 48px;border-radius:12px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.28);position:relative;background:var(--bg);color:var(--fg)}
+  .frame>figcaption{background:#111;color:#eee;font:12px var(--mono);padding:7px 14px;position:relative;z-index:5}
+  .frame>figcaption b{color:#a5b4fc}
+  .mono{font-family:var(--mono)}
+
+  /* ── aurora + shapes (shared) ── */
+  .sky{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+  .sky .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.75}
+  .sky .b1{width:560px;height:560px;left:-120px;top:-160px;background:var(--violet)}
+  .sky .b2{width:520px;height:520px;right:-80px;top:-200px;background:var(--cyan);opacity:.6}
+  .sky .b3{width:420px;height:420px;left:38%;top:120px;background:var(--pink);opacity:.45}
+  .sky .b4{width:380px;height:380px;right:20%;top:420px;background:var(--amber);opacity:.35}
+  .sky .fade{position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(180deg,rgba(238,242,255,0),var(--bg) 70%)}
+  .shape{position:absolute;opacity:.9}
+  .ring{width:120px;height:120px;border:14px solid var(--amber);border-radius:50%}
+  .sq{width:90px;height:90px;background:var(--pink);transform:rotate(18deg);border-radius:14px}
+  .tri{width:0;height:0;border-left:60px solid transparent;border-right:60px solid transparent;border-bottom:104px solid var(--cyan);transform:rotate(-12deg)}
+  .dots{width:140px;height:80px;background:radial-gradient(var(--indigo) 2.2px,transparent 2.4px) 0 0/14px 14px;opacity:.5}
+  .stripe{width:160px;height:26px;background:repeating-linear-gradient(90deg,var(--lime) 0 10px,transparent 10px 20px);transform:rotate(-30deg);opacity:.9}
+
+  /* ── glass ── */
+  .g{background:var(--glass);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--glass-edge);border-radius:var(--r);box-shadow:var(--sh-1),var(--sh-2),var(--sh-3)}
+  .g.deep{box-shadow:var(--sh-1),var(--sh-2),var(--sh-3),var(--sh-4)}
+  .g.strong{background:var(--glass-strong)}
+
+  /* ── nav (shared) ── */
+  .navwrap{position:relative;z-index:3;display:flex;justify-content:center;padding:18px 24px 0}
+  nav.pill{display:flex;align-items:center;gap:6px;padding:8px 10px 8px 12px;border-radius:999px;width:min(980px,100%)}
+  nav .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;padding-right:10px;margin-right:4px;border-right:1px solid rgba(49,46,129,.12)}
+  nav .brand i{width:30px;height:30px;border-radius:10px;background:conic-gradient(from 210deg,var(--indigo),var(--violet),var(--cyan),var(--pink),var(--amber),var(--indigo));display:block;box-shadow:0 4px 10px rgba(79,70,229,.35)}
+  nav a{padding:7px 13px;border-radius:999px;font-size:14px;color:var(--fg2);text-decoration:none;font-weight:500}
+  nav a.on{background:var(--fg);color:#fff}
+  nav .search{margin-left:auto;display:flex;align-items:center;gap:10px;padding:7px 8px 7px 14px;border-radius:999px;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);color:var(--mute);font-size:13.5px;width:280px}
+  nav .search kbd{margin-left:auto;font:11px var(--mono);background:#fff;border:1px solid rgba(49,46,129,.15);border-radius:6px;padding:2px 7px;color:var(--fg2)}
+  nav .ic{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);display:grid;place-items:center;font-size:12px;color:var(--fg2)}
+
+  main{position:relative;z-index:2;padding:0 40px 48px;max-width:1120px;margin:0 auto}
+
+  /* ── hero ── */
+  .hero{text-align:center;padding:76px 0 44px}
+  .hero .tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 8px;border-radius:999px;font-size:13px;font-weight:500;color:var(--fg2)}
+  .hero .tag i{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--indigo))}
+  .hero h1{font-size:60px;line-height:1.02;letter-spacing:-.04em;font-weight:800;margin:22px auto 16px;max-width:15ch}
+  .hero h1 span{background:linear-gradient(90deg,var(--indigo),var(--violet) 40%,var(--pink) 75%,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{font-size:18px;color:var(--fg2);max-width:52ch;margin:0 auto 30px}
+  .cmd{display:inline-flex;align-items:center;gap:14px;padding:8px 10px 8px 8px;border-radius:999px}
+  .cmd .tabs{display:flex;gap:2px;background:rgba(49,46,129,.08);border-radius:999px;padding:3px}
+  .cmd .tabs b{padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:500;color:var(--fg2)}
+  .cmd .tabs b.on{background:#fff;color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .cmd code{font-size:14.5px;color:var(--fg)}
+  .cmd code em{font-style:normal;color:var(--primary);font-weight:600}
+  .cmd .cp{width:34px;height:34px;border-radius:50%;background:var(--fg);color:#fff;display:grid;place-items:center;font-size:13px}
+
+  /* ── float cards ── */
+  .cards{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px;margin:8px 0 40px}
+  .card{padding:22px;position:relative;overflow:hidden;min-height:170px;display:flex;flex-direction:column;justify-content:flex-end;transition:transform .2s}
+  .card h3{font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);font-weight:600;position:absolute;top:20px;left:22px}
+  .card .big{font-size:56px;line-height:1;letter-spacing:-.05em;font-weight:800}
+  .card .big small{font-size:15px;letter-spacing:0;font-weight:500;color:var(--fg2);margin-left:8px}
+  .card .arrow{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:13px;box-shadow:0 2px 6px rgba(49,46,129,.15)}
+  .card .sw{position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:40px;opacity:.9;filter:blur(2px)}
+  .card.c1 .sw{background:conic-gradient(from 0deg,var(--indigo),var(--cyan),var(--indigo))}
+  .card.c2 .sw{background:linear-gradient(135deg,var(--pink),var(--amber))}
+  .card.c3{background:linear-gradient(135deg,rgba(79,70,229,.92),rgba(139,92,246,.92));color:#fff;border-color:rgba(255,255,255,.35)}
+  .card.c3 h3{color:rgba(255,255,255,.8)}
+  .card.c3 .cta{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--fg);border-radius:999px;padding:9px 16px;font-weight:600;font-size:14px;width:fit-content}
+  .card.c3 .sw{background:conic-gradient(from 90deg,var(--cyan),var(--pink),var(--amber),var(--cyan));opacity:.6}
+
+  /* ── sections as panels ── */
+  .panel{padding:28px 30px;margin-bottom:18px;display:grid;grid-template-columns:260px 1fr;gap:28px}
+  .panel .head .k{font:600 12px var(--mono);color:var(--primary);letter-spacing:.06em}
+  .panel .head h2{font-size:24px;letter-spacing:-.03em;margin:6px 0 8px}
+  .panel .head p{color:var(--fg2);font-size:15px}
+  .code{background:rgba(49,46,129,.94);color:#e0e7ff;border-radius:14px;padding:16px 52px 16px 18px;font:13.5px/1.7 var(--mono);white-space:pre;position:relative;box-shadow:0 12px 28px -10px rgba(49,46,129,.5)}
+  .code .k{color:#c4b5fd}.code .s{color:#67e8f9}.code .c{color:#8b89b8}
+  .code .cp{position:absolute;top:10px;right:10px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.12);display:grid;place-items:center;color:#fff;font-size:12px}
+  .warn{display:flex;gap:12px;margin-top:12px;padding:12px 14px;border-radius:14px;background:rgba(251,191,36,.22);border:1px solid rgba(251,191,36,.5);font-size:14px}
+  .warn b{display:block;margin-bottom:2px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px 7px 8px;border-radius:999px;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);font-size:13px;box-shadow:0 1px 2px rgba(49,46,129,.08)}
+  .chip i{width:16px;height:16px;border-radius:50%;display:block}
+
+  /* ── list ── */
+  .listhead{display:flex;align-items:end;justify-content:space-between;padding:56px 0 22px;gap:20px}
+  .listhead h1{font-size:44px;letter-spacing:-.04em;font-weight:800}
+  .listhead p{color:var(--fg2);max-width:48ch;margin-top:8px}
+  .filter{display:flex;gap:10px;align-items:center}
+  .filter .in{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;width:300px;color:var(--mute);font-size:14px}
+  .filter .count{font-size:13px;color:var(--fg2);font-variant-numeric:tabular-nums;padding:0 8px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .tile{padding:16px 16px 14px;position:relative;overflow:hidden;min-height:118px;text-decoration:none;color:inherit;display:block;transition:transform .2s,box-shadow .2s}
+  .tile.hov{transform:translateY(-3px);box-shadow:var(--sh-1),var(--sh-2),var(--sh-3),var(--sh-4)}
+  .tile .sw{width:38px;height:38px;border-radius:12px;margin-bottom:12px;box-shadow:0 4px 10px rgba(49,46,129,.2)}
+  .tile b{font:600 14px var(--mono);display:block}
+  .tile p{font:12px var(--mono);color:var(--mute);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .n{position:absolute;top:14px;right:14px;font:600 11px var(--mono);color:var(--fg2);background:rgba(255,255,255,.7);border-radius:999px;padding:2px 8px}
+  .tile.wide{grid-column:span 2}
+  .h1{background:linear-gradient(135deg,#4f46e5,#22d3ee)}.h2{background:linear-gradient(135deg,#f472b6,#fbbf24)}.h3{background:linear-gradient(135deg,#8b5cf6,#f472b6)}.h4{background:linear-gradient(135deg,#22d3ee,#a3e635)}
+  .h5{background:linear-gradient(135deg,#fbbf24,#ea580c)}.h6{background:linear-gradient(135deg,#312e81,#8b5cf6)}.h7{background:linear-gradient(135deg,#a3e635,#22d3ee)}.h8{background:linear-gradient(135deg,#ea580c,#f472b6)}
+
+  /* ── ⌘K palette ── */
+  .scrim{position:absolute;inset:0;background:rgba(49,46,129,.28);backdrop-filter:blur(6px);z-index:8;display:grid;place-items:start center;padding-top:110px}
+  .pal{width:620px;border-radius:22px;overflow:hidden}
+  .pal .in{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(49,46,129,.1);font-size:16px}
+  .pal .in span{color:var(--mute)}
+  .pal .in span b{color:var(--fg);font-weight:500}
+  .pal .grp{padding:8px 10px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);font-weight:600}
+  .pal .it{display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:12px;margin:0 6px;font-size:14px}
+  .pal .it.on{background:rgba(79,70,229,.12)}
+  .pal .it i{width:22px;height:22px;border-radius:7px;display:block}
+  .pal .it .sub{margin-left:auto;font:12px var(--mono);color:var(--mute)}
+  .pal .foot{display:flex;gap:16px;padding:10px 16px;border-top:1px solid rgba(49,46,129,.1);font-size:12px;color:var(--mute)}
+  .pal kbd{font:11px var(--mono);background:#fff;border:1px solid rgba(49,46,129,.15);border-radius:5px;padding:1px 6px;margin-right:4px}
+
+  /* ── detail ── */
+  .tool{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:999px;margin:22px 0 28px;font-size:13.5px;width:fit-content}
+  .tool .crumb{color:var(--mute)}
+  .tool .crumb b{color:var(--fg);font-weight:600}
+  .tool .pn{margin-left:14px;display:flex;gap:4px}
+  .tool .pn span{padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.7);font:12.5px var(--mono);color:var(--fg2)}
+  .dhero{display:grid;grid-template-columns:120px 1fr auto;gap:26px;align-items:center;padding:26px 28px;margin-bottom:16px}
+  .dhero .sw{width:120px;height:120px;border-radius:32px;box-shadow:0 18px 36px -12px rgba(79,70,229,.5)}
+  .dhero h1{font:800 44px/1 var(--mono);letter-spacing:-.04em}
+  .dhero .meta{font:13.5px var(--mono);color:var(--mute);margin-top:10px}
+  .dhero .meta b{color:var(--fg);font-weight:600}
+  .dhero .acts{display:flex;flex-direction:column;gap:8px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 18px;border-radius:999px;font-size:14px;font-weight:600;text-decoration:none}
+  .btn.p{background:var(--fg);color:#fff;box-shadow:0 8px 20px -8px rgba(49,46,129,.6)}
+  .btn.s{background:rgba(255,255,255,.75);color:var(--fg);border:1px solid rgba(255,255,255,.9)}
+  .two{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+  .two .panel{grid-template-columns:1fr;gap:14px}
+  .exp{display:flex;flex-wrap:wrap;gap:8px}
+  .exp span{font:13px var(--mono);padding:7px 12px;border-radius:12px;background:#fff;border:1px solid rgba(79,70,229,.18);box-shadow:0 1px 2px rgba(49,46,129,.06)}
+  .exp span.v{border-style:dashed;color:var(--fg2)}
+</style>
+</head>
+<body>
+
+<p class="note"><b>Mockup v3 · Prism</b> — hướng D, vòng 3 (sau khi hướng 0/A/B/C bị từ chối). Không sidebar; nav kính nổi + ⌘K; palette riêng (indigo · violet · cyan · pink · amber) trên nền aurora; mọi bề mặt là panel kính nhiều tầng bóng; khối hình học Bauhaus/Memphis mờ phía sau; mỗi primitive có một swatch gradient sinh từ slug. Ba frame: landing · danh sách (⌘K đang mở) · trang chi tiết.</p>
+
+<!-- ═══════════ Frame 1: landing ═══════════ -->
+<figure class="frame">
+<figcaption><b>/</b> — Getting Started · nav kính nổi · hero trên aurora · ba card nổi · section là panel kính</figcaption>
+<div class="sky">
+  <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+  <div class="shape ring" style="left:6%;top:200px"></div>
+  <div class="shape sq" style="right:9%;top:150px"></div>
+  <div class="shape tri" style="left:14%;top:560px"></div>
+  <div class="shape dots" style="right:16%;top:520px"></div>
+  <div class="shape stripe" style="right:30%;top:80px"></div>
+  <div class="fade"></div>
+</div>
+<div class="navwrap"><nav class="pill g">
+  <span class="brand"><i></i>@fe-monorepo</span>
+  <a class="on">Bắt đầu</a><a>Component</a><a>Hook</a>
+  <span class="search">🔍 Tìm component, hook… <kbd>⌘K</kbd></span>
+  <span class="ic">vi</span><span class="ic">npm</span><span class="ic">SB</span>
+</nav></div>
+<main>
+  <div class="hero">
+    <span class="tag g"><i></i> v1.0.0 · ESM · React 19 · Tailwind v4</span>
+    <h1>Primitive Base UI,<br><span>mỗi import một file.</span></h1>
+    <p>Hai gói publish từ workspace này — 63 primitive và 5 hook. Không có root entry, không CommonJS: bạn gọi đúng subpath mình cần và mọi thứ khác không đi theo.</p>
+    <div class="cmd g strong deep"><span class="tabs"><b class="on">bun</b><b>npm</b><b>pnpm</b></span><code class="mono">bun add <em>@fe-monorepo/ui</em> <em>@fe-monorepo/hook</em></code><span class="cp">⧉</span></div>
+  </div>
+
+  <div class="cards">
+    <div class="card g deep c1"><h3>Component</h3><span class="arrow">↗</span><div class="big">63<small>primitive Base UI</small></div><div class="sw"></div></div>
+    <div class="card g deep c2"><h3>Hook</h3><span class="arrow">↗</span><div class="big">5<small>hook</small></div><div class="sw"></div></div>
+    <div class="card g deep c3"><h3>Demo &amp; props</h3><span class="cta">Mở Storybook ↗</span><div class="sw"></div></div>
+  </div>
+
+  <section class="panel g">
+    <div class="head"><div class="k">01 / 05</div><h2>Nối stylesheet</h2><p>Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó.</p></div>
+    <div>
+<div class="code"><span class="c">/* src/index.css */</span>
+<span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+<span class="k">@import</span> <span class="s">"@fe-monorepo/ui/globals.css"</span>;
+
+<span class="k">@source</span> <span class="s">"../node_modules/@fe-monorepo/ui/dist"</span>;<span class="cp">⧉</span></div>
+      <div class="warn"><span>⚠</span><div><b>Thiếu dòng @source</b>Tailwind v4 không quét node_modules — thiếu dòng này, mọi class trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.</div></div>
+    </div>
+  </section>
+
+  <section class="panel g">
+    <div class="head"><div class="k">02 / 05</div><h2>Peer dependency</h2><p>Bạn tự cài; chúng không nằm trong dependency của package.</p></div>
+    <div class="chips mono"><span class="chip"><i style="background:var(--indigo)"></i>react ≥19</span><span class="chip"><i style="background:var(--cyan)"></i>react-dom ≥19</span><span class="chip"><i style="background:var(--pink)"></i>tailwindcss ^4 · chỉ ui</span></div>
+  </section>
+</main>
+</figure>
+
+<!-- ═══════════ Frame 2: list + ⌘K ═══════════ -->
+<figure class="frame">
+<figcaption><b>/components</b> — lưới tile kính, swatch gradient sinh từ slug, tile rộng cho primitive nhiều export · ⌘K palette đang mở (thay cho sidebar)</figcaption>
+<div class="sky"><div class="blob b1" style="opacity:.45"></div><div class="blob b2" style="opacity:.35"></div><div class="shape ring" style="right:8%;top:120px;opacity:.6"></div><div class="shape dots" style="left:5%;top:300px"></div><div class="fade" style="height:70%"></div></div>
+<div class="navwrap"><nav class="pill g">
+  <span class="brand"><i></i>@fe-monorepo</span>
+  <a>Bắt đầu</a><a class="on">Component</a><a>Hook</a>
+  <span class="search">🔍 Tìm component, hook… <kbd>⌘K</kbd></span>
+  <span class="ic">vi</span><span class="ic">npm</span><span class="ic">SB</span>
+</nav></div>
+<main>
+  <div class="listhead">
+    <div><h1>Component</h1><p>Mỗi tile là một subpath của @fe-monorepo/ui. Mở tile để đọc export và xem demo trên Storybook.</p></div>
+    <div class="filter"><span class="in g">🔍 Lọc theo tên…</span><span class="count">63 component</span></div>
+  </div>
+  <div class="grid">
+    <a class="tile g"><div class="sw h1"></div><b>accordion</b><p>Accordion, AccordionContent, +2</p><span class="n">4</span></a>
+    <a class="tile g"><div class="sw h2"></div><b>alert</b><p>Alert, AlertAction, +2</p><span class="n">4</span></a>
+    <a class="tile g wide hov"><div class="sw h3"></div><b>alert-dialog</b><p>AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, +8</p><span class="n">12</span></a>
+    <a class="tile g"><div class="sw h4"></div><b>aspect-ratio</b><p>AspectRatio</p><span class="n">1</span></a>
+    <a class="tile g"><div class="sw h5"></div><b>avatar</b><p>Avatar, AvatarFallback, +1</p><span class="n">3</span></a>
+    <a class="tile g"><div class="sw h6"></div><b>badge</b><p>Badge, badgeVariants</p><span class="n">2</span></a>
+    <a class="tile g"><div class="sw h7"></div><b>breadcrumb</b><p>Breadcrumb, BreadcrumbItem, +5</p><span class="n">7</span></a>
+    <a class="tile g"><div class="sw h8"></div><b>button</b><p>Button, buttonVariants</p><span class="n">2</span></a>
+    <a class="tile g wide"><div class="sw h1"></div><b>combobox</b><p>Combobox, ComboboxContent, ComboboxInput, ComboboxItem, +12</p><span class="n">16</span></a>
+    <a class="tile g"><div class="sw h2"></div><b>calendar</b><p>Calendar</p><span class="n">1</span></a>
+  </div>
+</main>
+<div class="scrim">
+  <div class="pal g strong deep">
+    <div class="in">🔍 <span>dia<b>log</b></span></div>
+    <div class="grp">Component</div>
+    <div class="it on"><i class="h3"></i>dialog<span class="sub">components/dialog · 10</span></div>
+    <div class="it"><i class="h3"></i>alert-dialog<span class="sub">components/alert-dialog · 12</span></div>
+    <div class="grp">Hook</div>
+    <div class="it"><i class="h4"></i>use-media-query<span class="sub">@fe-monorepo/hook</span></div>
+    <div class="foot"><span><kbd>↑</kbd><kbd>↓</kbd> di chuyển</span><span><kbd>↵</kbd> mở</span><span><kbd>esc</kbd> đóng</span></div>
+  </div>
+</div>
+</figure>
+
+<!-- ═══════════ Frame 3: detail ═══════════ -->
+<figure class="frame">
+<figcaption><b>/components/dialog</b> — không sidebar: thanh công cụ kính (đường dẫn + trước/sau theo bảng chữ cái), hero có swatch riêng, hai panel Import / Export, action bên phải</figcaption>
+<div class="sky"><div class="blob b2" style="opacity:.4;right:-160px"></div><div class="blob b3" style="opacity:.3;left:-100px;top:200px"></div><div class="shape tri" style="right:10%;top:360px;opacity:.55"></div><div class="shape stripe" style="left:4%;top:140px"></div><div class="fade" style="height:70%"></div></div>
+<div class="navwrap"><nav class="pill g">
+  <span class="brand"><i></i>@fe-monorepo</span>
+  <a>Bắt đầu</a><a class="on">Component</a><a>Hook</a>
+  <span class="search">🔍 Tìm component, hook… <kbd>⌘K</kbd></span>
+  <span class="ic">vi</span><span class="ic">npm</span><span class="ic">SB</span>
+</nav></div>
+<main>
+  <div class="tool g"><span class="crumb">Component / <b>dialog</b></span><span class="pn"><span>← date-picker</span><span>direction →</span></span></div>
+  <div class="dhero g deep">
+    <div class="sw h3"></div>
+    <div><h1>dialog</h1><div class="meta"><b>@fe-monorepo/ui</b>/components/dialog · 10 export</div></div>
+    <div class="acts"><a class="btn p">Mở trên Storybook ↗</a><a class="btn s">npm ↗</a></div>
+  </div>
+  <div class="two">
+    <section class="panel g">
+      <div class="head"><div class="k">IMPORT</div></div>
+<div class="code"><span class="k">import</span> {
+  Dialog, DialogClose, DialogContent, DialogDescription,
+  DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
+} <span class="k">from</span> <span class="s">"@fe-monorepo/ui/components/dialog"</span>;<span class="cp">⧉</span></div>
+    </section>
+    <section class="panel g">
+      <div class="head"><div class="k">EXPORT · 10</div></div>
+      <div class="exp"><span>Dialog</span><span>DialogClose</span><span>DialogContent</span><span>DialogDescription</span><span>DialogFooter</span><span>DialogHeader</span><span>DialogMedia</span><span>DialogOverlay</span><span>DialogTitle</span><span>DialogTrigger</span></div>
+    </section>
+  </div>
+</main>
+</figure>
+
+</body>
+</html>
