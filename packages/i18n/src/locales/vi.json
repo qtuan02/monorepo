@@ -111,7 +111,12 @@
       "description": "Frontend Developer 2+ năm kinh nghiệm với React.js và Next.js, đã ship app Expo/React Native và backend .NET, quen monorepo, CI và design system chung."
     },
     "hero": {
-      "greeting": "Xin chào, mình là Tuấn",
+      "commands": {
+        "whoami": "whoami",
+        "role": "cat role.txt",
+        "current": "current --job"
+      },
+      "name": "Huỳnh Quốc Tuấn",
       "positioning": "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
       "current": "Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.",
       "actions": {
