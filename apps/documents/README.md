@@ -18,6 +18,7 @@ bun run --filter @monorepo/documents dev       # http://localhost:3003
 | --- | --- | --- |
 | Port | `ports.env` | Dev **3003**, E2E **3103** — khai đúng một chỗ; `vite.config.ts` đọc cả hai qua `ports.ts` (`server.port` / `preview.port`, `strictPort` cả hai), `playwright.config.ts` đọc `E2E_PORT`. |
 | Env | `src/env.ts` | Flavor `vite` của `@monorepo/env`; `.env` **ở root repo**, tới qua `envDir: "../../"` + `envPrefix: "PUBLIC_"` (**không** `VITE_`). |
+| Palette · font · theme | `src/globals.css` | Override **toàn bộ** palette dùng chung ở tầng app (ADR-0009), hai webfont qua `@fontsource-variable`, dark mode "indigo night" — xem mục Font & palette. |
 | Router | `src/pages/main.tsx` | `react-router` 8 declarative; mọi path lấy từ `~/constants/routes.ts`. |
 | Guard | *(không có)* | Site public: `ProtectedRoute` / `GuestRoute`, slice `auth`, `use-auth-store` và cả `~/libs/http-client` của Template đã bị **xoá** thay vì để không dùng. Catch-all 404 giữ nguyên. |
 | Metadata | `scripts/generate-docs-metadata.ts` | Xem mục dưới — đây là thứ thay `src/constants/*.json` viết tay của bản cũ. |
@@ -39,6 +40,49 @@ có nút demo dẫn đi đâu không rõ. Schema nằm ngay trong `src/env.ts` c
 `createEnv`, nên Dockerfile (import chính module đó để validate) và app đọc cùng
 một schema — không có gì để lệch nhau. `test/env.test.ts` đối chiếu `.env.example`
 đã commit với chính schema này.
+
+## Font & palette
+
+App này là app **thứ hai** override palette dùng chung sau `portfolio`, và là app
+đầu tiên override **cả accent lẫn neutral**: site tài liệu cho hai gói npm public
+không mặc palette của một sản phẩm EMR nội bộ. Lý do và các lựa chọn đã cân nhắc
+ở [ADR-0009](../../docs/adr/0009-documents-prism-palette-override.md); giá trị
+từ `colors#17` của skill design, chốt ở
+[`docs/design/documents-redesign.md`](../../docs/design/documents-redesign.md)
+§10 hàng 1, 3, 4, 16, 17.
+
+**Khối override** nằm trong `src/globals.css`, **unlayered** (ngoài mọi
+`@layer`) — `theme.css` tới qua `@import` trần nên khai báo của nó cũng
+unlayered, và một khai báo unlayered thắng mọi `@layer` bất kể thứ tự; viết
+trong `@layer base` thì compile xong vẫn thua, không log gì. Hai khối `:root`
+/ `.dark` cùng bộ 19 token: `background` `foreground` `card` `popover`
+`primary` `secondary` `muted` `accent` (+ `-foreground` mỗi cái), `border`
+`input` `ring`, `selection` (+ `-foreground`), và `--radius: 1.125rem` (có
+đơn vị). Status, chart, sidebar, surface/code token **giữ của theme**. Dark là
+*indigo night* cùng hue — nền `#0B0A1F`, chữ `#E0E7FF`, primary nâng
+`#818CF8` — không phải xám của theme và không phải light đảo cực.
+
+**Font** — ba dòng trong `@layer base :root`: `--font-sans` system stack (prose),
+`--font-heading` Outfit (tiêu đề, class `font-heading`), `--font-mono`
+JetBrains Mono (mọi slug, subpath, export, dòng lệnh — `font-mono`). Hai
+dependency `@fontsource-variable/outfit` và `@fontsource-variable/jetbrains-mono`
+nằm trong `catalog:` mặc định của root, import từ `globals.css`: font nằm trong
+`node_modules`, Vite hash `.woff2` như mọi asset, nên `bun run build` **không ra
+mạng**. Outfit chỉ có subset latin/latin-ext — dấu tiếng Việt trong tiêu đề rơi
+về system sans; JetBrains Mono có subset `vietnamese`.
+
+**Theme** — `~/features/layout/provider/theme-provider.tsx` port từ
+`apps/portfolio`: context + `useEffect` + một key `localStorage` (`theme`) +
+class `.dark` trên `<html>`; không `next-themes`, không store. Lần đầu theo
+`prefers-color-scheme`, bấm toggle thì nhớ. Một inline script trong `index.html`
+gắn class **trước** khi bundle tải để người đọc dark không thấy nền sáng nháy.
+
+**Hợp đồng token là test**: `test/globals.test.ts` đọc `globals.css` như text và
+ghim bộ token, vị trí unlayered, radius, ba dòng font, hai import fontsource, và
+contrast từng cặp chữ/nền ≥ 4.5:1 (ring ≥ 3:1) ở **cả hai theme** — đo trên nền
+kính hiệu dụng (panel 58% trắng / 60% tối hợp lên vùng aurora tệ nhất), không
+trên nền phẳng. Viền `#C7D2FE` cố ý là cạnh mềm (≈1.3–1.5:1), không phải vạch
+3:1. `test/support/contrast.ts` copy từ portfolio — app không import chéo app.
 
 ## Nạp metadata
 

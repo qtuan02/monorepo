@@ -22,6 +22,8 @@
     "e2e:headed": "playwright test --project=watch --headed --workers=1"
   },
   "dependencies": {
+    "@fontsource-variable/jetbrains-mono": "catalog:",
+    "@fontsource-variable/outfit": "catalog:",
     "@monorepo/dayjs": "workspace:*",
     "@monorepo/env": "workspace:*",
     "@monorepo/hook": "workspace:*",

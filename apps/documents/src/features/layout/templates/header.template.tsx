@@ -6,6 +6,7 @@ import { TooltipProvider } from "@monorepo/ui/components/tooltip";
 import { SelectLanguage } from "~/components/select/select-language";
 import HeaderBrand from "../components/header/header-brand";
 import HeaderExternalLinks from "../components/header/header-external-links";
+import ThemeToggleButton from "../components/header/theme-toggle-button";
 
 export default function HeaderTemplate() {
   const { t } = useTranslation();
@@ -34,6 +35,10 @@ export default function HeaderTemplate() {
               compact
               triggerClassName="text-primary-foreground hover:bg-primary-foreground/15 focus-visible:ring-primary-foreground/50 size-9 justify-center rounded-md border-0 bg-transparent px-0 shadow-none"
             />
+
+            {/* Parked here until the nav pill lands (#132); the bar is still
+                the Template's primary band, so it wears the bar's ghost styling. */}
+            <ThemeToggleButton className="text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground" />
 
             <span
               aria-hidden="true"

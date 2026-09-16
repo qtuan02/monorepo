@@ -35,6 +35,7 @@ export default function HookDetailTemplate() {
     <>
       <PageHeader
         title={entry.slug}
+        mono
         // The sentence comes from the shared catalogue rather than the
         // generator: a hook's source carries no JSDoc today, and the published
         // README already writes one line for each of the five.

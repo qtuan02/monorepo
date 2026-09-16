@@ -40,6 +40,7 @@ export default function ComponentDetailTemplate() {
     <>
       <PageHeader
         title={entry.slug}
+        mono
         description={entry.description ?? undefined}
         meta={
           <Badge variant="outline" className="font-mono">

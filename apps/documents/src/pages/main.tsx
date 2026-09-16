@@ -5,6 +5,7 @@ import { Toaster } from "@monorepo/ui/components/toast";
 
 import InternalServerError from "~/components/exception/internal-server-error";
 import { ROUTES } from "~/constants/routes";
+import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
 import ComponentDetailPage from "./component-detail-page";
 import ComponentsPage from "./components-page";
@@ -27,34 +28,37 @@ import "~/libs/dayjs";
  * `packages/hook`.
  */
 const MainApp = () => (
-  <ErrorBoundary
-    fallback={<InternalServerError />}
-    // Logged rather than swallowed: the fallback tells the user something
-    // broke, this is what tells a developer what did.
-    onError={(error, info) => {
-      console.error("Uncaught render error:", error, info.componentStack);
-    }}
-  >
-    <Toaster />
-    <BrowserRouter>
-      <Routes>
-        <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
-          <Route index element={<HomePage />} />
-          <Route path={ROUTES.COMPONENTS} element={<ComponentsPage />} />
-          <Route
-            path={ROUTES.COMPONENT_BY_SLUG}
-            element={<ComponentDetailPage />}
-          />
-          <Route path={ROUTES.HOOKS} element={<HooksPage />} />
-          <Route path={ROUTES.HOOK_BY_SLUG} element={<HookDetailPage />} />
+  // Outermost, so the error fallback keeps the reader's theme too.
+  <ThemeProvider>
+    <ErrorBoundary
+      fallback={<InternalServerError />}
+      // Logged rather than swallowed: the fallback tells the user something
+      // broke, this is what tells a developer what did.
+      onError={(error, info) => {
+        console.error("Uncaught render error:", error, info.componentStack);
+      }}
+    >
+      <Toaster />
+      <BrowserRouter>
+        <Routes>
+          <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
+            <Route index element={<HomePage />} />
+            <Route path={ROUTES.COMPONENTS} element={<ComponentsPage />} />
+            <Route
+              path={ROUTES.COMPONENT_BY_SLUG}
+              element={<ComponentDetailPage />}
+            />
+            <Route path={ROUTES.HOOKS} element={<HooksPage />} />
+            <Route path={ROUTES.HOOK_BY_SLUG} element={<HookDetailPage />} />
 
-          {/* Inside the shell on purpose: a mistyped URL should still show the
+            {/* Inside the shell on purpose: a mistyped URL should still show the
               navigation that gets the reader back to a real page. */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </ErrorBoundary>
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
+  </ThemeProvider>
 );
 
 export default MainApp;

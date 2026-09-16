@@ -291,7 +291,11 @@
       "toggleSidebar": "Ẩn hiện thanh điều hướng",
       "openMenu": "Mở menu",
       "npm": "Xem trên npm",
-      "storybook": "Mở Storybook"
+      "storybook": "Mở Storybook",
+      "theme": {
+        "toLight": "Chuyển sang giao diện sáng",
+        "toDark": "Chuyển sang giao diện tối"
+      }
     },
     "search": {
       "label": "Lọc danh sách",

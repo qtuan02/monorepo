@@ -1,5 +1,15 @@
+import { SearchX } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
+
+import { buttonVariants } from "@monorepo/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+} from "@monorepo/ui/components/empty";
 
 import { ROUTES } from "~/constants/routes";
 
@@ -9,41 +19,33 @@ interface NotFoundProps {
   message?: string;
 }
 
+/**
+ * The 404 screen, on the `Empty` primitive so it paints with the app's tokens
+ * in both themes — the Template's version drew its own greys and a white pill,
+ * which read the same in the dark theme. The way out is a `Link` styled with
+ * `buttonVariants`, not wrapped in `Button` (see architecture-ui-primitives).
+ */
 export default function NotFound({ title, message }: NotFoundProps = {}) {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-sm max-md:px-4">
-      <h1 className="bg-linear-to-r from-gray-500 to-gray-800 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-        {title ?? t("notFound.title")}
-      </h1>
-      <div className="my-5 h-px w-80 rounded bg-linear-to-r from-gray-400 to-gray-800 md:my-7"></div>
-      <p className="max-w-lg text-center text-gray-400 md:text-xl">
-        {message ?? t("notFound.message")}
-      </p>
-      <Link
-        to={ROUTES.HOME}
-        className="group mt-10 flex items-center gap-1 rounded-full bg-white px-7 py-2.5 font-medium text-gray-800 transition-all hover:bg-gray-200 active:scale-95"
-      >
-        {t("notFound.backToHome")}
-        <svg
-          aria-hidden="true"
-          className="transition group-hover:translate-x-0.5"
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M4.583 11h12.833m0 0L11 4.584M17.416 11 11 17.417"
-            stroke="#1E1E1E"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </Link>
-    </div>
+    <Empty className="py-20">
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <SearchX />
+        </EmptyMedia>
+        <h1 className="font-heading text-3xl font-semibold tracking-tight">
+          {title ?? t("notFound.title")}
+        </h1>
+        <EmptyDescription className="text-base">
+          {message ?? t("notFound.message")}
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Link to={ROUTES.HOME} className={buttonVariants()}>
+          {t("notFound.backToHome")}
+        </Link>
+      </EmptyContent>
+    </Empty>
   );
 }

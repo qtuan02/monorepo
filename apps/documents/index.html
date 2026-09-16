@@ -5,6 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.png" />
     <title>Tài liệu @fe-monorepo</title>
+    <!-- Stamps the theme before the bundle loads, so a dark reader never sees
+         the light ground flash. Same key and same order as
+         src/features/layout/provider/theme-provider.tsx. -->
+    <script>
+      (() => {
+        let theme = null;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch {
+          // Storage blocked: fall through to the system preference.
+        }
+        if (theme !== "dark" && theme !== "light") {
+          theme = matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        }
+        document.documentElement.classList.toggle("dark", theme === "dark");
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root">

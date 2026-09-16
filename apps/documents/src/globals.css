@@ -1,7 +1,146 @@
 @import "@monorepo/tailwind-config/globals";
 
 /**
+ * The two webfonts this site draws with, bundled rather than fetched: each
+ * package ships its `@font-face` rules and `.woff2` files, and Vite hashes the
+ * files it references, so `bun run build` reaches no font CDN (see
+ * .agents/rules/quality-imports.md § Static assets — a font is an asset too).
+ * Outfit ships latin + latin-ext only, so a Vietnamese diacritic in a heading
+ * falls through to the system sans below; JetBrains Mono carries the
+ * `vietnamese` subset itself.
+ */
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/jetbrains-mono";
+
+/**
  * Tailwind v4: scan classes from workspace UI package.
  * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
  */
 @source "../../../packages/ui";
+
+/**
+ * `theme.css` maps every `font-*` utility onto a variable the **app** owns
+ * (`@theme inline { --font-mono: var(--font-mono) }`), so an app that defines
+ * none renders `font-mono` as nothing at all — which is how every slug on this
+ * site was falling back to the sans. Display type is Outfit, code is JetBrains
+ * Mono, prose stays the system stack.
+ */
+@layer base {
+  :root {
+    --font-sans:
+      ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+      sans-serif;
+    --font-heading: "Outfit Variable", var(--font-sans);
+    --font-mono:
+      "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Consolas,
+      monospace;
+  }
+
+  /**
+   * `theme.css` declares `--selection` / `--selection-foreground` but nothing
+   * in the workspace globals applies them, so every browser paints its own
+   * highlight and the two tokens overridden below would change nothing.
+   */
+  ::selection {
+    background-color: var(--selection);
+    color: var(--selection-foreground);
+  }
+}
+
+/**
+ * The Prism palette — ADR-0009, `docs/design/documents-redesign.md` §2c and
+ * §10 rows 1 and 16. A docs site for two public npm packages does not wear the
+ * shared theme's neutral EMR palette, so this app overrides every accent and
+ * neutral token at the app layer: `colors#17` of the design skill for light
+ * ("Indigo brand + doc hierarchy"), and an *indigo night* on the same hue for
+ * dark — not the theme's grey, and not the light theme inverted. Status
+ * colours, the charts and the sidebar stay the theme's.
+ *
+ * Unlayered on purpose. `@monorepo/tailwind-config/globals` pulls `theme.css`
+ * in with a plain `@import`, so its `:root` / `.dark` declarations sit outside
+ * every layer, and an unlayered declaration beats one in any `@layer` whatever
+ * the source order. Written inside `@layer base` these would compile, ship and
+ * lose. `test/globals.test.ts` pins the token set, the placement, the radius
+ * and every contrast ratio — measured on the *effective glass* a panel gives
+ * over the worst patch of aurora, not on the flat background.
+ */
+:root {
+  /* 18px: the panel radius of the direction. `theme.css` derives every
+     `rounded-*` size from this one line. With a unit — a bare number would
+     turn each `calc(var(--radius) * n)` into a <number> `border-radius`
+     rejects. */
+  --radius: 1.125rem;
+
+  /* #EEF2FF — the indigo-tinted ground the aurora fades into */
+  --background: oklch(0.9619 0.0179 272.31);
+  /* #312E81 — indigo-900 as ink: 10.22:1 on the ground, 7.64:1 on a glass
+     panel over the pink blob, the worst patch */
+  --foreground: oklch(0.3588 0.1354 278.7);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.3588 0.1354 278.7);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.3588 0.1354 278.7);
+
+  /* #4F46E5 — indigo-600; white reads 6.29:1 on it */
+  --primary: oklch(0.5106 0.2301 276.97);
+  --primary-foreground: oklch(1 0 0);
+  /* indigo-500 #6366F1, one step of lightness down (0.5854 → 0.575) so white
+     clears AA on it — 4.47:1 at the CSV's own value, 4.66:1 (#6063ED) here */
+  --secondary: oklch(0.575 0.2041 277.12);
+  --secondary-foreground: oklch(1 0 0);
+  /* #EBEEF8 / #475569 — 6.54:1, and 5.07:1 on the pink glass */
+  --muted: oklch(0.9497 0.0138 272.69);
+  --muted-foreground: oklch(0.4455 0.0374 257.28);
+  /* #EA580C — the orange accent. `colors#17` puts black on it: white reads
+     3.56:1, the near-black night ground below reads 5.4:1 */
+  --accent: oklch(0.6461 0.1943 41.12);
+  --accent-foreground: oklch(0.1602 0.0432 282.51);
+
+  /* #C7D2FE — indigo-200, the soft edge of a glass panel: 1.33:1 on the
+     ground, 1.49:1 on a card. A 3:1 edge would be a mid-indigo line around
+     every card and input, which is not this direction — the focus ring is
+     what clears 3:1 (5.62:1). */
+  --border: oklch(0.8699 0.0622 274.04);
+  --input: oklch(0.8699 0.0622 274.04);
+  --ring: oklch(0.5106 0.2301 276.97);
+
+  --selection: oklch(0.5106 0.2301 276.97);
+  --selection-foreground: oklch(1 0 0);
+}
+
+.dark {
+  /* #0B0A1F — the night ground */
+  --background: oklch(0.1602 0.0432 282.51);
+  /* #E0E7FF — indigo-100 as ink: 15.82:1 on the ground, 8.58:1 on a 60%
+     glass panel over the violet blob */
+  --foreground: oklch(0.9299 0.0334 272.79);
+  /* #15142E — the dark glass, opaque; the panel is this at 60% */
+  --card: oklch(0.2082 0.0504 282.83);
+  --card-foreground: oklch(0.9299 0.0334 272.79);
+  --popover: oklch(0.2082 0.0504 282.83);
+  --popover-foreground: oklch(0.9299 0.0334 272.79);
+
+  /* #818CF8 — indigo-400, lifted for the dark ground; the ground reads
+     6.53:1 on it as text, and it reads 6.53:1 on the ground as a ring */
+  --primary: oklch(0.6801 0.1583 276.93);
+  --primary-foreground: oklch(0.1602 0.0432 282.51);
+  /* #312E81 — the light theme's ink, here a fill; the dark ink reads 9.27:1 */
+  --secondary: oklch(0.3588 0.1354 278.7);
+  --secondary-foreground: oklch(0.9299 0.0334 272.79);
+  /* #1E1D3F / #A5B4FC (indigo-300) — 8.09:1, and 5.3:1 on the violet glass */
+  --muted: oklch(0.2518 0.0628 282.23);
+  --muted-foreground: oklch(0.7853 0.1041 274.71);
+  /* #F97316 — orange-500, lifted like the primary; the ground reads 6.95:1 */
+  --accent: oklch(0.7049 0.1867 47.6);
+  --accent-foreground: oklch(0.1602 0.0432 282.51);
+
+  /* #2D2E47 — the brief's `rgba(199,210,254,.18)` composited onto the ground
+     once, and declared opaque, so the contrast maths in the test reads the
+     colour a reader sees rather than the white under the alpha */
+  --border: oklch(0.3121 0.0446 281.72);
+  --input: oklch(0.3121 0.0446 281.72);
+  --ring: oklch(0.6801 0.1583 276.93);
+
+  --selection: oklch(0.6801 0.1583 276.93);
+  --selection-foreground: oklch(0.1602 0.0432 282.51);
+}

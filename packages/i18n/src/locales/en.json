@@ -291,7 +291,11 @@
       "toggleSidebar": "Toggle the navigation sidebar",
       "openMenu": "Open menu",
       "npm": "View on npm",
-      "storybook": "Open Storybook"
+      "storybook": "Open Storybook",
+      "theme": {
+        "toLight": "Switch to the light theme",
+        "toDark": "Switch to the dark theme"
+      }
     },
     "search": {
       "label": "Filter the list",
