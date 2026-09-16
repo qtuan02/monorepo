@@ -111,7 +111,12 @@
       "description": "Frontend developer with 2+ years of React.js and Next.js, shipping Expo/React Native apps and .NET backends, at home in monorepos, CI and design systems."
     },
     "hero": {
-      "greeting": "Hi, I am Tuan",
+      "commands": {
+        "whoami": "whoami",
+        "role": "cat role.txt",
+        "current": "current --job"
+      },
+      "name": "Huynh Quoc Tuan",
       "positioning": "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
       "current": "Currently building EMR/HIS products at MedViet — web and mobile for hospitals.",
       "actions": {

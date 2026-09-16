@@ -177,3 +177,154 @@ test.describe("the radius", () => {
     }
   });
 });
+
+/**
+ * A CSS colour as the 8-bit sRGB it paints to — the same canvas trick as
+ * `paintedTokens`, for a computed value off an element rather than a token.
+ * A computed `background-color` declared in OKLCH comes back as `lab(…)` or
+ * `oklch(…)`, never as the `rgb(…)` a string comparison would want.
+ */
+async function paintedColour(page: Page, colour: string) {
+  return page.evaluate((value) => {
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    if (!context) throw new Error("No 2d context");
+
+    context.fillStyle = value;
+    context.fillRect(0, 0, 1, 1);
+
+    const [r = 0, g = 0, b = 0] = context.getImageData(0, 0, 1, 1).data;
+
+    return { r, g, b };
+  }, colour);
+}
+
+test.describe("the hero", () => {
+  /**
+   * The yellow has two roles on the page, and the email action is one of them.
+   * `bg-highlight` is a utility this app names itself (`@theme inline` in
+   * `src/globals.css`), so whether it paints at all is a cascade question no
+   * jsdom test can answer — and whether the ring drawn on it can be seen is a
+   * second one. In the dark theme no yellow clears 3:1 against the lifted
+   * indigo `--ring`, which is why the control draws its ring in the pair's own
+   * text colour instead (`test/globals.test.ts` pins the ratio). The ring is
+   * reached by keyboard, since `:focus-visible` does not follow a scripted
+   * `focus()` onto a link.
+   */
+  for (const theme of ["light", "dark"] as const) {
+    test(`fills the email action with the highlight and draws its focus ring in the ink, in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      const email = page.locator("#hero").getByRole("link", { name: "Email" });
+
+      await expect(email).toBeVisible();
+
+      const { backgroundColor, color } = await email.evaluate((node) => {
+        const styles = getComputedStyle(node);
+
+        return { backgroundColor: styles.backgroundColor, color: styles.color };
+      });
+
+      expect(
+        rgbDistance(
+          await paintedColour(page, backgroundColor),
+          hexToRgb(PALETTE[theme]["--highlight"]),
+        ),
+        `fill is ${backgroundColor}`,
+      ).toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(
+          await paintedColour(page, color),
+          hexToRgb(PALETTE[theme]["--highlight-foreground"]),
+        ),
+        `text is ${color}`,
+      ).toBeLessThan(SAME_COLOUR);
+
+      // Tab onto it from its neighbour, so the browser treats the focus as
+      // keyboard-driven and `:focus-visible` applies.
+      await email.focus();
+      await page.keyboard.press("Shift+Tab");
+      await page.keyboard.press("Tab");
+      await expect(email).toBeFocused();
+
+      const boxShadow = await email.evaluate(
+        (node) => getComputedStyle(node).boxShadow,
+      );
+
+      // The computed value is Tailwind's whole shadow stack — the outline
+      // variant's `shadow-xs`, the empty inset/ring slots — with the ring as
+      // the one `inset` entry, serialised colour-first: `<colour> 0px 0px 0px
+      // 2px inset`. The primitive's own ring would be `--ring` at 50%; this
+      // one is the opaque ink of `--highlight-foreground`.
+      const ring = boxShadow
+        .split(/,\s*(?=[a-z]+\()/)
+        .find((shadow) => shadow.includes("inset"));
+      const ringColour = ring?.match(/^(.+?\))\s/)?.[1];
+
+      expect(ring, boxShadow).toBeTruthy();
+      expect(ringColour, boxShadow).toBeTruthy();
+      expect(
+        rgbDistance(
+          await paintedColour(page, ringColour ?? ""),
+          hexToRgb(PALETTE[theme]["--highlight-foreground"]),
+        ),
+        `ring is ${boxShadow}`,
+      ).toBeLessThan(SAME_COLOUR);
+    });
+  }
+
+  test("cuts the portrait square", async ({ page }) => {
+    await openHomeIn(page, "light");
+
+    // `Avatar` rounds by class rather than by `--radius`, so the app's
+    // `--radius: 0px` does nothing for it; the hero squares it by className
+    // on the root and the image both, and only a browser can say it took.
+    const avatar = page.locator('#hero [data-slot="avatar"]');
+
+    await expect(avatar).toBeAttached();
+    await expect(avatar).toHaveCSS("border-radius", "0px");
+    await expect(avatar).toHaveCSS("border-top-width", "2px");
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`draws the window as a 2px box with a solid offset shadow, in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      // The block itself: the 2px border and the 4px offset shadow that the
+      // rest of the page will inherit. `shadow-[4px_4px_0_0]` names no colour
+      // and `shadow-hard-shadow` supplies one through `--tw-shadow-color` —
+      // two utilities that only meet in the cascade, so whether the shadow is
+      // painted in `--hard-shadow` at all (and flips with the theme) is a
+      // question only a browser answers. The title bar is the one element
+      // with that `data-slot`, and the window is its parent.
+      const window = page
+        .locator('#hero [data-slot="terminal-title-bar"]')
+        .locator("..");
+
+      await expect(window).toHaveCSS("border-top-width", "2px");
+      await expect(window).toHaveCSS("border-radius", "0px");
+
+      const boxShadow = await window.evaluate(
+        (node) => getComputedStyle(node).boxShadow,
+      );
+      const hard = boxShadow
+        .split(/,\s*(?=[a-z]+\()/)
+        .find((shadow) => / 4px 4px 0px 0px$/.test(shadow));
+      const hardColour = hard?.match(/^(.+?\))\s/)?.[1];
+
+      expect(hard, boxShadow).toBeTruthy();
+      expect(
+        rgbDistance(
+          await paintedColour(page, hardColour ?? ""),
+          hexToRgb(PALETTE[theme]["--hard-shadow"]),
+        ),
+        `shadow is ${boxShadow}`,
+      ).toBeLessThan(SAME_COLOUR);
+    });
+  }
+});

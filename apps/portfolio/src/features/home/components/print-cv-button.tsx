@@ -4,6 +4,11 @@ import { PrinterIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@monorepo/ui/components/button";
+import { cn } from "@monorepo/ui/utils/cn";
+
+interface PrintCvButtonProps {
+  className?: string;
+}
 
 /**
  * The hero's fourth quick action, and the only one that is not a link.
@@ -16,16 +21,18 @@ import { Button } from "@monorepo/ui/components/button";
  * `buttonVariants` is right on the three links beside it.
  *
  * It is the one client island in the hero that exists for its handler; the
- * rest of the section renders on the server.
+ * rest of the section renders on the server. `className` is the hero's, so
+ * the four actions dress alike from one place; `print:hidden` is this
+ * button's own, since a print button on paper is a joke nobody asked for.
  */
-export default function PrintCvButton() {
+export default function PrintCvButton({ className }: PrintCvButtonProps) {
   const t = useTranslations();
 
   return (
     <Button
       variant="outline"
       size="sm"
-      className="print:hidden"
+      className={cn("print:hidden", className)}
       onClick={() => window.print()}
     >
       <PrinterIcon aria-hidden="true" className="size-4" />

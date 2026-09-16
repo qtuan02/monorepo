@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { languages, messages } from "@monorepo/i18n/languages";
+import { defaultLanguage, languages, messages } from "@monorepo/i18n/languages";
 
 import {
   CONTACT_ITEMS,
@@ -156,6 +156,29 @@ describe("the portfolio message namespace", () => {
 
       expect(value, `${locale}: ${key}`).toBeTypeOf("string");
       expect(String(value).trim(), `${locale}: ${key}`).not.toBe("");
+    }
+  });
+
+  it("spells the hero's command lines identically in every language", () => {
+    // The commands are code, not copy: `whoami` is the same word in every
+    // shell. A translator who "helped" by rendering one of them would put the
+    // two locales out of structural step — and nothing in the type of the
+    // catalogue can see that, since a translated command is still a string.
+    // Only the prose after each command is the translator's.
+    const commands = leafKeys(messages.vi.portfolio.hero.commands, [
+      "portfolio",
+      "hero",
+      "commands",
+    ]);
+
+    expect(commands.length).toBeGreaterThanOrEqual(3);
+
+    for (const locale of languages) {
+      for (const key of commands) {
+        expect(readMessage(locale, key), `${locale}: ${key}`).toBe(
+          readMessage(defaultLanguage, key),
+        );
+      }
     }
   });
 

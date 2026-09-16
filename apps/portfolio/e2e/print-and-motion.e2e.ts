@@ -97,21 +97,24 @@ test.describe("print", () => {
 });
 
 test.describe("prefers-reduced-motion", () => {
-  test("switches the waving hand off", async ({ browser }) => {
+  test("has nothing left to switch off at rest", async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
 
     await page.goto(ROUTES.HOME);
+    await expect(page.locator("#work")).toBeVisible();
 
-    // The sections arrive at rest for every reader now, so there is no opacity
-    // to assert on. What the preference still has to switch off is the motion
-    // CSS owns — the wave, and the theme wipe; the wave is the one a computed
-    // style can see without driving a view transition.
-    const waveAnimation = await page
-      .getByText("👋")
-      .evaluate((element) => getComputedStyle(element).animationName);
+    // The sections arrive at rest and the hero no longer waves, so under the
+    // preference — and, since v2, without it — nothing on the page is
+    // animating once it has loaded. The one animation the preference still
+    // switches off is the theme wipe, which only exists inside a view
+    // transition and so has no computed style to read here; what this pins is
+    // that no new entrance animation has crept back in.
+    const running = await page.evaluate(() =>
+      document.getAnimations().map((animation) => animation.id || "animation"),
+    );
 
-    expect(waveAnimation).toBe("none");
+    expect(running).toEqual([]);
 
     await context.close();
   });
