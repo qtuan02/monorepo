@@ -15,8 +15,10 @@ import { isExternalPage } from "~/features/home/utils/is-external-page";
 /**
  * The opening block: the greeting, one line of positioning, and the portrait.
  *
- * A Server Component. The only child that needs the browser is the print
- * button; everything a reader sees is in the first HTML.
+ * A Server Component. Two children need the browser — the print button, and
+ * `Avatar`, which is a client primitive that mounts its `<img>` after its own
+ * load check (see the comment on it below); every word a reader sees is in the
+ * first HTML.
  */
 export default function HeroSection() {
   const t = useTranslations();

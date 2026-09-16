@@ -15,7 +15,8 @@ import WorkSection from "~/features/home/components/work-section";
  * down (see `~/features/home/constants/resume.ts` for why it is not a
  * `"use cache"` read). Every section renders on the server and arrives at
  * rest — there is no entrance animation, so nothing here is staggered; the only
- * client islands left are the expandable work rows and the print button.
+ * client islands left are the expandable work rows, the print button and the
+ * hero's `Avatar`.
  */
 export default function HomeTemplate() {
   return (

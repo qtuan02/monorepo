@@ -164,10 +164,13 @@
  * that merely *transitions* — the chevron, a hover colour — is flattened along
  * with them.
  */
-/* biome-ignore-start lint/complexity/noImportantStyles: the print rules
-   further down override inline styles written by `motion` at runtime, and an
-   inline style is only beaten by `!important`; the two rules in this block
-   take the same form so the whole region reads as one set of overrides. */
+/* biome-ignore-start lint/complexity/noImportantStyles: two different reasons,
+   one region. Here, the wipe's `to-light` variant is selected on
+   `:root[data-theme-transition]` and would out-specify a bare
+   `::view-transition-new(root)`, so the switch-off needs `!important` to beat
+   it; the bounce rule takes the same form so the block reads as one set. In
+   the print block further down, the override is against an inline style
+   written by `motion` at runtime, which only `!important` beats. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
