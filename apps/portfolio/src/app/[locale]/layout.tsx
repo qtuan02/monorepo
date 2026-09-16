@@ -84,9 +84,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * matcher excludes any path containing a dot, so `/foo.bar` skips locale
  * negotiation and arrives here with `foo.bar` as the segment.
  *
- * `suppressHydrationWarning` is load-bearing, not decoration: `next-themes`
- * writes the theme class onto `<html>` before React hydrates, so the server's
- * markup and the client's first read differ by design.
+ * `suppressHydrationWarning` is load-bearing, not decoration: the theme
+ * provider's init script writes the theme class onto `<html>` before React
+ * hydrates, so the server's markup and the client's first read differ by design.
  */
 export default async function LocaleLayout({
   children,

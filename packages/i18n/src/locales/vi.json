@@ -195,8 +195,8 @@
         "chat-socket": {
           "description": "Ứng dụng chat thời gian thực full-stack: React 19 + Rsbuild ở client, Spring Boot ở server, nhắn tin qua STOMP trên WebSocket."
         },
-        "smart-rental": {
-          "description": "Cổng quản lý nhà trọ: dashboard KPI, sơ đồ phòng theo tầng, vòng đời hợp đồng và hoá đơn hàng loạt kèm QR thanh toán."
+        "documents": {
+          "description": "Site tài liệu cho hai gói npm @fe-monorepo/ui và @fe-monorepo/hook: nội dung sinh tự động từ mã nguồn bằng oxc-parser, mỗi primitive có link sang Storybook."
         }
       }
     },

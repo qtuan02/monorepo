@@ -146,21 +146,15 @@ export const PROJECT_ITEMS: readonly ProjectItem[] = [
     demo: "https://chat-socket-fe.vercel.app",
   },
   {
-    id: "smart-rental",
-    name: "SmartRental",
-    techStack: [
-      "React",
-      "Rsbuild",
-      "React Router",
-      "TanStack Query",
-      "Storybook",
-      "Spring Boot",
-    ],
+    id: "documents",
+    name: "@fe-monorepo Docs",
+    techStack: ["Vite", "React Router", "oxc-parser", "Storybook", "Vercel"],
     source: [
-      { id: "frontend", href: "https://github.com/qtuan02/fe-motel-rsbuild" },
-      { id: "backend", href: "https://github.com/qtuan02/be-motel" },
+      {
+        id: "repo",
+        href: "https://github.com/qtuan02/monorepo/tree/main/apps/documents",
+      },
     ],
-    demo: "https://motel-management-portal.vercel.app",
   },
 ];
 

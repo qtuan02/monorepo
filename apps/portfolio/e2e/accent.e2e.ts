@@ -111,7 +111,7 @@ async function openHomeIn(page: Page, theme: "light" | "dark") {
   }, theme);
   await page.goto(ROUTES.HOME);
 
-  // The page is up, and next-themes has stamped its class on <html>
+  // The page is up, and the theme script has stamped its class on <html>
   // (`attribute="class"`, which is what the `dark:` variant keys off).
   await expect(page.locator("#work")).toBeVisible();
   await expect(page.locator("html")).toHaveClass(new RegExp(`\\b${theme}\\b`));

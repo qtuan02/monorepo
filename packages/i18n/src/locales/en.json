@@ -195,8 +195,8 @@
         "chat-socket": {
           "description": "A full-stack real-time chat app: React 19 + Rsbuild on the client, Spring Boot on the server, messaging over STOMP on WebSocket."
         },
-        "smart-rental": {
-          "description": "A rental-management portal: KPI dashboard, floor-grid room map, contract lifecycle and batch invoicing with QR payment."
+        "documents": {
+          "description": "The docs site for the two npm packages @fe-monorepo/ui and @fe-monorepo/hook: content generated from the source with oxc-parser, every primitive linking to its Storybook story."
         }
       }
     },

@@ -29,9 +29,9 @@ vi.mock("~/i18n/navigation", () => ({
   ),
 }));
 
-// `next-themes` is the one external system in the dock; the button's own
+// The theme provider is the one external system in the dock; the button's own
 // decisions are covered in `components/theme-toggle-button.test.tsx`.
-vi.mock("next-themes", () => ({
+vi.mock("~/features/layout/provider/theme-provider", () => ({
   useTheme: () => ({ resolvedTheme: "light", setTheme: vi.fn() }),
 }));
 

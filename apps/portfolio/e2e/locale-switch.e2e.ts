@@ -62,4 +62,21 @@ test.describe("locale switching", () => {
       page.getByRole("heading", { level: 1, name: "Huynh Quoc Tuan" }),
     ).toBeVisible();
   });
+  test("keeps the dark theme across the switch", async ({ page }) => {
+    // The root layout remounts on a language switch and <html> comes back
+    // bare; the provider has to put the stored theme back (#126).
+    await page.addInitScript(() => {
+      window.localStorage.setItem("theme", "dark");
+    });
+    await page.goto(ROUTES.HOME);
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+
+    await page.getByRole("combobox").click();
+    await page.getByRole("option", { name: "Tiếng Anh" }).click();
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Huynh Quoc Tuan" }),
+    ).toBeVisible();
+
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+  });
 });
