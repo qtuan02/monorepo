@@ -1,7 +1,9 @@
-import { Check, PlusCircle } from "lucide-react";
+import { useId } from "react";
+import { PlusCircle } from "lucide-react";
 
 import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
+import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
   Popover,
   PopoverContent,
@@ -29,6 +31,7 @@ export function FacetedFilter({
   onChange,
   counts,
 }: FacetedFilterProps) {
+  const idPrefix = useId();
   const selectedSet = new Set(selected);
 
   const toggle = (value: string) => {
@@ -96,27 +99,21 @@ export function FacetedFilter({
               const isSelected = selectedSet.has(option.value);
               const Icon = option.icon;
               return (
-                <button
-                  type="button"
+                // A <label> around the primitive: the whole row toggles, and the
+                // label text is the checkbox's accessible name.
+                <label
                   key={option.value}
-                  role="menuitemcheckbox"
-                  aria-checked={isSelected}
-                  onClick={() => toggle(option.value)}
+                  htmlFor={`${idPrefix}-${option.value}`}
                   className={cn(
-                    "hover:bg-accent flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
+                    "hover:bg-accent flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors",
                     isSelected && "bg-accent",
                   )}
                 >
-                  <span
-                    className={cn(
-                      "border-primary flex size-4 shrink-0 items-center justify-center rounded-sm border",
-                      isSelected
-                        ? "bg-primary text-primary-foreground"
-                        : "opacity-50 [&_svg]:invisible",
-                    )}
-                  >
-                    <Check className="size-3" />
-                  </span>
+                  <Checkbox
+                    id={`${idPrefix}-${option.value}`}
+                    checked={isSelected}
+                    onCheckedChange={() => toggle(option.value)}
+                  />
                   {Icon && <Icon className="text-muted-foreground size-4" />}
                   <span className="flex-1 text-left">{option.label}</span>
                   {counts?.get(option.value) !== undefined && (
@@ -124,7 +121,7 @@ export function FacetedFilter({
                       {counts.get(option.value)}
                     </span>
                   )}
-                </button>
+                </label>
               );
             })}
           </div>

@@ -20,7 +20,8 @@ export const statusTone = {
 
 export interface StatusConfig {
   label: string;
-  className: string;
+  /** The tone; absent for a config that only names things (a type, not a state). */
+  className?: string;
   icon?: LucideIcon;
 }
 
@@ -46,10 +47,10 @@ export const roomStatusConfig: Record<RoomStatus, StatusConfig> = {
 };
 
 export const roomTypeConfig: Record<RoomType, StatusConfig> = {
-  single: { label: "Phòng đơn", className: "" },
-  double: { label: "Phòng đôi", className: "" },
-  studio: { label: "Studio", className: "" },
-  suite: { label: "Suite", className: "" },
+  single: { label: "Phòng đơn" },
+  double: { label: "Phòng đôi" },
+  studio: { label: "Studio" },
+  suite: { label: "Suite" },
 };
 
 /** A config read as the option list of a faceted filter, in the config's order. */

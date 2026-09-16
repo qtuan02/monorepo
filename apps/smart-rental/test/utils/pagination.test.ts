@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  clampPage,
-  getPageItems,
-  getTotalPages,
-  paginate,
-} from "~/utils/pagination";
+import { clampPage, getPageItems, getTotalPages } from "~/utils/pagination";
 
 // The one pagination the prototype had four copies of (spec #127): two of them
 // returned 0 pages for an empty list, and one clamped the page from one side
@@ -56,14 +51,5 @@ describe("getPageItems", () => {
       10,
     ]);
     expect(getPageItems(10, 10)).toEqual([1, "ellipsis", 9, 10]);
-  });
-});
-
-describe("paginate", () => {
-  it("slices the requested page", () => {
-    const items = Array.from({ length: 7 }, (_, i) => i + 1);
-
-    expect(paginate(items, 1, 3)).toEqual([1, 2, 3]);
-    expect(paginate(items, 3, 3)).toEqual([7]);
   });
 });

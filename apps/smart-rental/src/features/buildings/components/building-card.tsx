@@ -13,6 +13,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Building } from "~/types/building";
 import { EntityListCard } from "~/components/card/entity-list-card";
+import { StatItem } from "~/components/card/stat-item";
 import { ROUTES } from "~/constants/routes";
 import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 import OccupancyBar from "./occupancy-bar";
@@ -35,22 +36,12 @@ export default function BuildingCard({ building }: BuildingCardProps) {
       content={
         <CardContent className="space-y-4">
           <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                Tổng phòng
-              </dt>
-              <dd className="mt-1.5 text-base font-semibold">
-                {stats.totalRooms}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                Phòng trống
-              </dt>
-              <dd className="mt-1.5 text-base font-semibold text-emerald-700">
-                {stats.availableRooms}
-              </dd>
-            </div>
+            <StatItem label="Tổng phòng" value={stats.totalRooms} />
+            <StatItem
+              label="Phòng trống"
+              value={stats.availableRooms}
+              valueClassName="text-emerald-700"
+            />
           </dl>
           <OccupancyBar rate={stats.occupancyRate} />
         </CardContent>

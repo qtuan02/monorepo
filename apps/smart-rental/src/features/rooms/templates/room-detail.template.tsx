@@ -15,6 +15,7 @@ import { toast } from "@monorepo/ui/components/toast";
 
 import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
+import { StatItem } from "~/components/card/stat-item";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
@@ -126,30 +127,12 @@ export default function RoomDetailTemplate({
             <Separator />
             <CardContent>
               <dl className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    Loại phòng
-                  </dt>
-                  <dd className="mt-1.5 text-base font-semibold">
-                    {typeLabel}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    Diện tích
-                  </dt>
-                  <dd className="mt-1.5 text-base font-semibold">
-                    {room.area}m²
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    Giá thuê/tháng
-                  </dt>
-                  <dd className="mt-1.5 text-base font-semibold">
-                    {formatCurrency(room.price)}
-                  </dd>
-                </div>
+                <StatItem label="Loại phòng" value={typeLabel} />
+                <StatItem label="Diện tích" value={`${room.area}m²`} />
+                <StatItem
+                  label="Giá thuê/tháng"
+                  value={formatCurrency(room.price)}
+                />
               </dl>
             </CardContent>
           </Card>

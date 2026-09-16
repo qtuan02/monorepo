@@ -42,7 +42,7 @@ export function SummaryCard({
               <span
                 className={cn(
                   "text-xs font-semibold",
-                  trend.isPositive ? "text-emerald-600" : "text-red-600",
+                  trend.isPositive ? "text-emerald-600" : "text-destructive",
                 )}
               >
                 {trend.isPositive ? "↑" : "↓"} {Math.abs(trend.value)}%

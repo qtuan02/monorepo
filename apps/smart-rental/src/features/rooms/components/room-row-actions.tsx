@@ -1,5 +1,7 @@
 import { Copy, Edit, Eye, Trash2 } from "lucide-react";
 
+import { useCopyToClipboard } from "@monorepo/hook/use-copy-to-clipboard";
+
 import type { Room } from "~/types/room";
 import { EntityActionMenu } from "~/components/menu/entity-action-menu";
 import { ROUTES } from "~/constants/routes";
@@ -17,6 +19,8 @@ export default function RoomRowActions({
   room,
   side = "bottom",
 }: RoomRowActionsProps) {
+  const [, copy] = useCopyToClipboard();
+
   return (
     <EntityActionMenu
       side={side}
@@ -25,7 +29,7 @@ export default function RoomRowActions({
           key: "copy",
           label: "Sao chép ID",
           icon: <Copy />,
-          onClick: () => navigator.clipboard.writeText(room.id),
+          onClick: () => void copy(room.id),
         },
         {
           key: "detail",

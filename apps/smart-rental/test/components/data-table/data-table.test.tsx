@@ -125,9 +125,7 @@ describe("DataTable — URL-owned list state", () => {
     const router = renderAt("?q=Row");
 
     await user.click(screen.getByRole("button", { name: /Trạng thái/ }));
-    await user.click(
-      await screen.findByRole("menuitemcheckbox", { name: /^B/ }),
-    );
+    await user.click(await screen.findByRole("checkbox", { name: /^B/ }));
 
     await waitFor(
       () => expect(router.state.location.search).toBe("?q=Row&status=b"),

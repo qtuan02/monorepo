@@ -10,6 +10,7 @@ import {
 import { Separator } from "@monorepo/ui/components/separator";
 
 import { InfoCard, InfoRow } from "~/components/card/info-card";
+import { StatItem } from "~/components/card/stat-item";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
@@ -65,30 +66,16 @@ export default function BuildingDetailTemplate({
             <Separator />
             <CardContent>
               <dl className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    Tổng phòng
-                  </dt>
-                  <dd className="mt-1.5 text-base font-semibold">
-                    {stats.totalRooms}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    Phòng trống
-                  </dt>
-                  <dd className="mt-1.5 text-base font-semibold text-emerald-700">
-                    {stats.availableRooms}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    Đang hoạt động
-                  </dt>
-                  <dd className="mt-1.5 text-base font-semibold">
-                    {stats.activeContracts}
-                  </dd>
-                </div>
+                <StatItem label="Tổng phòng" value={stats.totalRooms} />
+                <StatItem
+                  label="Phòng trống"
+                  value={stats.availableRooms}
+                  valueClassName="text-emerald-700"
+                />
+                <StatItem
+                  label="Đang hoạt động"
+                  value={stats.activeContracts}
+                />
               </dl>
             </CardContent>
           </Card>

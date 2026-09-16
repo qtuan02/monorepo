@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import { useDebounce } from "@monorepo/hook/use-debounce";
+import { Button } from "@monorepo/ui/components/button";
 import { Input } from "@monorepo/ui/components/input";
 
 interface SearchInputProps {
@@ -52,14 +53,16 @@ export function SearchInput({
         className="h-8 w-full pl-7 sm:w-40 lg:w-64"
       />
       {text && (
-        <button
+        <Button
           type="button"
-          onClick={() => setText("")}
+          variant="ghost"
+          size="icon-xs"
           aria-label="Xóa từ khóa tìm kiếm"
-          className="text-muted-foreground/60 hover:text-foreground absolute top-1/2 right-2 -translate-y-1/2 rounded-sm p-0.5 transition-colors"
+          className="text-muted-foreground/60 hover:text-foreground absolute top-1/2 right-1 -translate-y-1/2"
+          onClick={() => setText("")}
         >
-          <X className="size-3" />
-        </button>
+          <X />
+        </Button>
       )}
     </div>
   );

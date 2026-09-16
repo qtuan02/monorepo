@@ -21,7 +21,7 @@ test.describe("Toà nhà và Phòng", () => {
     await expect(page.getByText("45 phòng được tìm thấy")).toBeVisible();
 
     await page.getByRole("button", { name: "Trạng thái" }).click();
-    await page.getByRole("menuitemcheckbox", { name: /Trống/ }).click();
+    await page.getByRole("checkbox", { name: /Trống/ }).click();
     await page.keyboard.press("Escape");
     await expect(page).toHaveURL(/status=available/);
 
