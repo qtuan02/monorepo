@@ -4,7 +4,7 @@ import type { ComponentDocsEntry } from "~/types/docs-catalogue";
 import { Tile } from "~/components/tile/tile";
 import { ROUTES } from "~/constants/routes";
 
-/** From here a primitive's tile spans two columns — 13 of 63 today. */
+/** From here a primitive's tile spans two columns — the rule is data, never hand-placed. */
 const WIDE_TILE_EXPORTS = 10;
 /** How many export names the preview line spells out before `+n`. */
 const PREVIEW_EXPORTS = 3;
@@ -22,13 +22,12 @@ interface ComponentCardProps {
 export default function ComponentCard({ entry }: ComponentCardProps) {
   const { t } = useTranslation();
 
+  const names = entry.exports.slice(0, PREVIEW_EXPORTS).join(", ");
   const rest = entry.exports.length - PREVIEW_EXPORTS;
-  const preview = [
-    ...entry.exports.slice(0, PREVIEW_EXPORTS),
-    ...(rest > 0
-      ? [t("documents.components.exportPreviewMore", { count: rest })]
-      : []),
-  ].join(", ");
+  const preview =
+    rest > 0
+      ? `${names}, ${t("documents.components.exportPreviewMore", { count: rest })}`
+      : names;
 
   return (
     <Tile
