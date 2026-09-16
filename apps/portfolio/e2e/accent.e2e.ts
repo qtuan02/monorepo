@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
@@ -65,12 +66,9 @@ const EMR_TEAL = ["#38a696", "#75cdc0"] as const;
  * through. Light only: the theme's dark text already sits at the pole, and its
  * dark border is a 10% white that no opaque hex stands for.
  */
-const EMR_NEUTRALS: Record<
-  keyof typeof PALETTE,
-  Partial<Record<keyof (typeof PALETTE)["light"], string>>
-> = {
-  light: { "--foreground": "#3d4c63", "--border": "#f0f0f0" },
-  dark: {},
+const EMR_NEUTRALS: Partial<Record<keyof (typeof PALETTE)["light"], string>> = {
+  "--foreground": "#3d4c63",
+  "--border": "#f0f0f0",
 };
 
 /** A rounding step or two apart — the same colour. */
@@ -85,10 +83,7 @@ const NOT_THE_SAME_COLOUR = 40;
  * fallback plus a `lab()` upgrade, so the string that comes back out is not the
  * string that went in — while the pixel is the same either way.
  */
-async function paintedTokens(
-  page: import("@playwright/test").Page,
-  tokens: readonly string[],
-) {
+async function paintedTokens(page: Page, tokens: readonly string[]) {
   return page.evaluate((names) => {
     const styles = getComputedStyle(document.documentElement);
     const canvas = document.createElement("canvas");
@@ -110,10 +105,7 @@ async function paintedTokens(
   }, tokens);
 }
 
-async function openHomeIn(
-  page: import("@playwright/test").Page,
-  theme: "light" | "dark",
-) {
+async function openHomeIn(page: Page, theme: "light" | "dark") {
   await page.addInitScript((stored) => {
     window.localStorage.setItem("theme", stored);
   }, theme);
@@ -151,7 +143,7 @@ test.describe("the palette", () => {
         // …and what lost was the EMR palette: the teal in both of its shades,
         // and — for the token that replaces each — the blue-grey text and the
         // near-invisible border.
-        const replaced = EMR_NEUTRALS[theme][token];
+        const replaced = theme === "light" ? EMR_NEUTRALS[token] : undefined;
 
         for (const emr of replaced ? [...EMR_TEAL, replaced] : EMR_TEAL) {
           expect(
@@ -166,21 +158,16 @@ test.describe("the palette", () => {
 
 test.describe("the radius", () => {
   /**
-   * `--radius: 0` is one line, and `theme.css` derives every `rounded-*` size
-   * from it — so the claim is not that the line is there (the text test has
-   * that) but that a primitive on the page actually has no corners. A badge
+   * `--radius: 0px` is one line, and `theme.css` derives every `rounded-*`
+   * size from it — so the claim is not that the line is there (the text test
+   * has that) but that a primitive on the page actually has no corners. A badge
    * (`rounded-4xl`, the widest step) and a card (`rounded-xl`) are the two
-   * that would show a leftover curve first.
+   * that would show a leftover curve first. Located by the `data-slot` every
+   * primitive stamps on its root: the assertion is about the primitive's box,
+   * which has no accessible name to ask for.
    */
   test("squares the shared primitives on the page", async ({ page }) => {
     await openHomeIn(page, "light");
-
-    const radius = await page.evaluate(() =>
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--radius")
-        .trim(),
-    );
-    expect(radius).toBe("0");
 
     for (const slot of ["badge", "card"]) {
       const element = page.locator(`[data-slot="${slot}"]`).first();

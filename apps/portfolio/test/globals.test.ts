@@ -220,6 +220,7 @@ function declared(declarations: Record<string, string>, token: string): string {
   return value;
 }
 
+const uiRoot = resolve(appRoot, "../../packages/ui/src/components");
 const printRegion = atRuleRegions(globalsSource, "media print").at(0) ?? "";
 /**
  * The print palette is one `:root, .dark` rule — read off the `.dark` half,
@@ -341,16 +342,25 @@ describe.each(Object.entries(themes))(
       ).toBeGreaterThanOrEqual(4.5);
     });
 
-    it("keeps a focus ring legible on the highlight: highlight-foreground on highlight ≥ 3:1", () => {
-      // A yellow control draws its focus ring in the pair's own foreground,
-      // not in `--ring`. In the light theme the indigo ring would clear the
-      // yellow (3.47:1); in the dark theme no yellow can — the lifted indigo
-      // sits at a luminance where a colour would have to be brighter than pure
-      // yellow to reach 3:1 against it. So the contract is one colour that
-      // reads on the fill in both themes, and the text colour is that colour.
-      expect(
-        contrastRatio(rgb("highlight-foreground"), rgb("highlight")),
-      ).toBeGreaterThanOrEqual(3);
+    it(`${ink === "dark" ? "lets" : "does not let"} the indigo ring serve as the focus ring on the highlight`, () => {
+      // Which colour a yellow control's focus ring has to be. In the light
+      // theme `--ring` clears the yellow (3.47:1) and the primitive's own ring
+      // would do. In the dark theme it cannot: against the lifted indigo, a
+      // colour would have to be brighter than pure yellow (#ffff00, 0.928) to
+      // reach 3:1, so no `--highlight` value passes — 1.89:1 with this one.
+      // Pinned both ways, the way the print test pins the dark indigo below
+      // AA on paper: a "fix" that lightens the ring or the yellow to make the
+      // dark side pass would have to explain itself here. The contract that
+      // follows is that a yellow control draws its ring in
+      // `--highlight-foreground`, inset — the pair's own text colour, which
+      // the AA test above already holds at ≥ 4.5:1 on the fill in both themes.
+      const ringOnHighlight = contrastRatio(rgb("ring"), rgb("highlight"));
+
+      if (ink === "dark") {
+        expect(ringOnHighlight).toBeGreaterThanOrEqual(3);
+      } else {
+        expect(ringOnHighlight).toBeLessThan(3);
+      }
     });
 
     it("reads AA: primary-foreground on primary ≥ 4.5:1", () => {
@@ -425,11 +435,13 @@ describe("the radius", () => {
    * reached for `rounded-full` or an arbitrary pixel value would keep its
    * corners with nothing logged.
    */
-  const uiRoot = resolve(appRoot, "../../packages/ui/src/components");
   const themeInline = atRuleRegions(themeSource, "theme").at(0) ?? "";
 
-  it("is zero, declared once and unlayered", () => {
-    expect(themes.light.override.radius).toBe("0");
+  it("is zero — with a unit, so theme.css's calc() derivations stay lengths", () => {
+    // A bare `0` makes `calc(var(--radius) * 0.8)` a <number>, which
+    // `border-radius` rejects; the corners still come out square, but only
+    // because the property then falls back to its initial value.
+    expect(themes.light.override.radius).toBe("0px");
   });
 
   it("is what theme.css derives every rounded-* size from", () => {
@@ -587,8 +599,6 @@ describe("composing with the print palette", () => {
  * then confirms the same claim on a real cascade.
  */
 describe("no EMR teal reaches a portfolio element", () => {
-  const uiRoot = resolve(appRoot, "../../packages/ui/src/components");
-
   /** Every file under `dir` whose name ends in one of `extensions`. */
   function sourcesUnder(dir: string, extensions: string[]): string[] {
     return readdirSync(dir, { recursive: true, encoding: "utf8" })

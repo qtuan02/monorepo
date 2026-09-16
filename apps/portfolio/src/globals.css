@@ -56,10 +56,13 @@
  *   ring on a yellow fill is `--highlight-foreground`, inset;
  * - `--hard-shadow`, the colour of the solid 4px offset shadow every block
  *   casts, so light and dark flip it together with the border;
- * - `--radius: 0`. `theme.css` derives every `rounded-*` size from it, so this
- *   one line squares badge, card, button, skeleton and select at once, with no
- *   edit to `@monorepo/ui`. (`Avatar` rounds by class, not by token, and is
- *   squared in the app where it renders.)
+ * - `--radius: 0px`. `theme.css` derives every `rounded-*` size from it, so
+ *   this one line squares badge, card, button, skeleton and select at once,
+ *   with no edit to `@monorepo/ui`. With a unit: a bare `0` turns each of the
+ *   theme's `calc(var(--radius) * n)` into a `<number>`, which `border-radius`
+ *   rejects and only *then* falls back to zero — right by accident, not by
+ *   derivation. (`Avatar` rounds by class, not by token; the hero ticket
+ *   squares it by className.)
  *
  * The dark theme is the light one **inverted**, not dimmed: near-black ground,
  * near-white text, border and shadow. A black shadow on a black ground is no
@@ -88,7 +91,7 @@
  * reference pairs. `e2e/accent.e2e.ts` reads what a browser actually paints.
  */
 :root {
-  --radius: 0;
+  --radius: 0px;
 
   /* #0a0a0a — 18.65:1 on the #f8f8f9 background, 19.8:1 on a white card. The
      theme's blue-grey `#3d4c63` is the EMR "normal text"; this page is ink. */
