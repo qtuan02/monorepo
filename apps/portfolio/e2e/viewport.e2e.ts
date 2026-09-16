@@ -105,6 +105,34 @@ test.describe("viewport", () => {
     ).toBeGreaterThanOrEqual(BODY_MIN_PX);
   });
 
+  test("shows a folded row's chevron at rest on a phone, where there is no hover", async ({
+    page,
+  }) => {
+    // A touch reader has no hover, so an affordance that only appears under
+    // the cursor does not exist for them: the chevron used to sit at
+    // `opacity-0` until hovered, and nothing went red. A `className` test
+    // could only ask whether that utility is absent; this asks what a phone
+    // sees. The second row is the folded one — the first opens at rest.
+    await openHomeAt(page, PHONE_WIDTH, 800);
+
+    const foldedRow = page
+      .locator("#work")
+      .getByRole("button", { name: "Xem chi tiết công việc" })
+      .nth(1);
+
+    await expect(foldedRow).toHaveAttribute("aria-expanded", "false");
+
+    const chevron = foldedRow.locator("svg");
+
+    await expect(chevron).toBeVisible();
+
+    const opacity = await chevron.evaluate(
+      (node) => getComputedStyle(node).opacity,
+    );
+
+    expect(Number.parseFloat(opacity)).toBeGreaterThan(0);
+  });
+
   test("sets meta to at least 14 px on a phone", async ({ page }) => {
     await openHomeAt(page, PHONE_WIDTH, 800);
 

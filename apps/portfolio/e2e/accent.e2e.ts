@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
@@ -176,4 +176,114 @@ test.describe("the radius", () => {
       await expect(element, slot).toHaveCSS("border-radius", "0px");
     }
   });
+});
+
+/**
+ * A CSS colour as the 8-bit sRGB a compositor would paint it — the same canvas
+ * read `paintedTokens` does, for a value that came off an element rather than
+ * off `:root`. An OKLCH source and its `lab()` production upgrade compare as
+ * the pixel they both are.
+ */
+async function paint(page: Page, value: string) {
+  return page.evaluate((colour) => {
+    const context = document.createElement("canvas").getContext("2d");
+
+    if (!context) throw new Error("No 2d context");
+
+    context.fillStyle = colour;
+    context.fillRect(0, 0, 1, 1);
+
+    const [r = 0, g = 0, b = 0] = context.getImageData(0, 0, 1, 1).data;
+
+    return { r, g, b };
+  }, value);
+}
+
+/** One computed property of the element a locator resolves to. */
+async function computed(locator: Locator, property: string) {
+  return locator.evaluate(
+    (node, name) => getComputedStyle(node).getPropertyValue(name),
+    property,
+  );
+}
+
+test.describe("the standard block", () => {
+  /**
+   * `StandardBlock` is the one shape the page is built from, and #117 lays it
+   * under every work row. What is asserted is the shape as painted, not the
+   * component's class list: a 2 px edge in the border token, a solid `4px 4px`
+   * shadow in the shadow token, no corner — and, in the dark theme, edge and
+   * shadow gone to near-white together, which is the whole reason the shadow
+   * is a token. The award badge is the yellow's second role, read as the fill
+   * a browser actually gives it.
+   */
+  const WORK_ROW = '#work [data-slot="standard-block"]';
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`draws every work row as a hard-edged block in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      await expect(page.locator(WORK_ROW)).toHaveCount(3);
+
+      const row = page.locator(WORK_ROW).first();
+
+      await expect(row).toHaveCSS("border-top-width", "2px");
+      await expect(row).toHaveCSS("border-top-style", "solid");
+      await expect(row).toHaveCSS("border-radius", "0px");
+      // The offset is asserted on the string; the colour half is checked as
+      // a pixel below, because Chromium serialises it in whatever syntax the
+      // stylesheet declared it in.
+      await expect(row).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
+
+      const edge = await paint(page, await computed(row, "border-top-color"));
+      // Tailwind composes `box-shadow` out of its ring and inset slots too —
+      // four transparent `0px` entries ahead of the real one — so the colour is
+      // whatever function call sits in front of *this* offset.
+      const boxShadow = await computed(row, "box-shadow");
+      const shadowColour =
+        boxShadow.match(/([a-z]+\([^)]*\))\s+4px 4px 0px 0px/)?.[1] ?? "";
+
+      expect(
+        shadowColour,
+        `a colour before the offset in "${boxShadow}"`,
+      ).not.toBe("");
+
+      const shadow = await paint(page, shadowColour);
+
+      const expected = hexToRgb(PALETTE[theme]["--hard-shadow"]);
+
+      expect(rgbDistance(edge, expected), "border").toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(shadow, expected),
+        `shadow, declared as "${shadowColour}"`,
+      ).toBeLessThan(SAME_COLOUR);
+    });
+
+    test(`fills the award badge with the highlight in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      // By its text: the badge is rendered as the tooltip's trigger, and the
+      // trigger's own `data-slot` wins over the badge's, so the slot every
+      // other badge on the page carries is not on this one.
+      const badge = page.locator("#work").getByText("VDA 2025");
+
+      await expect(badge).toBeVisible();
+
+      const fill = await paint(page, await computed(badge, "background-color"));
+      const ink = await paint(page, await computed(badge, "color"));
+
+      expect(
+        rgbDistance(fill, hexToRgb(PALETTE[theme]["--highlight"])),
+        "fill",
+      ).toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(ink, hexToRgb(PALETTE[theme]["--highlight-foreground"])),
+        "ink",
+      ).toBeLessThan(SAME_COLOUR);
+    });
+  }
 });
