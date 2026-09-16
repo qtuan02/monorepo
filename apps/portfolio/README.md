@@ -39,11 +39,11 @@ mọi layer, mà một khai báo không layer thắng khai báo trong layer bấ
 Viết trong `@layer base` thì bảy dòng này compile, ship và **thua** — trang vẫn
 teal, không log gì cả.
 
-**Reduced motion.** Không còn fade nào theo section: mọi section render ở trạng
-thái nghỉ, nên không có `opacity: 0` inline nào để CSS phải hoàn tác. Thứ còn
-lại là chuyển động do CSS sở hữu — wipe theme và bàn tay vẫy — tắt theo tên,
-không phải bằng `* { animation: none }`, để một animation tương lai phải tự khai
-vào đây. Dock tự đọc preference bằng JavaScript.
+**Reduced motion.** Không còn fade nào theo section và hero không còn bàn tay
+vẫy: mọi thứ render ở trạng thái nghỉ, nên không có `opacity: 0` inline nào để
+CSS phải hoàn tác. Thứ còn lại là chuyển động do CSS sở hữu — wipe theme — tắt
+theo tên, không phải bằng `* { animation: none }`, để một animation tương lai
+phải tự khai vào đây. Dock tự đọc preference bằng JavaScript.
 
 **Print.** Trang này **là** bản CV, nên "tải CV" ở hero là hộp thoại in của trình
 duyệt chứ không phải một file PDF phải giữ đồng bộ bằng tay. `@media print` hoàn

@@ -25,8 +25,10 @@ test.describe("server rendering", () => {
 
     const html = await response.text();
 
-    // The greeting, which comes from the shell-adjacent hero section…
-    expect(html).toContain("Xin chào, mình là Tuấn");
+    // The name — the hero's h1 — and the command that introduces it, which is
+    // code and so reads the same in every locale…
+    expect(html).toContain("Huỳnh Quốc Tuấn");
+    expect(html).toContain("whoami");
     // …and the line that says what the candidate actually does. This one is
     // the page's whole job in an unfurl preview and in the first five seconds
     // of a scroll, so it has to be in the bytes rather than hydrated in.

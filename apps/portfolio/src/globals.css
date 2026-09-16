@@ -222,31 +222,26 @@
 /**
  * A reader who has asked their operating system for less motion.
  *
- * The sections arrive at rest — there is no entrance animation any more, so
- * nothing on the page starts at `opacity: 0` and there is nothing here to make
- * visible. What is left is the motion CSS owns and JavaScript never sees: the
- * theme wipe above, and the waving hand. The dock reads the preference in
- * JavaScript and handles its own.
+ * The page arrives at rest — there is no entrance animation, nothing starts at
+ * `opacity: 0`, and the hero no longer waves — so the one motion left for the
+ * preference to switch off is the motion CSS owns and JavaScript never sees:
+ * the theme wipe above. The dock reads the preference in JavaScript and
+ * handles its own.
  *
- * Both are switched off by name rather than by a blanket `* { animation: none }`
- * so that a future animation has to opt in here deliberately, and so nothing
+ * Switched off by name rather than by a blanket `* { animation: none }` so
+ * that a future animation has to opt in here deliberately, and so nothing
  * that merely *transitions* — the chevron, a hover colour — is flattened along
- * with them.
+ * with it.
  */
 /* biome-ignore-start lint/complexity/noImportantStyles: two different reasons,
    one region. Here, the wipe's `to-light` variant is selected on
    `:root[data-theme-transition]` and would out-specify a bare
    `::view-transition-new(root)`, so the switch-off needs `!important` to beat
-   it; the bounce rule takes the same form so the block reads as one set. In
-   the print block further down, the override is against an inline style
-   written by `motion` at runtime, which only `!important` beats. */
+   it. In the print block further down, the override is against an inline
+   style written by `motion` at runtime, which only `!important` beats. */
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation: none !important;
-  }
-
-  .animate-bounce {
     animation: none !important;
   }
 }
