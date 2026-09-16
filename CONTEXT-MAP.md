@@ -7,7 +7,7 @@ Các context còn lại là Turborepo workspace (`apps/*`, `packages/*`), mỗi 
 ## Contexts
 
 - [Root](./CONTEXT.md) — Reference · Target · Skeleton · Template app · Runtime · Flavor · Route module · Gate · Locale message · Publish shell.
-- [`apps/portfolio`](./apps/portfolio/CONTEXT.md) — CV site.
+- [`apps/portfolio`](./apps/portfolio/CONTEXT.md) — CV site; từ v2 thêm từ vựng hình dạng (khối tiêu chuẩn, cửa sổ terminal, dòng lệnh, highlight, bóng đặc, đảo cực, neutral override — ADR-0008).
 
 `apps/portfolio` là workspace **đầu tiên** chốt được một thuật ngữ của riêng nó, ở vòng
 grill 2026-09-06 của spec #103. Sáu app còn lại (ba Template, `documents`, `mcp-weather`,

@@ -1,6 +1,6 @@
 # Design brief v2 — redesign hình dạng `apps/portfolio`
 
-> **Đã implement, spec #113** (tickets #114–#122, merge vào `dev` 2026-09-16). Tài liệu này giữ nguyên nội dung quyết định của bước design — chẩn đoán §1, ba hướng §2, mười hai quyết định §7; nó là bản ghi *tại thời điểm quyết*, không phải mô tả app hiện tại. Hình dạng app sau redesign đọc ở [`apps/portfolio/README.md`](../../apps/portfolio/README.md) và CLAUDE.md §1; quyết định kiến trúc (override neutral ở tầng app, hợp đồng token mới) ghi thành [ADR-0008](../adr/0008-portfolio-neubrutalist-neutral-override.md). Hai điểm §7 để ngỏ đã chốt trong ticket: ảnh chân dung **bỏ Lens** (#116), OG **giữ Geist** và vẽ lại bằng viền/khối (#121).
+> **Đã implement, spec #113** (tickets #114–#121 merge vào `dev` 2026-09-16; #122 là tổng kiểm + tài liệu này). Tài liệu này giữ nguyên nội dung quyết định của bước design — chẩn đoán §1, ba hướng §2, mười hai quyết định §7; nó là bản ghi *tại thời điểm quyết*, không phải mô tả app hiện tại. Hình dạng app sau redesign đọc ở [`apps/portfolio/README.md`](../../apps/portfolio/README.md) và CLAUDE.md §1; quyết định kiến trúc (override neutral ở tầng app, hợp đồng token mới) ghi thành [ADR-0008](../adr/0008-portfolio-neubrutalist-neutral-override.md). Hai điểm §7 để ngỏ đã chốt trong ticket: ảnh chân dung **bỏ Lens** (#116), OG **giữ Geist** và vẽ lại bằng viền/khối (#121).
 
 - **Ngày:** 2026-09-07
 - **Bước:** design (§7a CLAUDE.md), chạy bằng `ui-ux-pro-max` ở chế độ đọc CSV tĩnh — không Python, không `--design-system`, không `--persist`.

@@ -301,7 +301,12 @@ có `theme.css`, và sáu sub-skill (cần API key hoặc `pip`, không sinh gì
 
 ### 5.4 Còn phải quyết ở vòng grill đầu tiên
 
-1. Tài liệu design ở bước 2 lưu ở đâu, theo mẫu nào (sau revert không còn `docs/design/`).
+1. ~~Tài liệu design ở bước 2 lưu ở đâu, theo mẫu nào (sau revert không còn `docs/design/`).~~
+   **Đã chốt** ở hai vòng portfolio: `docs/design/<app>-<chủ đề>.md`, mẫu là chính hai brief
+   `portfolio-rebuild.md` (v1) và `portfolio-redesign-v2.md` (v2) — header ghi ngày, bước, đầu vào,
+   đầu ra, cách đọc trích dẫn CSV; khi spec đã implement, thêm blockquote "Đã implement, spec #N"
+   trỏ về README của app, CLAUDE.md §1 và ADR (nếu có). Brief là bản ghi *tại thời điểm quyết*,
+   không sửa lại cho khớp app hiện tại.
 2. Có giữ sáu sub-skill trong repo không (xoá tay thì `update` ghi lại).
 3. Muốn gõ `/design` cho bước design thì đặt tên khác (ví dụ `/design-brief`) để không va với thư mục
    `design` mà CLI ghi đè.
