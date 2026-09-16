@@ -96,15 +96,16 @@ test.describe("viewport", () => {
       .getByRole("listitem")
       .first();
     const projectDescription = page
-      .locator('#projects [data-slot="card-description"]')
+      .locator('#projects [data-slot="standard-block"]')
+      .getByRole("paragraph")
       .first();
 
     // The bullets and the tech-stack chips are both `li` inside the card, and
     // the chips are the ones carrying a badge. Excluding them is a decision,
-    // not a convenience: a chip is a one-word token, not copy, and the same
-    // 12 px chips sit in Skills — left there by this ticket's own typography
-    // pass, which ran after that section landed. `ux#67` spells its meta floor
-    // out as "(period, contact)", so chips are outside the rule by name.
+    // not a convenience: a chip is a one-word token, not copy. `ux#67` spells
+    // its meta floor out as "(period, contact)", so chips are outside the rule
+    // by name. (Skills used to carry the same 12 px chips; since #118 it is
+    // text, and the meta test below holds it to 14 px.)
     const projectBullet = page
       .locator("#projects")
       .getByRole("listitem")
@@ -163,6 +164,12 @@ test.describe("viewport", () => {
     // smallest thing a reader is asked to hit.
     const contactLink = page.locator("#contact").getByRole("link").first();
     const projectLink = page.locator("#projects").getByRole("link").first();
+    // The two monospace labels #118 added: a contact field name, and a skill
+    // in the directory listing — both were the place 12 px would come back.
+    const contactLabel = page.locator("#contact").getByText("Email", {
+      exact: true,
+    });
+    const skill = page.locator("#skills").getByRole("listitem").first();
 
     expect(await fontSizeOf(contactLink), "Contact").toBeGreaterThanOrEqual(
       META_MIN_PX,
@@ -171,5 +178,12 @@ test.describe("viewport", () => {
       await fontSizeOf(projectLink),
       "Project link",
     ).toBeGreaterThanOrEqual(META_MIN_PX);
+    expect(
+      await fontSizeOf(contactLabel),
+      "Contact label",
+    ).toBeGreaterThanOrEqual(META_MIN_PX);
+    expect(await fontSizeOf(skill), "Skill").toBeGreaterThanOrEqual(
+      META_MIN_PX,
+    );
   });
 });

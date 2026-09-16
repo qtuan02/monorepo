@@ -62,17 +62,29 @@ describe("SkillsSection", () => {
     }
   });
 
-  it("does not dress a skill chip up as something you can press", () => {
+  it("writes each group label like a directory, with the slash kept out of the accessible name", () => {
     render(<SkillsSection />);
 
-    // A chip that lifts on hover reads as a control. These are labels: there is
-    // nothing to activate, and no button or link should exist in the section.
+    // `frontend/` is the terminal grammar for a group; the slash is decoration.
+    // A screen reader cycling headings should hear "Frontend", not "Frontend
+    // slash", and the first test above already asks for the name by itself —
+    // this one pins that the slash is nevertheless on screen.
+    const heading = screen.getByRole("heading", { level: 3, name: "Frontend" });
+
+    expect(heading).toHaveTextContent(/^Frontend\/$/);
+  });
+
+  it("lists the skills as text in one block — no chips, no controls", () => {
+    const { container } = render(<SkillsSection />);
+
+    // A skill is a label. A chip that lifts under the cursor, a badge, a
+    // button, a link — each promises a filter that does not exist. The whole
+    // section is one standard block: five rows in one box, not five boxes.
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
-
-    const chip = screen.getByText("Biome");
-
-    expect(chip.getAttribute("class")).not.toContain("hover:-translate-y");
-    expect(chip.getAttribute("class")).not.toContain("select-none");
+    expect(container.querySelector('[data-slot="badge"]')).toBeNull();
+    expect(
+      container.querySelectorAll('[data-slot="standard-block"]'),
+    ).toHaveLength(1);
   });
 });

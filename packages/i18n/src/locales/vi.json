@@ -233,6 +233,14 @@
     },
     "contact": {
       "title": "Liên hệ",
+      "labels": {
+        "birthday": "Sinh nhật",
+        "phone": "Điện thoại",
+        "location": "Địa chỉ",
+        "github": "GitHub",
+        "email": "Email",
+        "linkedin": "LinkedIn"
+      },
       "items": {
         "birthday": "20/07/2002",
         "phone": "(+84) 393 653 862",

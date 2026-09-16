@@ -233,6 +233,14 @@
     },
     "contact": {
       "title": "Contact",
+      "labels": {
+        "birthday": "Birthday",
+        "phone": "Phone",
+        "location": "Location",
+        "github": "GitHub",
+        "email": "Email",
+        "linkedin": "LinkedIn"
+      },
       "items": {
         "birthday": "20/07/2002",
         "phone": "(+84) 393 653 862",

@@ -161,15 +161,17 @@ test.describe("the radius", () => {
    * `--radius: 0px` is one line, and `theme.css` derives every `rounded-*`
    * size from it — so the claim is not that the line is there (the text test
    * has that) but that a primitive on the page actually has no corners. A badge
-   * (`rounded-4xl`, the widest step) and a card (`rounded-xl`) are the two
-   * that would show a leftover curve first. Located by the `data-slot` every
-   * primitive stamps on its root: the assertion is about the primitive's box,
-   * which has no accessible name to ask for.
+   * (`rounded-4xl`, the widest step) and a button (`rounded-md`) are two steps
+   * apart on that scale, and either would show a leftover curve first. (The
+   * `Card` primitive is no longer on the page — every block is the app's own
+   * `StandardBlock` since #118.) Located by the `data-slot` every primitive
+   * stamps on its root: the assertion is about the primitive's box, which has
+   * no accessible name to ask for.
    */
   test("squares the shared primitives on the page", async ({ page }) => {
     await openHomeIn(page, "light");
 
-    for (const slot of ["badge", "card"]) {
+    for (const slot of ["badge", "button"]) {
       const element = page.locator(`[data-slot="${slot}"]`).first();
 
       await expect(element, slot).toBeAttached();
@@ -288,6 +290,86 @@ test.describe("the standard block", () => {
         rgbDistance(ink, hexToRgb(PALETTE[theme]["--highlight-foreground"])),
         "ink",
       ).toBeLessThan(SAME_COLOUR);
+    });
+  }
+
+  /**
+   * #118 lays the same block under everything after the hero: About is one,
+   * each project card is one, Skills is one box holding five rows, Education
+   * is the work row's shape, and Contact and Hobbies are one each. The count
+   * per section is the claim — Skills as five boxes, or About left bare, would
+   * both still "have a standard block" — and every block found is measured
+   * the same way a work row is above, so a section that re-spelled the shape
+   * with a 1 px edge or no shadow fails here rather than in a screenshot.
+   */
+  test("lays every section after the hero on the same block", async ({
+    page,
+  }) => {
+    await openHomeIn(page, "light");
+
+    for (const [section, count] of [
+      ["about", 1],
+      ["projects", 3],
+      ["skills", 1],
+      ["education", 1],
+      ["contact", 1],
+      ["hobbies", 1],
+    ] as const) {
+      const blocks = page.locator(`#${section} [data-slot="standard-block"]`);
+
+      await expect(blocks, section).toHaveCount(count);
+
+      for (const block of await blocks.all()) {
+        await expect(block, section).toHaveCSS("border-top-width", "2px");
+        await expect(block, section).toHaveCSS("border-radius", "0px");
+        await expect(block, section).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
+      }
+    }
+  });
+
+  /**
+   * A project card changes its ground under the cursor and nothing else. v1
+   * lifted it by half a step, and on a page of hard edges and solid shadows a
+   * block that moves is the one thing that breaks the grammar — so the box is
+   * measured before and after the hover, and the wash is read as the pixel
+   * `--accent` paints.
+   */
+  for (const theme of ["light", "dark"] as const) {
+    test(`washes a hovered project card without moving it in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      const card = page
+        .locator('#projects [data-slot="standard-block"]')
+        .first();
+
+      await expect(card).toBeVisible();
+
+      // `hover()` scrolls the card into view first, and a box measured before
+      // that scroll would differ by the scroll distance rather than by any
+      // movement of the card's own.
+      await card.scrollIntoViewIfNeeded();
+
+      const before = await card.boundingBox();
+
+      await card.hover();
+
+      // The wash is a `transition-colors`, so the fill is polled until it has
+      // arrived rather than read the instant the pointer lands.
+      await expect
+        .poll(
+          async () =>
+            rgbDistance(
+              await paint(page, await computed(card, "background-color")),
+              hexToRgb(PALETTE[theme]["--accent"]),
+            ),
+          { message: "hover wash" },
+        )
+        .toBeLessThan(SAME_COLOUR);
+
+      await expect(card).toHaveCSS("transform", "none");
+      expect(await card.boundingBox()).toEqual(before);
     });
   }
 });
