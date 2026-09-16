@@ -31,9 +31,7 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
               404), and Next answers those with an empty shell it resumes on the
               client. The fallback is the trigger's exact footprint, so nothing
               shifts. */}
-          <Suspense
-            fallback={<Skeleton className="h-8 w-[4.5rem] rounded-md" />}
-          >
+          <Suspense fallback={<Skeleton className="h-8 w-[4.5rem]" />}>
             <SelectLanguage />
           </Suspense>
         </div>
