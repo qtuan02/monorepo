@@ -13,7 +13,7 @@ import { render } from "../../../support/render";
  */
 describe("HeroSection", () => {
   it("says what the candidate does, above the fold", () => {
-    render(<HeroSection delay={0} />);
+    render(<HeroSection />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
       "Xin chào, mình là Tuấn",
@@ -25,7 +25,7 @@ describe("HeroSection", () => {
   });
 
   it("opens a page in a new tab but hands a mailto off to the mail client", () => {
-    render(<HeroSection delay={0} />);
+    render(<HeroSection />);
 
     const email = screen.getByRole("link", { name: "Email" });
     const github = screen.getByRole("link", { name: "GitHub" });
@@ -41,13 +41,13 @@ describe("HeroSection", () => {
   });
 
   it("renders the print action as the fourth quick action", () => {
-    render(<HeroSection delay={0} />);
+    render(<HeroSection />);
 
     expect(screen.getByRole("button", { name: "In CV" })).toBeInTheDocument();
   });
 
   it("hides the waving hand from assistive technology", () => {
-    render(<HeroSection delay={0} />);
+    render(<HeroSection />);
 
     // Decorative text, not an icon: a screen reader announcing "waving hand"
     // after the name adds nothing and interrupts the one line that matters.
