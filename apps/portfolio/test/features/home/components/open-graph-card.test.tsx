@@ -133,8 +133,10 @@ describe("OpenGraphCard", () => {
         [...markup.matchAll(/#[0-9a-f]{6}\b/g)].map((match) => match[0]),
       );
 
+      // A Set on both sides: `background` and `card` are both white now that
+      // the theme ground is untinted, and the card paints each colour once.
       expect([...colours].sort()).toEqual(
-        Object.values(OPEN_GRAPH_PALETTE).sort(),
+        [...new Set(Object.values(OPEN_GRAPH_PALETTE))].sort(),
       );
     });
   });

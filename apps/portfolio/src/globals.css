@@ -37,12 +37,11 @@
  * The palette this page draws with — two hues, two neutrals, one shadow, no
  * radius — and why the block is unlayered.
  *
- * `theme.css` is the EMR product's palette: teal `--primary-brand #38a696`,
- * blue-grey text and a border a hair off its own background. A CV wearing an
- * employer's brand changes colour with every job, and a hard-edged page cannot
- * be drawn with text that is never quite black and a border that is never
- * quite visible. So this app overrides exactly twelve colour tokens, and one
- * length:
+ * `theme.css` is shadcn's neutral default: a near-black primary, a grey
+ * border, and no accent hue at all. A CV wants an accent of its own, and a
+ * hard-edged page wants its text and border pushed to the poles rather than
+ * left a step short of them. So this app overrides exactly twelve colour
+ * tokens, and one length:
  *
  * - the seven **accent** tokens of v1, on one indigo hue (277): the badge/button
  *   pair, the focus ring, the hover wash, and text selection;

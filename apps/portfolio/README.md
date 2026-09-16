@@ -41,10 +41,9 @@ bun run dev:portfolio     # http://localhost:3002
 ## Palette, motion và print — ba thứ sống trong `src/globals.css`
 
 **Palette riêng — mười hai token màu, một độ dài.** `tooling/tailwind/theme.css`
-là palette của một sản phẩm EMR (teal `#38a696`, chữ xanh-xám `#3d4c63`, viền
-`#f0f0f0` gần như vô hình), và một cái CV mặc màu thương hiệu của nơi làm việc
-thì đổi màu mỗi lần đổi việc — còn một trang viền cứng thì không vẽ được bằng
-chữ không bao giờ thật đen và viền không bao giờ thật thấy. App override đúng
+là palette neutral mặc định của shadcn (primary gần đen, viền xám, không có
+accent hue) — một cái CV cần một accent của riêng nó, và một trang viền cứng
+cần chữ và viền đẩy hẳn ra hai cực thay vì dừng cách cực một bậc. App override đúng
 bốn nhóm, ở **tầng app**, không đụng theme dùng chung:
 
 | Nhóm | Token | Light → Dark |

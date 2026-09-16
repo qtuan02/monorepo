@@ -12,8 +12,8 @@
  * card that matched one reader's dark mode would be inverted for the other.
  */
 export const OPEN_GRAPH_PALETTE = {
-  /** `--background` — the theme's tinted page ground */
-  background: "#f8f8f9",
+  /** `--background` — the theme's page ground, white like the card */
+  background: "#ffffff",
   /** `--card` — the block is a white card, as every card on the page is */
   card: "#ffffff",
   /** `--foreground`, `--border` and `--hard-shadow` — one ink for all three */
