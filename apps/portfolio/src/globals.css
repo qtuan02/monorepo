@@ -172,6 +172,10 @@
   --color-highlight-foreground: var(--highlight-foreground);
   --color-hard-shadow: var(--hard-shadow);
   --shadow-hard: 4px 4px 0 0 var(--hard-shadow);
+  /* The pressed half: a pressable block sinks 2px toward its shadow and the
+     shadow shortens by the same 2px, so the block reads as pushed into the
+     page. Declared beside its sibling so the two offsets add up in one place. */
+  --shadow-hard-pressed: 2px 2px 0 0 var(--hard-shadow);
 }
 
 /**

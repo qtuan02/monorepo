@@ -10,8 +10,17 @@ import { ROUTES } from "../src/constants/routes";
  */
 const PHONE_WIDTH = 375;
 
-/** The other width the ticket names, and where Projects goes three across. */
+/** The other width the ticket names; still one column, Projects two across. */
 const TABLET_WIDTH = 768;
+
+/**
+ * A desktop, where the page becomes two columns (#123): About, Work and
+ * Projects in a 2/3 column, the reference sections in a 1/3 rail beside them.
+ * Measured rather than trusted because the split is three Tailwind variants
+ * across two files, and a `lg:` typo leaves the rail under the column with
+ * nothing red anywhere.
+ */
+const DESKTOP_WIDTH = 1440;
 
 /**
  * `ux#67`: body copy is at least 15 px on a phone, meta at least 14 px.
@@ -48,6 +57,65 @@ async function openHomeAt(page: Page, width: number, height: number) {
 }
 
 test.describe("viewport", () => {
+  test("puts the rail beside the column on a desktop, and under it on a phone", async ({
+    page,
+  }) => {
+    await openHomeAt(page, DESKTOP_WIDTH, 900);
+
+    const about = page.locator("#about");
+    const skills = page.locator("#skills");
+    const hero = page.locator("#hero");
+    const main = page.getByRole("main");
+
+    const [aboutBox, skillsBox, heroBox, mainBox] = await Promise.all([
+      about.boundingBox(),
+      skills.boundingBox(),
+      hero.boundingBox(),
+      main.boundingBox(),
+    ]);
+
+    expect(aboutBox).not.toBeNull();
+    expect(skillsBox).not.toBeNull();
+    expect(heroBox).not.toBeNull();
+    expect(mainBox).not.toBeNull();
+
+    if (!aboutBox || !skillsBox || !heroBox || !mainBox) return;
+
+    // The rail starts to the right of the column and on the same row as it.
+    expect(skillsBox.x).toBeGreaterThan(aboutBox.x + aboutBox.width);
+    expect(Math.abs(skillsBox.y - aboutBox.y)).toBeLessThan(2);
+    // The column is the wider track — about twice the rail.
+    expect(aboutBox.width / skillsBox.width).toBeGreaterThan(1.8);
+    expect(aboutBox.width / skillsBox.width).toBeLessThan(2.2);
+    // The hero spans both tracks: as wide as the well, minus its padding.
+    expect(heroBox.width).toBeGreaterThan(aboutBox.width + skillsBox.width);
+    expect(heroBox.width).toBeLessThanOrEqual(mainBox.width);
+
+    // The three project cards are two across, the odd one out full width.
+    const cards = page.locator('#projects [data-slot="standard-block"]');
+    await expect(cards).toHaveCount(3);
+    const [first, second, third] = await Promise.all([
+      cards.nth(0).boundingBox(),
+      cards.nth(1).boundingBox(),
+      cards.nth(2).boundingBox(),
+    ]);
+    if (!first || !second || !third) throw new Error("a card has no box");
+    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+    expect(second.x).toBeGreaterThan(first.x + first.width);
+    expect(third.y).toBeGreaterThan(first.y + first.height);
+    expect(third.width).toBeGreaterThan(first.width * 1.8);
+
+    // And one column again on a phone: the rail sits under the column.
+    await openHomeAt(page, PHONE_WIDTH, 812);
+    const [aboutPhone, skillsPhone] = await Promise.all([
+      about.boundingBox(),
+      skills.boundingBox(),
+    ]);
+    if (!aboutPhone || !skillsPhone) throw new Error("a section has no box");
+    expect(skillsPhone.y).toBeGreaterThan(aboutPhone.y + aboutPhone.height);
+    expect(Math.abs(skillsPhone.x - aboutPhone.x)).toBeLessThan(2);
+  });
+
   for (const [label, width] of [
     ["375 px phone", PHONE_WIDTH],
     ["768 px tablet", TABLET_WIDTH],

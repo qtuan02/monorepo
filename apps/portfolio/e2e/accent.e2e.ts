@@ -328,30 +328,35 @@ test.describe("the standard block", () => {
   });
 
   /**
-   * A project card changes its ground under the cursor and nothing else. v1
-   * lifted it by half a step, and on a page of hard edges and solid shadows a
-   * block that moves is the one thing that breaks the grammar — so the box is
-   * measured before and after the hover, and the wash is read as the pixel
-   * `--accent` paints.
+   * A project card is pressed under the cursor: it sinks half a step toward
+   * its shadow and the shadow shortens by the same amount (#123), and its
+   * ground takes the `--accent` wash. v1 lifted it; v2 first froze it; the
+   * neubrutalist hover pushes a block *into* the page, which is what a solid
+   * offset shadow is for. Transform and shadow only — the card beside it is
+   * measured too, and must not have moved: a press that reflowed its
+   * neighbours would be a layout shift, not a state.
    */
   for (const theme of ["light", "dark"] as const) {
-    test(`washes a hovered project card without moving it in the ${theme} theme`, async ({
+    test(`presses a hovered project card by 2px, wash included, in the ${theme} theme`, async ({
       page,
     }) => {
       await openHomeIn(page, theme);
 
-      const card = page
-        .locator('#projects [data-slot="standard-block"]')
-        .first();
+      const cards = page.locator('#projects [data-slot="standard-block"]');
+      const card = cards.first();
+      const neighbour = cards.nth(1);
 
       await expect(card).toBeVisible();
+      await expect(neighbour).toBeVisible();
 
       // `hover()` scrolls the card into view first, and a box measured before
       // that scroll would differ by the scroll distance rather than by any
       // movement of the card's own.
       await card.scrollIntoViewIfNeeded();
 
-      const before = await card.boundingBox();
+      const neighbourBefore = await neighbour.boundingBox();
+      await expect(card).toHaveCSS("translate", "none");
+      await expect(card).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
 
       await card.hover();
 
@@ -368,10 +373,29 @@ test.describe("the standard block", () => {
         )
         .toBeLessThan(SAME_COLOUR);
 
-      await expect(card).toHaveCSS("transform", "none");
-      expect(await card.boundingBox()).toEqual(before);
+      // The press is a `translate` (Tailwind v4 writes the property, not a
+      // `transform`), tweened over 150 ms, so both halves are polled.
+      await expect(card).toHaveCSS("translate", "2px 2px");
+      await expect(card).toHaveCSS("box-shadow", /2px 2px 0px 0px/);
+      await expect(card).toHaveAttribute("data-pressable", "");
+      expect(await neighbour.boundingBox()).toEqual(neighbourBefore);
     });
   }
+
+  /**
+   * The blocks a reader cannot act on do not press: About has nothing to
+   * click, and a block that sinks under the cursor says it does.
+   */
+  test("leaves a static block still under the cursor", async ({ page }) => {
+    await openHomeIn(page, "light");
+
+    const about = page.locator('#about [data-slot="standard-block"]');
+    await expect(about).toBeVisible();
+    await expect(about).not.toHaveAttribute("data-pressable", "");
+    await about.hover();
+    await expect(about).toHaveCSS("translate", "none");
+    await expect(about).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
+  });
 });
 
 test.describe("the hero", () => {

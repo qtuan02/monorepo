@@ -24,7 +24,10 @@ import { SKILL_GROUPS } from "~/features/home/constants/resume";
  * `aria-hidden`, so the heading's accessible name is the group, not
  * "Frontend slash", and a `getByRole("heading", { name })` matches the label
  * alone. One column on a phone, the label above its row; two from `sm`, the
- * label in a fixed gutter wide enough for "DevOps & CI/" in monospace.
+ * label in a fixed gutter wide enough for "DevOps & CI/" in monospace; and one
+ * again from `lg`, where the block sits in the page's 1/3 rail (#123) and a
+ * gutter would leave the names a ~200 px strip to wrap in, one or two to a
+ * line.
  */
 export default function SkillsSection() {
   const t = useTranslations();
@@ -40,7 +43,7 @@ export default function SkillsSection() {
             return (
               <div
                 key={group.id}
-                className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[7.5rem_1fr]"
+                className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-[7.5rem_1fr] lg:grid-cols-1"
               >
                 <h3
                   id={headingId}

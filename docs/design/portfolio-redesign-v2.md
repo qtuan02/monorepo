@@ -252,6 +252,9 @@ Mười hai quyết định, đóng toàn bộ §6. Cột cuối ghi hệ quả 
 | 11 | Chuỗi lệnh, i18n | **Tên lệnh giữ tiếng Anh ở cả hai locale**; chỉ văn xuôi sau lệnh mới dịch | `vi.json` và `en.json` không lệch cấu trúc |
 | 12 | Bản in | **Làm nhẹ khi in**: bỏ bóng đổ, viền mỏng, ẩn thanh tiêu đề cửa sổ | Viết trong `@media print` đã có ở cuối `globals.css` |
 
+| 13 | Bố cục desktop (sau review, 2026-09-16) | **Hai cột kiểu CV** từ `lg`: khung `max-w-6xl`, hero trải hết, cột đọc 2/3 (About, Work, Projects hai cột) + rail 1/3 dính (Skills, Education, Contact, Hobbies). Thứ tự DOM không đổi | Spec #113 giữ cột 672px của v1 nên khối mới bị bó; ticket #123 |
+| 14 | Hover (sau review, 2026-09-16) | Khối **bấm được** lún 2px về phía bóng, bóng rút 4→2px; khối tĩnh không lún | `pressable` trên `StandardBlock`, `--shadow-hard-pressed`; sửa lại quyết định "không nhấc" của #118 |
+
 **Hệ quả suy ra, không hỏi lại:** đặt `--radius: 0` ở `apps/portfolio/src/globals.css` để vuông
 badge/card/button/skeleton/select bằng một dòng, và vuông nốt hai chỗ bo tròn hard-code còn lại là logo
 công ty trong `resume-card.tsx:147` và các icon trong dock. Điều này theo thẳng từ quyết định 5 và 7.

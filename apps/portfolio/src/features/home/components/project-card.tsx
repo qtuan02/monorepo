@@ -56,9 +56,11 @@ const linkClassName =
  * control a recruiter clicks on; the card's one job is to make the code and the
  * deployment one click away, so nothing here pretends to.
  *
- * Hover changes the ground and nothing else: `--accent` is the theme's hover
- * wash, and a block that lifts under the cursor — v1's `-translate-y-0.5` —
- * would be the one thing on a page of hard edges and solid shadows that moves.
+ * Hover washes the ground with `--accent` and presses the block: it sinks half
+ * a step toward its shadow and the shadow shortens to match (`pressable` on
+ * `StandardBlock`). Not v1's lift — a neubrutalist block is pushed into the
+ * page, never floated off it — and a card with links is a thing a reader
+ * clicks, which is what the press says.
  */
 export default function ProjectCard({
   name,
@@ -74,7 +76,10 @@ export default function ProjectCard({
   const hasLinks = Boolean(source?.length || demo);
 
   return (
-    <StandardBlock className="flex h-full flex-col gap-4 transition-colors hover:bg-accent motion-reduce:transition-none">
+    <StandardBlock
+      pressable
+      className="flex h-full flex-col gap-4 hover:bg-accent"
+    >
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           {/* `leading-snug` where a work row's title has `leading-none`: that one
