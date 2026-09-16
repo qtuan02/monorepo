@@ -313,22 +313,28 @@
     },
     "home": {
       "title": "Bắt đầu",
-      "description": "Hai gói được publish từ workspace này: 63 primitive Base UI và 5 React hook. Cả hai chỉ có subpath entry, nên bạn import đúng một file mình cần.",
-      "install": {
-        "title": "Cài đặt",
-        "description": "Thêm gói vào dự án của bạn.",
-        "note": "Cả hai gói là ESM thuần và không kèm bản CommonJS."
+      "hero": {
+        "tag": "v{version} · ESM · React 19 · Tailwind v4",
+        "title": "Primitive Base UI,",
+        "titleAccent": "mỗi import một file.",
+        "lead": "Hai gói publish từ workspace này — {components, plural, other {# primitive}} và {hooks, plural, other {# hook}}. Không có root entry, không CommonJS: bạn gọi đúng subpath mình cần và mọi thứ khác không đi theo.",
+        "copyCommand": "Sao chép lệnh cài"
+      },
+      "cards": {
+        "components": "{count, plural, other {primitive Base UI}}",
+        "hooks": "{count, plural, other {hook dùng chung}}",
+        "storybook": "Demo & bảng props",
+        "storybookCta": "Mở Storybook"
       },
       "peers": {
         "title": "Peer dependency",
-        "description": "Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package.",
-        "packageColumn": "Gói",
-        "rangeColumn": "Phạm vi"
+        "description": "Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package."
       },
       "css": {
         "title": "Nối stylesheet",
         "description": "Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó.",
-        "sourceWarning": "Tailwind v4 không quét node_modules. Thiếu dòng @source, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
+        "sourceWarningTitle": "Thiếu dòng @source",
+        "sourceWarning": "Tailwind v4 không quét node_modules. Thiếu dòng này, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
         "fragmentNote": "globals.css là một fragment chứ không phải entry Tailwind đầy đủ: nó cố ý không chứa @import “tailwindcss”, vì tailwindcss là peer dependency thuộc về bạn."
       },
       "example": {
@@ -340,7 +346,6 @@
         "description": "Không có import { Button } from “@fe-monorepo/ui”. Root entry không tồn tại, nên luôn gọi tên subpath."
       },
       "next": {
-        "title": "Đi tiếp",
         "components": "Xem danh sách primitive",
         "hooks": "Xem danh sách hook"
       }

@@ -1,47 +1,82 @@
+import { TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
-import { buttonVariants } from "@monorepo/ui/components/button";
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@monorepo/ui/components/tabs";
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@monorepo/ui/components/alert";
+import { buttonVariants } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import { CodeBlock } from "~/components/code/code-block";
 import { DocsSection } from "~/components/page/docs-section";
-import { PageHeader } from "~/components/page/page-header";
 import {
   HOOK_PACKAGE_NAME,
-  INSTALL_COMMANDS,
   PEER_DEPENDENCIES,
   UI_PACKAGE_NAME,
 } from "~/constants/packages";
 import { ROUTES } from "~/constants/routes";
 import { useDocumentTitle } from "~/hooks/use-document-title";
-import PeerDependencyTable from "../components/peer-dependency-table";
+import CatalogueCards from "../components/catalogue-cards";
+import Hero from "../components/hero";
+import PeerDependencyList from "../components/peer-dependency-list";
+import {
+  FIRST_EXAMPLE_SNIPPET,
+  NO_ROOT_ENTRY_SNIPPET,
+  STYLESHEET_SNIPPET,
+} from "../constants/snippets";
 
-// The three snippets a consumer copies verbatim. They are content rather than
-// configuration, so they sit beside the only screen that renders them — and
-// they are quoted from packages/ui-public/README.md, which is the surface the
-// publish ticket settled. Change them there first.
-const STYLESHEET_SNIPPET = `/* src/index.css */
-@import "tailwindcss";
-@import "${UI_PACKAGE_NAME}/globals.css";
+/**
+ * The numbered panels below the cards, in reading order — the install step
+ * lives in the hero. One list, so a panel's `01 / 04` is its position here
+ * and adding a fifth is one entry rather than four edits.
+ */
+const PANELS = [
+  {
+    id: "peers",
+    body: (
+      <>
+        <PeerDependencyList
+          packageName={UI_PACKAGE_NAME}
+          peers={PEER_DEPENDENCIES.ui}
+        />
+        <PeerDependencyList
+          packageName={HOOK_PACKAGE_NAME}
+          peers={PEER_DEPENDENCIES.hook}
+        />
+      </>
+    ),
+  },
+  { id: "css", body: <StylesheetPanelBody /> },
+  { id: "example", body: <CodeBlock code={FIRST_EXAMPLE_SNIPPET} /> },
+  { id: "noRootEntry", body: <CodeBlock code={NO_ROOT_ENTRY_SNIPPET} /> },
+] as const;
 
-@source "../node_modules/${UI_PACKAGE_NAME}/dist";`;
+/** The one panel with copy of its own: the snippet, the warning, the note. */
+function StylesheetPanelBody() {
+  const { t } = useTranslation();
 
-const FIRST_EXAMPLE_SNIPPET = `import { Button } from "${UI_PACKAGE_NAME}/components/button";
-import { cn } from "${UI_PACKAGE_NAME}/utils/cn";
-
-export function SaveRow({ busy }: { busy: boolean }) {
-  return <Button className={cn(busy && "opacity-50")}>Save</Button>;
-}`;
-
-const NO_ROOT_ENTRY_SNIPPET = `import { Button } from "${UI_PACKAGE_NAME}";           // ✗
-import { Button } from "${UI_PACKAGE_NAME}/components/button"; // ✓`;
+  return (
+    <>
+      <CodeBlock code={STYLESHEET_SNIPPET} />
+      {/* Warning, not destructive: nothing broke yet — the line is the one a
+          reader skips and only notices a build later. The primitive has no
+          warning variant, so the three token utilities are set here. */}
+      <Alert className="border-warning/50 bg-warning/20 text-foreground rounded-[14px]">
+        <TriangleAlert />
+        <AlertTitle>{t("documents.home.css.sourceWarningTitle")}</AlertTitle>
+        <AlertDescription className="text-foreground/80">
+          {t("documents.home.css.sourceWarning")}
+        </AlertDescription>
+      </Alert>
+      <p className="text-muted-foreground text-sm">
+        {t("documents.home.css.fragmentNote")}
+      </p>
+    </>
+  );
+}
 
 export default function GettingStartedTemplate() {
   const { t } = useTranslation();
@@ -50,95 +85,42 @@ export default function GettingStartedTemplate() {
 
   return (
     <>
-      <PageHeader
-        title={t("documents.home.title")}
-        description={t("documents.home.description")}
-      />
+      <Hero />
+      <CatalogueCards />
 
-      <DocsSection
-        title={t("documents.home.install.title")}
-        description={t("documents.home.install.description")}
-      >
-        {/* Base UI marks the active tab with a bare `data-active` attribute and
-            `tabs.tsx` already styles it, so no state className is passed here —
-            the Radix-era `data-[state=active]:…` shape does not apply. */}
-        <Tabs defaultValue={INSTALL_COMMANDS[0]?.id}>
-          <TabsList>
-            {INSTALL_COMMANDS.map((entry) => (
-              <TabsTrigger key={entry.id} value={entry.id}>
-                {entry.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {INSTALL_COMMANDS.map((entry) => (
-            <TabsContent key={entry.id} value={entry.id} className="mt-3">
-              <CodeBlock code={entry.command} />
-            </TabsContent>
-          ))}
-        </Tabs>
-        <p className="text-muted-foreground text-sm">
-          {t("documents.home.install.note")}
-        </p>
-      </DocsSection>
+      <div className="space-y-4.5 pb-10">
+        {PANELS.map((panel, index) => (
+          <DocsSection
+            key={panel.id}
+            index={index + 1}
+            total={PANELS.length}
+            title={t(`documents.home.${panel.id}.title`)}
+            description={t(`documents.home.${panel.id}.description`)}
+          >
+            {panel.body}
+          </DocsSection>
+        ))}
 
-      <DocsSection
-        title={t("documents.home.peers.title")}
-        description={t("documents.home.peers.description")}
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <PeerDependencyTable
-            packageName={UI_PACKAGE_NAME}
-            peers={PEER_DEPENDENCIES.ui}
-          />
-          <PeerDependencyTable
-            packageName={HOOK_PACKAGE_NAME}
-            peers={PEER_DEPENDENCIES.hook}
-          />
-        </div>
-      </DocsSection>
-
-      <DocsSection
-        title={t("documents.home.css.title")}
-        description={t("documents.home.css.description")}
-      >
-        <CodeBlock code={STYLESHEET_SNIPPET} />
-        <p className="border-destructive/40 bg-destructive/5 text-foreground rounded-lg border-l-4 p-3 text-sm">
-          {t("documents.home.css.sourceWarning")}
-        </p>
-        <p className="text-muted-foreground text-sm">
-          {t("documents.home.css.fragmentNote")}
-        </p>
-      </DocsSection>
-
-      <DocsSection
-        title={t("documents.home.example.title")}
-        description={t("documents.home.example.description")}
-      >
-        <CodeBlock code={FIRST_EXAMPLE_SNIPPET} />
-      </DocsSection>
-
-      <DocsSection
-        title={t("documents.home.noRootEntry.title")}
-        description={t("documents.home.noRootEntry.description")}
-      >
-        <CodeBlock code={NO_ROOT_ENTRY_SNIPPET} />
-      </DocsSection>
-
-      <DocsSection title={t("documents.home.next.title")}>
-        <div className="flex flex-wrap gap-3">
-          {/* Styled links, never `<Button render={<Link/>}>`: these navigate,
-              and Base UI's Button assumes a native <button>. */}
-          <Link to={ROUTES.COMPONENTS} className={cn(buttonVariants())}>
+        {/* Styled links, never `<Button render={<Link/>}>`: these navigate,
+            and Base UI's Button assumes a native <button>. */}
+        <div className="flex flex-wrap justify-center gap-3 pt-4">
+          <Link
+            to={ROUTES.COMPONENTS}
+            className={cn(buttonVariants({ size: "lg" }), "rounded-full")}
+          >
             {t("documents.home.next.components")}
           </Link>
           <Link
             to={ROUTES.HOOKS}
-            className={cn(buttonVariants({ variant: "outline" }))}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg" }),
+              "bg-card rounded-full",
+            )}
           >
             {t("documents.home.next.hooks")}
           </Link>
         </div>
-      </DocsSection>
+      </div>
     </>
   );
 }

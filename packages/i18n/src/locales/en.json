@@ -313,22 +313,28 @@
     },
     "home": {
       "title": "Getting started",
-      "description": "Two packages published from this workspace: 63 Base UI primitives and 5 React hooks. Both are subpath-only, so you import the one file you need.",
-      "install": {
-        "title": "Install",
-        "description": "Add the package to your project.",
-        "note": "Both packages are ESM only and ship no CommonJS build."
+      "hero": {
+        "tag": "v{version} · ESM · React 19 · Tailwind v4",
+        "title": "Base UI primitives,",
+        "titleAccent": "one file per import.",
+        "lead": "Two packages published from this workspace — {components, plural, one {# primitive} other {# primitives}} and {hooks, plural, one {# hook} other {# hooks}}. No root entry, no CommonJS: you name the one subpath you need and nothing else comes along.",
+        "copyCommand": "Copy the install command"
+      },
+      "cards": {
+        "components": "{count, plural, one {Base UI primitive} other {Base UI primitives}}",
+        "hooks": "{count, plural, one {shared hook} other {shared hooks}}",
+        "storybook": "Demo & props table",
+        "storybookCta": "Open Storybook"
       },
       "peers": {
         "title": "Peer dependencies",
-        "description": "You install these yourself; they are not dependencies of the package.",
-        "packageColumn": "Package",
-        "rangeColumn": "Range"
+        "description": "You install these yourself; they are not dependencies of the package."
       },
       "css": {
         "title": "Set up the stylesheet",
         "description": "Two lines in your Tailwind v4 entry, and one that matters more than it looks.",
-        "sourceWarning": "Tailwind v4 does not scan node_modules. Without the @source line every class inside the package compiles to nothing, with no error, and the components render unstyled.",
+        "sourceWarningTitle": "The @source line is missing",
+        "sourceWarning": "Tailwind v4 does not scan node_modules. Without this line every class inside the package compiles to nothing, with no error, and the components render unstyled.",
         "fragmentNote": "globals.css is a fragment rather than a full Tailwind entry: it deliberately carries no @import “tailwindcss”, which is yours to own since tailwindcss is a peer dependency."
       },
       "example": {
@@ -340,7 +346,6 @@
         "description": "There is no import { Button } from “@fe-monorepo/ui”. The root entry does not exist, so always name the subpath."
       },
       "next": {
-        "title": "Keep going",
         "components": "Browse the primitives",
         "hooks": "Browse the hooks"
       }

@@ -70,6 +70,23 @@
     --aurora-pink: #f472b6;
     --aurora-amber: #fbbf24;
     --aurora-lime: #a3e635;
+
+    /* The code block of the direction (brief §2c): indigo-900 at 94% under
+       indigo-100 ink, with the three token colours the snippets are painted
+       in by hand — a keyword violet-300, a string cyan-300, a comment the
+       ink dimmed to 4.8:1 on the block (the brief's #8b89b8 reads 3.5:1,
+       under AA). The theme's own `--code` pair stays untouched (it is the
+       light surface a `<kbd>` reads on, and `test/globals.test.ts` holds it
+       to the theme); this is a second, darker surface, and it is the same
+       in both themes on purpose — the block is already night-coloured.
+       Hex rather than oklch, like the aurora stops: the token contract
+       reads every oklch token in the *unlayered* `:root` as a palette
+       override, and these are decoration in `@layer base`. */
+    --code-block: rgb(49 46 129 / 0.94);
+    --code-block-foreground: #e0e7ff;
+    --code-keyword: #c4b5fd;
+    --code-string: #67e8f9;
+    --code-comment: #b4b2dc;
   }
 
   .dark {
@@ -101,6 +118,25 @@
 
 @utility glass-deep {
   box-shadow: var(--sh-1), var(--sh-2), var(--sh-3), var(--sh-4);
+}
+
+/**
+ * The gradient ink of the hero's second line (brief §2c): the four stops of
+ * the direction painted through the glyphs. `color: transparent` is what
+ * lets the background show, so an engine with no `background-clip: text`
+ * would paint nothing — every engine this site targets has had it for years.
+ */
+@utility prism-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--aurora-indigo),
+    var(--aurora-violet) 40%,
+    var(--aurora-pink) 75%,
+    var(--accent)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
 }
 
 /**

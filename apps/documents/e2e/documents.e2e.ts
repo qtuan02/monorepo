@@ -12,14 +12,19 @@ import { ROUTES } from "../src/constants/routes";
  */
 const PRIMITIVE_SLUG = "button";
 
+/** The two lines of the hero's h1, as one accessible name. */
+const LANDING_HEADLINE = "Primitive Base UI, mỗi import một file.";
+
 test.describe("documents", () => {
   test("walks from the landing page to a primitive's page through the nav and a card", async ({
     page,
   }) => {
     await page.goto(ROUTES.HOME);
 
+    // The landing page's one h1 is the headline; "Bắt đầu" is its nav item
+    // and its document title, not a heading (#134).
     await expect(
-      page.getByRole("heading", { level: 1, name: "Bắt đầu" }),
+      page.getByRole("heading", { level: 1, name: LANDING_HEADLINE }),
     ).toBeVisible();
 
     // There is no sidebar: the pill's *Component* item leads to the list, and
@@ -142,7 +147,7 @@ test.describe("documents", () => {
 
     await page.goto(ROUTES.HOME);
     await expect(
-      page.getByRole("heading", { level: 1, name: "Bắt đầu" }),
+      page.getByRole("heading", { level: 1, name: LANDING_HEADLINE }),
     ).toBeVisible();
 
     // Vite bakes whatever is in the local .env without validating it, so a
