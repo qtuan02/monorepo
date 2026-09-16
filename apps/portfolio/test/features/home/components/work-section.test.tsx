@@ -14,7 +14,7 @@ import { render } from "../../../support/render";
  */
 describe("WorkSection", () => {
   it("opens the first row and leaves the rest folded", () => {
-    render(<WorkSection delay={0} />);
+    render(<WorkSection />);
 
     const toggles = screen.getAllByRole("button", {
       name: "Xem chi tiết công việc",
@@ -29,7 +29,7 @@ describe("WorkSection", () => {
   });
 
   it("still renders a folded row's bullets into the markup", () => {
-    render(<WorkSection delay={0} />);
+    render(<WorkSection />);
 
     // The body is markup either way — the accordion only animates its height —
     // which is what keeps a crawler reading a role nobody clicked open. This
@@ -38,7 +38,7 @@ describe("WorkSection", () => {
   });
 
   it("badges the one role that carries an award", () => {
-    render(<WorkSection delay={0} />);
+    render(<WorkSection />);
 
     expect(screen.getByText("VDA 2025")).toBeInTheDocument();
   });

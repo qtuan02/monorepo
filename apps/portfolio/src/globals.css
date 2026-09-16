@@ -222,33 +222,25 @@
 /**
  * A reader who has asked their operating system for less motion.
  *
- * `BlurFade`, `BlurFadeText` and the dock read the preference in JavaScript and
- * render their resting state instead, but that answer arrives only once the page
- * has hydrated. The server has already sent the animating markup by then, with
- * motion's `opacity: 0` inline on it — so a reader who asked for no motion is
- * shown a blank page until the JavaScript lands, and a blank page for good if it
- * never does. The first rule here is what makes the content visible with no
- * JavaScript at all; the JavaScript branch is the enhancement, not the guarantee.
- *
- * The rest is the motion CSS owns and JavaScript never sees: the theme wipe
- * above, and the waving hand.
+ * The sections arrive at rest — there is no entrance animation any more, so
+ * nothing on the page starts at `opacity: 0` and there is nothing here to make
+ * visible. What is left is the motion CSS owns and JavaScript never sees: the
+ * theme wipe above, and the waving hand. The dock reads the preference in
+ * JavaScript and handles its own.
  *
  * Both are switched off by name rather than by a blanket `* { animation: none }`
  * so that a future animation has to opt in here deliberately, and so nothing
  * that merely *transitions* — the chevron, a hover colour — is flattened along
  * with them.
  */
-/* biome-ignore-start lint/complexity/noImportantStyles: the declarations
-   being overridden are inline styles written by `motion` at runtime, and an
-   inline style is only beaten by `!important`. */
+/* biome-ignore-start lint/complexity/noImportantStyles: two different reasons,
+   one region. Here, the wipe's `to-light` variant is selected on
+   `:root[data-theme-transition]` and would out-specify a bare
+   `::view-transition-new(root)`, so the switch-off needs `!important` to beat
+   it; the bounce rule takes the same form so the block reads as one set. In
+   the print block further down, the override is against an inline style
+   written by `motion` at runtime, which only `!important` beats. */
 @media (prefers-reduced-motion: reduce) {
-  [data-slot="blur-fade"],
-  [data-slot="blur-fade-text"] {
-    opacity: 1 !important;
-    filter: none !important;
-    transform: none !important;
-  }
-
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation: none !important;
@@ -263,11 +255,9 @@
  * Print — this page *is* the CV, so the "download" the hero offers is the
  * browser's own print dialog rather than a PDF kept in step by hand.
  *
- * Three things have to be undone, and all three are inline styles written by
- * `motion`, which is why every rule here carries `!important`: a section that
- * has not finished fading in would print at `opacity: 0`, and a work row nobody
- * clicked open would print as a heading with no body — on paper there is no one
- * to click.
+ * One thing has to be undone, and it is an inline style written by `motion`,
+ * which is why the rule carries `!important`: a work row nobody clicked open
+ * would print as a heading with no body — on paper there is no one to click.
  */
 @media print {
   @page {
@@ -306,13 +296,6 @@
   html,
   body {
     background: #fff !important;
-  }
-
-  [data-slot="blur-fade"],
-  [data-slot="blur-fade-text"] {
-    opacity: 1 !important;
-    filter: none !important;
-    transform: none !important;
   }
 
   [data-slot="resume-card-body"] {

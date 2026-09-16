@@ -13,7 +13,7 @@ import { render } from "../../../support/render";
  */
 describe("SkillsSection", () => {
   it("gives every group its own heading under the section's own", () => {
-    render(<SkillsSection delay={0} />);
+    render(<SkillsSection />);
 
     expect(
       screen.getByRole("heading", { level: 2, name: "Kỹ năng" }),
@@ -36,7 +36,7 @@ describe("SkillsSection", () => {
   });
 
   it("renders each group's skills under that group's heading", () => {
-    const { container } = render(<SkillsSection delay={0} />);
+    const { container } = render(<SkillsSection />);
 
     for (const group of SKILL_GROUPS) {
       const heading = screen
@@ -63,7 +63,7 @@ describe("SkillsSection", () => {
   });
 
   it("does not dress a skill chip up as something you can press", () => {
-    render(<SkillsSection delay={0} />);
+    render(<SkillsSection />);
 
     // A chip that lifts on hover reads as a control. These are labels: there is
     // nothing to activate, and no button or link should exist in the section.
