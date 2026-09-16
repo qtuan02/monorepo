@@ -28,9 +28,10 @@ export default function SignInForm() {
     defaultValues: { email: "admin@gmail.com", password: "admin@123" },
   });
 
+  // A push, as in the prototype: GuestRoute already keeps Back off this screen.
   const onSubmit = form.handleSubmit((values) => {
     setToken(`local-${values.email}`);
-    navigate(ROUTES.HOME, { replace: true });
+    navigate(ROUTES.HOME);
   });
 
   return (
@@ -65,13 +66,14 @@ export default function SignInForm() {
               <Field data-invalid={fieldState.invalid}>
                 <div className="flex items-center justify-between">
                   <FieldLabel htmlFor={field.name}>Mật khẩu</FieldLabel>
-                  {/* The prototype's dead link, kept as-is: no reset flow exists. */}
-                  <Link
-                    to="#"
+                  {/* The prototype's dead link — no reset flow exists, so a
+                      non-navigating control rather than an <a> pointing nowhere. */}
+                  <button
+                    type="button"
                     className="text-primary text-sm font-medium hover:underline"
                   >
                     Quên mật khẩu?
-                  </Link>
+                  </button>
                 </div>
                 <Input
                   {...field}

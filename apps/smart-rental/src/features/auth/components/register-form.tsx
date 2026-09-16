@@ -55,7 +55,7 @@ export default function RegisterForm() {
   // gone the landlord is the only account there is.
   const onSubmit = form.handleSubmit((values) => {
     setToken(`local-${values.email}`);
-    navigate(ROUTES.ONBOARDING, { replace: true });
+    navigate(ROUTES.ONBOARDING);
   });
 
   return (

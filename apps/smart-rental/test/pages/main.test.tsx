@@ -73,6 +73,23 @@ const guestScreens: [path: string, heading: string][] = [
 ];
 
 describe("the route tree", () => {
+  it("has a row above for every static path in ROUTES", () => {
+    // Guards the table itself: a path added to ROUTES without a row here
+    // would otherwise be the one route nothing renders.
+    const covered = new Set([
+      ...guardedScreens.map(([path]) => path),
+      ...guestScreens.map(([path]) => path),
+      ROUTES.ONBOARDING,
+    ]);
+    const missing: string[] = [];
+    for (const value of Object.values(ROUTES)) {
+      if (typeof value !== "string" || value.includes(":")) continue;
+      if (!covered.has(value)) missing.push(value);
+    }
+
+    expect(missing).toEqual([]);
+  });
+
   beforeEach(() => {
     // `true` replaces rather than merges, so a token set by one test cannot
     // survive into the next.
