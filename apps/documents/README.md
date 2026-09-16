@@ -57,7 +57,7 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   `exportPreviewMore`), số export ở góc. Tile nền đục 75% và **không** blur — sáu
   mươi `backdrop-filter` trên một trang là chi phí GPU. `col-span-2` từ `md` khi
   `exports.length >= 10`; class nằm trên `<li>` mà `Tile` tự render, vì đó mới là
-  grid item. Hover nhấc 3px + bóng tầng 4, tắt dưới `prefers-reduced-motion`. Swatch là
+  grid item. Hover nhấc 3px + bóng tầng 4; dưới `prefers-reduced-motion` chỉ còn bóng, không nhấc. Swatch là
   gradient hue sinh xác định từ slug — cùng màu ở tile, ở palette và ở hero chi tiết.
   Lọc rỗng → `Empty` với nút xoá bộ lọc.
 - **Trang chi tiết.** Thanh công cụ (`Component / dialog` + trước/sau) → hero kính đậm
