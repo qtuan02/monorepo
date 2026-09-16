@@ -2,10 +2,11 @@
 
 import type { ComponentProps } from "react";
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
 
 import { Button } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
+
+import { useTheme } from "~/features/layout/provider/theme-provider";
 
 /**
  * `Document.startViewTransition` is not in the DOM lib this repo compiles
