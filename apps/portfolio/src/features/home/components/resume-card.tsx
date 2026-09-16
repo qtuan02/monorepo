@@ -162,7 +162,7 @@ export function ResumeCard({
   );
 
   return (
-    <StandardBlock pressable className="group flex gap-x-4">
+    <StandardBlock className="group flex gap-x-4">
       <div className="flex-none select-none">
         {/* A static import, so Next reads the file's real dimensions at build
             time and a rename is a build error rather than a silent 404.

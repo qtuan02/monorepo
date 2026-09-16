@@ -9,7 +9,12 @@ interface DockProps {
 
 /**
  * The bar the dock's controls sit in: a square box with the page's hard edge
- * and its solid offset shadow, and nothing that moves.
+ * and its solid offset shadow, pressing under the cursor the way every block
+ * on the page does — `shadow-hard` to `shadow-hard-pressed` with a 2px
+ * translate, the same two utilities `standard-block.tsx` uses (#124; the
+ * dock spelled its own shadow before). What does *not* move on hover is a
+ * control inside it: the bar answers the cursor, a control answers the click
+ * — see `dockControlClassName` in `navbar.template.tsx`.
  *
  * The v1 dock was the macOS bar — a `motion` value tracked the pointer along
  * it and a spring swelled whichever icon was underneath, which needed a context
@@ -27,7 +32,7 @@ export function Dock({ children, className }: DockProps) {
   return (
     <nav
       className={cn(
-        "flex w-max items-center gap-2 border-2 border-border bg-background p-2 shadow-[4px_4px_0_0_var(--hard-shadow)]",
+        "flex w-max items-center gap-2 border-2 border-border bg-background p-2 shadow-hard transition-[translate,box-shadow] duration-150 ease-out hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-hard-pressed motion-reduce:transition-none",
         className,
       )}
     >

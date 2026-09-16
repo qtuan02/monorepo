@@ -42,7 +42,7 @@ _Avoid_: accent (đã là tên của cặp indigo `--accent`), vàng "nền".
 
 **Bóng đặc** (hard shadow):
 Bóng lệch góc `4px 4px 0 0`, không blur, màu `--hard-shadow` — token riêng để light (đen) và dark
-(trắng) đổi cùng viền. Utility `shadow-hard`; dock spell riêng vì không phải khối của trang.
+(trắng) đổi cùng viền. Utility `shadow-hard`, dock dùng chung từ #124.
 _Avoid_: drop shadow, elevation.
 
 **Đảo cực**:
@@ -58,10 +58,11 @@ về mặt đọc. (#123)
 _Avoid_: sidebar (gợi điều hướng), cột phụ.
 
 **Lún** (press):
-Trạng thái hover của một khối tiêu chuẩn *bấm được* — card dự án, hàng công việc/học vấn: khối
-dịch 2px về phía bóng và bóng rút từ 4px về 2px (`pressable` trên `StandardBlock`, utility
-`shadow-hard-pressed`). Khối tĩnh (giới thiệu, kỹ năng, liên hệ, sở thích) không lún, vì lún là
-lời hứa bấm được. Ngược với "nhấc" (lift) của v1.
+Trạng thái hover của **mọi** khối tiêu chuẩn, hero lẫn khối tĩnh, và của thanh dock: khối dịch 2px
+về phía bóng và bóng rút từ 4px về 2px (utility `shadow-hard-pressed`, cặp với `shadow-hard`).
+Trên trang này lún là chất liệu, không phải lời hứa bấm được (#124 mở rộng từ #123, vốn chỉ cho
+khối bấm được). Riêng **control trong dock** không lún theo hover — thanh đã lún rồi — mà lún 1px
+khi bấm (`:active`). Ngược với "nhấc" (lift) của v1.
 _Avoid_: lift, hover scale.
 
 **Neutral override**:

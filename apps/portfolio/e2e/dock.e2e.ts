@@ -22,7 +22,7 @@ const HARD_SHADOW = { light: "#0a0a0a", dark: "#fafafa" } as const;
 /** A rounding step or two apart — the same colour. */
 const SAME_COLOUR = 4;
 
-/** The four controls, in document order — each one carries its own name. */
+/** The five controls, in document order — each one carries its own name. */
 function dockControls(page: Page) {
   return page.getByRole("navigation").locator("[aria-label]");
 }
@@ -92,8 +92,8 @@ test.describe("the dock", () => {
         nodes.map((node) => getComputedStyle(node).borderRadius),
       );
 
-      expect(radii, theme).toHaveLength(4);
-      expect(radii, theme).toEqual(["0px", "0px", "0px", "0px"]);
+      expect(radii, theme).toHaveLength(5);
+      expect(radii, theme).toEqual(["0px", "0px", "0px", "0px", "0px"]);
     }
   });
 
@@ -104,7 +104,7 @@ test.describe("the dock", () => {
 
     const controls = dockControls(page);
 
-    await expect(controls).toHaveCount(4);
+    await expect(controls).toHaveCount(5);
 
     const boxes = await controls.evaluateAll((nodes) =>
       nodes.map((node) => {
@@ -147,11 +147,19 @@ test.describe("the dock", () => {
     const linkedin = page.getByRole("navigation").getByRole("link", {
       name: "LinkedIn",
     });
+    // The switcher hydrates after the bar paints and is wider than its
+    // fallback, which re-centres the whole bar; measure once it is there so
+    // the comparison is about the hover.
+    await expect(
+      page.getByRole("navigation").getByRole("combobox"),
+    ).toBeVisible();
+
     const before = await github.boundingBox();
     const neighbourBefore = await linkedin.boundingBox();
 
     expect(before).not.toBeNull();
     expect(neighbourBefore).not.toBeNull();
+    if (!before || !neighbourBefore) return;
 
     await github.hover();
     // Nothing here is *waited for* — the claim is that nothing happens, which
@@ -172,7 +180,21 @@ test.describe("the dock", () => {
         }),
     );
 
-    expect(await github.boundingBox()).toEqual(before);
-    expect(await linkedin.boundingBox()).toEqual(neighbourBefore);
+    // Size, not position: since #124 the *bar* presses 2px under the cursor
+    // (`e2e/accent.e2e.ts` asserts that), so every control's box moves with
+    // it — what must not happen is a control changing its own size, or two
+    // controls changing their distance.
+    const after = await github.boundingBox();
+    const neighbourAfter = await linkedin.boundingBox();
+    if (!after || !neighbourAfter) throw new Error("a control lost its box");
+
+    expect(after.width).toBe(before.width);
+    expect(after.height).toBe(before.height);
+    expect(neighbourAfter.width).toBe(neighbourBefore.width);
+    expect(neighbourAfter.height).toBe(neighbourBefore.height);
+    expect(neighbourAfter.x - after.x).toBeCloseTo(
+      neighbourBefore.x - before.x,
+      1,
+    );
   });
 });

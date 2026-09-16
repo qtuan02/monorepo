@@ -11,6 +11,10 @@ import { render } from "../../../support/render";
  * decides — which items leave the site — instead of about Next's router.
  */
 vi.mock("~/i18n/navigation", () => ({
+  // The switcher in the dock reads the path and the router; a stub path and a
+  // recording router keep the test about the bar's contents.
+  usePathname: () => "/",
+  useRouter: () => ({ replace: vi.fn() }),
   Link: ({
     href,
     children,
@@ -33,13 +37,13 @@ vi.mock("next-themes", () => ({
 
 /**
  * The redesign redraws the dock and takes its magnification out; what it must
- * not change is the bar's contents. Four controls, in this order, each with the
+ * not change is the bar's contents. Five controls, in this order, each with the
  * accessible name the catalogue gives it — the tooltip text is the same string,
  * so a reader with a pointer and a reader with a screen reader hear the same
- * thing.
+ * thing. The fifth is the language switcher, in the bar since #124.
  */
 describe("NavbarTemplate", () => {
-  it("keeps the four items in order, with their catalogue names", () => {
+  it("keeps the five items in order, with their catalogue names", () => {
     render(<NavbarTemplate />);
 
     const dock = screen.getByRole("navigation");
@@ -54,6 +58,7 @@ describe("NavbarTemplate", () => {
       "LinkedIn",
       "GitHub",
       "Đổi giao diện sáng tối",
+      "Chọn ngôn ngữ",
     ]);
   });
 

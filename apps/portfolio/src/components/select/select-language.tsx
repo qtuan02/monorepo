@@ -16,6 +16,8 @@ import { usePathname, useRouter } from "~/i18n/navigation";
 
 interface SelectLanguageProps {
   triggerClassName?: string;
+  /** The trigger's accessible name; its visible text is the current language. */
+  label?: string;
 }
 
 /**
@@ -27,7 +29,10 @@ interface SelectLanguageProps {
  * path *without* the locale prefix, which is what makes `router.replace(pathname,
  * { locale })` the whole implementation.
  */
-export function SelectLanguage({ triggerClassName }: SelectLanguageProps) {
+export function SelectLanguage({
+  triggerClassName,
+  label,
+}: SelectLanguageProps) {
   const t = useTranslations();
   const locale = useLocale() as LanguageCode;
   const pathname = usePathname();
@@ -43,7 +48,7 @@ export function SelectLanguage({ triggerClassName }: SelectLanguageProps) {
         router.replace(pathname, { locale: value as LanguageCode });
       }}
     >
-      <SelectTrigger className={triggerClassName} size="sm">
+      <SelectTrigger className={triggerClassName} size="sm" aria-label={label}>
         {/* Children rather than `items`: without either, Base UI renders the raw
             value ("vi") instead of the label. */}
         <SelectValue placeholder={t("language.placeholder")}>
