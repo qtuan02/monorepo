@@ -180,10 +180,8 @@
       }
     },
     "projects": {
-      "title": "Personal Projects",
-      "type": {
-        "personal": "Personal"
-      },
+      "title": "Learning and demo projects",
+      "note": "Built to learn and try things out, each with a public repo and a live demo — not production products.",
       "links": {
         "source": "Source code",
         "sourceFrontend": "Source (FE)",
@@ -192,28 +190,13 @@
       },
       "items": {
         "monorepo": {
-          "description": "A Bun + Turborepo workspace with three app Runtimes cloned from Template apps, sharing eight source-only packages. It is the portfolio you are reading.",
-          "bullets": {
-            "runtimes": "Three Runtimes: a Vite SPA, Next.js 16 App Router and React Router 8 framework mode, each behind a Template a generator clones.",
-            "gate": "One four-command Gate (Biome, TS 7, Vitest 5, build) mirrored 1:1 in GitHub Actions; Playwright E2E and Docker builds discovered by glob.",
-            "publish": "Publishes @fe-monorepo/ui (63 shadcn/Base UI primitives) and @fe-monorepo/hook to npm through Changesets + OIDC trusted publishing, with a tarball smoke test before release."
-          }
+          "description": "A Bun + Turborepo workspace with three app Runtimes cloned from Template apps, sharing eight source-only packages. It is the portfolio you are reading."
         },
         "chat-socket": {
-          "description": "A full-stack real-time chat app: React 19 + Rsbuild on the client, Spring Boot on the server, messaging over STOMP on WebSocket.",
-          "bullets": {
-            "auth": "JWT access token + refresh-token session (HttpOnly cookie) on Spring Security.",
-            "realtime": "Messages, seen-state and online presence over STOMP, backed by Redis.",
-            "history": "Cursor-paginated, virtualised message history (react-virtuoso); friends, direct and group conversations with roles."
-          }
+          "description": "A full-stack real-time chat app: React 19 + Rsbuild on the client, Spring Boot on the server, messaging over STOMP on WebSocket."
         },
         "smart-rental": {
-          "description": "A rental-management portal: KPI dashboard, floor-grid room map, contract lifecycle and batch invoicing with QR payment.",
-          "bullets": {
-            "portal": "React 19 + Rsbuild + React Router; TanStack Query/Table, dnd-kit, nuqs for URL state, shadcn/Radix.",
-            "delivery": "Storybook for shared components; CI and production deploys to Vercel through GitHub Actions.",
-            "backend": "Spring Boot 4 multi-module backend (UUIDv7, Flyway) — user-service live, property-service in progress."
-          }
+          "description": "A rental-management portal: KPI dashboard, floor-grid room map, contract lifecycle and batch invoicing with QR payment."
         }
       }
     },

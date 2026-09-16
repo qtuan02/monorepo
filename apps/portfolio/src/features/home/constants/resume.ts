@@ -107,15 +107,16 @@ export const WORK_ITEMS: readonly WorkItem[] = [
 ];
 
 /**
- * The three projects a recruiter can open and check: each has a public
- * repository and a live deployment. Order is by how much of the story each
- * tells — the monorepo is the site being read, so it goes first.
+ * The three learning and demo projects a recruiter can open and check: each
+ * has a public repository and a live deployment, and none is a production
+ * product — which is why an item carries a one-line description and its
+ * stack, and no bullets (#125). Order is by how much of the story each tells —
+ * the monorepo is the site being read, so it goes first.
  */
 export const PROJECT_ITEMS: readonly ProjectItem[] = [
   {
     id: "monorepo",
     name: "Personal Monorepo",
-    type: "personal",
     techStack: [
       "Bun",
       "Turborepo",
@@ -126,12 +127,10 @@ export const PROJECT_ITEMS: readonly ProjectItem[] = [
     ],
     source: [{ id: "repo", href: "https://github.com/qtuan02/monorepo" }],
     demo: "https://portfolio-ui-2025.vercel.app",
-    bulletKeys: ["runtimes", "gate", "publish"],
   },
   {
     id: "chat-socket",
     name: "Real-time Chat",
-    type: "personal",
     techStack: [
       "React",
       "Rsbuild",
@@ -145,12 +144,10 @@ export const PROJECT_ITEMS: readonly ProjectItem[] = [
       { id: "backend", href: "https://github.com/qtuan02/chat-socket-be" },
     ],
     demo: "https://chat-socket-fe.vercel.app",
-    bulletKeys: ["auth", "realtime", "history"],
   },
   {
     id: "smart-rental",
     name: "SmartRental",
-    type: "personal",
     techStack: [
       "React",
       "Rsbuild",
@@ -164,7 +161,6 @@ export const PROJECT_ITEMS: readonly ProjectItem[] = [
       { id: "backend", href: "https://github.com/qtuan02/be-motel" },
     ],
     demo: "https://motel-management-portal.vercel.app",
-    bulletKeys: ["portal", "delivery", "backend"],
   },
 ];
 

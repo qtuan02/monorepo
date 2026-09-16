@@ -91,19 +91,13 @@ test.describe("viewport", () => {
     expect(heroBox.width).toBeGreaterThan(aboutBox.width + skillsBox.width);
     expect(heroBox.width).toBeLessThanOrEqual(mainBox.width);
 
-    // The three project cards are two across, the odd one out full width.
-    const cards = page.locator('#projects [data-slot="standard-block"]');
-    await expect(cards).toHaveCount(3);
-    const [first, second, third] = await Promise.all([
-      cards.nth(0).boundingBox(),
-      cards.nth(1).boundingBox(),
-      cards.nth(2).boundingBox(),
-    ]);
-    if (!first || !second || !third) throw new Error("a card has no box");
-    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
-    expect(second.x).toBeGreaterThan(first.x + first.width);
-    expect(third.y).toBeGreaterThan(first.y + first.height);
-    expect(third.width).toBeGreaterThan(first.width * 1.8);
+    // The projects are one block in the column, as wide as About: three
+    // rows, not three cards (#125).
+    const projects = page.locator('#projects [data-slot="standard-block"]');
+    await expect(projects).toHaveCount(1);
+    const projectsBox = await projects.boundingBox();
+    if (!projectsBox) throw new Error("the projects block has no box");
+    expect(Math.abs(projectsBox.width - aboutBox.width)).toBeLessThan(2);
 
     // And one column again on a phone: the rail sits under the column.
     await openHomeAt(page, PHONE_WIDTH, 812);
@@ -163,8 +157,10 @@ test.describe("viewport", () => {
       .locator('[data-slot="resume-card-body"]')
       .getByRole("listitem")
       .first();
+    // The block's first paragraph is the note; a row's first is its pitch.
     const projectDescription = page
-      .locator('#projects [data-slot="standard-block"]')
+      .locator('#projects [data-slot="standard-block"] li')
+      .first()
       .getByRole("paragraph")
       .first();
 

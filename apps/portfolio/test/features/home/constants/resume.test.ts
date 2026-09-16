@@ -67,9 +67,9 @@ describe("resume constants", () => {
   });
 
   it("caps a project's tech stack at six badges", () => {
-    // Above six the chips wrap into a third line inside a card that is one of
-    // three across the column, and the design cuts at the data rather than
-    // rendering a "+n" overflow — so the cap is enforced where the data lives.
+    // The stack is one line of monospace under a row (#125); above six names
+    // it wraps, and the design cuts at the data rather than clipping at render
+    // — so the cap is enforced where the data lives.
     for (const item of PROJECT_ITEMS) {
       expect(item.techStack.length, item.id).toBeLessThanOrEqual(6);
     }

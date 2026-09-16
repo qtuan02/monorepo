@@ -57,25 +57,12 @@ export interface ProjectItem {
   /** Also the message-key segment: `portfolio.projects.items.<id>.description`. */
   id: string;
   name: string;
-  /**
-   * Picks the type badge's label: `portfolio.projects.type.<type>`.
-   *
-   * One member, because the section is headed "personal projects" and every
-   * card under it is one. The union carried a `"company"` arm no item used and
-   * no catalogue string will ever be read for — a dead branch is an invitation
-   * to file a client project under a heading that says otherwise. Widening it
-   * is one word here plus one key in each locale, once there is a card that
-   * needs it.
-   */
-  type: "personal";
   /** At most six — the cap is asserted in the constants test, not clipped at render. */
   techStack: readonly string[];
   /** Absent when there is nothing public to read; a link is rendered per entry. */
   source?: readonly ProjectSource[];
   /** A live deployment; absent when the project has none to show. */
   demo?: string;
-  /** Message-key segments under `portfolio.projects.items.<id>.bullets`. */
-  bulletKeys: readonly string[];
 }
 
 /** One row of the education history — a link out, and no expandable body. */
