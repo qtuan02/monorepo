@@ -4,23 +4,28 @@ import { ROUTES } from "../src/constants/routes";
 import { hexToRgb, rgbDistance } from "../test/support/contrast";
 
 /**
- * The accent is the one claim in this app no jsdom test can reach, because it
+ * The palette is the one claim in this app no jsdom test can reach, because it
  * is a cascade result rather than a value in a file. `src/globals.css`
- * re-declares seven custom properties that `tooling/tailwind/theme.css` has
- * already declared, and whether the app's values win turns on cascade layers:
- * `theme.css` arrives through a plain `@import`, so it is unlayered, and an
- * unlayered declaration beats anything inside a `@layer`. One indentation level
- * further in — beside `--font-sans` — the override would compile, ship and lose
- * with nothing logged, and the CV would still be wearing the EMR product's
- * teal.
+ * re-declares twelve custom properties that `tooling/tailwind/theme.css` has
+ * already declared or never knew, plus `--radius`, and whether the app's values
+ * win turns on cascade layers: `theme.css` arrives through a plain `@import`,
+ * so it is unlayered, and an unlayered declaration beats anything inside a
+ * `@layer`. One indentation level further in — beside `--font-sans` — the
+ * override would compile, ship and lose with nothing logged, and the CV would
+ * still be wearing the EMR product's teal, blue-grey text and invisible borders.
  *
  * `test/globals.test.ts` reads the stylesheet as text and pins that placement.
  * Only a browser resolves it, which is what this file is for.
  */
 
 /** What each token has to come out as, once the cascade has run. */
-const INDIGO = {
+const PALETTE = {
   light: {
+    // the two neutrals and the shadow — ink
+    "--foreground": "#0a0a0a",
+    "--border": "#0a0a0a",
+    "--hard-shadow": "#0a0a0a",
+    // the indigo accent
     "--primary": "#4f39f6",
     "--primary-foreground": "#ffffff",
     "--ring": "#6262fa",
@@ -28,8 +33,15 @@ const INDIGO = {
     "--accent-foreground": "#432dd7",
     "--selection": "#4f39f6",
     "--selection-foreground": "#ffffff",
+    // the yellow highlight
+    "--highlight": "#ffe14d",
+    "--highlight-foreground": "#0a0a0a",
   },
   dark: {
+    // inverted, not dimmed: the same three go to near-white
+    "--foreground": "#fafafa",
+    "--border": "#fafafa",
+    "--hard-shadow": "#fafafa",
     "--primary": "#7e89f9",
     "--primary-foreground": "#1a1b4d",
     "--ring": "#7e89f9",
@@ -37,11 +49,29 @@ const INDIGO = {
     "--accent-foreground": "#cad2fb",
     "--selection": "#7e89f9",
     "--selection-foreground": "#1a1b4d",
+    // dulled for a dark ground; the ink on it stays
+    "--highlight": "#eec743",
+    "--highlight-foreground": "#0a0a0a",
   },
 } as const;
 
 /** The EMR product teal this app is getting out of, light and dark. */
 const EMR_TEAL = ["#38a696", "#75cdc0"] as const;
+
+/**
+ * The EMR text and border this app is also getting out of, by the token that
+ * replaces each. The border is the telling one: `#f0f0f0` on `#f8f8f9` is a
+ * card with no edge, and a test that only asked "is it teal?" would wave it
+ * through. Light only: the theme's dark text already sits at the pole, and its
+ * dark border is a 10% white that no opaque hex stands for.
+ */
+const EMR_NEUTRALS: Record<
+  keyof typeof PALETTE,
+  Partial<Record<keyof (typeof PALETTE)["light"], string>>
+> = {
+  light: { "--foreground": "#3d4c63", "--border": "#f0f0f0" },
+  dark: {},
+};
 
 /** A rounding step or two apart — the same colour. */
 const SAME_COLOUR = 4;
@@ -80,45 +110,83 @@ async function paintedTokens(
   }, tokens);
 }
 
-test.describe("indigo accent", () => {
+async function openHomeIn(
+  page: import("@playwright/test").Page,
+  theme: "light" | "dark",
+) {
+  await page.addInitScript((stored) => {
+    window.localStorage.setItem("theme", stored);
+  }, theme);
+  await page.goto(ROUTES.HOME);
+
+  // The page is up, and next-themes has stamped its class on <html>
+  // (`attribute="class"`, which is what the `dark:` variant keys off).
+  await expect(page.locator("#work")).toBeVisible();
+  await expect(page.locator("html")).toHaveClass(new RegExp(`\\b${theme}\\b`));
+}
+
+test.describe("the palette", () => {
   for (const theme of ["light", "dark"] as const) {
-    test(`resolves to indigo, not the EMR teal, in the ${theme} theme`, async ({
+    test(`resolves to the app's own tokens, not the EMR palette, in the ${theme} theme`, async ({
       page,
     }) => {
-      await page.addInitScript((stored) => {
-        window.localStorage.setItem("theme", stored);
-      }, theme);
-      await page.goto(ROUTES.HOME);
+      await openHomeIn(page, theme);
 
-      // The page is up, and next-themes has stamped its class on <html>
-      // (`attribute="class"`, which is what the `dark:` variant keys off).
-      await expect(page.locator("#work")).toBeVisible();
-      await expect(page.locator("html")).toHaveClass(
-        new RegExp(`\\b${theme}\\b`),
-      );
-
-      const expected = INDIGO[theme];
+      const expected = PALETTE[theme];
       const painted = await paintedTokens(page, Object.keys(expected));
 
       expect(painted).toHaveLength(Object.keys(expected).length);
 
       for (const { name, declared, rgb } of painted) {
+        const token = name as keyof typeof expected;
+
         expect(declared, name).not.toBe("");
 
         // The app's value won the cascade…
         expect(
-          rgbDistance(rgb, hexToRgb(expected[name as keyof typeof expected])),
+          rgbDistance(rgb, hexToRgb(expected[token])),
           `${name} is ${JSON.stringify(rgb)}, declared as "${declared}"`,
         ).toBeLessThan(SAME_COLOUR);
 
-        // …and what lost was the teal, in both of its shades.
-        for (const teal of EMR_TEAL) {
+        // …and what lost was the EMR palette: the teal in both of its shades,
+        // and — for the token that replaces each — the blue-grey text and the
+        // near-invisible border.
+        const replaced = EMR_NEUTRALS[theme][token];
+
+        for (const emr of replaced ? [...EMR_TEAL, replaced] : EMR_TEAL) {
           expect(
-            rgbDistance(rgb, hexToRgb(teal)),
-            `${name} vs ${teal}`,
+            rgbDistance(rgb, hexToRgb(emr)),
+            `${name} vs ${emr}`,
           ).toBeGreaterThan(NOT_THE_SAME_COLOUR);
         }
       }
     });
   }
+});
+
+test.describe("the radius", () => {
+  /**
+   * `--radius: 0` is one line, and `theme.css` derives every `rounded-*` size
+   * from it — so the claim is not that the line is there (the text test has
+   * that) but that a primitive on the page actually has no corners. A badge
+   * (`rounded-4xl`, the widest step) and a card (`rounded-xl`) are the two
+   * that would show a leftover curve first.
+   */
+  test("squares the shared primitives on the page", async ({ page }) => {
+    await openHomeIn(page, "light");
+
+    const radius = await page.evaluate(() =>
+      getComputedStyle(document.documentElement)
+        .getPropertyValue("--radius")
+        .trim(),
+    );
+    expect(radius).toBe("0");
+
+    for (const slot of ["badge", "card"]) {
+      const element = page.locator(`[data-slot="${slot}"]`).first();
+
+      await expect(element, slot).toBeAttached();
+      await expect(element, slot).toHaveCSS("border-radius", "0px");
+    }
+  });
 });
