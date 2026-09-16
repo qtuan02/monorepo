@@ -27,7 +27,7 @@ export default function ContactSection() {
     <section id="contact">
       <div className="flex h-full min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.contact.title")}</SectionHeading>
-        <StandardBlock className="flex flex-1 flex-col gap-y-2 p-4 sm:p-5">
+        <StandardBlock className="flex flex-1 flex-col gap-y-2">
           {CONTACT_ITEMS.map((item) => {
             const Icon = item.icon;
             const label = t(`portfolio.contact.labels.${item.id}`);

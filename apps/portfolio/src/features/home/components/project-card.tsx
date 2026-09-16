@@ -74,9 +74,12 @@ export default function ProjectCard({
   const hasLinks = Boolean(source?.length || demo);
 
   return (
-    <StandardBlock className="flex h-full flex-col gap-4 p-4 transition-colors hover:bg-accent motion-reduce:transition-none sm:p-5">
+    <StandardBlock className="flex h-full flex-col gap-4 transition-colors hover:bg-accent motion-reduce:transition-none">
       <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          {/* `leading-snug` where a work row's title has `leading-none`: that one
+              is a single line beside a chevron; this one sits in a 197 px column
+              from `md`, where a longer name wraps and needs a gap. */}
           <h3 className="font-mono text-base leading-snug font-bold">{name}</h3>
           <Badge variant="secondary" className="font-mono">
             {typeLabel}

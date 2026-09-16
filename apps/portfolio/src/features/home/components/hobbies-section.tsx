@@ -15,7 +15,7 @@ export default function HobbiesSection() {
     <section id="hobbies">
       <div className="flex h-full min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.hobbies.title")}</SectionHeading>
-        <StandardBlock className="flex flex-1 flex-col gap-y-2 p-4 sm:p-5">
+        <StandardBlock className="flex flex-1 flex-col gap-y-2">
           {HOBBY_ITEMS.map((item) => {
             const Icon = item.icon;
 

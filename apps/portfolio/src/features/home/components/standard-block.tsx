@@ -8,11 +8,11 @@ import { cn } from "@monorepo/ui/utils/cn";
  * card background, and the page's own ink for text.
  *
  * A component rather than a className constant because the block is a *shape*
- * several files have to agree on — every work row, and after it the project
- * cards, the skills, the contact and hobby blocks — not a measurement two
- * siblings share. Written out per call site, the seven copies would drift the
- * first time one of them was "tidied"; here the shape is one file, and a block
- * that stops using it is a diff anyone can read.
+ * several files have to agree on — every work row, the education row, About,
+ * each project card, the skills, the contact and hobby blocks: six callers —
+ * not a measurement two siblings share. Written out per call site, the copies
+ * would drift the first time one of them was "tidied"; here the shape is one
+ * file, and a block that stops using it is a diff anyone can read.
  *
  * Why each utility is what it is:
  *
@@ -30,9 +30,12 @@ import { cn } from "@monorepo/ui/utils/cn";
  *   exactly the text the redesign got rid of — the block paints on `bg-card`
  *   with the page's ink, and #114 measured that pair in both themes.
  *
- * Padding, layout and everything else are the caller's: a work row lays a logo
- * beside a column, a project card stacks a header over a footer, and neither
- * arrangement belongs to the shape they share.
+ * The padding is the block's too — `p-4 sm:p-5` — because every caller chose
+ * the same one and a block whose inset differed from its neighbours' would
+ * read as a different block; `cn` lets a caller override it. Layout and
+ * everything else are the caller's: a work row lays a logo beside a column, a
+ * project card stacks a header over a footer, and neither arrangement belongs
+ * to the shape they share.
  */
 export default function StandardBlock({
   className,
@@ -42,7 +45,7 @@ export default function StandardBlock({
     <div
       data-slot="standard-block"
       className={cn(
-        "rounded-none border-2 border-border bg-card text-foreground shadow-hard",
+        "rounded-none border-2 border-border bg-card p-4 text-foreground shadow-hard sm:p-5",
         className,
       )}
       {...props}

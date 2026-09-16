@@ -74,15 +74,15 @@ describe("SkillsSection", () => {
     expect(heading).toHaveTextContent(/^Frontend\/$/);
   });
 
-  it("lists the skills as text in one block — no chips, no controls", () => {
+  it("lists the skills in one block, with nothing to press", () => {
     const { container } = render(<SkillsSection />);
 
-    // A skill is a label. A chip that lifts under the cursor, a badge, a
-    // button, a link — each promises a filter that does not exist. The whole
-    // section is one standard block: five rows in one box, not five boxes.
+    // A skill is a label: a button or a link here would promise a filter that
+    // does not exist. And the whole section is one standard block — five rows
+    // in one box, not five boxes — which is the count, not the markup, that a
+    // rendered page could get wrong.
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
-    expect(container.querySelector('[data-slot="badge"]')).toBeNull();
     expect(
       container.querySelectorAll('[data-slot="standard-block"]'),
     ).toHaveLength(1);

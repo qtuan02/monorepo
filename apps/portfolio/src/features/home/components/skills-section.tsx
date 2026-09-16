@@ -33,7 +33,7 @@ export default function SkillsSection() {
     <section id="skills">
       <div className="flex min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.skills.title")}</SectionHeading>
-        <StandardBlock className="flex flex-col gap-y-3 p-4 sm:p-5">
+        <StandardBlock className="flex flex-col gap-y-3">
           {SKILL_GROUPS.map((group) => {
             const headingId = `skills-${group.id}`;
 
@@ -44,7 +44,7 @@ export default function SkillsSection() {
               >
                 <h3
                   id={headingId}
-                  className="font-mono text-sm leading-relaxed font-semibold text-primary"
+                  className="font-mono text-sm leading-relaxed font-semibold text-muted-foreground"
                 >
                   {t(`portfolio.skills.groups.${group.id}`)}
                   <span aria-hidden="true">/</span>
