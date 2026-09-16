@@ -17,14 +17,17 @@ _Avoid_: registry, metadata (là cách sinh ra nó, không phải nó), danh sá
 
 **Panel kính**:
 Bề mặt nội dung của site: nền trắng bán trong suốt, làm mờ những gì phía sau, một viền sáng và
-bóng nhiều tầng cùng một thang. Dùng ở đúng năm chỗ mắt thấy nền màu phía sau — nav pill, hero,
-capsule lệnh cài, section của Getting Started, palette tìm kiếm. Tile **không** phải panel kính.
+bóng nhiều tầng cùng một thang (utility `glass`, component `GlassPanel`). Là mọi bề mặt nội dung
+của site: nav pill, palette tìm kiếm; ở Getting Started là hero, capsule lệnh cài, ba card nổi và
+bốn section đánh số; ở trang chi tiết là thanh công cụ, hero và hai panel Import / Export; và panel
+404 tại chỗ. Tile **không** phải panel kính, footer cũng không.
 _Avoid_: card, glass card, surface.
 
 **Backdrop**:
 Lớp trang trí `aria-hidden` nằm sau mọi panel: bốn vệt màu aurora và năm khối hình học
 (vòng, ô vuông xoay, tam giác, lưới chấm, sọc), tan dần về nền phẳng trước khi tới đoạn văn.
-Có hai mức — **full** ở Getting Started, **soft** ở mọi trang khác — và không chuyển động.
+Có hai mức — **full** ở Getting Started, **soft** ở mọi trang khác (nửa độ đậm, chỉ vòng và lưới
+chấm) — và không chuyển động; dưới `md` chỉ còn aurora, vì khối hình sẽ đè lên tiêu đề.
 _Avoid_: background, hero gradient, hình nền.
 
 **Swatch**:

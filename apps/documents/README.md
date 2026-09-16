@@ -8,7 +8,9 @@ bản thân app vẫn import tên workspace (`@monorepo/ui/components/button`). 
 này cố ý khác nhau; đừng "đồng bộ" chúng.
 
 App chạy Runtime **Vite client SPA** (clone từ `apps/_template_vite`): SPA thuần,
-không SSR, không gọi HTTP, nginx phục vụ một bundle tĩnh.
+không SSR, không gọi HTTP, nginx phục vụ một bundle tĩnh. Hình dạng là hướng D
+**"Prism"** (spec #128, 2026-09-16): không sidebar, panel kính trên backdrop aurora,
+palette indigo riêng — xem mục Hình dạng bên dưới.
 
 ```bash
 bun run --filter @monorepo/documents dev       # http://localhost:3003
@@ -18,12 +20,52 @@ bun run --filter @monorepo/documents dev       # http://localhost:3003
 | --- | --- | --- |
 | Port | `ports.env` | Dev **3003**, E2E **3103** — khai đúng một chỗ; `vite.config.ts` đọc cả hai qua `ports.ts` (`server.port` / `preview.port`, `strictPort` cả hai), `playwright.config.ts` đọc `E2E_PORT`. |
 | Env | `src/env.ts` | Flavor `vite` của `@monorepo/env`; `.env` **ở root repo**, tới qua `envDir: "../../"` + `envPrefix: "PUBLIC_"` (**không** `VITE_`). |
+| Shell | `src/features/layout/` | **Không có sidebar.** `nav-pill.template.tsx` (nav pill kính dính đầu trang) · `components/nav/search-palette.tsx` (`⌘K` / `Ctrl K`) · `components/backdrop.tsx` · `provider/theme-provider.tsx`. Thứ tự DOM: skip link → nav pill → backdrop → `<main id>` → footer một dòng. |
+| Panel · tile · swatch | `src/components/{panel,tile,swatch,detail,page}/` | `GlassPanel` (utility `glass`), `Tile` (nền đục, **không** blur, tự render `<li>`), `Swatch` (hue từ `~/utils/slug-to-hue.ts`), `DetailToolbar` / `DetailHero` / `DetailPanels`, `ListHeader`, `DocsSection`. |
 | Palette · font · theme | `src/globals.css` | Override **toàn bộ** palette dùng chung ở tầng app (ADR-0009), hai webfont qua `@fontsource-variable`, dark mode "indigo night" — xem mục Font & palette. |
 | Router | `src/pages/main.tsx` | `react-router` 8 declarative; mọi path lấy từ `~/constants/routes.ts`. |
 | Guard | *(không có)* | Site public: `ProtectedRoute` / `GuestRoute`, slice `auth`, `use-auth-store` và cả `~/libs/http-client` của Template đã bị **xoá** thay vì để không dùng. Catch-all 404 giữ nguyên. |
 | Metadata | `scripts/generate-docs-metadata.ts` | Xem mục dưới — đây là thứ thay `src/constants/*.json` viết tay của bản cũ. |
 | Demo | Storybook | Site này **không** render preview. 63 file preview thủ công của bản cũ bị bỏ; mỗi trang primitive link sang trang docs của nó trên Storybook. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA; image thì builder Bun → `nginx:stable-alpine` như Template. |
+
+## Hình dạng
+
+Ba trang, ba frame của mockup ([`docs/design/documents-redesign/mockup-v3-prism.html`](../../docs/design/documents-redesign/mockup-v3-prism.html));
+từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
+[`docs/design/documents-redesign.md`](../../docs/design/documents-redesign.md) §10 và
+[ADR-0009](../../docs/adr/0009-documents-prism-palette-override.md).
+
+- **Điều hướng, không sidebar.** Một **nav pill** kính dính cách đỉnh 1rem: brand,
+  ba mục (Bắt đầu / Component / Hook), ô mở palette, bốn nút tròn (ngôn ngữ, theme,
+  npm, Storybook). Dưới `md` pill co còn brand + tìm + menu mở `Sheet`. Vào 68
+  trang còn lại bằng **palette `⌘K` / `Ctrl K`** (`CommandDialog` nhóm Component /
+  Hook, đọc thẳng hai Catalogue, mỗi dòng swatch + slug + subpath, Enter mở trang) và
+  bằng nút **trước/sau** theo thứ tự Catalogue trên trang chi tiết
+  (`~/utils/catalogue-neighbours.ts`).
+- **Backdrop hai mức.** `Backdrop` là lớp `aria-hidden` tuyệt đối ở đầu document:
+  bốn vệt aurora blur + năm khối hình học tĩnh + một dải tan về nền phẳng. `full` ở
+  `/`, `soft` (nửa độ đậm, hai khối) ở mọi trang khác — `layout.template.tsx` quyết
+  theo `pathname`. Dưới `md` khối hình ẩn, chỉ còn aurora. Không keyframe, không
+  `backdrop-filter` ở đây.
+- **Panel kính** (`GlassPanel`, utility `glass` / `glass-deep` trong `globals.css`):
+  mọi bề mặt nội dung — nav pill, palette; hero + capsule lệnh cài + ba card nổi + bốn
+  section đánh số ở Getting Started; thanh công cụ + hero + hai panel Import / Export ở
+  trang chi tiết; panel 404 tại chỗ. Bốn tầng bóng `--sh-1..4` cùng một thang.
+- **Tile · swatch · tile rộng.** Danh sách là lưới 1/2/4 cột của `Tile`: swatch 38px,
+  slug mono, một dòng export (ba tên + `+n` qua Locale message
+  `exportPreviewMore`), số export ở góc. Tile nền đục 75% và **không** blur — sáu
+  mươi `backdrop-filter` trên một trang là chi phí GPU. `col-span-2` từ `md` khi
+  `exports.length >= 10`; class nằm trên `<li>` mà `Tile` tự render, vì đó mới là
+  grid item. Hover nhấc 3px + bóng tầng 4, tắt dưới `prefers-reduced-motion`. Swatch là
+  gradient hue sinh xác định từ slug — cùng màu ở tile, ở palette và ở hero chi tiết.
+  Lọc rỗng → `Empty` với nút xoá bộ lọc.
+- **Trang chi tiết.** Thanh công cụ (`Component / dialog` + trước/sau) → hero kính đậm
+  (swatch 120px, h1 slug mono, meta `gói/subpath · N export`, action Storybook đen đặc
+  + npm kính) → hai panel `1.25fr | 1fr`: Import (`CodeBlock` nền indigo, dòng import
+  copy được) và Export (`<ul>` chip mono). Hook không có nút Storybook, mô tả từ Locale
+  message.
+- **Palette, font, theme** — mục kế tiếp sau Env.
 
 ## Env
 
@@ -126,8 +168,8 @@ khi JSON tồn tại và fail ngay ở bước resolve import. Gọi tay đượ
 **Ở đâu, và vì sao gitignore** — `src/generated/` là dữ liệu dẫn xuất và **không**
 commit (`.gitignore` của app). Commit nó là mở đường cho nó lệch khỏi
 `packages/ui` ngay lần đầu ai đó chạy `ui-add` mà quên sinh lại. Đổi lại, `ui-add`
-thêm một primitive là lần build kế tiếp site đã có trang cho nó — sidebar, danh
-sách, trang chi tiết, không sửa file nào.
+thêm một primitive là lần build kế tiếp site đã có trang cho nó — palette `⌘K`, danh
+sách, trang chi tiết, trước/sau, không sửa file nào.
 
 **Turbo cache** — `turbo.json` của app khai `inputs` cho `build`/`typecheck`/`test`
 gồm `$TURBO_DEFAULT$` cộng hai thư mục nguồn (`$TURBO_ROOT$/packages/ui/src/components/**`,
@@ -142,10 +184,10 @@ làm cache của app miss đúng lúc cần.
 | Path | Hằng số | Page | Trang gì |
 | --- | --- | --- | --- |
 | `/` | `ROUTES.HOME` | `home-page.tsx` | Bắt đầu — cài đặt, peer dependency, nối CSS + `@source`, ví dụ Button, "không có root entry" |
-| `/components` | `ROUTES.COMPONENTS` | `components-page.tsx` | Danh sách 63 primitive, có ô lọc (debounce 300ms) |
-| `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Import, bảng export, link Storybook |
-| `/hooks` | `ROUTES.HOOKS` | `hooks-page.tsx` | Danh sách 5 hook |
-| `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Import, bảng export, mô tả |
+| `/components` | `ROUTES.COMPONENTS` | `components-page.tsx` | Lưới 63 tile, có ô lọc (debounce 300ms), tile rộng từ 10 export |
+| `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Trước/sau, hero, Import, chip export, link Storybook |
+| `/hooks` | `ROUTES.HOOKS` | `hooks-page.tsx` | Lưới 5 tile hook, có mô tả |
+| `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Trước/sau, hero, Import, chip export |
 | `*` | — | `not-found-page.tsx` | 404, **trong** shell để còn đường quay lại |
 
 Slug lạ ở hai route động **không** redirect: trang tự render 404 tại chính URL đó
@@ -195,8 +237,12 @@ Những gì được kiểm, và vì sao chỉ chừng đó:
 | --- | --- |
 | `test/scripts/docs-metadata.test.ts` | Parser, trên hai fixture giả ghi ra thư mục tạm (một `.tsx`, một `.ts`): danh sách export xuống dòng, `export type` bị loại, JSDoc đúng block, file hỏng thì **ném** và gọi tên file |
 | `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; `storybookDocsId` trỏ đúng story thật |
-| `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → bảng export; slug lạ → 404 tại chỗ |
-| `test/utils/*.test.ts` | Logic thuần: xếp hạng bộ lọc, và **đúng từng ký tự** dòng import mà người đọc copy |
+| `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ |
+| `test/features/component/components/component-card.test.tsx` · `test/components/tile/tile.test.tsx` | Tile rộng ở 10 export và không rộng ở 9 — trên `listitem`, là grid item; tên link bắt đầu bằng slug; `+n` |
+| `test/features/component/templates/component-list.template.test.tsx` | Lọc rỗng hiện nút xoá bộ lọc, bấm thì danh sách quay lại |
+| `test/features/layout/**` | Shell (`layout.template`: nav pill, palette, thứ tự DOM) và `theme-provider` |
+| `test/globals.test.ts` | Hợp đồng token — xem mục Font & palette |
+| `test/utils/*.test.ts` | Logic thuần: xếp hạng bộ lọc, `slugToHue` (xác định, trong `[0, 360)`), hàng xóm trong Catalogue, và **đúng từng ký tự** dòng import mà người đọc copy |
 | `test/env.test.ts` | `.env.example` đã commit vẫn thoả schema của chính app này |
 
 Không có test cho markup thuần hay cho primitive của `@monorepo/ui` — cái sau là
@@ -205,7 +251,9 @@ suite của shadcn/Base UI, không phải của site này (xem
 
 E2E dựng bản production thật rồi `vite preview` trên port 3103, nên `dev` và `e2e`
 lên cùng lúc được, và thứ được kiểm đúng là cấu hình `PUBLIC_*` đã bake lúc build.
-`e2e/documents.e2e.ts` đi đúng đường người đọc đi: mở `/`, bấm link sang một trang
-primitive, thấy bảng export; lọc danh sách rồi mở một card; slug lạ ra 404; và
-boot không có console error. Trên Windows gọi `bunx playwright test` với cwd là
+`e2e/documents.e2e.ts` là bảy spec đi đúng đường người đọc đi: mở `/`, qua nav
+pill sang một trang primitive, thấy chip export và dòng import; `Control+K`, gõ
+`dialog`, Enter → `/components/dialog`; lọc danh sách rồi mở một tile; từ `dialog`
+bấm *Sau* → `direction`; bấm toggle theme → `html.dark` và reload vẫn `dark`; slug
+lạ ra 404; và boot không có console error. Trên Windows gọi `bunx playwright test` với cwd là
 thư mục app — chạy qua `bun run` script có thể treo lúc launch Chromium.

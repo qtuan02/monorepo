@@ -1,6 +1,6 @@
 # Design brief — redesign UI/UX `apps/documents`
 
-> **Chưa implement.** Đây là đầu ra của bước design (§7a CLAUDE.md) cho vòng grill kế tiếp, không phải mô tả app hiện tại. Hình dạng app hôm nay đọc ở [`apps/documents/README.md`](../../apps/documents/README.md).
+> **Đã implement, spec #128** (tickets #131, #132, #136, #134, #135 merge vào `dev` 2026-09-16 → 2026-09-17; #138 là tổng kiểm + tài liệu này). Tài liệu này giữ nguyên nội dung quyết định của bước design — ba vòng, hướng D "Prism" §2c, 22 quyết định §10; nó là bản ghi *tại thời điểm quyết*, không phải mô tả app hiện tại. Hình dạng app sau redesign đọc ở [`apps/documents/README.md`](../../apps/documents/README.md) § Hình dạng và CLAUDE.md §1; quyết định kiến trúc (override toàn bộ palette ở tầng app) ghi thành [ADR-0009](../adr/0009-documents-prism-palette-override.md). Hai điểm đáng ghi: ngưỡng tile rộng là **10** export như §10 hàng 7, không phải ≥ 8 của §2c (#135); và Locale message `exportCount` không bị bỏ hẳn mà thành `detail.exportSummary` — dòng meta của hero chi tiết vẫn cần "· 10 export" (#136, #138).
 
 - **Ngày:** 2026-09-16
 - **Bước:** design, chạy bằng `ui-ux-pro-max` ở chế độ đọc CSV tĩnh — không Python, không `--design-system`, không `--persist`, vòng 1–2 không dùng `colors.csv`/`typography.csv` (app đã có `tooling/tailwind/theme.css`); vòng 3 dùng cả hai vì chủ repo yêu cầu **palette riêng** thay teal EMR — đúng trường hợp "app chưa có brand" của §7a.
