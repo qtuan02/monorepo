@@ -284,14 +284,22 @@
       "pageTitle": "{page} · Tài liệu @fe-monorepo"
     },
     "nav": {
-      "sections": "Nội dung",
       "gettingStarted": "Bắt đầu",
       "components": "Component",
       "hooks": "Hook",
-      "toggleSidebar": "Ẩn hiện thanh điều hướng",
-      "openMenu": "Mở menu",
+      "menu": "Mở menu",
+      "skipToContent": "Bỏ qua tới nội dung",
       "npm": "Xem trên npm",
       "storybook": "Mở Storybook",
+      "search": {
+        "label": "Tìm component, hook…",
+        "placeholder": "Gõ tên component hoặc hook…",
+        "title": "Tìm trong tài liệu",
+        "description": "Gõ để lọc component và hook; Enter mở trang.",
+        "groupComponents": "Component",
+        "groupHooks": "Hook",
+        "empty": "Không có component hay hook nào khớp."
+      },
       "theme": {
         "toLight": "Chuyển sang giao diện sáng",
         "toDark": "Chuyển sang giao diện tối"

@@ -13,7 +13,7 @@ import { ROUTES } from "../src/constants/routes";
 const PRIMITIVE_SLUG = "button";
 
 test.describe("documents", () => {
-  test("walks from the landing page to a primitive's page through a link", async ({
+  test("walks from the landing page to a primitive's page through the nav and a card", async ({
     page,
   }) => {
     await page.goto(ROUTES.HOME);
@@ -22,11 +22,17 @@ test.describe("documents", () => {
       page.getByRole("heading", { level: 1, name: "Bắt đầu" }),
     ).toBeVisible();
 
-    // The catalogue in the sidebar is generated from `packages/ui/src/components`,
-    // so this link only exists if the build ran the metadata script.
+    // There is no sidebar: the pill's *Component* item leads to the list, and
+    // the card there is generated from `packages/ui/src/components`, so it
+    // only exists if the build ran the metadata script.
     await page
-      .getByRole("link", { name: PRIMITIVE_SLUG, exact: true })
-      .first()
+      .getByRole("navigation")
+      .getByRole("link", { name: "Component", exact: true })
+      .click();
+    await page
+      .getByRole("link", {
+        name: new RegExp(`^${PRIMITIVE_SLUG} components/${PRIMITIVE_SLUG}`),
+      })
       .click();
 
     await expect(page).toHaveURL(
@@ -48,6 +54,31 @@ test.describe("documents", () => {
     await expect(
       page.getByText(`@fe-monorepo/ui/components/${PRIMITIVE_SLUG}`),
     ).toBeVisible();
+  });
+
+  test("opens the search palette from the keyboard and lands on the picked primitive", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.HOOKS);
+
+    // `Control+K` — the one listener accepts either modifier, and Chromium on
+    // Linux (CI) has no Meta.
+    await page.keyboard.press("Control+K");
+    const palette = page.getByRole("dialog", { name: "Tìm trong tài liệu" });
+    await expect(palette).toBeVisible();
+
+    await palette
+      .getByPlaceholder("Gõ tên component hoặc hook…")
+      .fill("dialog");
+    await page.keyboard.press("Enter");
+
+    await expect(page).toHaveURL(
+      new RegExp(`${ROUTES.componentBySlugPath("dialog")}$`),
+    );
+    await expect(
+      page.getByRole("heading", { level: 1, name: "dialog" }),
+    ).toBeVisible();
+    await expect(palette).toBeHidden();
   });
 
   test("filters the component list down to one card and opens it", async ({

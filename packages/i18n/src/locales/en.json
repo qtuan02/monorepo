@@ -284,14 +284,22 @@
       "pageTitle": "{page} · @fe-monorepo docs"
     },
     "nav": {
-      "sections": "Contents",
       "gettingStarted": "Getting started",
       "components": "Components",
       "hooks": "Hooks",
-      "toggleSidebar": "Toggle the navigation sidebar",
-      "openMenu": "Open menu",
+      "menu": "Open menu",
+      "skipToContent": "Skip to content",
       "npm": "View on npm",
       "storybook": "Open Storybook",
+      "search": {
+        "label": "Search components, hooks…",
+        "placeholder": "Type a component or hook name…",
+        "title": "Search the docs",
+        "description": "Type to filter components and hooks; Enter opens the page.",
+        "groupComponents": "Components",
+        "groupHooks": "Hooks",
+        "empty": "No component or hook matches."
+      },
       "theme": {
         "toLight": "Switch to the light theme",
         "toDark": "Switch to the dark theme"

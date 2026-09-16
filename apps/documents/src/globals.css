@@ -45,6 +45,76 @@
     background-color: var(--selection);
     color: var(--selection-foreground);
   }
+
+  /**
+   * The decoration the palette tokens do not cover — brief §2c, §10 rows 8, 9
+   * and 16. A glass panel is `--glass` under an 18px backdrop blur with a
+   * `--glass-edge` border and the first three of the four shadows (`--sh-4`
+   * is the lift a deep panel or a hovered tile adds). The aurora stops — the
+   * brief's five plus lime for the stripes — are the backdrop's and the brand
+   * mark's only colours; the dark theme keeps
+   * them and halves the backdrop's opacity in the component instead.
+   */
+  :root {
+    --glass: rgb(255 255 255 / 0.58);
+    --glass-strong: rgb(255 255 255 / 0.78);
+    --glass-edge: rgb(255 255 255 / 0.75);
+    --sh-1: 0 1px 0 rgb(255 255 255 / 0.7) inset;
+    --sh-2: 0 1px 2px rgb(49 46 129 / 0.06);
+    --sh-3: 0 12px 32px -8px rgb(49 46 129 / 0.22);
+    --sh-4: 0 32px 64px -16px rgb(79 70 229 / 0.28);
+
+    --aurora-indigo: #4f46e5;
+    --aurora-violet: #8b5cf6;
+    --aurora-cyan: #22d3ee;
+    --aurora-pink: #f472b6;
+    --aurora-amber: #fbbf24;
+    --aurora-lime: #a3e635;
+  }
+
+  .dark {
+    /* `rgba(21,20,46,.6)` — the night glass over the night ground */
+    --glass: rgb(21 20 46 / 0.6);
+    --glass-strong: rgb(21 20 46 / 0.8);
+    /* `rgba(199,210,254,.18)` — an indigo-100 edge, the brief's own value */
+    --glass-edge: rgb(199 210 254 / 0.18);
+    --sh-1: 0 1px 0 rgb(199 210 254 / 0.12) inset;
+    --sh-2: 0 1px 2px rgb(0 0 0 / 0.3);
+    --sh-3: 0 12px 32px -8px rgb(0 0 0 / 0.5);
+    --sh-4: 0 32px 64px -16px rgb(129 140 248 / 0.25);
+  }
+}
+
+/**
+ * The glass of a panel (glossary: *Panel kính*): the translucent fill, the
+ * 18px blur, a light edge and the first three shadows of the scale. One
+ * utility rather than one className per surface, because the nav pill, the
+ * search palette and `GlassPanel` all have to be the same glass;
+ * `glass-deep` adds the fourth shadow for a hero or a floating card.
+ */
+@utility glass {
+  background-color: var(--glass);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--sh-1), var(--sh-2), var(--sh-3);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
+
+@utility glass-deep {
+  box-shadow: var(--sh-1), var(--sh-2), var(--sh-3), var(--sh-4);
+}
+
+/**
+ * A swatch's gradient: its hue is the `--h` the component sets by `style` —
+ * a runtime value derived from the slug, the one thing a className cannot
+ * carry — and the second stop is sixty degrees on, so every swatch is a
+ * two-colour ramp rather than a flat fill.
+ */
+@utility swatch-gradient {
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--h) 80% 60%),
+    hsl(calc(var(--h) + 60) 80% 60%)
+  );
 }
 
 /**
