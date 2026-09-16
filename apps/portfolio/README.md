@@ -25,7 +25,7 @@ bun run dev:portfolio     # http://localhost:3002
 | Route module | `src/app/[locale]/(shell)/page.tsx` | Đúng một dòng `return <HomeTemplate />`. Không `generateMetadata` riêng: title/description của root layout đã mô tả chính trang này, thêm một bản nữa chỉ tạo chỗ cho hai bên lệch nhau. |
 | Metadata routes | `src/app/{manifest,robots,sitemap}.ts` | Theo convention App Router, nằm **ngoài** `[locale]`. Thay cho `robot.ts` (thiếu chữ `s`, nên Next chưa bao giờ nhận ra) và `sitemap.xml/route.ts` (trỏ vào endpoint không tồn tại) của bản cũ. Vì thế `public/robots.txt` của Template đã bị xoá — một URL chỉ được có một nguồn. |
 | `proxy.ts` | `src/proxy.ts` | Chỉ còn `negotiateLocale`, cộng một nhánh cho ảnh metadata sinh động (`/vi/opengraph-image`) đi thẳng — `as-needed` sẽ 307 URL đó về bản không prefix, mà crawler xem trước link cần nhận ảnh ngay ở request đầu; quyết định là hàm thuần `~/utils/metadata-image-path.ts`. Không route nào bị guard: đây là site public, nên slice `features/auth` + màn `sign-in` + nhóm route `dashboard` của Template bị bỏ hẳn thay vì giữ với danh sách prefix rỗng. Cơ chế guard không mất — nó vẫn nằm trong `apps/_template_next` và quay lại cùng `gen:app` cho app nào thật sự cần. |
-| Ảnh | `src/assets/` | Reach bằng **import**, không phải URL string trỏ `public/` — bundler resolve, hash và báo lỗi build khi đổi tên. `public/` chỉ còn `favicon.ico`, file duy nhất cần URL cố định — ảnh OG không còn là file tĩnh mà được sinh bởi `src/app/[locale]/opengraph-image.tsx` theo từng locale. |
+| Ảnh | `src/assets/` | Reach bằng **import**, không phải URL string trỏ `public/` — bundler resolve, hash và báo lỗi build khi đổi tên. `public/` chỉ còn `favicon.ico`, file duy nhất cần URL cố định — ảnh OG không còn là file tĩnh mà được sinh bởi `src/app/[locale]/opengraph-image.tsx` theo từng locale — route module chỉ resolve locale, catalogue và host rồi giao cho `features/home/components/open-graph-card.tsx` vẽ. Thẻ vẽ theo đúng ngữ pháp của trang: một khối trắng viền cứng bóng đặc trên nền trang, thanh tiêu đề ba ô vuông + host, `$ whoami`, tên trên một mảng vàng, dòng định vị; không bo góc. Satori không đọc được custom property nên `OPEN_GRAPH_PALETTE` ghi thẳng sRGB của light theme, và test giữ từng literal khớp với token trong `globals.css`/`theme.css`. Vẫn chỉ Geist Regular có sẵn trong `ImageResponse` — không `fonts`, không file font trong repo, `next build` không ra mạng. |
 | Không có | — | `~/libs/`, `~/hooks/api/`, `~/stores/`, TanStack Query, `"use cache"`. Site không gọi API nào; nội dung là hằng số của slice, và `"use cache"` chỉ trả giá trị serializable trong khi cấu trúc CV mang `StaticImageData` cùng component icon. |
 
 ## Motion, print và accent — ba thứ sống trong `src/globals.css`
@@ -171,6 +171,14 @@ Cái được test là **quyết định**, không phải markup:
   Đọc CSS dưới dạng **text**: jsdom không tính style, và giá trị nằm trong custom
   property mà chỉ một cascade thật resolve được. Rằng cascade thật sự resolve
   đúng như file này khẳng định thì `e2e/accent.e2e.ts` kiểm, trong trình duyệt.
+- `test/features/home/components/open-graph-card.test.tsx` — thẻ chia sẻ render
+  ra static markup rồi đọc: không `border-radius`, đúng một `box-shadow` offset
+  bằng nhau và blur 0, đúng một mảng vàng và nó bọc tên, indigo chỉ làm màu chữ;
+  và mỗi literal trong `OPEN_GRAPH_PALETTE` bằng sRGB mà token light theme tương
+  ứng resolve ra — đọc CSS as text qua `test/support/css-tokens.ts`, cùng bộ
+  helper `globals.test.ts` dùng. `test/app/[locale]/opengraph-image.test.tsx`
+  giữ nửa route: PNG thật cho từng locale, 404 cho locale lạ, và `ImageResponse`
+  được gọi không có `fonts` trong khi `src/` không chứa file font nào.
 - `test/utils/metadata-image-path.test.ts` — hàm thuần quyết định path nào của
   ảnh metadata được `proxy.ts` cho đi thẳng.
 - `test/features/layout/components/theme-toggle-button.test.tsx` — theme kế tiếp,

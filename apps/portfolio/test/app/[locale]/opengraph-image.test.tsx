@@ -3,6 +3,9 @@
 // The node environment is required twice over: `ImageResponse` renders
 // through wasm it reads from disk, and `~/env`'s server half throws by name
 // under jsdom.
+import { readdirSync } from "node:fs";
+import { resolve } from "node:path";
+import type { ImageResponse } from "next/og";
 import { createTranslator } from "next-intl";
 import { describe, expect, it, vi } from "vitest";
 
@@ -29,6 +32,28 @@ const getTranslations = vi.hoisted(() =>
 );
 
 vi.mock("next-intl/server", () => ({ getTranslations }));
+
+/**
+ * The real `ImageResponse`, with every construction recorded. The card is
+ * rasterised for real — the PNG assertions below depend on that — and the
+ * options it was built with are what the no-webfont contract is asserted on.
+ */
+const imageResponseOptions = vi.hoisted(
+  () => [] as ConstructorParameters<typeof ImageResponse>[1][],
+);
+
+vi.mock("next/og", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("next/og")>();
+
+  class RecordedImageResponse extends actual.ImageResponse {
+    constructor(...args: ConstructorParameters<typeof actual.ImageResponse>) {
+      imageResponseOptions.push(args[1]);
+      super(...args);
+    }
+  }
+
+  return { ...actual, ImageResponse: RecordedImageResponse };
+});
 
 const PNG_SIGNATURE = Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
@@ -72,6 +97,35 @@ describe("opengraph-image", () => {
       false,
     );
   }, 30_000);
+
+  /**
+   * `ImageResponse` ships Geist Regular, and that is the card's only face:
+   * a `fonts` option would make `next build` — and so `docker build` and CI —
+   * fetch a webfont, or read one committed to the repo. Neither is allowed,
+   * and the second is checked on disk rather than in the call, because a
+   * font file is a build-time read that no option has to name. The app
+   * directory, not the whole repo: a font elsewhere in the workspace is some
+   * other app's business, and `node_modules` is full of them.
+   */
+  it("passes no fonts to ImageResponse, and no font file is in the app", async () => {
+    await renderPng("vi");
+
+    expect(imageResponseOptions.length).toBeGreaterThan(0);
+    for (const options of imageResponseOptions) {
+      expect(options).not.toHaveProperty("fonts");
+    }
+
+    // Both places a font for Satori could be committed to: an import under
+    // `src/`, or a fixed URL under `public/`.
+    const fontFiles = ["src", "public"].flatMap((dir) =>
+      readdirSync(resolve(process.cwd(), dir), {
+        recursive: true,
+        encoding: "utf8",
+      }).filter((entry) => /\.(woff2?|ttf|otf|eot)$/i.test(entry)),
+    );
+
+    expect(fontFiles).toEqual([]);
+  });
 
   it("answers an unknown locale with a 404, like the layout does", async () => {
     await expect(
