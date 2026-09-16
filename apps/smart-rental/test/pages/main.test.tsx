@@ -43,13 +43,19 @@ function heading(name: string) {
 }
 
 // A row per route in `ROUTES`: the builders get a sample id, and the id shows
-// up in the placeholder so a page that dropped its param is caught too.
-const guardedScreens: [path: string, heading: string][] = [
+// up in the placeholder so a page that dropped its param is caught too. A
+// ported screen adds a third column — text only its Mock can put on screen —
+// so a route wired to a placeholder, or a Mock that stopped flowing, fails.
+const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   [ROUTES.HOME, "Tổng quan"],
-  [ROUTES.BUILDINGS, "Quản lý Tòa nhà"],
-  [ROUTES.buildingDetailPath("b-1"), "Chi tiết tòa nhà"],
-  [ROUTES.ROOMS, "Danh sách phòng trọ"],
-  [ROUTES.roomDetailPath("r-1"), "Chi tiết phòng"],
+  [ROUTES.BUILDINGS, "Quản lý Tòa nhà", "Trọ Sinh Viên Xanh"],
+  [
+    ROUTES.buildingDetailPath("b2"),
+    "Chi tiết tòa nhà",
+    "Căn hộ Dịch Vụ Cao Cấp",
+  ],
+  [ROUTES.ROOMS, "Danh sách phòng trọ", "Phòng 101"],
+  [ROUTES.roomDetailPath("R-B1-102"), "Chi tiết phòng", "Phòng 102"],
   [ROUTES.TENANTS, "Quản lý khách thuê"],
   [ROUTES.TENANT_CREATE, "Thêm khách thuê mới"],
   [ROUTES.tenantDetailPath("t-1"), "Chi tiết khách thuê"],
@@ -110,10 +116,14 @@ describe("the route tree", () => {
       useAuthStore.setState({ token: "a-token" });
     });
 
-    it.each(guardedScreens)("%s renders «%s»", (path, name) => {
+    it.each(guardedScreens)("%s renders «%s»", async (path, name, mockText) => {
       renderAt(path);
 
       expect(heading(name)).toBeInTheDocument();
+      // The Mock arrives through TanStack Query, so a tick later than the heading.
+      if (mockText) {
+        expect(await screen.findAllByText(mockText)).not.toHaveLength(0);
+      }
     });
 
     it("carries the route param into a detail placeholder", () => {

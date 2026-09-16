@@ -14,3 +14,11 @@ export interface Building {
   occupancyRate?: number;
   description?: string;
 }
+
+export interface CreateBuildingRequest {
+  name: string;
+  address: string;
+  totalFloors: number;
+  utilityCycleDay: number;
+  note?: string;
+}

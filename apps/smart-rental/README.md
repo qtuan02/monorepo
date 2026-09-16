@@ -24,6 +24,9 @@ bun run dev:smart-rental     # http://localhost:3006
 | Shell | `src/features/layout/` | Shell Portal của prototype trên primitive `sidebar` / `command` / `popover` / `dropdown-menu`: `templates/layout.template.tsx` (`SidebarProvider` + `SidebarInset`, chỉ cột nội dung cuộn) · `components/sidebar/` (`app-sidebar` 15 mục ba nhóm, `nav-user` đăng xuất) · `components/header/` (`app-header`, `building-selector`, `notification-panel`, `search-dialog` — ⌘K/Ctrl+K mở) · `constants/navigation.ts` (manifest 15 khu vực: path từ `ROUTES`, title/description header đọc) · `utils/navigation.ts` (`isNavigationItemActive` khớp theo **segment** — `/rooms-x` không phải `/rooms`, chặt hơn `startsWith` của prototype một bậc — và `resolveNavigationItem` cho header). Header **không** render `<h1>` — heading là của màn hình, seam test assert nó. |
 | Building scope | `src/stores/use-building-store.ts` | Zustand + `persist` localStorage thường, key `building`; `selectedBuildingId: string | null`, `null` = mọi Toà nhà. Đọc qua selector hẹp. |
 | Dữ liệu | `~/hooks/api` | Pha 1 là **Mock** đứng sau hook TanStack Query (`hooks/api/building.ts` là khuôn: key từ `queryKeysFactory`, `queryFn` trả Mock). Mock nằm ở **`~/constants/mock/<entity>.ts`** chứ không trong slice như spec ghi: `~/hooks/api` phục vụ nó và hook không được import `~/features` (`architecture-circular-dependencies`, CRITICAL — rule thắng spec). `~/libs/http-client.ts` chỉ export `httpClient`, chưa có service class — khi `be-motel` có contract, việc nối là đổi `queryFn`. |
+| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133), mỗi cái trên một primitive `@monorepo/ui`. `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack từ `useDataTable` của primitive `data-table`; **search/facet/page/size sống trên URL** (`use-table-search-params.ts` qua `useSearchParams`, `replace` history, không `nuqs`), sort và chọn dòng ở trong table; `renderRows` cho một body khác (grid Phòng) trên đúng trang đã lọc. Ô tìm kiếm debounce 300ms qua `@monorepo/hook/use-debounce`; cột facet gắn `filterFn: facetFilterFn`, cột tìm gắn `"includesString"`. `pagination-bar.tsx` là **một** thanh phân trang (gộp hai hệ của prototype); `badge/status-badge.tsx` là **một** badge nhận `StatusConfig` (gộp bốn). Còn `page/` (`list-page-header`, `detail-page-shell` — có `<h1>` sr-only cho seam test), `panel/` (empty/error/loading), `card/` (summary, info + `InfoRow`, entity-list), `dialog/confirm-action-dialog`, `menu/entity-action-menu`, `navigation/page-back-button`. |
+| Status config | `~/constants/status.ts` | **Một** nơi cho mọi config trạng thái/hiển thị (tám file của prototype gộp về): `statusTone`, `StatusConfig`, `roomStatusConfig`, `roomTypeConfig`, `toFilterOptions()`. Slice sau thêm config của mình vào đây. |
+| Utils | `~/utils/` | `currency.ts` (`Intl` `vi-VN` VND), `date.ts` (`@monorepo/dayjs` + `DATE_FORMAT`), `pagination.ts` (`getTotalPages` ≥ 1, `clampPage` hai phía, `getPageItems`, `paginate`, bảng cỡ trang) — đều có unit test. |
 | Runner | `Dockerfile` · `nginx.conf` | Như Template: builder Bun → `nginx:stable-alpine`. |
 
 ## Ba khác biệt có chủ ý so với `_template_vite`
@@ -62,7 +65,17 @@ route con nào dưới chúng), bỏ manifest `isImplemented`, bỏ mười wrap
 | Còn lại | `/reconciliation` · `/tasks` · `/reports` · `/compliance` · `/communications` · `/settings` | — |
 | 404 | `*` | trong shell, **ngoài** guard |
 
-Cho tới khi slice tương ứng được port, mỗi route render một **template placeholder**
+Đã port: **Toà nhà** (`/buildings` grid thẻ + dialog tạo mới trên Zod, `/buildings/:id`)
+và **Phòng** (`/rooms` — consumer đầu tiên của `DataTable`, hai view thẻ-theo-tầng/bảng
+qua `?view=`, `/rooms/:id` với xoá qua confirm dialog). Hai màn này lọc theo Building
+scope: Phòng qua param `buildingId` của `useGetRooms` (như backend sẽ lọc), Toà nhà lọc
+tại template trên danh sách không scope mà selector cũng đọc. Ba điểm lệch prototype có chủ
+ý: `availableRooms`/`occupancyRate` được **suy ra** khi Mock thiếu (`utils/building-stats.ts`)
+thay vì hiện 0; hai bản `roomStatusConfig` khác màu của prototype gộp theo bản badge;
+kéo thả hàng, menu ẩn cột và "Ẩn cột" trong header không port. Các nút "Xuất Excel",
+"Thêm phòng", "In phòng", "Chỉnh sửa" chưa có flow — giữ như prototype.
+
+Cho tới khi slice tương ứng được port, mỗi route còn lại render một **template placeholder**
 chỉ có heading của màn hình (và id của route với màn chi tiết).
 
 ## Test
@@ -75,9 +88,14 @@ chỉ có heading của màn hình (và id của route với màn chi tiết).
   domain thêm hàng của mình vào bảng này.**
 - Shell, trên cùng seam: 404 có sidebar quanh nó, mục active theo khu vực (`data-active`), đăng xuất từ nav-user → `/auth/login`. `renderAt` bọc `QueryClientProvider` vì selector Toà nhà đọc `~/hooks/api`; `vitest.setup.ts` stub `matchMedia`, `ResizeObserver`, `scrollIntoView` mà jsdom thiếu (sidebar, cmdk).
 - Store: `test/stores/use-building-store.test.ts` (persist + `null`). Search dialog: `test/features/layout/components/header/search-dialog.test.tsx`. Nav: `test/features/layout/utils/navigation.test.ts`.
-- Form: `test/features/auth/components/{sign-in,register}-form.test.tsx`.
+- Form: `test/features/auth/components/{sign-in,register}-form.test.tsx`; schema tạo Toà nhà `test/features/buildings/types/building-form.test.ts` (trim, message, số nguyên, ngày 1–31).
+- Bốn hàng Toà nhà/Phòng của seam test có cột thứ ba — một chuỗi chỉ Mock mới đưa lên màn — nên route nối nhầm placeholder hay Mock ngừng chảy là fail.
+- Composite: `test/components/data-table/data-table.test.tsx` mount trong `createMemoryRouter` — đọc page/size/q/facet từ URL, clamp page quá cuối về trang cuối, "Trang sau" ghi `?page=2` với `replace`, gõ tìm kiếm chỉ ghi URL sau debounce và về trang 1, toggle facet + "Xóa bộ lọc", empty panel có nút reset.
+- Utils: `test/utils/{currency,date,pagination}.test.ts`; `test/constants/status.test.ts`; `test/features/buildings/utils/building-stats.test.ts`.
 - E2E: `e2e/auth.e2e.ts` (guard + form trên bundle thật), `e2e/dashboard.e2e.ts`
   (session sống qua reload, boot không console error), `e2e/shell.e2e.ts` (Building
   scope sống qua reload thật và về `null`, sidebar điều hướng + active, sheet trên
-  viewport điện thoại, đăng xuất). Trên Windows chạy
+  viewport điện thoại, đăng xuất), `e2e/buildings-rooms.e2e.ts` (filter/facet/page của
+  Phòng sống qua reload thật qua URL, bảng + sort, tạo Toà nhà → toast, Building scope
+  áp lên danh sách Phòng). Trên Windows chạy
   `bunx playwright test --project=chromium` từ thư mục app.
