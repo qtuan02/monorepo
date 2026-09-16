@@ -5,8 +5,8 @@
  * (or, for the two the app does not override, `theme.css`) resolves to.
  * `test/features/home/components/open-graph-card.test.tsx` reads both
  * stylesheets and holds each literal to its token, so the card cannot drift
- * from the page it is a preview of. Named for the token, not for the role, for
- * the same reason.
+ * from the page it is a preview of. Each key names the token it mirrors,
+ * except `ink`, which stands for the three that share one value.
  *
  * Only the light theme: a link unfurler has no `prefers-color-scheme`, and a
  * card that matched one reader's dark mode would be inverted for the other.

@@ -103,7 +103,9 @@ describe("opengraph-image", () => {
    * a `fonts` option would make `next build` — and so `docker build` and CI —
    * fetch a webfont, or read one committed to the repo. Neither is allowed,
    * and the second is checked on disk rather than in the call, because a
-   * font file is a build-time read that no option has to name.
+   * font file is a build-time read that no option has to name. The app
+   * directory, not the whole repo: a font elsewhere in the workspace is some
+   * other app's business, and `node_modules` is full of them.
    */
   it("passes no fonts to ImageResponse, and no font file is in the app", async () => {
     await renderPng("vi");
@@ -113,10 +115,14 @@ describe("opengraph-image", () => {
       expect(options).not.toHaveProperty("fonts");
     }
 
-    const fontFiles = readdirSync(resolve(process.cwd(), "src"), {
-      recursive: true,
-      encoding: "utf8",
-    }).filter((entry) => /.(woff2?|ttf|otf|eot)$/i.test(entry));
+    // Both places a font for Satori could be committed to: an import under
+    // `src/`, or a fixed URL under `public/`.
+    const fontFiles = ["src", "public"].flatMap((dir) =>
+      readdirSync(resolve(process.cwd(), dir), {
+        recursive: true,
+        encoding: "utf8",
+      }).filter((entry) => /\.(woff2?|ttf|otf|eot)$/i.test(entry)),
+    );
 
     expect(fontFiles).toEqual([]);
   });

@@ -23,7 +23,7 @@ export function withoutComments(source: string): string {
 }
 
 /** The index just past the `}` that closes the block opened at `open`. */
-export function blockEnd(source: string, open: number): number {
+function blockEnd(source: string, open: number): number {
   let depth = 0;
   let index = open;
 

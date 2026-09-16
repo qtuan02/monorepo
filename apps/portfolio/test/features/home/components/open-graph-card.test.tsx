@@ -86,8 +86,10 @@ describe("OpenGraphCard", () => {
   /**
    * The card is a preview of the page, so its literals are held to the page's
    * own tokens — the light theme, read as text the same way
-   * `test/globals.test.ts` reads it. A token the app overrides is read from
-   * `globals.css`; one it leaves alone, from `theme.css`.
+   * `test/globals.test.ts` reads it, and resolved the way the cascade does: the
+   * app's override when it declares the token, the shared theme when it does
+   * not. Pinning a token to one file would let an override the app adds later
+   * go unread here, and the card would drift while the test stayed green.
    */
   describe("spells out the app's light theme", () => {
     // `process.cwd()` is the app root — Vitest sets it from this project's config.
@@ -109,19 +111,21 @@ describe("OpenGraphCard", () => {
       ),
       ":root",
     );
-    const hexOf = (declarations: Record<string, string>, token: string) =>
-      rgbToHex(oklchToRgb(parseOklch(declared(declarations, token))));
+    const hexOf = (token: string) =>
+      rgbToHex(
+        oklchToRgb(parseOklch(override[token] ?? declared(theme, token))),
+      );
 
     it.each([
-      ["background", "background", theme],
-      ["card", "card", theme],
-      ["ink", "foreground", override],
-      ["ink", "border", override],
-      ["ink", "hard-shadow", override],
-      ["highlight", "highlight", override],
-      ["primary", "primary", override],
-    ] as const)("%s is the sRGB of --%s", (literal, token, declarations) => {
-      expect(OPEN_GRAPH_PALETTE[literal]).toBe(hexOf(declarations, token));
+      ["background", "background"],
+      ["card", "card"],
+      ["ink", "foreground"],
+      ["ink", "border"],
+      ["ink", "hard-shadow"],
+      ["highlight", "highlight"],
+      ["primary", "primary"],
+    ] as const)("%s is the sRGB of --%s", (literal, token) => {
+      expect(OPEN_GRAPH_PALETTE[literal]).toBe(hexOf(token));
     });
 
     it("paints with those literals and no other colour", () => {
