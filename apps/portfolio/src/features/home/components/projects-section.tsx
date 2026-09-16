@@ -1,23 +1,25 @@
 import { useTranslations } from "next-intl";
 
-import ProjectCard from "~/features/home/components/project-card";
+import ProjectRow from "~/features/home/components/project-row";
 import SectionHeading from "~/features/home/components/section-heading";
+import StandardBlock from "~/features/home/components/standard-block";
 import {
   PROJECT_ITEMS,
   PROJECT_SOURCE_LABEL_KEYS,
 } from "~/features/home/constants/resume";
 
 /**
- * The personal projects — the part of the CV a recruiter can verify against
- * real code. Same join as the work history: structure from the constants,
- * every string from the catalogue, keyed by the item's id.
+ * The learning and demo projects — the part of the CV a recruiter can verify
+ * against real code, and no more than that. Same join as the work history:
+ * structure from the constants, every string from the catalogue, keyed by the
+ * item's id.
  *
- * Two across from `sm`, and a lone last card spans both tracks. v2 first
- * kept v1's three-across, which on the 2xl column squeezed each card into
- * ~200 px (#123); in the 2/3 column the page has from `lg` two tracks are
- * ~340 px each, and the third card — an odd one out in a two-column grid —
- * takes the full row rather than leaving a hole beside it. The copy stays
- * capped at two lines and three bullets so the cards read at one height.
+ * One block for the whole section, three rows inside it, and a note up front
+ * saying what these are (#125). The v2 section was three cards, each the size
+ * of a work role, which put a demo built to try a stack on the same footing as
+ * a year of shipping to a hospital — and the owner's brief is the opposite:
+ * these are worth a link, not a pitch. The rows are divided by the page's own
+ * 2px rule, so the block reads as one list.
  */
 export default function ProjectsSection() {
   const t = useTranslations();
@@ -32,25 +34,30 @@ export default function ProjectsSection() {
     <section id="projects">
       <div className="flex min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.projects.title")}</SectionHeading>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:[&>*:last-child:nth-child(odd)]:col-span-2">
-          {PROJECT_ITEMS.map((item) => (
-            <ProjectCard
-              key={item.id}
-              name={item.name}
-              typeLabel={t(`portfolio.projects.type.${item.type}`)}
-              description={t(`portfolio.projects.items.${item.id}.description`)}
-              bullets={item.bulletKeys.map((key) => ({
-                id: key,
-                text: t(`portfolio.projects.items.${item.id}.bullets.${key}`),
-              }))}
-              techStack={item.techStack}
-              source={item.source}
-              demo={item.demo}
-              sourceLabels={sourceLabels}
-              demoLabel={t("portfolio.projects.links.demo")}
-            />
-          ))}
-        </div>
+        <StandardBlock className="flex flex-col gap-y-4">
+          {/* 15 px like every line of prose on the page; muted because it
+              frames the list rather than belonging to any item in it. */}
+          <p className="text-[15px] leading-relaxed text-muted-foreground">
+            {t("portfolio.projects.note")}
+          </p>
+          <ul className="flex list-none flex-col divide-y-2 divide-border">
+            {PROJECT_ITEMS.map((item) => (
+              <li key={item.id} className="py-4 first:pt-0 last:pb-0">
+                <ProjectRow
+                  name={item.name}
+                  description={t(
+                    `portfolio.projects.items.${item.id}.description`,
+                  )}
+                  techStack={item.techStack}
+                  source={item.source}
+                  demo={item.demo}
+                  sourceLabels={sourceLabels}
+                  demoLabel={t("portfolio.projects.links.demo")}
+                />
+              </li>
+            ))}
+          </ul>
+        </StandardBlock>
       </div>
     </section>
   );

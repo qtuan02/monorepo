@@ -42,6 +42,19 @@ const dockControlClassName =
  * and the dark `bg-input` wash by the same variants, which is what lets
  * `twMerge` replace rather than stack them.
  */
+/**
+ * The switcher's popup, in the page's grammar: a 2px edge, the solid shadow,
+ * no rounding, the card ground with the page's ink, monospace like the
+ * trigger — and no zoom on open, since nothing on this page scales. It opens
+ * *above* the bar as a plain menu rather than over the trigger the macOS way,
+ * which is what a control pinned to the bottom of the viewport wants.
+ */
+const dockSelectContentClassName =
+  "rounded-none border-2 border-border bg-card p-1 font-mono text-xs text-foreground shadow-hard ring-0 data-open:animate-none data-closed:animate-none";
+
+const dockSelectItemClassName =
+  "rounded-none py-2 font-mono text-xs focus:bg-accent";
+
 const dockSelectClassName =
   "rounded-none border-0 bg-transparent px-3 font-mono text-xs shadow-none transition-[translate,background-color] duration-100 hover:bg-accent hover:text-accent-foreground focus-visible:ring-0 focus-visible:ring-offset-0 active:translate-x-px active:translate-y-px data-[size=sm]:h-12 motion-reduce:transition-none dark:bg-transparent dark:hover:bg-accent";
 
@@ -149,6 +162,10 @@ export default function NavbarTemplate() {
             <SelectLanguage
               label={t("language.placeholder")}
               triggerClassName={dockSelectClassName}
+              contentClassName={dockSelectContentClassName}
+              itemClassName={dockSelectItemClassName}
+              side="top"
+              alignItemWithTrigger={false}
             />
           </Suspense>
         </Dock>

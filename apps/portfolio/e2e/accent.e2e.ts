@@ -160,18 +160,20 @@ test.describe("the radius", () => {
   /**
    * `--radius: 0px` is one line, and `theme.css` derives every `rounded-*`
    * size from it — so the claim is not that the line is there (the text test
-   * has that) but that a primitive on the page actually has no corners. A badge
-   * (`rounded-4xl`, the widest step) and a button (`rounded-md`) are two steps
-   * apart on that scale, and either would show a leftover curve first. (The
-   * `Card` primitive is no longer on the page — every block is the app's own
-   * `StandardBlock` since #118.) Located by the `data-slot` every primitive
-   * stamps on its root: the assertion is about the primitive's box, which has
-   * no accessible name to ask for.
+   * has that) but that a primitive on the page actually has no corners. A
+   * button (`rounded-md`) and the Select trigger in the dock (`rounded-md`
+   * too, but from a different primitive) would each show a leftover curve
+   * first. (The `Card` primitive is no longer on the page — every block is the
+   * app's own `StandardBlock` since #118 — and the tech-stack badges went
+   * with the project cards in #125; the one `Badge` left, the award, renders
+   * as a tooltip trigger and carries that slot instead.) Located by the
+   * `data-slot` every primitive stamps on its root: the assertion is about
+   * the primitive's box, which has no accessible name to ask for.
    */
   test("squares the shared primitives on the page", async ({ page }) => {
     await openHomeIn(page, "light");
 
-    for (const slot of ["badge", "button"]) {
+    for (const slot of ["button", "select-trigger"]) {
       const element = page.locator(`[data-slot="${slot}"]`).first();
 
       await expect(element, slot).toBeAttached();
@@ -309,7 +311,7 @@ test.describe("the standard block", () => {
 
     for (const [section, count] of [
       ["about", 1],
-      ["projects", 3],
+      ["projects", 1],
       ["skills", 1],
       ["education", 1],
       ["contact", 1],
@@ -328,23 +330,25 @@ test.describe("the standard block", () => {
   });
 
   /**
-   * A project card is pressed under the cursor: it sinks half a step toward
-   * its shadow and the shadow shortens by the same amount (#123), and its
-   * ground takes the `--accent` wash. v1 lifted it; v2 first froze it; the
-   * neubrutalist hover pushes a block *into* the page, which is what a solid
-   * offset shadow is for. Transform and shadow only — the card beside it is
-   * measured too, and must not have moved: a press that reflowed its
-   * neighbours would be a layout shift, not a state.
+   * The projects block is pressed under the cursor: it sinks half a step
+   * toward its shadow and the shadow shortens by the same amount (#123). v1
+   * lifted the cards; v2 first froze them; the neubrutalist hover pushes a
+   * block *into* the page, which is what a solid offset shadow is for. (The
+   * `--accent` wash the cards had went with them in #125 — a list of links
+   * is not a thing whose whole body leads somewhere.) Transform and shadow
+   * only — the block above it is measured too, and must not have moved: a
+   * press that reflowed its neighbours would be a layout shift, not a state.
    */
   for (const theme of ["light", "dark"] as const) {
-    test(`presses a hovered project card by 2px, wash included, in the ${theme} theme`, async ({
+    test(`presses the hovered projects block by 2px in the ${theme} theme`, async ({
       page,
     }) => {
       await openHomeIn(page, theme);
 
-      const cards = page.locator('#projects [data-slot="standard-block"]');
-      const card = cards.first();
-      const neighbour = cards.nth(1);
+      const card = page.locator('#projects [data-slot="standard-block"]');
+      const neighbour = page
+        .locator('#work [data-slot="standard-block"]')
+        .last();
 
       await expect(card).toBeVisible();
       await expect(neighbour).toBeVisible();
@@ -359,19 +363,6 @@ test.describe("the standard block", () => {
       await expect(card).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
 
       await card.hover();
-
-      // The wash is a `transition-colors`, so the fill is polled until it has
-      // arrived rather than read the instant the pointer lands.
-      await expect
-        .poll(
-          async () =>
-            rgbDistance(
-              await paint(page, await computed(card, "background-color")),
-              hexToRgb(PALETTE[theme]["--accent"]),
-            ),
-          { message: "hover wash" },
-        )
-        .toBeLessThan(SAME_COLOUR);
 
       // The press is a `translate` (Tailwind v4 writes the property, not a
       // `transform`), tweened over 150 ms, so both halves are polled.

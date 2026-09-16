@@ -98,13 +98,9 @@ function derivedKeys(): string[] {
         : []),
     ]),
     ...PROJECT_ITEMS.flatMap((item) => [
-      `portfolio.projects.type.${item.type}`,
       `portfolio.projects.items.${item.id}.description`,
-      ...item.bulletKeys.map(
-        (key) => `portfolio.projects.items.${item.id}.bullets.${key}`,
-      ),
-      // Joined by the source's id, exactly as the card does it — so a renamed
-      // label key fails here, not as a key path printed under the card.
+      // Joined by the source's id, exactly as the row does it — so a renamed
+      // label key fails here, not as a key path printed under the row.
       ...(item.source ?? []).map(
         (source) => PROJECT_SOURCE_LABEL_KEYS[source.id],
       ),

@@ -254,7 +254,8 @@ Mười hai quyết định, đóng toàn bộ §6. Cột cuối ghi hệ quả 
 
 | 13 | Bố cục desktop (sau review, 2026-09-16) | **Hai cột kiểu CV** từ `lg`: khung `max-w-6xl`, hero trải hết, cột đọc 2/3 (About, Work, Projects hai cột) + rail 1/3 dính (Skills, Education, Contact, Hobbies). Thứ tự DOM không đổi | Spec #113 giữ cột 672px của v1 nên khối mới bị bó; ticket #123 |
 | 14 | Hover (sau review, 2026-09-16) | **Mọi** khối tiêu chuẩn và thanh dock lún 2px về phía bóng, bóng rút 4→2px; control trong dock lún 1px khi bấm, không theo hover | `--shadow-hard-pressed`; #123 giới hạn ở khối bấm được, #124 mở ra toàn trang theo yêu cầu chủ repo |
-| 15 | Chọn ngôn ngữ (2026-09-16) | Vào dock, control thứ năm sau nút đổi theme; shell không còn chrome trên nội dung | #124 |
+| 15 | Chọn ngôn ngữ (2026-09-16) | Vào dock, control thứ năm sau nút đổi theme; shell không còn chrome trên nội dung. Popup vẽ theo ngữ pháp trang: viền 2px, bóng đặc, mono, mở lên trên thanh, không zoom | #124, #125 |
+| 16 | Dự án (2026-09-16) | Hạ xuống vai **học và demo**: một khối, ba hàng tên + link + một câu + stack mono, ghi chú tính chất ở đầu; bỏ bullet và badge loại; tiêu đề "Dự án học và demo" | #125 — chủ repo: chưa cái nào đủ đẳng cấp production |
 
 **Hệ quả suy ra, không hỏi lại:** đặt `--radius: 0` ở `apps/portfolio/src/globals.css` để vuông
 badge/card/button/skeleton/select bằng một dòng, và vuông nốt hai chỗ bo tròn hard-code còn lại là logo

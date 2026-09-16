@@ -162,11 +162,15 @@ test.describe("the dock", () => {
     if (!before || !neighbourBefore) return;
 
     await github.hover();
-    // Nothing here is *waited for* — the claim is that nothing happens, which
-    // no web-first assertion can retry towards. So the page is given a few
-    // painted frames instead of a sleep: a spring, had one survived, writes a
-    // new width on every frame from the first, and the v1 one was several
-    // pixels off its rest size by the third.
+    // The one thing that *does* happen on hover since #124 is the bar's own
+    // press, tweened over 150 ms — so that is what is waited for, and the
+    // controls are measured once it has settled. Reading them mid-tween gave
+    // sub-pixel sizes off by 1e-5 and a spurious red. A spring on a control,
+    // had one survived, would still be moving after the bar has stopped.
+    await expect(page.getByRole("navigation")).toHaveCSS(
+      "translate",
+      "2px 2px",
+    );
     await page.evaluate(
       () =>
         new Promise<void>((resolve) => {
@@ -188,10 +192,12 @@ test.describe("the dock", () => {
     const neighbourAfter = await linkedin.boundingBox();
     if (!after || !neighbourAfter) throw new Error("a control lost its box");
 
-    expect(after.width).toBe(before.width);
-    expect(after.height).toBe(before.height);
-    expect(neighbourAfter.width).toBe(neighbourBefore.width);
-    expect(neighbourAfter.height).toBe(neighbourBefore.height);
+    // `toBeCloseTo`: a hovered control's box can come back a few 1e-5 px
+    // off its rest size while the bar's translate tweens.
+    expect(after.width).toBeCloseTo(before.width, 1);
+    expect(after.height).toBeCloseTo(before.height, 1);
+    expect(neighbourAfter.width).toBeCloseTo(neighbourBefore.width, 1);
+    expect(neighbourAfter.height).toBeCloseTo(neighbourBefore.height, 1);
     expect(neighbourAfter.x - after.x).toBeCloseTo(
       neighbourBefore.x - before.x,
       1,

@@ -65,8 +65,8 @@ test.describe("print", () => {
     await expect(page.locator("#work")).toBeVisible();
 
     // Every block the page is built from — the hero's terminal window, three
-    // work rows, About, three project cards, Skills, Education, Contact and
-    // Hobbies: twelve — casts a solid 4px shadow and draws a 2px edge on
+    // work rows, About, the one projects block, Skills, Education, Contact and
+    // Hobbies: ten — casts a solid 4px shadow and draws a 2px edge on
     // screen. On paper the shadow is ink spent on nothing and a 2px rule is a
     // box drawn around every paragraph, so `StandardBlock` drops the one and
     // thins the other under `print:`. The count is part of the claim: a
@@ -75,7 +75,7 @@ test.describe("print", () => {
     // whatever was left.
     const blocks = page.locator('[data-slot="standard-block"]');
 
-    await expect(blocks).toHaveCount(12);
+    await expect(blocks).toHaveCount(10);
 
     for (const block of await blocks.all()) {
       // Not `"none"`: Tailwind composes `box-shadow` out of its ring, inset

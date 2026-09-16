@@ -197,9 +197,9 @@ test.describe("server rendering", () => {
   test("the projects are in the first HTML, in both languages", async ({
     request,
   }) => {
-    // A card is the piece a recruiter's crawler is most likely to index — the
-    // repo names and demo URLs — so it must be in the bytes the server sends,
-    // not something that arrives once the fades have run.
+    // A project row is the piece a recruiter's crawler is most likely to
+    // index — the repo names and demo URLs — so it must be in the bytes the
+    // server sends, not something that arrives once the client has run.
     const vi = await request.get(ROUTES.HOME, {
       headers: { "Accept-Language": "vi" },
     });
@@ -208,7 +208,7 @@ test.describe("server rendering", () => {
 
     const viHtml = await vi.text();
 
-    expect(viHtml).toContain("Dự án cá nhân");
+    expect(viHtml).toContain("Dự án học và demo");
     expect(viHtml).toContain("Personal Monorepo");
     expect(viHtml).toContain('href="https://github.com/qtuan02/monorepo"');
 
@@ -219,6 +219,6 @@ test.describe("server rendering", () => {
     });
 
     expect(en.status()).toBe(200);
-    expect(await en.text()).toContain("Personal Projects");
+    expect(await en.text()).toContain("Learning and demo projects");
   });
 });
