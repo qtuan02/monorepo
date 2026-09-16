@@ -13,35 +13,30 @@ import WorkSection from "~/features/home/components/work-section";
  * A Server Component with no props: the content is a constant of the slice, not
  * something a route module fetches, so there is nothing for the page to hand
  * down (see `~/features/home/constants/resume.ts` for why it is not a
- * `"use cache"` read). Every section renders on the server; only the fades, the
- * lens and the expandable rows are client islands.
- *
- * The delays are the staggering the sections arrive with, expressed once here so
- * a section's place in the sequence is visible in one list instead of being a
- * multiplier buried in seven files.
+ * `"use cache"` read). Every section renders on the server and arrives at
+ * rest — there is no entrance animation, so nothing here is staggered; the only
+ * client islands left are the expandable work rows and the print button.
  */
-const SECTION_DELAY = 0.08;
-
 export default function HomeTemplate() {
   return (
     <div className="flex flex-col space-y-6 md:space-y-10">
-      <HeroSection delay={SECTION_DELAY} />
-      <AboutSection delay={SECTION_DELAY * 3} />
-      <WorkSection delay={SECTION_DELAY * 5} />
-      <ProjectsSection delay={SECTION_DELAY * 7} />
+      <HeroSection />
+      <AboutSection />
+      <WorkSection />
+      <ProjectsSection />
       {/* Skills before Education: a recruiter reading this CV wants the stack
           before the degree, and the design brief's reading order (§2) says so.
           The two arrived from two tickets running in parallel and landed the
           other way round — `test/features/home/templates/home.template.test.tsx`
           is what stops that happening again. */}
-      <SkillsSection delay={SECTION_DELAY * 9} />
-      <EducationSection delay={SECTION_DELAY * 11} />
+      <SkillsSection />
+      <EducationSection />
       {/* Stacked on a phone, two columns from `sm` with contact given the wider
           one — side by side at 375 px an email address has nowhere to go but
           out of the viewport. */}
       <div className="grid gap-6 sm:grid-cols-[2fr_1fr]">
-        <ContactSection delay={SECTION_DELAY * 11} />
-        <HobbiesSection delay={SECTION_DELAY * 11} />
+        <ContactSection />
+        <HobbiesSection />
       </div>
     </div>
   );

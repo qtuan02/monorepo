@@ -8,25 +8,17 @@ import {
 import { buttonVariants } from "@monorepo/ui/components/button";
 
 import avatar from "~/assets/avatar.jpg";
-import BlurFade from "~/features/home/components/blur-fade";
-import BlurFadeText from "~/features/home/components/blur-fade-text";
-import { Lens } from "~/features/home/components/lens";
 import PrintCvButton from "~/features/home/components/print-cv-button";
 import { HERO_ACTIONS } from "~/features/home/constants/resume";
 import { isExternalPage } from "~/features/home/utils/is-external-page";
 
-interface HeroSectionProps {
-  delay: number;
-}
-
 /**
  * The opening block: the greeting, one line of positioning, and the portrait.
  *
- * A Server Component. The three children that need the browser — the two fades
- * and the lens — are client islands that take their content as `children`, so
- * the words themselves are still in the first HTML.
+ * A Server Component. The only child that needs the browser is the print
+ * button; everything a reader sees is in the first HTML.
  */
-export default function HeroSection({ delay }: HeroSectionProps) {
+export default function HeroSection() {
   const t = useTranslations();
 
   return (
@@ -34,84 +26,62 @@ export default function HeroSection({ delay }: HeroSectionProps) {
       <div className="mx-auto w-full max-w-2xl space-y-8">
         <div className="flex justify-between gap-2">
           <div className="flex flex-1 flex-col space-y-1.5">
-            <BlurFadeText
-              delay={delay}
-              className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none"
-              yOffset={8}
-              as="h1"
-              text={t("portfolio.hero.greeting")}
-              // Decorative text, not an icon. A screen reader announcing
-              // "waving hand" after the name adds nothing and interrupts the
-              // one line that has to land.
-              postFix={
-                <span aria-hidden="true" className="animate-bounce">
-                  👋
-                </span>
-              }
-            />
-            <BlurFadeText
-              className="max-w-[600px] md:text-xl"
-              delay={delay}
-              text={t("portfolio.hero.positioning")}
-            />
-            <BlurFadeText
-              className="max-w-[600px] text-sm text-muted-foreground md:text-base"
-              delay={delay}
-              text={t("portfolio.hero.current")}
-            />
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+              {t("portfolio.hero.greeting")}
+              {/* Decorative text, not an icon. A screen reader announcing
+                  "waving hand" after the name adds nothing and interrupts the
+                  one line that has to land. `inline-block` because a transform
+                  does nothing on an inline element, and the bounce is one. */}
+              <span aria-hidden="true" className="inline-block animate-bounce">
+                👋
+              </span>
+            </h1>
+            <p className="max-w-[600px] md:text-xl">
+              {t("portfolio.hero.positioning")}
+            </p>
+            <p className="max-w-[600px] text-sm text-muted-foreground md:text-base">
+              {t("portfolio.hero.current")}
+            </p>
           </div>
-          <BlurFade delay={delay}>
-            <Avatar className="size-28 border select-none md:size-36">
-              <Lens
-                zoomFactor={2}
-                lensSize={60}
-                ariaLabel={t("portfolio.hero.zoomLabel")}
-              >
-                {/* `avatar.src` rather than a `/public` URL string: the import
-                    is what the bundler resolves, hashes and checks.
+          <Avatar className="size-28 border select-none md:size-36">
+            {/* `avatar.src` rather than a `/public` URL string: the import is
+                what the bundler resolves, hashes and checks.
 
-                    Not `next/image`, and not `priority` either — neither would
-                    do what it looks like. Base UI's `Avatar.Image` runs its own
-                    load check and mounts the `<img>` only once that resolves,
-                    so on the server this subtree renders `AvatarFallback` and
-                    the portrait is not in the first HTML at all. A fetch
-                    priority hint on an element the browser cannot discover
-                    until after hydration buys nothing; making this the LCP
-                    element means leaving `Avatar` behind, which is a design
-                    decision rather than a wiring one. The box is reserved
-                    either way by the root's `size-*`, so nothing shifts. */}
-                <AvatarImage
-                  alt={t("portfolio.hero.avatarAlt")}
-                  src={avatar.src}
-                />
-              </Lens>
-              <AvatarFallback>HT</AvatarFallback>
-            </Avatar>
-          </BlurFade>
+                Not `next/image`, and not `priority` either — neither would do
+                what it looks like. Base UI's `Avatar.Image` runs its own load
+                check and mounts the `<img>` only once that resolves, so on the
+                server this subtree renders `AvatarFallback` and the portrait
+                is not in the first HTML at all. A fetch priority hint on an
+                element the browser cannot discover until after hydration buys
+                nothing; making this the LCP element means leaving `Avatar`
+                behind, which is a design decision rather than a wiring one.
+                The box is reserved either way by the root's `size-*`, so
+                nothing shifts. */}
+            <AvatarImage alt={t("portfolio.hero.avatarAlt")} src={avatar.src} />
+            <AvatarFallback>HT</AvatarFallback>
+          </Avatar>
         </div>
 
-        <BlurFade delay={delay}>
-          <div className="flex flex-wrap items-center gap-2">
-            {HERO_ACTIONS.map((action) => {
-              const Icon = action.icon;
+        <div className="flex flex-wrap items-center gap-2">
+          {HERO_ACTIONS.map((action) => {
+            const Icon = action.icon;
 
-              return (
-                <a
-                  key={action.id}
-                  href={action.href}
-                  {...(isExternalPage(action.href)
-                    ? { target: "_blank", rel: "noreferrer" }
-                    : {})}
-                  className={buttonVariants({ variant: "outline", size: "sm" })}
-                >
-                  <Icon aria-hidden="true" className="size-4" />
-                  {t(`portfolio.hero.actions.${action.id}`)}
-                </a>
-              );
-            })}
-            <PrintCvButton />
-          </div>
-        </BlurFade>
+            return (
+              <a
+                key={action.id}
+                href={action.href}
+                {...(isExternalPage(action.href)
+                  ? { target: "_blank", rel: "noreferrer" }
+                  : {})}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Icon aria-hidden="true" className="size-4" />
+                {t(`portfolio.hero.actions.${action.id}`)}
+              </a>
+            );
+          })}
+          <PrintCvButton />
+        </div>
       </div>
     </section>
   );
