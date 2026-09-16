@@ -46,11 +46,11 @@ test.describe("print", () => {
     }
 
     // The dock is the app's whole screen chrome and means nothing on paper.
-    // Located as a bare `nav`, attached first: `getByRole` skips a hidden
-    // element, and `toBeHidden()` on a locator that matches nothing passes —
-    // which is how v1's assertion on `[data-slot="tooltip-provider"]`, an
+    // `includeHidden`, and attached first: `getByRole` skips a hidden element
+    // by default, and `toBeHidden()` on a locator that matches nothing passes
+    // — which is how v1's assertion on `[data-slot="tooltip-provider"]`, an
     // element Base UI's provider never renders, held for a whole release.
-    const dock = page.locator("nav");
+    const dock = page.getByRole("navigation", { includeHidden: true });
 
     await expect(dock).toBeAttached();
     await expect(dock).toBeHidden();
@@ -64,23 +64,46 @@ test.describe("print", () => {
 
     await expect(page.locator("#work")).toBeVisible();
 
-    // Every block the page is built from — the eleven standard blocks after
-    // the hero and the hero's own terminal window — casts a solid 4px shadow
-    // and draws a 2px edge on screen. On paper the shadow is ink spent on
-    // nothing and a 2px rule is a box drawn around every paragraph, so the
-    // print branch drops the one and thins the other. The count is part of
-    // the claim: a block that stopped carrying its slot would leave the print
-    // rule with nothing to match, and still pass a `for … of` over zero.
-    const blocks = page.locator(
-      '[data-slot="standard-block"], [data-slot="terminal-window"]',
-    );
+    // Every block the page is built from — the hero's terminal window, three
+    // work rows, About, three project cards, Skills, Education, Contact and
+    // Hobbies: twelve — casts a solid 4px shadow and draws a 2px edge on
+    // screen. On paper the shadow is ink spent on nothing and a 2px rule is a
+    // box drawn around every paragraph, so `StandardBlock` drops the one and
+    // thins the other under `print:`. The count is part of the claim: a
+    // section that re-spelled the shape instead of rendering the component
+    // would print with its screen edge, and still pass a `for … of` over
+    // whatever was left.
+    const blocks = page.locator('[data-slot="standard-block"]');
 
     await expect(blocks).toHaveCount(12);
 
     for (const block of await blocks.all()) {
-      await expect(block).toHaveCSS("box-shadow", "none");
+      // Not `"none"`: Tailwind composes `box-shadow` out of its ring, inset
+      // and shadow slots, so `shadow-none` computes to a stack of transparent
+      // zero-offset layers rather than the keyword. What matters is that no
+      // layer would put ink on the page — every one is both invisible and
+      // unoffset — which a screen build fails on its `4px 4px` layer alone.
+      const layers = (
+        await block.evaluate((node) => getComputedStyle(node).boxShadow)
+      ).split(/,\s*(?=[a-z]+\()/);
+
+      for (const layer of layers) {
+        expect(layer).toMatch(/^(none|rgba\(0, 0, 0, 0\) 0px 0px 0px 0px)$/);
+      }
+
       await expect(block).toHaveCSS("border-top-width", "1px");
     }
+
+    // The two 2px edges inside a block — the portrait and each company logo —
+    // thin with it, or the paper shows a heavy frame inside a light one.
+    await expect(page.locator('#hero [data-slot="avatar"]')).toHaveCSS(
+      "border-top-width",
+      "1px",
+    );
+    await expect(page.locator("#work img").first()).toHaveCSS(
+      "border-top-width",
+      "1px",
+    );
 
     // The window's title bar is the screen's metaphor, not the CV's content:
     // attached — the markup is the same document — but not laid out.

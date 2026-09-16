@@ -11,6 +11,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import avatar from "~/assets/avatar.jpg";
 import PrintCvButton from "~/features/home/components/print-cv-button";
+import StandardBlock from "~/features/home/components/standard-block";
 import { HERO_ACTIONS } from "~/features/home/constants/resume";
 import { isExternalPage } from "~/features/home/utils/is-external-page";
 
@@ -67,28 +68,21 @@ export default function HeroSection() {
 
   return (
     <section id="hero">
-      {/* The block the redesign gives every section — a 2px border in the ink,
-          a solid 4px offset shadow in `--hard-shadow`, no radius — landing
-          here first, with the one thing only this block has: a title bar.
-          `text-foreground` rather than the card pair: `--card-foreground` is
-          not one of the two neutrals the app overrides and is still the
-          theme's blue-grey in the light theme.
-
-          The `data-slot` is the name the print branch of `src/globals.css`
-          flattens the window by — no shadow, a 1px edge — beside every
-          `standard-block`; the window is not that component only because of
-          the title bar inside it. */}
-      <div
-        data-slot="terminal-window"
-        className="border-2 border-border bg-card text-foreground shadow-[4px_4px_0_0] shadow-hard-shadow"
-      >
+      {/* The block the redesign gives every section, landing here first with
+          the one thing only this block has: a title bar. No padding — the bar
+          runs edge to edge and the body below carries its own inset — spelled
+          at both breakpoints, because `cn` replaces a utility only under the
+          same variant and a bare `p-0` would leave `sm:p-5` standing. The
+          shape, and how it prints, flat, is the component's. */}
+      <StandardBlock className="p-0 sm:p-0">
         {/* Window chrome: three dots and a path. Pure decoration, hidden from
-            assistive technology as a whole, and from paper: the same print
-            branch hides it by this `data-slot`. */}
+            assistive technology as a whole, and from paper: the bar is the
+            screen's metaphor, not the CV's content. The `data-slot` is the
+            name the E2E specs find the window by. */}
         <div
           aria-hidden="true"
           data-slot="terminal-title-bar"
-          className="flex items-center gap-3 border-b-2 border-border px-4 py-2"
+          className="flex items-center gap-3 border-b-2 border-border px-4 py-2 print:hidden"
         >
           <span className="flex gap-1.5">
             <span className="size-3 rounded-full border-2 border-border" />
@@ -161,8 +155,9 @@ export default function HeroSection() {
           {/* Square, by className: `Avatar` rounds with a class rather than
               `--radius`, and its root draws its own 1px `after:` ring, so both
               are overridden here rather than in `@monorepo/ui` — this page is
-              the one that wants a square portrait. */}
-          <Avatar className="size-20 shrink-0 rounded-none border-2 border-border select-none after:rounded-none after:border-0 sm:size-28 md:size-36">
+              the one that wants a square portrait. `print:border` thins its
+              2px edge the way the block around it thins on paper. */}
+          <Avatar className="size-20 shrink-0 rounded-none border-2 border-border select-none after:rounded-none after:border-0 sm:size-28 md:size-36 print:border">
             {/* `avatar.src` rather than a `/public` URL string: the import is
                 what the bundler resolves, hashes and checks.
 
@@ -186,7 +181,7 @@ export default function HeroSection() {
             </AvatarFallback>
           </Avatar>
         </div>
-      </div>
+      </StandardBlock>
     </section>
   );
 }

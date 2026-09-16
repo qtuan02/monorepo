@@ -53,12 +53,14 @@ tác một thứ `motion` viết inline (row accordion chưa ai bấm in ra head
 thân), thay hẳn palette dark bằng light (trình duyệt không in background
 graphics, nên theme tối in ra là chữ trắng trên giấy trắng), và in href sau mỗi
 link ngoài — trừ khối Contact, nơi chữ hiện ra **đã là** URL. Từ redesign v2,
-bản in còn **làm nhẹ** hình khối: mọi `standard-block` và cửa sổ terminal ở hero
-(`data-slot="terminal-window"`) bỏ bóng đổ và hạ viền xuống 1px, thanh tiêu đề
-cửa sổ (`terminal-title-bar`) và dock không in — bóng và viền 2px là ngôn ngữ của
-màn hình, trên giấy chỉ là mực. Không cần `!important`: khối print unlayered
-thắng utility của Tailwind. `e2e/print-and-motion.e2e.ts` đo cả hai dưới
-media emulation `print`.
+bản in còn **làm nhẹ** hình khối: `StandardBlock` (cửa sổ terminal ở hero cũng
+là nó, với `p-0`) mang `print:border print:shadow-none` nên mọi khối in không
+bóng, viền 1px; ảnh chân dung và logo công ty mỏng theo; thanh tiêu đề cửa sổ
+`print:hidden` như dock. Phần print của hình khối nằm **cạnh phần màn hình**
+trong className chứ không trong `@media print` của `globals.css` — khối đó chỉ
+giữ những gì utility không nói được (đè inline style của `motion`, `::after`
+in href, đổi palette). `e2e/print-and-motion.e2e.ts` đo tất cả dưới media
+emulation `print`.
 
 ## i18n
 

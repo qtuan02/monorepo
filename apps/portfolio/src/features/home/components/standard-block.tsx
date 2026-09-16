@@ -8,9 +8,9 @@ import { cn } from "@monorepo/ui/utils/cn";
  * card background, and the page's own ink for text.
  *
  * A component rather than a className constant because the block is a *shape*
- * several files have to agree on — every work row, the education row, About,
- * each project card, the skills, the contact and hobby blocks: six callers —
- * not a measurement two siblings share. Written out per call site, the copies
+ * several files have to agree on — the hero's terminal window, every work
+ * row, the education row, About, each project card, the skills, the contact
+ * and hobby blocks: seven callers — not a measurement two siblings share. Written out per call site, the copies
  * would drift the first time one of them was "tidied"; here the shape is one
  * file, and a block that stops using it is a diff anyone can read.
  *
@@ -29,10 +29,20 @@ import { cn } from "@monorepo/ui/utils/cn";
  *   card's own foreground is still the shared theme's blue-grey, which is
  *   exactly the text the redesign got rid of — the block paints on `bg-card`
  *   with the page's ink, and #114 measured that pair in both themes.
+ * - `print:border print:shadow-none`: on paper the shadow is ink spent on
+ *   nothing — and whether it shows at all is a checkbox in the reader's
+ *   dialog — while a 2px rule around every paragraph is a box, not an edge.
+ *   So the block prints flat, with the 1px edge a shared control draws. The
+ *   print half of the shape lives here with the screen half, not in the
+ *   `@media print` block of `globals.css`, for the reason this file exists at
+ *   all: one place. `e2e/print-and-motion.e2e.ts` measures it.
  *
  * The padding is the block's too — `p-4 sm:p-5` — because every caller chose
  * the same one and a block whose inset differed from its neighbours' would
- * read as a different block; `cn` lets a caller override it. Layout and
+ * read as a different block; `cn` lets a caller override it, which the hero
+ * does (`p-0 sm:p-0` — one per breakpoint, since `twMerge` replaces a
+ * utility only under the same variant): its title bar runs edge to edge and
+ * its body carries its own. Layout and
  * everything else are the caller's: a work row lays a logo beside a column, a
  * project card stacks a header over a footer, and neither arrangement belongs
  * to the shape they share.
@@ -45,7 +55,7 @@ export default function StandardBlock({
     <div
       data-slot="standard-block"
       className={cn(
-        "rounded-none border-2 border-border bg-card p-4 text-foreground shadow-hard sm:p-5",
+        "rounded-none border-2 border-border bg-card p-4 text-foreground shadow-hard sm:p-5 print:border print:shadow-none",
         className,
       )}
       {...props}

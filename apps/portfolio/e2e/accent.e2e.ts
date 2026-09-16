@@ -469,19 +469,24 @@ test.describe("the hero", () => {
     }) => {
       await openHomeIn(page, theme);
 
-      // The block itself: the 2px border and the 4px offset shadow that the
-      // rest of the page will inherit. `shadow-[4px_4px_0_0]` names no colour
-      // and `shadow-hard-shadow` supplies one through `--tw-shadow-color` —
-      // two utilities that only meet in the cascade, so whether the shadow is
-      // painted in `--hard-shadow` at all (and flips with the theme) is a
-      // question only a browser answers. The title bar is the one element
-      // with that `data-slot`, and the window is its parent.
+      // The block itself, which is the same `StandardBlock` the rest of the
+      // page is built from — measured here on its own because the hero is
+      // the one section the block test above does not walk, and because its
+      // `p-0` override is exactly the kind of edit that could take the shape
+      // with it. `shadow-hard` inlines the offset and reads its colour from
+      // `--hard-shadow`, so whether the shadow flips with the theme is a
+      // question only a browser answers. Located as the window whose title
+      // bar this is: the bar is the one element with that `data-slot`.
       const window = page
         .locator('#hero [data-slot="terminal-title-bar"]')
         .locator("..");
 
       await expect(window).toHaveCSS("border-top-width", "2px");
       await expect(window).toHaveCSS("border-radius", "0px");
+      // The block's own inset has to be off for the title bar to reach the
+      // edge — and at this desktop width it is the `sm:` half of that inset
+      // which `p-0` alone would leave standing, doubling the body's.
+      await expect(window).toHaveCSS("padding-top", "0px");
 
       const boxShadow = await window.evaluate(
         (node) => getComputedStyle(node).boxShadow,

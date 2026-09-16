@@ -176,7 +176,7 @@ export function ResumeCard({
           alt={altText}
           width={48}
           height={48}
-          className="size-12 border-2 border-border bg-background object-contain"
+          className="size-12 border-2 border-border bg-background object-contain print:border"
         />
       </div>
 
