@@ -1,10 +1,13 @@
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
-
-import { Badge } from "@monorepo/ui/components/badge";
 
 import type { ComponentDocsEntry } from "~/types/docs-catalogue";
+import { Tile } from "~/components/tile/tile";
 import { ROUTES } from "~/constants/routes";
+
+/** From here a primitive's tile spans two columns — 13 of 63 today. */
+const WIDE_TILE_EXPORTS = 10;
+/** How many export names the preview line spells out before `+n`. */
+const PREVIEW_EXPORTS = 3;
 
 interface ComponentCardProps {
   entry: ComponentDocsEntry;
@@ -12,23 +15,31 @@ interface ComponentCardProps {
 
 /**
  * One primitive in the list. The heading is the **slug**, not a prettified
- * name, because the slug is what a consumer types in the import path.
+ * name, because the slug is what a consumer types in the import path; the
+ * line under it previews the first exports so a reader can tell `dialog`
+ * from `alert-dialog` without opening either.
  */
 export default function ComponentCard({ entry }: ComponentCardProps) {
   const { t } = useTranslation();
 
+  const rest = entry.exports.length - PREVIEW_EXPORTS;
+  const preview = [
+    ...entry.exports.slice(0, PREVIEW_EXPORTS),
+    ...(rest > 0
+      ? [t("documents.components.exportPreviewMore", { count: rest })]
+      : []),
+  ].join(", ");
+
   return (
-    <Link
+    <Tile
       to={ROUTES.componentBySlugPath(entry.slug)}
-      className="border-border bg-card hover:border-primary/50 focus-visible:ring-ring/50 flex flex-col gap-2 rounded-lg border p-4 transition-colors outline-none focus-visible:ring-2"
+      slug={entry.slug}
+      count={entry.exports.length}
+      wide={entry.exports.length >= WIDE_TILE_EXPORTS}
     >
-      <span className="font-mono text-sm font-semibold">{entry.slug}</span>
-      <span className="text-muted-foreground truncate font-mono text-xs">
-        {entry.subpath}
+      <span className="text-muted-foreground mt-1 truncate font-mono text-xs">
+        {preview}
       </span>
-      <Badge variant="secondary" className="w-fit">
-        {t("documents.components.exportCount", { count: entry.exports.length })}
-      </Badge>
-    </Link>
+    </Tile>
   );
 }

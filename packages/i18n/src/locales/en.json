@@ -309,7 +309,8 @@
       "label": "Filter the list",
       "placeholder": "Filter by name…",
       "empty": "No result for “{query}”.",
-      "clear": "Clear the filter"
+      "clear": "Clear the filter",
+      "emptyHint": "Try a shorter keyword, or the exact slug — “dialog”, say."
     },
     "home": {
       "title": "Getting started",
@@ -349,7 +350,7 @@
       "title": "Components",
       "description": "Every row is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
       "count": "{count, plural, one {# component} other {# components}}",
-      "exportCount": "{count, plural, one {# export} other {# exports}}",
+      "exportPreviewMore": "{count, plural, other {+#}}",
       "columns": {
         "subpath": "Subpath",
         "exports": "Exports"
@@ -367,7 +368,6 @@
       "title": "Hooks",
       "description": "Five shared hooks, one subpath each on @fe-monorepo/hook.",
       "count": "{count, plural, one {# hook} other {# hooks}}",
-      "exportCount": "{count, plural, one {# export} other {# exports}}",
       "columns": {
         "subpath": "Subpath",
         "exports": "Exports"
