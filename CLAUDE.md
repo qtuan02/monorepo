@@ -110,6 +110,10 @@ monorepo/
 │   │   ├── src/features/weather/ ← the one business slice. `server/mcp-server.ts` is a **factory**, never a module singleton: `Server.connect(transport)` binds one transport at a time, so a shared server would have a concurrent request swap another's transport mid-flight. `server/openweathermap.ts` calls the provider directly rather than through `@monorepo/api` — that package owns the backend `NEXT_PUBLIC_BASE_DOMAIN_API` names and is shared by every app, while this is a third-party API with one consumer. `constants/tools.ts` is SDK-free data keyed by tool name, so the placeholder page and `registerTool` read one list and every lookup is compiler-checked. `types/weather.ts` declares the two output shapes **as zod schemas** and infers the TS types from them, so the schema `tools/list` advertises and the object the code builds cannot drift. `utils/format-weather.ts` is the pure half; `test/features/weather/server/openweathermap.test.ts` runs on the **node** environment (the rest of the suite is jsdom, where t3-env refuses a `server` variable) and stubs `fetch`, which is how the failure branch is covered without a key
 │   │   ├── src/env.ts          ← the Next Flavor with two app-owned keys — `MCP_WEATHER_OPENWEATHERMAP_API_KEY` (server, **required**: the two weather tools are the whole app, so a missing key must fail `next build` by name) and `NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN`
 │   │   └── **What it keeps that `portfolio` dropped**: `[locale]`, next-intl, `proxy.ts` *with* the session guard, the `auth` slice and the guarded `dashboard` — the ticket asked for the Template kept intact, and `/api/mcp` is outside the matcher either way. What it replaces is the Template's `home` slice: the public page is now an overview of the endpoint, under the `mcpWeather.*` message namespace
+│   ├── smart-rental/            ← `@monorepo/smart-rental` — the landlord's **Portal** for managing rented rooms, ported 1:1 from the mock-data prototype `fe-motel-rsbuild` (spec #127, phase 1 = port on **Mock**, phase 2 = redesign; glossary `apps/smart-rental/CONTEXT.md` — Portal, Mock, Toà nhà, Building scope, Chỉ số điện nước…). Runtime **Vite** (cloned from `_template_vite`), dev 3006 / E2E 3106 in its `ports.env`, no env key of its own. **Three deliberate differences from the Vite Template**, recorded in its README and not drift to synchronise back: no i18n (hardcoded Vietnamese copy, `setDayjsLocale("vi")` once in `src/index.tsx`, `@monorepo/i18n` off its deps), no dark mode, and no `home` slice — `/` is the dashboard
+│   │   ├── src/constants/routes.ts ← the prototype's 32-path table + 10 builders, splats and the `isImplemented` manifest dropped; `src/pages/main.tsx` exports `AppRoutes` (the tree) apart from `MainApp` (providers + `BrowserRouter`) so `test/pages/main.test.tsx` — the **one seam of the spec** — mounts it in `createMemoryRouter` at every path and asserts the screen's heading, plus the guard cases (`replace` proven through `router.state.historyAction`). Each domain ticket adds its rows there
+│   │   ├── src/features/       ← `auth` (fake sign-in: a schema-valid form sets a token; `register` navigates to onboarding; `provider/` guards as the Template) · `layout` (a bare `<Outlet />` until the shell ticket) · one slice per domain, each holding a placeholder template until its ticket ports the screen
+│   │   └── `~/libs/http-client.ts` exports only `httpClient` — no service class until `be-motel` has a contract; reads are Mock constants behind `~/hooks/api`
 │   └── storybook/               ← `@monorepo/storybook` — previews `@monorepo/ui` (Storybook 10.6 + `@storybook/react-vite`, `addon-docs` only), port 6006 — its one port literal, the `-p 6006` in `package.json`; deliberately outside the 3000+n / 3100+n bands, and it has no E2E server, so it declares no `ports.env`
 │       ├── .storybook/main.ts · preview.tsx
 │       ├── src/stories/        ← one `*.stories.tsx` per primitive + `introduction.stories.tsx`
@@ -315,6 +319,7 @@ bun run dev:portfolio             # the CV site (Next)            — http://loc
 bun run dev:documents             # the docs site (Vite)          — http://localhost:3003
 bun run dev:mcp-weather           # the MCP server (Next)         — http://localhost:3004/api/mcp
 bun run dev:template-reactrouter  # the React Router Template app — http://localhost:3005
+bun run dev:smart-rental          # the rental Portal (Vite)      — http://localhost:3006
 bun run dev:storybook             # Storybook                     — http://localhost:6006
 
 bun run check                    # Biome: format + lint + import sorting (whole repo, one pass)
@@ -325,13 +330,14 @@ bun run test                     # Vitest 5 across every workspace with a `test`
 bun run test:coverage            # the same, plus a v8 report — no threshold, nothing gates on it
 bun run build                    # build every package and app
 
-bun run e2e                      # Playwright over every app with an `e2e` task — all three Templates, portfolio, documents, mcp-weather; each webServer builds and serves itself
+bun run e2e                      # Playwright over every app with an `e2e` task — all three Templates, portfolio, documents, mcp-weather, smart-rental; each webServer builds and serves itself
 bun run e2e:headed:template-vite # the same specs in one real browser window (the `watch` project)
 bun run e2e:headed:template-next
 bun run e2e:headed:template-reactrouter
 bun run e2e:headed:portfolio
 bun run e2e:headed:documents
 bun run e2e:headed:mcp-weather
+bun run e2e:headed:smart-rental
 
 bun run changeset                # write a release note for a change to @fe-monorepo/ui or @fe-monorepo/hook
 bun run publish:smoke            # pack both Publish shells, install them into a throwaway consumer project, build it

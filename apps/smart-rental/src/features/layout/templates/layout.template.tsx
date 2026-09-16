@@ -1,30 +1,14 @@
-import { useEffect } from "react";
-import { useTranslation } from "react-i18next";
-
-import BodyTemplate from "./body.template";
-import FooterTemplate from "./footer.template";
-import HeaderTemplate from "./header.template";
+import { Outlet } from "react-router";
 
 /**
  * The app shell, and the public surface of the `layout` slice: the element of
- * the route every in-app page nests under. It composes chrome only — the access
- * check is the `auth` slice's `ProtectedRoute`, wrapped around the routes that
- * need it rather than around the whole shell.
+ * the route every in-app page nests under. A bare content column for now — the
+ * Portal shell (sidebar, header, Building scope) is ticket #130.
  */
 export default function LayoutTemplate() {
-  const { t } = useTranslation();
-
-  useEffect(() => {
-    document.title = t("app.title");
-  }, [t]);
-
   return (
-    // A full-height flex column so the footer's `mt-auto` reaches the bottom of
-    // the viewport on a short page instead of riding up under the content.
-    <div className="flex min-h-dvh flex-col">
-      <HeaderTemplate />
-      <BodyTemplate />
-      <FooterTemplate />
-    </div>
+    <main className="container mx-auto p-6">
+      <Outlet />
+    </main>
   );
 }

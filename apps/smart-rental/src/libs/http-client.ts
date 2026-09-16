@@ -1,12 +1,15 @@
 import { createHttpClient } from "@monorepo/api/client";
-import { TemplateService } from "@monorepo/api/template/template-service";
 
 import { env } from "~/env";
 import { queryClient } from "~/libs/query-client";
 import { useAuthStore } from "~/stores/use-auth-store";
 
 // `env` is validated at boot, so no fallback is needed here.
-const httpClient = createHttpClient({
+//
+// No service singleton yet: every read in phase 1 is Mock data behind a
+// `~/hooks/api` hook (spec #127). When `be-motel` has a contract, the service
+// class lands in `@monorepo/api` and its singleton is instantiated here.
+export const httpClient = createHttpClient({
   baseURL: env.PUBLIC_BASE_DOMAIN_API,
   timeout: 10_000,
 
@@ -23,5 +26,3 @@ const httpClient = createHttpClient({
     queryClient.clear();
   },
 });
-
-export const templateService = new TemplateService(httpClient);

@@ -20,8 +20,6 @@
     "@monorepo/api": "workspace:*",
     "@monorepo/dayjs": "workspace:*",
     "@monorepo/env": "workspace:*",
-    "@monorepo/i18n": "workspace:*",
-    "@monorepo/types": "workspace:*",
     "@monorepo/ui": "workspace:*",
     "@tanstack/react-query": "catalog:tanstack-query5",
     "@tanstack/react-query-devtools": "catalog:tanstack-query5",
@@ -30,7 +28,6 @@
     "react-dom": "catalog:react19",
     "react-error-boundary": "catalog:",
     "react-hook-form": "catalog:",
-    "react-i18next": "catalog:",
     "react-router": "catalog:react-router8",
     "zod": "catalog:",
     "zustand": "catalog:"

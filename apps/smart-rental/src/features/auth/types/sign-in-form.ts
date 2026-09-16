@@ -6,24 +6,15 @@ import * as z from "zod";
 
 /**
  * One schema, two jobs: runtime validation through `zodResolver`, and the form's
- * value type through `z.infer`. A hand-written mirror interface would drift from
- * the validators the first time either side changes.
- *
- * `.trim()` runs before `.min(1)` on purpose, so a whitespace-only entry fails
- * rather than passing a length check. The password is never trimmed — a leading
- * or trailing space is a legitimate character in one.
- *
- * Messages are literal Vietnamese rather than i18n keys: `FieldError` renders
- * whatever string it is handed, so a key would surface to the user verbatim.
+ * value type through `z.infer`. Messages are the prototype's literal Vietnamese —
+ * `FieldError` renders whatever string it is handed. The password is never
+ * trimmed: a leading or trailing space is a legitimate character in one.
  */
 export const signInFormSchema = z.object({
-  username: z
-    .string({ error: "Vui lòng nhập tài khoản." })
-    .trim()
-    .min(1, { error: "Vui lòng nhập tài khoản." }),
+  email: z.email({ error: "Email không hợp lệ" }),
   password: z
-    .string({ error: "Vui lòng nhập mật khẩu." })
-    .min(6, { error: "Mật khẩu phải có ít nhất 6 ký tự." }),
+    .string({ error: "Mật khẩu phải có ít nhất 6 ký tự" })
+    .min(6, { error: "Mật khẩu phải có ít nhất 6 ký tự" }),
 });
 
 export type SignInFormValues = z.infer<typeof signInFormSchema>;
