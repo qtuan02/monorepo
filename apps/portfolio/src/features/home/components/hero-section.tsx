@@ -67,15 +67,16 @@ export default function HeroSection() {
 
   return (
     <section id="hero">
-      {/* The page's standard block — a 2px border in the ink, a solid 4px
-          offset shadow in `--hard-shadow`, no radius — with the one thing only
-          this block has, a title bar. `text-foreground` rather than the card
-          pair: `--card-foreground` is not one of the two neutrals the app
-          overrides and is still the theme's blue-grey in the light theme. */}
+      {/* The block the redesign gives every section — a 2px border in the ink,
+          a solid 4px offset shadow in `--hard-shadow`, no radius — landing
+          here first, with the one thing only this block has: a title bar.
+          `text-foreground` rather than the card pair: `--card-foreground` is
+          not one of the two neutrals the app overrides and is still the
+          theme's blue-grey in the light theme. */}
       <div className="border-2 border-border bg-card text-foreground shadow-[4px_4px_0_0] shadow-hard-shadow">
         {/* Window chrome: three dots and a path. Pure decoration, hidden from
-            assistive technology as a whole; `data-slot` so the print
-            stylesheet can drop it by name. */}
+            assistive technology as a whole. There is no print rule for it yet;
+            the `data-slot` is the name the print ticket will hide it by. */}
         <div
           aria-hidden="true"
           data-slot="terminal-title-bar"

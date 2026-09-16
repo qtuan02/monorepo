@@ -288,4 +288,43 @@ test.describe("the hero", () => {
     await expect(avatar).toHaveCSS("border-radius", "0px");
     await expect(avatar).toHaveCSS("border-top-width", "2px");
   });
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`draws the window as a 2px box with a solid offset shadow, in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      // The block itself: the 2px border and the 4px offset shadow that the
+      // rest of the page will inherit. `shadow-[4px_4px_0_0]` names no colour
+      // and `shadow-hard-shadow` supplies one through `--tw-shadow-color` —
+      // two utilities that only meet in the cascade, so whether the shadow is
+      // painted in `--hard-shadow` at all (and flips with the theme) is a
+      // question only a browser answers. The title bar is the one element
+      // with that `data-slot`, and the window is its parent.
+      const window = page
+        .locator('#hero [data-slot="terminal-title-bar"]')
+        .locator("..");
+
+      await expect(window).toHaveCSS("border-top-width", "2px");
+      await expect(window).toHaveCSS("border-radius", "0px");
+
+      const boxShadow = await window.evaluate(
+        (node) => getComputedStyle(node).boxShadow,
+      );
+      const hard = boxShadow
+        .split(/,\s*(?=[a-z]+\()/)
+        .find((shadow) => / 4px 4px 0px 0px$/.test(shadow));
+      const hardColour = hard?.match(/^(.+?\))\s/)?.[1];
+
+      expect(hard, boxShadow).toBeTruthy();
+      expect(
+        rgbDistance(
+          await paintedColour(page, hardColour ?? ""),
+          hexToRgb(PALETTE[theme]["--hard-shadow"]),
+        ),
+        `shadow is ${boxShadow}`,
+      ).toBeLessThan(SAME_COLOUR);
+    });
+  }
 });
