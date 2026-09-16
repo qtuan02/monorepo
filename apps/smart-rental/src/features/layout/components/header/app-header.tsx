@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 import { Separator } from "@monorepo/ui/components/separator";
 import { SidebarTrigger } from "@monorepo/ui/components/sidebar";
 
-import { resolveNavigationItem } from "~/features/layout/constants/navigation";
+import { resolveNavigationItem } from "~/features/layout/utils/navigation";
 import BuildingSelector from "./building-selector";
 import NotificationPanel from "./notification-panel";
 import SearchDialog from "./search-dialog";

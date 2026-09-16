@@ -129,10 +129,13 @@ describe("the route tree", () => {
       expect(heading("Tổng quan")).toBeInTheDocument();
     });
 
-    it("renders onboarding", () => {
+    it("renders onboarding — chromeless, like the guest screens", () => {
       renderAt(ROUTES.ONBOARDING);
 
       expect(heading("Chào mừng!")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "Tòa nhà" }),
+      ).not.toBeInTheDocument();
     });
 
     it("renders the 404 inside the shell for an unknown path, not sign-in", () => {
@@ -174,11 +177,17 @@ describe("the route tree", () => {
   });
 
   describe("signed out", () => {
-    it.each(guestScreens)("%s renders «%s»", (path, name) => {
-      renderAt(path);
+    it.each(guestScreens)(
+      "%s renders «%s» with no shell around it",
+      (path, name) => {
+        renderAt(path);
 
-      expect(heading(name)).toBeInTheDocument();
-    });
+        expect(heading(name)).toBeInTheDocument();
+        expect(
+          screen.queryByRole("link", { name: "Tòa nhà" }),
+        ).not.toBeInTheDocument();
+      },
+    );
 
     it("bounces a guarded route to sign-in with `replace`", () => {
       const router = renderAt(ROUTES.BUILDINGS);

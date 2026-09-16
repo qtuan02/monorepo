@@ -218,6 +218,10 @@ export default function NotificationPanel() {
 
   const unread = notifications.filter((n) => !n.isRead);
   const unreadCount = unread.length;
+  const tabs = [
+    ["all", notifications],
+    ["unread", unread],
+  ] as const;
 
   const markRead = (id: string) =>
     setNotifications((prev) =>
@@ -245,11 +249,7 @@ export default function NotificationPanel() {
           </Button>
         }
       />
-      <PopoverContent
-        align="end"
-        sideOffset={8}
-        className="w-[380px] gap-0 p-0"
-      >
+      <PopoverContent align="end" sideOffset={8} className="w-95 gap-0 p-0">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">Thông báo</h3>
@@ -292,19 +292,13 @@ export default function NotificationPanel() {
             </TabsList>
           </div>
 
-          <TabsContent value="all">
-            <ScrollArea className="h-[320px]">
-              <NotificationList
-                notifications={notifications}
-                onMarkRead={markRead}
-              />
-            </ScrollArea>
-          </TabsContent>
-          <TabsContent value="unread">
-            <ScrollArea className="h-[320px]">
-              <NotificationList notifications={unread} onMarkRead={markRead} />
-            </ScrollArea>
-          </TabsContent>
+          {tabs.map(([value, list]) => (
+            <TabsContent key={value} value={value}>
+              <ScrollArea className="h-80">
+                <NotificationList notifications={list} onMarkRead={markRead} />
+              </ScrollArea>
+            </TabsContent>
+          ))}
         </Tabs>
 
         <Separator />

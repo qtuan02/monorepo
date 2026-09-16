@@ -18,7 +18,9 @@ export const buildingQueryKeys = {
 export function useGetBuildings(options?: UseQueryOptionsWrapper<Building[]>) {
   return useQuery<Building[], Error>({
     queryKey: buildingQueryKeys.getBuildings(),
-    // A copy, so a write into the Mock array is a new reference to the cache.
+    // A copy, so the cache never holds the Mock array itself. A write into it
+    // (the create-Toà-nhà mutation) still has to `invalidateQueries` on
+    // `buildingQueryKeys.lists()` — the cache is served stale for a minute.
     queryFn: async () => [...mockBuildings],
     ...options,
   });

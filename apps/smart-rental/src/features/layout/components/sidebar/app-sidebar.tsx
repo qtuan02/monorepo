@@ -16,10 +16,8 @@ import {
 } from "@monorepo/ui/components/sidebar";
 
 import { ROUTES } from "~/constants/routes";
-import {
-  isNavigationItemActive,
-  navigationSections,
-} from "~/features/layout/constants/navigation";
+import { navigationSections } from "~/features/layout/constants/navigation";
+import { isNavigationItemActive } from "~/features/layout/utils/navigation";
 import NavUser from "./nav-user";
 
 /**

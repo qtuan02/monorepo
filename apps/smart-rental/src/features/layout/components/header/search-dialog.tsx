@@ -138,7 +138,7 @@ export default function SearchDialog() {
             value={query}
             onValueChange={setQuery}
           />
-          <CommandList className="max-h-[380px]">
+          <CommandList className="max-h-95">
             {query ? (
               <>
                 <CommandEmpty>

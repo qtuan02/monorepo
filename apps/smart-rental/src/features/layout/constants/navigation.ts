@@ -37,7 +37,8 @@ export interface NavigationSection {
  * header shows for the area a path falls under. Paths come from `ROUTES` — the
  * manifest never carried a route element here, `~/pages/main.tsx` does.
  */
-const dashboardItem: NavigationItem = {
+/** The area the header falls back to when no path matches. */
+export const dashboardItem: NavigationItem = {
   path: ROUTES.HOME,
   title: "Tổng quan",
   description: "Tổng quan hoạt động quản lý phòng trọ.",
@@ -146,26 +147,3 @@ export const navigationSections: NavigationSection[] = [
     ],
   },
 ];
-
-const navigationItems = navigationSections.flatMap((section) => section.items);
-
-/**
- * Whether `pathname` falls under a sidebar area. `/` matches only itself;
- * every other area also owns its sub-paths (`/contracts/c-1/renew` is still
- * "Hợp đồng"), matched on a segment boundary so `/rooms-x` is not `/rooms`.
- */
-export function isNavigationItemActive(
-  item: NavigationItem,
-  pathname: string,
-): boolean {
-  if (item.path === ROUTES.HOME) return pathname === ROUTES.HOME;
-  return pathname === item.path || pathname.startsWith(`${item.path}/`);
-}
-
-/** The area the header names for a path; the dashboard when none matches. */
-export function resolveNavigationItem(pathname: string): NavigationItem {
-  return (
-    navigationItems.find((item) => isNavigationItemActive(item, pathname)) ??
-    dashboardItem
-  );
-}
