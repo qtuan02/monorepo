@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
@@ -161,15 +161,17 @@ test.describe("the radius", () => {
    * `--radius: 0px` is one line, and `theme.css` derives every `rounded-*`
    * size from it — so the claim is not that the line is there (the text test
    * has that) but that a primitive on the page actually has no corners. A badge
-   * (`rounded-4xl`, the widest step) and a card (`rounded-xl`) are the two
-   * that would show a leftover curve first. Located by the `data-slot` every
-   * primitive stamps on its root: the assertion is about the primitive's box,
-   * which has no accessible name to ask for.
+   * (`rounded-4xl`, the widest step) and a button (`rounded-md`) are two steps
+   * apart on that scale, and either would show a leftover curve first. (The
+   * `Card` primitive is no longer on the page — every block is the app's own
+   * `StandardBlock` since #118.) Located by the `data-slot` every primitive
+   * stamps on its root: the assertion is about the primitive's box, which has
+   * no accessible name to ask for.
    */
   test("squares the shared primitives on the page", async ({ page }) => {
     await openHomeIn(page, "light");
 
-    for (const slot of ["badge", "card"]) {
+    for (const slot of ["badge", "button"]) {
       const element = page.locator(`[data-slot="${slot}"]`).first();
 
       await expect(element, slot).toBeAttached();
@@ -179,26 +181,198 @@ test.describe("the radius", () => {
 });
 
 /**
- * A CSS colour as the 8-bit sRGB it paints to — the same canvas trick as
- * `paintedTokens`, for a computed value off an element rather than a token.
- * A computed `background-color` declared in OKLCH comes back as `lab(…)` or
- * `oklch(…)`, never as the `rgb(…)` a string comparison would want.
+ * A CSS colour as the 8-bit sRGB a compositor would paint it — the same canvas
+ * read `paintedTokens` does, for a value that came off an element rather than
+ * off `:root`. An OKLCH source and its `lab()` production upgrade compare as
+ * the pixel they both are.
  */
-async function paintedColour(page: Page, colour: string) {
-  return page.evaluate((value) => {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+async function paint(page: Page, value: string) {
+  return page.evaluate((colour) => {
+    const context = document.createElement("canvas").getContext("2d");
 
     if (!context) throw new Error("No 2d context");
 
-    context.fillStyle = value;
+    context.fillStyle = colour;
     context.fillRect(0, 0, 1, 1);
 
     const [r = 0, g = 0, b = 0] = context.getImageData(0, 0, 1, 1).data;
 
     return { r, g, b };
-  }, colour);
+  }, value);
 }
+
+/** One computed property of the element a locator resolves to. */
+async function computed(locator: Locator, property: string) {
+  return locator.evaluate(
+    (node, name) => getComputedStyle(node).getPropertyValue(name),
+    property,
+  );
+}
+
+test.describe("the standard block", () => {
+  /**
+   * `StandardBlock` is the one shape the page is built from, and #117 lays it
+   * under every work row. What is asserted is the shape as painted, not the
+   * component's class list: a 2 px edge in the border token, a solid `4px 4px`
+   * shadow in the shadow token, no corner — and, in the dark theme, edge and
+   * shadow gone to near-white together, which is the whole reason the shadow
+   * is a token. The award badge is the yellow's second role, read as the fill
+   * a browser actually gives it.
+   */
+  const WORK_ROW = '#work [data-slot="standard-block"]';
+
+  for (const theme of ["light", "dark"] as const) {
+    test(`draws every work row as a hard-edged block in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      await expect(page.locator(WORK_ROW)).toHaveCount(3);
+
+      const row = page.locator(WORK_ROW).first();
+
+      await expect(row).toHaveCSS("border-top-width", "2px");
+      await expect(row).toHaveCSS("border-top-style", "solid");
+      await expect(row).toHaveCSS("border-radius", "0px");
+      // The offset is asserted on the string; the colour half is checked as
+      // a pixel below, because Chromium serialises it in whatever syntax the
+      // stylesheet declared it in.
+      await expect(row).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
+
+      const edge = await paint(page, await computed(row, "border-top-color"));
+      // Tailwind composes `box-shadow` out of its ring and inset slots too —
+      // four transparent `0px` entries ahead of the real one — so the colour is
+      // whatever function call sits in front of *this* offset.
+      const boxShadow = await computed(row, "box-shadow");
+      const shadowColour =
+        boxShadow.match(/([a-z]+\([^)]*\))\s+4px 4px 0px 0px/)?.[1] ?? "";
+
+      expect(
+        shadowColour,
+        `a colour before the offset in "${boxShadow}"`,
+      ).not.toBe("");
+
+      const shadow = await paint(page, shadowColour);
+
+      // Each against its own token. The two happen to share a value today,
+      // and comparing both to one of them would keep passing after the tokens
+      // were split while measuring the wrong thing.
+      expect(
+        rgbDistance(edge, hexToRgb(PALETTE[theme]["--border"])),
+        "border",
+      ).toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(shadow, hexToRgb(PALETTE[theme]["--hard-shadow"])),
+        `shadow, declared as "${shadowColour}"`,
+      ).toBeLessThan(SAME_COLOUR);
+    });
+
+    test(`fills the award badge with the highlight in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      // By its text: the badge is rendered as the tooltip's trigger, and the
+      // trigger's own `data-slot` wins over the badge's, so the slot every
+      // other badge on the page carries is not on this one.
+      const badge = page.locator("#work").getByText("VDA 2025");
+
+      await expect(badge).toBeVisible();
+
+      const fill = await paint(page, await computed(badge, "background-color"));
+      const ink = await paint(page, await computed(badge, "color"));
+
+      expect(
+        rgbDistance(fill, hexToRgb(PALETTE[theme]["--highlight"])),
+        "fill",
+      ).toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(ink, hexToRgb(PALETTE[theme]["--highlight-foreground"])),
+        "ink",
+      ).toBeLessThan(SAME_COLOUR);
+    });
+  }
+
+  /**
+   * #118 lays the same block under everything after the hero: About is one,
+   * each project card is one, Skills is one box holding five rows, Education
+   * is the work row's shape, and Contact and Hobbies are one each. The count
+   * per section is the claim — Skills as five boxes, or About left bare, would
+   * both still "have a standard block" — and every block found is measured
+   * the same way a work row is above, so a section that re-spelled the shape
+   * with a 1 px edge or no shadow fails here rather than in a screenshot.
+   */
+  test("lays every section after the hero on the same block", async ({
+    page,
+  }) => {
+    await openHomeIn(page, "light");
+
+    for (const [section, count] of [
+      ["about", 1],
+      ["projects", 3],
+      ["skills", 1],
+      ["education", 1],
+      ["contact", 1],
+      ["hobbies", 1],
+    ] as const) {
+      const blocks = page.locator(`#${section} [data-slot="standard-block"]`);
+
+      await expect(blocks, section).toHaveCount(count);
+
+      for (const block of await blocks.all()) {
+        await expect(block, section).toHaveCSS("border-top-width", "2px");
+        await expect(block, section).toHaveCSS("border-radius", "0px");
+        await expect(block, section).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
+      }
+    }
+  });
+
+  /**
+   * A project card changes its ground under the cursor and nothing else. v1
+   * lifted it by half a step, and on a page of hard edges and solid shadows a
+   * block that moves is the one thing that breaks the grammar — so the box is
+   * measured before and after the hover, and the wash is read as the pixel
+   * `--accent` paints.
+   */
+  for (const theme of ["light", "dark"] as const) {
+    test(`washes a hovered project card without moving it in the ${theme} theme`, async ({
+      page,
+    }) => {
+      await openHomeIn(page, theme);
+
+      const card = page
+        .locator('#projects [data-slot="standard-block"]')
+        .first();
+
+      await expect(card).toBeVisible();
+
+      // `hover()` scrolls the card into view first, and a box measured before
+      // that scroll would differ by the scroll distance rather than by any
+      // movement of the card's own.
+      await card.scrollIntoViewIfNeeded();
+
+      const before = await card.boundingBox();
+
+      await card.hover();
+
+      // The wash is a `transition-colors`, so the fill is polled until it has
+      // arrived rather than read the instant the pointer lands.
+      await expect
+        .poll(
+          async () =>
+            rgbDistance(
+              await paint(page, await computed(card, "background-color")),
+              hexToRgb(PALETTE[theme]["--accent"]),
+            ),
+          { message: "hover wash" },
+        )
+        .toBeLessThan(SAME_COLOUR);
+
+      await expect(card).toHaveCSS("transform", "none");
+      expect(await card.boundingBox()).toEqual(before);
+    });
+  }
+});
 
 test.describe("the hero", () => {
   /**
@@ -230,14 +404,14 @@ test.describe("the hero", () => {
 
       expect(
         rgbDistance(
-          await paintedColour(page, backgroundColor),
+          await paint(page, backgroundColor),
           hexToRgb(PALETTE[theme]["--highlight"]),
         ),
         `fill is ${backgroundColor}`,
       ).toBeLessThan(SAME_COLOUR);
       expect(
         rgbDistance(
-          await paintedColour(page, color),
+          await paint(page, color),
           hexToRgb(PALETTE[theme]["--highlight-foreground"]),
         ),
         `text is ${color}`,
@@ -268,7 +442,7 @@ test.describe("the hero", () => {
       expect(ringColour, boxShadow).toBeTruthy();
       expect(
         rgbDistance(
-          await paintedColour(page, ringColour ?? ""),
+          await paint(page, ringColour ?? ""),
           hexToRgb(PALETTE[theme]["--highlight-foreground"]),
         ),
         `ring is ${boxShadow}`,
@@ -295,19 +469,24 @@ test.describe("the hero", () => {
     }) => {
       await openHomeIn(page, theme);
 
-      // The block itself: the 2px border and the 4px offset shadow that the
-      // rest of the page will inherit. `shadow-[4px_4px_0_0]` names no colour
-      // and `shadow-hard-shadow` supplies one through `--tw-shadow-color` —
-      // two utilities that only meet in the cascade, so whether the shadow is
-      // painted in `--hard-shadow` at all (and flips with the theme) is a
-      // question only a browser answers. The title bar is the one element
-      // with that `data-slot`, and the window is its parent.
+      // The block itself, which is the same `StandardBlock` the rest of the
+      // page is built from — measured here on its own because the hero is
+      // the one section the block test above does not walk, and because its
+      // `p-0` override is exactly the kind of edit that could take the shape
+      // with it. `shadow-hard` inlines the offset and reads its colour from
+      // `--hard-shadow`, so whether the shadow flips with the theme is a
+      // question only a browser answers. Located as the window whose title
+      // bar this is: the bar is the one element with that `data-slot`.
       const window = page
         .locator('#hero [data-slot="terminal-title-bar"]')
         .locator("..");
 
       await expect(window).toHaveCSS("border-top-width", "2px");
       await expect(window).toHaveCSS("border-radius", "0px");
+      // The block's own inset has to be off for the title bar to reach the
+      // edge — and at this desktop width it is the `sm:` half of that inset
+      // which `p-0` alone would leave standing, doubling the body's.
+      await expect(window).toHaveCSS("padding-top", "0px");
 
       const boxShadow = await window.evaluate(
         (node) => getComputedStyle(node).boxShadow,
@@ -320,7 +499,7 @@ test.describe("the hero", () => {
       expect(hard, boxShadow).toBeTruthy();
       expect(
         rgbDistance(
-          await paintedColour(page, hardColour ?? ""),
+          await paint(page, hardColour ?? ""),
           hexToRgb(PALETTE[theme]["--hard-shadow"]),
         ),
         `shadow is ${boxShadow}`,

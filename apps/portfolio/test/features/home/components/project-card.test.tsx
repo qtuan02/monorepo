@@ -115,6 +115,19 @@ describe("ProjectCard", () => {
     expect(screen.getByText("Spring Boot")).toHaveClass("whitespace-nowrap");
   });
 
+  it("is the page's standard block", () => {
+    const { container } = render(<ProjectCard {...baseProps} />);
+
+    // The reuse contract of the redesign: one block shape, one file. A card
+    // that re-spelled the border and shadow in its own className would paint
+    // identically — the E2E in `accent.e2e.ts` could not tell them apart — and
+    // drift the first time the block changed. The slot the component stamps is
+    // the one thing that says the shape was reused rather than copied.
+    expect(
+      container.querySelectorAll('[data-slot="standard-block"]'),
+    ).toHaveLength(1);
+  });
+
   it("names the project with a heading and renders the type badge and bullets", () => {
     render(<ProjectCard {...baseProps} />);
 

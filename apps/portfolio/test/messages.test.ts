@@ -115,7 +115,10 @@ function derivedKeys(): string[] {
     ]),
     ...SKILL_GROUPS.map((group) => `portfolio.skills.groups.${group.id}`),
     ...HERO_ACTIONS.map((action) => `portfolio.hero.actions.${action.id}`),
-    ...CONTACT_ITEMS.map((item) => `portfolio.contact.items.${item.id}`),
+    ...CONTACT_ITEMS.flatMap((item) => [
+      `portfolio.contact.labels.${item.id}`,
+      `portfolio.contact.items.${item.id}`,
+    ]),
     ...HOBBY_ITEMS.map((item) => `portfolio.hobbies.items.${item.id}`),
     ...NAVBAR_ITEMS.map((item) => `portfolio.navbar.${item.id}`),
   ];

@@ -14,6 +14,8 @@ import {
 } from "@monorepo/ui/components/tooltip";
 import { cn } from "@monorepo/ui/utils/cn";
 
+import StandardBlock from "~/features/home/components/standard-block";
+
 /** One body line. `id` is the message-key segment, so it is stable and unique. */
 export interface ResumeBullet {
   id: string;
@@ -59,13 +61,25 @@ interface ResumeCardProps {
  * One row of the CV: a logo, a heading line with its period, and — for a role
  * that has one — a body of bullets and a tech stack that folds away.
  *
- * The layout is a bare `<div>` rather than `@monorepo/ui/components/card`, and
- * that is deliberate: `Card` ships `bg-card`, `ring-1`, `shadow-xs`,
- * `rounded-xl`, `overflow-hidden` and its own vertical padding, and a CV row
- * needs none of them. Using the primitive and then switching six of its
- * utilities back off is working against it. The rule this looks like it breaks
- * forbids **re-implementing** a primitive; arranging a slice's own layout with a
- * div is what a div is for.
+ * The row is a `StandardBlock` — the page's one block shape — rather than
+ * `@monorepo/ui/components/card`, and that is deliberate: `Card` ships
+ * `ring-1`, `shadow-xs`, `overflow-hidden` and its own header/content/footer
+ * anatomy, and a CV row wants a 2 px edge, a hard shadow and a logo beside a
+ * column. Using the primitive and then switching its utilities back off is
+ * working against it. The rule this looks like it breaks forbids
+ * **re-implementing** a primitive; arranging a slice's own layout inside the
+ * slice's own block is what the block is for.
+ *
+ * Two typefaces, split by what the text is (`docs/design/portfolio-redesign-v2.md`
+ * §7, decision 2): the organisation's name, the period, the award and the tech
+ * stack are labels and set in monospace; the role and the bullets are prose and
+ * stay in sans, so a Vietnamese sentence that runs to three lines is not read in
+ * a code font.
+ *
+ * The header wraps rather than shrinks. On a 375 px phone a monospace period
+ * beside a monospace name does not fit on one line, and the alternative — the
+ * period breaking mid-date — reads as a typo. `flex-wrap` moves the whole
+ * right-hand group under the name instead, as one piece.
  *
  * The header is the WAI-ARIA accordion shape — a heading whose only child is the
  * button — so the row is one Tab stop that announces its expanded state, and the
@@ -93,8 +107,8 @@ export function ResumeCard({
 
   const headerContent = (
     <>
-      <span className="flex w-full items-center justify-between gap-x-2">
-        <span className="inline-flex items-center text-sm leading-none font-semibold">
+      <span className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1">
+        <span className="inline-flex items-center font-mono text-base leading-none font-bold">
           {title}
           {hasBody && (
             <ChevronRightIcon
@@ -118,12 +132,25 @@ export function ResumeCard({
                   be nested inside the accordion header's button. Rendering it
                   as the `Badge` keeps the markup a single control. */}
               <TooltipTrigger
-                render={<Badge variant="secondary">{award.label}</Badge>}
+                render={
+                  // The yellow's second and last role — the award, on the
+                  // highlight pair, with the 1 px border a shared control
+                  // keeps (`docs/design/portfolio-redesign-v2.md` §7,
+                  // decision 3). `outline` is the variant whose own colours
+                  // are the two being replaced, so nothing of the primitive's
+                  // fill is left underneath.
+                  <Badge
+                    variant="outline"
+                    className="border-border bg-highlight font-mono text-highlight-foreground"
+                  >
+                    {award.label}
+                  </Badge>
+                }
               />
               <TooltipContent>{award.tooltip}</TooltipContent>
             </Tooltip>
           )}
-          <span className="text-right text-sm text-muted-foreground tabular-nums">
+          <span className="font-mono text-sm whitespace-nowrap text-muted-foreground">
             {period}
           </span>
         </span>
@@ -135,20 +162,28 @@ export function ResumeCard({
   );
 
   return (
-    <div className="group flex">
+    <StandardBlock className="group flex gap-x-4">
       <div className="flex-none select-none">
         {/* A static import, so Next reads the file's real dimensions at build
-            time and a rename is a build error rather than a silent 404. */}
+            time and a rename is a build error rather than a silent 404.
+
+            Square, with the block's own 2 px edge: the last round thing on a
+            page with no radius would be this logo
+            (`docs/design/portfolio-redesign-v2.md` §7, the consequence drawn
+            from decisions 5 and 7). */}
         <Image
           src={logo}
           alt={altText}
           width={48}
           height={48}
-          className="size-12 rounded-full border bg-background object-contain"
+          className="size-12 border-2 border-border bg-background object-contain print:border"
         />
       </div>
 
-      <div className="ml-4 flex flex-1 flex-col">
+      {/* `min-w-0`: a flex child defaults to `min-width: auto`, which is the
+          width of its longest unbreakable content — a monospace period — and
+          would push the column, and the page, past a 375 px viewport. */}
+      <div className="flex min-w-0 flex-1 flex-col">
         <h3 className="w-full">
           {hasBody ? (
             <button
@@ -212,7 +247,11 @@ export function ResumeCard({
               </ul>
             )}
             {techStack && techStack.length > 0 && (
-              <p className="mt-2 text-sm">
+              // A comma-separated list, not chips: in monospace at 14 px a run
+              // of names wraps at the commas like any text, where a dozen
+              // `whitespace-nowrap` badges would be the first thing to run past
+              // a phone's edge.
+              <p className="mt-2 font-mono text-sm">
                 <span className="font-semibold">{techStackLabel}</span>{" "}
                 <span className="text-muted-foreground">
                   {techStack.join(", ")}
@@ -222,6 +261,6 @@ export function ResumeCard({
           </motion.div>
         )}
       </div>
-    </div>
+    </StandardBlock>
   );
 }

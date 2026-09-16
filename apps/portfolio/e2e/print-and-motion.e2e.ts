@@ -46,7 +46,71 @@ test.describe("print", () => {
     }
 
     // The dock is the app's whole screen chrome and means nothing on paper.
-    await expect(page.locator('[data-slot="tooltip-provider"]')).toBeHidden();
+    // `includeHidden`, and attached first: `getByRole` skips a hidden element
+    // by default, and `toBeHidden()` on a locator that matches nothing passes
+    // — which is how v1's assertion on `[data-slot="tooltip-provider"]`, an
+    // element Base UI's provider never renders, held for a whole release.
+    const dock = page.getByRole("navigation", { includeHidden: true });
+
+    await expect(dock).toBeAttached();
+    await expect(dock).toBeHidden();
+  });
+
+  test("prints every block flat: no shadow, a 1px edge, no window chrome", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.HOME);
+    await page.emulateMedia({ media: "print" });
+
+    await expect(page.locator("#work")).toBeVisible();
+
+    // Every block the page is built from — the hero's terminal window, three
+    // work rows, About, three project cards, Skills, Education, Contact and
+    // Hobbies: twelve — casts a solid 4px shadow and draws a 2px edge on
+    // screen. On paper the shadow is ink spent on nothing and a 2px rule is a
+    // box drawn around every paragraph, so `StandardBlock` drops the one and
+    // thins the other under `print:`. The count is part of the claim: a
+    // section that re-spelled the shape instead of rendering the component
+    // would print with its screen edge, and still pass a `for … of` over
+    // whatever was left.
+    const blocks = page.locator('[data-slot="standard-block"]');
+
+    await expect(blocks).toHaveCount(12);
+
+    for (const block of await blocks.all()) {
+      // Not `"none"`: Tailwind composes `box-shadow` out of its ring, inset
+      // and shadow slots, so `shadow-none` computes to a stack of transparent
+      // zero-offset layers rather than the keyword. What matters is that no
+      // layer would put ink on the page — every one is both invisible and
+      // unoffset — which a screen build fails on its `4px 4px` layer alone.
+      const layers = (
+        await block.evaluate((node) => getComputedStyle(node).boxShadow)
+      ).split(/,\s*(?=[a-z]+\()/);
+
+      for (const layer of layers) {
+        expect(layer).toMatch(/^(none|rgba\(0, 0, 0, 0\) 0px 0px 0px 0px)$/);
+      }
+
+      await expect(block).toHaveCSS("border-top-width", "1px");
+    }
+
+    // The two 2px edges inside a block — the portrait and each company logo —
+    // thin with it, or the paper shows a heavy frame inside a light one.
+    await expect(page.locator('#hero [data-slot="avatar"]')).toHaveCSS(
+      "border-top-width",
+      "1px",
+    );
+    await expect(page.locator("#work img").first()).toHaveCSS(
+      "border-top-width",
+      "1px",
+    );
+
+    // The window's title bar is the screen's metaphor, not the CV's content:
+    // attached — the markup is the same document — but not laid out.
+    const titleBar = page.locator('[data-slot="terminal-title-bar"]');
+
+    await expect(titleBar).toBeAttached();
+    await expect(titleBar).toBeHidden();
   });
 
   test("prints an external link with the URL it points at", async ({
@@ -103,6 +167,12 @@ test.describe("prefers-reduced-motion", () => {
 
     await page.goto(ROUTES.HOME);
     await expect(page.locator("#work")).toBeVisible();
+    // The language select hydrates behind a `Suspense` whose fallback is a
+    // pulsing `Skeleton`, and `#work` is visible before that resolves. A
+    // loading placeholder is not an entrance animation, so it is waited out
+    // rather than counted — read while it still pulsed, the list below has
+    // one `pulse` in it, and whether that happens is a hydration race.
+    await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
 
     // The sections arrive at rest and the hero no longer waves, so under the
     // preference — and, since v2, without it — nothing on the page is

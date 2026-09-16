@@ -19,7 +19,8 @@ bun run dev:portfolio     # http://localhost:3002
 | Thứ | Ở đâu | Ghi chú |
 | --- | --- | --- |
 | Nội dung CV | `src/features/home/` | Một slice. `templates/home.template.tsx` (default-export) xếp 8 section theo **thứ tự đọc** — Hero → About → Work → Projects → Skills → Education → Contact + Hobbies (hai cái cuối chung một hàng từ `sm`). `constants/resume.ts` giữ **cấu trúc** (id, thứ tự, logo, tech stack, bullet nào thuộc role nào), còn **mọi chuỗi người đọc thấy** nằm ở `@monorepo/i18n` dưới namespace `portfolio.*`. Hai nửa nối nhau bằng `id`. |
-| Ba section đáng nói | `src/features/home/components/` | **Work** là accordion (`resume-card.tsx`): chỉ row đầu mở sẵn, chevron luôn hiện — hover-only affordance thì trên điện thoại không tồn tại — và row Arobid mang badge giải VDA 2025. **Projects** là ba card có repo public + demo sống, tối đa sáu chip tech mỗi card (cap ép ở tầng dữ liệu, không clip lúc render). **Skills** là năm nhóm có nhãn (Frontend / Mobile / Backend / DevOps & CI / Tooling) hiện cùng lúc, không phải tab — tab giấu bốn nhóm khỏi lần đọc đầu và khỏi crawler hoàn toàn. |
+| Khối tiêu chuẩn | `src/features/home/components/standard-block.tsx` | **Một** hình khối cho cả trang — viền 2px màu `--border`, bóng đặc `4px 4px` màu `--hard-shadow` (utility `shadow-hard`, khai báo trong `@theme inline` của `globals.css`), góc vuông, nền card, chữ `text-foreground`. Là component chứ không phải hằng className: hình dạng mà sáu file phải giống nhau thì sống ở một file. Padding `p-4 sm:p-5` cũng là của khối (mọi caller đều chọn đúng một inset); bố cục bên trong là của nơi gọi. Tiêu đề section đi qua `section-heading.tsx`: `##` màu indigo (ẩn khỏi accessible name) + chữ mono in hoa giãn chữ, luôn là `h2`. |
+| Ba section đáng nói | `src/features/home/components/` | **Work** là accordion (`resume-card.tsx`), mỗi hàng một khối tiêu chuẩn với logo vuông: chỉ row đầu mở sẵn, chevron luôn hiện — hover-only affordance thì trên điện thoại không tồn tại — và row Arobid mang badge giải VDA 2025 nền vàng (`bg-highlight`). Tên công ty, mốc thời gian, badge, tech stack là mono; chức danh và bullet là sans. **Projects** là ba khối tiêu chuẩn (`project-card.tsx`, không còn primitive `Card`) có repo public + demo sống, tối đa sáu chip tech mono mỗi card (cap ép ở tầng dữ liệu, không clip lúc render); hover chỉ đổi nền sang `bg-accent`, không nhấc card. **Skills** là **một** khối tiêu chuẩn chứa năm hàng dạng directory listing — nhãn `frontend/` mono bên trái (dấu `/` ẩn khỏi accessible name), tên kỹ năng là text mono cách nhau bằng dấu phẩy vẽ bằng pseudo-element, không còn badge — hiện cùng lúc, không phải tab: tab giấu bốn nhóm khỏi lần đọc đầu và khỏi crawler hoàn toàn. **About**, **Contact**, **Hobbies** mỗi cái một khối tiêu chuẩn; Contact có thêm nhãn trường mono (`portfolio.contact.labels.*`) trước giá trị sans, và Education là khối nhờ dùng chung `ResumeCard`. |
 | Chrome | `src/features/layout/` | Dock nổi ở đáy viewport (`components/dock.tsx` + `templates/navbar.template.tsx`) và `provider/theme-provider.tsx` (next-themes). Không có header/footer — một CV không cần. |
 | Route module | `src/app/[locale]/(shell)/page.tsx` | Đúng một dòng `return <HomeTemplate />`. Không `generateMetadata` riêng: title/description của root layout đã mô tả chính trang này, thêm một bản nữa chỉ tạo chỗ cho hai bên lệch nhau. |
 | Metadata routes | `src/app/{manifest,robots,sitemap}.ts` | Theo convention App Router, nằm **ngoài** `[locale]`. Thay cho `robot.ts` (thiếu chữ `s`, nên Next chưa bao giờ nhận ra) và `sitemap.xml/route.ts` (trỏ vào endpoint không tồn tại) của bản cũ. Vì thế `public/robots.txt` của Template đã bị xoá — một URL chỉ được có một nguồn. |
@@ -51,7 +52,15 @@ duyệt chứ không phải một file PDF phải giữ đồng bộ bằng tay.
 tác một thứ `motion` viết inline (row accordion chưa ai bấm in ra heading không
 thân), thay hẳn palette dark bằng light (trình duyệt không in background
 graphics, nên theme tối in ra là chữ trắng trên giấy trắng), và in href sau mỗi
-link ngoài — trừ khối Contact, nơi chữ hiện ra **đã là** URL.
+link ngoài — trừ khối Contact, nơi chữ hiện ra **đã là** URL. Từ redesign v2,
+bản in còn **làm nhẹ** hình khối: `StandardBlock` (cửa sổ terminal ở hero cũng
+là nó, với `p-0`) mang `print:border print:shadow-none` nên mọi khối in không
+bóng, viền 1px; ảnh chân dung và logo công ty mỏng theo; thanh tiêu đề cửa sổ
+`print:hidden` như dock. Phần print của hình khối nằm **cạnh phần màn hình**
+trong className chứ không trong `@media print` của `globals.css` — khối đó chỉ
+giữ những gì utility không nói được (đè inline style của `motion`, `::after`
+in href, đổi palette). `e2e/print-and-motion.e2e.ts` đo tất cả dưới media
+emulation `print`.
 
 ## i18n
 

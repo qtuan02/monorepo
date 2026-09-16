@@ -1,5 +1,5 @@
 import type { StaticImageData } from "next/image";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -177,27 +177,41 @@ describe("ResumeCard", () => {
     expect(container.querySelector(bodySelector)).not.toHaveAttribute("inert");
   });
 
-  it("leaves the chevron visible at rest, so a touch device can see the row opens", () => {
-    // Asserting on the class list is the only seam jsdom has — it computes no
-    // layout, so a "is it visible?" question has no other answer here. The
-    // regression this guards is a real one and invisible in review: the row
-    // used to carry `opacity-0` with `group-hover:opacity-100`, an affordance
-    // that simply does not exist on a phone.
-    const { container } = render(
+  it("opens the award's full name in a tooltip when a pointer rests on the badge", async () => {
+    // The badge's text is the short form ("VDA 2025"); the full name is what a
+    // recruiter hovering it wants. The description above carries it to
+    // everyone else — this is the pointer's half of the same promise. A
+    // `className` would say nothing here: whether a tooltip opens is a runtime
+    // decision of the trigger, and jsdom is enough to watch it.
+    const user = userEvent.setup();
+
+    const { baseElement } = render(
       <ResumeCard
         logo={logo}
-        altText="MedViet"
-        title="MedViet"
-        period="03/2026 – Hiện tại"
+        altText="AROBID"
+        title="AROBID"
+        period="03/2025 – 02/2026"
+        award={{ label: "VDA 2025", tooltip: "Vietnam Digital Awards 2025" }}
         bullets={bullets}
         toggleLabel="Xem chi tiết công việc"
       />,
     );
 
-    const chevron = container.querySelector("button svg");
+    await user.hover(screen.getByText("VDA 2025"));
 
-    expect(chevron).not.toBeNull();
-    expect(chevron?.getAttribute("class")).not.toMatch(/(^|\s)opacity-0(\s|$)/);
+    // Base UI's popup carries no `role="tooltip"` — the trigger is described
+    // by it instead — and the full name is already in the markup as the
+    // sr-only description, so `findByText` would match twice. The popup is
+    // found by the `data-slot` every primitive stamps on its root, exactly as
+    // `e2e/accent.e2e.ts` finds a badge and a card. The wait covers the
+    // trigger's 600 ms hover delay.
+    await waitFor(
+      () =>
+        expect(
+          baseElement.querySelector('[data-slot="tooltip-content"]'),
+        ).toHaveTextContent("Vietnam Digital Awards 2025"),
+      { timeout: 2000 },
+    );
   });
 
   it("keeps the tech stack behind the same body as the bullets", () => {

@@ -19,4 +19,20 @@ describe("SectionHeading", () => {
       "Kinh nghiệm",
     );
   });
+
+  it("keeps the `##` mark out of the heading's accessible name", () => {
+    // The mark is the redesign's visual signature for a section title — a
+    // markdown heading, in indigo — and nothing more. Left in the name, a
+    // screen reader would read "number number Kinh nghiệm" seven times over,
+    // and every `getByRole("heading", { name })` in the E2E specs would have
+    // to spell it.
+    render(<SectionHeading>Kinh nghiệm</SectionHeading>);
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Kinh nghiệm" }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      /^##\s*Kinh nghiệm$/,
+    );
+  });
 });

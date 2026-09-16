@@ -13,8 +13,8 @@ import {
  * every string from the catalogue, keyed by the item's id.
  *
  * Three across from `md` is the grill's call (design §9, decision 9): on the
- * 2xl reading column that makes each card narrow, which is why the card takes
- * `size="sm"` and the copy is capped at two lines and three bullets.
+ * 2xl reading column that makes each card narrow, which is why the copy is
+ * capped at two lines and three bullets.
  */
 export default function ProjectsSection() {
   const t = useTranslations();
