@@ -46,7 +46,48 @@ test.describe("print", () => {
     }
 
     // The dock is the app's whole screen chrome and means nothing on paper.
-    await expect(page.locator('[data-slot="tooltip-provider"]')).toBeHidden();
+    // Located as a bare `nav`, attached first: `getByRole` skips a hidden
+    // element, and `toBeHidden()` on a locator that matches nothing passes —
+    // which is how v1's assertion on `[data-slot="tooltip-provider"]`, an
+    // element Base UI's provider never renders, held for a whole release.
+    const dock = page.locator("nav");
+
+    await expect(dock).toBeAttached();
+    await expect(dock).toBeHidden();
+  });
+
+  test("prints every block flat: no shadow, a 1px edge, no window chrome", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.HOME);
+    await page.emulateMedia({ media: "print" });
+
+    await expect(page.locator("#work")).toBeVisible();
+
+    // Every block the page is built from — the eleven standard blocks after
+    // the hero and the hero's own terminal window — casts a solid 4px shadow
+    // and draws a 2px edge on screen. On paper the shadow is ink spent on
+    // nothing and a 2px rule is a box drawn around every paragraph, so the
+    // print branch drops the one and thins the other. The count is part of
+    // the claim: a block that stopped carrying its slot would leave the print
+    // rule with nothing to match, and still pass a `for … of` over zero.
+    const blocks = page.locator(
+      '[data-slot="standard-block"], [data-slot="terminal-window"]',
+    );
+
+    await expect(blocks).toHaveCount(12);
+
+    for (const block of await blocks.all()) {
+      await expect(block).toHaveCSS("box-shadow", "none");
+      await expect(block).toHaveCSS("border-top-width", "1px");
+    }
+
+    // The window's title bar is the screen's metaphor, not the CV's content:
+    // attached — the markup is the same document — but not laid out.
+    const titleBar = page.locator('[data-slot="terminal-title-bar"]');
+
+    await expect(titleBar).toBeAttached();
+    await expect(titleBar).toBeHidden();
   });
 
   test("prints an external link with the URL it points at", async ({
@@ -103,6 +144,12 @@ test.describe("prefers-reduced-motion", () => {
 
     await page.goto(ROUTES.HOME);
     await expect(page.locator("#work")).toBeVisible();
+    // The language select hydrates behind a `Suspense` whose fallback is a
+    // pulsing `Skeleton`, and `#work` is visible before that resolves. A
+    // loading placeholder is not an entrance animation, so it is waited out
+    // rather than counted — read while it still pulsed, the list below has
+    // one `pulse` in it, and whether that happens is a hydration race.
+    await expect(page.locator('[data-slot="skeleton"]')).toHaveCount(0);
 
     // The sections arrive at rest and the hero no longer waves, so under the
     // preference — and, since v2, without it — nothing on the page is

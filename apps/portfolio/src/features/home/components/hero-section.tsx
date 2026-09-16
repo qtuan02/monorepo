@@ -72,11 +72,19 @@ export default function HeroSection() {
           here first, with the one thing only this block has: a title bar.
           `text-foreground` rather than the card pair: `--card-foreground` is
           not one of the two neutrals the app overrides and is still the
-          theme's blue-grey in the light theme. */}
-      <div className="border-2 border-border bg-card text-foreground shadow-[4px_4px_0_0] shadow-hard-shadow">
+          theme's blue-grey in the light theme.
+
+          The `data-slot` is the name the print branch of `src/globals.css`
+          flattens the window by — no shadow, a 1px edge — beside every
+          `standard-block`; the window is not that component only because of
+          the title bar inside it. */}
+      <div
+        data-slot="terminal-window"
+        className="border-2 border-border bg-card text-foreground shadow-[4px_4px_0_0] shadow-hard-shadow"
+      >
         {/* Window chrome: three dots and a path. Pure decoration, hidden from
-            assistive technology as a whole. There is no print rule for it yet;
-            the `data-slot` is the name the print ticket will hide it by. */}
+            assistive technology as a whole, and from paper: the same print
+            branch hides it by this `data-slot`. */}
         <div
           aria-hidden="true"
           data-slot="terminal-title-bar"

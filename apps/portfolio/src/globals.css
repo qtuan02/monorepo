@@ -82,9 +82,11 @@
  * that order is the useful one: print re-declares the neutrals on the same
  * `:root, .dark` specificity — including `--foreground` and `--border`, which
  * on paper are a dark grey and a thin grey rule rather than the screen's ink —
- * so it wins there without `!important`. The highlight and the shadow need no
- * print value: a browser prints no background graphics unless the reader asks
- * for them, so a yellow fill reaches paper as its near-black text on white.
+ * so it wins there without `!important`. The highlight needs no print value:
+ * a browser prints no background graphics unless the reader asks for them, so
+ * a yellow fill reaches paper as its near-black text on white. The shadow is
+ * not re-declared either — the print branch drops it by rule, on the blocks
+ * that cast it, because its offset is inlined into the utility (see below).
  * `test/globals.test.ts` pins the token set, the placement, the hues, the poles
  * and every ratio; `test/support/contrast.ts` holds the colour maths, and
  * `test/support/contrast.test.ts` checks that maths against WCAG's own
@@ -160,8 +162,9 @@
  * every block on the page casts, as one `shadow-hard` utility. The offset is
  * written once, here, and the colour is the token above — so
  * `~/features/home/components/standard-block.tsx` names the shape without
- * spelling `4px 4px 0 0` in a className, and the print ticket can zero it in
- * one place.
+ * spelling `4px 4px 0 0` in a className. `inline` also means the offset is
+ * baked into the utility, so the print branch cannot zero it through this
+ * variable — it sets `box-shadow: none` on the blocks by their `data-slot`.
  */
 @theme inline {
   --color-highlight: var(--highlight);
@@ -299,6 +302,26 @@
   html,
   body {
     background: #fff !important;
+  }
+
+  /* Every block the page is built from casts a solid 4px shadow and draws a
+     2px edge on screen. On paper the shadow is ink spent on nothing — and
+     whether it shows at all is a checkbox in the reader's dialog — while a
+     2px rule around every paragraph is a box, not an edge. So each block
+     prints flat: no shadow, and the edge thinned to the 1px a shared control
+     draws. No `!important`: this block is unlayered and Tailwind's utilities
+     are not, so it wins over `border-2` and `shadow-hard` on that alone.
+     The hero's window is named beside `standard-block` because it is the one
+     block that is not that component — it carries a title bar — and the bar
+     is the screen's metaphor, not the CV's content, so it is not laid out. */
+  [data-slot="standard-block"],
+  [data-slot="terminal-window"] {
+    border-width: 1px;
+    box-shadow: none;
+  }
+
+  [data-slot="terminal-title-bar"] {
+    display: none;
   }
 
   [data-slot="resume-card-body"] {
