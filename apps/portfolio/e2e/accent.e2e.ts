@@ -374,7 +374,6 @@ test.describe("the standard block", () => {
   }
 });
 
-
 test.describe("the hero", () => {
   /**
    * The yellow has two roles on the page, and the email action is one of them.
