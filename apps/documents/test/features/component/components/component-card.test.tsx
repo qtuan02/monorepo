@@ -27,12 +27,14 @@ function renderCard(entry: ComponentDocsEntry) {
 
 describe("a component tile", () => {
   it("spans two columns from ten exports, and one below that", () => {
+    // The span sits on the grid item — the `<li>` — not on the link inside
+    // it, where a column class would be a no-op the grid never sees.
     const { unmount } = renderCard(entryWith(10));
-    expect(screen.getByRole("link")).toHaveClass("md:col-span-2");
+    expect(screen.getByRole("listitem")).toHaveClass("md:col-span-2");
     unmount();
 
     renderCard(entryWith(9));
-    expect(screen.getByRole("link")).not.toHaveClass("md:col-span-2");
+    expect(screen.getByRole("listitem")).not.toHaveClass("md:col-span-2");
   });
 
   it("names the link by the slug first, then previews three exports and the rest as +n", () => {

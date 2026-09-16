@@ -130,6 +130,25 @@ test.describe("documents", () => {
     ).toBeVisible();
   });
 
+  test("switches to the dark theme and keeps it across a reload", async ({
+    page,
+  }) => {
+    // Chromium defaults to a light `prefers-color-scheme`, so the toggle
+    // offers dark first; the inline script in index.html is what restores the
+    // stored choice on reload, before the bundle runs.
+    await page.goto(ROUTES.HOME);
+    await page
+      .getByRole("button", { name: "Chuyển sang giao diện tối" })
+      .click();
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+    await expect(
+      page.getByRole("button", { name: "Chuyển sang giao diện sáng" }),
+    ).toBeVisible();
+  });
+
   test("404s on a slug no primitive has", async ({ page }) => {
     // A literal path on purpose: what is asserted here is what happens to a URL
     // a visitor mistyped, so building it from ROUTES would assert nothing.

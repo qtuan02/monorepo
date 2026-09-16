@@ -25,22 +25,24 @@ interface TileProps {
  * the swatch is decorative and the count is last. Hover lifts three pixels
  * and adds the fourth shadow; the lift is `motion-safe` so reduced-motion
  * keeps only the shadow.
+ *
+ * The tile renders its own `<li>`, because that is the grid item: a column
+ * span on the link inside it would never reach the grid.
  */
 export function Tile({ to, slug, count, wide, children }: TileProps) {
   return (
-    <Link
-      to={to}
-      className={cn(
-        "tile focus-visible:ring-ring/50 relative flex min-h-29.5 flex-col rounded-(--radius) p-4 pb-3.5 outline-none hover:glass-deep focus-visible:ring-2 motion-safe:transition-[transform,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.75",
-        wide && "md:col-span-2",
-      )}
-    >
-      <Swatch slug={slug} className="mb-3" />
-      <span className="font-mono text-sm font-semibold">{slug}</span>
-      {children}
-      <span className="bg-(--tile) text-muted-foreground absolute top-3.5 right-3.5 rounded-full px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums">
-        {count}
-      </span>
-    </Link>
+    <li className={cn(wide && "md:col-span-2")}>
+      <Link
+        to={to}
+        className="tile focus-visible:ring-ring/50 relative flex h-full min-h-29.5 flex-col rounded-(--radius) p-4 pb-3.5 outline-none hover:glass-deep focus-visible:ring-2 motion-safe:transition-[transform,box-shadow] motion-safe:duration-200 motion-safe:hover:-translate-y-0.75"
+      >
+        <Swatch slug={slug} className="mb-3" />
+        <span className="font-mono text-sm font-semibold">{slug}</span>
+        {children}
+        <span className="bg-(--tile) text-muted-foreground absolute top-3.5 right-3.5 rounded-full px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums">
+          {count}
+        </span>
+      </Link>
+    </li>
   );
 }

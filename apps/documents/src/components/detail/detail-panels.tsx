@@ -21,7 +21,7 @@ export function DetailPanels({
   exportsHeading,
 }: DetailPanelsProps) {
   return (
-    <div className="grid gap-4 pb-10 lg:grid-cols-[1.25fr_1fr]">
+    <div className="grid grid-cols-1 gap-4 pb-10 lg:grid-cols-[1.25fr_1fr]">
       <GlassPanel className="p-5 sm:p-6">
         <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
           {importHeading}

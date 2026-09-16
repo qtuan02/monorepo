@@ -353,7 +353,7 @@
     },
     "components": {
       "title": "Components",
-      "description": "Every row is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
+      "description": "Every tile is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
       "count": "{count, plural, one {# component} other {# components}}",
       "exportPreviewMore": "{count, plural, other {+#}}",
       "detail": {

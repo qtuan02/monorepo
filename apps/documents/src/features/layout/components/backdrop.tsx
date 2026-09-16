@@ -43,16 +43,20 @@ export default function Backdrop({ intensity }: BackdropProps) {
 
       {/* The shapes: ring, rotated square, triangle, dot grid, stripes. All
           five sit on the landing page; the soft variant keeps the ring and the
-          dots, the two that read quietest. */}
-      <div className="border-(--aurora-amber) absolute top-50 left-[6%] size-30 rounded-full border-14 opacity-90" />
-      <div className="absolute top-130 right-[16%] h-20 w-35 bg-[radial-gradient(var(--aurora-indigo)_2.2px,transparent_2.4px)] bg-size-[14px_14px] opacity-50" />
-      {!soft && (
-        <>
-          <div className="bg-(--aurora-pink) absolute top-37.5 right-[9%] size-22.5 rotate-[18deg] rounded-[14px] opacity-90" />
-          <div className="bg-(--aurora-cyan) absolute top-140 left-[14%] h-26 w-30 -rotate-12 opacity-90 [clip-path:polygon(50%_0,100%_100%,0_100%)]" />
-          <div className="absolute top-20 right-[30%] h-6.5 w-40 -rotate-30 bg-[repeating-linear-gradient(90deg,var(--aurora-lime)_0_10px,transparent_10px_20px)] opacity-90" />
-        </>
-      )}
+          dots, the two that read quietest. Below `md` there is no margin for
+          them to sit in — they would land on the headline — so the phone
+          keeps only the aurora. */}
+      <div className="max-md:hidden">
+        <div className="border-(--aurora-amber) absolute top-50 left-[6%] size-30 rounded-full border-14 opacity-90" />
+        <div className="absolute top-130 right-[16%] h-20 w-35 bg-[radial-gradient(var(--aurora-indigo)_2.2px,transparent_2.4px)] bg-size-[14px_14px] opacity-50" />
+        {!soft && (
+          <>
+            <div className="bg-(--aurora-pink) absolute top-37.5 right-[9%] size-22.5 rotate-[18deg] rounded-[14px] opacity-90" />
+            <div className="bg-(--aurora-cyan) absolute top-140 left-[14%] h-26 w-30 -rotate-12 opacity-90 [clip-path:polygon(50%_0,100%_100%,0_100%)]" />
+            <div className="absolute top-20 right-[30%] h-6.5 w-40 -rotate-30 bg-[repeating-linear-gradient(90deg,var(--aurora-lime)_0_10px,transparent_10px_20px)] opacity-90" />
+          </>
+        )}
+      </div>
 
       {/* The fade to the flat ground, so no paragraph ever sits on colour. */}
       <div className="to-background absolute inset-x-0 bottom-0 h-[55%] bg-linear-to-b from-transparent to-70%" />

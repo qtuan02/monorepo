@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { useDebounce } from "@monorepo/hook/use-debounce";
 
-import { PageHeader } from "~/components/page/page-header";
+import { ListHeader } from "~/components/page/list-header";
 import { FilterEmpty } from "~/components/search/filter-empty";
 import { FilterInput } from "~/components/search/filter-input";
 import { componentCatalogue } from "~/constants/docs-catalogue";
@@ -27,27 +27,25 @@ export default function ComponentListTemplate() {
 
   return (
     <>
-      <PageHeader
+      <ListHeader
         title={t("documents.components.title")}
         description={t("documents.components.description")}
-      />
-
-      <div className="flex flex-wrap items-center justify-between gap-3 py-6">
-        <FilterInput value={search} onValueChange={setSearch} />
-        <p className="text-muted-foreground text-sm tabular-nums">
-          {t("documents.components.count", { count: items.length })}
-        </p>
-      </div>
+      >
+        <div className="flex flex-wrap items-center gap-3">
+          <FilterInput value={search} onValueChange={setSearch} />
+          <p className="text-muted-foreground text-sm tabular-nums">
+            {t("documents.components.count", { count: items.length })}
+          </p>
+        </div>
+      </ListHeader>
 
       {items.length === 0 ? (
         <FilterEmpty query={debouncedSearch} onClear={() => setSearch("")} />
       ) : (
-        <ul className="grid gap-3.5 pb-10 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid grid-cols-1 gap-3.5 pb-10 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((entry) => (
             // The slug is unique within the catalogue, so it is the stable key.
-            <li key={entry.slug}>
-              <ComponentCard entry={entry} />
-            </li>
+            <ComponentCard key={entry.slug} entry={entry} />
           ))}
         </ul>
       )}

@@ -22,6 +22,6 @@ describe("a hook tile", () => {
 
     const link = screen.getByRole("link", { name: /^use-debounce/ });
     expect(link).toHaveTextContent(/debounce/i);
-    expect(link).not.toHaveClass("md:col-span-2");
+    expect(screen.getByRole("listitem")).not.toHaveClass("md:col-span-2");
   });
 });

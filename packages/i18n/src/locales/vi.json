@@ -353,7 +353,7 @@
     },
     "components": {
       "title": "Component",
-      "description": "Mỗi dòng là một subpath của @fe-monorepo/ui. Mở một dòng để đọc danh sách export và xem demo trên Storybook.",
+      "description": "Mỗi tile là một subpath của @fe-monorepo/ui. Mở tile để đọc export và xem demo trên Storybook.",
       "count": "{count, plural, other {# component}}",
       "exportPreviewMore": "{count, plural, other {+#}}",
       "detail": {
