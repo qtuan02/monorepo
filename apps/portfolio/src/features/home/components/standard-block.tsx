@@ -37,16 +37,18 @@ import { cn } from "@monorepo/ui/utils/cn";
  *   `@media print` block of `globals.css`, for the reason this file exists at
  *   all: one place. `e2e/print-and-motion.e2e.ts` measures it.
  *
- * `pressable` is the one behaviour the block offers: under the cursor it sinks
- * by half a step toward its shadow and the shadow shortens to match, so the
- * block reads as pressed into the page rather than lifted off it — the
- * neubrutalist hover, and the opposite of v1's lift. Only the blocks a reader
- * can act on take it — a project card with links, a work or education row
- * that opens — because a block that moves under the cursor says "click me",
- * and About or the skills list has nothing to click. Transform and shadow
- * only, so nothing around it reflows; `motion-reduce:transition-none` keeps
- * the state and drops the tween. `shadow-hard-pressed` is the 2 px sibling
- * of `shadow-hard`, declared beside it in `globals.css`.
+ * The press is the one behaviour the block has: under the cursor it sinks by
+ * half a step toward its shadow and the shadow shortens to match, so the block
+ * reads as pushed into the page rather than lifted off it — the neubrutalist
+ * hover, and the opposite of v1's lift. Every block presses, the hero and the
+ * static ones included: #123 first limited it to the blocks a reader can act
+ * on, and the owner asked for the whole page to answer the cursor (#124) — on
+ * this page the press is texture, not an affordance, and the links inside a
+ * block still say what is clickable. Transform and shadow only, so nothing
+ * around it reflows; `motion-reduce:transition-none` keeps the state and drops
+ * the tween. `shadow-hard-pressed` is the 2 px sibling of `shadow-hard`,
+ * declared beside it in `globals.css`; `print:` undoes the translate because
+ * a print preview can be hovered.
  *
  * The padding is the block's too — `p-4 sm:p-5` — because every caller chose
  * the same one and a block whose inset differed from its neighbours' would
@@ -58,24 +60,15 @@ import { cn } from "@monorepo/ui/utils/cn";
  * project card stacks a header over a footer, and neither arrangement belongs
  * to the shape they share.
  */
-interface StandardBlockProps extends ComponentProps<"div"> {
-  /** Sinks toward its shadow under the cursor. For blocks a reader acts on. */
-  pressable?: boolean;
-}
-
 export default function StandardBlock({
   className,
-  pressable = false,
   ...props
-}: StandardBlockProps) {
+}: ComponentProps<"div">) {
   return (
     <div
       data-slot="standard-block"
-      data-pressable={pressable ? "" : undefined}
       className={cn(
-        "rounded-none border-2 border-border bg-card p-4 text-foreground shadow-hard sm:p-5 print:border print:shadow-none",
-        pressable &&
-          "transition-[translate,box-shadow,background-color] duration-150 ease-out hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-hard-pressed motion-reduce:transition-none print:hover:translate-x-0 print:hover:translate-y-0",
+        "rounded-none border-2 border-border bg-card p-4 text-foreground shadow-hard transition-[translate,box-shadow,background-color] duration-150 ease-out hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-hard-pressed sm:p-5 motion-reduce:transition-none print:border print:shadow-none print:hover:translate-x-0 print:hover:translate-y-0",
         className,
       )}
       {...props}

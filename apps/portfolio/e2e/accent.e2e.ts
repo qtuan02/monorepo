@@ -377,24 +377,34 @@ test.describe("the standard block", () => {
       // `transform`), tweened over 150 ms, so both halves are polled.
       await expect(card).toHaveCSS("translate", "2px 2px");
       await expect(card).toHaveCSS("box-shadow", /2px 2px 0px 0px/);
-      await expect(card).toHaveAttribute("data-pressable", "");
       expect(await neighbour.boundingBox()).toEqual(neighbourBefore);
     });
   }
 
   /**
-   * The blocks a reader cannot act on do not press: About has nothing to
-   * click, and a block that sinks under the cursor says it does.
+   * Every block presses, not only the ones with something to click (#124):
+   * About, with nothing inside it but prose, sinks the same 2px. And the dock
+   * presses as a bar while the control under the cursor stays put — the bar
+   * answers the hover, a control answers the click.
    */
-  test("leaves a static block still under the cursor", async ({ page }) => {
+  test("presses a static block and the dock's bar, but not a dock control", async ({
+    page,
+  }) => {
     await openHomeIn(page, "light");
 
     const about = page.locator('#about [data-slot="standard-block"]');
     await expect(about).toBeVisible();
-    await expect(about).not.toHaveAttribute("data-pressable", "");
     await about.hover();
-    await expect(about).toHaveCSS("translate", "none");
-    await expect(about).toHaveCSS("box-shadow", /4px 4px 0px 0px/);
+    await expect(about).toHaveCSS("translate", "2px 2px");
+    await expect(about).toHaveCSS("box-shadow", /2px 2px 0px 0px/);
+
+    const dock = page.getByRole("navigation");
+    const github = dock.getByRole("link", { name: "GitHub" });
+    await expect(dock).toHaveCSS("translate", "none");
+    await github.hover();
+    await expect(dock).toHaveCSS("translate", "2px 2px");
+    await expect(dock).toHaveCSS("box-shadow", /2px 2px 0px 0px/);
+    await expect(github).toHaveCSS("translate", "none");
   });
 });
 

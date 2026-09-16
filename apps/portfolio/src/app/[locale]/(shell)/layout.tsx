@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
-import { Suspense } from "react";
 
-import { Skeleton } from "@monorepo/ui/components/skeleton";
-
-import { SelectLanguage } from "~/components/select/select-language";
 import NavbarTemplate from "~/features/layout/templates/navbar.template";
 
 interface ShellLayoutProps {
@@ -11,8 +7,9 @@ interface ShellLayoutProps {
 }
 
 /**
- * The app shell: one centred well, a language switcher in the corner, and the
- * dock pinned to the bottom of the viewport.
+ * The app shell: one centred well and the dock pinned to the bottom of the
+ * viewport — which since #124 also holds the language switcher, so the shell
+ * draws no chrome of its own above the content.
  *
  * `max-w-6xl` (72 rem) where v1 had the 2xl reading column. The well is no
  * longer the measure of any prose: from `lg` the template splits it into a
@@ -31,18 +28,6 @@ export default function ShellLayout({ children }: ShellLayoutProps) {
   return (
     <>
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12 pb-26 sm:pt-24">
-        <div className="mb-6 flex justify-end print:hidden">
-          {/* The switcher reads `usePathname()` — URL data, which under
-              `cacheComponents` a Client Component may only touch inside a
-              `<Suspense>`. Without this the shell is unprerenderable on any
-              route whose URL is not fully known at build time (the catch-all
-              404), and Next answers those with an empty shell it resumes on the
-              client. The fallback is the trigger's exact footprint, so nothing
-              shifts. */}
-          <Suspense fallback={<Skeleton className="h-8 w-[4.5rem]" />}>
-            <SelectLanguage />
-          </Suspense>
-        </div>
         {children}
       </main>
       <NavbarTemplate />
