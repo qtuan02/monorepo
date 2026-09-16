@@ -34,35 +34,73 @@
 }
 
 /**
- * The accent — one indigo hue, seven tokens, and why the block is unlayered.
+ * The palette this page draws with — two hues, two neutrals, one shadow, no
+ * radius — and why the block is unlayered.
  *
- * `theme.css` is the EMR product's palette: teal `--primary-brand #38a696`.
- * A CV wearing an employer's brand changes colour with every job, so this app
- * carries a neutral indigo of its own — on a single hue (277), and only for the
- * seven tokens a CV actually renders: the badge/button pair, the focus ring,
- * the hover wash, and text selection. Status colours (`destructive` … `info`),
- * the charts and the sidebar stay the theme's, as does every other app.
+ * `theme.css` is the EMR product's palette: teal `--primary-brand #38a696`,
+ * blue-grey text and a border a hair off its own background. A CV wearing an
+ * employer's brand changes colour with every job, and a hard-edged page cannot
+ * be drawn with text that is never quite black and a border that is never
+ * quite visible. So this app overrides exactly twelve colour tokens, and one
+ * length:
+ *
+ * - the seven **accent** tokens of v1, on one indigo hue (277): the badge/button
+ *   pair, the focus ring, the hover wash, and text selection;
+ * - the two **neutrals** the redesign takes over — `--foreground` and
+ *   `--border` — pushed to the poles. `--muted-foreground` stays the theme's:
+ *   it already reads AA, and the second grey is what lets meta text step back;
+ * - the **highlight** pair, on one yellow hue (91–92) — the primary button's
+ *   fill and the award badge, and nothing else. Text on it is near-black in
+ *   both themes, and so is the focus ring a yellow control draws: in the dark
+ *   theme no yellow can clear 3:1 against the lifted indigo `--ring`, so the
+ *   ring on a yellow fill is `--highlight-foreground`, inset;
+ * - `--hard-shadow`, the colour of the solid 4px offset shadow every block
+ *   casts, so light and dark flip it together with the border;
+ * - `--radius: 0px`. `theme.css` derives every `rounded-*` size from it, so
+ *   this one line squares badge, card, button, skeleton and select at once,
+ *   with no edit to `@monorepo/ui`. With a unit: a bare `0` turns each of the
+ *   theme's `calc(var(--radius) * n)` into a `<number>`, which `border-radius`
+ *   rejects and only *then* falls back to zero — right by accident, not by
+ *   derivation. (`Avatar` rounds by class, not by token; the hero ticket
+ *   squares it by className.)
+ *
+ * The dark theme is the light one **inverted**, not dimmed: near-black ground,
+ * near-white text, border and shadow. A black shadow on a black ground is no
+ * shadow at all — which is the whole reason the shadow is a token.
+ *
+ * Status colours (`destructive` … `info`), the charts and the sidebar stay the
+ * theme's, as does every other app.
  *
  * Unlayered on purpose. `@monorepo/tailwind-config/globals` pulls `theme.css`
  * in with a plain `@import`, so its `:root` / `.dark` declarations sit outside
  * every layer, and an unlayered declaration beats one in any `@layer` whatever
- * the source order. Written inside `@layer base` these seven would compile,
- * ship and lose — the site would stay teal with nothing logged. (`--font-sans`
- * above survives there only because `theme.css` never sets it on `:root`.)
+ * the source order. Written inside `@layer base` these would compile, ship and
+ * lose — the site would stay teal with nothing logged. (`--font-sans` above
+ * survives there only because `theme.css` never sets it on `:root`.)
  *
  * It also sits *above* the `@media print` palette at the foot of this file, and
  * that order is the useful one: print re-declares the neutrals on the same
- * `:root, .dark` specificity, so if a printed element ever needs a different
- * accent, print can say so without `!important`. Today it needs none — each of
- * these seven paints an interaction state (focus, hover, selection) or a
- * `bg-primary` fill, and a browser prints no background graphics unless the
- * reader asks for them. What can reach paper is the light indigo, at 6.46:1 on
- * white. `test/globals.test.ts` pins the token set, the placement, the hue and
- * every ratio; `test/support/contrast.ts` holds the colour maths, and
+ * `:root, .dark` specificity — including `--foreground` and `--border`, which
+ * on paper are a dark grey and a thin grey rule rather than the screen's ink —
+ * so it wins there without `!important`. The highlight and the shadow need no
+ * print value: a browser prints no background graphics unless the reader asks
+ * for them, so a yellow fill reaches paper as its near-black text on white.
+ * `test/globals.test.ts` pins the token set, the placement, the hues, the poles
+ * and every ratio; `test/support/contrast.ts` holds the colour maths, and
  * `test/support/contrast.test.ts` checks that maths against WCAG's own
- * reference pairs.
+ * reference pairs. `e2e/accent.e2e.ts` reads what a browser actually paints.
  */
 :root {
+  --radius: 0px;
+
+  /* #0a0a0a — 18.65:1 on the #f8f8f9 background, 19.8:1 on a white card. The
+     theme's blue-grey `#3d4c63` is the EMR "normal text"; this page is ink. */
+  --foreground: oklch(0.145 0 0);
+  /* The same ink. The theme's `#f0f0f0` reads 1.07:1 on its background — a
+     card whose edge does not exist. */
+  --border: oklch(0.145 0 0);
+  --hard-shadow: oklch(0.145 0 0);
+
   /* indigo-600 #4f39f6 — white on it reads 6.46:1 */
   --primary: oklch(0.511 0.262 277);
   --primary-foreground: oklch(1 0 0);
@@ -76,9 +114,21 @@
   --accent-foreground: oklch(0.457 0.24 277);
   --selection: oklch(0.511 0.262 277);
   --selection-foreground: oklch(1 0 0);
+
+  /* #ffe14d — the mockup's yellow; the ink reads 15.21:1 on it */
+  --highlight: oklch(0.925 0.165 91);
+  --highlight-foreground: oklch(0.145 0 0);
 }
 
 .dark {
+  /* #fafafa — 18.97:1 on the #0a0a0a background, 17.18:1 on the #171717 card.
+     The theme already sits here for text; the border (a 10% white) and the
+     shadow do not, and all three are declared so the inversion is this app's
+     own decision rather than a coincidence of the shared theme. */
+  --foreground: oklch(0.985 0 0);
+  --border: oklch(0.985 0 0);
+  --hard-shadow: oklch(0.985 0 0);
+
   /* #7e89f9 — lifted for dark, as the theme lifts its teal */
   --primary: oklch(0.673 0.165 277);
   /* deep indigo #1a1b4d — 5.22:1 on the above */
@@ -91,6 +141,25 @@
   --accent-foreground: oklch(0.87 0.058 277);
   --selection: oklch(0.673 0.165 277);
   --selection-foreground: oklch(0.257 0.09 277);
+
+  /* #eec743 — the same yellow, dulled so a fill does not glare on a dark
+     ground; the ink still reads 12.15:1 on it, and the fill 12.15:1 on the
+     background, which is what draws its edge where a light border cannot. */
+  --highlight: oklch(0.84 0.15 92);
+  --highlight-foreground: oklch(0.145 0 0);
+}
+
+/**
+ * The three tokens `theme.css` does not know about, named into Tailwind's
+ * colour namespace the same way it names its own — so `bg-highlight`,
+ * `text-highlight-foreground` and `shadow-hard-shadow` are utilities rather
+ * than arbitrary values. `inline` so the utility carries the `var()` and the
+ * `.dark` swap still reaches it.
+ */
+@theme inline {
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-hard-shadow: var(--hard-shadow);
 }
 
 /**
