@@ -2,7 +2,7 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
-import type { Task } from "~/types/task";
+import type { Task, TaskListParams } from "~/types/task";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockComplianceItems } from "~/constants/mock/compliance";
 import { mockContracts } from "~/constants/mock/contracts";
@@ -19,14 +19,15 @@ const taskQueryKeyFactory = queryKeysFactory("task");
 
 export const taskQueryKeys = {
   ...taskQueryKeyFactory,
-  getTasks: () => taskQueryKeyFactory.list(),
+  getTasks: (params?: TaskListParams) => taskQueryKeyFactory.list(params),
 };
 
 export function useGetTasks(
+  params?: TaskListParams,
   options?: UseQueryOptionsWrapper<Task[]>,
 ): UseQueryResult<Task[], Error> {
   return useQuery<Task[], Error>({
-    queryKey: taskQueryKeys.getTasks(),
+    queryKey: taskQueryKeys.getTasks(params),
     queryFn: async () =>
       deriveTasks({
         contracts: mockContracts,
@@ -35,6 +36,7 @@ export function useGetTasks(
         tenants: mockTenants,
         complianceItems: mockComplianceItems,
         buildings: mockBuildings,
+        buildingId: params?.buildingId,
       }),
     ...options,
   });

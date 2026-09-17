@@ -1,4 +1,4 @@
-import { AlertCircle, Calendar, Home, Phone } from "lucide-react";
+import { Calendar, Home, Phone } from "lucide-react";
 
 import {
   createDataTableColumnHelper,
@@ -8,7 +8,10 @@ import {
 import type { TenantView } from "~/types/tenant";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
-import { tenantStatusConfig } from "~/constants/status";
+import {
+  tenantOverdueInvoiceConfig,
+  tenantStatusConfig,
+} from "~/constants/status";
 import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
 
@@ -68,10 +71,7 @@ export const tenantColumns = helper.columns([
       <div className="flex items-center gap-1.5">
         <StatusBadge config={tenantStatusConfig[row.original.status]} />
         {row.original.hasOverdueInvoice && (
-          <AlertCircle
-            className="text-destructive size-4 shrink-0"
-            aria-label="Có hoá đơn quá hạn"
-          />
+          <StatusBadge config={tenantOverdueInvoiceConfig} isCompact />
         )}
       </div>
     ),

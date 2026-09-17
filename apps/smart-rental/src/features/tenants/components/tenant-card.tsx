@@ -1,4 +1,4 @@
-import { AlertCircle, Calendar, DoorOpen, Mail, Phone } from "lucide-react";
+import { Calendar, DoorOpen, Mail, Phone } from "lucide-react";
 
 import {
   CardContent,
@@ -10,7 +10,10 @@ import type { TenantView } from "~/types/tenant";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatItem } from "~/components/card/stat-item";
-import { tenantStatusConfig } from "~/constants/status";
+import {
+  tenantOverdueInvoiceConfig,
+  tenantStatusConfig,
+} from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
 import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
@@ -46,15 +49,7 @@ export default function TenantCard({ tenant }: TenantCardProps) {
           <div className="flex flex-wrap gap-2">
             <StatusBadge config={tenantStatusConfig[tenant.status]} />
             {tenant.hasOverdueInvoice && (
-              <StatusBadge
-                config={{
-                  label: "Có hoá đơn quá hạn",
-                  className:
-                    "bg-destructive/10 text-destructive border-destructive/20",
-                  icon: AlertCircle,
-                }}
-                isCompact
-              />
+              <StatusBadge config={tenantOverdueInvoiceConfig} isCompact />
             )}
           </div>
           <div className="text-muted-foreground space-y-1.5 text-xs">

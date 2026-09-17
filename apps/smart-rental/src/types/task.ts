@@ -36,3 +36,8 @@ export interface Task {
   dueDate: string;
   createdAt: string;
 }
+
+export interface TaskListParams {
+  /** The Building scope; `null` or absent means every Toà nhà. */
+  buildingId?: string | null;
+}

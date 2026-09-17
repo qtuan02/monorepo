@@ -17,7 +17,7 @@ import {
   buildProfitLossSummary,
   buildReportRows,
 } from "~/utils/report-rows";
-import { deriveTenantStatus, hasOverdueInvoice } from "~/utils/tenant-status";
+import { toTenantView } from "~/utils/tenant-status";
 
 // `~/constants/mock/reports` was dropped (ADR-0012) — Báo cáo is computed
 // from Hoá đơn + Chi phí + Chỉ số by `~/utils/report-rows`.
@@ -31,15 +31,9 @@ export const reportQueryKeys = {
 };
 
 function buildTenantViews(): TenantView[] {
-  return mockTenants.map((tenant) => ({
-    ...tenant,
-    status: deriveTenantStatus(tenant.id, mockContracts),
-    hasOverdueInvoice: hasOverdueInvoice(
-      tenant.id,
-      mockContracts,
-      mockInvoices,
-    ),
-  }));
+  return mockTenants.map((tenant) =>
+    toTenantView(tenant, mockContracts, mockInvoices),
+  );
 }
 
 function getRows(): ReportRow[] {

@@ -44,6 +44,7 @@ import {
 } from "~/hooks/api/report";
 import { useUrlTab } from "~/hooks/use-url-tab";
 import { formatCurrency } from "~/utils/currency";
+import { buildReportRowsCsv } from "~/utils/report-rows";
 
 const TABS = ["pnl", "utilities", "overdue", "performance"] as const;
 
@@ -60,8 +61,9 @@ function rowKey(row: { month: string; building: string; floor: string }) {
  * "Báo cáo": KPI cards over the P&L summary, then four tabs — the tab rides
  * on the URL, the three filters stay in state as in the prototype. Three
  * queries, each section gated on its own, so the KPI cards paint while the
- * rows are still loading. "Xuất báo cáo" only toasts; the export has no
- * flow yet.
+ * rows are still loading. "Xuất báo cáo" downloads the on-screen (filtered)
+ * rows as CSV (spec #153 §10 row 13) — a toast instead when there is nothing
+ * to export.
  */
 export default function ReportsOverviewTemplate() {
   const [tab, setTab] = useUrlTab(TABS);
@@ -74,6 +76,27 @@ export default function ReportsOverviewTemplate() {
   const allRows = rowsQuery.data ?? [];
   const rows = filterReportRows(allRows, filters);
 
+  // CSV of the rows currently on screen — the filters above narrow it too.
+  function exportRowsCsv() {
+    if (rows.length === 0) {
+      toast.add({
+        title: "Không có dòng nào để xuất",
+        description: "Thử đổi bộ lọc toà, tầng hoặc trạng thái.",
+      });
+      return;
+    }
+    // A leading BOM so Excel reads the Vietnamese diacritics as UTF-8.
+    const blob = new Blob([`﻿${buildReportRowsCsv(rows)}`], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "bao-cao.csv";
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="space-y-6">
       <ListPageHeader
@@ -84,12 +107,7 @@ export default function ReportsOverviewTemplate() {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() =>
-              toast.add({
-                title: "Chức năng xuất báo cáo",
-                description: "Tính năng sẽ được bổ sung trong phiên bản sau.",
-              })
-            }
+            onClick={exportRowsCsv}
           >
             <Download />
             Xuất báo cáo

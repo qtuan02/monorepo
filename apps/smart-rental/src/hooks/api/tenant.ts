@@ -17,7 +17,7 @@ import { mockInvoices } from "~/constants/mock/invoices";
 import { mockTenants } from "~/constants/mock/tenants";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
-import { deriveTenantStatus, hasOverdueInvoice } from "~/utils/tenant-status";
+import { toTenantView } from "~/utils/tenant-status";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
 // answers with the Mock. Wiring `be-motel` later is swapping those lines for a
@@ -30,17 +30,8 @@ export const tenantQueryKeys = {
   getTenant: (tenantId: string) => tenantQueryKeyFactory.detail(tenantId),
 };
 
-/** The two hook-computed fields every screen reads off a Người thuê (ADR-0012). */
 function withStatus(tenant: Tenant): TenantView {
-  return {
-    ...tenant,
-    status: deriveTenantStatus(tenant.id, mockContracts),
-    hasOverdueInvoice: hasOverdueInvoice(
-      tenant.id,
-      mockContracts,
-      mockInvoices,
-    ),
-  };
+  return toTenantView(tenant, mockContracts, mockInvoices);
 }
 
 export function useGetTenants(

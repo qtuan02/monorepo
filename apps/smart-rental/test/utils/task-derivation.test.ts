@@ -196,4 +196,30 @@ describe("deriveTasks", () => {
 
     expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
   });
+
+  it("adds batch_pending when the Toà nhà has no Chỉ số at all yet this kỳ", () => {
+    const tasks = derive({ utilities: [] });
+    const task = tasks.find((t) => t.type === "batch_pending");
+
+    expect(task).toMatchObject({ relatedEntity: "building", relatedId: "b1" });
+  });
+
+  it("scopes to one Toà nhà when buildingId is given", () => {
+    const otherBuilding = { ...building, id: "b2", name: "Toà nhà khác" };
+    const tasks = derive({
+      buildings: [building, otherBuilding],
+      buildingId: "b1",
+    });
+
+    expect(
+      tasks.every((t) => t.type !== "batch_pending" || t.relatedId === "b1"),
+    ).toBe(true);
+    expect(tasks.some((t) => t.relatedEntity === "invoice")).toBe(true);
+  });
+
+  it("finds nothing outside the given Building scope", () => {
+    const tasks = derive({ buildingId: "b-other" });
+
+    expect(tasks).toEqual([]);
+  });
 });

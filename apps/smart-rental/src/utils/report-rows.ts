@@ -1,9 +1,12 @@
 import type { Building } from "~/types/building";
+import type { Expense } from "~/types/expense";
 import type { Invoice } from "~/types/invoice";
 import type { OverdueDebt, ProfitLossSummary, ReportRow } from "~/types/report";
 import type { Room } from "~/types/room";
 import type { TenantView } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
+import type { CsvColumn } from "~/utils/csv";
+import { toCsv } from "~/utils/csv";
 import { formatMonth } from "~/utils/date";
 import { daysOverdue, deriveInvoiceStatus } from "~/utils/invoice-status";
 
@@ -11,7 +14,7 @@ interface ReportRowSources {
   buildings: Building[];
   rooms: Room[];
   invoices: Invoice[];
-  expenses: { buildingId: string; amount: number; expenseDate: string }[];
+  expenses: Pick<Expense, "buildingId" | "amount" | "expenseDate">[];
   utilities: Utility[];
   tenantViews: TenantView[];
   buildingId?: string | null;
@@ -107,6 +110,25 @@ export function buildReportRows(sources: ReportRowSources): ReportRow[] {
     }
   }
   return rows;
+}
+
+const REPORT_ROW_CSV_COLUMNS: CsvColumn<ReportRow>[] = [
+  { key: "month", header: "Tháng" },
+  { key: "building", header: "Toà nhà" },
+  { key: "floor", header: "Tầng" },
+  { key: "revenue", header: "Doanh thu" },
+  { key: "expenses", header: "Chi phí" },
+  { key: "profit", header: "Lợi nhuận" },
+  { key: "occupancyRate", header: "Lấp đầy (%)" },
+  { key: "electricityUsage", header: "Điện (kWh)" },
+  { key: "waterUsage", header: "Nước (m³)" },
+  { key: "totalTenants", header: "Tổng người thuê" },
+  { key: "overdueTenants", header: "Người thuê quá hạn" },
+];
+
+/** "Xuất báo cáo" (spec #153 §10 row 13) — the P&L rows as CSV. */
+export function buildReportRowsCsv(rows: ReportRow[]): string {
+  return toCsv(rows, REPORT_ROW_CSV_COLUMNS);
 }
 
 export function buildProfitLossSummary(rows: ReportRow[]): ProfitLossSummary {

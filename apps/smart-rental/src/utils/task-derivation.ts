@@ -25,6 +25,8 @@ interface TaskDerivationSources {
   tenants: Tenant[];
   complianceItems: ComplianceItem[];
   buildings: Building[];
+  /** The Building scope; `null` or absent means every Toà nhà. */
+  buildingId?: string | null;
 }
 
 /**
@@ -38,15 +40,21 @@ export function deriveTasks(
   sources: TaskDerivationSources,
   today: Date = new Date(),
 ): Task[] {
-  const {
-    contracts,
-    invoices,
-    utilities,
-    tenants,
-    complianceItems,
-    buildings,
-  } = sources;
+  const { buildingId } = sources;
+  const scope = <T extends { buildingId?: string }>(list: T[]): T[] =>
+    buildingId ? list.filter((item) => item.buildingId === buildingId) : list;
+
+  const contracts = scope(sources.contracts);
+  const invoices = scope(sources.invoices);
+  const utilities = scope(sources.utilities);
+  const tenants = scope(sources.tenants);
+  const complianceItems = scope(sources.complianceItems);
+  const buildings = buildingId
+    ? sources.buildings.filter((building) => building.id === buildingId)
+    : sources.buildings;
+
   const createdAt = today.toISOString();
+  const todayIso = dayjs(today).format("YYYY-MM-DD");
   const currentMonth = dayjs(today).format("YYYY-MM");
   const tasks: Task[] = [];
 
@@ -93,7 +101,7 @@ export function deriveTasks(
       status: "open",
       relatedEntity: "utility",
       relatedId: utility.id,
-      dueDate: dayjs(today).format("YYYY-MM-DD"),
+      dueDate: todayIso,
       createdAt,
     });
   }
@@ -122,7 +130,7 @@ export function deriveTasks(
       status: "open",
       relatedEntity: "tenant",
       relatedId: tenant.id,
-      dueDate: dayjs(today).format("YYYY-MM-DD"),
+      dueDate: todayIso,
       createdAt,
     });
   }
@@ -132,21 +140,27 @@ export function deriveTasks(
       (utility) =>
         utility.buildingId === building.id && utility.month === currentMonth,
     );
-    const hasUnconfirmedReading = currentMonthUtilities.some(
-      (utility) => utility.status !== "VERIFIED",
-    );
-    if (currentMonthUtilities.length === 0 || !hasUnconfirmedReading) continue;
+    // "Đã lập Đợt" only once every Chỉ số of the kỳ is VERIFIED — a building
+    // with no readings at all yet is exactly as unbatched as one with some
+    // still DRAFT (spec #153 §10 row 9: flow Nhập chỉ số → Đợt).
+    const isBatchedThisMonth =
+      currentMonthUtilities.length > 0 &&
+      currentMonthUtilities.every((utility) => utility.status === "VERIFIED");
+    if (isBatchedThisMonth) continue;
 
     tasks.push({
       id: `batch_pending-${building.id}`,
       type: "batch_pending",
       title: `${building.name} chưa lập Đợt hoá đơn kỳ ${currentMonth}`,
-      description: "Còn Chỉ số chưa xác nhận — xác nhận trước khi lập Đợt.",
+      description:
+        currentMonthUtilities.length === 0
+          ? "Chưa có Chỉ số điện nước cho kỳ này."
+          : "Còn Chỉ số chưa xác nhận — xác nhận trước khi lập Đợt.",
       priority: "low",
       status: "open",
       relatedEntity: "building",
       relatedId: building.id,
-      dueDate: dayjs(today).format("YYYY-MM-DD"),
+      dueDate: todayIso,
       createdAt,
     });
   }

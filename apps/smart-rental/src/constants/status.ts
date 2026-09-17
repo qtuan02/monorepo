@@ -236,6 +236,13 @@ export const tenantStatusConfig: Record<TenantStatus, StatusConfig> = {
   ended: { label: "Đã rời", className: statusTone.neutral },
 };
 
+/** The "cờ có Hoá đơn quá hạn" badge (ADR-0012) — not a `TenantStatus`, so it lives next to it rather than in the record. */
+export const tenantOverdueInvoiceConfig: StatusConfig = {
+  label: "Có hoá đơn quá hạn",
+  className: statusTone.error,
+  icon: AlertCircle,
+};
+
 export const contractStatusConfig: Record<ContractStatus, StatusConfig> = {
   DRAFT: { label: "Nháp", className: statusTone.neutral, icon: Clock },
   ACTIVE: {

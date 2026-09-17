@@ -1,5 +1,6 @@
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
+import type { Tenant, TenantView } from "~/types/tenant";
 import { isContractLive } from "~/utils/contract-status";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
 
@@ -40,4 +41,18 @@ export function hasOverdueInvoice(
       contractIds.has(invoice.contractId) &&
       deriveInvoiceStatus(invoice, today) === "OVERDUE",
   );
+}
+
+/** The two hook-computed fields every screen reads off a Người thuê (ADR-0012). */
+export function toTenantView(
+  tenant: Tenant,
+  contracts: Contract[],
+  invoices: Invoice[],
+  today: Date = new Date(),
+): TenantView {
+  return {
+    ...tenant,
+    status: deriveTenantStatus(tenant.id, contracts, today),
+    hasOverdueInvoice: hasOverdueInvoice(tenant.id, contracts, invoices, today),
+  };
 }
