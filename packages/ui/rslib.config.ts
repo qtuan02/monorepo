@@ -60,12 +60,19 @@ export default defineConfig({
       syntax: "es2022",
       dts: true,
       source: {
-        // The whole hook package, not just `use-is-mobile` and the two modules
-        // it imports: bundleless emits only entry files, so a hand-picked list
-        // would emit a dangling `./use-media-query.js` the day the import graph
-        // moves. Five files come to 2.6 kB, and none of them is reachable from
-        // the shell's `exports`.
-        entry: { internal: ["../hook/src/*.ts"] },
+        // Only `use-is-mobile` and the one module it imports — not the whole
+        // hook package, which would ship every hook as dead code no consumer
+        // can reach. Bundleless emits only entry files, so the day the import
+        // graph moves this list emits a dangling `./use-foo.js`; that is what
+        // `assertRelativeImportsResolve` in `scripts/build.ts` fails on.
+        // `use-media-query` is Derived from hooks-ts, which is why the shell
+        // ships `LICENSE-hooks-ts` (`packages/ui-public/LICENSE-hooks-ts`).
+        entry: {
+          internal: [
+            "../hook/src/use-is-mobile.ts",
+            "../hook/src/use-media-query.ts",
+          ],
+        },
         tsconfigPath: "./tsconfig.hook.json",
       },
       output: {

@@ -325,8 +325,11 @@ ADR-0004, and none of it is visible from a single file.
   hook, and a dependency would mean matching two independently-versioned shells by hand at every
   release. Mechanically it is *not* a bundle: rslib's `autoExternal` is bundle-mode only, and in
   bundleless mode every non-relative specifier is external, full stop. So `packages/ui/rslib.config.ts`
-  compiles the whole of `packages/hook/src` into `dist/internal/` as a second `lib` and rewrites the
-  import through `output.externals`. `resolve.alias` does not work here — externalization runs first,
+  compiles `use-is-mobile` and the one module it imports (`use-media-query`) into `dist/internal/`
+  as a second `lib` — the same two files `tsconfig.hook.json` includes, since tsgo emits a `.d.ts`
+  for everything included rather than only the entries — and rewrites the import through
+  `output.externals`. `use-media-query` is Derived from hooks-ts, so the shell also ships
+  `LICENSE-hooks-ts` (ADR-0010). `resolve.alias` does not work here — externalization runs first,
   so the alias never gets a turn.
 - **That `../internal/` prefix is only correct because every output file sits exactly one level under
   `dist/`** (`components/`, `utils/`). A new file at `src/*.tsx` importing the hook would silently

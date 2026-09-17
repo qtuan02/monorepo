@@ -13,6 +13,11 @@
     "allowImportingTsExtensions": false,
     "rootDir": "../hook/src"
   },
-  "include": ["../hook/src"],
+  /**
+   * The same two files `rslib.config.ts` lists as the `internal` entry —
+   * tsgo emits a `.d.ts` for everything included here, not only for the
+   * entries, so a directory would ship declarations for hooks with no `.js`.
+   */
+  "include": ["../hook/src/use-is-mobile.ts", "../hook/src/use-media-query.ts"],
   "exclude": ["node_modules"]
 }
