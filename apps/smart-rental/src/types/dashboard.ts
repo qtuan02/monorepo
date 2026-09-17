@@ -10,11 +10,13 @@ export interface CashFlowPoint {
   expense: number;
 }
 
+export type DashboardTaskPriority = "urgent" | "high" | "medium";
+
 export interface DashboardTask {
   id: number;
   title: string;
   type: string;
-  priority: "Khẩn cấp" | "Cao" | "Vừa";
+  priority: DashboardTaskPriority;
   due: string;
 }
 

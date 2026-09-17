@@ -13,11 +13,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
+import { cn } from "@monorepo/ui/utils/cn";
 
 import { SummaryCard } from "~/components/card/summary-card";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
+import { statusTone } from "~/constants/status";
 import CashFlowChart from "~/features/dashboard/components/cash-flow-chart";
 import OccupancyDonutChart from "~/features/dashboard/components/occupancy-donut-chart";
 import PendingTasksCard from "~/features/dashboard/components/pending-tasks-card";
@@ -99,7 +101,12 @@ export default function DashboardTemplate() {
                     Xu hướng tài chính trong 6 tháng qua
                   </CardDescription>
                 </div>
-                <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-600">
+                <div
+                  className={cn(
+                    "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
+                    statusTone.success,
+                  )}
+                >
                   <TrendingUp className="size-3.5" />
                   <span className="font-medium">+12.3% tháng này</span>
                 </div>

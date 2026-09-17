@@ -1,4 +1,3 @@
-import { Badge } from "@monorepo/ui/components/badge";
 import {
   Card,
   CardContent,
@@ -8,15 +7,8 @@ import {
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { DashboardTask } from "~/types/dashboard";
-
-const priorityVariant: Record<
-  DashboardTask["priority"],
-  "destructive" | "default" | "secondary"
-> = {
-  "Khẩn cấp": "destructive",
-  Cao: "default",
-  Vừa: "secondary",
-};
+import { StatusBadge } from "~/components/badge/status-badge";
+import { taskPriorityConfig } from "~/constants/status";
 
 interface PendingTasksCardProps {
   tasks: DashboardTask[];
@@ -32,6 +24,8 @@ export default function PendingTasksCard({ tasks }: PendingTasksCardProps) {
       <CardContent>
         <ul className="space-y-4">
           {tasks.map((task) => {
+            // The prototype read urgency off the copy itself; the Mock has no
+            // due date, so this stays until the backend sends one.
             const isDueNow =
               task.due.includes("Quá hạn") || task.due.includes("Hôm nay");
             return (
@@ -53,9 +47,7 @@ export default function PendingTasksCard({ tasks }: PendingTasksCardProps) {
                     </span>
                   </div>
                 </div>
-                <Badge variant={priorityVariant[task.priority]}>
-                  {task.priority}
-                </Badge>
+                <StatusBadge config={taskPriorityConfig[task.priority]} />
               </li>
             );
           })}

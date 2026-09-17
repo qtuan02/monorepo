@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { CheckCircle2, Circle, Clock, Wrench } from "lucide-react";
 
+import type { DashboardTaskPriority } from "~/types/dashboard";
 import type { RoomStatus, RoomType } from "~/types/room";
 
 /**
@@ -51,6 +52,12 @@ export const roomTypeConfig: Record<RoomType, StatusConfig> = {
   double: { label: "Phòng đôi" },
   studio: { label: "Studio" },
   suite: { label: "Suite" },
+};
+
+export const taskPriorityConfig: Record<DashboardTaskPriority, StatusConfig> = {
+  urgent: { label: "Khẩn cấp", className: statusTone.error },
+  high: { label: "Cao", className: statusTone.primary },
+  medium: { label: "Vừa", className: statusTone.neutral },
 };
 
 /** A config read as the option list of a faceted filter, in the config's order. */

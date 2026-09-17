@@ -86,12 +86,17 @@ chuỗi doanh thu cố định thay `Math.random()` mỗi render; một Toà nh�
 tổng theo bảng `mockDashboardShare` (mười tỷ lệ cộng bằng 1 — tỷ lệ lấp đầy, việc cần làm
 và hoạt động giữ nguyên vì "một phần của một câu" vô nghĩa) để đổi scope thì số đổi; và
 `<h1>` là "Tổng quan" (tên màn hình mà sidebar, header và seam test gọi), câu "Xin chào!"
-của prototype xuống dòng mô tả. Trend trên thẻ (+12, +2.5%…) là literal như prototype.
+của prototype xuống dòng mô tả. Trend trên thẻ (+12, +2.5%…) là literal như prototype, nhưng
+nằm cạnh số và `description` xuống dòng riêng (bố cục của `SummaryCard`, không phải
+`StatCard` của prototype). Ưu tiên việc cần làm là code (`urgent | high | medium`) với
+`taskPriorityConfig` trong `~/constants/status.ts`, badge là `StatusBadge` — không phải
+literal tiếng Việt + ba variant `Badge` như prototype.
 
 **Onboarding** (`/onboarding`, #142): wizard ba bước như prototype trên `LifecycleStepper` +
 `Controller` + `field`; mỗi bước `trigger` đúng field của mình, "Hoàn thành" và "Bỏ qua"
 đều về `/` — không submit gì, như prototype. Schema ở
-`features/onboarding/types/onboarding-form.ts`, mọi field là string.
+`features/onboarding/types/onboarding-form.ts`, mọi field là string và `.trim()` trước
+`.min()` (rule `forms-schema-driven` thắng "port nguyên": prototype không trim).
 
 Cho tới khi slice tương ứng được port, mỗi route còn lại render một **template placeholder**
 chỉ có heading của màn hình (và id của route với màn chi tiết).

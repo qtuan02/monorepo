@@ -5,17 +5,29 @@ import * as z from "zod";
 // validated for presence and nothing more, again as the prototype did.
 export const onboardingFormSchema = z.object({
   buildingName: z
-    .string()
+    .string({ error: "Tên khu trọ tối thiểu 2 ký tự" })
     .trim()
     .min(2, { error: "Tên khu trọ tối thiểu 2 ký tự" }),
-  address: z.string().trim().min(5, { error: "Địa chỉ tối thiểu 5 ký tự" }),
-  floors: z.string().trim().min(1, { error: "Vui lòng nhập số tầng" }),
-  rooms: z.string().trim().min(1, { error: "Vui lòng nhập số phòng" }),
+  address: z
+    .string({ error: "Địa chỉ tối thiểu 5 ký tự" })
+    .trim()
+    .min(5, { error: "Địa chỉ tối thiểu 5 ký tự" }),
+  floors: z
+    .string({ error: "Vui lòng nhập số tầng" })
+    .trim()
+    .min(1, { error: "Vui lòng nhập số tầng" }),
+  rooms: z
+    .string({ error: "Vui lòng nhập số phòng" })
+    .trim()
+    .min(1, { error: "Vui lòng nhập số phòng" }),
   roomNamingRule: z
-    .string()
+    .string({ error: "Vui lòng nhập quy tắc đặt tên" })
     .trim()
     .min(1, { error: "Vui lòng nhập quy tắc đặt tên" }),
-  defaultRent: z.string().trim().min(1, { error: "Vui lòng nhập giá thuê" }),
+  defaultRent: z
+    .string({ error: "Vui lòng nhập giá thuê" })
+    .trim()
+    .min(1, { error: "Vui lòng nhập giá thuê" }),
   // Optional: empty passes, anything else has to be an email.
   managerEmail: z.union([
     z.literal(""),

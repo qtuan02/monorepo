@@ -143,6 +143,7 @@ describe("the route tree", () => {
       renderAt(ROUTES.ONBOARDING);
 
       expect(heading("Chào mừng!")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
       expect(
         screen.queryByRole("link", { name: "Tòa nhà" }),
       ).not.toBeInTheDocument();
@@ -212,6 +213,7 @@ describe("the route tree", () => {
       renderAt(ROUTES.ONBOARDING);
 
       expect(heading("Chào mừng!")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
     });
   });
 });
