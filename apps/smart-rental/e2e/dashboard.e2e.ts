@@ -39,4 +39,37 @@ test.describe("dashboard", () => {
     // error on load.
     expect(errors).toEqual([]);
   });
+
+  test("draws the summary and three charts, and re-reads them for a Building scope", async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(ROUTES.HOME);
+
+    // The totals, and the three charts as real SVG — the seam a jsdom test
+    // cannot reach, since recharts measures its container.
+    await expect(page.getByText("145", { exact: true })).toBeVisible();
+    await expect(page.getByText("545.2tr")).toBeVisible();
+    await expect(
+      page
+        .getByLabel("Biểu đồ doanh thu theo tháng")
+        .locator("svg.recharts-surface"),
+    ).toBeVisible();
+    await page.getByRole("tab", { name: "Thu vs Chi" }).click();
+    await expect(
+      page
+        .getByLabel("Biểu đồ thu chi theo tháng")
+        .locator("svg.recharts-surface"),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Biểu đồ tỷ lệ lấp đầy").locator("svg.recharts-surface"),
+    ).toBeVisible();
+
+    await page.getByRole("combobox", { name: "Tòa nhà" }).click();
+    await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
+
+    await expect(page.getByText("15", { exact: true })).toBeVisible();
+    await expect(page.getByText("54.5tr")).toBeVisible();
+    await expect(page.getByText("145", { exact: true })).not.toBeVisible();
+  });
 });

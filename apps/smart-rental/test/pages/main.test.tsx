@@ -47,7 +47,7 @@ function heading(name: string) {
 // ported screen adds a third column — text only its Mock can put on screen —
 // so a route wired to a placeholder, or a Mock that stopped flowing, fails.
 const guardedScreens: [path: string, heading: string, mockText?: string][] = [
-  [ROUTES.HOME, "Tổng quan"],
+  [ROUTES.HOME, "Tổng quan", "Sửa vòi nước phòng 108"],
   [ROUTES.BUILDINGS, "Quản lý Tòa nhà", "Trọ Sinh Viên Xanh"],
   [
     ROUTES.buildingDetailPath("b2"),
@@ -155,6 +155,7 @@ describe("the route tree", () => {
       renderAt(ROUTES.ONBOARDING);
 
       expect(heading("Chào mừng!")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
       expect(
         screen.queryByRole("link", { name: "Tòa nhà" }),
       ).not.toBeInTheDocument();
@@ -224,6 +225,7 @@ describe("the route tree", () => {
       renderAt(ROUTES.ONBOARDING);
 
       expect(heading("Chào mừng!")).toBeInTheDocument();
+      expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
     });
   });
 });

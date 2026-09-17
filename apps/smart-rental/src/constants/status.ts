@@ -22,6 +22,7 @@ import type {
   SendLogStatus,
 } from "~/types/communication";
 import type { ComplianceStatus, ComplianceType } from "~/types/compliance";
+import type { DashboardTaskPriority } from "~/types/dashboard";
 import type { InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
 import type { OccupancyBucket } from "~/types/report";
@@ -197,6 +198,15 @@ export const channelConfig: Record<CommunicationChannel, StatusConfig> = {
     className: "bg-zinc-100 text-zinc-600",
     icon: Bell,
   },
+};
+
+export const dashboardTaskPriorityConfig: Record<
+  DashboardTaskPriority,
+  StatusConfig
+> = {
+  urgent: { label: "Khẩn cấp", className: statusTone.error },
+  high: { label: "Cao", className: statusTone.primary },
+  medium: { label: "Vừa", className: statusTone.neutral },
 };
 
 /** A config read as the option list of a faceted filter, in the config's order. */
