@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle, FileX } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router";
 
 import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
@@ -12,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
+import { Field, FieldError, FieldLabel } from "@monorepo/ui/components/field";
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@monorepo/ui/components/radio-group";
+import { Textarea } from "@monorepo/ui/components/textarea";
 import { toast } from "@monorepo/ui/components/toast";
 
 import type {
@@ -20,15 +25,22 @@ import type {
 } from "~/features/contracts/types/liquidation-form";
 import type { Contract } from "~/types/contract";
 import { InfoRow } from "~/components/card/info-card";
+import { CurrencyField } from "~/components/form/currency-field";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
-import { LifecycleStepper } from "~/components/stepper/lifecycle-stepper";
+import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
-import LiquidationChecklist from "~/features/contracts/components/liquidation-checklist";
-import LiquidationSummaryCard from "~/features/contracts/components/liquidation-summary-card";
-import { liquidationFormSchema } from "~/features/contracts/types/liquidation-form";
+import {
+  liquidationDecisionOptions,
+  liquidationFormSchema,
+} from "~/features/contracts/types/liquidation-form";
 import { useGetContract, useLiquidateContract } from "~/hooks/api/contract";
+import { useGetInvoices } from "~/hooks/api/invoice";
+import {
+  computeContractDebt,
+  computeDepositSettlement,
+} from "~/utils/contract-liquidation";
+import { isContractLive } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
 
 interface ContractLiquidationTemplateProps {
@@ -37,17 +49,23 @@ interface ContractLiquidationTemplateProps {
 
 const TITLE = "Thanh lý hợp đồng";
 
-/** "Thanh lý hợp đồng": three steps behind a stepper; the last one rewrites the Mock. */
+/** "Thanh lý hợp đồng": quyết toán Cọc thật, trừ nợ thật từ Hoá đơn chưa thu đủ. */
 export default function ContractLiquidationTemplate({
   contractId,
 }: ContractLiquidationTemplateProps) {
   const { data: contract, isLoading } = useGetContract(contractId);
-  const backTo = ROUTES.contractDetailPath(contractId);
+  const invoicesQuery = useGetInvoices({ contractId }, { enabled: !!contract });
 
-  if (isLoading) {
+  if (isLoading || invoicesQuery.isLoading) {
     return (
-      <DetailPageShell title={TITLE} backTo={backTo}>
-        <CardGridSkeleton itemCount={2} />
+      <DetailPageShell
+        title={TITLE}
+        breadcrumb={[
+          { label: "Hợp đồng", to: ROUTES.CONTRACTS },
+          { label: "Thanh lý" },
+        ]}
+      >
+        <DetailSkeleton />
       </DetailPageShell>
     );
   }
@@ -65,88 +83,104 @@ export default function ContractLiquidationTemplate({
     );
   }
 
+  const isLive = isContractLive(contract);
+  const outstandingDebt = computeContractDebt(invoicesQuery.data ?? []);
+
   return (
-    <DetailPageShell title={TITLE} backTo={backTo}>
-      <Alert className="border-warning/20 bg-warning/10 text-warning">
-        <AlertTriangle className="text-warning" />
-        <AlertDescription className="text-warning">
-          Thanh lý hợp đồng là quá trình không thể hoàn tác. Vui lòng kiểm tra
-          kỹ thông tin trước khi xác nhận.
-        </AlertDescription>
-      </Alert>
-      <LiquidationFlow key={contract.id} contract={contract} />
+    <DetailPageShell
+      title={TITLE}
+      breadcrumb={[
+        { label: "Hợp đồng", to: ROUTES.CONTRACTS },
+        {
+          label: contract.contractNumber,
+          to: ROUTES.contractDetailPath(contract.id),
+        },
+        { label: "Thanh lý" },
+      ]}
+    >
+      {isLive ? (
+        <>
+          <Alert className="border-warning/20 bg-warning/10 text-warning">
+            <AlertTriangle className="text-warning" />
+            <AlertDescription className="text-warning">
+              Thanh lý hợp đồng là quá trình không thể hoàn tác. Vui lòng kiểm
+              tra kỹ thông tin trước khi xác nhận.
+            </AlertDescription>
+          </Alert>
+          <LiquidationFlow
+            key={contract.id}
+            contract={contract}
+            outstandingDebt={outstandingDebt}
+          />
+        </>
+      ) : (
+        <EmptyPanel
+          icon={FileX}
+          title="Không thể thanh lý"
+          description={`Hợp đồng ${contract.contractNumber} đã kết thúc — chỉ Hợp đồng Đang hiệu lực hoặc Sắp hết hạn mới thanh lý được.`}
+          className="border"
+        />
+      )}
     </DetailPageShell>
   );
 }
 
-const flowSteps = [
-  {
-    id: "check-assets",
-    title: "Kiểm tra tài sản",
-    description: "Kiểm tra toàn bộ tài sản và điều kiện phòng",
-  },
-  {
-    id: "settle-fees",
-    title: "Thanh toán phí",
-    description: "Tính toán và thanh toán các khoản phí",
-  },
-  {
-    id: "finalize",
-    title: "Hoàn tất",
-    description: "Xác nhận thanh lý và hoàn trả tiền đặt cọc",
-  },
-];
+const FORM_ID = "liquidation-form";
 
-/** The prototype's fixed settlement figures beside the Hợp đồng's own deposit. */
-const OUTSTANDING_FEES = 500000;
-const PENALTY_AMOUNT = 300000;
-
-/** Mounted only once the Hợp đồng is known; the checklist is the form the last step submits. */
-function LiquidationFlow({ contract }: { contract: Contract }) {
+/** Mounted only once the Hợp đồng and its Hoá đơn are known. */
+function LiquidationFlow({
+  contract,
+  outstandingDebt,
+}: {
+  contract: Contract;
+  outstandingDebt: number;
+}) {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
   const liquidate = useLiquidateContract();
   const form = useForm<LiquidationFormInput, unknown, LiquidationFormValues>({
     resolver: zodResolver(liquidationFormSchema),
-    defaultValues: {
-      assetCheck: false,
-      settleUtilities: false,
-      collectKeys: false,
-      finalInspection: false,
-    },
+    defaultValues: { decision: undefined, returnAmount: "", reason: "" },
   });
-  const detailPath = ROUTES.contractDetailPath(contract.id);
+  const [decision, returnAmount] = useWatch({
+    control: form.control,
+    name: ["decision", "returnAmount"],
+  });
 
-  const steps = flowSteps.map((flowStep, index) => ({
-    ...flowStep,
-    isCompleted: index < step,
-    isActive: index === step,
-  }));
+  const settlement = computeDepositSettlement({
+    depositAmount: contract.depositAmount,
+    outstandingDebt,
+    decision: decision ?? "FORFEITED",
+    partialReturnAmount: returnAmount ? Number(returnAmount) : undefined,
+  });
 
-  const onSubmit = form.handleSubmit(() => {
-    liquidate.mutate(contract.id, {
-      onSuccess: () => {
-        toast.add({
-          title: `Đã thanh lý hợp đồng ${contract.contractNumber}`,
-          type: "success",
-        });
-        navigate(detailPath);
+  const onSubmit = form.handleSubmit((values) => {
+    liquidate.mutate(
+      {
+        contractId: contract.id,
+        decision: values.decision,
+        returnedAmount: settlement.returnedAmount,
+        reason: values.reason,
       },
-    });
+      {
+        onSuccess: () => {
+          toast.add({
+            title: `Đã thanh lý hợp đồng ${contract.contractNumber}`,
+            type: "success",
+          });
+          navigate(ROUTES.contractDetailPath(contract.id));
+        },
+      },
+    );
   });
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle className="text-base">Quy trình thanh lý</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LifecycleStepper steps={steps} />
-        </CardContent>
-      </Card>
-
-      <form onSubmit={onSubmit} noValidate className="space-y-6 lg:col-span-2">
+    <form
+      id={FORM_ID}
+      onSubmit={onSubmit}
+      noValidate
+      className="grid gap-6 lg:grid-cols-3"
+    >
+      <div className="space-y-6 lg:col-span-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Thông tin hợp đồng</CardTitle>
@@ -159,102 +193,132 @@ function LiquidationFlow({ contract }: { contract: Contract }) {
               label="Tiền đặt cọc"
               value={formatCurrency(contract.depositAmount)}
             />
-            <InfoRow label="Ngày kết thúc" value={contract.endDate} />
+            <InfoRow
+              label="Nợ thật (Hoá đơn chưa thu đủ)"
+              value={
+                outstandingDebt > 0
+                  ? formatCurrency(outstandingDebt)
+                  : "Không có"
+              }
+            />
           </CardContent>
         </Card>
 
-        {step === 0 && (
-          <LiquidationChecklist
-            control={form.control}
-            onCancel={() => navigate(detailPath)}
-            onNext={() => setStep(1)}
-          />
-        )}
-
-        {step === 1 && (
-          <>
-            <LiquidationSummaryCard
-              summary={{
-                depositAmount: contract.depositAmount,
-                outstandingFees: OUTSTANDING_FEES,
-                penaltyAmount: PENALTY_AMOUNT,
-              }}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Quyết toán Cọc</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Controller
+              name="decision"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>Cách quyết toán</FieldLabel>
+                  <RadioGroup
+                    id={field.name}
+                    // Base UI treats an `undefined` first value as "uncontrolled"
+                    // and warns (or worse) on the first real selection — "" is a
+                    // defined value that matches no item, so it stays controlled
+                    // from the very first render.
+                    value={field.value ?? ""}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      // Seed a sensible default the landlord can still edit down.
+                      if (value === "PARTIAL_RETURNED") {
+                        form.setValue(
+                          "returnAmount",
+                          String(
+                            Math.max(
+                              0,
+                              contract.depositAmount - outstandingDebt,
+                            ),
+                          ),
+                        );
+                      }
+                    }}
+                    aria-invalid={fieldState.invalid}
+                  >
+                    {liquidationDecisionOptions.map((option) => (
+                      <FieldLabel
+                        key={option.value}
+                        htmlFor={`${field.name}-${option.value}`}
+                        className="flex items-center gap-2 font-normal"
+                      >
+                        <RadioGroupItem
+                          id={`${field.name}-${option.value}`}
+                          value={option.value}
+                        />
+                        {option.label}
+                      </FieldLabel>
+                    ))}
+                  </RadioGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
             />
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Chi tiết thanh toán</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="rounded-lg border p-3">
-                  <p className="mb-3 text-sm font-medium">
-                    Công nợ chưa thanh toán
-                  </p>
-                  <div className="space-y-2">
-                    <InfoRow
-                      label="Tiền nước tháng 03"
-                      value={formatCurrency(200000)}
-                    />
-                    <InfoRow
-                      label="Tiền điện tháng 04"
-                      value={formatCurrency(300000)}
-                    />
-                  </div>
-                </div>
-                <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3">
-                  <p className="mb-3 text-sm font-medium text-destructive">
-                    Phí vi phạm
-                  </p>
-                  <p className="text-sm text-destructive">
-                    Làm hỏng cửa sổ: {formatCurrency(PENALTY_AMOUNT)}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep(0)}
-              >
-                Quay lại
-              </Button>
-              <Button type="button" onClick={() => setStep(2)}>
-                Tiếp tục: Hoàn tất
-              </Button>
-            </div>
-          </>
-        )}
 
-        {step === 2 && (
-          <>
-            <Card className="border-success/20 bg-success/10">
-              <CardHeader>
-                <CardTitle className="text-base text-success">
-                  Sẵn sàng hoàn tất
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-success">
-                  Tất cả các bước đã được hoàn thành. Nhấp "Xác nhận thanh lý"
-                  để hoàn tất quá trình.
-                </p>
-              </CardContent>
-            </Card>
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setStep(1)}
-              >
-                Quay lại
-              </Button>
-              <Button type="submit" disabled={liquidate.isPending}>
-                {liquidate.isPending ? "Đang xử lý..." : "Xác nhận thanh lý"}
-              </Button>
-            </div>
-          </>
-        )}
-      </form>
-    </div>
+            {decision === "PARTIAL_RETURNED" && (
+              <>
+                <CurrencyField
+                  control={form.control}
+                  name="returnAmount"
+                  label="Số tiền hoàn lại"
+                  required
+                  description={`Còn lại sau nợ: ${formatCurrency(settlement.availableAfterDebt)}`}
+                />
+                <Controller
+                  name="reason"
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor={field.name}>Lý do</FieldLabel>
+                      <Textarea
+                        {...field}
+                        id={field.name}
+                        rows={3}
+                        placeholder="VD: hư hỏng nội thất, thiếu tài sản bàn giao…"
+                        aria-invalid={fieldState.invalid}
+                      />
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="space-y-6">
+        <Card className="border-info/20 bg-info/10">
+          <CardHeader>
+            <CardTitle className="text-base">Số trả lại</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold tabular-nums">
+              {formatCurrency(settlement.returnedAmount)}
+            </p>
+            <p className="text-muted-foreground mt-1 text-xs">
+              Cọc {formatCurrency(contract.depositAmount)} − nợ{" "}
+              {formatCurrency(outstandingDebt)}.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Button
+          type="submit"
+          form={FORM_ID}
+          className="w-full"
+          disabled={liquidate.isPending || !decision}
+        >
+          {liquidate.isPending ? "Đang xử lý..." : "Xác nhận thanh lý"}
+        </Button>
+      </div>
+    </form>
   );
 }

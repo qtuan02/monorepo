@@ -38,6 +38,7 @@ import {
   useGetReportRows,
 } from "~/hooks/api/report";
 import { useUrlTab } from "~/hooks/use-url-tab";
+import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { buildReportRowsCsv } from "~/utils/report-rows";
 
@@ -63,10 +64,13 @@ function rowKey(row: { month: string; building: string; floor: string }) {
 export default function ReportsOverviewTemplate() {
   const [tab, setTab] = useUrlTab(TABS);
   const [filters, setFilters] = useState(defaultReportFilters);
+  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
 
-  const rowsQuery = useGetReportRows();
-  const summaryQuery = useGetProfitLossSummary();
-  const overdueQuery = useGetOverdueDebts();
+  const rowsQuery = useGetReportRows({ buildingId: selectedBuildingId });
+  const summaryQuery = useGetProfitLossSummary({
+    buildingId: selectedBuildingId,
+  });
+  const overdueQuery = useGetOverdueDebts({ buildingId: selectedBuildingId });
 
   const allRows = rowsQuery.data ?? [];
   const rows = filterReportRows(allRows, filters);

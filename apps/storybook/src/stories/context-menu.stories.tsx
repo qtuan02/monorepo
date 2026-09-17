@@ -1,12 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  ClipboardPasteIcon,
-  CopyIcon,
-  PencilIcon,
-  ScissorsIcon,
-  ShareIcon,
-  TrashIcon,
-} from "lucide-react";
+import { CopyIcon, PencilIcon, ShareIcon, TrashIcon } from "lucide-react";
 
 import {
   ContextMenu,
@@ -25,9 +18,27 @@ import {
   ContextMenuTrigger,
 } from "@monorepo/ui/components/context-menu";
 
+import { currentPerson, northwindPeople } from "~/support/people";
+import { atlasProject } from "~/support/projects";
+
 const meta = {
   title: "Storybook/ContextMenu",
   component: ContextMenu,
+  subcomponents: {
+    ContextMenuTrigger,
+    ContextMenuContent,
+    ContextMenuGroup,
+    ContextMenuLabel,
+    ContextMenuItem,
+    ContextMenuCheckboxItem,
+    ContextMenuRadioGroup,
+    ContextMenuRadioItem,
+    ContextMenuSeparator,
+    ContextMenuShortcut,
+    ContextMenuSub,
+    ContextMenuSubTrigger,
+    ContextMenuSubContent,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof ContextMenu>;
 
@@ -35,216 +46,58 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+const owners = northwindPeople.slice(0, 3);
+
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
+      <ContextMenuTrigger className="flex aspect-video w-full items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
         <span className="hidden pointer-fine:inline-block">
-          Right click here
+          Right-click the {atlasProject.name} card
         </span>
         <span className="hidden pointer-coarse:inline-block">
-          Long press here
+          Long-press the {atlasProject.name} card
         </span>
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
+      <ContextMenuContent className="w-56">
         <ContextMenuGroup>
           <ContextMenuItem>
-            Back
-            <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem disabled>
-            Forward
-            <ContextMenuShortcut>⌘]</ContextMenuShortcut>
+            Open project
+            <ContextMenuShortcut>⌘O</ContextMenuShortcut>
           </ContextMenuItem>
           <ContextMenuItem>
-            Reload
+            Rename
             <ContextMenuShortcut>⌘R</ContextMenuShortcut>
           </ContextMenuItem>
+          <ContextMenuItem disabled>Archive</ContextMenuItem>
           <ContextMenuSub>
-            <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
-            <ContextMenuSubContent className="w-44">
-              <ContextMenuGroup>
-                <ContextMenuItem>Save Page...</ContextMenuItem>
-                <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-                <ContextMenuItem>Name Window...</ContextMenuItem>
-              </ContextMenuGroup>
-              <ContextMenuSeparator />
-              <ContextMenuGroup>
-                <ContextMenuItem>Developer Tools</ContextMenuItem>
-              </ContextMenuGroup>
-              <ContextMenuSeparator />
-              <ContextMenuGroup>
-                <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
-              </ContextMenuGroup>
+            <ContextMenuSubTrigger>Share</ContextMenuSubTrigger>
+            <ContextMenuSubContent className="w-48">
+              <ContextMenuItem>Copy link</ContextMenuItem>
+              <ContextMenuItem>Email invite</ContextMenuItem>
             </ContextMenuSubContent>
           </ContextMenuSub>
         </ContextMenuGroup>
         <ContextMenuSeparator />
         <ContextMenuGroup>
-          <ContextMenuCheckboxItem checked>
-            Show Bookmarks
+          <ContextMenuCheckboxItem defaultChecked>
+            Show on dashboard
           </ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem>Show Full URLs</ContextMenuCheckboxItem>
+          <ContextMenuCheckboxItem>Pin to sidebar</ContextMenuCheckboxItem>
         </ContextMenuGroup>
         <ContextMenuSeparator />
         <ContextMenuGroup>
-          <ContextMenuRadioGroup value="pedro">
-            <ContextMenuLabel>People</ContextMenuLabel>
-            <ContextMenuRadioItem value="pedro">
-              Pedro Duarte
-            </ContextMenuRadioItem>
-            <ContextMenuRadioItem value="colm">Colm Tuite</ContextMenuRadioItem>
+          <ContextMenuRadioGroup value={currentPerson.id}>
+            <ContextMenuLabel>Owner</ContextMenuLabel>
+            {owners.map((person) => (
+              <ContextMenuRadioItem key={person.id} value={person.id}>
+                {person.name}
+              </ContextMenuRadioItem>
+            ))}
           </ContextMenuRadioGroup>
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>
-  ),
-};
-
-export const Submenu: Story = {
-  args: {},
-  render: () => (
-    <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
-        <span className="hidden pointer-fine:inline-block">
-          Right click here
-        </span>
-        <span className="hidden pointer-coarse:inline-block">
-          Long press here
-        </span>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuItem>
-            Copy
-            <ContextMenuShortcut>⌘C</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Cut
-            <ContextMenuShortcut>⌘X</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSub>
-          <ContextMenuSubTrigger>More Tools</ContextMenuSubTrigger>
-          <ContextMenuSubContent>
-            <ContextMenuGroup>
-              <ContextMenuItem>Save Page...</ContextMenuItem>
-              <ContextMenuItem>Create Shortcut...</ContextMenuItem>
-              <ContextMenuItem>Name Window...</ContextMenuItem>
-            </ContextMenuGroup>
-            <ContextMenuSeparator />
-            <ContextMenuGroup>
-              <ContextMenuItem>Developer Tools</ContextMenuItem>
-            </ContextMenuGroup>
-            <ContextMenuSeparator />
-            <ContextMenuGroup>
-              <ContextMenuItem variant="destructive">Delete</ContextMenuItem>
-            </ContextMenuGroup>
-          </ContextMenuSubContent>
-        </ContextMenuSub>
-      </ContextMenuContent>
-    </ContextMenu>
-  ),
-};
-
-export const Shortcuts: Story = {
-  args: {},
-  render: () => (
-    <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
-        <span className="hidden pointer-fine:inline-block">
-          Right click here
-        </span>
-        <span className="hidden pointer-coarse:inline-block">
-          Long press here
-        </span>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuItem>
-            Back
-            <ContextMenuShortcut>⌘[</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem disabled>
-            Forward
-            <ContextMenuShortcut>⌘]</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Reload
-            <ContextMenuShortcut>⌘R</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSeparator />
-        <ContextMenuGroup>
-          <ContextMenuItem>
-            Save
-            <ContextMenuShortcut>⌘S</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Save As...
-            <ContextMenuShortcut>⇧⌘S</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>
-  ),
-};
-
-export const Groups: Story = {
-  args: {},
-  render: () => (
-    <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
-        <span className="hidden pointer-fine:inline-block">
-          Right click here
-        </span>
-        <span className="hidden pointer-coarse:inline-block">
-          Long press here
-        </span>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuLabel>File</ContextMenuLabel>
-          <ContextMenuItem>
-            New File
-            <ContextMenuShortcut>⌘N</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Open File
-            <ContextMenuShortcut>⌘O</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Save
-            <ContextMenuShortcut>⌘S</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSeparator />
-        <ContextMenuGroup>
-          <ContextMenuLabel>Edit</ContextMenuLabel>
-          <ContextMenuItem>
-            Undo
-            <ContextMenuShortcut>⌘Z</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Redo
-            <ContextMenuShortcut>⇧⌘Z</ContextMenuShortcut>
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSeparator />
-        <ContextMenuGroup>
-          <ContextMenuItem>
-            Cut
-            <ContextMenuShortcut>⌘X</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Copy
-            <ContextMenuShortcut>⌘C</ContextMenuShortcut>
-          </ContextMenuItem>
-          <ContextMenuItem>
-            Paste
-            <ContextMenuShortcut>⌘V</ContextMenuShortcut>
-          </ContextMenuItem>
         </ContextMenuGroup>
         <ContextMenuSeparator />
         <ContextMenuGroup>
@@ -259,88 +112,25 @@ export const Groups: Story = {
 };
 
 export const Icons: Story = {
-  args: {},
   render: () => (
     <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
+      <ContextMenuTrigger className="flex aspect-video w-full items-center justify-center rounded-xl border border-dashed text-sm text-muted-foreground">
         <span className="hidden pointer-fine:inline-block">
-          Right click here
+          Right-click an invoice row
         </span>
         <span className="hidden pointer-coarse:inline-block">
-          Long press here
+          Long-press an invoice row
         </span>
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuGroup>
           <ContextMenuItem>
             <CopyIcon />
-            Copy
+            Copy invoice ID
           </ContextMenuItem>
-          <ContextMenuItem>
-            <ScissorsIcon />
-            Cut
-          </ContextMenuItem>
-          <ContextMenuItem>
-            <ClipboardPasteIcon />
-            Paste
-          </ContextMenuItem>
-        </ContextMenuGroup>
-        <ContextMenuSeparator />
-        <ContextMenuGroup>
-          <ContextMenuItem variant="destructive">
-            <TrashIcon />
-            Delete
-          </ContextMenuItem>
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>
-  ),
-};
-
-export const Checkboxes: Story = {
-  args: {},
-  render: () => (
-    <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
-        <span className="hidden pointer-fine:inline-block">
-          Right click here
-        </span>
-        <span className="hidden pointer-coarse:inline-block">
-          Long press here
-        </span>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
-          <ContextMenuCheckboxItem defaultChecked>
-            Show Bookmarks Bar
-          </ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem>Show Full URLs</ContextMenuCheckboxItem>
-          <ContextMenuCheckboxItem defaultChecked>
-            Show Developer Tools
-          </ContextMenuCheckboxItem>
-        </ContextMenuGroup>
-      </ContextMenuContent>
-    </ContextMenu>
-  ),
-};
-
-export const Destructive: Story = {
-  args: {},
-  render: () => (
-    <ContextMenu>
-      <ContextMenuTrigger className="flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed text-sm">
-        <span className="hidden pointer-fine:inline-block">
-          Right click here
-        </span>
-        <span className="hidden pointer-coarse:inline-block">
-          Long press here
-        </span>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuGroup>
           <ContextMenuItem>
             <PencilIcon />
-            Edit
+            Edit invoice
           </ContextMenuItem>
           <ContextMenuItem>
             <ShareIcon />

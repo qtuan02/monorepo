@@ -29,9 +29,7 @@ import ExpenseListPage from "./expense-list-page";
 import InvoiceDetailPage from "./invoice-detail-page";
 import InvoiceListPage from "./invoice-list-page";
 import MeterInputPage from "./meter-input-page";
-import OnboardingWizardPage from "./onboarding-wizard-page";
 import ReconciliationPage from "./reconciliation-page";
-import RegisterPage from "./register-page";
 import ReportsOverviewPage from "./reports-overview-page";
 import RoomDetailPage from "./room-detail-page";
 import RoomListPage from "./room-list-page";
@@ -40,7 +38,6 @@ import SignInPage from "./sign-in-page";
 import SupplierBillDetailPage from "./supplier-bill-detail-page";
 import SupplierBillListPage from "./supplier-bill-list-page";
 import TaskCenterPage from "./task-center-page";
-import TenantCreatePage from "./tenant-create-page";
 import TenantDetailPage from "./tenant-detail-page";
 import TenantListPage from "./tenant-list-page";
 import UtilityDetailPage from "./utility-detail-page";
@@ -60,10 +57,12 @@ const LazyReactQueryDevtools = React.lazy(async () => {
  * memory router at any path. The providers and `BrowserRouter` live in
  * `MainApp` below.
  *
- * Three groups, as in the prototype: the guest screens under `GuestRoute`
- * (outside the shell — they are chromeless), onboarding under neither guard,
- * and everything else under `ProtectedRoute` inside the shell — with the
- * catch-all 404 beside the guard rather than under it.
+ * Two groups, as in the prototype: the guest screens under `GuestRoute`
+ * (outside the shell — they are chromeless) and everything else under
+ * `ProtectedRoute` inside the shell — with the catch-all 404 beside the
+ * guard rather than under it. Onboarding and self-registration are gone
+ * (ADR-0011, spec #153 §10 row 13): `/onboarding` and `/auth/register` are
+ * unknown paths now, not routes to keep in step.
  */
 export function AppRoutes() {
   return (
@@ -71,11 +70,8 @@ export function AppRoutes() {
       <Route element={<GuestRoute />}>
         <Route element={<AuthLayoutTemplate />}>
           <Route path={ROUTES.AUTH_LOGIN} element={<SignInPage />} />
-          <Route path={ROUTES.AUTH_REGISTER} element={<RegisterPage />} />
         </Route>
       </Route>
-
-      <Route path={ROUTES.ONBOARDING} element={<OnboardingWizardPage />} />
 
       <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
         <Route element={<ProtectedRoute />}>
@@ -91,7 +87,6 @@ export function AppRoutes() {
           <Route path={ROUTES.ROOM_DETAIL} element={<RoomDetailPage />} />
 
           <Route path={ROUTES.TENANTS} element={<TenantListPage />} />
-          <Route path={ROUTES.TENANT_CREATE} element={<TenantCreatePage />} />
           <Route path={ROUTES.TENANT_DETAIL} element={<TenantDetailPage />} />
 
           <Route path={ROUTES.CONTRACTS} element={<ContractListPage />} />

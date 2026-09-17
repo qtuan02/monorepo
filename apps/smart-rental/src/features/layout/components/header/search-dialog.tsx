@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Building2, FileText, ReceiptText, Search, Users } from "lucide-react";
+import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -14,74 +15,179 @@ import {
 } from "@monorepo/ui/components/command";
 import { Kbd } from "@monorepo/ui/components/kbd";
 
+import { ROUTES } from "~/constants/routes";
+import { useGetContracts } from "~/hooks/api/contract";
+import { useGetInvoices } from "~/hooks/api/invoice";
+import { useGetRooms } from "~/hooks/api/room";
+import { useGetTenants } from "~/hooks/api/tenant";
+import { useBuildingStore } from "~/stores/use-building-store";
+
 interface SearchResult {
   id: string;
   title: string;
   subtitle: string;
   category: string;
   icon: LucideIcon;
+  to: string;
 }
 
-// The prototype's sample results — the palette searches nothing real yet.
-const sampleResults: SearchResult[] = [
-  {
-    id: "1",
-    title: "Phòng 101 – Toà A",
-    subtitle: "Đang thuê • Nguyễn Văn An",
-    category: "Phòng trọ",
-    icon: Building2,
-  },
-  {
-    id: "2",
-    title: "Nguyễn Thị Bình",
-    subtitle: "Người thuê • Phòng 205",
-    category: "Người thuê",
-    icon: Users,
-  },
-  {
-    id: "3",
-    title: "Hợp đồng #HĐ-2024-089",
-    subtitle: "Còn hiệu lực • Hết hạn 30/06/2025",
-    category: "Hợp đồng",
-    icon: FileText,
-  },
-  {
-    id: "4",
-    title: "Hoá đơn tháng 4 – Phòng 302",
-    subtitle: "Chưa thanh toán • 2,500,000 đ",
-    category: "Hoá đơn",
-    icon: ReceiptText,
-  },
-  {
-    id: "5",
-    title: "Toà nhà Sunrise",
-    subtitle: "45/48 phòng • Đường Lê Lợi, Q.1",
-    category: "Toà nhà",
-    icon: Building2,
-  },
+const quickLinks: { label: string; icon: LucideIcon; to: string }[] = [
+  { label: "Phòng", icon: Building2, to: ROUTES.ROOMS },
+  { label: "Người thuê", icon: Users, to: ROUTES.TENANTS },
+  { label: "Hợp đồng", icon: FileText, to: ROUTES.CONTRACTS },
+  { label: "Hoá đơn", icon: ReceiptText, to: ROUTES.INVOICES },
 ];
 
-const quickLinks: { label: string; icon: LucideIcon }[] = [
-  { label: "Phòng trọ", icon: Building2 },
-  { label: "Người thuê", icon: Users },
-  { label: "Hợp đồng", icon: FileText },
-  { label: "Hoá đơn", icon: ReceiptText },
-];
+function matches(query: string, ...fields: (string | null)[]): boolean {
+  const needle = query.toLowerCase();
+  return fields.some((field) => field?.toLowerCase().includes(needle));
+}
 
-// Results grouped by category, in first-seen order — the prototype's shape.
-const resultsByCategory = new Map<string, SearchResult[]>();
-for (const result of sampleResults) {
-  const group = resultsByCategory.get(result.category) ?? [];
-  group.push(result);
-  resultsByCategory.set(result.category, group);
+interface SearchResultsProps {
+  query: string;
+  onSelect: (to: string) => void;
+}
+
+/**
+ * The palette's own data, mounted only while the dialog is open — this is
+ * what makes the four list reads fetch-on-mount rather than on every
+ * keystroke of the header that owns the dialog (`patterns-fetch-on-mount`).
+ * Scoped to the current Building, like every other list read (spec #153
+ * §10 row 4 — the palette was one of the seven pha-1 screens that forgot).
+ */
+function SearchResults({ query, onSelect }: SearchResultsProps) {
+  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
+  const params = { buildingId: selectedBuildingId };
+  const { data: rooms = [] } = useGetRooms(params);
+  const { data: tenants = [] } = useGetTenants(params);
+  const { data: contracts = [] } = useGetContracts(params);
+  const { data: invoices = [] } = useGetInvoices(params);
+
+  if (!query) {
+    return (
+      <CommandGroup heading="Truy cập nhanh">
+        {quickLinks.map((link) => (
+          <CommandItem
+            key={link.label}
+            value={link.label}
+            onSelect={() => onSelect(link.to)}
+          >
+            <span className="bg-primary/10 flex size-7 shrink-0 items-center justify-center rounded-md">
+              <link.icon className="text-primary size-3.5" />
+            </span>
+            {link.label}
+          </CommandItem>
+        ))}
+      </CommandGroup>
+    );
+  }
+
+  const results: SearchResult[] = [
+    ...rooms
+      .filter((room) => matches(query, room.name, room.tenant))
+      .map((room) => ({
+        id: room.id,
+        title: room.name,
+        subtitle: room.tenant
+          ? `${room.tenant} · Tầng ${room.floor}`
+          : "Phòng trống",
+        category: "Phòng",
+        icon: Building2,
+        to: ROUTES.roomDetailPath(room.id),
+      })),
+    ...tenants
+      .filter((tenant) =>
+        matches(query, tenant.name, tenant.phone, tenant.room),
+      )
+      .map((tenant) => ({
+        id: tenant.id,
+        title: tenant.name,
+        subtitle: `${tenant.room} · ${tenant.phone}`,
+        category: "Người thuê",
+        icon: Users,
+        to: ROUTES.tenantDetailPath(tenant.id),
+      })),
+    ...contracts
+      .filter((contract) =>
+        matches(query, contract.contractNumber, contract.tenant, contract.room),
+      )
+      .map((contract) => ({
+        id: contract.id,
+        title: `Hợp đồng ${contract.contractNumber}`,
+        subtitle: `${contract.tenant} · ${contract.room}`,
+        category: "Hợp đồng",
+        icon: FileText,
+        to: ROUTES.contractDetailPath(contract.id),
+      })),
+    ...invoices
+      .filter((invoice) =>
+        matches(query, invoice.invoiceNumber, invoice.tenant, invoice.room),
+      )
+      .map((invoice) => ({
+        id: invoice.id,
+        title: `Hoá đơn ${invoice.invoiceNumber}`,
+        subtitle: `${invoice.tenant} · ${invoice.room} · kỳ ${invoice.month}`,
+        category: "Hoá đơn",
+        icon: ReceiptText,
+        to: ROUTES.invoiceDetailPath(invoice.id),
+      })),
+  ];
+
+  if (results.length === 0) {
+    return (
+      <CommandEmpty>
+        <p className="font-medium">Không tìm thấy kết quả</p>
+        <p className="text-muted-foreground mt-1 text-xs">
+          Thử tìm kiếm với từ khóa khác
+        </p>
+      </CommandEmpty>
+    );
+  }
+
+  const resultsByCategory = new Map<string, SearchResult[]>();
+  for (const result of results) {
+    const group = resultsByCategory.get(result.category) ?? [];
+    group.push(result);
+    resultsByCategory.set(result.category, group);
+  }
+
+  return (
+    <>
+      {[...resultsByCategory].map(([category, group]) => (
+        <CommandGroup key={category} heading={category}>
+          {group.map((result) => (
+            <CommandItem
+              key={result.id}
+              value={`${result.title} ${result.subtitle} ${result.category}`}
+              onSelect={() => onSelect(result.to)}
+            >
+              <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+                <result.icon className="text-muted-foreground size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium">
+                  {result.title}
+                </span>
+                <span className="text-muted-foreground block truncate text-xs">
+                  {result.subtitle}
+                </span>
+              </span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      ))}
+    </>
+  );
 }
 
 /**
  * The header's command palette (`command` primitive, so ↑↓/↵/Esc come for
- * free): quick links on an empty query, sample results grouped by category
- * once there is one. ⌘K / Ctrl+K opens it, as the trigger promises.
+ * free): quick links on an empty query, real Phòng/Người thuê/Hợp đồng/Hoá
+ * đơn on the Mock once one is typed (spec #153 §10 — "tìm nhanh ⌘K tìm ...
+ * trên Mock thật"). ⌘K / Ctrl+K opens it, as the trigger promises.
  */
 export default function SearchDialog() {
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -100,7 +206,11 @@ export default function SearchDialog() {
     setOpen(next);
     if (!next) setQuery("");
   };
-  const close = () => handleOpenChange(false);
+
+  const handleSelect = (to: string) => {
+    handleOpenChange(false);
+    navigate(to);
+  };
 
   return (
     <>
@@ -131,64 +241,21 @@ export default function SearchDialog() {
         description="Tìm phòng, Người thuê, hợp đồng, hoá đơn"
         className="sm:max-w-xl"
       >
-        {/* CommandDialog is only the Dialog: the cmdk root is ours to mount. */}
-        <Command>
-          <CommandInput
-            placeholder="Tìm kiếm phòng, Người thuê, hợp đồng..."
-            value={query}
-            onValueChange={setQuery}
-          />
-          <CommandList className="max-h-95">
-            {query ? (
-              <>
-                <CommandEmpty>
-                  <p className="font-medium">Không tìm thấy kết quả</p>
-                  <p className="text-muted-foreground mt-1 text-xs">
-                    Thử tìm kiếm với từ khóa khác
-                  </p>
-                </CommandEmpty>
-                {[...resultsByCategory].map(([category, results]) => (
-                  <CommandGroup key={category} heading={category}>
-                    {results.map((result) => (
-                      <CommandItem
-                        key={result.id}
-                        value={`${result.title} ${result.subtitle} ${result.category}`}
-                        onSelect={close}
-                      >
-                        <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
-                          <result.icon className="text-muted-foreground size-4" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate text-sm font-medium">
-                            {result.title}
-                          </span>
-                          <span className="text-muted-foreground block truncate text-xs">
-                            {result.subtitle}
-                          </span>
-                        </span>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                ))}
-              </>
-            ) : (
-              <CommandGroup heading="Truy cập nhanh">
-                {quickLinks.map((link) => (
-                  <CommandItem
-                    key={link.label}
-                    value={link.label}
-                    onSelect={close}
-                  >
-                    <span className="bg-primary/10 flex size-7 shrink-0 items-center justify-center rounded-md">
-                      <link.icon className="text-primary size-3.5" />
-                    </span>
-                    {link.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            )}
-          </CommandList>
-        </Command>
+        {/* CommandDialog is only the Dialog: the cmdk root, and everything
+            inside it, is ours to mount — and only exists while `open` is
+            true, since Base UI's Dialog unmounts its Popup when closed. */}
+        {open && (
+          <Command>
+            <CommandInput
+              placeholder="Tìm kiếm phòng, Người thuê, hợp đồng..."
+              value={query}
+              onValueChange={setQuery}
+            />
+            <CommandList className="max-h-95">
+              <SearchResults query={query} onSelect={handleSelect} />
+            </CommandList>
+          </Command>
+        )}
         <div className="text-muted-foreground bg-muted/40 flex items-center gap-4 border-t px-4 py-2 text-[11px]">
           <span className="flex items-center gap-1">
             <Kbd>↑↓</Kbd> di chuyển

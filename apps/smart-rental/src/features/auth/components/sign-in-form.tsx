@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
 import { CardContent, CardFooter } from "@monorepo/ui/components/card";
@@ -38,7 +38,15 @@ export default function SignInForm() {
   });
 
   return (
-    <form onSubmit={onSubmit} noValidate>
+    // Gap here, not left to Card's own flex — CardContent/CardFooter are
+    // children of this <form>, not of Card directly, so Card's own
+    // --card-spacing gap (which only reaches its direct children) never
+    // applied between them (C.1 #17).
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="flex flex-col gap-(--card-spacing)"
+    >
       <CardContent>
         <FieldGroup>
           <Controller
@@ -94,19 +102,10 @@ export default function SignInForm() {
           />
         </FieldGroup>
       </CardContent>
-      <CardFooter className="flex flex-col gap-4">
+      <CardFooter>
         <Button type="submit" className="w-full">
           Đăng nhập
         </Button>
-        <div className="text-center text-sm">
-          Chưa có tài khoản?{" "}
-          <Link
-            to={ROUTES.AUTH_REGISTER}
-            className="text-primary font-medium hover:underline"
-          >
-            Đăng ký ngay
-          </Link>
-        </div>
       </CardFooter>
     </form>
   );

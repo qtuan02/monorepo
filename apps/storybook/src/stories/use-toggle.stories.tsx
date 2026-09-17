@@ -4,13 +4,17 @@ import { useToggle } from "@monorepo/hook/use-toggle";
 import { Button } from "@monorepo/ui/components/button";
 import { Switch } from "@monorepo/ui/components/switch";
 
+import { atlasProject as atlas } from "~/support/projects";
+
 function Demo() {
-  const [isOn, toggle] = useToggle(false);
+  const [notify, toggle] = useToggle(true);
 
   return (
     <div className="flex items-center gap-3">
-      <Switch checked={isOn} onCheckedChange={(checked) => toggle(checked)} />
-      <span className="text-sm">{isOn ? "on" : "off"}</span>
+      <Switch checked={notify} onCheckedChange={(checked) => toggle(checked)} />
+      <span className="text-sm">
+        Notify me about {atlas.name} — {notify ? "on" : "off"}
+      </span>
       <Button variant="outline" onClick={() => toggle()}>
         toggle()
       </Button>

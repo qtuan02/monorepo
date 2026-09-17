@@ -1,5 +1,6 @@
 import { GlassPanel } from "~/components/panel/glass-panel";
 import { env } from "~/env";
+import { useTheme } from "~/libs/theme-provider";
 import { PanelHeading } from "./panel-heading";
 
 interface DetailExampleProps {
@@ -17,11 +18,15 @@ interface DetailExampleProps {
  * serves on its own (`iframe.html?id=…&viewMode=story`) — the story alone,
  * no sidebar, no addons panel. Nothing is hand-written here: the story is the
  * example, so a primitive gets one the moment its story file exists, and the
- * two cannot drift. The frame stays light in dark mode — the Storybook
- * preview has no theme switch to hand a `.dark` class to.
+ * two cannot drift. `&globals=theme:dark` follows the reader's own theme —
+ * light appends nothing, Storybook's own default — so the stage panel around
+ * it is the only frame on screen; the iframe carries no border or fill of its
+ * own.
  */
 export function DetailExample({ heading, title, storyId }: DetailExampleProps) {
-  const src = `${env.PUBLIC_DOCUMENTS_STORYBOOK_URL}/iframe.html?id=${storyId}&viewMode=story`;
+  const { resolvedTheme } = useTheme();
+  const themeParam = resolvedTheme === "dark" ? "&globals=theme:dark" : "";
+  const src = `${env.PUBLIC_DOCUMENTS_STORYBOOK_URL}/iframe.html?id=${storyId}&viewMode=story${themeParam}`;
 
   return (
     <GlassPanel className="mb-4 p-5 sm:p-6">
@@ -30,7 +35,7 @@ export function DetailExample({ heading, title, storyId }: DetailExampleProps) {
         src={src}
         title={title}
         loading="lazy"
-        className="border-primary/20 bg-card h-80 w-full rounded-xl border sm:h-96"
+        className="h-80 w-full rounded-xl sm:h-96"
       />
     </GlassPanel>
   );

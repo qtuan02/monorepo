@@ -16,6 +16,15 @@ import { Spinner } from "@monorepo/ui/components/spinner";
 const meta = {
   title: "Storybook/Attachment",
   component: Attachment,
+  subcomponents: {
+    AttachmentMedia,
+    AttachmentContent,
+    AttachmentTitle,
+    AttachmentDescription,
+    AttachmentActions,
+    AttachmentAction,
+    AttachmentGroup,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Attachment>;
 
@@ -23,15 +32,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// The Atlas invoice Mira asks the Northwind Assistant to resend — see
+// message-scroller.stories.tsx for the conversation this attaches to.
 export const Default: Story = {
-  args: {},
+  parameters: { controls: { disable: true } },
   render: () => (
-    <Attachment className="max-w-xs">
+    <Attachment>
       <AttachmentMedia variant="icon">
         <FileTextIcon />
       </AttachmentMedia>
       <AttachmentContent>
-        <AttachmentTitle>report.pdf</AttachmentTitle>
+        <AttachmentTitle>invoice-INV-2041.pdf</AttachmentTitle>
         <AttachmentDescription>1.2 MB</AttachmentDescription>
       </AttachmentContent>
       <AttachmentActions>
@@ -44,42 +55,41 @@ export const Default: Story = {
 };
 
 export const States: Story = {
-  args: {},
   render: () => (
     <div className="flex flex-col gap-3">
-      <Attachment state="idle" className="max-w-xs">
+      <Attachment state="idle">
         <AttachmentMedia variant="icon">
           <FileTextIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>Drop a file here</AttachmentTitle>
+          <AttachmentTitle>Drop the receipt here</AttachmentTitle>
           <AttachmentDescription>Waiting for upload</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="uploading" className="max-w-xs">
+      <Attachment state="uploading">
         <AttachmentMedia variant="icon">
           <Spinner />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>report.pdf</AttachmentTitle>
+          <AttachmentTitle>invoice-INV-2041.pdf</AttachmentTitle>
           <AttachmentDescription>Uploading…</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="error" className="max-w-xs">
+      <Attachment state="error">
         <AttachmentMedia variant="icon">
           <FileTextIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>report.pdf</AttachmentTitle>
+          <AttachmentTitle>invoice-INV-2041.pdf</AttachmentTitle>
           <AttachmentDescription>Upload failed</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
-      <Attachment state="done" className="max-w-xs">
+      <Attachment state="done">
         <AttachmentMedia variant="icon">
           <FileTextIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>report.pdf</AttachmentTitle>
+          <AttachmentTitle>invoice-INV-2041.pdf</AttachmentTitle>
           <AttachmentDescription>1.2 MB</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
@@ -88,15 +98,14 @@ export const States: Story = {
 };
 
 export const Group: Story = {
-  args: {},
   render: () => (
-    <AttachmentGroup className="max-w-md">
+    <AttachmentGroup>
       <Attachment orientation="vertical">
         <AttachmentMedia variant="icon">
           <FileTextIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>invoice.pdf</AttachmentTitle>
+          <AttachmentTitle>invoice-INV-2041.pdf</AttachmentTitle>
           <AttachmentDescription>240 KB</AttachmentDescription>
         </AttachmentContent>
       </Attachment>
@@ -105,7 +114,7 @@ export const Group: Story = {
           <FileTextIcon />
         </AttachmentMedia>
         <AttachmentContent>
-          <AttachmentTitle>contract.pdf</AttachmentTitle>
+          <AttachmentTitle>atlas-contract.pdf</AttachmentTitle>
           <AttachmentDescription>1.1 MB</AttachmentDescription>
         </AttachmentContent>
       </Attachment>

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { EllipsisIcon } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
@@ -13,9 +14,19 @@ import {
   PopoverTrigger,
 } from "@monorepo/ui/components/popover";
 
+import { currentPerson, northwindPeople } from "~/support/people";
+import { atlasProject as atlas } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Popover",
   component: Popover,
+  subcomponents: {
+    PopoverTrigger,
+    PopoverContent,
+    PopoverHeader,
+    PopoverTitle,
+    PopoverDescription,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Popover>;
 
@@ -24,50 +35,44 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <Popover>
       <PopoverTrigger
-        render={<Button variant="outline">Open popover</Button>}
+        render={<Button variant="outline">Notification settings</Button>}
       />
       <PopoverContent className="w-80">
         <div className="grid gap-4">
-          <div className="space-y-2">
-            <h4 className="leading-none font-medium">Dimensions</h4>
+          <div className="space-y-1">
+            <h4 className="leading-none font-medium">Digest</h4>
             <p className="text-muted-foreground text-sm">
-              Set the dimensions for the layer.
+              How often {currentPerson.name} hears about {atlas.name}.
             </p>
           </div>
           <div className="grid gap-2">
             <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="width">Width</Label>
+              <Label htmlFor="popover-frequency">Frequency</Label>
               <Input
-                id="width"
-                defaultValue="100%"
+                id="popover-frequency"
+                defaultValue="Daily"
                 className="col-span-2 h-8"
               />
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="maxWidth">Max. width</Label>
+              <Label htmlFor="popover-quiet-start">Quiet from</Label>
               <Input
-                id="maxWidth"
-                defaultValue="300px"
+                id="popover-quiet-start"
+                defaultValue="22:00"
                 className="col-span-2 h-8"
               />
             </div>
             <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="height">Height</Label>
+              <Label htmlFor="popover-quiet-end">Quiet until</Label>
               <Input
-                id="height"
-                defaultValue="25px"
-                className="col-span-2 h-8"
-              />
-            </div>
-            <div className="grid grid-cols-3 items-center gap-4">
-              <Label htmlFor="maxHeight">Max. height</Label>
-              <Input
-                id="maxHeight"
-                defaultValue="none"
+                id="popover-quiet-end"
+                defaultValue="08:00"
                 className="col-span-2 h-8"
               />
             </div>
@@ -79,31 +84,33 @@ export const Default: Story = {
 };
 
 export const Form: Story = {
-  args: {},
   render: () => (
     <Popover>
       <PopoverTrigger
-        render={<Button variant="outline">Open Popover</Button>}
+        render={<Button variant="outline">Invite teammate</Button>}
       />
-      <PopoverContent className="w-64" align="start">
+      <PopoverContent className="w-72" align="start">
         <PopoverHeader>
-          <PopoverTitle>Dimensions</PopoverTitle>
+          <PopoverTitle>Invite to {atlas.name}</PopoverTitle>
           <PopoverDescription>
-            Set the dimensions for the layer.
+            They'll get access as soon as they accept.
           </PopoverDescription>
         </PopoverHeader>
         <FieldGroup className="gap-4">
           <Field orientation="horizontal">
-            <FieldLabel htmlFor="width" className="w-1/2">
-              Width
+            <FieldLabel htmlFor="popover-invite-email" className="w-1/3">
+              Email
             </FieldLabel>
-            <Input id="width" defaultValue="100%" />
+            <Input
+              id="popover-invite-email"
+              placeholder="teammate@northwind.dev"
+            />
           </Field>
           <Field orientation="horizontal">
-            <FieldLabel htmlFor="height" className="w-1/2">
-              Height
+            <FieldLabel htmlFor="popover-invite-role" className="w-1/3">
+              Role
             </FieldLabel>
-            <Input id="height" defaultValue="25px" />
+            <Input id="popover-invite-role" defaultValue="Member" />
           </Field>
         </FieldGroup>
       </PopoverContent>
@@ -112,7 +119,6 @@ export const Form: Story = {
 };
 
 export const Alignments: Story = {
-  args: {},
   render: () => (
     <div className="flex gap-6">
       <Popover>
@@ -152,5 +158,46 @@ export const Alignments: Story = {
         </PopoverContent>
       </Popover>
     </div>
+  ),
+};
+
+export const Stacking: Story = {
+  render: () => (
+    <Popover>
+      <PopoverTrigger
+        render={<Button variant="outline">Assign owner</Button>}
+      />
+      <PopoverContent className="w-72" align="start">
+        <PopoverHeader>
+          <PopoverTitle>{atlas.name} owner</PopoverTitle>
+        </PopoverHeader>
+        <div className="flex items-center justify-between">
+          <span className="text-sm">{currentPerson.name}</span>
+          <Popover>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="More options"
+                >
+                  <EllipsisIcon />
+                </Button>
+              }
+            />
+            <PopoverContent className="w-48" align="end">
+              <div className="flex flex-col gap-1 text-sm">
+                {northwindPeople
+                  .filter((person) => person.id !== currentPerson.id)
+                  .slice(0, 2)
+                  .map((person) => (
+                    <span key={person.id}>Transfer to {person.name}</span>
+                  ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </PopoverContent>
+    </Popover>
   ),
 };

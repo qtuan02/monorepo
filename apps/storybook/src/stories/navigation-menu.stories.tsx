@@ -9,9 +9,18 @@ import {
   NavigationMenuTrigger,
 } from "@monorepo/ui/components/navigation-menu";
 
+import { northwindProjects } from "~/support/projects";
+
 const meta = {
   title: "Storybook/NavigationMenu",
   component: NavigationMenu,
+  subcomponents: {
+    NavigationMenuList,
+    NavigationMenuItem,
+    NavigationMenuTrigger,
+    NavigationMenuContent,
+    NavigationMenuLink,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof NavigationMenu>;
 
@@ -20,52 +29,31 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <NavigationMenu>
       <NavigationMenuList>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+          <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
           <NavigationMenuContent>
             <ul className="grid w-64 gap-2 p-2">
-              <li>
-                <NavigationMenuLink href="#introduction">
-                  Introduction
-                </NavigationMenuLink>
-              </li>
-              <li>
-                <NavigationMenuLink href="#installation">
-                  Installation
-                </NavigationMenuLink>
-              </li>
-              <li>
-                <NavigationMenuLink href="#typography">
-                  Typography
-                </NavigationMenuLink>
-              </li>
+              {northwindProjects.map((project) => (
+                <li key={project.id}>
+                  <NavigationMenuLink href={`#${project.id}`}>
+                    {project.name}
+                  </NavigationMenuLink>
+                </li>
+              ))}
             </ul>
           </NavigationMenuContent>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuTrigger>Components</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <ul className="grid w-64 gap-2 p-2">
-              <li>
-                <NavigationMenuLink href="#dialog">Dialog</NavigationMenuLink>
-              </li>
-              <li>
-                <NavigationMenuLink href="#dropdown-menu">
-                  Dropdown Menu
-                </NavigationMenuLink>
-              </li>
-              <li>
-                <NavigationMenuLink href="#tooltip">Tooltip</NavigationMenuLink>
-              </li>
-            </ul>
-          </NavigationMenuContent>
+          <NavigationMenuLink href="#billing">Billing</NavigationMenuLink>
         </NavigationMenuItem>
         <NavigationMenuItem>
-          <NavigationMenuLink href="#docs">Docs</NavigationMenuLink>
+          <NavigationMenuLink href="#team">Team</NavigationMenuLink>
         </NavigationMenuItem>
       </NavigationMenuList>
     </NavigationMenu>

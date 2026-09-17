@@ -4,7 +4,9 @@ import { Field, FieldLabel } from "@monorepo/ui/components/field";
 import {
   Pagination,
   PaginationContent,
+  PaginationEllipsis,
   PaginationItem,
+  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@monorepo/ui/components/pagination";
@@ -20,6 +22,14 @@ import {
 const meta = {
   title: "Storybook/Pagination",
   component: Pagination,
+  subcomponents: {
+    PaginationContent,
+    PaginationItem,
+    PaginationLink,
+    PaginationPrevious,
+    PaginationNext,
+    PaginationEllipsis,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Pagination>;
 
@@ -28,13 +38,18 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "lg" },
+  },
   render: () => (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex w-full flex-col items-center gap-4 sm:flex-row sm:justify-between">
       <Field orientation="horizontal" className="w-fit">
-        <FieldLabel htmlFor="select-rows-per-page">Rows per page</FieldLabel>
+        <FieldLabel htmlFor="select-invoices-per-page">
+          Invoices per page
+        </FieldLabel>
         <Select defaultValue="25">
-          <SelectTrigger className="w-20" id="select-rows-per-page">
+          <SelectTrigger className="w-20" id="select-invoices-per-page">
             <SelectValue />
           </SelectTrigger>
           <SelectContent align="start">
@@ -42,7 +57,6 @@ export const Default: Story = {
               <SelectItem value="10">10</SelectItem>
               <SelectItem value="25">25</SelectItem>
               <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -50,10 +64,24 @@ export const Default: Story = {
       <Pagination className="mx-0 w-auto">
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious href="#" size="default" />
+            <PaginationPrevious href="#" />
           </PaginationItem>
           <PaginationItem>
-            <PaginationNext href="#" size="default" />
+            <PaginationLink href="#" isActive>
+              1
+            </PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#">2</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationLink href="#">3</PaginationLink>
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+          <PaginationItem>
+            <PaginationNext href="#" />
           </PaginationItem>
         </PaginationContent>
       </Pagination>

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@monorepo/ui/components/button";
 
-import { useTheme } from "~/features/layout/provider/theme-provider";
+import { useTheme } from "~/libs/theme-provider";
 
 interface ThemeToggleButtonProps {
   className?: string;

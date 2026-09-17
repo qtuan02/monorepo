@@ -6,13 +6,13 @@ import {
 } from "@monorepo/ui/components/data-table";
 
 import type { TenantView } from "~/types/tenant";
+import { TenantAvatar } from "~/components/avatar/tenant-avatar";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import {
   tenantOverdueInvoiceConfig,
   tenantStatusConfig,
 } from "~/constants/status";
-import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
 
 const helper = createDataTableColumnHelper<TenantView>();

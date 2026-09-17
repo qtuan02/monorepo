@@ -98,6 +98,48 @@ export function useCreateTenant(
   });
 }
 
+interface UpdateTenantRequest {
+  tenantId: string;
+  payload: CreateTenantRequest;
+}
+
+/**
+ * "Sửa trong FormSheet" (spec #153 §10 row 15, ticket #161) — the same four
+ * fields the Mock actually persists (`fullName`/`idCard`/`phone`/`email`);
+ * `dob`/`hometown`/`vehicleType`/`vehiclePlate` are captured but, as in
+ * `useCreateTenant`, have no Tenant field of their own to write into.
+ */
+export function useUpdateTenant(
+  options?: UseMutationOptionsWrapper<UpdateTenantRequest, Tenant>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ tenantId, payload }: UpdateTenantRequest) => {
+      const index = mockTenants.findIndex((tenant) => tenant.id === tenantId);
+      if (index === -1)
+        throw new Error(`Không tìm thấy Người thuê ${tenantId}`);
+
+      const updated: Tenant = {
+        ...(mockTenants[index] as Tenant),
+        name: payload.fullName,
+        idNumber: payload.idCard,
+        phone: payload.phone,
+        email: payload.email,
+      };
+      mockTenants[index] = updated;
+      return updated;
+    },
+    onSuccess: (tenant) => {
+      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: tenantQueryKeys.getTenant(tenant.id),
+      });
+    },
+    ...options,
+  });
+}
+
 export function useDeleteTenant(options?: UseMutationOptionsWrapper<string>) {
   const queryClient = useQueryClient();
 

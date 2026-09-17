@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { findHook, hookCatalogue } from "~/constants/docs-catalogue";
 import { ROUTES } from "~/constants/routes";
 import HookDetailTemplate from "~/features/hook/templates/hook-detail.template";
+import { THEME_STORAGE_KEY, ThemeProvider } from "~/libs/theme-provider";
 
 // The real lookup, wrapped so one test can hand the page an entry the
 // catalogue invariant forbids — a hook with no `@example`.
@@ -14,13 +15,16 @@ vi.mock("~/constants/docs-catalogue", async (importOriginal) => {
   return { ...actual, findHook: vi.fn(actual.findHook) };
 });
 
+/** `ThemeProvider` wraps it because the embedded example reads the reader's theme. */
 function renderAtSlug(slug: string) {
   return render(
-    <MemoryRouter initialEntries={[ROUTES.hookBySlugPath(slug)]}>
-      <Routes>
-        <Route path={ROUTES.HOOK_BY_SLUG} element={<HookDetailTemplate />} />
-      </Routes>
-    </MemoryRouter>,
+    <ThemeProvider>
+      <MemoryRouter initialEntries={[ROUTES.hookBySlugPath(slug)]}>
+        <Routes>
+          <Route path={ROUTES.HOOK_BY_SLUG} element={<HookDetailTemplate />} />
+        </Routes>
+      </MemoryRouter>
+    </ThemeProvider>,
   );
 }
 
@@ -86,6 +90,34 @@ describe("the hook detail page", () => {
       "href",
       expect.stringContaining("path=/docs/hooks-usedebounce--docs"),
     );
+  });
+
+  it("carries no border or fill of its own — the stage panel is the only frame", () => {
+    renderAtSlug("use-debounce");
+
+    const frame = screen.getByTitle("Ví dụ use-debounce trên Storybook");
+    expect(frame.className).not.toMatch(/\bborder\b/);
+    expect(frame.className).not.toMatch(/bg-card/);
+  });
+
+  it("appends the reader's dark theme to the embedded example's src", () => {
+    localStorage.setItem(THEME_STORAGE_KEY, "dark");
+
+    renderAtSlug("use-debounce");
+
+    expect(
+      screen.getByTitle("Ví dụ use-debounce trên Storybook"),
+    ).toHaveAttribute("src", expect.stringContaining("&globals=theme:dark"));
+  });
+
+  it("appends nothing for the light theme — Storybook's own default", () => {
+    localStorage.setItem(THEME_STORAGE_KEY, "light");
+
+    renderAtSlug("use-debounce");
+
+    expect(
+      screen.getByTitle("Ví dụ use-debounce trên Storybook"),
+    ).not.toHaveAttribute("src", expect.stringContaining("globals=theme"));
   });
 
   it("shows the hook's own `@example` as the usage panel", () => {

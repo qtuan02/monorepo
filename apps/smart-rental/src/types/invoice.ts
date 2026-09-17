@@ -68,6 +68,8 @@ export interface Invoice {
 export interface InvoiceListParams {
   /** The Building scope; `null` or absent means every Toà nhà. */
   buildingId?: string | null;
+  /** Scope to one Hợp đồng's own Hoá đơn — its detail screen's "Hoá đơn" tab. */
+  contractId?: string;
 }
 
 /** One Phòng in an Đợt hoá đơn preview: the amounts a Hoá đơn would be made of. */

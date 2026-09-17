@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   CONTRACT_EXPIRING_WINDOW_DAYS,
+  daysUntilContractEnd,
   deriveContractStatus,
   isContractLive,
 } from "~/utils/contract-status";
@@ -48,5 +49,12 @@ describe("isContractLive", () => {
     expect(
       isContractLive({ status: "ACTIVE", endDate: "16/09/2026" }, today),
     ).toBe(false);
+  });
+});
+
+describe("daysUntilContractEnd", () => {
+  it("counts forward to a future end date, negative once past", () => {
+    expect(daysUntilContractEnd("17/10/2026", today)).toBe(30);
+    expect(daysUntilContractEnd("16/09/2026", today)).toBe(-1);
   });
 });

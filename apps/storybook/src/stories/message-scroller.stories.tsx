@@ -16,39 +16,40 @@ import {
   MessageScrollerViewport,
 } from "@monorepo/ui/components/message-scroller";
 
+import { northwindConversation } from "~/support/conversation";
+
 const meta = {
   title: "Storybook/MessageScroller",
   component: MessageScroller,
+  subcomponents: {
+    MessageScrollerProvider,
+    MessageScrollerViewport,
+    MessageScrollerContent,
+    MessageScrollerItem,
+    MessageScrollerButton,
+  },
   tags: ["autodocs"],
+  parameters: { stage: { width: "sm" } },
 } satisfies Meta<typeof MessageScroller>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const conversation = Array.from({ length: 12 }, (_, index) => ({
-  id: `message-${index}`,
-  align: index % 2 === 0 ? ("start" as const) : ("end" as const),
-  text:
-    index % 2 === 0
-      ? `Assistant reply #${index + 1}`
-      : `User question #${index + 1}`,
-}));
-
 export const Default: Story = {
-  args: {},
+  parameters: { controls: { disable: true } },
   render: () => (
     <MessageScrollerProvider>
-      <MessageScroller className="h-72 w-full max-w-sm rounded-lg border">
+      <MessageScroller className="h-72 w-full rounded-lg border">
         <MessageScrollerViewport>
           <MessageScrollerContent>
-            {conversation.map((message) => (
+            {northwindConversation.map((message) => (
               <MessageScrollerItem key={message.id} messageId={message.id}>
                 <Message align={message.align}>
                   {message.align === "start" && (
                     <MessageAvatar>
                       <Avatar size="sm">
-                        <AvatarFallback>AI</AvatarFallback>
+                        <AvatarFallback>NA</AvatarFallback>
                       </Avatar>
                     </MessageAvatar>
                   )}

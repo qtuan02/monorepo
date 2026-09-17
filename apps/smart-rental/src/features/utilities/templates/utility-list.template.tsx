@@ -17,9 +17,11 @@ import {
 } from "~/constants/status";
 import UtilityCard from "~/features/utilities/components/utility-card";
 import { utilityColumns } from "~/features/utilities/components/utility-columns";
+import UtilityMobileRow from "~/features/utilities/components/utility-mobile-row";
 import { calculateUtilityStats } from "~/features/utilities/utils/meter-reading";
 import { useGetUtilities } from "~/hooks/api/utility";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { formatMonth } from "~/utils/date";
 
 /**
  * "Chỉ số điện nước" (ADR-0011 — the heading now matches the glossary's
@@ -71,9 +73,9 @@ export default function UtilityListTemplate() {
         <>
           <KpiStrip
             items={[
-              { label: "Tổng chỉ số", value: stats.totalReadings },
+              { label: "Đã xác nhận", value: stats.verifiedCount },
+              { label: "Nháp", value: stats.draftCount },
               { label: "Bất thường", value: stats.anomalyCount },
-              { label: "Chờ xác minh", value: stats.pendingVerifyCount },
             ]}
           />
 
@@ -84,14 +86,25 @@ export default function UtilityListTemplate() {
             search={{ columnId: "roomName", placeholder: "Tìm tên phòng..." }}
             facets={[
               {
+                columnId: "type",
+                title: "Loại",
+                options: toFilterOptions(utilityTypeConfig),
+              },
+              {
                 columnId: "status",
                 title: "Trạng thái",
                 options: toFilterOptions(utilityStatusConfig),
               },
               {
-                columnId: "type",
-                title: "Loại tiện ích",
-                options: toFilterOptions(utilityTypeConfig),
+                columnId: "month",
+                title: "Kỳ",
+                options: [...new Set((data ?? []).map((u) => u.month))]
+                  .sort()
+                  .reverse()
+                  .map((month) => ({
+                    value: month,
+                    label: formatMonth(month),
+                  })),
               },
             ]}
             empty={{
@@ -102,6 +115,9 @@ export default function UtilityListTemplate() {
             }}
             resultLabel={(count) => `${count} chỉ số được tìm thấy`}
             viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+            renderMobileRow={(utility) => (
+              <UtilityMobileRow utility={utility} />
+            )}
             renderRows={
               view === "grid"
                 ? (utilities) => (

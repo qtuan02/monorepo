@@ -33,7 +33,8 @@ export function useGetInvoices(
       mockInvoices
         .filter(
           (invoice) =>
-            !params?.buildingId || invoice.buildingId === params.buildingId,
+            (!params?.buildingId || invoice.buildingId === params.buildingId) &&
+            (!params?.contractId || invoice.contractId === params.contractId),
         )
         .map(withDerivedStatus),
     ...options,

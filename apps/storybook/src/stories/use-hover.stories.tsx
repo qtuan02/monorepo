@@ -4,6 +4,8 @@ import { useRef } from "react";
 import { useHover } from "@monorepo/hook/use-hover";
 import { cn } from "@monorepo/ui/utils/cn";
 
+import { atlasProject as atlas } from "~/support/projects";
+
 function Demo() {
   const ref = useRef<HTMLDivElement>(null);
   const isHovered = useHover(ref);
@@ -16,7 +18,7 @@ function Demo() {
         isHovered && "bg-primary text-primary-foreground",
       )}
     >
-      {isHovered ? "Hovering" : "Hover me"}
+      {isHovered ? `${atlas.summary} — open` : atlas.name}
     </div>
   );
 }

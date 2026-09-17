@@ -13,6 +13,9 @@ export type DepositStatus =
   | "PARTIAL_RETURNED"
   | "FORFEITED";
 
+/** The three ways a Thanh lý can settle Cọc — `HELD` only describes it before Thanh lý runs. */
+export type LiquidationDecision = Exclude<DepositStatus, "HELD">;
+
 /** One Gia hạn: the end date and rent before → after. */
 export interface ContractRenewalRecord {
   /** ISO timestamp. */
@@ -44,8 +47,10 @@ export interface Contract {
   depositStatus: DepositStatus;
   /** > 0 only once some of the cọc has actually been handed back. */
   depositReturnedAmount: number;
-  /** Ngày trong tháng tiền thuê đến hạn; mirrors the Toà nhà's `collectionDay`. */
+  /** Ngày trong tháng tiền thuê đến hạn ("chu kỳ thu"); mirrors the Toà nhà's `collectionDay`. */
   paymentDueDay: number;
+  /** "Thời hạn báo trước" trước khi hết hạn, ngày — mặc định 30, không enforce phạt (spec #153). */
+  noticeDays: number;
   /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
   startDate: string;
   endDate: string;
@@ -53,6 +58,7 @@ export interface Contract {
   renewalHistory: ContractRenewalRecord[];
   /** Set only once Thanh lý has run. */
   terminatedAt?: string;
+  /** The Thanh lý's lý do — required only when `depositStatus` is `PARTIAL_RETURNED`. */
   terminationReason?: string;
   lastUpdated: string;
 }
@@ -63,16 +69,15 @@ export interface ContractListParams {
 }
 
 export interface CreateContractRequest {
-  buildingId: string;
   roomId: string;
-  tenantName: string;
-  tenantPhone: string;
-  tenantIdCard: string;
-  /** ISO `YYYY-MM-DD`, as `<input type="date">` hands it over. */
+  tenantId: string;
+  /** ISO `YYYY-MM-DD`, as `DateField` hands it over. */
   startDate: string;
-  termMonths: number;
+  endDate: string;
   rentAmount: number;
   depositAmount: number;
+  paymentDueDay: number;
+  noticeDays: number;
 }
 
 export interface RenewContractRequest {
@@ -81,4 +86,13 @@ export interface RenewContractRequest {
   newEndDate: string;
   newRentAmount: number;
   notes?: string;
+}
+
+export interface LiquidateContractRequest {
+  contractId: string;
+  decision: LiquidationDecision;
+  /** What the Người thuê actually gets back, already netted against nợ thật. */
+  returnedAmount: number;
+  /** Required only for `PARTIAL_RETURNED` — see `~/features/contracts/types/liquidation-form`. */
+  reason?: string;
 }

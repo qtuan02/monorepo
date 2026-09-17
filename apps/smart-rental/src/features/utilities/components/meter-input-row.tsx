@@ -1,7 +1,8 @@
 import type { Control } from "react-hook-form";
-import { Controller, useWatch } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import { Badge } from "@monorepo/ui/components/badge";
+import { Button } from "@monorepo/ui/components/button";
 import { Field, FieldError } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 import { TableCell, TableRow } from "@monorepo/ui/components/table";
@@ -12,10 +13,7 @@ import type { MeterReading } from "~/features/utilities/utils/meter-reading";
 import type { MeterInputRoom } from "~/types/utility";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { meterEntryStatusConfig } from "~/constants/status";
-import {
-  combineMeterStatus,
-  readMeter,
-} from "~/features/utilities/utils/meter-reading";
+import { useMeterEntryState } from "~/features/utilities/hooks/use-meter-entry-state";
 
 interface MeterInputRowProps {
   index: number;
@@ -37,22 +35,21 @@ function ConsumptionCell({ reading }: { reading: MeterReading }) {
 }
 
 /**
- * One Phòng on "Nhập chỉ số". Each row watches only its own two fields, so a
- * keystroke re-renders this row and not the table; consumption is new − old
- * computed in render, and the badge is the derived draft/anomaly.
+ * One Phòng on "Nhập chỉ số" — the desktop table row. A "bất thường" row
+ * shows "Duyệt bất thường" beside its badge; approving it sets
+ * `rows.{index}.approved`, which is what the screen's single save button
+ * gates on (spec #153 §10 row 27).
  */
 export default function MeterInputRow({
   index,
   room,
   control,
 }: MeterInputRowProps) {
-  const [newElectricity, newWater] = useWatch({
+  const { electricity, water, status, approved } = useMeterEntryState(
     control,
-    name: [`rows.${index}.newElectricity`, `rows.${index}.newWater`],
-  });
-  const electricity = readMeter(room.lastElectricity, newElectricity);
-  const water = readMeter(room.lastWater, newWater);
-  const status = combineMeterStatus(electricity.status, water.status);
+    index,
+    room,
+  );
 
   return (
     <TableRow>
@@ -102,11 +99,33 @@ export default function MeterInputRow({
       </TableCell>
       <ConsumptionCell reading={water} />
       <TableCell className="text-right">
-        {status ? (
-          <StatusBadge config={meterEntryStatusConfig[status]} />
-        ) : (
-          <Badge variant="outline">Chưa nhập</Badge>
-        )}
+        <div className="flex items-center justify-end gap-2">
+          {status === "anomaly" && !approved ? (
+            <>
+              <StatusBadge config={meterEntryStatusConfig.anomaly} isCompact />
+              <Controller
+                name={`rows.${index}.approved`}
+                control={control}
+                render={({ field }) => (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => field.onChange(true)}
+                  >
+                    Duyệt bất thường
+                  </Button>
+                )}
+              />
+            </>
+          ) : status === "anomaly" && approved ? (
+            <StatusBadge config={meterEntryStatusConfig.approved} isCompact />
+          ) : status ? (
+            <StatusBadge config={meterEntryStatusConfig[status]} isCompact />
+          ) : (
+            <Badge variant="outline">Chưa nhập</Badge>
+          )}
+        </div>
       </TableCell>
     </TableRow>
   );

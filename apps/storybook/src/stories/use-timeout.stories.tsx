@@ -2,29 +2,22 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 
 import { useTimeout } from "@monorepo/hook/use-timeout";
+import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
 
-function Demo() {
-  const [delay, setDelay] = useState<number | null>(null);
-  const [fired, setFired] = useState(false);
+import { atlasProject as atlas } from "~/support/projects";
 
-  useTimeout(() => setFired(true), delay);
+function Demo() {
+  const [posted, setPosted] = useState(false);
+
+  useTimeout(() => setPosted(false), posted ? 2000 : null);
 
   return (
     <div className="flex items-center gap-4">
-      <Button
-        variant="outline"
-        disabled={delay !== null && !fired}
-        onClick={() => {
-          setFired(false);
-          setDelay(2000);
-        }}
-      >
-        Fire in 2s
+      <Button variant="outline" onClick={() => setPosted(true)}>
+        Post comment on {atlas.name}
       </Button>
-      <p className="text-sm">
-        {delay === null ? "Idle" : fired ? "Fired" : "Waiting…"}
-      </p>
+      {posted && <Badge>Posted</Badge>}
     </div>
   );
 }

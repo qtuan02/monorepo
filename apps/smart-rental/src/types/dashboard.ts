@@ -1,50 +1,54 @@
-/** One monthly point of a chart series; `month` is the label as drawn. */
+/** One monthly point of the revenue chart; `month` is the label as drawn. */
 export interface MonthlyPoint {
   month: string;
   value: number;
 }
 
-export interface CashFlowPoint {
-  month: string;
-  income: number;
-  expense: number;
+/** "Cần thu tháng này" — invoices of the current kỳ still owing something. */
+export interface DueThisMonthSummary {
+  amount: number;
+  count: number;
 }
 
-export type DashboardTaskPriority = "urgent" | "high" | "medium";
-
-export interface DashboardTask {
-  id: number;
-  title: string;
-  type: string;
-  priority: DashboardTaskPriority;
-  due: string;
+/** "Quá hạn" — every invoice past its due date, any kỳ. */
+export interface OverdueSummary {
+  amount: number;
+  count: number;
+  maxDaysOverdue: number;
 }
 
-export interface DashboardActivity {
-  id: number;
-  action: string;
-  detail: string;
-  time: string;
+/** "Hợp đồng hết hạn trong 30 ngày" — the soonest one named for the KPI's description. */
+export interface ExpiringContractsSummary {
+  count: number;
+  /** Already display-formatted (`DD/MM/YYYY`); unset when `count` is 0. */
+  nearestEndDate?: string;
+  nearestRoom?: string;
 }
 
-/** What `/` shows for one Building scope — a summary, three series, two lists. */
-export interface DashboardData {
-  totalRooms: number;
-  /** Percent, one decimal. */
-  occupancyRate: number;
-  /** VND. */
-  monthlyRevenue: number;
-  /** VND. */
-  operatingCost: number;
-  /** Doanh thu theo tháng, in triệu VND as the prototype drew it. */
+export interface OccupancySummary {
+  occupied: number;
+  vacant: number;
+  vacantRoomNames: string[];
+}
+
+/**
+ * What "Hôm nay" shows for one Building scope — three KPIs, an occupancy
+ * donut and a six-month revenue trend, every one read off Hoá đơn/Hợp đồng/
+ * Phòng at call time (ADR-0012). Việc cần làm is not here — the screen reads
+ * it straight off `~/hooks/api/task`, the same hook `/tasks` uses.
+ */
+export interface TodaySummary {
+  dueThisMonth: DueThisMonthSummary;
+  overdue: OverdueSummary;
+  expiringContracts: ExpiringContractsSummary;
+  occupancy: OccupancySummary;
   revenueByMonth: MonthlyPoint[];
-  /** Thu vs chi, six months. */
-  cashFlowByMonth: CashFlowPoint[];
-  occupancy: { occupied: number; vacant: number };
-  pendingTasks: DashboardTask[];
-  recentActivities: DashboardActivity[];
 }
+
+/** The hook's own return type — an alias, so a call site never names the internal shape twice. */
+export type DashboardData = TodaySummary;
 
 export interface DashboardParams {
-  buildingId?: string;
+  /** The Building scope; `null` or absent means every Toà nhà. */
+  buildingId?: string | null;
 }

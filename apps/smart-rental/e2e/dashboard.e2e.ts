@@ -1,7 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
+import { formatFullDate } from "../src/utils/date";
 import { signIn } from "./support/auth-session";
+
+const homeHeading = formatFullDate();
 
 // The dashboard sits behind the auth guard (see auth.e2e.ts), so every test
 // here needs a session before the shell is reachable at all.
@@ -9,12 +12,16 @@ test.describe("dashboard", () => {
   test("keeps the session across a reload", async ({ page }) => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
-    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
 
     await page.reload();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
   });
 
   test("boots without a console error", async ({ page }) => {
@@ -25,45 +32,59 @@ test.describe("dashboard", () => {
 
     await signIn(page);
     await page.goto(ROUTES.HOME);
-    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
 
     // Vite bakes whatever is in the local .env without validating it, so a
     // PUBLIC_* key missing/invalid there only surfaces once createEnv runs in
     // the browser — this catches that boot failure, plus any other console
-    // error on load.
+    // error on load (ADR-0011's `nameKey` fix on the donut legend is what
+    // used to fail this very check — research C.1 #19).
     expect(errors).toEqual([]);
   });
 
-  test("draws the summary and three charts, and re-reads them for a Building scope", async ({
+  test("shows the Việc cần làm queue and the two charts, and re-reads them for a Building scope", async ({
     page,
   }) => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
 
-    // The totals, and the three charts as real SVG — the seam a jsdom test
-    // cannot reach, since recharts measures its container.
-    await expect(page.getByText("145", { exact: true })).toBeVisible();
-    await expect(page.getByText("545.2tr")).toBeVisible();
+    await expect(
+      page.getByText(/^Hoá đơn HÓA-\d+ quá hạn$/).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Biểu đồ tỷ lệ lấp đầy").locator("svg.recharts-surface"),
+    ).toBeVisible();
     await expect(
       page
         .getByLabel("Biểu đồ doanh thu theo tháng")
         .locator("svg.recharts-surface"),
     ).toBeVisible();
-    await page.getByRole("tab", { name: "Thu vs Chi" }).click();
+
+    await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
+
+    // Scoped to b1: its own "chưa lập Đợt" task stays, another Toà nhà's goes.
     await expect(
-      page
-        .getByLabel("Biểu đồ thu chi theo tháng")
-        .locator("svg.recharts-surface"),
+      page.getByText(/^Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn/),
     ).toBeVisible();
     await expect(
-      page.getByLabel("Biểu đồ tỷ lệ lấp đầy").locator("svg.recharts-surface"),
+      page.getByText(/^Chung cư Mini Lê Duẩn chưa lập Đợt hoá đơn/),
+    ).not.toBeVisible();
+  });
+
+  test("navigates a Việc cần làm action to its entity", async ({ page }) => {
+    await signIn(page);
+    await page.goto(ROUTES.HOME);
+
+    const item = page
+      .locator('[role="listitem"]')
+      .filter({ hasText: /^Hoá đơn HÓA-\d+ quá hạn$/ })
+      .first();
+    await item.getByRole("link", { name: "Xem" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Chi tiết hoá đơn" }),
     ).toBeVisible();
-
-    await page.getByRole("combobox", { name: "Toà nhà" }).click();
-    await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
-
-    await expect(page.getByText("15", { exact: true })).toBeVisible();
-    await expect(page.getByText("54.5tr")).toBeVisible();
-    await expect(page.getByText("145", { exact: true })).not.toBeVisible();
   });
 });

@@ -1,8 +1,6 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import dayjs from "@monorepo/dayjs";
-
 import type {
   UseMutationOptionsWrapper,
   UseQueryOptionsWrapper,
@@ -11,13 +9,19 @@ import type {
   Contract,
   ContractListParams,
   CreateContractRequest,
+  LiquidateContractRequest,
   RenewContractRequest,
 } from "~/types/contract";
-import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
+import { mockTenants } from "~/constants/mock/tenants";
+import { roomQueryKeys } from "~/hooks/api/room";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { deriveContractStatus } from "~/utils/contract-status";
+import {
+  canDeleteContract,
+  deriveContractStatus,
+  isContractLive,
+} from "~/utils/contract-status";
 import { formatDate } from "~/utils/date";
 
 /** `EXPIRING`/`EXPIRED` are never trusted from the Mock (ADR-0012) — recomputed on every read. */
@@ -79,39 +83,44 @@ export function useCreateContract(
   return useMutation({
     mutationFn: async (request: CreateContractRequest) => {
       const room = mockRooms.find((item) => item.id === request.roomId);
-      const building = mockBuildings.find(
-        (item) => item.id === request.buildingId,
-      );
-      const start = dayjs(request.startDate);
+      if (!room)
+        throw new Error(`Không có phòng nào với mã ${request.roomId}.`);
+      const tenant = mockTenants.find((item) => item.id === request.tenantId);
+      if (!tenant) {
+        throw new Error(`Không có người thuê nào với mã ${request.tenantId}.`);
+      }
       const nextNumber = String(mockContracts.length + 1).padStart(3, "0");
       const contract: Contract = {
         id: `C${nextNumber}`,
         contractNumber: `HĐ-${nextNumber}`,
-        buildingId: request.buildingId,
+        buildingId: room.buildingId,
         roomId: request.roomId,
-        // No Người thuê picker yet (spec #153's combobox wizard is a later
-        // ticket) — a synthetic id, so referential integrity of the initial
-        // Mock is unaffected by what a session creates at runtime.
-        tenantId: `T-new-${nextNumber}`,
-        tenant: request.tenantName,
-        room: room?.name ?? request.roomId,
-        floor: room?.floor ?? 0,
+        tenantId: request.tenantId,
+        tenant: tenant.name,
+        room: room.name,
+        floor: room.floor,
         rentAmount: request.rentAmount,
         depositAmount: request.depositAmount,
         depositStatus: "HELD",
         depositReturnedAmount: 0,
-        paymentDueDay: building?.collectionDay ?? 5,
-        startDate: formatDate(start.toDate()),
-        endDate: formatDate(start.add(request.termMonths, "month").toDate()),
+        paymentDueDay: request.paymentDueDay,
+        noticeDays: request.noticeDays,
+        startDate: formatDate(request.startDate),
+        endDate: formatDate(request.endDate),
         status: "ACTIVE",
         renewalHistory: [],
         lastUpdated: formatDate(new Date()),
       };
       mockContracts.unshift(contract);
+      // The Phòng this Hợp đồng covers is no longer trống — the wizard's own
+      // step 1 only offered "available" rooms, and a lease starts them occupied.
+      room.status = "occupied";
       return contract;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: contractQueryKeys.lists() }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: contractQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
+    },
     ...options,
   });
 }
@@ -144,6 +153,14 @@ export function useRenewContract(
       if (!contract) {
         throw new Error(`Không có hợp đồng nào với mã ${request.contractId}.`);
       }
+      // Gia hạn chỉ từ Đang hiệu lực/Sắp hết hạn (spec #153) — an EXPIRED or
+      // TERMINATED Hợp đồng may not be revived through this mutation either,
+      // even if a stale screen still posts to it.
+      if (!isContractLive(contract)) {
+        throw new Error(
+          `Hợp đồng ${contract.contractNumber} đã kết thúc, không thể gia hạn.`,
+        );
+      }
       return updateMockContract(request.contractId, {
         renewalHistory: [
           ...contract.renewalHistory,
@@ -167,18 +184,40 @@ export function useRenewContract(
 }
 
 export function useLiquidateContract(
-  options?: UseMutationOptionsWrapper<string, Contract>,
+  options?: UseMutationOptionsWrapper<LiquidateContractRequest, Contract>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (contractId: string) =>
-      updateMockContract(contractId, {
+    mutationFn: async (request: LiquidateContractRequest) => {
+      const contract = mockContracts.find(
+        (item) => item.id === request.contractId,
+      );
+      if (!contract) {
+        throw new Error(`Không có hợp đồng nào với mã ${request.contractId}.`);
+      }
+      // Thanh lý chỉ từ Đang hiệu lực/Sắp hết hạn (spec #153).
+      if (!isContractLive(contract)) {
+        throw new Error(
+          `Hợp đồng ${contract.contractNumber} đã kết thúc, không thể thanh lý.`,
+        );
+      }
+      const room = mockRooms.find((item) => item.id === contract.roomId);
+      if (room) room.status = "available";
+
+      return updateMockContract(request.contractId, {
         status: "TERMINATED",
+        depositStatus: request.decision,
+        depositReturnedAmount: request.returnedAmount,
+        terminationReason: request.reason,
         terminatedAt: formatDate(new Date()),
-      }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: contractQueryKeys.all }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: contractQueryKeys.all });
+      // Phòng về trống — the room list/detail must reflect it too.
+      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
+    },
     ...options,
   });
 }
@@ -189,6 +228,13 @@ export function useDeleteContract(options?: UseMutationOptionsWrapper<string>) {
   return useMutation({
     mutationFn: async (contractId: string) => {
       const index = mockContracts.findIndex((item) => item.id === contractId);
+      const contract = mockContracts[index];
+      // Defended here too, not only by hiding the button — same predicate.
+      if (contract && !canDeleteContract(contract)) {
+        throw new Error(
+          `Hợp đồng ${contract.contractNumber} không phải Nháp, không thể xoá.`,
+        );
+      }
       if (index !== -1) mockContracts.splice(index, 1);
     },
     onSuccess: () =>

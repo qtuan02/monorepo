@@ -11,97 +11,70 @@ import {
   TableRow,
 } from "@monorepo/ui/components/table";
 
+import { northwindInvoices } from "~/support/invoices";
+import { northwindProjects } from "~/support/projects";
+
+function projectName(projectId: string) {
+  return (
+    northwindProjects.find((project) => project.id === projectId)?.name ??
+    projectId
+  );
+}
+
 const meta = {
   title: "Storybook/Table",
   component: Table,
+  subcomponents: {
+    TableHeader,
+    TableBody,
+    TableFooter,
+    TableRow,
+    TableHead,
+    TableCell,
+    TableCaption,
+  },
   tags: ["autodocs"],
+  parameters: { stage: { width: "full" } },
 } satisfies Meta<typeof Table>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "Paid",
-    paymentMethod: "Credit Card",
-    totalAmount: "$250.00",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Pending",
-    paymentMethod: "PayPal",
-    totalAmount: "$150.00",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    paymentMethod: "Bank Transfer",
-    totalAmount: "$350.00",
-  },
-];
-
 export const Default: Story = {
-  args: {},
+  parameters: { controls: { disable: true } },
   render: () => (
     <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
+      <TableCaption>Northwind's recent invoices.</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
+          <TableHead className="w-24">Invoice</TableHead>
+          <TableHead>Project</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
           <TableHead className="text-right">Amount</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+        {northwindInvoices.map((invoice) => (
+          <TableRow key={invoice.id}>
+            <TableCell className="font-medium">{invoice.id}</TableCell>
+            <TableCell>{projectName(invoice.projectId)}</TableCell>
+            <TableCell className="capitalize">{invoice.status}</TableCell>
+            <TableCell className="text-right">
+              ${invoice.amount.toLocaleString("en-US")}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>
       <TableFooter>
         <TableRow>
           <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
-  ),
-};
-
-export const FooterExample: Story = {
-  args: {},
-  render: () => (
-    <Table>
-      <TableCaption>A list of your recent invoices.</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {invoices.slice(0, 3).map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3}>Total</TableCell>
-          <TableCell className="text-right">$2,500.00</TableCell>
+          <TableCell className="text-right">
+            $
+            {northwindInvoices
+              .reduce((sum, invoice) => sum + invoice.amount, 0)
+              .toLocaleString("en-US")}
+          </TableCell>
         </TableRow>
       </TableFooter>
     </Table>
@@ -115,24 +88,25 @@ export const FooterExample: Story = {
  * caller knows which element scrolls.
  */
 export const PrimaryHeader: Story = {
-  args: {},
   render: () => (
     <Table>
       <TableHeader className="bg-primary [&_th]:text-primary-foreground [&_tr]:border-b-0 [&_tr]:hover:bg-primary">
         <TableRow>
-          <TableHead className="w-[100px]">Invoice</TableHead>
+          <TableHead className="w-24">Invoice</TableHead>
+          <TableHead>Project</TableHead>
           <TableHead>Status</TableHead>
-          <TableHead>Method</TableHead>
           <TableHead className="text-right">Amount</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
-          <TableRow key={invoice.invoice}>
-            <TableCell className="font-medium">{invoice.invoice}</TableCell>
-            <TableCell>{invoice.paymentStatus}</TableCell>
-            <TableCell>{invoice.paymentMethod}</TableCell>
-            <TableCell className="text-right">{invoice.totalAmount}</TableCell>
+        {northwindInvoices.map((invoice) => (
+          <TableRow key={invoice.id}>
+            <TableCell className="font-medium">{invoice.id}</TableCell>
+            <TableCell>{projectName(invoice.projectId)}</TableCell>
+            <TableCell className="capitalize">{invoice.status}</TableCell>
+            <TableCell className="text-right">
+              ${invoice.amount.toLocaleString("en-US")}
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

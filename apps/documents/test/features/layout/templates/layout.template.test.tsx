@@ -4,8 +4,8 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import { ROUTES } from "~/constants/routes";
-import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
+import { ThemeProvider } from "~/libs/theme-provider";
 
 function Probe() {
   return <h1>trang</h1>;

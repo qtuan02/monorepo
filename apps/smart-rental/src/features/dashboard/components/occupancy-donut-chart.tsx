@@ -10,7 +10,7 @@ import {
   PieChart,
 } from "@monorepo/ui/components/chart";
 
-import type { DashboardData } from "~/types/dashboard";
+import type { OccupancySummary } from "~/types/dashboard";
 
 const chartConfig = {
   occupied: { label: "Đã thuê", color: "var(--chart-1)" },
@@ -18,10 +18,10 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface OccupancyDonutChartProps {
-  occupancy: DashboardData["occupancy"];
+  occupancy: OccupancySummary;
 }
 
-/** Tỷ lệ lấp đầy — a donut of Phòng đã thuê against Phòng trống. */
+/** Tỷ lệ lấp đầy — a donut of Phòng đã thuê against Phòng trống, and which ones are trống. */
 export default function OccupancyDonutChart({
   occupancy,
 }: OccupancyDonutChartProps) {
@@ -33,29 +33,40 @@ export default function OccupancyDonutChart({
   ];
 
   return (
-    <ChartContainer
-      config={chartConfig}
-      className="h-75 w-full"
-      aria-label="Biểu đồ tỷ lệ lấp đầy"
-    >
-      <PieChart accessibilityLayer>
-        <Pie
-          data={data}
-          dataKey="value"
-          nameKey="name"
-          cx="50%"
-          cy="50%"
-          innerRadius={60}
-          outerRadius={80}
-          paddingAngle={5}
-        >
-          {data.map((slice) => (
-            <Cell key={slice.name} fill={`var(--color-${slice.name})`} />
-          ))}
-        </Pie>
-        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-        <ChartLegend content={<ChartLegendContent />} />
-      </PieChart>
-    </ChartContainer>
+    <div className="space-y-2">
+      <ChartContainer
+        config={chartConfig}
+        className="h-55 w-full"
+        aria-label="Biểu đồ tỷ lệ lấp đầy"
+      >
+        <PieChart accessibilityLayer>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={50}
+            outerRadius={70}
+            paddingAngle={5}
+          >
+            {data.map((slice) => (
+              <Cell key={slice.name} fill={`var(--color-${slice.name})`} />
+            ))}
+          </Pie>
+          <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+          {/* `nameKey` here too — omitting it falls back to the Pie's own
+              `dataKey` ("value") for every slice's legend key, so both
+              entries collide on "value" (React's duplicate-key console
+              warning at "/", research C.1 #19). */}
+          <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+        </PieChart>
+      </ChartContainer>
+      {occupancy.vacant > 0 && (
+        <p className="text-muted-foreground text-center text-xs">
+          Trống · {occupancy.vacantRoomNames.join(", ")}
+        </p>
+      )}
+    </div>
   );
 }

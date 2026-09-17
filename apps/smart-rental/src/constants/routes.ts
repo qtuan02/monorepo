@@ -12,8 +12,6 @@
 export const ROUTES = {
   HOME: "/",
   AUTH_LOGIN: "/auth/login",
-  AUTH_REGISTER: "/auth/register",
-  ONBOARDING: "/onboarding",
 
   BUILDINGS: "/buildings",
   BUILDING_DETAIL: "/buildings/:buildingId",
@@ -22,7 +20,6 @@ export const ROUTES = {
   ROOM_DETAIL: "/rooms/:roomId",
 
   TENANTS: "/tenants",
-  TENANT_CREATE: "/tenants/create",
   TENANT_DETAIL: "/tenants/:tenantId",
 
   CONTRACTS: "/contracts",

@@ -1,4 +1,4 @@
-import type { MeterInputRoom, Utility, UtilityType } from "~/types/utility";
+import type { Utility, UtilityType } from "~/types/utility";
 import { mockRooms } from "~/constants/mock/rooms";
 
 /** Chỉ số hai kỳ 08–09/2026 (spec #153) — kỳ 09 chưa lập Đợt, nên vẫn còn việc. */
@@ -53,26 +53,4 @@ export const mockUtilities: Utility[] = READING_MONTHS.flatMap((month) =>
     ),
     buildReading(room, "water", month, index, false),
   ]),
-);
-
-/** The Phòng the "Nhập chỉ số" screen lists, with last month's readings. */
-export const mockMeterInputRooms: MeterInputRoom[] = occupiedRooms.map(
-  (room) => {
-    const electric = mockUtilities.find(
-      (u) =>
-        u.roomId === room.id &&
-        u.type === "electricity" &&
-        u.month === "2026-09",
-    );
-    const water = mockUtilities.find(
-      (u) =>
-        u.roomId === room.id && u.type === "water" && u.month === "2026-09",
-    );
-    return {
-      id: room.id,
-      name: room.name,
-      lastElectricity: electric?.oldIndex ?? 0,
-      lastWater: water?.oldIndex ?? 0,
-    };
-  },
 );

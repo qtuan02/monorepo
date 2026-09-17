@@ -1,0 +1,64 @@
+import dayjs from "@monorepo/dayjs";
+import { DATE_FORMAT } from "@monorepo/dayjs/formats";
+
+import type { ComplianceItem, ResidenceDeclaration } from "~/types/compliance";
+import type { Contract } from "~/types/contract";
+import type { Tenant } from "~/types/tenant";
+import { isContractLive } from "~/utils/contract-status";
+
+/** "Sắp hết hạn" cho Đăng ký tạm trú (ticket #161) — same window as a Hợp đồng. */
+export const RESIDENCE_REGISTRATION_EXPIRING_WINDOW_DAYS = 30;
+
+/**
+ * Mỗi Người thuê có Hợp đồng hiệu lực → một dòng, hai nghĩa vụ (spec #153
+ * §10 row 8, ticket #161): Thông báo lưu trú (chưa gửi / đã gửi) và Đăng ký
+ * tạm trú (nguyên trạng thái + ngày hết hạn). Không lưu — suy từ Hợp đồng +
+ * `ComplianceItem` mỗi lần đọc (ADR-0012).
+ */
+export function buildResidenceDeclarations(
+  tenants: Tenant[],
+  contracts: Contract[],
+  complianceItems: ComplianceItem[],
+  today: Date = new Date(),
+): ResidenceDeclaration[] {
+  const liveTenantIds = new Set(
+    contracts
+      .filter((contract) => isContractLive(contract, today))
+      .map((contract) => contract.tenantId),
+  );
+
+  return tenants
+    .filter((tenant) => liveTenantIds.has(tenant.id))
+    .map((tenant) => {
+      const notification = complianceItems.find(
+        (item) =>
+          item.tenantId === tenant.id && item.type === "residence_notification",
+      );
+      const registration = complianceItems.find(
+        (item) =>
+          item.tenantId === tenant.id && item.type === "residence_registration",
+      );
+      const registrationDueDate = registration?.dueDate ?? tenant.contractEnd;
+      const registrationStatus = registration?.status ?? "pending";
+      const daysToExpiry = dayjs(registrationDueDate, DATE_FORMAT)
+        .startOf("day")
+        .diff(dayjs(today).startOf("day"), "day");
+
+      return {
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        buildingId: tenant.buildingId,
+        room: tenant.room,
+        notificationStatus:
+          notification?.status === "completed" ? "sent" : "not_sent",
+        notificationDate: notification?.completedDate,
+        referenceNumber: notification?.referenceNumber,
+        registrationStatus,
+        registrationDueDate,
+        registrationExpiringSoon:
+          registrationStatus !== "completed" &&
+          daysToExpiry >= 0 &&
+          daysToExpiry <= RESIDENCE_REGISTRATION_EXPIRING_WINDOW_DAYS,
+      };
+    });
+}

@@ -9,14 +9,20 @@ import {
   FieldLabel,
   FieldLegend,
   FieldSet,
-  FieldTitle,
 } from "@monorepo/ui/components/field";
-import { Label } from "@monorepo/ui/components/label";
 
 const meta = {
   title: "Storybook/Checkbox",
   component: Checkbox,
   tags: ["autodocs"],
+  argTypes: {
+    disabled: {
+      control: "boolean",
+    },
+    defaultChecked: {
+      control: "boolean",
+    },
+  },
 } satisfies Meta<typeof Checkbox>;
 
 export default meta;
@@ -24,106 +30,77 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  args: {
+    "aria-label": "Accept terms and conditions",
+    disabled: false,
+    defaultChecked: false,
+  },
+};
+
+export const States: Story = {
   render: () => (
     <FieldGroup className="max-w-sm">
       <Field orientation="horizontal">
-        <Checkbox id="terms-checkbox" name="terms-checkbox" />
-        <Label htmlFor="terms-checkbox">Accept terms and conditions</Label>
+        <Checkbox id="atlas-terms" name="atlas-terms" />
+        <FieldLabel htmlFor="atlas-terms">
+          Accept terms and conditions
+        </FieldLabel>
       </Field>
       <Field orientation="horizontal">
-        <Checkbox
-          id="terms-checkbox-2"
-          name="terms-checkbox-2"
-          defaultChecked
-        />
+        <Checkbox id="atlas-notify" name="atlas-notify" defaultChecked />
         <FieldContent>
-          <FieldLabel htmlFor="terms-checkbox-2">
-            Accept terms and conditions
-          </FieldLabel>
+          <FieldLabel htmlFor="atlas-notify">Enable notifications</FieldLabel>
           <FieldDescription>
-            By clicking this checkbox, you agree to the terms.
+            Notify me when Atlas invoices are marked paid.
           </FieldDescription>
         </FieldContent>
       </Field>
       <Field orientation="horizontal" data-disabled>
-        <Checkbox id="toggle-checkbox" name="toggle-checkbox" disabled />
-        <FieldLabel htmlFor="toggle-checkbox">Enable notifications</FieldLabel>
+        <Checkbox id="atlas-sync" name="atlas-sync" disabled />
+        <FieldLabel htmlFor="atlas-sync">Sync with Beacon</FieldLabel>
       </Field>
-      <FieldLabel>
-        <Field orientation="horizontal">
-          <Checkbox id="toggle-checkbox-2" name="toggle-checkbox-2" />
-          <FieldContent>
-            <FieldTitle>Enable notifications</FieldTitle>
-            <FieldDescription>
-              You can enable or disable notifications at any time.
-            </FieldDescription>
-          </FieldContent>
-        </Field>
-      </FieldLabel>
     </FieldGroup>
   ),
 };
 
 export const Group: Story = {
-  args: {},
   render: () => (
     <FieldSet>
-      <FieldLegend variant="label">
-        Show these items on the desktop:
-      </FieldLegend>
+      <FieldLegend variant="label">Notify Mira Okafor about:</FieldLegend>
       <FieldDescription>
-        Select the items you want to show on the desktop.
+        Choose which Northwind events send a notification.
       </FieldDescription>
       <FieldGroup className="gap-3">
         <Field orientation="horizontal">
           <Checkbox
-            id="finder-pref-9k2-hard-disks-ljj-checkbox"
-            name="finder-pref-9k2-hard-disks-ljj-checkbox"
+            id="notify-invoices"
+            name="notify-invoices"
             defaultChecked
           />
-          <FieldLabel
-            htmlFor="finder-pref-9k2-hard-disks-ljj-checkbox"
-            className="font-normal"
-          >
-            Hard disks
+          <FieldLabel htmlFor="notify-invoices" className="font-normal">
+            Overdue invoices
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
           <Checkbox
-            id="finder-pref-9k2-external-disks-1yg-checkbox"
-            name="finder-pref-9k2-external-disks-1yg-checkbox"
+            id="notify-comments"
+            name="notify-comments"
             defaultChecked
           />
-          <FieldLabel
-            htmlFor="finder-pref-9k2-external-disks-1yg-checkbox"
-            className="font-normal"
-          >
-            External disks
+          <FieldLabel htmlFor="notify-comments" className="font-normal">
+            Project comments
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
-          <Checkbox
-            id="finder-pref-9k2-cds-dvds-fzt-checkbox"
-            name="finder-pref-9k2-cds-dvds-fzt-checkbox"
-          />
-          <FieldLabel
-            htmlFor="finder-pref-9k2-cds-dvds-fzt-checkbox"
-            className="font-normal"
-          >
-            CDs, DVDs, and iPods
+          <Checkbox id="notify-mentions" name="notify-mentions" />
+          <FieldLabel htmlFor="notify-mentions" className="font-normal">
+            Teammate mentions
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
-          <Checkbox
-            id="finder-pref-9k2-connected-servers-6l2-checkbox"
-            name="finder-pref-9k2-connected-servers-6l2-checkbox"
-          />
-          <FieldLabel
-            htmlFor="finder-pref-9k2-connected-servers-6l2-checkbox"
-            className="font-normal"
-          >
-            Connected servers
+          <Checkbox id="notify-releases" name="notify-releases" />
+          <FieldLabel htmlFor="notify-releases" className="font-normal">
+            Release notes
           </FieldLabel>
         </Field>
       </FieldGroup>

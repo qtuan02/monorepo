@@ -20,13 +20,13 @@ bun run --filter @monorepo/documents dev       # http://localhost:3003
 | --- | --- | --- |
 | Port | `ports.env` | Dev **3003**, E2E **3103** — khai đúng một chỗ; `vite.config.ts` đọc cả hai qua `ports.ts` (`server.port` / `preview.port`, `strictPort` cả hai), `playwright.config.ts` đọc `E2E_PORT`. |
 | Env | `src/env.ts` | Flavor `vite` của `@monorepo/env`; `.env` **ở root repo**, tới qua `envDir: "../../"` + `envPrefix: "PUBLIC_"` (**không** `VITE_`). |
-| Shell | `src/features/layout/` | **Không có sidebar.** `nav-pill.template.tsx` (nav pill kính dính đầu trang) · `components/nav/search-palette.tsx` (`⌘K` / `Ctrl K`) · `components/backdrop.tsx` · `provider/theme-provider.tsx`. Thứ tự DOM: skip link → nav pill → backdrop → `<main id>` → footer một dòng. |
+| Shell | `src/features/layout/` | **Không có sidebar.** `nav-pill.template.tsx` (nav pill kính dính đầu trang) · `components/nav/search-palette.tsx` (`⌘K` / `Ctrl K`) · `components/backdrop.tsx`. `ThemeProvider` ở `~/libs/theme-provider.tsx` (cross-cutting, không phải nội bộ slice — `DetailExample` cũng đọc nó). Thứ tự DOM: skip link → nav pill → backdrop → `<main id>` → footer một dòng. |
 | Panel · tile · swatch | `src/components/{panel,tile,swatch,detail,page,catalogue,code,search,link}/` | `GlassPanel` (utility `glass`), `Tile` (nền đục, **không** blur, tự render `<li>`), `Swatch` (hue từ `~/utils/slug-to-hue.ts`), `DetailToolbar` / `DetailHero` / `DetailExample` (iframe story) / `DetailPanels` / `PanelHeading`, `ListHeader`, `DocsSection`, `CatalogueList` (đầu trang + lọc + lưới, tile qua render prop — hai list template chỉ còn là vỏ), `CodeBlock` / `ImportSnippet`, `FilterInput` / `FilterEmpty`, `StorybookLink`. |
 | Palette · font · theme | `src/globals.css` | Override **toàn bộ** palette dùng chung ở tầng app (ADR-0009), hai webfont qua `@fontsource-variable`, dark mode "indigo night" — xem mục Font & palette. |
 | Router | `src/pages/main.tsx` | `react-router` 8 declarative; mọi path lấy từ `~/constants/routes.ts`. |
 | Guard | *(không có)* | Site public: `ProtectedRoute` / `GuestRoute`, slice `auth`, `use-auth-store` và cả `~/libs/http-client` của Template đã bị **xoá** thay vì để không dùng. Catch-all 404 giữ nguyên. |
 | Metadata | `scripts/generate-docs-metadata.ts` | Xem mục dưới — đây là thứ thay `src/constants/*.json` viết tay của bản cũ. |
-| Demo | Storybook | Site này **không viết** preview nào: 63 file preview thủ công của bản cũ bị bỏ. Mỗi trang primitive nhúng story `Default` của nó từ Storybook đã deploy (`iframe.html?id=<storyId>&viewMode=story`) làm ví dụ, và link sang trang docs của nó cho variant + bảng props. |
+| Demo | Storybook | Site này **không viết** preview nào: 63 file preview thủ công của bản cũ bị bỏ. Mỗi trang primitive nhúng story `Default` của nó từ Storybook đã deploy (`iframe.html?id=<storyId>&viewMode=story`) làm ví dụ, và link sang trang docs của nó cho variant + bảng props. iframe theo theme người đọc (`&globals=theme:dark` khi tối, không nối gì khi sáng) và không còn viền/nền riêng — stage panel của Storybook là khung duy nhất, `GlassPanel` bọc ngoài. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA; image thì builder Bun → `nginx:stable-alpine` như Template. |
 
 ## Hình dạng
@@ -119,11 +119,14 @@ nằm trong `catalog:` mặc định của root, import từ `globals.css`: font
 mạng**. Outfit chỉ có subset latin/latin-ext — dấu tiếng Việt trong tiêu đề rơi
 về system sans; JetBrains Mono có subset `vietnamese`.
 
-**Theme** — `~/features/layout/provider/theme-provider.tsx` port từ
-`apps/portfolio`: context + `useEffect` + một key `localStorage` (`theme`) +
-class `.dark` trên `<html>`; không `next-themes`, không store. Lần đầu theo
-`prefers-color-scheme`, bấm toggle thì nhớ. Một inline script trong `index.html`
-gắn class **trước** khi bundle tải để người đọc dark không thấy nền sáng nháy.
+**Theme** — `~/libs/theme-provider.tsx` port từ `apps/portfolio`: context +
+`useEffect` + một key `localStorage` (`theme`) + class `.dark` trên `<html>`;
+không `next-themes`, không store. Lần đầu theo `prefers-color-scheme`, bấm
+toggle thì nhớ. Một inline script trong `index.html` gắn class **trước** khi
+bundle tải để người đọc dark không thấy nền sáng nháy. Sống ở `~/libs` chứ
+không phải trong slice `layout` vì đây là state toàn app — `DetailExample`
+(một shared component) cũng đọc nó để chọn `&globals=theme:dark` cho iframe
+Storybook, và một shared component không được import ngược lên `~/features`.
 
 **Hợp đồng token là test**: `test/globals.test.ts` đọc `globals.css` như text và
 ghim bộ token, vị trí unlayered, radius, ba dòng font, hai import fontsource, và
@@ -251,10 +254,11 @@ Những gì được kiểm, và vì sao chỉ chừng đó:
 | --- | --- |
 | `test/scripts/docs-metadata.test.ts` | Parser, trên hai fixture giả ghi ra thư mục tạm (một `.tsx`, một `.ts`): danh sách export xuống dòng, `export type` bị loại, JSDoc đúng block, `@example` nhiều dòng / không có / có tag theo sau, file hỏng thì **ném** và gọi tên file |
 | `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; mọi hook có `example` khác `null`; `storybookDocsId` trỏ đúng story thật; `storybookExampleId` là một `export const` của file stories đó |
-| `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ; trang hook: panel Ví dụ từ source, và không có panel khi entry giả có `example: null` |
+| `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ; trang hook: panel Ví dụ từ source, và không có panel khi entry giả có `example: null`; iframe Ví dụ không viền/nền riêng, và `src` có `&globals=theme:dark` ở theme tối, không có ở theme sáng |
 | `test/features/component/components/component-tile.test.tsx` · `test/components/tile/tile.test.tsx` | Tile rộng ở 10 export và không rộng ở 9 — trên `listitem`, là grid item; tên link bắt đầu bằng slug; `+n` |
 | `test/features/component/templates/component-list.template.test.tsx` | Lọc rỗng hiện nút xoá bộ lọc, bấm thì danh sách quay lại |
-| `test/features/layout/**` | Shell (`layout.template`: nav pill, palette, thứ tự DOM) và `theme-provider` |
+| `test/features/layout/**` | Shell (`layout.template`: nav pill, palette, thứ tự DOM) |
+| `test/libs/theme-provider.test.tsx` | Ba quyết định của provider: mở theo theme nào, một lần switch ghi gì, class gắn ở đâu |
 | `test/globals.test.ts` | Hợp đồng token — xem mục Font & palette |
 | `test/utils/*.test.ts` | Logic thuần: xếp hạng bộ lọc, `slugToHue` (xác định, trong `[0, 360)`), hàng xóm trong Catalogue, và **đúng từng ký tự** dòng import mà người đọc copy |
 | `test/env.test.ts` | `.env.example` đã commit vẫn thoả schema của chính app này |

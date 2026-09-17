@@ -25,9 +25,12 @@ const reportQueryKeyFactory = queryKeysFactory("report");
 
 export const reportQueryKeys = {
   ...reportQueryKeyFactory,
-  getReportRows: () => reportQueryKeyFactory.list(),
-  getProfitLossSummary: () => reportQueryKeyFactory.detail("profit-loss"),
-  getOverdueDebts: () => reportQueryKeyFactory.detail("overdue-debts"),
+  getReportRows: (buildingId?: string | null) =>
+    reportQueryKeyFactory.list({ buildingId }),
+  getProfitLossSummary: (buildingId?: string | null) =>
+    reportQueryKeyFactory.detail("profit-loss", { buildingId }),
+  getOverdueDebts: (buildingId?: string | null) =>
+    reportQueryKeyFactory.detail("overdue-debts", { buildingId }),
 };
 
 function buildTenantViews(): TenantView[] {
@@ -36,7 +39,7 @@ function buildTenantViews(): TenantView[] {
   );
 }
 
-function getRows(): ReportRow[] {
+function getRows(buildingId: string | null | undefined): ReportRow[] {
   return buildReportRows({
     buildings: mockBuildings,
     rooms: mockRooms,
@@ -44,35 +47,51 @@ function getRows(): ReportRow[] {
     expenses: mockExpenses,
     utilities: mockUtilities,
     tenantViews: buildTenantViews(),
+    buildingId,
   });
 }
 
+interface ReportParams {
+  /** The Building scope; `null` or absent means every Toà nhà. */
+  buildingId?: string | null;
+}
+
 export function useGetReportRows(
+  params?: ReportParams,
   options?: UseQueryOptionsWrapper<ReportRow[]>,
 ): UseQueryResult<ReportRow[], Error> {
   return useQuery<ReportRow[], Error>({
-    queryKey: reportQueryKeys.getReportRows(),
-    queryFn: async () => getRows(),
+    queryKey: reportQueryKeys.getReportRows(params?.buildingId),
+    queryFn: async () => getRows(params?.buildingId),
     ...options,
   });
 }
 
 export function useGetProfitLossSummary(
+  params?: ReportParams,
   options?: UseQueryOptionsWrapper<ProfitLossSummary>,
 ): UseQueryResult<ProfitLossSummary, Error> {
   return useQuery<ProfitLossSummary, Error>({
-    queryKey: reportQueryKeys.getProfitLossSummary(),
-    queryFn: async () => buildProfitLossSummary(getRows()),
+    queryKey: reportQueryKeys.getProfitLossSummary(params?.buildingId),
+    queryFn: async () => buildProfitLossSummary(getRows(params?.buildingId)),
     ...options,
   });
 }
 
 export function useGetOverdueDebts(
+  params?: ReportParams,
   options?: UseQueryOptionsWrapper<OverdueDebt[]>,
 ): UseQueryResult<OverdueDebt[], Error> {
   return useQuery<OverdueDebt[], Error>({
-    queryKey: reportQueryKeys.getOverdueDebts(),
-    queryFn: async () => buildOverdueDebts(mockInvoices),
+    queryKey: reportQueryKeys.getOverdueDebts(params?.buildingId),
+    queryFn: async () =>
+      buildOverdueDebts(
+        params?.buildingId
+          ? mockInvoices.filter(
+              (invoice) => invoice.buildingId === params.buildingId,
+            )
+          : mockInvoices,
+      ),
     ...options,
   });
 }
