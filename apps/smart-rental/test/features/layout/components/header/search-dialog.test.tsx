@@ -19,7 +19,10 @@ function renderDialog() {
   return router;
 }
 
-describe("SearchDialog", () => {
+// userEvent types through the command palette one key at a time and the palette
+// filters the whole Mock on each keystroke, so under a full parallel run these
+// cases pass 5s while passing in ~1s alone.
+describe("SearchDialog", { timeout: 20_000 }, () => {
   beforeEach(() => {
     useBuildingStore.setState(initialBuildingState, true);
   });
