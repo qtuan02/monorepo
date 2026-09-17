@@ -16,7 +16,9 @@ import { toast } from "@monorepo/ui/components/toast";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Task, TaskType } from "~/types/task";
+import { StatusBadge } from "~/components/badge/status-badge";
 import { ROUTES } from "~/constants/routes";
+import { taskPriorityConfig } from "~/constants/status";
 import { taskRelatedPath } from "~/utils/task-due";
 
 const taskTypeIcon: Record<TaskType, LucideIcon> = {
@@ -82,7 +84,13 @@ interface TaskQueueProps {
   tasks: Task[];
 }
 
-/** "Cần làm hôm nay" — each Việc cần làm as an Item, its own action(s) beside it. */
+/**
+ * "Cần làm hôm nay" — each Việc cần làm as an Item, its own action(s) beside
+ * it. One badge (ưu tiên) per item — the prototype's three (ưu tiên + loại +
+ * trạng thái, all on the same card) is research C.1 #8's own defect; loại
+ * already reads from the icon, and trạng thái is always "open" now that
+ * Việc cần làm has no Mock of its own (spec #153 §10 row 9).
+ */
 export default function TaskQueue({ tasks }: TaskQueueProps) {
   if (tasks.length === 0) {
     return (
@@ -108,7 +116,14 @@ export default function TaskQueue({ tasks }: TaskQueueProps) {
               <Icon />
             </ItemMedia>
             <ItemContent>
-              <ItemTitle>{task.title}</ItemTitle>
+              <ItemTitle>
+                {task.title}
+                <StatusBadge
+                  config={taskPriorityConfig[task.priority]}
+                  isCompact
+                  className="shrink-0"
+                />
+              </ItemTitle>
               <ItemDescription>{task.description}</ItemDescription>
             </ItemContent>
             <ItemActions>
