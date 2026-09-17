@@ -21,7 +21,16 @@ const STAGE_WIDTHS = new Set(["sm", "md", "lg", "full"]);
 // the eight family tickets copy from. Each family ticket appends its own slugs
 // here; the ticket that closes the spec deletes this list so every check below
 // runs against all 82 story files at once instead of two.
-const STANDARDIZED = new Set(["button", "dialog"]);
+const STANDARDIZED = new Set([
+  "button",
+  "dialog",
+  "alert",
+  "empty",
+  "progress",
+  "skeleton",
+  "spinner",
+  "marker",
+]);
 
 // `accordion` is the one file the `Default`-export contract does not reach —
 // `apps/documents/README.md` documents it as an intentional exception (its two

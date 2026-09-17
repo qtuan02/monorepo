@@ -15,6 +15,13 @@ import { Input } from "@monorepo/ui/components/input";
 const meta = {
   title: "Storybook/Empty",
   component: Empty,
+  subcomponents: {
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+    EmptyDescription,
+    EmptyContent,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Empty>;
 
@@ -23,40 +30,45 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <Empty className="w-full max-w-md border">
+    <Empty className="border">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <FolderOpenIcon />
         </EmptyMedia>
-        <EmptyTitle>No files found</EmptyTitle>
+        <EmptyTitle>No projects yet</EmptyTitle>
         <EmptyDescription>
-          You haven't uploaded any files yet. Get started by uploading one.
+          Northwind doesn't have any projects yet. Create one to start tracking
+          work.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button>Upload file</Button>
+        <Button>New project</Button>
       </EmptyContent>
     </Empty>
   ),
 };
 
-export const SearchResults: Story = {
-  args: {},
+export const NoResults: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <Empty className="w-full max-w-md border">
+    <Empty className="border">
       <EmptyHeader>
         <EmptyMedia variant="icon">
           <SearchIcon />
         </EmptyMedia>
-        <EmptyTitle>No results found</EmptyTitle>
+        <EmptyTitle>No invoices found</EmptyTitle>
         <EmptyDescription>
-          Try adjusting your search to find what you're looking for.
+          Try a different project or clear the status filter.
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Input placeholder="Search..." className="max-w-xs" />
+        <Input placeholder="Search invoices…" />
       </EmptyContent>
     </Empty>
   ),
