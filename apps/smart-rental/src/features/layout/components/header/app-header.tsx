@@ -27,7 +27,7 @@ export default function AppHeader() {
   const area = resolveNavigationItem(pathname);
 
   return (
-    <header className="border-border bg-background/80 sticky top-0 z-10 flex h-15 items-center gap-3 border-b px-4 backdrop-blur-md lg:px-6">
+    <header className="border-border bg-background/80 sticky top-0 z-10 flex h-15 items-center gap-3 border-b px-4 backdrop-blur-md lg:px-6 print:hidden">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <SidebarTrigger className="text-muted-foreground hover:text-foreground hidden md:inline-flex" />
         <Separator orientation="vertical" className="hidden h-5! md:block" />

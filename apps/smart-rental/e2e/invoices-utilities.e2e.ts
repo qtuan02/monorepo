@@ -127,6 +127,33 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     ).toBe(true);
   });
 
+  // Ticket #164, spec #153 §10 row 12 — "Phòng thiếu Chỉ số không tick được".
+  // The Mock only carries Chỉ số through 09/2026, so any later kỳ has none
+  // yet — every row of the Đợt hoá đơn table is "chưa đủ điều kiện".
+  test("Đợt hoá đơn: a kỳ with no Chỉ số ticks nothing and blocks the submit", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.INVOICE_BATCH);
+    await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
+
+    await page.getByRole("button", { name: "Kỳ hoá đơn" }).click();
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    await page
+      .getByRole("button", { name: `Th ${nextMonth.getMonth() + 1}` })
+      .click();
+
+    const row = page.getByRole("row", { name: "Phòng 102" });
+    await expect(row.getByText("Chưa đủ điều kiện")).toBeVisible();
+    await expect(row.getByRole("checkbox")).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+    await expect(
+      page.getByRole("button", { name: "Tạo & Gửi 0 hoá đơn" }),
+    ).toBeDisabled();
+  });
+
   test("derives consumption and status while a reading is typed, and gates the save button on duyệt", async ({
     page,
   }) => {

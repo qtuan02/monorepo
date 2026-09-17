@@ -29,7 +29,7 @@ export default function AppSidebar() {
   const { pathname } = useLocation();
 
   return (
-    <Sidebar collapsible="icon" className="border-r-0">
+    <Sidebar collapsible="icon" className="border-r-0 print:hidden">
       <SidebarHeader className="h-15 justify-center border-b px-4 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:px-0">
         <Link
           to={ROUTES.HOME}

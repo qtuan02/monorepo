@@ -2,12 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import dayjs from "@monorepo/dayjs";
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@monorepo/ui/components/field";
+import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
 import {
   Select,
   SelectContent,
@@ -128,9 +123,6 @@ export default function PaymentFormSheet({
             </Field>
           )}
         />
-        {form.formState.errors.method && (
-          <FieldError errors={[form.formState.errors.method]} />
-        )}
       </FieldGroup>
     </FormSheet>
   );

@@ -27,7 +27,7 @@ export default function LayoutTemplate() {
       <AppSidebar />
       <SidebarInset className="overflow-hidden">
         <AppHeader />
-        <div className="border-border bg-background/60 sticky top-15 z-10 border-b px-4 py-2 lg:px-6">
+        <div className="border-border bg-background/60 sticky top-15 z-10 border-b px-4 py-2 lg:px-6 print:hidden">
           <BuildingScope />
         </div>
         <div className="flex-1 overflow-auto pb-16 md:pb-0">

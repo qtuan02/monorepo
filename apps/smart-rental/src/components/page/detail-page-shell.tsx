@@ -79,7 +79,7 @@ export function DetailPageShell({
     <div className="space-y-6">
       <h1 className="sr-only">{title}</h1>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
         {hasBreadcrumb ? (
           <Breadcrumb>
             <BreadcrumbList>
@@ -139,7 +139,7 @@ export function DetailPageShell({
 
       {hasTabs ? (
         <Tabs defaultValue={tabs[0]?.value}>
-          <TabsList>
+          <TabsList className="print:hidden">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
                 {tab.label}

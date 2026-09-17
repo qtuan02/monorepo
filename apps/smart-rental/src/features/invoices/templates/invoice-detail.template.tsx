@@ -29,7 +29,7 @@ import {
   invoiceStatusConfig,
 } from "~/constants/status";
 import PaymentFormSheet from "~/features/invoices/components/payment-form-sheet";
-import { SendReminderDialog } from "~/features/invoices/components/send-reminder-dialog";
+import SendReminderDialog from "~/features/invoices/components/send-reminder-dialog";
 import VietQrDialog from "~/features/invoices/components/vietqr-dialog";
 import { useGetBuilding } from "~/hooks/api/building";
 import { useGetInvoice } from "~/hooks/api/invoice";
@@ -224,6 +224,7 @@ function RemindersTab({ invoice }: { invoice: Invoice }) {
 export default function InvoiceDetailTemplate({
   invoiceId,
 }: InvoiceDetailTemplateProps) {
+  // See RemindersTab's own "use no memo" for why every tab here needs it.
   "use no memo";
   const navigate = useNavigate();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);

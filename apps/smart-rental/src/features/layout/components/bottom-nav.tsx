@@ -28,7 +28,7 @@ export default function BottomNav() {
   return (
     <nav
       aria-label="Điều hướng chính"
-      className="border-border bg-background fixed inset-x-0 bottom-0 z-20 flex h-16 items-stretch border-t md:hidden"
+      className="border-border bg-background fixed inset-x-0 bottom-0 z-20 flex h-16 items-stretch border-t md:hidden print:hidden"
     >
       {bottomNavItems.map((item) => {
         const active = isNavigationItemActive(item, pathname);

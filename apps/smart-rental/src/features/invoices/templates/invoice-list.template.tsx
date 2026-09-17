@@ -17,7 +17,7 @@ import { invoiceStatusConfig, toFilterOptions } from "~/constants/status";
 import InvoiceCard from "~/features/invoices/components/invoice-card";
 import { invoiceColumns } from "~/features/invoices/components/invoice-columns";
 import InvoiceMobileRow from "~/features/invoices/components/invoice-mobile-row";
-import { SendReminderDialog } from "~/features/invoices/components/send-reminder-dialog";
+import SendReminderDialog from "~/features/invoices/components/send-reminder-dialog";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 import { buildInvoiceCsv } from "~/features/invoices/utils/invoice-export";
 import { useGetInvoices } from "~/hooks/api/invoice";

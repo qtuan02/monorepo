@@ -37,7 +37,7 @@ interface SendReminderDialogProps {
  * from một Hoá đơn's own "Nhắc nợ" tab (`invoiceIds` length 1) và từ thanh
  * chọn hàng loạt của danh sách.
  */
-export function SendReminderDialog({
+export default function SendReminderDialog({
   open,
   onOpenChange,
   invoiceIds,
