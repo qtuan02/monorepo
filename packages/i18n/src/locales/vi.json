@@ -400,6 +400,12 @@
         },
         "use-session-storage": {
           "description": "[value, setValue, removeValue] lưu vào sessionStorage dạng JSON; an toàn khi render phía server, trả initialValue khi không có window."
+        },
+        "use-network-status": {
+          "description": "Theo dõi navigator.onLine qua sự kiện online/offline; an toàn khi render phía server, trả về true."
+        },
+        "use-dark-mode": {
+          "description": "[isDarkMode, toggle] lưu vào localStorage, mặc định theo prefers-color-scheme; tuỳ chỉnh storageKey, className và target."
         }
       }
     },

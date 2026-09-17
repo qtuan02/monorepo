@@ -1,6 +1,6 @@
 # @fe-monorepo/hook
 
-Seven generic React hooks, published from the [`monorepo`](https://github.com/qtuan02/monorepo)
+Nine generic React hooks, published from the [`monorepo`](https://github.com/qtuan02/monorepo)
 workspace as ESM with per-file type declarations. No barrel, no root entry — you import the
 hook you need by its own subpath, so a bundler ships only that file.
 
@@ -54,6 +54,8 @@ open the hook's page on the workspace's docs site (`apps/documents` in the repos
 | `@fe-monorepo/hook/use-isomorphic-layout-effect` | `useIsomorphicLayoutEffect` | `useLayoutEffect` in the browser, `useEffect` on the server. |
 | `@fe-monorepo/hook/use-local-storage` | `useLocalStorage(key, initialValue)` | `[value, setValue]` persisted to `localStorage` as JSON. SSR-safe: unlike upstream, the initializer returns `initialValue` on the server instead of throwing on the missing `window`. |
 | `@fe-monorepo/hook/use-session-storage` | `useSessionStorage(key, initialValue)` | `[value, setValue, removeValue]` persisted to `sessionStorage` as JSON. SSR-safe, same as above. |
+| `@fe-monorepo/hook/use-network-status` | `useNetworkStatus()` | `navigator.onLine`, kept live by the `online`/`offline` window events. Renders `true` with no `window`. |
+| `@fe-monorepo/hook/use-dark-mode` | `useDarkMode(options?)` | `[isDarkMode, toggle]` persisted to `localStorage`, defaulting from `prefers-color-scheme`. `options.storageKey`, `options.className` and `options.target` are all configurable. |
 
 ## TypeScript
 
@@ -66,10 +68,10 @@ MIT
 
 ## Third-party notices
 
-Six of the seven hooks are derived from [hooks-ts](https://github.com/michal-worwag/hooks-ts)
+Eight of the nine hooks are derived from [hooks-ts](https://github.com/michal-worwag/hooks-ts)
 (`hooks-ts@0.12.0`, MIT © 2024 Michał Worwąg): `use-debounce`, `use-media-query`,
-`use-copy-to-clipboard`, `use-isomorphic-layout-effect`, `use-local-storage` and
-`use-session-storage`. Each of those source files
+`use-copy-to-clipboard`, `use-isomorphic-layout-effect`, `use-local-storage`,
+`use-session-storage`, `use-network-status` and `use-dark-mode`. Each of those source files
 opens with a `Derived from hooks-ts` line naming the upstream file and commit, and the
 upstream license ships in this package as [`LICENSE-hooks-ts`](./LICENSE-hooks-ts).
 `use-is-mobile` is this workspace's own.

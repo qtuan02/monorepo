@@ -400,6 +400,12 @@
         },
         "use-session-storage": {
           "description": "[value, setValue, removeValue] persisted to sessionStorage as JSON; SSR-safe, returns initialValue with no window."
+        },
+        "use-network-status": {
+          "description": "Tracks navigator.onLine via the online/offline events; SSR-safe, returns true with no window."
+        },
+        "use-dark-mode": {
+          "description": "[isDarkMode, toggle] persisted to localStorage, defaults from prefers-color-scheme; storageKey, className and target are all configurable."
         }
       }
     },
