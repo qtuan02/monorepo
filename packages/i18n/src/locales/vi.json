@@ -369,7 +369,7 @@
     },
     "hooks": {
       "title": "Hook",
-      "description": "Năm hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
+      "description": "Tám hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
       "count": "{count, plural, other {# hook}}",
       "detail": {
         "exportSummary": "{count, plural, other {# export}}",
@@ -394,6 +394,15 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect ở trình duyệt, useEffect ở phía server."
+        },
+        "use-hover": {
+          "description": "Theo dõi con trỏ có đang ở trên một phần tử hay không, qua mouseenter/mouseleave."
+        },
+        "use-on-screen": {
+          "description": "Báo một phần tử có đang nằm trong viewport hay không, qua IntersectionObserver."
+        },
+        "use-throttle": {
+          "description": "Throttle value: cập nhật ngay ở lần đổi đầu tiên ngoài cửa sổ delay, và một lần nữa cho giá trị cuối khi cửa sổ đóng."
         }
       }
     },

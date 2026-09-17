@@ -1,6 +1,6 @@
 # @fe-monorepo/hook
 
-Five generic React hooks, published from the [`monorepo`](https://github.com/qtuan02/monorepo)
+Eight generic React hooks, published from the [`monorepo`](https://github.com/qtuan02/monorepo)
 workspace as ESM with per-file type declarations. No barrel, no root entry — you import the
 hook you need by its own subpath, so a bundler ships only that file.
 
@@ -52,6 +52,9 @@ open the hook's page on the workspace's docs site (`apps/documents` in the repos
 | `@fe-monorepo/hook/use-is-mobile` | `useIsMobile()`, `MOBILE_BREAKPOINT` | `useMediaQuery` pinned to Tailwind's `md` breakpoint (768px). |
 | `@fe-monorepo/hook/use-copy-to-clipboard` | `useCopyToClipboard()` | `[copiedText, copy]`; `copy(text)` resolves `void` — `copiedText` is `text` after a successful copy, `null` after a failed one, and the hook only warns when the Clipboard API is unavailable. |
 | `@fe-monorepo/hook/use-isomorphic-layout-effect` | `useIsomorphicLayoutEffect` | `useLayoutEffect` in the browser, `useEffect` on the server. |
+| `@fe-monorepo/hook/use-hover` | `useHover(elementRef)` | Tracks whether the pointer is over the element `elementRef` points at, via `mouseenter`/`mouseleave` listeners. |
+| `@fe-monorepo/hook/use-on-screen` | `useOnScreen(ref, rootMargin?)` | Reports whether `ref`'s element is inside the viewport, via an `IntersectionObserver`. |
+| `@fe-monorepo/hook/use-throttle` | `useThrottle(value, delay)` | Throttles `value` to at most one update per `delay`ms: a leading update on the first change outside the window, a trailing update for the last change inside it. |
 
 ## TypeScript
 
@@ -64,9 +67,9 @@ MIT
 
 ## Third-party notices
 
-Four of the five hooks are derived from [hooks-ts](https://github.com/michal-worwag/hooks-ts)
+Seven of the eight hooks are derived from [hooks-ts](https://github.com/michal-worwag/hooks-ts)
 (`hooks-ts@0.12.0`, MIT © 2024 Michał Worwąg): `use-debounce`, `use-media-query`,
-`use-copy-to-clipboard` and `use-isomorphic-layout-effect`. Each of those source files
-opens with a `Derived from hooks-ts` line naming the upstream file and commit, and the
-upstream license ships in this package as [`LICENSE-hooks-ts`](./LICENSE-hooks-ts).
-`use-is-mobile` is this workspace's own.
+`use-copy-to-clipboard`, `use-isomorphic-layout-effect`, `use-hover`, `use-on-screen` and
+`use-throttle`. Each of those source files opens with a `Derived from hooks-ts` line naming the
+upstream file and commit, and the upstream license ships in this package as
+[`LICENSE-hooks-ts`](./LICENSE-hooks-ts). `use-is-mobile` is this workspace's own.
