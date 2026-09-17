@@ -28,7 +28,7 @@ bun add @fe-monorepo/ui
 | `tailwindcss` | `^4` |
 
 The package is ESM-only (`"type": "module"`) and ships no CommonJS build. It does **not**
-depend on `@fe-monorepo/hook`: the one hook it uses internally is compiled into its own
+depend on `@fe-monorepo/hook`: the two hooks it uses internally are compiled into its own
 `dist/`, so installing the UI package pulls in no sibling.
 
 ## Set up the stylesheet

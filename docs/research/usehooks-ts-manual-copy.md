@@ -1,5 +1,12 @@
 # Copy tay hook từ usehooks-ts vào `@monorepo/hook` — khảo sát trước khi grill
 
+> **Khảo sát nhầm thư viện.** Chủ repo thật ra muốn `hooks-ts` (michal-worwag) — quyết định cuối
+> ở [`hooks-ts-manual-copy.md`](./hooks-ts-manual-copy.md) và ADR-0010 dựa trên thư viện đó, không
+> phải `usehooks-ts` (juliencrn) mà note này khảo sát. Giữ lại vì note kia vẫn dẫn tới các fact
+> **phía repo** dưới đây (§5, §6, §7) bằng đường dẫn — chỉ mọi claim về **thư viện ngoài** trong
+> note này (tên hook, license year, số hook, trạng thái upstream) mới sai; đọc `hooks-ts-manual-copy.md`
+> cho phần đó.
+>
 > Ngày kiểm tra: **2026-09-17**, nhánh `dev`, HEAD `f54dad3`. Nguồn: chỉ primary sources — source thật của usehooks-ts tải từ `raw.githubusercontent.com` **pin ở commit `6194913`** (`61949134144d3690fe9f521260a16c779a6d3797`, HEAD của `master`, ngày 2025-02-05, chính là commit của tag `usehooks-ts@3.1.1`), GitHub API của repo đó, `npm view usehooks-ts`, trang https://usehooks-ts.com/introduction, react.dev, và file thật trong repo này (đường dẫn kèm số dòng, `git show` kèm hash). Hai kiểm tra chạy thật: `tsc` của repo (TypeScript 7.0.2, `@types/react` 19.2.18, `tooling/typescript/base.json`) và `biome lint` của repo trên 33 file upstream, trong thư mục scratchpad, không đụng repo. Mọi claim có citation; chỗ chưa verify được ghi rõ **"chưa xác minh"**.
 >
 > **Phạm vi:** chủ repo muốn copy tay source hook của usehooks-ts vào `packages/hook/src/` (một file một hook, không depend npm package) để dựng lại `@monorepo/hook` — thứ được publish lên npm dưới tên `@fe-monorepo/hook` qua Publish shell `packages/hook-public` (ADR-0004). Note này trả lời *copy được gì, copy thế nào, và giá của từng hook* — quyết định là của phiên grill sau. Không file nào ngoài note này được sửa.

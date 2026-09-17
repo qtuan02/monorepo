@@ -1,5 +1,5 @@
 ---
-status: proposed (spec #144)
+status: accepted
 date: 2026-09-17
 ---
 
@@ -25,7 +25,7 @@ Quyết định: **17 hook của hooks-ts 0.12.0** (tất cả trừ `useSlugify
 - **Bản 1.0.0 trên npm đã phân phối 11 hook hooks-ts không notice** và không sửa được hồi tố; CHANGELOG của 2.0.0 ghi rõ điều đó thay vì im lặng.
 - **Derived là hợp đồng có thể kiểm**: header bắt buộc trên mọi file trong `packages/hook/src/` trừ `use-is-mobile`; một test đọc từng file như text và fail nếu thiếu header hoặc SHA. Re-sync = tải file gốc ở SHA mới, diff với SHA cũ, áp diff tay lên bản Derived; không bao giờ ghi đè.
 - **API đổi trong 2.0.0** (chưa release): `copy` trả `Promise<void>`, `useMediaQuery(query)` không còn options, `use-is-mobile` render `false` ở frame đầu trên mọi Runtime (không mismatch, một frame sai trên mobile) — chấp nhận, ghi trong changeset.
-- **Ba nơi tự động mang mọi file hook** phải được cập nhật cùng lúc: `apps/documents` cần JSDoc trên mỗi hook và `documents.hooks.items.<slug>.description` ở cả `vi.json` lẫn `en.json` (`catalogue-invariants.test.ts` fail nếu thiếu); `packages/ui/rslib.config.ts` thu glob về `use-is-mobile` + `use-media-query` + `use-isomorphic-layout-effect`; CLAUDE.md §1 và README shell liệt kê lại hook.
+- **Ba nơi tự động mang mọi file hook** phải được cập nhật cùng lúc: `apps/documents` cần JSDoc trên mỗi hook và `documents.hooks.items.<slug>.description` ở cả `vi.json` lẫn `en.json` (`catalogue-invariants.test.ts` fail nếu thiếu); `packages/ui/rslib.config.ts` thu glob về đúng hai file `sidebar` cần — `use-is-mobile` + `use-media-query` — chứ không phải cả `packages/hook/src`; CLAUDE.md §1 và README shell liệt kê lại hook.
 - **`packages/hook` có test runner lần đầu** (Vitest 5 + RTL, jsdom, `TZ=UTC` trong config), vào Gate qua `turbo run test`.
 - **Rule không đổi**: `patterns-debounce-search-input.md` vẫn đúng (hooks-ts không có callback-form debounce); `react-effects-sync-only`/react.dev thắng upstream ở `usePrevious`.
 - **Đảo ngược**: xoá 17 file + LICENSE + test, trả `rslib.config.ts` của ui về glob cũ, xoá 2×17 chuỗi i18n; ADR-0004 và các shell không dịch chuyển.
