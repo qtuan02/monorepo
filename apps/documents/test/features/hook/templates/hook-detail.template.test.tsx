@@ -1,10 +1,18 @@
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { hookCatalogue } from "~/constants/docs-catalogue";
+import { findHook, hookCatalogue } from "~/constants/docs-catalogue";
 import { ROUTES } from "~/constants/routes";
 import HookDetailTemplate from "~/features/hook/templates/hook-detail.template";
+
+// The real lookup, wrapped so one test can hand the page an entry the
+// catalogue invariant forbids — a hook with no `@example`.
+vi.mock("~/constants/docs-catalogue", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("~/constants/docs-catalogue")>();
+  return { ...actual, findHook: vi.fn(actual.findHook) };
+});
 
 function renderAtSlug(slug: string) {
   return render(
@@ -58,6 +66,33 @@ describe("the hook detail page", () => {
       screen.getByText(
         'import { useDebounce } from "@fe-monorepo/hook/use-debounce";',
       ),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the hook's own `@example` as the example panel", () => {
+    renderAtSlug("use-debounce");
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Ví dụ" }),
+    ).toBeInTheDocument();
+    // A line from `packages/hook/src/use-debounce.ts`'s JSDoc, not from any
+    // catalogue or README — the source is the only place it is written.
+    expect(
+      screen.getByText(/const debouncedSearch = useDebounce\(search, 500\);/),
+    ).toBeInTheDocument();
+  });
+
+  it("renders no example panel for a hook whose JSDoc has no `@example`", () => {
+    const entry = findHook("use-debounce");
+    if (!entry) throw new Error("`use-debounce` is missing from the catalogue");
+    vi.mocked(findHook).mockReturnValueOnce({ ...entry, example: null });
+
+    renderAtSlug("use-debounce");
+
+    expect(screen.queryByRole("heading", { name: "Ví dụ" })).toBeNull();
+    // The rest of the page is unaffected: the import panel still renders.
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Import" }),
     ).toBeInTheDocument();
   });
 

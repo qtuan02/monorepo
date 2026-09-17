@@ -390,6 +390,7 @@
         "exportSummary": "{count, plural, other {# export}}",
         "import": "Import",
         "exports": "Export",
+        "example": "Ví dụ",
         "prev": "Trước: {slug}",
         "next": "Sau: {slug}"
       },

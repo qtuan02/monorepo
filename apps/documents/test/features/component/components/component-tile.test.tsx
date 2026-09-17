@@ -13,6 +13,7 @@ function entryWith(count: number): ComponentDocsEntry {
     importPath: "@fe-monorepo/ui/components/probe",
     exports: Array.from({ length: count }, (_, index) => `Export${index + 1}`),
     description: null,
+    example: null,
     storybookDocsId: "components-probe",
     storybookExampleId: "components-probe--default",
   };

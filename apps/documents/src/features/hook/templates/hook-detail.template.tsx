@@ -57,8 +57,9 @@ export default function HookDetailTemplate() {
           count: entry.exports.length,
         })}
         // The sentence comes from the shared catalogue rather than the
-        // generator: a hook's source carries no JSDoc today, and the published
-        // README already writes one line for each of the five.
+        // generator's `description`: the JSDoc is English only, and this
+        // site reads in two languages. The example below is the one field a
+        // hook page does take from the source.
         description={t(`documents.hooks.items.${entry.slug}.description`)}
         npmUrl={NPM_URLS.hook}
       />
@@ -68,6 +69,16 @@ export default function HookDetailTemplate() {
         importPath={entry.importPath}
         importHeading={t("documents.hooks.detail.import")}
         exportsHeading={t("documents.hooks.detail.exports")}
+        // The snippet is the hook's own `@example`, read by the generator —
+        // the same text a consumer sees on hover, so the two cannot drift.
+        example={
+          entry.example === null
+            ? undefined
+            : {
+                heading: t("documents.hooks.detail.example"),
+                code: entry.example,
+              }
+        }
       />
     </>
   );

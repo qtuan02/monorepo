@@ -17,8 +17,10 @@ export interface DocsEntry {
   importPath: string;
   /** Named value exports, sorted, with `export type` entries removed. */
   exports: string[];
-  /** The leading JSDoc block of the first exported declaration, if the file has one. */
+  /** The leading JSDoc block of the first exported declaration carrying one, if the file has one. */
   description: string | null;
+  /** That block's `@example` body, line for line — the usage snippet a hook page shows. */
+  example: string | null;
 }
 
 /** A component entry always carries the ids of its Storybook docs page and example story. */

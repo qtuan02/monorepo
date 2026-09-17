@@ -73,10 +73,11 @@ export const HOOK_SOURCE: DocsSource = {
   subpathPrefix: HOOK_SUBPATH_PREFIX,
 };
 
-/** The two fields a single source file yields, before it is given a subpath. */
+/** The fields a single source file yields, before it is given a subpath. */
 export interface ParsedModule {
   exports: string[];
   description: string | null;
+  example: string | null;
 }
 
 // oxc-parser types its `program` through `@oxc-project/types`, which Bun does
@@ -103,22 +104,17 @@ function isExportedDeclaration(node: ProgramNode): boolean {
 }
 
 /**
- * A JSDoc block sitting immediately above the first exported declaration, with
+ * The JSDoc block sitting immediately above an exported declaration, with
  * nothing but whitespace between the two. Anything further up documents an
- * import or an internal helper and is not this module's description.
+ * import or an internal helper and is not this module's block.
  */
-function extractDescription(
+function jsDocAbove(
   source: string,
   comments: SourceComment[],
-  body: ProgramNode[],
-): string | null {
-  const declaration = body.find(isExportedDeclaration);
-  if (!declaration) return null;
-
+  declaration: ProgramNode,
+): SourceComment | undefined {
   // Walked from the end so the *closest* block above the declaration wins.
   // `findLast` would say it better, but the app's lib target is ES2022.
-  let jsDoc: SourceComment | undefined;
-
   for (let index = comments.length - 1; index >= 0; index -= 1) {
     const comment = comments[index];
     if (!comment) continue;
@@ -129,27 +125,85 @@ function extractDescription(
       comment.end <= declaration.start &&
       source.slice(comment.end, declaration.start).trim() === ""
     ) {
-      jsDoc = comment;
-      break;
+      return comment;
     }
   }
 
-  if (!jsDoc) return null;
+  return undefined;
+}
 
-  const text = jsDoc.value
+function isTagLine(line: string): boolean {
+  return line.trimStart().startsWith("@");
+}
+
+/** Drops the blank lines the `@example` line and the block's closing line leave around an example. */
+function trimBlankEdges(lines: string[]): string[] {
+  const start = lines.findIndex((line) => line.trim().length > 0);
+  if (start === -1) return [];
+
+  let end = lines.length;
+  while (end > start && lines[end - 1]?.trim().length === 0) end -= 1;
+
+  return lines.slice(start, end);
+}
+
+/**
+ * The description and the `@example` of the first exported declaration that
+ * carries a JSDoc block — the *first with one*, not the first export, because
+ * `use-is-mobile` exports its breakpoint constant ahead of the hook the block
+ * describes.
+ *
+ * The description is every line before the first `@tag`, joined into one
+ * sentence. The example is every line after `@example` (or the rest of that
+ * same line) up to the next tag, kept line for line with its indent, so a
+ * snippet renders exactly as the source wrote it.
+ */
+function extractJsDoc(
+  source: string,
+  comments: SourceComment[],
+  body: ProgramNode[],
+): Omit<ParsedModule, "exports"> {
+  let jsDoc: SourceComment | undefined;
+
+  for (const node of body) {
+    if (!isExportedDeclaration(node)) continue;
+    jsDoc = jsDocAbove(source, comments, node);
+    if (jsDoc) break;
+  }
+
+  if (!jsDoc) return { description: null, example: null };
+
+  // Only the `*` gutter goes, never the indent after it — an example's code
+  // keeps its nesting.
+  const lines = jsDoc.value
     .slice(1)
     .split("\n")
-    .map((line: string) =>
-      line
-        .trim()
-        .replace(/^\*+ ?/, "")
-        .trim(),
-    )
-    .filter((line: string) => line.length > 0)
-    .join(" ")
-    .trim();
+    .map((line: string) => line.replace(/^\s*\*+ ?/, "").trimEnd());
 
-  return text.length > 0 ? text : null;
+  const firstTag = lines.findIndex(isTagLine);
+  const description = (firstTag === -1 ? lines : lines.slice(0, firstTag))
+    .map((line: string) => line.trim())
+    .filter((line: string) => line.length > 0)
+    .join(" ");
+
+  const exampleTag = lines.findIndex((line) =>
+    line.trimStart().startsWith("@example"),
+  );
+  let example: string | null = null;
+
+  if (exampleTag !== -1) {
+    const inline = lines[exampleTag]?.trimStart().slice("@example".length);
+    const rest = lines.slice(exampleTag + 1);
+    const nextTag = rest.findIndex(isTagLine);
+    const exampleLines = trimBlankEdges([
+      inline?.trim() ?? "",
+      ...(nextTag === -1 ? rest : rest.slice(0, nextTag)),
+    ]);
+
+    example = exampleLines.length > 0 ? exampleLines.join("\n") : null;
+  }
+
+  return { description: description.length > 0 ? description : null, example };
 }
 
 /**
@@ -190,13 +244,13 @@ export function parseDocsModule(
   // Turbo hash and every review diff.
   const exports = [...names].sort((left, right) => left.localeCompare(right));
 
-  const description = extractDescription(
+  const { description, example } = extractJsDoc(
     source,
     result.comments as SourceComment[],
     result.program.body as ProgramNode[],
   );
 
-  return { exports, description };
+  return { exports, description, example };
 }
 
 /**
@@ -230,7 +284,7 @@ export function buildDocsEntry(
 ): DocsEntry {
   const slug = fileName.slice(0, -source.extension.length);
   const subpath = `${source.subpathPrefix}${slug}`;
-  const { exports, description } = parseDocsModule(fileName, contents);
+  const { exports, description, example } = parseDocsModule(fileName, contents);
 
   return {
     slug,
@@ -238,6 +292,7 @@ export function buildDocsEntry(
     importPath: `${source.packageName}/${subpath}`,
     exports,
     description,
+    example,
   };
 }
 
