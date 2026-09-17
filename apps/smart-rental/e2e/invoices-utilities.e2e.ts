@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
@@ -45,6 +46,10 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
     await expect(page.getByText("Đã chọn 2", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Gửi nhắc" }).click();
+    await page
+      .getByRole("dialog", { name: "Gửi nhắc thanh toán" })
+      .getByRole("button", { name: "Gửi", exact: true })
+      .click();
     await expect(page.getByText("Đã chọn 2", { exact: true })).toBeHidden();
 
     await page.setViewportSize({ width: 390, height: 844 });
@@ -72,6 +77,54 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     const dialog = page.getByRole("dialog", { name: "Mã thanh toán VietQR" });
     await expect(dialog).toContainText("HOA-071 Phong 102");
     await expect(dialog).toContainText("3.240.000");
+  });
+
+  // Ticket #164, spec #153 §10 row 12/13 — "Xuất CSV các hàng đang lọc".
+  test("exports the currently-filtered Hoá đơn rows as CSV", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.INVOICES);
+    await page.getByRole("button", { name: "Trạng thái" }).click();
+    await page.getByRole("checkbox", { name: "Quá hạn" }).click();
+    await page.keyboard.press("Escape");
+
+    const resultLabel = page.getByText(/hoá đơn được tìm thấy$/);
+    // Wait for the filtered (smaller) count, not the unfiltered "84 …" still on screen.
+    await expect(resultLabel).not.toHaveText("84 hoá đơn được tìm thấy");
+    const filteredCount = Number(
+      (await resultLabel.textContent())?.match(/\d+/)?.[0],
+    );
+    expect(filteredCount).toBeGreaterThan(0);
+    expect(filteredCount).toBeLessThan(84);
+
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.getByRole("button", { name: "Xuất CSV" }).click(),
+    ]);
+    const csvPath = await download.path();
+    if (!csvPath) throw new Error("Xuất CSV không tạo được file tải xuống.");
+    const csv = await readFile(csvPath, "utf-8");
+    // Header row + one row per filtered Hoá đơn — never the whole, unfiltered list.
+    expect(csv.trim().split("\n")).toHaveLength(filteredCount + 1);
+  });
+
+  // Ticket #164, spec #153 §10 row 12 — "in hoá đơn bằng window.print".
+  test("in hoá đơn calls window.print", async ({ page }) => {
+    await page.goto(ROUTES.invoiceDetailPath("I071"));
+    await page.evaluate(() => {
+      (window as { __printCalled?: boolean }).__printCalled = false;
+      window.print = () => {
+        (window as { __printCalled?: boolean }).__printCalled = true;
+      };
+    });
+
+    await page.getByRole("button", { name: "In hoá đơn" }).click();
+
+    expect(
+      await page.evaluate(
+        () => (window as { __printCalled?: boolean }).__printCalled,
+      ),
+    ).toBe(true);
   });
 
   test("derives consumption and status while a reading is typed, and gates the save button on duyệt", async ({

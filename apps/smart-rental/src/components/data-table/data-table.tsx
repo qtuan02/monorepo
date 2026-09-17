@@ -94,8 +94,12 @@ interface DataTableProps<TData extends DataTableRowData> {
   resultLabel?: (filteredCount: number) => string;
   /** Controls at the right end of the result line (a grid/table switch). */
   viewSwitch?: ReactNode;
-  /** Controls at the right end of the filter toolbar. */
-  toolbarActions?: ReactNode;
+  /**
+   * Controls at the right end of the filter toolbar. A function is handed
+   * the filtered (pre-pagination) rows — "các hàng đang lọc" — for a CSV
+   * export button that must export exactly what search/facets narrowed to.
+   */
+  toolbarActions?: ReactNode | ((filteredRows: TData[]) => ReactNode);
   /** An alternative body over the same filtered, sorted, paged rows (a card grid). */
   renderRows?: (rows: TData[], table: DataTableInstance<TData>) => ReactNode;
   /**
@@ -192,7 +196,12 @@ export function DataTable<TData extends DataTableRowData>({
     },
   });
 
-  const filteredCount = table.getFilteredRowModel().rows.length;
+  const filteredRows = table.getFilteredRowModel().rows;
+  const filteredCount = filteredRows.length;
+  const toolbar =
+    typeof toolbarActions === "function"
+      ? toolbarActions(filteredRows.map((row) => row.original))
+      : toolbarActions;
   const pageCount = table.getPageCount();
   // Filtered + sorted, pre-pagination — what `paginate={false}` shows in full.
   const rows = paginate
@@ -276,9 +285,7 @@ export function DataTable<TData extends DataTableRowData>({
             </Button>
           )}
         </div>
-        {toolbarActions && (
-          <div className="flex items-center gap-2">{toolbarActions}</div>
-        )}
+        {toolbar && <div className="flex items-center gap-2">{toolbar}</div>}
       </div>
 
       {filteredCount === 0 ? (

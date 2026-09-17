@@ -36,3 +36,8 @@ export function daysOverdue(dueDate: string, today: Date = new Date()): number {
     .diff(dayjs(dueDate, DATE_FORMAT).startOf("day"), "day");
   return Math.max(0, days);
 }
+
+/** Xoá chỉ Nháp (spec #153) — a pure predicate, so the button and the hook's own guard read one rule. */
+export function canDeleteInvoice(invoice: Pick<Invoice, "status">): boolean {
+  return invoice.status === "DRAFT";
+}

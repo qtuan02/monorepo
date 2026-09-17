@@ -1,26 +1,20 @@
 import { useState } from "react";
-import {
-  Calendar,
-  CheckCircle2,
-  Download,
-  Edit,
-  Printer,
-  ReceiptText,
-  Trash2,
-  User,
-} from "lucide-react";
+import { Bell, Download, Printer, ReceiptText, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
+import { Progress } from "@monorepo/ui/components/progress";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
-import { Separator } from "@monorepo/ui/components/separator";
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@monorepo/ui/components/table";
 
+import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { StatItem } from "~/components/card/stat-item";
@@ -29,11 +23,19 @@ import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
-import { invoiceStatusConfig } from "~/constants/status";
+import {
+  channelConfig,
+  invoicePaymentMethodConfig,
+  invoiceStatusConfig,
+} from "~/constants/status";
+import PaymentFormSheet from "~/features/invoices/components/payment-form-sheet";
+import { SendReminderDialog } from "~/features/invoices/components/send-reminder-dialog";
 import VietQrDialog from "~/features/invoices/components/vietqr-dialog";
 import { useGetBuilding } from "~/hooks/api/building";
 import { useGetInvoice } from "~/hooks/api/invoice";
 import { formatCurrency } from "~/utils/currency";
+import { formatDateTime } from "~/utils/date";
+import { canDeleteInvoice } from "~/utils/invoice-status";
 
 interface InvoiceDetailTemplateProps {
   invoiceId: string;
@@ -41,15 +43,188 @@ interface InvoiceDetailTemplateProps {
 
 const TITLE = "Chi tiết hoá đơn";
 
+/** "Tổng quan": dòng theo loại, tổng/đã trả/còn lại, progress khi thu một phần. */
+function OverviewTab({ invoice }: { invoice: Invoice }) {
+  // See RemindersTab's own "use no memo" for why every tab here needs it.
+  "use no memo";
+  const remaining = invoice.amount - invoice.paidAmount;
+  const isPartial = invoice.paidAmount > 0 && remaining > 0;
+
+  return (
+    <InfoCard title="Chi tiết hoá đơn">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Khoản mục</TableHead>
+            <TableHead className="text-right">SL</TableHead>
+            <TableHead className="text-right">Đơn giá</TableHead>
+            <TableHead className="text-right">Thành tiền</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {invoice.lineItems.map((item, index) => (
+            <TableRow
+              // biome-ignore lint/suspicious/noArrayIndexKey: lineItems is a fixed, never-reordered snapshot with no id of its own.
+              key={`${item.type}-${index}`}
+            >
+              <TableCell>{item.description}</TableCell>
+              <TableCell className="text-right tabular-nums">
+                {item.quantity}
+              </TableCell>
+              <TableCell className="text-right tabular-nums">
+                {formatCurrency(item.unitPrice)}
+              </TableCell>
+              <TableCell className="text-right font-medium tabular-nums">
+                {formatCurrency(item.amount)}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell colSpan={3}>Tổng cộng</TableCell>
+            <TableCell className="text-right font-bold tabular-nums">
+              {formatCurrency(invoice.amount)}
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      </Table>
+
+      <div className="grid gap-4 border-t pt-4 sm:grid-cols-3">
+        <StatItem label="Tổng cộng" value={formatCurrency(invoice.amount)} />
+        <StatItem
+          label="Đã trả"
+          value={formatCurrency(invoice.paidAmount)}
+          valueClassName="text-success"
+        />
+        <StatItem
+          label="Còn lại"
+          value={formatCurrency(remaining)}
+          valueClassName={remaining > 0 ? "text-destructive" : undefined}
+        />
+      </div>
+
+      {isPartial && (
+        <div>
+          <div className="text-muted-foreground mb-2 flex items-center justify-between text-sm">
+            <span>Đã thu</span>
+            <span className="font-semibold">
+              {Math.round((invoice.paidAmount / invoice.amount) * 100)}%
+            </span>
+          </div>
+          <Progress
+            value={Math.round((invoice.paidAmount / invoice.amount) * 100)}
+            aria-label="Đã thu"
+          />
+        </div>
+      )}
+    </InfoCard>
+  );
+}
+
+/** "Thanh toán": mỗi khoản đã ghi nhận, cộng nút ghi thêm một khoản. */
+function PaymentsTab({ invoice }: { invoice: Invoice }) {
+  // See RemindersTab's own "use no memo" for why every tab here needs it.
+  "use no memo";
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  return (
+    <InfoCard title="Lịch sử thanh toán">
+      {invoice.payments.length === 0 ? (
+        <EmptyPanel
+          title="Chưa có khoản thanh toán nào"
+          description="Ghi nhận khoản thu đầu tiên cho hoá đơn này."
+        />
+      ) : (
+        <div className="space-y-3">
+          {invoice.payments.map((payment, index) => (
+            <InfoRow
+              // biome-ignore lint/suspicious/noArrayIndexKey: payments is append-only and carries no id of its own.
+              key={`payment-${index}`}
+              label={`${payment.paidAt} · ${invoicePaymentMethodConfig[payment.method].label}`}
+              value={formatCurrency(payment.amount)}
+              isHighlighted
+            />
+          ))}
+        </div>
+      )}
+
+      <Button type="button" size="sm" onClick={() => setIsSheetOpen(true)}>
+        Ghi nhận Thanh toán
+      </Button>
+
+      <PaymentFormSheet
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+        invoiceId={invoice.id}
+        invoiceNumber={invoice.invoiceNumber}
+      />
+    </InfoCard>
+  );
+}
+
+/** "Nhắc nợ": "đã nhắc n lần, lần cuối …" cộng nhật ký từng lần gửi. */
+function RemindersTab({ invoice }: { invoice: Invoice }) {
+  // React Compiler otherwise memoizes this panel's JSX onto a stale snapshot
+  // of `invoice` — it never re-renders with fresh data while this Tab stays
+  // the active one (only switching away and back "unsticks" it). Every
+  // non-default DetailPageShell tab whose content changes from a same-screen
+  // mutation (not a navigation) needs this same escape hatch.
+  "use no memo";
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const lastReminder = invoice.reminders.at(-1);
+
+  return (
+    <InfoCard title="Nhắc nợ">
+      <p className="text-muted-foreground text-sm">
+        {invoice.reminders.length === 0
+          ? "Chưa gửi nhắc lần nào."
+          : `Đã nhắc ${invoice.reminders.length} lần, lần cuối ${formatDateTime(lastReminder?.sentAt ?? new Date())} qua ${channelConfig[lastReminder?.channel ?? "zalo"].label}.`}
+      </p>
+
+      {invoice.reminders.length > 0 && (
+        <div className="space-y-2">
+          {invoice.reminders.map((reminder, index) => (
+            <InfoRow
+              // biome-ignore lint/suspicious/noArrayIndexKey: reminders is append-only and carries no id of its own.
+              key={`reminder-${index}`}
+              label={formatDateTime(reminder.sentAt)}
+              value={channelConfig[reminder.channel].label}
+            />
+          ))}
+        </div>
+      )}
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => setIsDialogOpen(true)}
+      >
+        <Bell />
+        Gửi nhắc
+      </Button>
+
+      <SendReminderDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        invoiceIds={[invoice.id]}
+      />
+    </InfoCard>
+  );
+}
+
 /**
- * "Chi tiết hoá đơn": the amount, the Người thuê, the payment state and the
- * VietQR dialog. "Tải PDF", "Chỉnh sửa", "In hoá đơn", "Xem hồ sơ Người thuê" and
- * the two "thanh toán" confirmations have no flow yet, as in the prototype;
- * "Xóa" confirms and lands back on the list, which is all the prototype did.
+ * "Chi tiết hoá đơn": the shared detail anatomy (spec #153 §3.4, §10 row 12)
+ * — header entity + tabs (Tổng quan · Thanh toán · Nhắc nợ), a right column
+ * carrying VietQR and the Hoá đơn's own fixed facts. "Chỉnh sửa" and "Tải
+ * PDF" have no flow yet, as in the prototype; "Xóa" is fake and gated to
+ * Nháp, as every other entity in this app.
  */
 export default function InvoiceDetailTemplate({
   invoiceId,
 }: InvoiceDetailTemplateProps) {
+  "use no memo";
   const navigate = useNavigate();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const { data: invoice, isLoading } = useGetInvoice(invoiceId);
@@ -57,33 +232,9 @@ export default function InvoiceDetailTemplate({
     enabled: !!invoice?.buildingId,
   });
 
-  const actions = (
-    <>
-      <Button type="button" variant="outline" size="sm">
-        <Download />
-        Tải PDF
-      </Button>
-      <Button type="button" variant="outline" size="sm">
-        <Edit />
-        Chỉnh sửa
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="text-destructive hover:text-destructive"
-        disabled={!invoice}
-        onClick={() => setIsDeleteOpen(true)}
-      >
-        <Trash2 />
-        Xóa
-      </Button>
-    </>
-  );
-
   if (isLoading) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES} actions={actions}>
+      <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES}>
         <CardGridSkeleton itemCount={3} />
       </DetailPageShell>
     );
@@ -91,7 +242,7 @@ export default function InvoiceDetailTemplate({
 
   if (!invoice) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES} actions={actions}>
+      <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES}>
         <EmptyPanel
           icon={ReceiptText}
           title="Không tìm thấy hoá đơn."
@@ -105,189 +256,88 @@ export default function InvoiceDetailTemplate({
   const status = invoiceStatusConfig[invoice.status];
 
   return (
-    <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES} actions={actions}>
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <CardTitle className="text-2xl">
-                    {invoice.invoiceNumber}
-                  </CardTitle>
-                  <CardDescription className="mt-1">
-                    Tháng {invoice.month}
-                  </CardDescription>
-                </div>
-                <StatusBadge config={status} />
-              </div>
-            </CardHeader>
-            <Separator />
-            <CardContent>
-              <dl className="from-primary/5 to-primary/10 border-primary/20 rounded-lg border bg-linear-to-br p-6">
-                <StatItem
-                  label="Tổng số tiền"
-                  value={formatCurrency(invoice.amount)}
-                  valueClassName="text-4xl font-bold tabular-nums"
-                />
-              </dl>
-            </CardContent>
-          </Card>
-
-          <InfoCard title="Thông tin Người thuê">
-            <InfoRow
-              label="Tên Người thuê"
-              value={invoice.tenant}
-              isHighlighted
-            />
-            <InfoRow label="Phòng" value={invoice.room} />
-            <InfoRow label="Tầng" value={`Tầng ${invoice.floor}`} />
+    <DetailPageShell
+      title={TITLE}
+      backTo={ROUTES.INVOICES}
+      name={invoice.invoiceNumber}
+      badge={<StatusBadge config={status} />}
+      meta={[`Phòng ${invoice.room}`, invoice.tenant, `Kỳ ${invoice.month}`]}
+      actions={
+        <>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="print:hidden"
+            onClick={() => window.print()}
+          >
+            <Printer />
+            In hoá đơn
+          </Button>
+          {canDeleteInvoice(invoice) && (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="mt-3 w-full"
+              className="text-destructive hover:text-destructive print:hidden"
+              onClick={() => setIsDeleteOpen(true)}
             >
-              <User />
-              Xem hồ sơ Người thuê
+              <Trash2 />
+              Xóa
             </Button>
-          </InfoCard>
-
-          <InfoCard title="Chi tiết hoá đơn">
-            <InfoRow
-              label="Tiền thuê phòng"
-              value={formatCurrency(invoice.amount)}
+          )}
+        </>
+      }
+      tabs={[
+        {
+          value: "overview",
+          label: "Tổng quan",
+          content: <OverviewTab invoice={invoice} />,
+        },
+        {
+          value: "payments",
+          label: `Thanh toán (${invoice.payments.length})`,
+          content: <PaymentsTab invoice={invoice} />,
+        },
+        {
+          value: "reminders",
+          label: "Nhắc nợ",
+          content: <RemindersTab invoice={invoice} />,
+        },
+      ]}
+      sidebar={
+        <>
+          <InfoCard title="Hành động" className="print:hidden">
+            <VietQrDialog
+              amount={invoice.amount - invoice.paidAmount}
+              invoiceNumber={invoice.invoiceNumber}
+              room={invoice.room}
+              bankAccount={building?.bankAccount}
             />
-            <InfoRow label="Phí dịch vụ" value={formatCurrency(0)} />
-            <InfoRow label="Các khoản khác" value={formatCurrency(0)} />
-            <Separator />
-            <InfoRow
-              label="Tổng cộng"
-              value={formatCurrency(invoice.amount)}
-              isHighlighted
-            />
-          </InfoCard>
-
-          <InfoCard title="Thông tin thanh toán">
-            <InfoRow label="Ngày đến hạn" value={invoice.dueDate} />
-            {invoice.paymentDate && (
-              <InfoRow
-                label="Ngày thanh toán"
-                value={invoice.paymentDate}
-                isHighlighted
-              />
-            )}
-            <InfoRow label="Trạng thái" value={status.label} />
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="mt-3 w-full"
+              className="w-full"
             >
-              <CheckCircle2 />
-              Đánh dấu đã thanh toán
+              <Download />
+              Tải PDF
             </Button>
           </InfoCard>
-        </div>
 
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Trạng thái thanh toán</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-muted/50 rounded-lg p-4">
-                <StatusBadge
-                  config={status}
-                  className="w-full justify-center"
-                />
-              </div>
-              <div className="space-y-2 text-sm">
-                <p className="flex items-center gap-2">
-                  <Calendar className="text-muted-foreground size-4" />
-                  Hạn: {invoice.dueDate}
-                </p>
-                {invoice.paymentDate && (
-                  <p className="flex items-center gap-2">
-                    <CheckCircle2 className="size-4 text-success" />
-                    Thanh toán: {invoice.paymentDate}
-                  </p>
-                )}
-              </div>
-              <Separator />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                <CheckCircle2 />
-                Xác nhận thanh toán
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Tóm tắt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <dl className="space-y-3">
-                <StatItem
-                  label="Mã hoá đơn"
-                  value={invoice.invoiceNumber}
-                  valueClassName="font-mono text-sm"
-                />
-                <Separator />
-                <StatItem
-                  label="Số tiền"
-                  value={formatCurrency(invoice.amount)}
-                  valueClassName="text-lg font-bold"
-                />
-                <Separator />
-                <StatItem
-                  label="Cập nhật"
-                  value={invoice.lastUpdated}
-                  valueClassName="text-muted-foreground text-sm font-normal"
-                />
-              </dl>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Hành động</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <VietQrDialog
-                amount={invoice.amount - invoice.paidAmount}
-                invoiceNumber={invoice.invoiceNumber}
-                room={invoice.room}
-                bankAccount={building?.bankAccount}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                <Download />
-                Tải PDF
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                <Printer />
-                In hoá đơn
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
+          <InfoCard title="Tóm tắt">
+            <StatItem
+              label="Mã hoá đơn"
+              value={invoice.invoiceNumber}
+              valueClassName="font-mono text-sm"
+            />
+            <InfoRow label="Kỳ" value={invoice.month} />
+            <InfoRow label="Hạn thu" value={invoice.dueDate} isHighlighted />
+            <InfoRow label="Cập nhật" value={invoice.lastUpdated} />
+          </InfoCard>
+        </>
+      }
+    >
       <ConfirmActionDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}

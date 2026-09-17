@@ -1,12 +1,4 @@
-import type { BatchInvoiceItem, Invoice } from "~/types/invoice";
-
-export function getUtilitySubtotal(item: BatchInvoiceItem): number {
-  return item.electricity + item.water;
-}
-
-export function getInvoiceTotal(item: BatchInvoiceItem): number {
-  return item.rent + getUtilitySubtotal(item) + item.service;
-}
+import type { Invoice } from "~/types/invoice";
 
 export interface InvoiceSummaryStats {
   total: number;

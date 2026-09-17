@@ -5,6 +5,8 @@ import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { describe, expect, it } from "vitest";
 
+import type { Invoice } from "~/types/invoice";
+import { mockInvoices } from "~/constants/mock/invoices";
 import InvoiceDetailTemplate from "~/features/invoices/templates/invoice-detail.template";
 
 // The template alone, with the two providers it reaches for (a router for
@@ -73,5 +75,84 @@ describe("InvoiceDetailTemplate", () => {
     expect(
       screen.queryByRole("button", { name: "Thanh toán VietQR" }),
     ).not.toBeInTheDocument();
+  });
+
+  // A due date far in the future — the only way to see PARTIAL rather than
+  // OVERDUE, since deriveInvoiceStatus checks the due date before it (see
+  // ~/utils/invoice-status.ts).
+  const paymentTestInvoice: Invoice = {
+    id: "I-test-payment",
+    buildingId: "b1",
+    contractId: "C001",
+    invoiceNumber: "HÓA-TEST-PAY",
+    tenant: "Nguyễn Văn A",
+    room: "Phòng 102",
+    floor: 1,
+    amount: 4_500_000,
+    lineItems: [
+      {
+        type: "RENT",
+        description: "Tiền phòng",
+        quantity: 1,
+        unitPrice: 4_500_000,
+        amount: 4_500_000,
+      },
+    ],
+    payments: [],
+    paidAmount: 0,
+    reminders: [],
+    billingMonth: "2099-01",
+    month: "01/2099",
+    dueDate: "31/01/2099",
+    status: "UNPAID",
+    paymentDate: null,
+    lastUpdated: "01/01/2099",
+  };
+
+  it("Ghi 2 tr rồi 2,5 tr cho một Hoá đơn 4,5 tr → hai mục Thanh toán, badge Thu một phần rồi Đã thu", async () => {
+    if (!mockInvoices.some((invoice) => invoice.id === paymentTestInvoice.id)) {
+      mockInvoices.push({ ...paymentTestInvoice });
+    }
+    const user = userEvent.setup();
+    renderInvoice("I-test-payment");
+
+    await user.click(await screen.findByRole("tab", { name: /Thanh toán/ }));
+    await user.click(
+      screen.getByRole("button", { name: "Ghi nhận Thanh toán" }),
+    );
+    await user.type(await screen.findByLabelText(/Số tiền/), "2000000");
+    await user.click(screen.getByRole("button", { name: "Lưu lại" }));
+
+    expect(await screen.findByText("Thu một phần")).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Thanh toán (1)" }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Ghi nhận Thanh toán" }),
+    );
+    await user.type(await screen.findByLabelText(/Số tiền/), "2500000");
+    await user.click(screen.getByRole("button", { name: "Lưu lại" }));
+
+    expect(await screen.findByText("Đã thu")).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: "Thanh toán (2)" }),
+    ).toBeInTheDocument();
+  });
+
+  it("logs a Gửi nhắc — đã nhắc n lần, lần cuối — on the Nhắc nợ tab", async () => {
+    const user = userEvent.setup();
+    // I071 = C001's kỳ 09, OVERDUE — reminders start empty either way.
+    renderInvoice("I071");
+
+    await user.click(await screen.findByRole("tab", { name: "Nhắc nợ" }));
+    expect(screen.getByText("Chưa gửi nhắc lần nào.")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Gửi nhắc" }));
+    await user.click(await screen.findByRole("button", { name: "Gửi" }));
+
+    expect(
+      await screen.findByText(/^Đã nhắc 1 lần, lần cuối/),
+    ).toBeInTheDocument();
   });
 });

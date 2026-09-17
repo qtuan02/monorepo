@@ -1,5 +1,4 @@
 import type {
-  BatchInvoiceItem,
   Invoice,
   InvoiceLineItem,
   InvoicePayment,
@@ -130,6 +129,7 @@ function buildInvoice(
     lineItems,
     payments,
     paidAmount,
+    reminders: [],
     billingMonth,
     month: formatMonth(billingMonth),
     dueDate: buildDueDate(contract.buildingId, billingMonth),
@@ -155,34 +155,3 @@ export const mockInvoices: Invoice[] = BILLING_MONTHS.flatMap(
       return buildInvoice(contract, billingMonth, status, sequence);
     }),
 );
-
-/** The Phòng an Đợt hoá đơn would bill, as the prototype previewed them. */
-export const mockBatchInvoiceItems: BatchInvoiceItem[] = [
-  {
-    id: "1",
-    room: "101",
-    tenant: "Nguyễn Văn A",
-    rent: 3000000,
-    electricity: 350000,
-    water: 60000,
-    service: 100000,
-  },
-  {
-    id: "2",
-    room: "102",
-    tenant: "Trần Thị B",
-    rent: 3000000,
-    electricity: 420000,
-    water: 80000,
-    service: 100000,
-  },
-  {
-    id: "3",
-    room: "103",
-    tenant: "Lê Văn C",
-    rent: 2500000,
-    electricity: 210000,
-    water: 40000,
-    service: 100000,
-  },
-];

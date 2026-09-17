@@ -72,6 +72,7 @@ const overdueInvoice: Invoice = {
   lineItems: [],
   payments: [],
   paidAmount: 0,
+  reminders: [],
   billingMonth: "2026-09",
   month: "09/2026",
   dueDate: "05/09/2026",

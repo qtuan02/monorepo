@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Bell, Download, FileText, Plus } from "lucide-react";
 import { Link } from "react-router";
 
@@ -16,35 +17,46 @@ import { invoiceStatusConfig, toFilterOptions } from "~/constants/status";
 import InvoiceCard from "~/features/invoices/components/invoice-card";
 import { invoiceColumns } from "~/features/invoices/components/invoice-columns";
 import InvoiceMobileRow from "~/features/invoices/components/invoice-mobile-row";
+import { SendReminderDialog } from "~/features/invoices/components/send-reminder-dialog";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
+import { buildInvoiceCsv } from "~/features/invoices/utils/invoice-export";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
-function remindSelected(invoices: Invoice[]) {
-  toast.add({
-    title: `Đã gửi nhắc cho ${invoices.length} hoá đơn`,
-    description: "Nhật ký nhắc được ghi trên từng hoá đơn.",
+/** "Xuất CSV các hàng đang lọc" (spec #153 §10 row 12/13) — a Blob download, no library. */
+function exportInvoicesCsv(invoices: Invoice[]) {
+  if (invoices.length === 0) {
+    toast.add({
+      title: "Không có hoá đơn nào để xuất",
+      description: "Thử đổi bộ lọc hoặc từ khóa tìm kiếm.",
+    });
+    return;
+  }
+  // A leading BOM so Excel reads the Vietnamese diacritics as UTF-8.
+  const blob = new Blob([`﻿${buildInvoiceCsv(invoices)}`], {
+    type: "text/csv;charset=utf-8;",
   });
-}
-
-function exportSelected(invoices: Invoice[]) {
-  toast.add({
-    title: `Đang chuẩn bị xuất ${invoices.length} hoá đơn`,
-    description: "Xuất hàng loạt sẽ có ở ticket riêng.",
-  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "hoa-don.csv";
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 /**
  * "Quản lý hoá đơn" — the list-screen foundation's exemplar (spec #153
  * §10 rows 16/35/36): a KPI strip, the list composite in card or table view,
  * a selection action bar once rows are checked, and a mobile Item list when
- * the table itself is showing. "Xuất Excel" has no flow yet, as in the
- * prototype; "Tạo hoá đơn" leads to the Đợt hoá đơn screen, the one create
- * flow the prototype had.
+ * the table itself is showing. "Tạo hoá đơn" leads to the Đợt hoá đơn screen.
  */
 export default function InvoiceListTemplate() {
   const [view, setView] = useListView();
+  const [reminderRequest, setReminderRequest] = useState<{
+    invoiceIds: string[];
+    clearSelection: () => void;
+  } | null>(null);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetInvoices({
     buildingId: selectedBuildingId,
@@ -58,19 +70,13 @@ export default function InvoiceListTemplate() {
         title="Quản lý hoá đơn"
         description={`${stats.total} hoá đơn`}
         actions={
-          <>
-            <Button type="button" variant="outline" size="sm">
-              <Download />
-              Xuất Excel
-            </Button>
-            <Link
-              to={ROUTES.INVOICE_BATCH}
-              className={buttonVariants({ size: "sm" })}
-            >
-              <Plus />
-              Tạo hoá đơn
-            </Link>
-          </>
+          <Link
+            to={ROUTES.INVOICE_BATCH}
+            className={buttonVariants({ size: "sm" })}
+          >
+            <Plus />
+            Tạo hoá đơn
+          </Link>
         }
       />
 
@@ -121,6 +127,17 @@ export default function InvoiceListTemplate() {
             }}
             resultLabel={(count) => `${count} hoá đơn được tìm thấy`}
             viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+            toolbarActions={(filteredInvoices) => (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => exportInvoicesCsv(filteredInvoices)}
+              >
+                <Download />
+                Xuất CSV
+              </Button>
+            )}
             renderRows={
               view === "grid"
                 ? (invoices) => (
@@ -136,35 +153,37 @@ export default function InvoiceListTemplate() {
               <InvoiceMobileRow invoice={invoice} />
             )}
             selectionActions={(selected, clearSelection) => (
-              <>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    remindSelected(selected);
-                    clearSelection();
-                  }}
-                >
-                  <Bell />
-                  Gửi nhắc
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    exportSelected(selected);
-                    clearSelection();
-                  }}
-                >
-                  <Download />
-                  Xuất
-                </Button>
-              </>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setReminderRequest({
+                    invoiceIds: selected.map((invoice) => invoice.id),
+                    clearSelection,
+                  })
+                }
+              >
+                <Bell />
+                Gửi nhắc
+              </Button>
             )}
           />
         </>
+      )}
+
+      {reminderRequest && (
+        <SendReminderDialog
+          open={!!reminderRequest}
+          onOpenChange={(open) => {
+            if (!open) setReminderRequest(null);
+          }}
+          invoiceIds={reminderRequest.invoiceIds}
+          onSent={() => {
+            reminderRequest.clearSelection();
+            setReminderRequest(null);
+          }}
+        />
       )}
     </div>
   );

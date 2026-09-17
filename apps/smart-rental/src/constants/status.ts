@@ -27,7 +27,7 @@ import type {
   ResidenceNotificationStatus,
 } from "~/types/compliance";
 import type { ContractStatus, DepositStatus } from "~/types/contract";
-import type { InvoiceStatus } from "~/types/invoice";
+import type { InvoicePaymentMethod, InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
 import type { OccupancyBucket } from "~/types/report";
 import type { RoomStatus, RoomType } from "~/types/room";
@@ -110,6 +110,16 @@ export const invoiceStatusConfig: Record<InvoiceStatus, StatusConfig> = {
   },
   OVERDUE: { label: "Quá hạn", className: statusTone.error, icon: AlertCircle },
   CANCELLED: { label: "Đã huỷ", className: statusTone.muted, icon: Ban },
+};
+
+/** "Ghi nhận Thanh toán"'s kênh field, and a payment row's own label. */
+export const invoicePaymentMethodConfig: Record<
+  InvoicePaymentMethod,
+  StatusConfig
+> = {
+  BANK_TRANSFER: { label: "Chuyển khoản" },
+  CASH: { label: "Tiền mặt" },
+  VIETQR: { label: "VietQR" },
 };
 
 export const utilityStatusConfig: Record<UtilityStatus, StatusConfig> = {

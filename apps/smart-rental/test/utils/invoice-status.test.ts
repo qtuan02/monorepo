@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { daysOverdue, deriveInvoiceStatus } from "~/utils/invoice-status";
+import {
+  canDeleteInvoice,
+  daysOverdue,
+  deriveInvoiceStatus,
+} from "~/utils/invoice-status";
 
 const today = new Date("2026-09-17T00:00:00.000Z");
 
@@ -93,6 +97,14 @@ describe("deriveInvoiceStatus", () => {
         today,
       ),
     ).toBe("UNPAID");
+  });
+});
+
+describe("canDeleteInvoice", () => {
+  it("allows Nháp only", () => {
+    expect(canDeleteInvoice({ status: "DRAFT" })).toBe(true);
+    expect(canDeleteInvoice({ status: "UNPAID" })).toBe(false);
+    expect(canDeleteInvoice({ status: "PAID" })).toBe(false);
   });
 });
 

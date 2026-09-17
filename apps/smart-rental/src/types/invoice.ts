@@ -1,3 +1,5 @@
+import type { CommunicationChannel } from "~/types/communication";
+
 /** Enum per `billing-service` contract (ADR-0012). */
 export type InvoiceStatus =
   | "DRAFT"
@@ -32,6 +34,13 @@ export interface InvoicePayment {
   paidAt: string;
 }
 
+/** One "Gửi nhắc" — logged on the Hoá đơn itself, never a separate Mock. */
+export interface InvoiceReminder {
+  channel: CommunicationChannel;
+  /** ISO timestamp. */
+  sentAt: string;
+}
+
 /**
  * The prototype's `Invoice`, extended per contract (ADR-0012): `contractId`
  * is the real reference, `lineItems` + `payments` are new, `paidAmount` is
@@ -54,6 +63,7 @@ export interface Invoice {
   payments: InvoicePayment[];
   /** Derived from `payments` — see `sumInvoicePayments`. */
   paidAmount: number;
+  reminders: InvoiceReminder[];
   /** `YYYY-MM`. */
   billingMonth: string;
   /** Already display-formatted (`MM/YYYY`). */
@@ -70,15 +80,4 @@ export interface InvoiceListParams {
   buildingId?: string | null;
   /** Scope to one Hợp đồng's own Hoá đơn — its detail screen's "Hoá đơn" tab. */
   contractId?: string;
-}
-
-/** One Phòng in an Đợt hoá đơn preview: the amounts a Hoá đơn would be made of. */
-export interface BatchInvoiceItem {
-  id: string;
-  room: string;
-  tenant: string;
-  rent: number;
-  electricity: number;
-  water: number;
-  service: number;
 }

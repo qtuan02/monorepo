@@ -1,21 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import type { BatchInvoiceItem, Invoice } from "~/types/invoice";
-import {
-  buildInvoiceSummaryStats,
-  getInvoiceTotal,
-  getUtilitySubtotal,
-} from "~/features/invoices/utils/invoice-calculations";
-
-const item: BatchInvoiceItem = {
-  id: "1",
-  room: "101",
-  tenant: "Nguyễn Văn A",
-  rent: 3000000,
-  electricity: 350000,
-  water: 60000,
-  service: 100000,
-};
+import type { Invoice } from "~/types/invoice";
+import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 
 const invoice = (status: Invoice["status"], amount: number): Invoice => ({
   id: status,
@@ -28,6 +14,7 @@ const invoice = (status: Invoice["status"], amount: number): Invoice => ({
   lineItems: [],
   payments: [],
   paidAmount: 0,
+  reminders: [],
   billingMonth: "2026-04",
   month: "04/2026",
   dueDate: "10/04/2026",
@@ -36,15 +23,7 @@ const invoice = (status: Invoice["status"], amount: number): Invoice => ({
   lastUpdated: "20/04/2026",
 });
 
-describe("invoice calculations", () => {
-  it("adds điện and nước into the utility subtotal", () => {
-    expect(getUtilitySubtotal(item)).toBe(410000);
-  });
-
-  it("totals rent, utilities and service", () => {
-    expect(getInvoiceTotal(item)).toBe(3510000);
-  });
-
+describe("buildInvoiceSummaryStats", () => {
   it("sums each status into its own bucket and skips cancelled", () => {
     expect(
       buildInvoiceSummaryStats([
