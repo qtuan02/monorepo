@@ -12,8 +12,6 @@
 export const ROUTES = {
   HOME: "/",
   AUTH_LOGIN: "/auth/login",
-  AUTH_REGISTER: "/auth/register",
-  ONBOARDING: "/onboarding",
 
   BUILDINGS: "/buildings",
   BUILDING_DETAIL: "/buildings/:buildingId",

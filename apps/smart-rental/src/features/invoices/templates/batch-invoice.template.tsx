@@ -25,12 +25,14 @@ import {
 
 import type { BatchInvoiceFormValues } from "~/features/invoices/types/batch-invoice-form";
 import { ListPageHeader } from "~/components/page/list-page-header";
+import { BuildingScopeRequiredPanel } from "~/components/panel/building-scope-required-panel";
 import { mockBatchInvoiceItems } from "~/constants/mock/invoices";
 import { batchInvoiceFormSchema } from "~/features/invoices/types/batch-invoice-form";
 import {
   getInvoiceTotal,
   getUtilitySubtotal,
 } from "~/features/invoices/utils/invoice-calculations";
+import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
 const FORM_ID = "batch-invoice-form";
@@ -43,6 +45,7 @@ const allIds = mockBatchInvoiceItems.map((item) => item.id);
  * prototype's own `TODO` — nothing is created yet.
  */
 export default function BatchInvoiceTemplate() {
+  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const form = useForm<BatchInvoiceFormValues>({
     resolver: zodResolver(batchInvoiceFormSchema),
     defaultValues: {
@@ -70,6 +73,18 @@ export default function BatchInvoiceTemplate() {
   const onSubmit = form.handleSubmit((_values) => {
     // TODO: connect API send batch invoices.
   });
+
+  if (!selectedBuildingId) {
+    return (
+      <div className="space-y-6">
+        <ListPageHeader
+          title="Tạo hoá đơn hàng loạt"
+          description="Lập hoá đơn cho mọi phòng đang thuê trong một kỳ."
+        />
+        <BuildingScopeRequiredPanel description="Đợt hoá đơn áp dụng cho đúng một Toà nhà — chọn Toà nhà ở thanh phía trên." />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

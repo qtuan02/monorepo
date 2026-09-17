@@ -1,7 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
+import { formatFullDate } from "../src/utils/date";
 import { signIn } from "./support/auth-session";
+
+// "Hôm nay"'s own <h1> is today's date (ADR-0011, spec #153 §10) — computed
+// the same way the app computes it, so this never drifts from a hardcoded date.
+const homeHeading = formatFullDate();
 
 /**
  * The guard flow is exactly what a jsdom test cannot prove: it needs real
@@ -59,7 +64,9 @@ test.describe("auth guard — signed out", () => {
     await page.getByRole("button", { name: "Đăng nhập" }).click();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
   });
 });
 
@@ -69,6 +76,8 @@ test.describe("auth guard — signed in", () => {
     await page.goto(ROUTES.AUTH_LOGIN);
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
   });
 });

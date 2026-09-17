@@ -12,6 +12,7 @@ import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
+import { formatFullDate } from "~/utils/date";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
 
 // The one seam of spec #127: the route tree mounted at a path, asserting what
@@ -52,8 +53,9 @@ function heading(name: string) {
 // up in the placeholder so a page that dropped its param is caught too. A
 // ported screen adds a third column — text only its Mock can put on screen —
 // so a route wired to a placeholder, or a Mock that stopped flowing, fails.
+// "Hôm nay" is its own describe block below — its heading is the day's
+// date, not a literal string, and it needs a Building scope round trip.
 const guardedScreens: [path: string, heading: string, mockText?: string][] = [
-  [ROUTES.HOME, "Hôm nay"],
   [ROUTES.BUILDINGS, "Quản lý Toà nhà", "Trọ Sinh Viên Xanh"],
   [
     ROUTES.buildingDetailPath("b2"),
@@ -70,10 +72,14 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   [ROUTES.contractRenewPath("C004"), "Gia hạn hợp đồng", "HĐ-004"],
   [ROUTES.contractLiquidationPath("C004"), "Thanh lý hợp đồng", "HĐ-004"],
   [ROUTES.INVOICES, "Quản lý hoá đơn", "HÓA-001"],
-  [ROUTES.INVOICE_BATCH, "Tạo hoá đơn hàng loạt", "Nguyễn Văn A"],
+  // Scope null: both now require picking one Toà nhà first (spec #153 §10
+  // row 4) — the guard panel's own heading, not the form's mock text; see
+  // the dedicated "Building scope required" tests below for the full round
+  // trip once a Toà nhà is selected.
+  [ROUTES.INVOICE_BATCH, "Tạo hoá đơn hàng loạt"],
   [ROUTES.invoiceDetailPath("I002"), "Chi tiết hoá đơn", "HÓA-002"],
   [ROUTES.UTILITIES, "Chỉ số điện nước", "Phòng 102"],
-  [ROUTES.METER_INPUT, "Nhập chỉ số điện nước", "1000"],
+  [ROUTES.METER_INPUT, "Nhập chỉ số điện nước"],
   [
     ROUTES.utilityDetailPath("util-202609-R-B1-102-d"),
     "Chi tiết chỉ số điện nước",
@@ -102,7 +108,6 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
 
 const guestScreens: [path: string, heading: string][] = [
   [ROUTES.AUTH_LOGIN, "Đăng nhập"],
-  [ROUTES.AUTH_REGISTER, "Đăng ký tài khoản"],
 ];
 
 describe("the route tree", () => {
@@ -112,7 +117,7 @@ describe("the route tree", () => {
     const covered = new Set([
       ...guardedScreens.map(([path]) => path),
       ...guestScreens.map(([path]) => path),
-      ROUTES.ONBOARDING,
+      ROUTES.HOME,
     ]);
     const missing: string[] = [];
     for (const value of Object.values(ROUTES)) {
@@ -127,6 +132,7 @@ describe("the route tree", () => {
     // `true` replaces rather than merges, so a token set by one test cannot
     // survive into the next.
     useAuthStore.setState(initialAuthState, true);
+    useBuildingStore.setState(initialBuildingState, true);
   });
 
   describe("signed in", () => {
@@ -204,9 +210,7 @@ describe("the route tree", () => {
       const user = userEvent.setup();
       renderAt(ROUTES.TENANTS);
 
-      await user.click(
-        screen.getByRole("button", { name: "Thêm Người thuê" }),
-      );
+      await user.click(screen.getByRole("button", { name: "Thêm Người thuê" }));
       expect(
         screen.getByRole("heading", { name: "Thêm Người thuê mới" }),
       ).toBeInTheDocument();
@@ -241,17 +245,7 @@ describe("the route tree", () => {
       const router = renderAt(path);
 
       expect(router.state.location.pathname).toBe(ROUTES.HOME);
-      expect(heading("Hôm nay")).toBeInTheDocument();
-    });
-
-    it("renders onboarding — chromeless, like the guest screens", () => {
-      renderAt(ROUTES.ONBOARDING);
-
-      expect(heading("Chào mừng!")).toBeInTheDocument();
-      expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
-      expect(
-        screen.queryByRole("link", { name: "Toà nhà" }),
-      ).not.toBeInTheDocument();
+      expect(heading(formatFullDate())).toBeInTheDocument();
     });
 
     it("renders the 404 inside the shell for an unknown path, not sign-in", () => {
@@ -266,12 +260,20 @@ describe("the route tree", () => {
     it("marks the sidebar item of the area the path falls under", () => {
       renderAt(ROUTES.contractRenewPath("c-1"));
 
-      expect(screen.getByRole("link", { name: "Hợp đồng" })).toHaveAttribute(
-        "data-active",
-      );
-      expect(screen.getByRole("link", { name: "Hôm nay" })).not.toHaveAttribute(
-        "data-active",
-      );
+      // Two links share this name now — the sidebar's own item, and (while
+      // the route's Hợp đồng query is still loading) the screen's own
+      // breadcrumb crumb back to `/contracts` (spec #153 §3.6, §10 row 52).
+      // Only the sidebar's copy ever carries `data-active`.
+      const contractLinks = screen.getAllByRole("link", { name: "Hợp đồng" });
+      expect(
+        contractLinks.some((link) => link.hasAttribute("data-active")),
+      ).toBe(true);
+      // Two links share this name now — the sidebar's and the bottom nav's
+      // (ADR-0011); jsdom renders both regardless of the `md:hidden` that
+      // keeps only one on screen at a time, so this checks every one of them.
+      for (const link of screen.getAllByRole("link", { name: "Hôm nay" })) {
+        expect(link).not.toHaveAttribute("data-active");
+      }
     });
 
     it("signs out from the nav-user menu and lands on sign-in", async () => {
@@ -313,13 +315,70 @@ describe("the route tree", () => {
       expect(router.state.historyAction).toBe("REPLACE");
       expect(heading("Đăng nhập")).toBeInTheDocument();
     });
+  });
+});
 
-    it("renders onboarding — it sits outside both guards", () => {
-      renderAt(ROUTES.ONBOARDING);
+// Ticket #159 — the shell's "Hôm nay" (ADR-0011): the heading is today's
+// date, the queue is Việc cần làm from the same Mock `/tasks` reads, and the
+// Building scope tabs above it are what every screen (this one included)
+// now reads through.
+describe("Hôm nay", () => {
+  beforeEach(() => {
+    useAuthStore.setState(initialAuthState, true);
+    useBuildingStore.setState(initialBuildingState, true);
+    useAuthStore.setState({ token: "a-token" });
+  });
 
-      expect(heading("Chào mừng!")).toBeInTheDocument();
-      expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
-    });
+  it("names the day, not the area — «Hôm nay» is the header's/sidebar's name for it", async () => {
+    renderAt(ROUTES.HOME);
+
+    expect(heading(formatFullDate())).toBeInTheDocument();
+    expect(await screen.findAllByText("Hôm nay")).not.toHaveLength(0);
+  });
+
+  it("shows at least five Việc cần làm from the Mock", async () => {
+    renderAt(ROUTES.HOME);
+
+    await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
+    expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("shows every Toà nhà's «chưa lập Đợt» kỳ once no Toà nhà is scoped", async () => {
+    renderAt(ROUTES.HOME);
+
+    expect(
+      await screen.findByText(/^Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/^Chung cư Mini Lê Duẩn chưa lập Đợt hoá đơn/),
+    ).toBeInTheDocument();
+  });
+
+  it("scopes the queue to just its own Toà nhà once one is selected", async () => {
+    useBuildingStore.setState({ selectedBuildingId: "b1" });
+    renderAt(ROUTES.HOME);
+
+    expect(
+      await screen.findByText(/^Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/^Chung cư Mini Lê Duẩn chưa lập Đợt hoá đơn/),
+    ).not.toBeInTheDocument();
+  });
+
+  it("navigates a Việc cần làm action to the entity's own, existing route", async () => {
+    const user = userEvent.setup();
+    renderAt(ROUTES.HOME);
+
+    const titles = await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
+    const item = titles[0]?.closest('[role="listitem"]');
+    expect(item).not.toBeFalsy();
+
+    await user.click(
+      within(item as HTMLElement).getByRole("link", { name: "Xem" }),
+    );
+
+    expect(heading("Chi tiết hoá đơn")).toBeInTheDocument();
   });
 });
 
@@ -353,5 +412,49 @@ describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
     expect(
       screen.queryByText("Hoàng Văn E chưa có Thông báo lưu trú"),
     ).not.toBeInTheDocument();
+  });
+});
+
+// Ticket #159, spec #153 §10 row 4 — the two forms that need exactly one
+// Toà nhà rather than "every Toà nhà" or "no Toà nhà".
+describe("Building scope required — Đợt hoá đơn, Nhập chỉ số", () => {
+  beforeEach(() => {
+    useAuthStore.setState(initialAuthState, true);
+    useBuildingStore.setState(initialBuildingState, true);
+    useAuthStore.setState({ token: "a-token" });
+  });
+
+  it("blocks Đợt hoá đơn until a Toà nhà is chosen", async () => {
+    renderAt(ROUTES.INVOICE_BATCH);
+
+    expect(
+      await screen.findByText("Chọn một Toà nhà trước khi tiếp tục"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Nguyễn Văn A")).not.toBeInTheDocument();
+  });
+
+  it("shows the Đợt hoá đơn form once a Toà nhà is selected", async () => {
+    useBuildingStore.setState({ selectedBuildingId: "b1" });
+    renderAt(ROUTES.INVOICE_BATCH);
+
+    expect(await screen.findAllByText("Nguyễn Văn A")).not.toHaveLength(0);
+  });
+
+  it("blocks Nhập chỉ số until a Toà nhà is chosen", () => {
+    renderAt(ROUTES.METER_INPUT);
+
+    expect(
+      screen.getByText("Chọn một Toà nhà trước khi tiếp tục"),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the Nhập chỉ số form once a Toà nhà is selected", async () => {
+    useBuildingStore.setState({ selectedBuildingId: "b1" });
+    renderAt(ROUTES.METER_INPUT);
+
+    expect(await screen.findAllByText("Phòng 102")).not.toHaveLength(0);
+    expect(
+      screen.getByRole("button", { name: "Lưu 0 chỉ số" }),
+    ).toBeInTheDocument();
   });
 });

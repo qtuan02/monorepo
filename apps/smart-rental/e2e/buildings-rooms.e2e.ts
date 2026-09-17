@@ -118,8 +118,7 @@ test.describe("Toà nhà và Phòng", () => {
     await expect(page.getByText("Phòng 201").first()).toBeVisible();
     await expect(page.getByText("Đã đặt").first()).toBeVisible();
 
-    await page.getByRole("combobox", { name: "Toà nhà" }).click();
-    await page.getByRole("option", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
+    await page.getByRole("button", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
     await page.getByRole("button", { name: "Quay lại" }).click();
     await expect(page.getByText("10 phòng được tìm thấy")).toBeVisible();
   });

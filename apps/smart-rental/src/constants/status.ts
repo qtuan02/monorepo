@@ -27,7 +27,6 @@ import type {
   ResidenceNotificationStatus,
 } from "~/types/compliance";
 import type { ContractStatus, DepositStatus } from "~/types/contract";
-import type { DashboardTaskPriority } from "~/types/dashboard";
 import type { InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
 import type { OccupancyBucket } from "~/types/report";
@@ -233,15 +232,6 @@ export const channelConfig: Record<CommunicationChannel, StatusConfig> = {
     className: "bg-muted text-muted-foreground",
     icon: Bell,
   },
-};
-
-export const dashboardTaskPriorityConfig: Record<
-  DashboardTaskPriority,
-  StatusConfig
-> = {
-  urgent: { label: "Khẩn cấp", className: statusTone.error },
-  high: { label: "Cao", className: statusTone.primary },
-  medium: { label: "Vừa", className: statusTone.neutral },
 };
 
 export const tenantStatusConfig: Record<TenantStatus, StatusConfig> = {

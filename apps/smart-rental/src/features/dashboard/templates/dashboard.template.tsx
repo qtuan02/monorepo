@@ -1,148 +1,131 @@
-import { TrendingUp } from "lucide-react";
+import { Link } from "react-router";
 
+import { buttonVariants } from "@monorepo/ui/components/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@monorepo/ui/components/tabs";
-import { cn } from "@monorepo/ui/utils/cn";
 
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { statusTone } from "~/constants/status";
-import CashFlowChart from "~/features/dashboard/components/cash-flow-chart";
+import { ROUTES } from "~/constants/routes";
 import OccupancyDonutChart from "~/features/dashboard/components/occupancy-donut-chart";
-import PendingTasksCard from "~/features/dashboard/components/pending-tasks-card";
-import RecentActivitiesCard from "~/features/dashboard/components/recent-activities-card";
 import RevenueChart from "~/features/dashboard/components/revenue-chart";
+import TaskQueue from "~/features/dashboard/components/task-queue";
 import { useGetDashboard } from "~/hooks/api/dashboard";
+import { useGetTasks } from "~/hooks/api/task";
 import { useBuildingStore } from "~/stores/use-building-store";
-import { formatMillions } from "~/utils/currency";
+import { formatCurrency } from "~/utils/currency";
+import { formatFullDate } from "~/utils/date";
 
 /**
- * "Hôm nay" (ADR-0011): the prototype's dashboard — four KPIs, revenue and
- * cash flow behind two tabs, the occupancy donut, then tasks and activities —
- * read for the Building scope, which is a query param as it will be on the
- * backend. The heading is the screen's name rather than the prototype's "Xin
- * chào!", which moves down to the description: the sidebar, the header and
- * the seam test all call this screen "Hôm nay".
+ * "Hôm nay" (ADR-0011, spec #153 §3.2): the landlord's first screen — three
+ * KPIs for the Building scope, the Việc cần làm queue with an action per
+ * item, then the occupancy donut and the six-month revenue trend. The
+ * heading names the day, the way the mockup does — "Hôm nay" itself is the
+ * sidebar/header's name for this area, not the page's own `<h1>`.
  */
 export default function DashboardTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
-  const { data, isLoading, isError, refetch } = useGetDashboard({
-    buildingId: selectedBuildingId ?? undefined,
-  });
+  const dashboardQuery = useGetDashboard({ buildingId: selectedBuildingId });
+  const tasksQuery = useGetTasks({ buildingId: selectedBuildingId });
+  const data = dashboardQuery.data;
 
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Hôm nay"
-        description="Xin chào! 👋 Đây là tổng quan hoạt động quản lý phòng trọ trong tháng này."
+        title={formatFullDate()}
+        description={
+          data
+            ? `${data.occupancy.occupied + data.occupancy.vacant} Phòng · ${data.occupancy.occupied} đang thuê`
+            : "Tổng quan hoạt động quản lý phòng trọ."
+        }
+        actions={
+          <Link
+            to={ROUTES.INVOICE_BATCH}
+            className={buttonVariants({ size: "sm" })}
+          >
+            Lập đợt hoá đơn
+          </Link>
+        }
       />
 
-      {isLoading ? (
-        <KpiStripSkeleton />
-      ) : isError || !data ? (
+      {dashboardQuery.isLoading ? (
+        <KpiStripSkeleton count={3} />
+      ) : dashboardQuery.isError || !data ? (
         <ErrorPanel
           description="Không tải được số liệu tổng quan."
-          action={{ label: "Thử lại", onClick: () => refetch() }}
+          action={{ label: "Thử lại", onClick: () => dashboardQuery.refetch() }}
         />
       ) : (
         <>
           <KpiStrip
             items={[
               {
-                label: "Tổng số phòng",
-                value: data.totalRooms,
-                description: "trên toàn bộ toà nhà",
-                trend: { value: "+12", isPositive: true },
+                label: "Cần thu tháng này",
+                value: formatCurrency(data.dueThisMonth.amount),
+                description: `${data.dueThisMonth.count} Hoá đơn`,
               },
               {
-                label: "Tỷ lệ lấp đầy",
-                value: `${data.occupancyRate}%`,
-                description: "hiệu suất tối ưu",
-                trend: { value: "+2.5%", isPositive: true },
+                label: "Quá hạn",
+                value: `${data.overdue.count} Hoá đơn`,
+                description:
+                  data.overdue.count > 0
+                    ? `${formatCurrency(data.overdue.amount)} · lâu nhất ${data.overdue.maxDaysOverdue} ngày`
+                    : undefined,
               },
               {
-                label: "Doanh thu tháng",
-                value: formatMillions(data.monthlyRevenue),
-                description: "kỳ báo cáo tháng 4",
-                trend: { value: "+15.3%", isPositive: true },
-              },
-              {
-                label: "Chi phí",
-                value: formatMillions(data.operatingCost),
-                description: "tiền điện, nước, dịch vụ",
-                trend: { value: "-4.2%", isPositive: false },
+                label: "Hợp đồng hết hạn trong 30 ngày",
+                value: data.expiringContracts.count,
+                description:
+                  data.expiringContracts.count > 0
+                    ? `gần nhất ${data.expiringContracts.nearestEndDate} · ${data.expiringContracts.nearestRoom}`
+                    : undefined,
               },
             ]}
           />
 
           <div className="grid gap-4 lg:grid-cols-7">
             <Card className="lg:col-span-4">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div>
-                  <CardTitle className="text-base font-semibold">
-                    Doanh thu & Thu chi
-                  </CardTitle>
-                  <CardDescription>
-                    Xu hướng tài chính trong 6 tháng qua
-                  </CardDescription>
-                </div>
-                <div
-                  className={cn(
-                    "flex items-center gap-1 rounded-full border px-2 py-1 text-xs",
-                    statusTone.success,
-                  )}
-                >
-                  <TrendingUp className="size-3.5" />
-                  <span className="font-medium">+12.3% tháng này</span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="revenue">
-                  <TabsList>
-                    <TabsTrigger value="revenue">Doanh thu</TabsTrigger>
-                    <TabsTrigger value="cashflow">Thu vs Chi</TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="revenue">
-                    <RevenueChart data={data.revenueByMonth} />
-                  </TabsContent>
-                  <TabsContent value="cashflow">
-                    <CashFlowChart data={data.cashFlowByMonth} />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-
-            <Card className="lg:col-span-3">
               <CardHeader>
                 <CardTitle className="text-base font-semibold">
-                  Tỷ lệ lấp đầy
+                  Cần làm hôm nay
                 </CardTitle>
-                <CardDescription>
-                  Trạng thái phòng hiện tại của toà nhà
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                <OccupancyDonutChart occupancy={data.occupancy} />
+                {tasksQuery.isLoading ? (
+                  <p className="text-muted-foreground text-sm">Đang tải…</p>
+                ) : (
+                  <TaskQueue tasks={tasksQuery.data ?? []} />
+                )}
               </CardContent>
             </Card>
 
-            <div className="lg:col-span-4">
-              <PendingTasksCard tasks={data.pendingTasks} />
-            </div>
-            <div className="lg:col-span-3">
-              <RecentActivitiesCard activities={data.recentActivities} />
+            <div className="flex flex-col gap-4 lg:col-span-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">
+                    Lấp đầy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <OccupancyDonutChart occupancy={data.occupancy} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">
+                    Doanh thu 6 tháng
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <RevenueChart data={data.revenueByMonth} />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </>

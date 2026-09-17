@@ -21,8 +21,12 @@ import {
 import { ROUTES } from "~/constants/routes";
 import { useAuthStore } from "~/stores/use-auth-store";
 
-/** "Nguyễn Văn An" → "VA": the last two words' initials, as the prototype. */
-function initialsOf(name: string): string {
+/**
+ * "Nguyễn Văn An" → "VA": the last two words' initials, as the prototype.
+ * Exported so the header's own account menu (`header-user-menu.tsx`) reads
+ * the same initials rather than a second copy.
+ */
+export function initialsOf(name: string): string {
   return name
     .split(" ")
     .map((word) => word[0] ?? "")
