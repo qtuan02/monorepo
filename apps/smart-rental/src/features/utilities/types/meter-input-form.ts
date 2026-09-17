@@ -8,11 +8,14 @@ const reading = z
   .regex(/^\d*$/, { error: "Chỉ số phải là số nguyên" });
 
 // Only what the landlord types; the Phòng and its last readings stay on the
-// Mock row the form row is rendered from.
+// Mock row the form row is rendered from. `approved` is the "Duyệt bất
+// thường" gate (spec #153 §10 row 27) — never sent to the server as a field
+// of its own, just what unblocks the save button for this row.
 export const meterRowSchema = z.object({
   id: z.string(),
   newElectricity: reading,
   newWater: reading,
+  approved: z.boolean(),
 });
 
 export const meterInputFormSchema = z.object({

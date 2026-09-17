@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { meterInputFormSchema } from "~/features/utilities/types/meter-input-form";
 
-const row = { id: "1", newElectricity: "", newWater: "" };
+const row = { id: "1", newElectricity: "", newWater: "", approved: false };
 
 describe("meterInputFormSchema", () => {
   it("lets a row stay empty — not every Phòng is read at once", () => {

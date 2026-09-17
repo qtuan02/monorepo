@@ -1,25 +1,37 @@
+import type { PriceList } from "~/types/building";
 import type { MeterEntryStatus, Utility, UtilityType } from "~/types/utility";
-import { findAnomalousUtilities } from "~/utils/utility-anomaly";
+import {
+  findAnomalousUtilities,
+  isUtilityAnomalous,
+} from "~/utils/utility-anomaly";
 
 export interface MeterReading {
   /** New − old; `null` while the field is empty or not a number. */
   consumption: number | null;
-  /** `null` while empty; `anomaly` when the reading went backwards or is not a number. */
+  /** `null` while empty; `anomaly` when it regressed or is > 2× kỳ trước. */
   status: MeterEntryStatus | null;
 }
 
 /**
- * What one cell of "Nhập chỉ số" says about a typed value. The prototype
- * showed "Chưa nhập" on every row; the derived draft/anomaly is the one piece
- * of logic this screen has, so it lives here where a test can reach it.
+ * What one cell of "Nhập chỉ số" says about a typed value — the ratio check
+ * is the same pure `isUtilityAnomalous` a persisted Chỉ số is judged by
+ * (ADR-0012), so the live badge and the derived one never disagree.
  */
-export function readMeter(oldIndex: number, input: string): MeterReading {
+export function readMeter(
+  oldIndex: number,
+  input: string,
+  previousConsumption = 0,
+): MeterReading {
   if (input.trim() === "") return { consumption: null, status: null };
   const newIndex = Number(input);
   if (!Number.isFinite(newIndex))
     return { consumption: null, status: "anomaly" };
   const consumption = newIndex - oldIndex;
-  return { consumption, status: consumption < 0 ? "anomaly" : "draft" };
+  const anomalous = isUtilityAnomalous(
+    { oldIndex, newIndex, consumption },
+    { consumption: previousConsumption },
+  );
+  return { consumption, status: anomalous ? "anomaly" : "draft" };
 }
 
 /** A row's badge over its two readings: an anomaly wins, a draft beats untouched. */
@@ -36,30 +48,49 @@ export const utilityUnit: Record<UtilityType, string> = {
   water: "m³",
 };
 
-/** The prototype's flat preview rates; the EVN tiers live in Cài đặt (a later ticket). */
-export const utilityRate: Record<UtilityType, number> = {
-  electricity: 3500,
-  water: 8000,
-};
-
+/** The Toà nhà's own Bảng giá — never a flat, hard-coded rate (spec #153 §10 row 6). */
 export function estimateUtilityCost(
   type: UtilityType,
   consumption: number,
+  priceList: PriceList,
 ): number {
-  return consumption * utilityRate[type];
+  const rate =
+    type === "electricity"
+      ? priceList.electricityPricePerKwh
+      : priceList.waterPricePerM3;
+  return consumption * rate;
 }
 
 export interface UtilityStats {
-  totalReadings: number;
+  /** The most recent kỳ present in the scoped Mock; `null` when it has none. */
+  month: string | null;
+  verifiedCount: number;
+  draftCount: number;
   anomalyCount: number;
-  pendingVerifyCount: number;
 }
 
-/** `anomalyCount` is `findAnomalousUtilities` (ADR-0012) — never a stored count. */
+/**
+ * KPI over one kỳ — the latest month present in the (Building-scoped) list,
+ * never a running total across every kỳ ever entered. `anomalyCount` still
+ * runs `findAnomalousUtilities` over the FULL list first, so a kỳ-09 record
+ * is compared against kỳ 08 before being filtered down to kỳ 09's own count.
+ */
 export function calculateUtilityStats(utilities: Utility[]): UtilityStats {
+  const month = utilities.reduce<string | null>(
+    (latest, utility) =>
+      !latest || utility.month > latest ? utility.month : latest,
+    null,
+  );
+  const periodUtilities = utilities.filter((u) => u.month === month);
+  const anomalousThisPeriod = findAnomalousUtilities(utilities).filter(
+    (u) => u.month === month,
+  );
+
   return {
-    totalReadings: utilities.length,
-    anomalyCount: findAnomalousUtilities(utilities).length,
-    pendingVerifyCount: utilities.filter((u) => u.status === "DRAFT").length,
+    month,
+    verifiedCount: periodUtilities.filter((u) => u.status === "VERIFIED")
+      .length,
+    draftCount: periodUtilities.filter((u) => u.status === "DRAFT").length,
+    anomalyCount: anomalousThisPeriod.length,
   };
 }

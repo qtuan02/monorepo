@@ -40,6 +40,7 @@ export const utilityColumns = helper.columns([
         {formatMonth(getValue())}
       </span>
     ),
+    filterFn: facetFilterFn,
   }),
   helper.accessor("type", {
     header: ({ column }) => (

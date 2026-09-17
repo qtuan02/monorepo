@@ -128,6 +128,11 @@ export const meterEntryStatusConfig: Record<MeterEntryStatus, StatusConfig> = {
     className: statusTone.error,
     icon: AlertCircle,
   },
+  approved: {
+    label: "Đã duyệt",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
 };
 
 /** Điện is amber, Nước is blue — the prototype's `utilityTypeColors`, light half. */
