@@ -24,12 +24,14 @@ const STAGE_WIDTHS = new Set(["sm", "md", "lg", "full"]);
 const STANDARDIZED = new Set([
   "button",
   "dialog",
-  "alert",
-  "empty",
-  "progress",
-  "skeleton",
-  "spinner",
-  "marker",
+  "breadcrumb",
+  "navigation-menu",
+  "menubar",
+  "dropdown-menu",
+  "context-menu",
+  "tabs",
+  "pagination",
+  "sidebar",
 ]);
 
 // `accordion` is the one file the `Default`-export contract does not reach —
