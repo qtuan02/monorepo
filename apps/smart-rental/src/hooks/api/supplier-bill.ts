@@ -6,7 +6,7 @@ import type {
   SupplierBill,
   SupplierBillListParams,
 } from "~/types/supplier-bill";
-import { resolveBuildingName } from "~/constants/mock/buildings";
+import { withBuildingName } from "~/constants/mock/buildings";
 import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
@@ -21,13 +21,6 @@ export const supplierBillQueryKeys = {
   getSupplierBill: (billId: string) =>
     supplierBillQueryKeyFactory.detail(billId),
 };
-
-const withBuildingName = (
-  record: Omit<SupplierBill, "buildingName">,
-): SupplierBill => ({
-  ...record,
-  buildingName: resolveBuildingName(record.buildingId),
-});
 
 export function useGetSupplierBills(
   params?: SupplierBillListParams,

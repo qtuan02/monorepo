@@ -6,7 +6,6 @@ import type { SupplierBill } from "~/types/supplier-bill";
  * Toà nhà Mock through `resolveBuildingName`.
  */
 export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
-  // Building 1 - Trọ Sinh Viên Xanh
   {
     id: "sb1",
     buildingId: "b1",
@@ -52,7 +51,6 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
     totalAmount: 13200000,
   },
 
-  // Building 2 - Căn hộ Dịch Vụ Cao Cấp
   {
     id: "sb6",
     buildingId: "b2",
@@ -98,7 +96,6 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
     totalAmount: 27500000,
   },
 
-  // Building 3 - Chung cư Mini Lê Duẩn
   {
     id: "sb11",
     buildingId: "b3",

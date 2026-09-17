@@ -2,7 +2,6 @@ import { Activity, Plus, Receipt } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
-import type { FilterOption } from "~/constants/status";
 import { SummaryCard } from "~/components/card/summary-card";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
@@ -11,6 +10,7 @@ import { LoadingPanel } from "~/components/panel/loading-panel";
 import {
   supplierBillPaymentConfig,
   supplierBillTypeConfig,
+  toDistinctOptions,
   toFilterOptions,
 } from "~/constants/status";
 import { supplierBillColumns } from "~/features/supplier-bills/components/supplier-bill-columns";
@@ -18,13 +18,6 @@ import { getSupplierBillTotals } from "~/features/supplier-bills/utils/supplier-
 import { useGetSupplierBills } from "~/hooks/api/supplier-bill";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
-
-/** The periods present in the scoped list, latest first — this facet has no fixed vocabulary. */
-function periodOptions(periods: string[]): FilterOption[] {
-  return [...new Set(periods)]
-    .sort((a, b) => b.localeCompare(a))
-    .map((period) => ({ label: period, value: period }));
-}
 
 /**
  * "Hóa đơn nhà cung cấp": the three KPIs over the scoped list, then the
@@ -96,7 +89,13 @@ export default function SupplierBillListTemplate() {
               {
                 columnId: "billingPeriod",
                 title: "Kỳ hóa đơn",
-                options: periodOptions(bills.map((bill) => bill.billingPeriod)),
+                // Latest period first — `YYYY-MM` sorts as text.
+                options: toDistinctOptions(
+                  bills
+                    .map((bill) => bill.billingPeriod)
+                    .sort()
+                    .reverse(),
+                ),
               },
               {
                 columnId: "paymentStatus",

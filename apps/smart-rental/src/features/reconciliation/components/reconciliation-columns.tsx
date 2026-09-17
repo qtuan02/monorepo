@@ -86,7 +86,8 @@ export const reconciliationColumns = helper.columns([
             {isGain ? <ArrowUp /> : <ArrowDown />}
             {formatCurrency(Math.abs(getValue()))}
           </div>
-          {trendRate !== undefined && (
+          {/* 0 is no trend, not a red "0%" — the prototype hid it the same way. */}
+          {!!trendRate && (
             <div
               className={cn(
                 "text-[10px] font-medium opacity-70",

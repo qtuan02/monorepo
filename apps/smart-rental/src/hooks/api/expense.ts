@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
 import type { Expense, ExpenseListParams } from "~/types/expense";
-import { resolveBuildingName } from "~/constants/mock/buildings";
+import { withBuildingName } from "~/constants/mock/buildings";
 import { mockExpenses } from "~/constants/mock/expenses";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
@@ -17,11 +17,6 @@ export const expenseQueryKeys = {
     expenseQueryKeyFactory.list(params),
   getExpense: (expenseId: string) => expenseQueryKeyFactory.detail(expenseId),
 };
-
-const withBuildingName = (record: Omit<Expense, "buildingName">): Expense => ({
-  ...record,
-  buildingName: resolveBuildingName(record.buildingId),
-});
 
 export function useGetExpenses(
   params?: ExpenseListParams,

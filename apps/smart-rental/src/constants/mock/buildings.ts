@@ -102,3 +102,10 @@ export function resolveBuildingName(buildingId: string): string {
     "Không xác định"
   );
 }
+
+/** The join itself: a Mock record without its Toà nhà name, with it. */
+export function withBuildingName<T extends { buildingId: string }>(
+  record: T,
+): T & { buildingName: string } {
+  return { ...record, buildingName: resolveBuildingName(record.buildingId) };
+}

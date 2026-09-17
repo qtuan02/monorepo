@@ -1,6 +1,6 @@
-/** The prototype's `ReconciliationItem`, shape kept 1:1 until `be-motel` has a contract. */
 export type ReconciliationStatus = "gain" | "loss";
 
+/** The prototype's `ReconciliationItem`, shape kept 1:1 until `be-motel` has a contract. */
 export interface ReconciliationItem {
   id: string;
   buildingId: string;
@@ -12,14 +12,6 @@ export interface ReconciliationItem {
   status: ReconciliationStatus;
   /** Percent change against the previous period, when the Mock has one. */
   trendRate?: number;
-}
-
-export interface ReconciliationStats {
-  totalIncomeAmount: number;
-  totalExpenseAmount: number;
-  netProfitAmount: number;
-  /** Percent of income kept, to one decimal; 0 when there is no income. */
-  profitMargin: number;
 }
 
 export interface ReconciliationListParams {

@@ -2,25 +2,17 @@ import { Activity, FileText, Plus, Receipt } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
-import type { FilterOption } from "~/constants/status";
 import { SummaryCard } from "~/components/card/summary-card";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
+import { toDistinctOptions } from "~/constants/status";
 import { expenseColumns } from "~/features/expenses/components/expense-columns";
 import { getExpenseStats } from "~/features/expenses/utils/expense-stats";
 import { useGetExpenses } from "~/hooks/api/expense";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
-
-/** The categories present in the scoped list — `category` is free text, not an enum, so the facet reads the data. */
-function categoryOptions(categories: string[]): FilterOption[] {
-  return [...new Set(categories)].map((category) => ({
-    label: category,
-    value: category,
-  }));
-}
 
 /**
  * "Chi phí vận hành": the three KPIs over the scoped list, then the table.
@@ -85,7 +77,7 @@ export default function ExpenseListTemplate() {
               {
                 columnId: "category",
                 title: "Danh mục",
-                options: categoryOptions(
+                options: toDistinctOptions(
                   expenses.map((expense) => expense.category),
                 ),
               },

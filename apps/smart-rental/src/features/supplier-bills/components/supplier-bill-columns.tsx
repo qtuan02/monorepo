@@ -81,7 +81,7 @@ export const supplierBillColumns = helper.columns([
       );
     },
   }),
-  helper.accessor((bill) => getSupplierBillPaymentStatus(bill), {
+  helper.accessor(getSupplierBillPaymentStatus, {
     id: "paymentStatus",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Trạng thái" />

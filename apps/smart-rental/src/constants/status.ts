@@ -65,6 +65,14 @@ export const roomTypeConfig: Record<RoomType, StatusConfig> = {
   suite: { label: "Suite" },
 };
 
+/**
+ * The distinct values of a free-text column as a facet's options — for a
+ * column with no fixed vocabulary (an expense category, a billing period).
+ */
+export function toDistinctOptions(values: string[]): FilterOption[] {
+  return [...new Set(values)].map((value) => ({ value, label: value }));
+}
+
 /** A config read as the option list of a faceted filter, in the config's order. */
 export function toFilterOptions(
   config: Record<string, StatusConfig>,
