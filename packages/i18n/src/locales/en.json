@@ -279,8 +279,6 @@
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",
-      "title": "@fe-monorepo docs",
-      "description": "How to install, import and use the @fe-monorepo/ui and @fe-monorepo/hook packages.",
       "pageTitle": "{page} · @fe-monorepo docs"
     },
     "nav": {
@@ -327,20 +325,37 @@
         "storybook": "Demo & props table",
         "storybookCta": "Open Storybook"
       },
+      "guides": {
+        "ui": "Base UI primitives in the shadcn `base-vega` style, one subpath per component. Needs Tailwind v4 and one stylesheet import.",
+        "hook": "Shared React hooks, one subpath each. No stylesheet, no configuration — install and import."
+      },
+      "install": {
+        "title": "Install",
+        "description": "One package, one command. Pick the package manager you use and copy."
+      },
       "peers": {
         "title": "Peer dependencies",
         "description": "You install these yourself; they are not dependencies of the package."
       },
       "css": {
         "title": "Set up the stylesheet",
-        "description": "Two lines in your Tailwind v4 entry, and one that matters more than it looks.",
-        "sourceWarningTitle": "The @source line is missing",
-        "sourceWarning": "Tailwind v4 does not scan node_modules. Without this line every class inside the package compiles to nothing, with no error, and the components render unstyled.",
+        "description": "Two lines in your Tailwind v4 entry — and no @source line to write yourself.",
+        "importWarningTitle": "The globals.css import is not optional",
+        "importWarning": "Tailwind v4 does not scan node_modules, and resolves @source relative to the stylesheet that carries it — so globals.css declares @source \"./\" aimed at the package’s own dist. Drop the import and every class inside the package compiles to nothing, with no error, and the components render unstyled.",
         "fragmentNote": "globals.css is a fragment rather than a full Tailwind entry: it deliberately carries no @import “tailwindcss”, which is yours to own since tailwindcss is a peer dependency."
+      },
+      "theme": {
+        "title": "Your own theme",
+        "description": "The tokens are CSS variables on :root and .dark, mapped onto utilities by @theme inline — so a brand is a redeclaration after the import, and nothing else.",
+        "layerNote": "Write the override unlayered, as above. The package’s own :root / .dark blocks are unlayered too, so a later block wins by source order — while the same lines inside @layer base would compile, ship and lose. Dark mode is a .dark class on an ancestor, not prefers-color-scheme."
       },
       "example": {
         "title": "Your first component",
         "description": "Every primitive lives at its own subpath, named after its file."
+      },
+      "hook": {
+        "title": "Use a hook",
+        "description": "No stylesheet and no peer beyond react and react-dom: once installed, import by the subpath named after the file."
       },
       "noRootEntry": {
         "title": "There is no root entry",
@@ -369,7 +384,7 @@
     },
     "hooks": {
       "title": "Hooks",
-      "description": "Five shared hooks, one subpath each on @fe-monorepo/hook.",
+      "description": "{count, plural, one {# shared hook, one subpath on @fe-monorepo/hook.} other {# shared hooks, one subpath each on @fe-monorepo/hook.}}",
       "count": "{count, plural, one {# hook} other {# hooks}}",
       "detail": {
         "exportSummary": "{count, plural, one {# export} other {# exports}}",
@@ -401,6 +416,33 @@
         "use-session-storage": {
           "description": "[value, setValue, removeValue] persisted to sessionStorage as JSON; SSR-safe, returns initialValue with no window."
         },
+        "use-boolean": {
+          "description": "Boolean state with toggle, setTrue and setFalse alongside the raw setter."
+        },
+        "use-counter": {
+          "description": "Numeric counter with increment, decrement, reset and set."
+        },
+        "use-toggle": {
+          "description": "Boolean toggle: call with no argument to flip, or pass a value to force it."
+        },
+        "use-countdown": {
+          "description": "Counts down once a second from an initial number of seconds, with a reset."
+        },
+        "use-timeout": {
+          "description": "Runs a callback once after a delay; skipped entirely when the delay is null."
+        },
+        "use-previous": {
+          "description": "Returns the value from the previous render, undefined on the first one."
+        },
+        "use-hover": {
+          "description": "Tracks whether the pointer is over an element, via mouseenter/mouseleave."
+        },
+        "use-on-screen": {
+          "description": "Reports whether an element is inside the viewport, via IntersectionObserver."
+        },
+        "use-throttle": {
+          "description": "Throttles a value: updates immediately on the first change outside the delay window, and once more for the last value when the window closes."
+        },
         "use-network-status": {
           "description": "Tracks navigator.onLine via the online/offline events; SSR-safe, returns true with no window."
         },
@@ -410,7 +452,6 @@
       }
     },
     "code": {
-      "copy": "Copy",
       "copied": "Copied",
       "copyLabel": "Copy the snippet"
     },

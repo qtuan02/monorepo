@@ -4,7 +4,7 @@ import type { DocsEntry } from "~/types/docs-catalogue";
 import { Tile } from "~/components/tile/tile";
 import { ROUTES } from "~/constants/routes";
 
-interface HookCardProps {
+interface HookTileProps {
   entry: DocsEntry;
 }
 
@@ -14,7 +14,7 @@ interface HookCardProps {
  * the copy lives in the shared i18n catalogue, keyed by slug. Never wide: a
  * hook has one export, so the grid stays even.
  */
-export default function HookCard({ entry }: HookCardProps) {
+export default function HookTile({ entry }: HookTileProps) {
   const { t } = useTranslation();
 
   return (

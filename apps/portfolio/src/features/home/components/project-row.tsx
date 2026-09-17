@@ -88,7 +88,7 @@ export default function ProjectRow({
       </div>
       {/* 15 px, the same as About's prose and a Work bullet: `ux#67` puts the
           floor for body copy there, and a one-line pitch is still copy. */}
-      <p className="text-[15px] leading-relaxed">{description}</p>
+      <p className="text-body leading-relaxed">{description}</p>
       {/* The stack as one line of text — the shape the work rows and the
           skills list use — rather than a chip per name: chips are what made
           a demo project read like a product listing. */}

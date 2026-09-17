@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import { hookCatalogue } from "~/constants/docs-catalogue";
-import HookCard from "~/features/hook/components/hook-card";
+import HookTile from "~/features/hook/components/hook-tile";
 
 describe("a hook tile", () => {
   it("carries the hook's sentence and never spans two columns", () => {
@@ -14,7 +14,7 @@ describe("a hook tile", () => {
 
     render(
       <MemoryRouter>
-        <HookCard
+        <HookTile
           entry={{ ...entry, exports: Array(12).fill("useDebounce") }}
         />
       </MemoryRouter>,

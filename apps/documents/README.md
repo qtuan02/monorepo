@@ -49,15 +49,18 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   theo `pathname`. Dưới `md` khối hình ẩn, chỉ còn aurora. Không keyframe, không
   `backdrop-filter` ở đây.
 - **Panel kính** (`GlassPanel`, utility `glass` / `glass-deep` trong `globals.css`):
-  mọi bề mặt nội dung — nav pill, palette; hero + capsule lệnh cài + ba card nổi + bốn
-  section đánh số ở Getting Started; thanh công cụ + hero + hai panel Import / Export ở
+  mọi bề mặt nội dung — nav pill, palette; hero + ba card nổi + hai guide (`@fe-monorepo/ui` sáu
+  section, `@fe-monorepo/hook` ba, mỗi guide mở bằng capsule cài của riêng gói đó) đánh số
+  ở Getting Started; thanh công cụ + hero + hai panel Import / Export ở
   trang chi tiết; panel 404 tại chỗ. Bốn tầng bóng `--sh-1..4` cùng một thang.
 - **Tile · swatch · tile rộng.** Danh sách là lưới 1/2/4 cột của `Tile`: swatch 38px,
   slug mono, một dòng export (ba tên + `+n` qua Locale message
   `exportPreviewMore`), số export ở góc. Tile nền đục 75% và **không** blur — sáu
   mươi `backdrop-filter` trên một trang là chi phí GPU. `col-span-2` từ `md` khi
   `exports.length >= 10`; class nằm trên `<li>` mà `Tile` tự render, vì đó mới là
-  grid item. Hover nhấc 3px + bóng tầng 4; dưới `prefers-reduced-motion` chỉ còn bóng, không nhấc. Swatch là
+  grid item. Hover nhấc 3px + bóng tầng 4; dưới `prefers-reduced-motion` chỉ còn bóng, không nhấc — và
+  `globals.css` tắt luôn animation mở/đóng của Dialog, Sheet, Select (`[data-open]`, `[data-closed]`),
+  vì `tw-animate-css` không tự tôn trọng reduced-motion. Swatch là
   gradient hue sinh xác định từ slug — cùng màu ở tile, ở palette và ở hero chi tiết.
   Lọc rỗng → `Empty` với nút xoá bộ lọc.
 - **Trang chi tiết.** Thanh công cụ hai nửa đẩy về hai mép (`Component / dialog` bên trái,
@@ -194,7 +197,7 @@ làm cache của app miss đúng lúc cần.
 
 | Path | Hằng số | Page | Trang gì |
 | --- | --- | --- | --- |
-| `/` | `ROUTES.HOME` | `home-page.tsx` | Bắt đầu — cài đặt, peer dependency, nối CSS + `@source`, ví dụ Button, "không có root entry" |
+| `/` | `ROUTES.HOME` | `home-page.tsx` | Bắt đầu — hai guide tách riêng: `ui` (cài, peer, nối CSS, theme, ví dụ Button, "không có root entry") và `hook` (cài, peer, ví dụ `useDebounce`) |
 | `/components` | `ROUTES.COMPONENTS` | `components-page.tsx` | Lưới 63 tile, có ô lọc (debounce 300ms), tile rộng từ 10 export |
 | `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Trước/sau, hero, ví dụ (iframe story Storybook), Import, chip export, link Storybook |
 | `/hooks` | `ROUTES.HOOKS` | `hooks-page.tsx` | Lưới 5 tile hook, có mô tả |
@@ -249,7 +252,7 @@ Những gì được kiểm, và vì sao chỉ chừng đó:
 | `test/scripts/docs-metadata.test.ts` | Parser, trên hai fixture giả ghi ra thư mục tạm (một `.tsx`, một `.ts`): danh sách export xuống dòng, `export type` bị loại, JSDoc đúng block, `@example` nhiều dòng / không có / có tag theo sau, file hỏng thì **ném** và gọi tên file |
 | `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; mọi hook có `example` khác `null`; `storybookDocsId` trỏ đúng story thật; `storybookExampleId` là một `export const` của file stories đó |
 | `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ; trang hook: panel Ví dụ từ source, và không có panel khi entry giả có `example: null` |
-| `test/features/component/components/component-card.test.tsx` · `test/components/tile/tile.test.tsx` | Tile rộng ở 10 export và không rộng ở 9 — trên `listitem`, là grid item; tên link bắt đầu bằng slug; `+n` |
+| `test/features/component/components/component-tile.test.tsx` · `test/components/tile/tile.test.tsx` | Tile rộng ở 10 export và không rộng ở 9 — trên `listitem`, là grid item; tên link bắt đầu bằng slug; `+n` |
 | `test/features/component/templates/component-list.template.test.tsx` | Lọc rỗng hiện nút xoá bộ lọc, bấm thì danh sách quay lại |
 | `test/features/layout/**` | Shell (`layout.template`: nav pill, palette, thứ tự DOM) và `theme-provider` |
 | `test/globals.test.ts` | Hợp đồng token — xem mục Font & palette |

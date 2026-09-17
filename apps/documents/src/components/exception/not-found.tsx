@@ -43,7 +43,7 @@ export default function NotFound({ title, message }: NotFoundProps = {}) {
       </EmptyHeader>
       <EmptyContent>
         <Link to={ROUTES.HOME} className={buttonVariants()}>
-          {t("notFound.backToHome")}
+          {t("documents.notFound.back")}
         </Link>
       </EmptyContent>
     </Empty>

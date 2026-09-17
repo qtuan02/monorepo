@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { ResumeCard } from "~/features/home/components/resume-card";
+import ResumeCard from "~/features/home/components/resume-card";
 import SectionHeading from "~/features/home/components/section-heading";
 import { EDUCATION_ITEMS } from "~/features/home/constants/resume";
 
@@ -22,7 +22,6 @@ export default function EducationSection() {
               title={item.school}
               subtitle={t(`portfolio.education.items.${item.id}.degree`)}
               period={t(`portfolio.education.items.${item.id}.period`)}
-              toggleLabel={t("portfolio.work.toggle")}
             />
           ))}
         </div>

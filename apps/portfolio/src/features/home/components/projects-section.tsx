@@ -37,7 +37,7 @@ export default function ProjectsSection() {
         <StandardBlock className="flex flex-col gap-y-4">
           {/* 15 px like every line of prose on the page; muted because it
               frames the list rather than belonging to any item in it. */}
-          <p className="text-[15px] leading-relaxed text-muted-foreground">
+          <p className="text-body leading-relaxed text-muted-foreground">
             {t("portfolio.projects.note")}
           </p>
           <ul className="flex list-none flex-col divide-y-2 divide-border">

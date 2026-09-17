@@ -28,7 +28,7 @@ interface DockProps {
  * gap keeps two of them at least 8px apart, so a thumb on a phone lands on one
  * (`e2e/dock.e2e.ts` measures both).
  */
-export function Dock({ children, className }: DockProps) {
+export default function Dock({ children, className }: DockProps) {
   return (
     <nav
       className={cn(

@@ -106,6 +106,23 @@
 }
 
 /**
+ * Reduced motion: nothing on this site moves (brief §10 row 22). Every
+ * transition the app writes is already `motion-safe:`; what is left are the
+ * open/close animations the `@monorepo/ui` primitives carry — the palette's
+ * Dialog, the mobile Sheet, the language Select — through `tw-animate-css`,
+ * which has no reduced-motion guard of its own. Base UI marks a popup
+ * `data-open` / `data-closed` while it animates, so those two attributes are
+ * the whole selector. Unlayered, so it beats the `@layer utilities` classes
+ * without `!important`; `test/globals.test.ts` pins it.
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-open],
+  [data-closed] {
+    animation: none;
+  }
+}
+
+/**
  * The glass of a panel (glossary: *Panel kính*): the translucent fill, the
  * 18px blur, a light edge and the first three shadows of the scale. One
  * utility rather than one className per surface, because the nav pill, the

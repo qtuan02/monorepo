@@ -9,7 +9,7 @@ import { FilterInput } from "~/components/search/filter-input";
 import { componentCatalogue } from "~/constants/docs-catalogue";
 import { useDocumentTitle } from "~/hooks/use-document-title";
 import { filterCatalogue } from "~/utils/filter-catalogue";
-import ComponentCard from "../components/component-card";
+import ComponentTile from "../components/component-tile";
 
 /** Filtering a list already in memory settles after a pause, not per keystroke. */
 const FILTER_DEBOUNCE_MS = 300;
@@ -45,7 +45,7 @@ export default function ComponentListTemplate() {
         <ul className="grid grid-cols-1 gap-3.5 pb-10 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((entry) => (
             // The slug is unique within the catalogue, so it is the stable key.
-            <ComponentCard key={entry.slug} entry={entry} />
+            <ComponentTile key={entry.slug} entry={entry} />
           ))}
         </ul>
       )}

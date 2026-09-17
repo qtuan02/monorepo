@@ -61,9 +61,8 @@ interface SelectLanguageProps {
   compact?: boolean;
 }
 
-// Shared by HeaderTemplate and SignInTemplate — the sign-in screen renders
-// outside LayoutTemplate (see routing-route-guards.md), so it has no header of
-// its own and would otherwise be the one screen with no way to switch language.
+// Rendered by NavActions — in the pill from `md`, in the mobile sheet below it —
+// so the switcher is reachable from every page and every viewport.
 export function SelectLanguage({
   triggerClassName,
   compact,

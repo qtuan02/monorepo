@@ -281,6 +281,15 @@ describe("where the override sits in the cascade", () => {
     }
   });
 
+  it("switches the primitives' open/close animations off under reduced motion", () => {
+    const [region] = atRuleRegions(globalsSource, "media");
+
+    expect(region).toContain("prefers-reduced-motion: reduce");
+    expect(region).toMatch(
+      /\[data-open\],\s*\[data-closed\]\s*\{\s*animation:\s*none;/,
+    );
+  });
+
   it("wires ::selection to the selection tokens, which theme.css declares but never applies", () => {
     const rule = globalsSource.match(/::selection\s*\{([^}]*)\}/)?.[1] ?? "";
 

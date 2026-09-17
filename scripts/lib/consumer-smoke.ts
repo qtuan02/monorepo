@@ -93,10 +93,11 @@ export const SHELLS: readonly Shell[] = [
     consumerMarkup:
       '<SidebarProvider><Button variant="outline">{search}</Button></SidebarProvider>',
     consumerCss: [
-      // Exactly the three lines the shell's README tells a consumer to write.
+      // Exactly the two lines the shell's README tells a consumer to write —
+      // no `@source`: the shipped globals.css registers its own dist/, and this
+      // consumer is the one place that claim is proven on a real tarball.
       '@import "tailwindcss";',
       '@import "@fe-monorepo/ui/globals.css";',
-      '@source "../node_modules/@fe-monorepo/ui/dist";',
     ],
     vitePlugins: [
       {
@@ -107,15 +108,17 @@ export const SHELLS: readonly Shell[] = [
     distFileMustContain: {
       // Base UI states orientation as a value attribute; the shadcn registry
       // styles against a bare `data-vertical:`. Drop these two and every such
-      // utility compiles to no CSS and no error.
+      // utility compiles to no CSS and no error. The `@source` is what makes
+      // the consumer's two-line setup scan the package at all.
       "globals.css": [
+        '@source "./";',
         '@custom-variant data-horizontal (&[data-orientation="horizontal"]);',
         '@custom-variant data-vertical (&[data-orientation="vertical"]);',
       ],
     },
     builtCssMustContain: [
-      // A Button base utility: proof the `@source` line made Tailwind scan the
-      // installed package, which it skips by default under node_modules.
+      // A Button base utility: proof the shipped `@source "./"` made Tailwind
+      // scan the installed package, which it skips by default under node_modules.
       ".whitespace-nowrap",
       // Proof the two `@custom-variant`s reached the consumer's build — this
       // selector exists only because `data-vertical:` utilities were found
@@ -309,8 +312,8 @@ export async function assertInstalledShell(
 /**
  * Asserts on the CSS Vite emitted, which exists at all only because Tailwind
  * scanned the installed package: v4 skips `node_modules` unless an `@source`
- * points at it, so a missing or misaimed `@source` line drops every utility the
- * primitives use — with no error anywhere.
+ * points at it, so a shipped globals.css that lost its `@source "./"` drops
+ * every utility the primitives use — with no error anywhere.
  */
 export async function assertBuiltCss(consumerRoot: string): Promise<void> {
   // Unlike `assertInstalledShell`, this runs once for every shell rather than

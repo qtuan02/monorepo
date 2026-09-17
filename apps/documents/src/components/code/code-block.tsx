@@ -94,6 +94,10 @@ export function CodeBlock({ code, caption, className }: CodeBlockProps) {
             <Copy className="size-4" />
           )}
         </Button>
+        {/* A changed `aria-label` is not announced; a status region is. */}
+        <span role="status" className="sr-only">
+          {isCopied ? t("documents.code.copied") : null}
+        </span>
       </div>
     </figure>
   );

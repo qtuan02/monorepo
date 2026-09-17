@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { ResumeCard } from "~/features/home/components/resume-card";
+import ResumeCard from "~/features/home/components/resume-card";
 import SectionHeading from "~/features/home/components/section-heading";
 import { WORK_ITEMS } from "~/features/home/constants/resume";
 

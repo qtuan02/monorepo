@@ -15,7 +15,7 @@ import { env } from "~/env";
  * so the two link kinds share this by className rather than by wrapping.
  */
 const cardClassName =
-  "glass glass-deep group relative flex min-h-42 flex-col justify-end overflow-hidden rounded-(--radius) p-5.5 outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none motion-reduce:hover:translate-y-0";
+  "glass glass-deep group relative flex min-h-42 flex-col justify-end overflow-hidden rounded-(--radius) p-5.5 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-safe:transition-transform motion-safe:hover:-translate-y-0.5";
 
 const cardHeadingClassName =
   "text-muted-foreground absolute top-5 left-5.5 text-[12.5px] font-semibold tracking-[0.04em] uppercase";

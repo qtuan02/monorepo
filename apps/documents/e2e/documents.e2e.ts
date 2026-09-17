@@ -65,6 +65,12 @@ test.describe("documents", () => {
     page,
   }) => {
     await page.goto(ROUTES.HOOKS);
+    // `goto` resolves on `load`, which fires before React's first commit — so
+    // the shortcut's `keydown` listener is not attached yet. The page's own h1
+    // is what says the tree has mounted.
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Hook" }),
+    ).toBeVisible();
 
     // `Control+K` — the one listener accepts either modifier, and Chromium on
     // Linux (CI) has no Meta.

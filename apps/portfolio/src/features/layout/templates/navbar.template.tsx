@@ -1,5 +1,3 @@
-"use client";
-
 import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 
@@ -14,7 +12,7 @@ import {
 import { cn } from "@monorepo/ui/utils/cn";
 
 import { SelectLanguage } from "~/components/select/select-language";
-import { Dock } from "~/features/layout/components/dock";
+import Dock from "~/features/layout/components/dock";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
 import { NAVBAR_ITEMS } from "~/features/layout/constants/navbar";
 import { Link } from "~/i18n/navigation";
@@ -31,8 +29,10 @@ import { Link } from "~/i18n/navigation";
  * `hover:bg-accent` does not out-merge, so without it the dark theme would
  * hover grey.
  */
-const dockControlClassName =
-  "size-12 transition-[translate,background-color] duration-100 hover:bg-accent hover:text-accent-foreground active:translate-x-px active:translate-y-px motion-reduce:transition-none dark:hover:bg-accent";
+const dockPressClassName =
+  "transition-[translate,background-color] duration-100 hover:bg-accent hover:text-accent-foreground active:translate-x-px active:translate-y-px motion-reduce:transition-none dark:hover:bg-accent";
+
+const dockControlClassName = cn("size-12", dockPressClassName);
 
 /**
  * The language switcher, drawn as a dock control: 48px tall like its
@@ -40,8 +40,14 @@ const dockControlClassName =
  * same accent hover and one-pixel press, monospace like every label. It
  * overrides the Select trigger's `data-[size=sm]:h-8`, `border`, `shadow-xs`
  * and the dark `bg-input` wash by the same variants, which is what lets
- * `twMerge` replace rather than stack them.
+ * `twMerge` replace rather than stack them. The trigger's own focus ring is
+ * kept: with the border gone it is the only thing a keyboard user sees.
  */
+const dockSelectClassName = cn(
+  "rounded-none border-0 bg-transparent px-3 font-mono text-sm shadow-none data-[size=sm]:h-12 dark:bg-transparent",
+  dockPressClassName,
+);
+
 /**
  * The switcher's popup, in the page's grammar: a 2px edge, the solid shadow,
  * no rounding, the card ground with the page's ink, monospace like the
@@ -50,13 +56,10 @@ const dockControlClassName =
  * which is what a control pinned to the bottom of the viewport wants.
  */
 const dockSelectContentClassName =
-  "rounded-none border-2 border-border bg-card p-1 font-mono text-xs text-foreground shadow-hard ring-0 data-open:animate-none data-closed:animate-none";
+  "rounded-none border-2 border-border bg-card p-1 font-mono text-sm text-foreground shadow-hard ring-0 data-open:animate-none data-closed:animate-none";
 
 const dockSelectItemClassName =
-  "rounded-none py-2 font-mono text-xs focus:bg-accent";
-
-const dockSelectClassName =
-  "rounded-none border-0 bg-transparent px-3 font-mono text-xs shadow-none transition-[translate,background-color] duration-100 hover:bg-accent hover:text-accent-foreground focus-visible:ring-0 focus-visible:ring-offset-0 active:translate-x-px active:translate-y-px data-[size=sm]:h-12 motion-reduce:transition-none dark:bg-transparent dark:hover:bg-accent";
+  "rounded-none py-2 font-mono text-sm focus:bg-accent";
 
 /**
  * A link inside the dock is styled with `buttonVariants`, never rendered
@@ -73,11 +76,10 @@ const dockLinkClassName = cn(
  * The dock pinned to the bottom of the viewport — this app's entire chrome,
  * since a CV has no header or footer bar.
  *
- * `"use client"` covers the **whole file**, which is the deliberate exception to
- * pushing the directive down to a leaf: the tooltips open on hover and the
- * theme button writes to the document, and there is no server half left to
- * protect. The dock itself is plain markup now — see `components/dock.tsx` for
- * what it stopped doing.
+ * A Server Component: the tooltip, the theme button and the language switcher
+ * each carry their own `"use client"`, and what this file hands them — a
+ * rendered link element, a label — serializes. The dock itself is plain
+ * markup now — see `components/dock.tsx` for what it stopped doing.
  *
  * The bar is one solid block over the page. The v1 dock floated over a blurred
  * fade band; a soft edge under a hard-edged page read as the one macOS remnant

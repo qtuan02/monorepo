@@ -81,32 +81,63 @@ describe("the getting-started page", () => {
     expect(storybook.getAttribute("href")).toMatch(/^https?:\/\//);
   });
 
-  it("numbers the four panels 01 / 04 through 04 / 04", () => {
+  it("numbers the six panels 01 / 06 through 06 / 06", () => {
     renderTemplate();
 
-    for (const kicker of ["01 / 04", "02 / 04", "03 / 04", "04 / 04"]) {
-      expect(screen.getByText(kicker)).toBeInTheDocument();
+    for (let index = 1; index <= 6; index += 1) {
+      expect(screen.getByText(`0${index} / 06`)).toBeInTheDocument();
     }
-    expect(screen.queryByText("05 / 04")).not.toBeInTheDocument();
+    expect(screen.queryByText("07 / 06")).not.toBeInTheDocument();
   });
 
-  it("warns about the missing @source line on a titled alert", () => {
+  it("tells the reader the stylesheet import carries its own @source", () => {
     renderTemplate();
 
     const alert = screen.getByRole("alert");
 
-    expect(within(alert).getByText("Thiếu dòng @source")).toBeInTheDocument();
     expect(
-      within(alert).getByText(/không quét node_modules/),
+      within(alert).getByText("Dòng import globals.css không phải tuỳ chọn"),
     ).toBeInTheDocument();
+    expect(within(alert).getByText(/@source "\.\/"/)).toBeInTheDocument();
+    // The consumer is never told to aim an @source at node_modules by hand.
+    expect(
+      screen.queryByText(/node_modules\/@fe-monorepo/),
+    ).not.toBeInTheDocument();
   });
 
-  it("shows the install command for the active package manager and switches on a tab", () => {
+  it("shows the theme override and the hook example as their own panels", () => {
     renderTemplate();
 
     expect(
-      screen.getByText(/^bun add @fe-monorepo\/ui @fe-monorepo\/hook$/),
+      screen.getByRole("heading", { name: "Theme của riêng bạn" }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "npm" })).toBeInTheDocument();
+    expect(
+      screen.getByText(/--color-brand: var\(--brand\)/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Dùng hook" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/@fe-monorepo\/hook\/use-debounce/),
+    ).toBeInTheDocument();
+  });
+
+  it("installs one package per guide, with a package-manager tab strip in each", () => {
+    renderTemplate();
+
+    const ui = screen.getByRole("region", { name: "@fe-monorepo/ui" });
+    const hook = screen.getByRole("region", { name: "@fe-monorepo/hook" });
+
+    expect(
+      within(ui).getByText(/^bun add @fe-monorepo\/ui$/),
+    ).toBeInTheDocument();
+    expect(
+      within(hook).getByText(/^bun add @fe-monorepo\/hook$/),
+    ).toBeInTheDocument();
+    // Never the old one-line install of both — the guides are apart.
+    expect(
+      screen.queryByText(/@fe-monorepo\/ui @fe-monorepo\/hook/),
+    ).toBeNull();
+    expect(screen.getAllByRole("tab", { name: "yarn" })).toHaveLength(2);
   });
 });

@@ -1,8 +1,6 @@
 import { ErrorBoundary } from "react-error-boundary";
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import { Toaster } from "@monorepo/ui/components/toast";
-
 import InternalServerError from "~/components/exception/internal-server-error";
 import { ROUTES } from "~/constants/routes";
 import { ThemeProvider } from "~/features/layout/provider/theme-provider";
@@ -23,9 +21,9 @@ import "~/libs/dayjs";
  * public documentation site, so the Template's `ProtectedRoute` / `GuestRoute`
  * and the whole `auth` slice were dropped rather than left unused.
  *
- * There is no `QueryClientProvider` either — the site makes no HTTP call. Both
- * catalogues are JSON generated at build time from `packages/ui` and
- * `packages/hook`.
+ * There is no `QueryClientProvider` and no `Toaster` either — the site makes
+ * no HTTP call, so nothing here has a failure to toast. Both catalogues are
+ * JSON generated at build time from `packages/ui` and `packages/hook`.
  */
 const MainApp = () => (
   // Outermost, so the error fallback keeps the reader's theme too.
@@ -38,7 +36,6 @@ const MainApp = () => (
         console.error("Uncaught render error:", error, info.componentStack);
       }}
     >
-      <Toaster />
       <BrowserRouter>
         <Routes>
           <Route path={ROUTES.HOME} element={<LayoutTemplate />}>

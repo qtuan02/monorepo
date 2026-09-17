@@ -3,7 +3,7 @@
 import type { StaticImageData } from "next/image";
 import { useId, useState } from "react";
 import { ChevronRightIcon } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 
 import { Badge } from "@monorepo/ui/components/badge";
@@ -52,8 +52,12 @@ interface ResumeCardProps {
   techStack?: readonly string[];
   /** Prefix in front of the tech-stack list, e.g. "Tech Stack:". */
   techStackLabel?: string;
-  /** Accessible name for the expand/collapse control. */
-  toggleLabel: string;
+  /**
+   * Read after the heading text on the expand/collapse control — appended
+   * rather than set as `aria-label`, which would replace the organisation's
+   * name and leave every Work heading announcing the same three words.
+   */
+  toggleLabel?: string;
   defaultExpanded?: boolean;
 }
 
@@ -85,7 +89,7 @@ interface ResumeCardProps {
  * button — so the row is one Tab stop that announces its expanded state, and the
  * body below it is a sibling rather than something nested inside a control.
  */
-export function ResumeCard({
+export default function ResumeCard({
   logo,
   altText,
   title,
@@ -100,6 +104,7 @@ export function ResumeCard({
   defaultExpanded = false,
 }: ResumeCardProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const reducedMotion = useReducedMotion();
   const bodyId = useId();
   const awardDescriptionId = useId();
 
@@ -191,11 +196,11 @@ export function ResumeCard({
               aria-controls={bodyId}
               aria-describedby={award ? awardDescriptionId : undefined}
               aria-expanded={isExpanded}
-              aria-label={toggleLabel}
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex w-full cursor-pointer flex-col gap-0.5 text-left"
             >
               {headerContent}
+              {toggleLabel && <span className="sr-only">{toggleLabel}</span>}
             </button>
           ) : (
             <a
@@ -210,11 +215,10 @@ export function ResumeCard({
         </h3>
 
         {award && (
-          // `aria-label` on the toggle replaces everything inside it, so the
-          // badge's own text is never announced — and the tooltip opens on
-          // hover, which a phone does not have. This is where the award reaches
-          // everyone else: a description is read *in addition* to a name, so it
-          // survives that `aria-label`.
+          // The badge's label is in the toggle's name, but its full name is a
+          // tooltip, which opens on hover — and a phone has none. A description
+          // is read *in addition* to the name, so this is where the award's
+          // full name reaches everyone else.
           <span className="sr-only" id={awardDescriptionId}>
             {award.tooltip}
           </span>
@@ -236,8 +240,11 @@ export function ResumeCard({
               opacity: isExpanded ? 1 : 0,
               height: isExpanded ? "auto" : 0,
             }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-2 overflow-hidden text-[15px] leading-relaxed"
+            transition={{
+              duration: reducedMotion ? 0 : 0.7,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+            className="mt-2 overflow-hidden text-body leading-relaxed"
           >
             {bullets && bullets.length > 0 && (
               <ul className="list-inside list-disc space-y-1">

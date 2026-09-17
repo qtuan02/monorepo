@@ -11,9 +11,11 @@ import {
 } from "@monorepo/ui/components/tabs";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import { INSTALL_COMMANDS } from "~/constants/packages";
+import { installCommands } from "~/constants/packages";
 
 interface InstallCapsuleProps {
+  /** The one package this capsule installs — `@fe-monorepo/ui` or `@fe-monorepo/hook`. */
+  packageName: string;
   className?: string;
 }
 
@@ -27,13 +29,17 @@ interface InstallCapsuleProps {
  * Its own copy button rather than a `CodeBlock`: the block is a dark panel
  * around a `<pre>`, and this is a single line inside a pill.
  */
-export default function InstallCapsule({ className }: InstallCapsuleProps) {
+export default function InstallCapsule({
+  packageName,
+  className,
+}: InstallCapsuleProps) {
   const { t } = useTranslation();
   const [copiedText, copy] = useCopyToClipboard();
+  const commands = installCommands(packageName);
 
   return (
     <Tabs
-      defaultValue={INSTALL_COMMANDS[0]?.id}
+      defaultValue={commands[0]?.id}
       className={cn(
         // The primitive stacks a horizontal Tabs (`data-horizontal:flex-col`),
         // which is what a capsule wants below `sm` — tabs over the command —
@@ -44,7 +50,7 @@ export default function InstallCapsule({ className }: InstallCapsuleProps) {
       )}
     >
       <TabsList className="bg-foreground/8 h-auto shrink-0 rounded-full p-[3px]">
-        {INSTALL_COMMANDS.map((entry) => (
+        {commands.map((entry) => (
           <TabsTrigger
             key={entry.id}
             value={entry.id}
@@ -55,7 +61,7 @@ export default function InstallCapsule({ className }: InstallCapsuleProps) {
         ))}
       </TabsList>
 
-      {INSTALL_COMMANDS.map((entry) => {
+      {commands.map((entry) => {
         const isCopied = copiedText === entry.command;
 
         return (
@@ -65,7 +71,7 @@ export default function InstallCapsule({ className }: InstallCapsuleProps) {
             className="flex w-full min-w-0 items-center gap-3 sm:w-auto sm:gap-4"
           >
             {/* Scrolls inside the capsule on a narrow screen rather than
-                widening the page: the command is three package names long. */}
+                widening the page: the command is two package names long. */}
             <code className="min-w-0 flex-1 overflow-x-auto px-1 py-1 font-mono text-[14.5px] whitespace-nowrap">
               {entry.command}
             </code>
@@ -88,6 +94,9 @@ export default function InstallCapsule({ className }: InstallCapsuleProps) {
                 <Copy className="size-4" />
               )}
             </Button>
+            <span role="status" className="sr-only">
+              {isCopied ? t("documents.code.copied") : null}
+            </span>
           </TabsContent>
         );
       })}

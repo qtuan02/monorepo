@@ -9,7 +9,7 @@ import { FilterInput } from "~/components/search/filter-input";
 import { hookCatalogue } from "~/constants/docs-catalogue";
 import { useDocumentTitle } from "~/hooks/use-document-title";
 import { filterCatalogue } from "~/utils/filter-catalogue";
-import HookCard from "../components/hook-card";
+import HookTile from "../components/hook-tile";
 
 const FILTER_DEBOUNCE_MS = 300;
 
@@ -26,7 +26,9 @@ export default function HookListTemplate() {
     <>
       <ListHeader
         title={t("documents.hooks.title")}
-        description={t("documents.hooks.description")}
+        description={t("documents.hooks.description", {
+          count: hookCatalogue.items.length,
+        })}
       >
         <div className="flex flex-wrap items-center gap-3">
           <FilterInput value={search} onValueChange={setSearch} />
@@ -41,7 +43,7 @@ export default function HookListTemplate() {
       ) : (
         <ul className="grid grid-cols-1 gap-3.5 pb-10 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((entry) => (
-            <HookCard key={entry.slug} entry={entry} />
+            <HookTile key={entry.slug} entry={entry} />
           ))}
         </ul>
       )}

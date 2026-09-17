@@ -26,9 +26,9 @@ import { cn } from "@monorepo/ui/utils/cn";
  *   `rounded-*` on the page: a block reads as square in its own file, not by
  *   way of a token declared elsewhere.
  * - `text-foreground` rather than inheriting or `text-card-foreground`: the
- *   card's own foreground is still the shared theme's blue-grey, which is
- *   exactly the text the redesign got rid of — the block paints on `bg-card`
- *   with the page's ink, and #114 measured that pair in both themes.
+ *   card's foreground is the shared theme's, and this app overrides only
+ *   `--foreground` — the block paints on `bg-card` with the page's ink, and
+ *   #114 measured that pair in both themes.
  * - `print:border print:shadow-none`: on paper the shadow is ink spent on
  *   nothing — and whether it shows at all is a checkbox in the reader's
  *   dialog — while a 2px rule around every paragraph is a box, not an edge.

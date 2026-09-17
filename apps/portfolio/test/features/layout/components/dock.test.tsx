@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 import { fireEvent, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Dock } from "~/features/layout/components/dock";
+import Dock from "~/features/layout/components/dock";
 import { render } from "../../../support/render";
 
 const dockSource = readFileSync(

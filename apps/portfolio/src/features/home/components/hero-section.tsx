@@ -21,8 +21,10 @@ import { isExternalPage } from "~/features/home/utils/is-external-page";
  * the variant's dark theme would otherwise paint them on `--input`, which is
  * neither the block they sit in nor a colour this page overrides.
  */
+// `print:shadow-none`: the outline variant's `shadow-xs` is the one shadow a
+// block's own print half does not cover (#120).
 const ACTION_CLASS_NAME =
-  "border-border bg-card font-mono hover:bg-muted dark:border-border dark:bg-card dark:hover:bg-muted";
+  "border-border bg-card font-mono hover:bg-muted dark:border-border dark:bg-card dark:hover:bg-muted print:shadow-none";
 
 /**
  * What the window's title bar says. A path, the way a shell titles its window
@@ -115,7 +117,7 @@ export default function HeroSection() {
 
             <div className="space-y-1">
               <CommandLine>{t("portfolio.hero.commands.current")}</CommandLine>
-              <p className="text-[15px] leading-relaxed text-muted-foreground md:text-base">
+              <p className="text-body leading-relaxed text-muted-foreground md:text-base">
                 {t("portfolio.hero.current")}
               </p>
             </div>

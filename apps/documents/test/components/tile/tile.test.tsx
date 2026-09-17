@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import { componentCatalogue } from "~/constants/docs-catalogue";
-import ComponentCard from "~/features/component/components/component-card";
+import ComponentTile from "~/features/component/components/component-tile";
 import SearchPalette from "~/features/layout/components/nav/search-palette";
 
 const appRoot = resolve(import.meta.dirname, "../../..");
@@ -28,7 +28,7 @@ describe("a tile", () => {
     // from the accessibility tree, tile included.
     const { unmount } = render(
       <MemoryRouter>
-        <ComponentCard entry={entry} />
+        <ComponentTile entry={entry} />
       </MemoryRouter>,
     );
     const tileHue = hueOf(screen.getByRole("link", { name: /^dialog/ }));

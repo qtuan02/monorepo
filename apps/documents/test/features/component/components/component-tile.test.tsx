@@ -3,7 +3,7 @@ import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
 import type { ComponentDocsEntry } from "~/types/docs-catalogue";
-import ComponentCard from "~/features/component/components/component-card";
+import ComponentTile from "~/features/component/components/component-tile";
 
 /** A primitive with `count` exports named `Export1…ExportN`. */
 function entryWith(count: number): ComponentDocsEntry {
@@ -22,7 +22,7 @@ function entryWith(count: number): ComponentDocsEntry {
 function renderCard(entry: ComponentDocsEntry) {
   return render(
     <MemoryRouter>
-      <ComponentCard entry={entry} />
+      <ComponentTile entry={entry} />
     </MemoryRouter>,
   );
 }

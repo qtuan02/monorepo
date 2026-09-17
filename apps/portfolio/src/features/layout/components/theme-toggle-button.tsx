@@ -83,8 +83,8 @@ export default function ThemeToggleButton({
       {...props}
       onClick={handleClick}
     >
-      <SunIcon className="size-[1.2rem] dark:hidden" />
-      <MoonIcon className="hidden size-[1.2rem] dark:block" />
+      <SunIcon className="size-5 dark:hidden" />
+      <MoonIcon className="hidden size-5 dark:block" />
     </Button>
   );
 }
