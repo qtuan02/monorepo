@@ -20,7 +20,20 @@ describe("useIsMobile", () => {
     expect(window.matchMedia).toHaveBeenCalledWith("(max-width: 767px)");
   });
 
-  it("is desktop on the first render, then follows the viewport", () => {
+  it("is desktop on the first render even on a phone, then true after the effect", () => {
+    media.setMatches(QUERY, true);
+    const renders: boolean[] = [];
+    const { result } = renderHook(() => {
+      const isMobile = useIsMobile();
+      renders.push(isMobile);
+      return isMobile;
+    });
+
+    expect(renders[0]).toBe(false);
+    expect(result.current).toBe(true);
+  });
+
+  it("follows the viewport", () => {
     const { result } = renderHook(() => useIsMobile());
     expect(result.current).toBe(false);
 

@@ -13,6 +13,8 @@ import { describe, expect, it } from "vitest";
  */
 const PINNED_SHA = "9bd12431bb24b84d211f0d735c6bef79fe1be85a";
 const OWN_FILES = new Set(["use-is-mobile.ts"]);
+// The four hooks #145 copied; each later ticket only raises this.
+const COPIED_SO_FAR = 4;
 
 const HEADER =
   /^\/\/ Derived from hooks-ts (use[A-Z]\w*)\.ts @ ([0-9a-f]{40}) \(hooks-ts@0\.12\.0\), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts$/;
@@ -25,7 +27,7 @@ const derivedFiles = readdirSync(srcDir).filter(
 
 describe("Derived header", () => {
   it("covers at least the hooks already copied", () => {
-    expect(derivedFiles.length).toBeGreaterThanOrEqual(4);
+    expect(derivedFiles.length).toBeGreaterThanOrEqual(COPIED_SO_FAR);
   });
 
   it.each(derivedFiles)(

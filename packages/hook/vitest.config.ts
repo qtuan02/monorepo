@@ -9,9 +9,10 @@ process.env.TZ = "UTC";
 
 export default defineConfig({
   test: {
-    // Every hook here reaches `window`, `navigator` or `document` from an
-    // effect, so the suite needs a DOM. The SSR-guard specs opt back out per
-    // file with a `@vitest-environment node` pragma.
+    // The hooks read `window.matchMedia` and `navigator.clipboard` from their
+    // effects, so the suite needs a DOM. A spec about a server render opts back
+    // out per file with a `@vitest-environment node` pragma, as
+    // `packages/i18n` does.
     environment: "jsdom",
     include: ["test/**/*.{test,spec}.{ts,tsx}"],
     env: { TZ: "UTC" },

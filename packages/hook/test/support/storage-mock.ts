@@ -1,5 +1,5 @@
 // Derived from hooks-ts mocks.ts @ 9bd12431bb24b84d211f0d735c6bef79fe1be85a (hooks-ts@0.12.0), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts
-// patched: no `window` side effect at module scope — a spec installs the mock itself, so the SSR specs can import nothing DOM-shaped
+// patched: one `createStorageMock` factory typed as `Storage` (adds `length`/`key`, `?? null`) instead of two IIFEs; no `window` side effect at module scope — a spec installs the mock itself
 export const createStorageMock = (): Storage => {
   let store: Record<string, string> = {};
 
