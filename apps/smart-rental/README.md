@@ -75,6 +75,28 @@ thay vì hiện 0; hai bản `roomStatusConfig` khác màu của prototype gộp
 kéo thả hàng, menu ẩn cột và "Ẩn cột" trong header không port. Các nút "Xuất Excel",
 "Thêm phòng", "In phòng", "Chỉnh sửa" chưa có flow — giữ như prototype.
 
+**Hoá đơn** (`~/features/invoices`, #139): `/invoices` — bốn thẻ KPI (`SummaryCard`,
+consumer đầu tiên) trên `DataTable`, thẻ/bảng qua `?view=`, tìm theo số hoá đơn, facet trạng
+thái; `/invoices/:id` — chi tiết với dialog **VietQR** (`components/vietqr-dialog.tsx` trên
+primitive `dialog`, mã QR là lưới giả của prototype); `/invoices/batch` — **Đợt hoá đơn**:
+`<input type="month">` chọn kỳ (prototype ghi cứng "Tháng 10/2023"), bảng tick Phòng sẽ lập,
+Zod `types/batch-invoice-form.ts`, submit là `TODO` nguyên của prototype. Tiền hoá đơn tính ở
+`utils/invoice-calculations.ts` (có test). **Chỉ số điện nước** (`~/features/utilities`, code
+giữ tên `Utility`/`UtilityType` theo glossary, heading giữ copy "Tiện ích" của prototype):
+`/utilities` — ba thẻ KPI trên `DataTable`, facet trạng thái + loại; `/utilities/:id` — chi
+tiết kèm xem trước thanh toán giá phẳng (3.500 ₫/kWh, 8.000 ₫/m³ như prototype; bậc thang EVN
+là của Cài đặt) và ảnh chứng từ; `/utilities/meter-input` — **nhập chỉ số** nhiều Phòng: mỗi
+hàng (`components/meter-input-row.tsx`) `useWatch` đúng hai ô của nó, tiêu thụ = mới − cũ tính
+trong render, badge suy ra từ `utils/meter-reading.ts` (`readMeter`: trống → "Chưa nhập", mới ≥
+cũ → Nháp, mới < cũ hoặc không phải số → Bất thường — logic thuần, có test), submit là `TODO`
+nguyên. Lệch prototype có chủ ý: Mock `utilities.ts` gán `buildingId` (type của prototype khai
+mà Mock không set, không có thì Building scope làm rỗng danh sách); tìm kiếm chỉ một cột
+(`invoiceNumber`, `roomName`) vì composite tìm một cột; "Xóa" hoá đơn chỉ xác nhận rồi về danh
+sách như prototype (không có mutation); các nút "Tải PDF", "Chỉnh sửa", "In hóa đơn", "Xuất
+Excel", "Lịch sử chốt", "Xem hồ sơ khách", hai nút xác nhận thanh toán chưa có flow. `MONTH_FORMAT`
+(`MM/YYYY`) thêm vào `@monorepo/dayjs/formats` cho kỳ hoá đơn; `~/utils/date.ts` thêm
+`formatDateTime`/`formatMonth`.
+
 Cho tới khi slice tương ứng được port, mỗi route còn lại render một **template placeholder**
 chỉ có heading của màn hình (và id của route với màn chi tiết).
 
