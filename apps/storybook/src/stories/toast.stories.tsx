@@ -10,7 +10,11 @@ import {
   toast,
 } from "@monorepo/ui/components/toast";
 
+import { northwindNotifications } from "~/support/notifications";
 import { atlasProject as atlas } from "~/support/projects";
+
+const [commentNotification, overdueNotification, onboardingNotification] =
+  northwindNotifications;
 
 const meta = {
   title: "Storybook/Toast",
@@ -87,9 +91,9 @@ export const Stacking: Story = {
     <Button
       variant="outline"
       onClick={() => {
-        toast.add({ title: "Tomás Reyes commented on Atlas" });
-        toast.add({ title: "Invoice INV-2043 is overdue", type: "warning" });
-        toast.add({ title: "Beacon onboarding reached 80%", type: "success" });
+        toast.add({ title: commentNotification?.message });
+        toast.add({ title: overdueNotification?.message, type: "warning" });
+        toast.add({ title: onboardingNotification?.message, type: "success" });
       }}
     >
       Notify team

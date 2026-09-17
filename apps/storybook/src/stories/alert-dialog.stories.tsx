@@ -19,8 +19,7 @@ import { northwindPeople } from "~/support/people";
 import { atlasProject as atlas, northwindProjects } from "~/support/projects";
 
 const liam = northwindPeople.find((person) => person.id === "liam-bennett");
-const comet =
-  northwindProjects.find((project) => project.id === "comet") ?? atlas;
+const comet = northwindProjects.find((project) => project.id === "comet");
 
 const meta = {
   title: "Storybook/AlertDialog",
@@ -82,7 +81,7 @@ export const Sizes: Story = {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete invoice INV-2043?</AlertDialogTitle>
             <AlertDialogDescription>
-              This removes the record for {comet.name} and cannot be undone.
+              This removes the record for {comet?.name} and cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -142,13 +141,13 @@ export const Stacking: Story = {
   render: () => (
     <AlertDialog>
       <AlertDialogTrigger
-        render={<Button variant="destructive">Delete {comet.name}</Button>}
+        render={<Button variant="destructive">Delete {comet?.name}</Button>}
       />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete project</AlertDialogTitle>
           <AlertDialogDescription>
-            This removes {comet.name} for every Northwind member.
+            This removes {comet?.name} for every Northwind member.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -167,7 +166,7 @@ export const Stacking: Story = {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogAction variant="destructive">
-                  Delete {comet.name}
+                  Delete {comet?.name}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
