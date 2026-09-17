@@ -9,7 +9,7 @@ import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import BuildingCard from "~/features/buildings/components/building-card";
 import BuildingFormSheet from "~/features/buildings/components/building-form-sheet";
 import { useDeleteBuilding, useGetBuildings } from "~/hooks/api/building";
@@ -65,7 +65,7 @@ export default function BuildingListTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel />
+        <CardGridSkeleton />
       ) : isError ? (
         <ErrorPanel
           description="Không tải được danh sách toà nhà."

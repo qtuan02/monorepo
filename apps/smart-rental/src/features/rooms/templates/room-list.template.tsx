@@ -3,14 +3,10 @@ import { Download, FileText, Plus } from "lucide-react";
 import { Button } from "@monorepo/ui/components/button";
 
 import { DataTable } from "~/components/data-table/data-table";
-import {
-  ListViewSwitch,
-  ListViewTabs,
-  useListView,
-} from "~/components/data-table/list-view";
+import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import {
   roomStatusConfig,
   roomTypeConfig,
@@ -54,7 +50,7 @@ export default function RoomListTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel
+        <CardGridSkeleton
           className="md:grid-cols-4 lg:grid-cols-5"
           itemCount={10}
         />
@@ -64,39 +60,35 @@ export default function RoomListTemplate() {
           action={{ label: "Thử lại", onClick: () => refetch() }}
         />
       ) : (
-        <ListViewTabs view={view} onViewChange={setView}>
-          <DataTable
-            columns={roomColumns}
-            data={data ?? []}
-            getRowId={(room) => room.id}
-            search={{ columnId: "name", placeholder: "Tìm tên phòng..." }}
-            facets={[
-              {
-                columnId: "status",
-                title: "Trạng thái",
-                options: toFilterOptions(roomStatusConfig),
-              },
-              {
-                columnId: "type",
-                title: "Loại phòng",
-                options: toFilterOptions(roomTypeConfig),
-              },
-            ]}
-            empty={{
-              icon: FileText,
-              title: "Không tìm thấy phòng",
-              description:
-                "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
-            }}
-            resultLabel={(count) => `${count} phòng được tìm thấy`}
-            viewSwitch={<ListViewSwitch />}
-            renderRows={
-              view === "grid"
-                ? (rooms) => <RoomGrid rooms={rooms} />
-                : undefined
-            }
-          />
-        </ListViewTabs>
+        <DataTable
+          columns={roomColumns}
+          data={data ?? []}
+          getRowId={(room) => room.id}
+          search={{ columnId: "name", placeholder: "Tìm tên phòng..." }}
+          facets={[
+            {
+              columnId: "status",
+              title: "Trạng thái",
+              options: toFilterOptions(roomStatusConfig),
+            },
+            {
+              columnId: "type",
+              title: "Loại phòng",
+              options: toFilterOptions(roomTypeConfig),
+            },
+          ]}
+          empty={{
+            icon: FileText,
+            title: "Không tìm thấy phòng",
+            description:
+              "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
+          }}
+          resultLabel={(count) => `${count} phòng được tìm thấy`}
+          viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+          renderRows={
+            view === "grid" ? (rooms) => <RoomGrid rooms={rooms} /> : undefined
+          }
+        />
       )}
     </div>
   );

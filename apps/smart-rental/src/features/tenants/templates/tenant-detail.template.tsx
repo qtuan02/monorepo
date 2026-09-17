@@ -31,7 +31,7 @@ import { StatItem } from "~/components/card/stat-item";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { tenantStatusConfig } from "~/constants/status";
 import TenantAvatar from "~/features/tenants/components/tenant-avatar";
@@ -85,7 +85,7 @@ export default function TenantDetailTemplate({
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={ROUTES.TENANTS} actions={actions}>
-        <LoadingPanel itemCount={3} />
+        <CardGridSkeleton itemCount={3} />
       </DetailPageShell>
     );
   }

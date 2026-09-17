@@ -52,14 +52,16 @@ describe("invoice calculations", () => {
         invoice("PAID", 200),
         invoice("UNPAID", 30),
         invoice("OVERDUE", 4),
+        invoice("PARTIAL", 7),
         invoice("CANCELLED", 1000),
       ]),
     ).toEqual({
-      total: 5,
-      totalAmount: 1334,
+      total: 6,
+      totalAmount: 1341,
       paidAmount: 300,
-      pendingAmount: 30,
+      unpaidAmount: 30,
       overdueAmount: 4,
+      partialAmount: 7,
     });
   });
 });

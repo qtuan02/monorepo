@@ -1,8 +1,10 @@
-import type { ReactNode } from "react";
 import { LayoutGrid, List } from "lucide-react";
 import { useSearchParams } from "react-router";
 
-import { Tabs, TabsList, TabsTrigger } from "@monorepo/ui/components/tabs";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@monorepo/ui/components/toggle-group";
 
 const VIEW_PARAM = "view";
 
@@ -31,40 +33,37 @@ export function useListView(): [ListView, (next: ListView) => void] {
   return [view, setView];
 }
 
-interface ListViewTabsProps {
+interface ListViewSwitchProps {
   view: ListView;
   onViewChange: (next: ListView) => void;
-  children: ReactNode;
 }
 
-/** The `Tabs` root around a `DataTable`; hand `<ListViewSwitch />` to its `viewSwitch`. */
-export function ListViewTabs({
-  view,
-  onViewChange,
-  children,
-}: ListViewTabsProps) {
+/**
+ * "Dạng thẻ / Dạng bảng" — a real `ToggleGroup` (spec #153 §10 row —
+ * component map: a switch has no panel, so `Tabs` was the wrong semantics).
+ * A single active value can't be toggled off: `next[0]` is only ever
+ * undefined when the pressed item was already the one selected.
+ */
+export function ListViewSwitch({ view, onViewChange }: ListViewSwitchProps) {
   return (
-    <Tabs
-      value={view}
-      onValueChange={(value) => onViewChange(value as ListView)}
+    <ToggleGroup
+      value={[view]}
+      onValueChange={(next) => {
+        const value = next[0];
+        if (value) onViewChange(value as ListView);
+      }}
+      variant="outline"
+      size="sm"
+      spacing={0}
     >
-      {children}
-    </Tabs>
-  );
-}
-
-/** "Dạng thẻ / Dạng bảng" — the trigger pair every list screen shows at the right of its result line. */
-export function ListViewSwitch() {
-  return (
-    <TabsList className="bg-muted/50">
-      <TabsTrigger value="grid">
+      <ToggleGroupItem value="grid" aria-label="Dạng thẻ">
         <LayoutGrid />
         <span className="hidden sm:inline">Dạng thẻ</span>
-      </TabsTrigger>
-      <TabsTrigger value="table">
+      </ToggleGroupItem>
+      <ToggleGroupItem value="table" aria-label="Dạng bảng">
         <List />
         <span className="hidden sm:inline">Dạng bảng</span>
-      </TabsTrigger>
-    </TabsList>
+      </ToggleGroupItem>
+    </ToggleGroup>
   );
 }

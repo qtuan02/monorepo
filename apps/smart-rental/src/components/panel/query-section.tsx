@@ -2,13 +2,12 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
 
 interface QuerySectionProps<TData> {
   query: UseQueryResult<TData, Error>;
   errorText: string;
-  /** The skeleton for this section's footprint; the default card grid otherwise. */
-  loading?: ReactNode;
+  /** This section's own footprint (`~/components/card/kpi-strip`, `~/components/panel/loading-panel`) — every call site names one, no shared default. */
+  loading: ReactNode;
   children: (data: TData) => ReactNode;
 }
 
@@ -21,7 +20,7 @@ interface QuerySectionProps<TData> {
 export function QuerySection<TData>({
   query,
   errorText,
-  loading = <LoadingPanel />,
+  loading,
   children,
 }: QuerySectionProps<TData>) {
   if (query.isLoading) return loading;

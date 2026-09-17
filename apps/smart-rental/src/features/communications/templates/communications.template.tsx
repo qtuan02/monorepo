@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Mail, MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send } from "lucide-react";
 
 import {
   Card,
@@ -17,11 +17,14 @@ import {
 } from "@monorepo/ui/components/tabs";
 
 import type { SendLog, SendLogStatus } from "~/types/communication";
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import {
+  CardGridSkeleton,
+  TableSkeleton,
+} from "~/components/panel/loading-panel";
 import { QuerySection } from "~/components/panel/query-section";
 import {
   channelConfig,
@@ -92,34 +95,17 @@ export default function CommunicationsTemplate() {
           <QuerySection
             query={logsQuery}
             errorText={LOGS_ERROR}
-            loading={<LoadingPanel className="md:grid-cols-4" itemCount={4} />}
+            loading={<KpiStripSkeleton />}
           >
             {(logs) => (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <SummaryCard
-                  label="Tổng tin nhắn"
-                  value={logs.length}
-                  icon={Bell}
-                />
-                <SummaryCard
-                  label="Đã gửi"
-                  value={countByStatus(logs, "sent")}
-                  icon={Send}
-                  iconClassName="bg-success/10 text-success"
-                />
-                <SummaryCard
-                  label="Chờ gửi"
-                  value={countByStatus(logs, "pending")}
-                  icon={MessageSquare}
-                  iconClassName="bg-info/10 text-info"
-                />
-                <SummaryCard
-                  label="Thất bại"
-                  value={countByStatus(logs, "failed")}
-                  icon={Mail}
-                  iconClassName="bg-destructive/10 text-destructive"
-                />
-              </div>
+              <KpiStrip
+                items={[
+                  { label: "Tổng tin nhắn", value: logs.length },
+                  { label: "Đã gửi", value: countByStatus(logs, "sent") },
+                  { label: "Chờ gửi", value: countByStatus(logs, "pending") },
+                  { label: "Thất bại", value: countByStatus(logs, "failed") },
+                ]}
+              />
             )}
           </QuerySection>
 
@@ -132,6 +118,7 @@ export default function CommunicationsTemplate() {
             <QuerySection
               query={templatesQuery}
               errorText="Không thể tải mẫu thông báo."
+              loading={<CardGridSkeleton itemCount={3} />}
             >
               {(templates) => {
                 const visible =
@@ -185,7 +172,11 @@ export default function CommunicationsTemplate() {
         </TabsContent>
 
         <TabsContent value="logs">
-          <QuerySection query={logsQuery} errorText={LOGS_ERROR}>
+          <QuerySection
+            query={logsQuery}
+            errorText={LOGS_ERROR}
+            loading={<TableSkeleton />}
+          >
             {(logs) => (
               <DataTable
                 columns={sendLogColumns}

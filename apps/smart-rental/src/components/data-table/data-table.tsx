@@ -10,7 +10,9 @@ import type {
 } from "@monorepo/ui/components/data-table";
 import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
+import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
+  createDataTableColumnHelper,
   DataTableContent,
   useDataTable,
 } from "@monorepo/ui/components/data-table";
@@ -19,6 +21,7 @@ import type { FilterOption } from "~/constants/status";
 import { FacetedFilter } from "~/components/data-table/faceted-filter";
 import { PaginationBar } from "~/components/data-table/pagination-bar";
 import { SearchInput } from "~/components/data-table/search-input";
+import { SelectionBar } from "~/components/data-table/selection-bar";
 import { useTableSearchParams } from "~/components/data-table/use-table-search-params";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { clampPage } from "~/utils/pagination";
@@ -35,6 +38,41 @@ export function facetFilterFn(
   return Array.isArray(filterValue)
     ? filterValue.includes(row.getValue(columnId))
     : true;
+}
+
+/**
+ * A checkbox column for row selection — a `DataTable`'s selection bar (spec
+ * #153 §10 row 178) only makes sense once a table has one. Header toggles
+ * every row on the current page; `stopPropagation` keeps a click on the box
+ * itself from also triggering a row-level click handler a caller may add.
+ */
+export function createSelectionColumn<
+  TData extends DataTableRowData,
+>(): DataTableColumnDef<TData> {
+  const helper = createDataTableColumnHelper<TData>();
+  return helper.display({
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        aria-label="Chọn tất cả"
+        checked={table.getIsAllPageRowsSelected()}
+        indeterminate={
+          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onClick={(event) => event.stopPropagation()}
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        aria-label="Chọn dòng"
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(event) => event.stopPropagation()}
+      />
+    ),
+    enableSorting: false,
+  });
 }
 
 interface DataTableFacet {
@@ -60,6 +98,21 @@ interface DataTableProps<TData extends DataTableRowData> {
   toolbarActions?: ReactNode;
   /** An alternative body over the same filtered, sorted, paged rows (a card grid). */
   renderRows?: (rows: TData[], table: DataTableInstance<TData>) => ReactNode;
+  /**
+   * A row's mobile substitute (`~/components/data-table/item.tsx` shape) —
+   * only reached when `renderRows` is not set, i.e. the table itself is
+   * showing, since a card grid already stacks to one column on its own.
+   */
+  renderMobileRow?: (row: TData) => ReactNode;
+  /**
+   * The selection bar's action buttons, given the selected rows and a
+   * function to clear the selection. Only rendered once `columns` carries a
+   * `createSelectionColumn()` entry — without one, nothing is ever selected.
+   */
+  selectionActions?: (
+    selectedRows: TData[],
+    clearSelection: () => void,
+  ) => ReactNode;
 }
 
 /**
@@ -80,6 +133,8 @@ export function DataTable<TData extends DataTableRowData>({
   viewSwitch,
   toolbarActions,
   renderRows,
+  renderMobileRow,
+  selectionActions,
 }: DataTableProps<TData>) {
   const facetIds = facets.map((facet) => facet.columnId);
   const { params, setParams } = useTableSearchParams(facetIds);
@@ -234,8 +289,32 @@ export function DataTable<TData extends DataTableRowData>({
           rows.map((row) => row.original),
           table,
         )
+      ) : renderMobileRow ? (
+        <>
+          <div className="hidden md:block">
+            <DataTableContent table={table} className="bg-card shadow-sm" />
+          </div>
+          <div className="grid gap-2 md:hidden">
+            {rows.map((row) => (
+              <div key={row.id} data-slot="data-table-mobile-row">
+                {renderMobileRow(row.original)}
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <DataTableContent table={table} className="bg-card shadow-sm" />
+      )}
+
+      {selectionActions && selectedCount > 0 && (
+        <SelectionBar
+          selectedCount={selectedCount}
+          onClear={() => table.resetRowSelection()}
+          actions={selectionActions(
+            table.getSelectedRowModel().rows.map((row) => row.original),
+            () => table.resetRowSelection(),
+          )}
+        />
       )}
 
       {filteredCount > 0 && (

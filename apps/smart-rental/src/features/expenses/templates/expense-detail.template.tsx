@@ -11,7 +11,7 @@ import {
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { useGetExpense } from "~/hooks/api/expense";
 import { formatCurrency } from "~/utils/currency";
@@ -35,7 +35,7 @@ export default function ExpenseDetailTemplate({
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={ROUTES.EXPENSES}>
-        <LoadingPanel itemCount={2} />
+        <CardGridSkeleton itemCount={2} />
       </DetailPageShell>
     );
   }

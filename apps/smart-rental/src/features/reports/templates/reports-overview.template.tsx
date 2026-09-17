@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  AlertCircle,
-  Download,
-  Droplets,
-  TrendingDown,
-  TrendingUp,
-  Users,
-  Zap,
-} from "lucide-react";
+import { AlertCircle, Download, Droplets, Zap } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -25,10 +17,13 @@ import {
 } from "@monorepo/ui/components/tabs";
 import { toast } from "@monorepo/ui/components/toast";
 
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import {
+  CardGridSkeleton,
+  TableSkeleton,
+} from "~/components/panel/loading-panel";
 import { QuerySection } from "~/components/panel/query-section";
 import OccupancyBar from "~/components/progress/occupancy-bar";
 import ReportFiltersBar from "~/features/reports/components/report-filters-bar";
@@ -125,35 +120,26 @@ export default function ReportsOverviewTemplate() {
       <QuerySection
         query={summaryQuery}
         errorText="Không thể tải tóm tắt lãi lỗ."
-        loading={<LoadingPanel className="md:grid-cols-4" itemCount={4} />}
+        loading={<KpiStripSkeleton />}
       >
         {(summary) => (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <SummaryCard
-              label="Tổng doanh thu"
-              value={formatCurrency(summary.totalRevenue)}
-              icon={TrendingUp}
-              iconClassName="bg-success/10 text-success"
-            />
-            <SummaryCard
-              label="Chi phí"
-              value={formatCurrency(summary.totalExpenses)}
-              icon={TrendingDown}
-              iconClassName="bg-destructive/10 text-destructive"
-            />
-            <SummaryCard
-              label="Lợi nhuận"
-              value={formatCurrency(summary.totalProfit)}
-              icon={Zap}
-              iconClassName="bg-info/10 text-info"
-            />
-            <SummaryCard
-              label="Lấp đầy phòng"
-              value={`${summary.avgOccupancy}%`}
-              icon={Users}
-              iconClassName="bg-primary/10 text-primary"
-            />
-          </div>
+          <KpiStrip
+            items={[
+              {
+                label: "Tổng doanh thu",
+                value: formatCurrency(summary.totalRevenue),
+              },
+              {
+                label: "Chi phí",
+                value: formatCurrency(summary.totalExpenses),
+              },
+              {
+                label: "Lợi nhuận",
+                value: formatCurrency(summary.totalProfit),
+              },
+              { label: "Lấp đầy phòng", value: `${summary.avgOccupancy}%` },
+            ]}
+          />
         )}
       </QuerySection>
 
@@ -166,7 +152,11 @@ export default function ReportsOverviewTemplate() {
         </TabsList>
 
         <TabsContent value="pnl">
-          <QuerySection query={rowsQuery} errorText={ROWS_ERROR}>
+          <QuerySection
+            query={rowsQuery}
+            errorText={ROWS_ERROR}
+            loading={<TableSkeleton />}
+          >
             {() =>
               rows.length > 0 ? (
                 <ReportTable rows={rows} />
@@ -186,7 +176,13 @@ export default function ReportsOverviewTemplate() {
         </TabsContent>
 
         <TabsContent value="utilities">
-          <QuerySection query={rowsQuery} errorText={ROWS_ERROR}>
+          <QuerySection
+            query={rowsQuery}
+            errorText={ROWS_ERROR}
+            loading={
+              <CardGridSkeleton itemCount={2} className="lg:grid-cols-2" />
+            }
+          >
             {() => (
               <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
@@ -258,6 +254,9 @@ export default function ReportsOverviewTemplate() {
               <QuerySection
                 query={overdueQuery}
                 errorText="Không thể tải danh sách công nợ."
+                loading={
+                  <CardGridSkeleton itemCount={3} className="grid-cols-1" />
+                }
               >
                 {(overdueDebts) =>
                   overdueDebts.length > 0 ? (
@@ -303,7 +302,13 @@ export default function ReportsOverviewTemplate() {
               <CardTitle className="text-base">Hiệu suất lấp đầy</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <QuerySection query={rowsQuery} errorText={ROWS_ERROR}>
+              <QuerySection
+                query={rowsQuery}
+                errorText={ROWS_ERROR}
+                loading={
+                  <CardGridSkeleton itemCount={3} className="grid-cols-1" />
+                }
+              >
                 {() =>
                   rows.length > 0 ? (
                     rows.map((row) => (

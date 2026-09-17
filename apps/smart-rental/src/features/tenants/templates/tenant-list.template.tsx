@@ -1,23 +1,15 @@
-import {
-  Download,
-  LayoutGrid,
-  List,
-  Plus,
-  UserCheck,
-  Users,
-  UserX,
-} from "lucide-react";
-import { Link, useSearchParams } from "react-router";
+import { Download, Plus, Users } from "lucide-react";
+import { Link } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import { Tabs, TabsList, TabsTrigger } from "@monorepo/ui/components/tabs";
 
 import type { TenantStatus, TenantView } from "~/types/tenant";
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
+import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { tenantStatusConfig, toFilterOptions } from "~/constants/status";
 import TenantCard from "~/features/tenants/components/tenant-card";
@@ -25,33 +17,11 @@ import { tenantColumns } from "~/features/tenants/components/tenant-columns";
 import { useGetTenants } from "~/hooks/api/tenant";
 import { useBuildingStore } from "~/stores/use-building-store";
 
-const VIEW_PARAM = "view";
-type View = "grid" | "table";
-
-/** The four KPI tiles above the list; a `status` counts that status, none counts everything. */
-const summaryTiles: {
-  label: string;
-  status?: TenantStatus;
-  icon: typeof Users;
-  iconClassName: string;
-}[] = [
-  {
-    label: "Tổng Người thuê",
-    icon: Users,
-    iconClassName: "bg-primary/10 text-primary",
-  },
-  {
-    label: "Đang thuê",
-    status: "active",
-    icon: UserCheck,
-    iconClassName: "bg-success/10 text-success",
-  },
-  {
-    label: "Đã rời",
-    status: "ended",
-    icon: UserX,
-    iconClassName: "bg-muted text-muted-foreground",
-  },
+/** The three KPI tiles above the list; a `status` counts that status, none counts everything. */
+const summaryTiles: { label: string; status?: TenantStatus }[] = [
+  { label: "Tổng Người thuê" },
+  { label: "Đang thuê", status: "active" },
+  { label: "Đã rời", status: "ended" },
 ];
 
 function countByStatus(tenants: TenantView[], status?: TenantStatus) {
@@ -67,24 +37,11 @@ function countByStatus(tenants: TenantView[], status?: TenantStatus) {
  * into it. "Xuất Excel" has no flow yet, as in the prototype.
  */
 export default function TenantListTemplate() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const view: View =
-    searchParams.get(VIEW_PARAM) === "table" ? "table" : "grid";
+  const [view, setView] = useListView();
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetTenants({
     buildingId: selectedBuildingId,
   });
-
-  const setView = (next: View) =>
-    setSearchParams(
-      (previous) => {
-        const params = new URLSearchParams(previous);
-        if (next === "grid") params.delete(VIEW_PARAM);
-        else params.set(VIEW_PARAM, next);
-        return params;
-      },
-      { replace: true },
-    );
 
   return (
     <div className="space-y-6">
@@ -109,7 +66,10 @@ export default function TenantListTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel itemCount={6} />
+        <div className="space-y-6">
+          <KpiStripSkeleton count={3} />
+          <CardGridSkeleton itemCount={6} />
+        </div>
       ) : isError ? (
         <ErrorPanel
           description="Không tải được danh sách Người thuê."
@@ -117,66 +77,48 @@ export default function TenantListTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {summaryTiles.map((tile) => (
-              <SummaryCard
-                key={tile.label}
-                label={tile.label}
-                value={countByStatus(data ?? [], tile.status)}
-                icon={tile.icon}
-                iconClassName={tile.iconClassName}
-              />
-            ))}
-          </div>
+          <KpiStrip
+            items={summaryTiles.map((tile) => ({
+              label: tile.label,
+              value: countByStatus(data ?? [], tile.status),
+            }))}
+          />
 
-          <Tabs value={view} onValueChange={(value) => setView(value as View)}>
-            <DataTable
-              columns={tenantColumns}
-              data={data ?? []}
-              getRowId={(tenant) => tenant.id}
-              search={{
-                columnId: "name",
-                placeholder: "Tìm tên Người thuê...",
-              }}
-              facets={[
-                {
-                  columnId: "status",
-                  title: "Trạng thái",
-                  options: toFilterOptions(tenantStatusConfig),
-                },
-              ]}
-              empty={{
-                icon: Users,
-                title: "Không tìm thấy Người thuê",
-                description:
-                  "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
-              }}
-              resultLabel={(count) => `${count} Người thuê được tìm thấy`}
-              viewSwitch={
-                <TabsList className="bg-muted/50">
-                  <TabsTrigger value="grid">
-                    <LayoutGrid />
-                    <span className="hidden sm:inline">Dạng thẻ</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="table">
-                    <List />
-                    <span className="hidden sm:inline">Dạng bảng</span>
-                  </TabsTrigger>
-                </TabsList>
-              }
-              renderRows={
-                view === "grid"
-                  ? (tenants) => (
-                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {tenants.map((tenant) => (
-                          <TenantCard key={tenant.id} tenant={tenant} />
-                        ))}
-                      </div>
-                    )
-                  : undefined
-              }
-            />
-          </Tabs>
+          <DataTable
+            columns={tenantColumns}
+            data={data ?? []}
+            getRowId={(tenant) => tenant.id}
+            search={{
+              columnId: "name",
+              placeholder: "Tìm tên Người thuê...",
+            }}
+            facets={[
+              {
+                columnId: "status",
+                title: "Trạng thái",
+                options: toFilterOptions(tenantStatusConfig),
+              },
+            ]}
+            empty={{
+              icon: Users,
+              title: "Không tìm thấy Người thuê",
+              description:
+                "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
+            }}
+            resultLabel={(count) => `${count} Người thuê được tìm thấy`}
+            viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+            renderRows={
+              view === "grid"
+                ? (tenants) => (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {tenants.map((tenant) => (
+                        <TenantCard key={tenant.id} tenant={tenant} />
+                      ))}
+                    </div>
+                  )
+                : undefined
+            }
+          />
         </>
       )}
     </div>

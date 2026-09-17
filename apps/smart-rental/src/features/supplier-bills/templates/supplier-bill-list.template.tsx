@@ -1,12 +1,12 @@
-import { Activity, Plus, Receipt } from "lucide-react";
+import { Plus, Receipt } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { TableSkeleton } from "~/components/panel/loading-panel";
 import {
   supplierBillPaymentConfig,
   supplierBillTypeConfig,
@@ -45,7 +45,10 @@ export default function SupplierBillListTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel itemCount={6} />
+        <div className="space-y-6">
+          <KpiStripSkeleton count={3} />
+          <TableSkeleton />
+        </div>
       ) : isError ? (
         <ErrorPanel
           description="Không tải được danh sách hoá đơn nhà cung cấp."
@@ -53,24 +56,16 @@ export default function SupplierBillListTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
-            <SummaryCard
-              label="Tổng chi"
-              value={formatCurrency(totals.totalAmount)}
-              icon={Receipt}
-            />
-            <SummaryCard
-              label="Chờ thanh toán"
-              value={formatCurrency(totals.pendingAmount)}
-              icon={Activity}
-              iconClassName="bg-warning/10 text-warning"
-            />
-            <SummaryCard
-              label="Số hoá đơn"
-              value={totals.count}
-              icon={Receipt}
-            />
-          </div>
+          <KpiStrip
+            items={[
+              { label: "Tổng chi", value: formatCurrency(totals.totalAmount) },
+              {
+                label: "Chờ thanh toán",
+                value: formatCurrency(totals.pendingAmount),
+              },
+              { label: "Số hoá đơn", value: totals.count },
+            ]}
+          />
 
           <DataTable
             columns={supplierBillColumns}
