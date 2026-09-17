@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -10,6 +10,7 @@ import { ROUTES } from "~/constants/routes";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
+import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
 
@@ -21,6 +22,7 @@ import { deriveInvoiceStatus } from "~/utils/invoice-status";
 // The real store, driven through its own API — mocking the module would throw
 // away the selector behaviour the guards depend on.
 const initialAuthState = useAuthStore.getState();
+const initialBuildingState = useBuildingStore.getState();
 
 /**
  * A data router with one splat route around `<AppRoutes />`, rather than a
@@ -61,7 +63,6 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   [ROUTES.ROOMS, "Danh sách phòng", "Phòng 101"],
   [ROUTES.roomDetailPath("R-B1-102"), "Chi tiết phòng", "Phòng 102"],
   [ROUTES.TENANTS, "Quản lý Người thuê", "Trần Thị B"],
-  [ROUTES.TENANT_CREATE, "Thêm Người thuê mới"],
   [ROUTES.tenantDetailPath("T003"), "Chi tiết Người thuê", "Lê Văn C"],
   [ROUTES.CONTRACTS, "Quản lý hợp đồng", "HĐ-002"],
   [ROUTES.CONTRACT_CREATE, "Tạo hợp đồng mới"],
@@ -196,6 +197,30 @@ describe("the route tree", () => {
       expect(await screen.findAllByText("Đang thuê")).not.toHaveLength(0);
     });
 
+    // Ticket #161 — "tạo/sửa trong FormSheet", never a separate page (there is
+    // no ROUTES.TENANT_CREATE any more); a form with ≥ 2 errors gets a
+    // focusable summary on top of each field's own inline FieldError.
+    it("opens the Người thuê FormSheet with an error summary at ≥ 2 errors", async () => {
+      const user = userEvent.setup();
+      renderAt(ROUTES.TENANTS);
+
+      await user.click(
+        screen.getByRole("button", { name: "Thêm Người thuê" }),
+      );
+      expect(
+        screen.getByRole("heading", { name: "Thêm Người thuê mới" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Ngày sinh" }),
+      ).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: "Lưu lại" }));
+
+      expect(
+        await screen.findByText(/^Vui lòng kiểm tra lại \d+ lỗi$/),
+      ).toBeInTheDocument();
+    });
+
     it("lists a Việc cần làm item pointing at an existing Hoá đơn", async () => {
       renderAt(ROUTES.TASKS);
 
@@ -295,5 +320,38 @@ describe("the route tree", () => {
       expect(heading("Chào mừng!")).toBeInTheDocument();
       expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
     });
+  });
+});
+
+// Ticket #161, spec #153 §10 row 8 — marking Thông báo lưu trú "Đã gửi" is
+// the one write Khai báo lưu trú has, and it is what makes the matching
+// residence_notification task drop off Hôm nay (AC: "test qua route tree").
+describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
+  beforeEach(() => {
+    useAuthStore.setState(initialAuthState, true);
+    useBuildingStore.setState(initialBuildingState, true);
+    useAuthStore.setState({ token: "a-token" });
+  });
+
+  it("marks Thông báo lưu trú sent and drops the tenant's Việc cần làm", async () => {
+    const user = userEvent.setup();
+    renderAt(ROUTES.COMPLIANCE);
+
+    // T005 (Hoàng Văn E) is the one tenant the Mock deliberately ships with
+    // no Thông báo lưu trú record yet (see `constants/mock/compliance.ts`).
+    const name = await screen.findByText("Hoàng Văn E");
+    const row = name.closest('[data-slot="residence-declaration-row"]');
+    expect(row).not.toBeNull();
+
+    await user.click(
+      within(row as HTMLElement).getByRole("button", { name: "Đã gửi" }),
+    );
+    await within(row as HTMLElement).findAllByText("Đã gửi");
+
+    renderAt(ROUTES.TASKS);
+    await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
+    expect(
+      screen.queryByText("Hoàng Văn E chưa có Thông báo lưu trú"),
+    ).not.toBeInTheDocument();
   });
 });

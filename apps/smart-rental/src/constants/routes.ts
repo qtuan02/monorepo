@@ -22,7 +22,6 @@ export const ROUTES = {
   ROOM_DETAIL: "/rooms/:roomId",
 
   TENANTS: "/tenants",
-  TENANT_CREATE: "/tenants/create",
   TENANT_DETAIL: "/tenants/:tenantId",
 
   CONTRACTS: "/contracts",

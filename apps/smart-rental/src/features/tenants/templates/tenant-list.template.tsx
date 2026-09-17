@@ -1,7 +1,7 @@
+import { useState } from "react";
 import { Download, Plus, Users } from "lucide-react";
-import { Link } from "react-router";
 
-import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import { Button } from "@monorepo/ui/components/button";
 
 import type { TenantStatus, TenantView } from "~/types/tenant";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
@@ -10,10 +10,10 @@ import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
-import { ROUTES } from "~/constants/routes";
 import { tenantStatusConfig, toFilterOptions } from "~/constants/status";
 import TenantCard from "~/features/tenants/components/tenant-card";
 import { tenantColumns } from "~/features/tenants/components/tenant-columns";
+import TenantFormSheet from "~/features/tenants/components/tenant-form-sheet";
 import { useGetTenants } from "~/hooks/api/tenant";
 import { useBuildingStore } from "~/stores/use-building-store";
 
@@ -38,6 +38,7 @@ function countByStatus(tenants: TenantView[], status?: TenantStatus) {
  */
 export default function TenantListTemplate() {
   const [view, setView] = useListView();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetTenants({
     buildingId: selectedBuildingId,
@@ -54,13 +55,14 @@ export default function TenantListTemplate() {
               <Download />
               Xuất Excel
             </Button>
-            <Link
-              to={ROUTES.TENANT_CREATE}
-              className={buttonVariants({ size: "sm" })}
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setIsCreateOpen(true)}
             >
               <Plus />
               Thêm Người thuê
-            </Link>
+            </Button>
           </>
         }
       />
@@ -121,6 +123,8 @@ export default function TenantListTemplate() {
           />
         </>
       )}
+
+      <TenantFormSheet open={isCreateOpen} onOpenChange={setIsCreateOpen} />
     </div>
   );
 }

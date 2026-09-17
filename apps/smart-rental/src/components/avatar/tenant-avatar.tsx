@@ -8,8 +8,13 @@ interface TenantAvatarProps {
   className?: string;
 }
 
-/** The initials tile a Người thuê wears on every screen — one tone (ADR-0011). */
-export default function TenantAvatar({ tenant, className }: TenantAvatarProps) {
+/**
+ * The initials tile a Người thuê wears on every screen — one tone (ADR-0011).
+ * Promoted out of `~/features/tenants` (ticket #161): the shared Khai báo lưu
+ * trú composite needs it too, and a shared composite may not reach into a
+ * feature's internals.
+ */
+export function TenantAvatar({ tenant, className }: TenantAvatarProps) {
   return (
     <div
       aria-hidden

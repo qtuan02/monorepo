@@ -28,3 +28,30 @@ export interface ComplianceItem {
   /** Mã hồ sơ Cổng DVC — set once a Thông báo lưu trú has been sent. */
   referenceNumber?: string;
 }
+
+export interface ComplianceListParams {
+  /** The Building scope; `null` or absent means every Toà nhà. */
+  buildingId?: string | null;
+}
+
+/** Thông báo lưu trú has no "quá hạn" of its own (ticket #161) — only sent or not yet. */
+export type ResidenceNotificationStatus = "sent" | "not_sent";
+
+/**
+ * One Người thuê's "hai dòng" (spec #153 §10 row 8, ticket #161) — computed at
+ * read time from `~/utils/residence-declaration`, never a stored row. Only a
+ * tenant with a live Hợp đồng gets one at all.
+ */
+export interface ResidenceDeclaration {
+  tenantId: string;
+  tenantName: string;
+  buildingId: string;
+  room: string;
+  notificationStatus: ResidenceNotificationStatus;
+  notificationDate?: string;
+  referenceNumber?: string;
+  registrationStatus: ComplianceStatus;
+  /** Already display-formatted (`DD/MM/YYYY`). */
+  registrationDueDate: string;
+  registrationExpiringSoon: boolean;
+}
