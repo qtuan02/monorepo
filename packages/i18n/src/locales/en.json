@@ -393,6 +393,24 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect in the browser, useEffect on the server."
+        },
+        "use-boolean": {
+          "description": "Boolean state with toggle, setTrue and setFalse alongside the raw setter."
+        },
+        "use-counter": {
+          "description": "Numeric counter with increment, decrement, reset and set."
+        },
+        "use-toggle": {
+          "description": "Boolean toggle: call with no argument to flip, or pass a value to force it."
+        },
+        "use-countdown": {
+          "description": "Counts down once a second from an initial number of seconds, with a reset."
+        },
+        "use-timeout": {
+          "description": "Runs a callback once after a delay; skipped entirely when the delay is null."
+        },
+        "use-previous": {
+          "description": "Returns the value from the previous render, undefined on the first one."
         }
       }
     },

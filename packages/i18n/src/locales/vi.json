@@ -393,6 +393,24 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect ở trình duyệt, useEffect ở phía server."
+        },
+        "use-boolean": {
+          "description": "Boolean state kèm toggle, setTrue, setFalse cạnh setter thô."
+        },
+        "use-counter": {
+          "description": "Counter số kèm increment, decrement, reset và set."
+        },
+        "use-toggle": {
+          "description": "Boolean toggle: gọi không tham số để đảo, truyền giá trị để ép cứng."
+        },
+        "use-countdown": {
+          "description": "Đếm ngược mỗi giây từ một số giây ban đầu, kèm reset."
+        },
+        "use-timeout": {
+          "description": "Chạy callback một lần sau delay; bỏ qua khi delay là null."
+        },
+        "use-previous": {
+          "description": "Trả về giá trị của lần render trước, undefined ở lần đầu."
         }
       }
     },

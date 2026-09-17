@@ -49,6 +49,12 @@ There is no `import { useDebounce } from "@fe-monorepo/hook"` — the root entry
 | `@fe-monorepo/hook/use-is-mobile` | `useIsMobile()`, `MOBILE_BREAKPOINT` | `useMediaQuery` pinned to Tailwind's `md` breakpoint (768px). |
 | `@fe-monorepo/hook/use-copy-to-clipboard` | `useCopyToClipboard()` | `[copiedText, copy]`; `copy(text)` resolves `void` — `copiedText` is `text` after a successful copy, `null` after a failed one, and the hook only warns when the Clipboard API is unavailable. |
 | `@fe-monorepo/hook/use-isomorphic-layout-effect` | `useIsomorphicLayoutEffect` | `useLayoutEffect` in the browser, `useEffect` on the server. |
+| `@fe-monorepo/hook/use-boolean` | `useBoolean(initialValue?)` | `{ value, setValue, toggle, setTrue, setFalse }`. Throws if `initialValue` is not a boolean. |
+| `@fe-monorepo/hook/use-counter` | `useCounter(initialValue?)` | `{ count, increment, decrement, reset, set }`. |
+| `@fe-monorepo/hook/use-toggle` | `useToggle(initialValue?)` | `[value, toggle]`; call `toggle()` to flip or `toggle(next)` to force a value. |
+| `@fe-monorepo/hook/use-countdown` | `useCountdown(initialSeconds)` | `[timeLeft, reset]`; decrements once a second and stops at zero. |
+| `@fe-monorepo/hook/use-timeout` | `useTimeout(callback, delay)` | Runs `callback` once after `delay`ms; a `null` delay never fires it. |
+| `@fe-monorepo/hook/use-previous` | `usePrevious(value)` | Returns the value from the previous render, `undefined` on the first one. |
 
 ## TypeScript
 
@@ -61,9 +67,10 @@ MIT
 
 ## Third-party notices
 
-Four of the five hooks are derived from [hooks-ts](https://github.com/michal-worwag/hooks-ts)
+Ten of the eleven hooks are derived from [hooks-ts](https://github.com/michal-worwag/hooks-ts)
 (`hooks-ts@0.12.0`, MIT © 2024 Michał Worwąg): `use-debounce`, `use-media-query`,
-`use-copy-to-clipboard` and `use-isomorphic-layout-effect`. Each of those source files
+`use-copy-to-clipboard`, `use-isomorphic-layout-effect`, `use-boolean`, `use-counter`,
+`use-toggle`, `use-countdown`, `use-timeout` and `use-previous`. Each of those source files
 opens with a `Derived from hooks-ts` line naming the upstream file and commit, and the
 upstream license ships in this package as [`LICENSE-hooks-ts`](./LICENSE-hooks-ts).
 `use-is-mobile` is this workspace's own.
