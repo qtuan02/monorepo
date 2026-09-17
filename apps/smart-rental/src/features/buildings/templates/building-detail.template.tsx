@@ -14,8 +14,8 @@ import { StatItem } from "~/components/card/stat-item";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
+import OccupancyBar from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
-import OccupancyBar from "~/features/buildings/components/occupancy-bar";
 import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 import { useGetBuilding } from "~/hooks/api/building";
 

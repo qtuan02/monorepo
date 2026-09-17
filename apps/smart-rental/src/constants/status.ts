@@ -2,23 +2,35 @@ import type { LucideIcon } from "lucide-react";
 import {
   AlertCircle,
   Ban,
+  Bell,
   CheckCircle2,
   Circle,
   Clock,
   Droplets,
+  Mail,
+  MessageSquare,
+  Send,
   TrendingDown,
   TrendingUp,
   Wrench,
+  XCircle,
   Zap,
 } from "lucide-react";
 
+import type {
+  CommunicationChannel,
+  SendLogStatus,
+} from "~/types/communication";
+import type { ComplianceStatus, ComplianceType } from "~/types/compliance";
 import type { InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
+import type { OccupancyBucket } from "~/types/report";
 import type { RoomStatus, RoomType } from "~/types/room";
 import type {
   SupplierBillPaymentStatus,
   SupplierBillType,
 } from "~/types/supplier-bill";
+import type { TaskPriority, TaskStatus, TaskType } from "~/types/task";
 import type { UtilityStatus, UtilityType } from "~/types/utility";
 
 /**
@@ -117,6 +129,75 @@ export const utilityTypeConfig: Record<UtilityType, StatusConfig> = {
 export function toDistinctOptions(values: string[]): FilterOption[] {
   return [...new Set(values)].map((value) => ({ value, label: value }));
 }
+
+export const taskStatusConfig: Record<TaskStatus, StatusConfig> = {
+  open: { label: "Mở", className: statusTone.info },
+  in_progress: { label: "Đang xử lý", className: statusTone.warning },
+  done: { label: "Hoàn thành", className: statusTone.success },
+};
+
+export const taskPriorityConfig: Record<TaskPriority, StatusConfig> = {
+  high: { label: "Cao", className: statusTone.error },
+  medium: { label: "Trung bình", className: statusTone.warning },
+  low: { label: "Thấp", className: statusTone.neutral },
+};
+
+export const taskTypeConfig: Record<TaskType, StatusConfig> = {
+  invoice_overdue: { label: "Hóa đơn quá hạn", className: statusTone.info },
+  contract_expiring: {
+    label: "Hợp đồng sắp hết hạn",
+    className: statusTone.info,
+  },
+  maintenance: { label: "Bảo trì", className: statusTone.info },
+};
+
+export const complianceStatusConfig: Record<ComplianceStatus, StatusConfig> = {
+  completed: {
+    label: "Hoàn thành",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
+  pending: { label: "Chờ xử lý", className: statusTone.info, icon: Clock },
+  overdue: { label: "Quá hạn", className: statusTone.error, icon: AlertCircle },
+};
+
+export const complianceTypeConfig: Record<ComplianceType, StatusConfig> = {
+  residence_declaration: { label: "Khai báo nơi ở" },
+  safety_inspection: { label: "Kiểm tra an toàn" },
+  documentation: { label: "Tài liệu" },
+};
+
+export const sendLogStatusConfig: Record<SendLogStatus, StatusConfig> = {
+  sent: { label: "Đã gửi", className: statusTone.success, icon: CheckCircle2 },
+  pending: { label: "Chờ gửi", className: statusTone.warning, icon: Clock },
+  failed: { label: "Thất bại", className: statusTone.error, icon: XCircle },
+};
+
+export const occupancyBucketConfig: Record<OccupancyBucket, StatusConfig> = {
+  good: { label: "Tốt", className: statusTone.success },
+  warning: { label: "Cảnh báo", className: statusTone.warning },
+  critical: { label: "Nguy hiểm", className: statusTone.error },
+};
+
+/** The tone here colours a channel's icon tile, not a badge. */
+export const channelConfig: Record<CommunicationChannel, StatusConfig> = {
+  sms: {
+    label: "SMS",
+    className: "bg-blue-100 text-blue-600",
+    icon: MessageSquare,
+  },
+  email: {
+    label: "Email",
+    className: "bg-purple-100 text-purple-600",
+    icon: Mail,
+  },
+  zalo: { label: "Zalo", className: "bg-cyan-100 text-cyan-600", icon: Send },
+  in_app: {
+    label: "Trong ứng dụng",
+    className: "bg-zinc-100 text-zinc-600",
+    icon: Bell,
+  },
+};
 
 /** A config read as the option list of a faceted filter, in the config's order. */
 export function toFilterOptions(

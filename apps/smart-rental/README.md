@@ -62,7 +62,8 @@ route con nào dưới chúng), bỏ manifest `isImplemented`, bỏ mười wrap
 | Chỉ số điện nước | `/utilities` · `/utilities/meter-input` · `/utilities/:utilityId` | — |
 | Hoá đơn NCC | `/supplier-bills` · `/supplier-bills/:billId` | — |
 | Chi phí | `/expenses` · `/expenses/:expenseId` | — |
-| Còn lại | `/reconciliation` · `/tasks` · `/reports` · `/compliance` · `/communications` · `/settings` | — |
+| Việc cần làm · Báo cáo · Khai báo lưu trú · Thông báo · Cài đặt | `/tasks` · `/reports` · `/compliance` · `/communications` · `/settings` | — |
+| Còn lại | `/reconciliation` | — |
 | 404 | `*` | trong shell, **ngoài** guard |
 
 Đã port: **Toà nhà** (`/buildings` grid thẻ + dialog tạo mới trên Zod, `/buildings/:id`)
@@ -104,6 +105,29 @@ Excel", "Lịch sử chốt", "Xem hồ sơ khách", hai nút xác nhận thanh 
 (`MM/YYYY`) thêm vào `@monorepo/dayjs/formats` cho kỳ hoá đơn; `~/utils/date.ts` thêm
 `formatDateTime`/`formatMonth`.
 
+Đã port (#141) **năm màn đơn**, mỗi màn một route thay placeholder, mỗi entity một Mock trong
+`~/constants/mock/` và một hook `~/hooks/api/` (ba repository giả latency của prototype thành Mock
+thường — TanStack Query đã có trạng thái loading): **Trung tâm nhiệm vụ** (`/tasks` — ba thẻ đếm
+theo loại, lưới thẻ trên `DataTable` với `renderRows`, tìm kiếm trên tiêu đề *và* mô tả, ba facet
+priority/status/type trên URL; mỗi việc link tới đúng màn entity qua `taskRelatedPath` →
+builder trong `ROUTES`, nhãn hạn qua `formatDueLabel`), **Báo cáo** (`/reports` — ba query song
+song thay `Promise.all` của prototype, bốn KPI, tab `?tab=` trên URL, ba Select lọc trong state,
+bảng P&L trên primitive `table`, hiệu suất lấp đầy trên `OccupancyBar`; không biểu đồ vì prototype
+không có), **Tuân thủ** (`/compliance` — đếm theo trạng thái, hai thẻ theo loại, checklist theo
+khách, badge qua `StatusBadge`), **Liên lạc** (`/communications` — tab `?tab=`: mẫu tin theo kênh với
+"Gửi ngay" chỉ toast, nhật ký gửi trên `DataTable` với facet kênh/trạng thái và `StatusBadge`,
+hai switch tự động tĩnh) và **Cài đặt** (`/settings` — quick link, bốn nhóm read-only trên
+`Collapsible`, và **Giá điện bậc thang**: form `useFieldArray` + `Controller` trên schema Zod
+`types/electricity-tier-form.ts`, lưu vào Mock qua `useUpdateElectricityTierConfig` — prototype
+vẽ form này nhưng chưa mount và không submit). Config hiển thị của task/compliance/send-log/kênh/bậc lấp đầy
+gộp vào `~/constants/status.ts` (`domain/*-display-config` + `components/*-ui-config` của
+prototype về một chỗ). `OccupancyBar` lên `~/components/progress/` vì Báo cáo là slice thứ hai
+dùng nó. Màn nhiều query gate **từng section** qua `~/components/panel/query-section.tsx`
+(skeleton / lỗi + Thử lại / dữ liệu), không OR `isLoading` cả màn; tab trên URL qua `~/hooks/use-url-tab.ts`.
+Schema bậc thang chỉ chặn `Từ > Đến` trong một bậc — liên tục *giữa* các bậc là rule nghiệp vụ
+prototype không có, chờ chủ spec. Các nút "Xuất báo cáo" (toast), "Chọn ngày", "Tạo file CT01", "Thêm yêu cầu",
+"Khôi phục mặc định" chưa có flow — giữ như prototype.
+
 Cho tới khi slice tương ứng được port, mỗi route còn lại render một **template placeholder**
 chỉ có heading của màn hình (và id của route với màn chi tiết).
 
@@ -120,6 +144,7 @@ chỉ có heading của màn hình (và id của route với màn chi tiết).
 - Form: `test/features/auth/components/{sign-in,register}-form.test.tsx`; schema tạo Toà nhà `test/features/buildings/types/building-form.test.ts` (trim, message, số nguyên, ngày 1–31).
 - Bốn hàng Toà nhà/Phòng của seam test có cột thứ ba — một chuỗi chỉ Mock mới đưa lên màn — nên route nối nhầm placeholder hay Mock ngừng chảy là fail.
 - Composite: `test/components/data-table/data-table.test.tsx` mount trong `createMemoryRouter` — đọc page/size/q/facet từ URL, clamp page quá cuối về trang cuối, "Trang sau" ghi `?page=2` với `replace`, gõ tìm kiếm chỉ ghi URL sau debounce và về trang 1, toggle facet + "Xóa bộ lọc", empty panel có nút reset.
+- #141: `test/features/tasks/utils/task-due.test.ts` (link entity theo `ROUTES`, nhãn hạn), `test/features/reports/utils/report-filters.test.ts` (bucket lấp đầy, lọc ba chiều), `test/features/settings/types/electricity-tier-form.test.ts` (string → number, «Đến» trống = mở, message, `Từ ≤ Đến`, ≥ 1 bậc, `nextTierFrom`), `test/features/settings/components/electricity-tier-config.test.tsx` (sửa giá → lưu vào Mock; thêm bậc bắt đầu sau «Đến» cuối; hàng sai không vào Mock); năm hàng seam có cột Mock.
 - Utils: `test/utils/{currency,date,pagination}.test.ts`; `test/constants/status.test.ts`; `test/features/buildings/utils/building-stats.test.ts`.
 - E2E: `e2e/auth.e2e.ts` (guard + form trên bundle thật), `e2e/dashboard.e2e.ts`
   (session sống qua reload, boot không console error), `e2e/shell.e2e.ts` (Building
