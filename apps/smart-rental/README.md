@@ -89,7 +89,14 @@ là của Cài đặt) và ảnh chứng từ; `/utilities/meter-input` — **nh
 hàng (`components/meter-input-row.tsx`) `useWatch` đúng hai ô của nó, tiêu thụ = mới − cũ tính
 trong render, badge suy ra từ `utils/meter-reading.ts` (`readMeter`: trống → "Chưa nhập", mới ≥
 cũ → Nháp, mới < cũ hoặc không phải số → Bất thường — logic thuần, có test), submit là `TODO`
-nguyên. Lệch prototype có chủ ý: Mock `utilities.ts` gán `buildingId` (type của prototype khai
+nguyên. Lệch prototype có chủ ý: "Tạo hóa đơn" và "Thêm chỉ số" (hai nút không handler của prototype) dẫn
+sang `/invoices/batch` và `/utilities/meter-input`; "Trạng thái" trong khối Thông tin thanh toán
+đọc `status` thật thay vì suy từ `paymentDate` (prototype hiện "Đã thanh toán" cho một hoá đơn
+`overdue` có ngày thanh toán); `invoice-form.tsx` của prototype không có consumer nên không port;
+thẻ Chỉ số bỏ hai icon trạng thái lặp badge (vòng đỏ nhấp nháy khi anomaly, đồng hồ xanh khi verified);
+ảnh chứng từ không có fallback SVG — Mock trỏ `/images/meter-*.jpg` không tồn tại nên ảnh vỡ hiện
+alt text; hai màn form (batch, meter-input) đọc Mock thẳng làm `defaultValues` chứ không qua hook,
+vì form cần data đồng bộ lúc mount — nối BE sẽ gate `isLoading` rồi mới mount form; Mock `utilities.ts` gán `buildingId` (type của prototype khai
 mà Mock không set, không có thì Building scope làm rỗng danh sách); tìm kiếm chỉ một cột
 (`invoiceNumber`, `roomName`) vì composite tìm một cột; "Xóa" hoá đơn chỉ xác nhận rồi về danh
 sách như prototype (không có mutation); các nút "Tải PDF", "Chỉnh sửa", "In hóa đơn", "Xuất

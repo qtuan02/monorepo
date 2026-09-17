@@ -38,4 +38,21 @@ describe("MeterInputTemplate", () => {
     // The other rows did not move.
     expect(within(rowOf("102")).getByText("Chưa nhập")).toBeInTheDocument();
   });
+
+  it("names the field that is not a whole number on submit", async () => {
+    const user = userEvent.setup();
+    render(<MeterInputTemplate />);
+
+    await user.type(
+      within(rowOf("101")).getByRole("spinbutton", {
+        name: "Chỉ số điện mới phòng 101",
+      }),
+      "12.5",
+    );
+    await user.click(screen.getByRole("button", { name: "Lưu chỉ số" }));
+
+    expect(
+      await within(rowOf("101")).findByText("Chỉ số phải là số nguyên"),
+    ).toBeInTheDocument();
+  });
 });

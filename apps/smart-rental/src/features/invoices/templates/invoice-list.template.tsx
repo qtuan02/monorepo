@@ -4,17 +4,19 @@ import {
   Clock,
   Download,
   FileText,
-  LayoutGrid,
-  List,
   Plus,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router";
+import { Link } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import { Tabs, TabsList, TabsTrigger } from "@monorepo/ui/components/tabs";
 
 import { SummaryCard } from "~/components/card/summary-card";
 import { DataTable } from "~/components/data-table/data-table";
+import {
+  ListViewSwitch,
+  ListViewTabs,
+  useListView,
+} from "~/components/data-table/list-view";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
@@ -27,35 +29,19 @@ import { useGetInvoices } from "~/hooks/api/invoice";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
-const VIEW_PARAM = "view";
-type View = "grid" | "table";
-
 /**
  * "Quản lý hóa đơn": four KPI tiles over the list composite, cards or table
  * by `?view=`. "Xuất Excel" has no flow yet, as in the prototype; "Tạo hóa
  * đơn" leads to the Đợt hoá đơn screen, the one create flow the prototype had.
  */
 export default function InvoiceListTemplate() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const view: View =
-    searchParams.get(VIEW_PARAM) === "table" ? "table" : "grid";
+  const [view, setView] = useListView();
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetInvoices({
     buildingId: selectedBuildingId,
   });
 
   const stats = buildInvoiceSummaryStats(data ?? []);
-
-  const setView = (next: View) =>
-    setSearchParams(
-      (previous) => {
-        const params = new URLSearchParams(previous);
-        if (next === "grid") params.delete(VIEW_PARAM);
-        else params.set(VIEW_PARAM, next);
-        return params;
-      },
-      { replace: true },
-    );
 
   return (
     <div className="space-y-6">
@@ -114,7 +100,7 @@ export default function InvoiceListTemplate() {
             />
           </div>
 
-          <Tabs value={view} onValueChange={(value) => setView(value as View)}>
+          <ListViewTabs view={view} onViewChange={setView}>
             <DataTable
               columns={invoiceColumns}
               data={data ?? []}
@@ -137,18 +123,7 @@ export default function InvoiceListTemplate() {
                   "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
               }}
               resultLabel={(count) => `${count} hóa đơn được tìm thấy`}
-              viewSwitch={
-                <TabsList className="bg-muted/50">
-                  <TabsTrigger value="grid">
-                    <LayoutGrid />
-                    <span className="hidden sm:inline">Dạng thẻ</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="table">
-                    <List />
-                    <span className="hidden sm:inline">Dạng bảng</span>
-                  </TabsTrigger>
-                </TabsList>
-              }
+              viewSwitch={<ListViewSwitch />}
               renderRows={
                 view === "grid"
                   ? (invoices) => (
@@ -161,7 +136,7 @@ export default function InvoiceListTemplate() {
                   : undefined
               }
             />
-          </Tabs>
+          </ListViewTabs>
         </>
       )}
     </div>

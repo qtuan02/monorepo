@@ -46,6 +46,8 @@ export default function BatchInvoiceTemplate() {
   const form = useForm<BatchInvoiceFormValues>({
     resolver: zodResolver(batchInvoiceFormSchema),
     defaultValues: {
+      // The wire format of <input type="month">, not a display string —
+      // `MONTH_FORMAT` is what the same period reads as on screen.
       month: dayjs().format("YYYY-MM"),
       selectedInvoiceIds: allIds,
     },

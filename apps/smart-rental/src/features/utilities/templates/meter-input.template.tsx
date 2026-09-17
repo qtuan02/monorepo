@@ -31,7 +31,7 @@ export default function MeterInputTemplate() {
     resolver: zodResolver(meterInputFormSchema),
     defaultValues: {
       rows: mockMeterInputRooms.map((room) => ({
-        ...room,
+        id: room.id,
         newElectricity: "",
         newWater: "",
       })),

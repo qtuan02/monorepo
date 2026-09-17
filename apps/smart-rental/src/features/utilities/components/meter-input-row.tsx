@@ -2,6 +2,7 @@ import type { Control } from "react-hook-form";
 import { Controller, useWatch } from "react-hook-form";
 
 import { Badge } from "@monorepo/ui/components/badge";
+import { Field, FieldError } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 import { TableCell, TableRow } from "@monorepo/ui/components/table";
 import { cn } from "@monorepo/ui/utils/cn";
@@ -64,14 +65,16 @@ export default function MeterInputRow({
           name={`rows.${index}.newElectricity`}
           control={control}
           render={({ field, fieldState }) => (
-            <Input
-              {...field}
-              type="number"
-              min={0}
-              aria-label={`Chỉ số điện mới phòng ${room.name}`}
-              aria-invalid={fieldState.invalid}
-              className="w-24"
-            />
+            <Field data-invalid={fieldState.invalid} className="w-28">
+              <Input
+                {...field}
+                type="number"
+                min={0}
+                aria-label={`Chỉ số điện mới phòng ${room.name}`}
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
           )}
         />
       </TableCell>
@@ -84,14 +87,16 @@ export default function MeterInputRow({
           name={`rows.${index}.newWater`}
           control={control}
           render={({ field, fieldState }) => (
-            <Input
-              {...field}
-              type="number"
-              min={0}
-              aria-label={`Chỉ số nước mới phòng ${room.name}`}
-              aria-invalid={fieldState.invalid}
-              className="w-24"
-            />
+            <Field data-invalid={fieldState.invalid} className="w-28">
+              <Input
+                {...field}
+                type="number"
+                min={0}
+                aria-label={`Chỉ số nước mới phòng ${room.name}`}
+                aria-invalid={fieldState.invalid}
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
           )}
         />
       </TableCell>

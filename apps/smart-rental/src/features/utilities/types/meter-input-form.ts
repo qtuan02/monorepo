@@ -7,11 +7,10 @@ const reading = z
   .trim()
   .regex(/^\d*$/, { error: "Chỉ số phải là số nguyên" });
 
+// Only what the landlord types; the Phòng and its last readings stay on the
+// Mock row the form row is rendered from.
 export const meterRowSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  lastElectricity: z.number(),
-  lastWater: z.number(),
   newElectricity: reading,
   newWater: reading,
 });
