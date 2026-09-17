@@ -41,7 +41,7 @@ function SearchBox() {
 There is no `import { useDebounce } from "@fe-monorepo/hook"` — the root entry does not exist.
 
 Every hook carries a usage example in the `@example` of its JSDoc — hover it in your editor, or
-open its page on the [docs site](https://github.com/qtuan02/monorepo/tree/main/apps/documents).
+open the hook's page on the workspace's docs site (`apps/documents` in the repository above).
 
 ## Hooks
 

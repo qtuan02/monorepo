@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-
+import { CodeBlock } from "~/components/code/code-block";
 import { ImportSnippet } from "~/components/code/import-snippet";
 import { GlassPanel } from "~/components/panel/glass-panel";
 
@@ -8,23 +7,23 @@ interface DetailPanelsProps {
   importPath: string;
   importHeading: string;
   exportsHeading: string;
-  /** A further full-width panel under the two — the hook page's example. */
-  children?: ReactNode;
+  /** An optional third row spanning both columns: a code snippet under its heading. */
+  example?: { heading: string; code: string };
 }
 
 /**
  * The body of a detail page: the import line to copy and the export list as
  * chips, side by side (`1.25fr | 1fr`) from `lg`, stacked below. Chips rather
  * than a table because a list of names has one column and nothing to compare —
- * a `<ul>` says exactly that. `children` lands as a third row spanning both
- * columns, so a page that has more to show keeps the same gap.
+ * a `<ul>` says exactly that. `example` lands as a third row spanning both
+ * columns, so the grid's shape stays in this one file.
  */
 export function DetailPanels({
   exports,
   importPath,
   importHeading,
   exportsHeading,
-  children,
+  example,
 }: DetailPanelsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 pb-10 lg:grid-cols-[1.25fr_1fr]">
@@ -52,7 +51,14 @@ export function DetailPanels({
         </ul>
       </GlassPanel>
 
-      {children}
+      {example && (
+        <GlassPanel className="p-5 sm:p-6 lg:col-span-2">
+          <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
+            {example.heading}
+          </h2>
+          <CodeBlock code={example.code} />
+        </GlassPanel>
+      )}
     </div>
   );
 }

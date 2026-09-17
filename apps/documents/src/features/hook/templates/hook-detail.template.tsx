@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 
-import { CodeBlock } from "~/components/code/code-block";
 import { DetailHero } from "~/components/detail/detail-hero";
 import { DetailPanels } from "~/components/detail/detail-panels";
 import { DetailToolbar } from "~/components/detail/detail-toolbar";
@@ -70,18 +69,17 @@ export default function HookDetailTemplate() {
         importPath={entry.importPath}
         importHeading={t("documents.hooks.detail.import")}
         exportsHeading={t("documents.hooks.detail.exports")}
-      >
-        {entry.example !== null && (
-          // The snippet is the hook's own `@example`, read by the generator —
-          // the same text a consumer sees on hover, so the two cannot drift.
-          <GlassPanel className="p-5 sm:p-6 lg:col-span-2">
-            <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
-              {t("documents.hooks.detail.example")}
-            </h2>
-            <CodeBlock code={entry.example} />
-          </GlassPanel>
-        )}
-      </DetailPanels>
+        // The snippet is the hook's own `@example`, read by the generator —
+        // the same text a consumer sees on hover, so the two cannot drift.
+        example={
+          entry.example === null
+            ? undefined
+            : {
+                heading: t("documents.hooks.detail.example"),
+                code: entry.example,
+              }
+        }
+      />
     </>
   );
 }

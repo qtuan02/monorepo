@@ -162,7 +162,7 @@ function extractJsDoc(
   source: string,
   comments: SourceComment[],
   body: ProgramNode[],
-): { description: string | null; example: string | null } {
+): Omit<ParsedModule, "exports"> {
   let jsDoc: SourceComment | undefined;
 
   for (const node of body) {
