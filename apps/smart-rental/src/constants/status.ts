@@ -167,6 +167,12 @@ export const taskTypeConfig: Record<TaskType, StatusConfig> = {
     className: statusTone.info,
   },
   maintenance: { label: "Bảo trì", className: statusTone.info },
+  utility_anomaly: { label: "Chỉ số bất thường", className: statusTone.info },
+  residence_notification: {
+    label: "Thiếu Thông báo lưu trú",
+    className: statusTone.info,
+  },
+  batch_pending: { label: "Chưa lập Đợt hoá đơn", className: statusTone.info },
 };
 
 export const complianceStatusConfig: Record<ComplianceStatus, StatusConfig> = {
@@ -228,6 +234,13 @@ export const dashboardTaskPriorityConfig: Record<
 export const tenantStatusConfig: Record<TenantStatus, StatusConfig> = {
   active: { label: "Đang thuê", className: statusTone.success },
   ended: { label: "Đã rời", className: statusTone.neutral },
+};
+
+/** The "cờ có Hoá đơn quá hạn" badge (ADR-0012) — not a `TenantStatus`, so it lives next to it rather than in the record. */
+export const tenantOverdueInvoiceConfig: StatusConfig = {
+  label: "Có hoá đơn quá hạn",
+  className: statusTone.error,
+  icon: AlertCircle,
 };
 
 export const contractStatusConfig: Record<ContractStatus, StatusConfig> = {

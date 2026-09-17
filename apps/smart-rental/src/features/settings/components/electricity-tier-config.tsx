@@ -1,6 +1,7 @@
+import type { Control } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Trash2, Zap } from "lucide-react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { AlertTriangle, Plus, Trash2, Zap } from "lucide-react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -27,17 +28,64 @@ import type {
   ElectricityTierFormValues,
 } from "~/features/settings/types/electricity-tier-form";
 import type { ElectricityTierConfig as ElectricityTierConfigValue } from "~/types/setting";
+import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
 import {
   electricityTierFormSchema,
   nextTierFrom,
   toElectricityTierFormInput,
 } from "~/features/settings/types/electricity-tier-form";
 import { useUpdateElectricityTierConfig } from "~/hooks/api/setting";
+import { formatCurrency } from "~/utils/currency";
+import { isElectricityPriceOverCap } from "~/utils/tariff";
 
 const FORM_ID = "electricity-tier-form";
 
 interface ElectricityTierConfigProps {
   config: ElectricityTierConfigValue;
+}
+
+interface TierPriceFieldProps {
+  index: number;
+  control: Control<
+    ElectricityTierFormInput,
+    unknown,
+    ElectricityTierFormValues
+  >;
+}
+
+/**
+ * One bậc's "Đơn giá" — watches only its own field, so typing in one row
+ * never re-renders the others (spec #153 §10 row 28: cảnh báo, not a block).
+ */
+function TierPriceField({ index, control }: TierPriceFieldProps) {
+  const price = useWatch({ control, name: `tiers.${index}.price` });
+  const isOverCap = isElectricityPriceOverCap(Number(price));
+
+  return (
+    <Controller
+      name={`tiers.${index}.price`}
+      control={control}
+      render={({ field, fieldState }) => (
+        <Field data-invalid={fieldState.invalid}>
+          <Input
+            {...field}
+            type="number"
+            min={0}
+            aria-label={`Bậc ${index + 1} đơn giá (đ)`}
+            aria-invalid={fieldState.invalid}
+          />
+          {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          {!fieldState.invalid && isOverCap && (
+            <p className="text-warning flex items-center gap-1 text-xs">
+              <AlertTriangle className="size-3" />
+              Vượt trần {formatCurrency(ELECTRICITY_PRICE_CAP_PER_KWH)}/kWh
+              (Thông tư 60/2025)
+            </p>
+          )}
+        </Field>
+      )}
+    />
+  );
 }
 
 /**
@@ -160,24 +208,7 @@ export default function ElectricityTierConfig({
                     </Field>
                   )}
                 />
-                <Controller
-                  name={`tiers.${index}.price`}
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <Input
-                        {...field}
-                        type="number"
-                        min={0}
-                        aria-label={`Bậc ${index + 1} đơn giá (đ)`}
-                        aria-invalid={fieldState.invalid}
-                      />
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
+                <TierPriceField index={index} control={form.control} />
                 <Button
                   type="button"
                   variant="ghost"

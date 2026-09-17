@@ -1,7 +1,7 @@
 /**
  * A Người thuê has no stored status (ADR-0012, spec #153 §10) — "Đang thuê" /
- * "Đã rời" is derived from its Hợp đồng, a later ticket's job. Kept here only
- * as the shape a hook temporarily attaches for old screens (see `TenantView`).
+ * "Đã rời" is derived from its Hợp đồng (see `~/utils/tenant-status`). Kept
+ * here as the shape the hook attaches for every screen (see `TenantView`).
  */
 export type TenantStatus = "active" | "ended";
 
@@ -27,12 +27,14 @@ export interface Tenant {
 }
 
 /**
- * What `~/hooks/api/tenant` actually returns: the Mock entity plus a
- * temporary, hook-computed `status` so screens built for it keep rendering
- * (ADR-0012 punts the real derivation — from an active Hợp đồng plus an
- * overdue-Hoá-đơn flag — to a later ticket).
+ * What `~/hooks/api/tenant` actually returns: the Mock entity plus two
+ * hook-computed fields (ADR-0012) — `status` from an active Hợp đồng, and
+ * `hasOverdueInvoice` from a Hoá đơn on one of them derived `OVERDUE`.
  */
-export type TenantView = Tenant & { status: TenantStatus };
+export type TenantView = Tenant & {
+  status: TenantStatus;
+  hasOverdueInvoice: boolean;
+};
 
 export interface TenantListParams {
   /** The Building scope; `null` or absent means every Toà nhà. */

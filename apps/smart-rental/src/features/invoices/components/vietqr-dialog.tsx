@@ -1,5 +1,6 @@
-import { Download, QrCode, Share2 } from "lucide-react";
+import { AlertCircle, Download, QrCode, Share2 } from "lucide-react";
 
+import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button } from "@monorepo/ui/components/button";
 import {
   Dialog,
@@ -11,25 +12,36 @@ import {
   DialogTrigger,
 } from "@monorepo/ui/components/dialog";
 
+import type { BankAccount } from "~/types/building";
 import { formatCurrency } from "~/utils/currency";
+import { buildVietQrQuickLink, toVietQrAddInfo } from "~/utils/vietqr";
 
 interface VietQrDialogProps {
+  /** Còn phải trả — `invoice.amount - invoice.paidAmount`, not the invoice total. */
   amount: number;
   invoiceNumber: string;
+  room: string;
+  /** Absent when the Toà nhà has no Tài khoản nhận tiền yet — no VietQR without it. */
+  bankAccount: BankAccount | undefined;
 }
 
-// The prototype's placeholder QR: 25 cells, on/off by `(i * 7) % 10 > 3`.
-// Named so no key is a bare index; a real VietQR image replaces the grid.
-const QR_CELLS = Array.from({ length: 25 }, (_, i) => ({
-  key: `qr-${i}`,
-  isOn: (i * 7) % 10 > 3,
-}));
-
-/** "Thanh toán VietQR": a mock code with the amount and transfer note under it. */
+/**
+ * "Thanh toán VietQR" (spec #153 §10 row 12): a real `img.vietqr.io` link
+ * built from the Toà nhà's Tài khoản nhận tiền, never a fake QR grid — a
+ * Toà nhà with none yet gets the warning instead.
+ */
 export default function VietQrDialog({
   amount,
   invoiceNumber,
+  room,
+  bankAccount,
 }: VietQrDialogProps) {
+  const link = buildVietQrQuickLink(
+    bankAccount,
+    amount,
+    `${invoiceNumber} ${room}`,
+  );
+
   return (
     <Dialog>
       <DialogTrigger
@@ -49,23 +61,20 @@ export default function VietQrDialog({
         </DialogHeader>
 
         <div className="flex flex-col items-center gap-4 py-2">
-          <div
-            role="img"
-            aria-label={`Mã VietQR cho ${invoiceNumber}`}
-            className="border-primary relative flex size-48 items-center justify-center rounded-xl border-4 bg-white shadow-lg"
-          >
-            <div className="absolute inset-2 grid grid-cols-5 grid-rows-5 gap-1 opacity-80">
-              {QR_CELLS.map((cell) => (
-                <div
-                  key={cell.key}
-                  className={cell.isOn ? "bg-primary rounded-xs" : ""}
-                />
-              ))}
-            </div>
-            <div className="absolute flex size-12 items-center justify-center rounded-lg border bg-white p-1 shadow-sm">
-              <QrCode className="text-primary size-8" />
-            </div>
-          </div>
+          {link ? (
+            <img
+              src={link}
+              alt={`Mã VietQR cho ${invoiceNumber}`}
+              className="border-primary size-48 rounded-xl border-4 bg-white shadow-lg"
+            />
+          ) : (
+            <Alert variant="destructive">
+              <AlertCircle />
+              <AlertDescription>
+                Toà nhà chưa khai Tài khoản nhận tiền — chưa thể tạo mã VietQR.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="space-y-1 text-center">
             <p className="text-muted-foreground text-sm font-medium">
@@ -74,21 +83,23 @@ export default function VietQrDialog({
             <p className="text-primary text-2xl font-bold tabular-nums">
               {formatCurrency(amount)}
             </p>
-            <p className="text-muted-foreground pt-2 text-xs">
-              Nội dung:{" "}
-              <span className="bg-muted rounded px-1 py-0.5 font-mono">
-                Thanh toan {invoiceNumber}
-              </span>
-            </p>
+            {link && (
+              <p className="text-muted-foreground pt-2 text-xs">
+                Nội dung:{" "}
+                <span className="bg-muted rounded px-1 py-0.5 font-mono">
+                  {toVietQrAddInfo(`${invoiceNumber} ${room}`)}
+                </span>
+              </p>
+            )}
           </div>
         </div>
 
         <DialogFooter>
-          <Button type="button" variant="outline">
+          <Button type="button" variant="outline" disabled={!link}>
             <Share2 />
             Chia sẻ
           </Button>
-          <Button type="button">
+          <Button type="button" disabled={!link}>
             <Download />
             Lưu ảnh QR
           </Button>

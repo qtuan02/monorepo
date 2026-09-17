@@ -15,6 +15,7 @@ import {
 import TaskCard from "~/features/tasks/components/task-card";
 import { taskColumns } from "~/features/tasks/components/task-columns";
 import { useGetTasks } from "~/hooks/api/task";
+import { useBuildingStore } from "~/stores/use-building-store";
 
 const summaryTiles: {
   type: TaskType;
@@ -40,7 +41,10 @@ const summaryTiles: {
 
 /** "Việc cần làm" (ADR-0011): a count per kind over the whole list, then the filtered card grid. */
 export default function TaskCenterTemplate() {
-  const { data, isLoading, isError, refetch } = useGetTasks();
+  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
+  const { data, isLoading, isError, refetch } = useGetTasks({
+    buildingId: selectedBuildingId,
+  });
   const tasks = data ?? [];
 
   return (

@@ -31,6 +31,7 @@ import { LoadingPanel } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { invoiceStatusConfig } from "~/constants/status";
 import VietQrDialog from "~/features/invoices/components/vietqr-dialog";
+import { useGetBuilding } from "~/hooks/api/building";
 import { useGetInvoice } from "~/hooks/api/invoice";
 import { formatCurrency } from "~/utils/currency";
 
@@ -52,6 +53,9 @@ export default function InvoiceDetailTemplate({
   const navigate = useNavigate();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const { data: invoice, isLoading } = useGetInvoice(invoiceId);
+  const { data: building } = useGetBuilding(invoice?.buildingId ?? "", {
+    enabled: !!invoice?.buildingId,
+  });
 
   const actions = (
     <>
@@ -256,8 +260,10 @@ export default function InvoiceDetailTemplate({
             </CardHeader>
             <CardContent className="space-y-2">
               <VietQrDialog
-                amount={invoice.amount}
+                amount={invoice.amount - invoice.paidAmount}
                 invoiceNumber={invoice.invoiceNumber}
+                room={invoice.room}
+                bankAccount={building?.bankAccount}
               />
               <Button
                 type="button"

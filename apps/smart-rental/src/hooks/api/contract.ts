@@ -17,7 +17,13 @@ import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
 import { queryKeysFactory } from "~/libs/query-key-factory";
+import { deriveContractStatus } from "~/utils/contract-status";
 import { formatDate } from "~/utils/date";
+
+/** `EXPIRING`/`EXPIRED` are never trusted from the Mock (ADR-0012) — recomputed on every read. */
+function withDerivedStatus(contract: Contract): Contract {
+  return { ...contract, status: deriveContractStatus(contract) };
+}
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
 // answers with the Mock. Wiring `be-motel` later is swapping those lines for a
@@ -39,10 +45,12 @@ export function useGetContracts(
   return useQuery<Contract[], Error>({
     queryKey: contractQueryKeys.getContracts(params),
     queryFn: async () =>
-      mockContracts.filter(
-        (contract) =>
-          !params?.buildingId || contract.buildingId === params.buildingId,
-      ),
+      mockContracts
+        .filter(
+          (contract) =>
+            !params?.buildingId || contract.buildingId === params.buildingId,
+        )
+        .map(withDerivedStatus),
     ...options,
   });
 }
@@ -57,7 +65,7 @@ export function useGetContract(
     // cached reference would make the old and new detail the same object.
     queryFn: async () => {
       const contract = mockContracts.find((item) => item.id === contractId);
-      return contract ? { ...contract } : null;
+      return contract ? withDerivedStatus(contract) : null;
     },
     ...options,
   });

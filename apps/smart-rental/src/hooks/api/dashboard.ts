@@ -1,19 +1,72 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
+import dayjs from "@monorepo/dayjs";
+
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
-import type { DashboardData, DashboardParams } from "~/types/dashboard";
+import type {
+  DashboardData,
+  DashboardParams,
+  DashboardTask,
+} from "~/types/dashboard";
+import { mockBuildings } from "~/constants/mock/buildings";
+import { mockComplianceItems } from "~/constants/mock/compliance";
+import { mockContracts } from "~/constants/mock/contracts";
 import { mockExpenses } from "~/constants/mock/expenses";
 import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
+import { mockTenants } from "~/constants/mock/tenants";
+import { mockUtilities } from "~/constants/mock/utilities";
+import { taskTypeConfig } from "~/constants/status";
 import { queryKeysFactory } from "~/libs/query-key-factory";
+import { deriveTasks } from "~/utils/task-derivation";
 
 // `~/constants/mock/dashboard` was dropped (ADR-0012) — "Hôm nay" is now
 // read off the surviving Mocks (Phòng, Hoá đơn, Chi phí) rather than a fixed
 // set of numbers, so a Building scope is a real filter and not a percentage
-// applied to one shared total. `pendingTasks` / `recentActivities` stay empty
-// until Việc cần làm is derived (a later ticket).
+// applied to one shared total. `recentActivities` stays empty — no Mock
+// models an activity log yet.
 const dashboardQueryKeyFactory = queryKeysFactory("dashboard");
+
+const DASHBOARD_TASK_PRIORITY = {
+  high: "urgent",
+  medium: "high",
+  low: "medium",
+} as const;
+
+// A copy of ~/features/tasks/utils/task-due's due label — `~/hooks/api` may
+// not import a feature module (architecture-circular-dependencies), so the
+// five-line format stays duplicated rather than importing across the layer.
+function dueLabel(dueDate: string, today: Date): string {
+  const days = dayjs(dueDate)
+    .startOf("day")
+    .diff(dayjs(today).startOf("day"), "day");
+  if (days < 0) return `Quá hạn ${-days} ngày`;
+  if (days === 0) return "Hôm nay";
+  return `Còn ${days} ngày`;
+}
+
+/** The dashboard's own five-ish soonest, from the same `deriveTasks` "Việc cần làm" reads. */
+function buildPendingTasks(buildingId: string | undefined): DashboardTask[] {
+  const today = new Date();
+  return deriveTasks({
+    contracts: mockContracts,
+    invoices: mockInvoices,
+    utilities: mockUtilities,
+    tenants: mockTenants,
+    complianceItems: mockComplianceItems,
+    buildings: mockBuildings,
+    buildingId,
+  })
+    .slice(0, 5)
+    .map((task, index) => ({
+      id: index,
+      title: task.title,
+      type: taskTypeConfig[task.type].label,
+      priority: DASHBOARD_TASK_PRIORITY[task.priority],
+      due: dueLabel(task.dueDate, today),
+    }));
+}
 
 export const dashboardQueryKeys = {
   ...dashboardQueryKeyFactory,
@@ -74,7 +127,7 @@ function buildDashboard(buildingId: string | undefined): DashboardData {
       expense: Math.round(operatingCost / 1_000_000 / 6),
     })),
     occupancy: { occupied, vacant },
-    pendingTasks: [],
+    pendingTasks: buildPendingTasks(buildingId),
     recentActivities: [],
   };
 }

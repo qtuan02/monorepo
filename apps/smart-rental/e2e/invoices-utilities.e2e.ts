@@ -25,12 +25,14 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
   });
 
   test("opens the VietQR dialog from a Hoá đơn detail", async ({ page }) => {
-    await page.goto(ROUTES.invoiceDetailPath("I003"));
+    // I071 = C001's kỳ 09, OVERDUE — nothing paid, so "còn phải trả" is the
+    // full total (spec #153 §10 row 12).
+    await page.goto(ROUTES.invoiceDetailPath("I071"));
     await page.getByRole("button", { name: "Thanh toán VietQR" }).click();
 
     const dialog = page.getByRole("dialog", { name: "Mã thanh toán VietQR" });
-    await expect(dialog).toContainText("Thanh toan HÓA-003");
-    await expect(dialog).toContainText("3.400.000");
+    await expect(dialog).toContainText("HOA-071 Phong 102");
+    await expect(dialog).toContainText("3.240.000");
   });
 
   test("derives consumption and status while a reading is typed", async ({

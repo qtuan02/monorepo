@@ -23,9 +23,11 @@ function renderInvoice(invoiceId: string) {
 }
 
 describe("InvoiceDetailTemplate", () => {
-  it("opens the VietQR dialog with the amount and the transfer note", async () => {
+  it("opens the VietQR dialog with the amount still owed and the transfer note", async () => {
     const user = userEvent.setup();
-    renderInvoice("I001");
+    // I071 = C001's kỳ 09, OVERDUE (SEPTEMBER_STATUS) — nothing paid yet, so
+    // "còn phải trả" is the full total, and its Toà nhà (b1) has a bank account.
+    renderInvoice("I071");
 
     await user.click(
       await screen.findByRole("button", { name: "Thanh toán VietQR" }),
@@ -34,13 +36,32 @@ describe("InvoiceDetailTemplate", () => {
     const dialog = await screen.findByRole("dialog", {
       name: "Mã thanh toán VietQR",
     });
-    expect(dialog).toHaveTextContent("Thanh toan HÓA-001");
-    // I001 = C001's kỳ 04: rent 2.700.000 + điện 350.000 + nước 90.000 +
-    // dịch vụ 100.000 — vi-VN spells the thousands with a dot.
+    // addInfo = invoiceNumber + room, diacritics stripped (spec #153 §10 row 12).
+    expect(dialog).toHaveTextContent("HOA-071 Phong 102");
+    // rent 2.700.000 + điện 350.000 + nước 90.000 + dịch vụ 100.000 — vi-VN
+    // spells the thousands with a dot.
     expect(dialog).toHaveTextContent("3.240.000");
     expect(
-      screen.getByRole("img", { name: "Mã VietQR cho HÓA-001" }),
+      screen.getByRole("img", { name: "Mã VietQR cho HÓA-071" }),
     ).toBeInTheDocument();
+  });
+
+  it("warns instead of a QR when the Toà nhà has no Tài khoản nhận tiền", async () => {
+    const user = userEvent.setup();
+    // I012 = the first b3 (Chung cư Mini Lê Duẩn) contract's kỳ 04 — b3
+    // deliberately has no bankAccount.
+    renderInvoice("I012");
+
+    await user.click(
+      await screen.findByRole("button", { name: "Thanh toán VietQR" }),
+    );
+
+    expect(
+      await screen.findByText(
+        "Toà nhà chưa khai Tài khoản nhận tiền — chưa thể tạo mã VietQR.",
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
   it("says so when the id matches no Hoá đơn", async () => {

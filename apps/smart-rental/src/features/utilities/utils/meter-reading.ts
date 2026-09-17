@@ -1,4 +1,5 @@
 import type { MeterEntryStatus, Utility, UtilityType } from "~/types/utility";
+import { findAnomalousUtilities } from "~/utils/utility-anomaly";
 
 export interface MeterReading {
   /** New − old; `null` while the field is empty or not a number. */
@@ -50,17 +51,15 @@ export function estimateUtilityCost(
 
 export interface UtilityStats {
   totalReadings: number;
-  /** Not derived from persisted data — the field it once read (`anomaly`)
-   * left `UtilityStatus`'s enum with ADR-0012; a later ticket recomputes this
-   * from consumption ratios. */
   anomalyCount: number;
   pendingVerifyCount: number;
 }
 
+/** `anomalyCount` is `findAnomalousUtilities` (ADR-0012) — never a stored count. */
 export function calculateUtilityStats(utilities: Utility[]): UtilityStats {
   return {
     totalReadings: utilities.length,
-    anomalyCount: 0,
+    anomalyCount: findAnomalousUtilities(utilities).length,
     pendingVerifyCount: utilities.filter((u) => u.status === "DRAFT").length,
   };
 }

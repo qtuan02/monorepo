@@ -8,7 +8,10 @@ import {
 import type { TenantView } from "~/types/tenant";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
-import { tenantStatusConfig } from "~/constants/status";
+import {
+  tenantOverdueInvoiceConfig,
+  tenantStatusConfig,
+} from "~/constants/status";
 import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
 
@@ -64,8 +67,13 @@ export const tenantColumns = helper.columns([
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Trạng thái" />
     ),
-    cell: ({ getValue }) => (
-      <StatusBadge config={tenantStatusConfig[getValue()]} />
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1.5">
+        <StatusBadge config={tenantStatusConfig[row.original.status]} />
+        {row.original.hasOverdueInvoice && (
+          <StatusBadge config={tenantOverdueInvoiceConfig} isCompact />
+        )}
+      </div>
     ),
     filterFn: facetFilterFn,
   }),
