@@ -3,8 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router";
 
 import InternalServerError from "~/components/exception/internal-server-error";
 import { ROUTES } from "~/constants/routes";
-import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
+import { ThemeProvider } from "~/libs/theme-provider";
 import ComponentDetailPage from "./component-detail-page";
 import ComponentsPage from "./components-page";
 import HomePage from "./home-page";

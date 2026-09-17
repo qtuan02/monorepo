@@ -6,7 +6,7 @@ import {
   THEME_STORAGE_KEY,
   ThemeProvider,
   useTheme,
-} from "~/features/layout/provider/theme-provider";
+} from "~/libs/theme-provider";
 
 function Probe() {
   const { resolvedTheme, setTheme } = useTheme();

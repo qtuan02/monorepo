@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { componentCatalogue } from "~/constants/docs-catalogue";
 import { ROUTES } from "~/constants/routes";
 import ComponentDetailTemplate from "~/features/component/templates/component-detail.template";
+import { THEME_STORAGE_KEY, ThemeProvider } from "~/libs/theme-provider";
 
 /**
  * The two things this template decides: does `:slug` name a primitive in the
@@ -15,18 +16,21 @@ import ComponentDetailTemplate from "~/features/component/templates/component-de
  * The route is mounted rather than the template rendered bare, because the slug
  * arrives through `useParams` — driving it through the real path is also what
  * proves `ROUTES.componentBySlugPath` and `ROUTES.COMPONENT_BY_SLUG` still
- * describe the same route.
+ * describe the same route. `ThemeProvider` wraps it because the embedded
+ * example reads the reader's theme.
  */
 function renderAtSlug(slug: string) {
   return render(
-    <MemoryRouter initialEntries={[ROUTES.componentBySlugPath(slug)]}>
-      <Routes>
-        <Route
-          path={ROUTES.COMPONENT_BY_SLUG}
-          element={<ComponentDetailTemplate />}
-        />
-      </Routes>
-    </MemoryRouter>,
+    <ThemeProvider>
+      <MemoryRouter initialEntries={[ROUTES.componentBySlugPath(slug)]}>
+        <Routes>
+          <Route
+            path={ROUTES.COMPONENT_BY_SLUG}
+            element={<ComponentDetailTemplate />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </ThemeProvider>,
   );
 }
 
@@ -102,6 +106,35 @@ describe("the component detail page", () => {
         `iframe.html?id=${entry.storybookExampleId}&viewMode=story`,
       ),
     );
+  });
+
+  it("carries no border or fill of its own — the stage panel is the only frame", () => {
+    renderAtSlug("button");
+
+    const frame = screen.getByTitle("Ví dụ button trên Storybook");
+    expect(frame.className).not.toMatch(/\bborder\b/);
+    expect(frame.className).not.toMatch(/bg-card/);
+  });
+
+  it("appends the reader's dark theme to the embedded example's src", () => {
+    localStorage.setItem(THEME_STORAGE_KEY, "dark");
+
+    renderAtSlug("button");
+
+    expect(screen.getByTitle("Ví dụ button trên Storybook")).toHaveAttribute(
+      "src",
+      expect.stringContaining("&globals=theme:dark"),
+    );
+  });
+
+  it("appends nothing for the light theme — Storybook's own default", () => {
+    localStorage.setItem(THEME_STORAGE_KEY, "light");
+
+    renderAtSlug("button");
+
+    expect(
+      screen.getByTitle("Ví dụ button trên Storybook"),
+    ).not.toHaveAttribute("src", expect.stringContaining("globals=theme"));
   });
 
   it("links to both neighbours in catalogue order from an entry in the middle", () => {
