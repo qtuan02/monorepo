@@ -13,6 +13,7 @@ import {
 const meta = {
   title: "Storybook/Message",
   component: Message,
+  subcomponents: { MessageGroup, MessageAvatar, MessageContent, MessageHeader },
   tags: ["autodocs"],
 } satisfies Meta<typeof Message>;
 
@@ -21,26 +22,33 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <MessageGroup className="max-w-sm">
+    <MessageGroup>
       <Message align="start">
         <MessageAvatar>
           <Avatar>
-            <AvatarFallback>AI</AvatarFallback>
+            <AvatarFallback>NA</AvatarFallback>
           </Avatar>
         </MessageAvatar>
         <MessageContent>
-          <MessageHeader>Assistant</MessageHeader>
+          <MessageHeader>Northwind Assistant</MessageHeader>
           <Bubble variant="muted">
-            <BubbleContent>Hi, how can I help you today?</BubbleContent>
+            <BubbleContent>
+              Hi Mira, I'm the Northwind Assistant. How can I help today?
+            </BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>
       <Message align="end">
         <MessageContent>
           <Bubble align="end" variant="default">
-            <BubbleContent>I need help resetting my password.</BubbleContent>
+            <BubbleContent>
+              Can you pull up invoice INV-2041 for Atlas?
+            </BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>

@@ -11,43 +11,38 @@ const meta = {
   title: "Storybook/DirectionProvider",
   component: DirectionProvider,
   tags: ["autodocs"],
+  argTypes: {
+    direction: {
+      control: "select",
+      options: ["ltr", "rtl"],
+    },
+  },
 } satisfies Meta<typeof DirectionProvider>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-function DirectionLabel() {
+// Reads the LIVE context DirectionProvider provides, rather than the args value directly —
+// so the `direction` control on the Docs page re-renders this without a custom `render`.
+function DirectionDemo() {
   const direction = useDirection();
   return (
-    <span className="text-xs text-muted-foreground">
-      Current direction: {direction}
-    </span>
+    <div dir={direction} className="flex flex-col items-start gap-2">
+      <span className="text-xs text-muted-foreground">
+        Current direction: {direction}
+      </span>
+      <Button>
+        Continue
+        <ArrowRightIcon />
+      </Button>
+    </div>
   );
 }
 
 export const Default: Story = {
-  args: {},
-  render: () => (
-    <div className="flex gap-8">
-      <DirectionProvider direction="ltr">
-        <div dir="ltr" className="flex flex-col items-start gap-2">
-          <DirectionLabel />
-          <Button>
-            Next
-            <ArrowRightIcon />
-          </Button>
-        </div>
-      </DirectionProvider>
-      <DirectionProvider direction="rtl">
-        <div dir="rtl" className="flex flex-col items-start gap-2">
-          <DirectionLabel />
-          <Button>
-            Tiếp theo
-            <ArrowRightIcon />
-          </Button>
-        </div>
-      </DirectionProvider>
-    </div>
-  ),
+  args: {
+    direction: "rtl",
+    children: <DirectionDemo />,
+  },
 };

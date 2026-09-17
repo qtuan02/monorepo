@@ -11,7 +11,9 @@ import {
 const meta = {
   title: "Storybook/Bubble",
   component: Bubble,
+  subcomponents: { BubbleGroup, BubbleContent },
   tags: ["autodocs"],
+  parameters: { stage: { width: "sm" } },
 } satisfies Meta<typeof Bubble>;
 
 export default meta;
@@ -19,14 +21,18 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: { controls: { disable: true } },
   render: () => (
-    <BubbleGroup className="max-w-sm">
+    <BubbleGroup>
       <Bubble align="start" variant="muted">
-        <BubbleContent>Hi, how can I help you today?</BubbleContent>
+        <BubbleContent>
+          Hi Mira, I'm the Northwind Assistant. How can I help today?
+        </BubbleContent>
       </Bubble>
       <Bubble align="end" variant="default">
-        <BubbleContent>I need help resetting my password.</BubbleContent>
+        <BubbleContent>
+          Can you pull up invoice INV-2041 for Atlas?
+        </BubbleContent>
       </Bubble>
     </BubbleGroup>
   ),
@@ -43,9 +49,8 @@ const variants = [
 ] as const;
 
 export const Variants: Story = {
-  args: {},
   render: () => (
-    <BubbleGroup className="max-w-sm">
+    <BubbleGroup>
       {variants.map((variant) => (
         <Bubble key={variant} variant={variant}>
           <BubbleContent className="capitalize">{variant}</BubbleContent>
@@ -56,10 +61,11 @@ export const Variants: Story = {
 };
 
 export const WithReactions: Story = {
-  args: {},
   render: () => (
-    <Bubble align="start" variant="muted" className="max-w-sm">
-      <BubbleContent>Great work on the release! 🎉</BubbleContent>
+    <Bubble align="start" variant="muted">
+      <BubbleContent>
+        Sent the INV-2041 receipt to finance@northwind.dev 🎉
+      </BubbleContent>
       <BubbleReactions>
         <ThumbsUpIcon className="size-3.5" />
         <span>3</span>
