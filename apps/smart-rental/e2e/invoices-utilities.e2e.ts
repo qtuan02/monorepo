@@ -53,6 +53,10 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await expect(
       page.locator('[data-slot="data-table-mobile-row"]').first(),
     ).toBeVisible();
+    // The card/table choice is moot at phone width — hidden below `md`.
+    await expect(
+      page.getByRole("button", { name: "Dạng bảng" }),
+    ).toBeHidden();
     // The content column's own scrollWidth, not documentElement's — a
     // horizontal overflow inside the card is exactly what C.1 #10/#12 found.
     const contentWidth = await page.evaluate(() => {

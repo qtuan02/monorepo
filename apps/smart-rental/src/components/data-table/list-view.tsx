@@ -42,7 +42,10 @@ interface ListViewSwitchProps {
  * "Dạng thẻ / Dạng bảng" — a real `ToggleGroup` (spec #153 §10 row —
  * component map: a switch has no panel, so `Tabs` was the wrong semantics).
  * A single active value can't be toggled off: `next[0]` is only ever
- * undefined when the pressed item was already the one selected.
+ * undefined when the pressed item was already the one selected. Hidden
+ * below `md`: a phone-width screen already gets the mobile substitute for
+ * whichever view is current (a card grid stacks on its own, a table gives
+ * way to `renderMobileRow`), so the choice itself is moot there.
  */
 export function ListViewSwitch({ view, onViewChange }: ListViewSwitchProps) {
   return (
@@ -55,6 +58,7 @@ export function ListViewSwitch({ view, onViewChange }: ListViewSwitchProps) {
       variant="outline"
       size="sm"
       spacing={0}
+      className="hidden md:inline-flex"
     >
       <ToggleGroupItem value="grid" aria-label="Dạng thẻ">
         <LayoutGrid />
