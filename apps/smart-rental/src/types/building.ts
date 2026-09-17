@@ -42,3 +42,11 @@ export interface CreateBuildingRequest {
   utilityCycleDay: number;
   note?: string;
 }
+
+/** The Cài đặt tab's own write (spec #153 §10 row 32): ngày thu, Bảng giá, Tài khoản nhận tiền. */
+export interface UpdateBuildingSettingsRequest {
+  buildingId: string;
+  collectionDay: number;
+  priceList: PriceList;
+  bankAccount?: BankAccount;
+}

@@ -1,13 +1,23 @@
 import type { UseQueryResult } from "@tanstack/react-query";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { HttpError } from "@monorepo/api/client";
+
 import type {
   UseMutationOptionsWrapper,
   UseQueryOptionsWrapper,
 } from "~/libs/query-key-factory";
-import type { Building, CreateBuildingRequest } from "~/types/building";
+import type {
+  Building,
+  CreateBuildingRequest,
+  UpdateBuildingSettingsRequest,
+} from "~/types/building";
 import { mockBuildings } from "~/constants/mock/buildings";
+import { mockContracts } from "~/constants/mock/contracts";
+import { mockRooms } from "~/constants/mock/rooms";
+import { roomQueryKeys } from "~/hooks/api/room";
 import { queryKeysFactory } from "~/libs/query-key-factory";
+import { canDeleteBuilding } from "~/utils/building-delete";
 
 // The shape every slice copies (spec #127): keys from the factory, a `queryFn`
 // that answers with the Mock. Wiring `be-motel` later is swapping that one line
@@ -62,10 +72,9 @@ export function useCreateBuilding(
         address: request.address,
         totalFloors: request.totalFloors,
         utilityCycleDay: request.utilityCycleDay,
-        // The form has no Bảng giá / Tài khoản nhận tiền step yet (spec #153's
-        // Cài đặt tab is a later ticket) — a fresh Toà nhà gets the workspace
-        // default price list and no bank account, same as a real one waiting
-        // to be configured.
+        // The create form has no Bảng giá / Tài khoản nhận tiền step — a fresh
+        // Toà nhà gets the workspace default price list and no bank account,
+        // both editable afterwards from the detail screen's Cài đặt tab.
         collectionDay: request.utilityCycleDay,
         priceList: {
           electricityPricePerKwh: 3500,
@@ -84,6 +93,60 @@ export function useCreateBuilding(
     },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: buildingQueryKeys.lists() }),
+    ...options,
+  });
+}
+
+export function useUpdateBuildingSettings(
+  options?: UseMutationOptionsWrapper<UpdateBuildingSettingsRequest, Building>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: UpdateBuildingSettingsRequest) => {
+      const building = mockBuildings.find((b) => b.id === request.buildingId);
+      if (!building) {
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không tìm thấy toà nhà ${request.buildingId}.`,
+        });
+      }
+      building.collectionDay = request.collectionDay;
+      building.priceList = request.priceList;
+      building.bankAccount = request.bankAccount;
+      return building;
+    },
+    onSuccess: (building) =>
+      queryClient.invalidateQueries({
+        queryKey: buildingQueryKeys.getBuilding(building.id),
+      }),
+    ...options,
+  });
+}
+
+export function useDeleteBuilding(options?: UseMutationOptionsWrapper<string>) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    // Guarded twice: the template disables the action already, and the
+    // mutation re-checks here so a stale button can never bypass it.
+    mutationFn: async (buildingId: string) => {
+      if (!canDeleteBuilding(buildingId, mockContracts)) {
+        throw new HttpError({
+          statusCode: 409,
+          message: "Không thể xoá: toà nhà còn phòng có hợp đồng hiệu lực.",
+        });
+      }
+      const index = mockBuildings.findIndex((b) => b.id === buildingId);
+      if (index !== -1) mockBuildings.splice(index, 1);
+      for (let i = mockRooms.length - 1; i >= 0; i -= 1) {
+        if (mockRooms[i]?.buildingId === buildingId) mockRooms.splice(i, 1);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: buildingQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
+    },
     ...options,
   });
 }

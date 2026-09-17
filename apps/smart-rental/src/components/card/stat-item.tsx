@@ -21,3 +21,20 @@ export function StatItem({ label, value, valueClassName }: StatItemProps) {
     </div>
   );
 }
+
+interface StatGroupProps {
+  children: ReactNode;
+  className?: string;
+}
+
+/**
+ * The `<dl>` a row of `StatItem`s sits in — the one home for it (spec #153
+ * §3.4/§4), so a card no longer hand-rolls `<dl className="grid …">` itself.
+ */
+export function StatGroup({ children, className }: StatGroupProps) {
+  return (
+    <dl className={cn("grid grid-cols-2 gap-6 sm:grid-cols-3", className)}>
+      {children}
+    </dl>
+  );
+}

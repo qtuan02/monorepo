@@ -39,3 +39,29 @@ export function LoadingPanel({ itemCount = 6, className }: LoadingPanelProps) {
     </div>
   );
 }
+
+/**
+ * A detail screen's own footprint (spec #153 §3.4): the header-entity row,
+ * a tabs bar, a two-column body — so a screen that adopts `DetailPageShell`'s
+ * tabs layout skeletons its own shape instead of `LoadingPanel`'s card grid.
+ */
+export function DetailSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={cn("space-y-6", className)}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="h-4 w-64" />
+        </div>
+        <Skeleton className="h-8 w-24" />
+      </div>
+      <Skeleton className="h-9 w-64" />
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-3 lg:col-span-2">
+          <Skeleton className="h-40 w-full rounded-lg" />
+        </div>
+        <Skeleton className="h-40 w-full rounded-lg" />
+      </div>
+    </div>
+  );
+}

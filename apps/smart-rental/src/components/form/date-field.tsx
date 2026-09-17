@@ -1,49 +1,50 @@
-import type { ComponentProps } from "react";
 import type { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Controller } from "react-hook-form";
 
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@monorepo/ui/components/field";
-import { Input } from "@monorepo/ui/components/input";
+import dayjs from "@monorepo/dayjs";
+import { DatePicker } from "@monorepo/ui/components/date-picker";
+import { Field, FieldError, FieldLabel } from "@monorepo/ui/components/field";
 
-interface TextFieldProps<
+interface DateFieldProps<
   TValues extends FieldValues,
   TTransformed extends FieldValues,
-> extends Omit<ComponentProps<typeof Input>, "name" | "id"> {
-  /** The form's control; a Zod form has an input shape and a parsed one, so both are named. */
+> {
   control: Control<TValues, unknown, TTransformed>;
   name: FieldPath<TValues>;
   label: string;
-  description?: string;
   required?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
 }
 
 /**
- * One labelled `Input` bound to the form: the `Controller` + `Field` anatomy
- * every text-like input in the Portal takes (see forms-field-components.md),
- * written once. `type`, `placeholder`, `min`, … pass through to the `Input`.
+ * One labelled `DatePicker` bound to the form — the Controller + Field anatomy
+ * `TextField` writes for `Input`, here over a value that round-trips as ISO
+ * `YYYY-MM-DD` (what `<input type="date">` used to hand over) while the
+ * trigger always reads `DATE_FORMAT` (`DatePicker`'s own default).
  */
-export function TextField<
+export function DateField<
   TValues extends FieldValues,
   TTransformed extends FieldValues,
 >({
   control,
   name,
   label,
-  description,
   required,
-  ...inputProps
-}: TextFieldProps<TValues, TTransformed>) {
+  placeholder,
+  disabled,
+}: DateFieldProps<TValues, TTransformed>) {
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => {
         const errorId = fieldState.invalid ? `${field.name}-error` : undefined;
+        const value =
+          typeof field.value === "string" && field.value
+            ? dayjs(field.value as string).toDate()
+            : undefined;
+
         return (
           <Field data-invalid={fieldState.invalid}>
             <FieldLabel htmlFor={field.name}>
@@ -54,14 +55,18 @@ export function TextField<
                 </span>
               )}
             </FieldLabel>
-            <Input
-              {...inputProps}
-              {...field}
+            <DatePicker
               id={field.name}
+              value={value}
+              onValueChange={(date) =>
+                field.onChange(date ? dayjs(date).format("YYYY-MM-DD") : "")
+              }
+              onBlur={field.onBlur}
+              placeholder={placeholder ?? "Chọn ngày"}
+              disabled={disabled}
               aria-invalid={fieldState.invalid}
               aria-describedby={errorId}
             />
-            {description && <FieldDescription>{description}</FieldDescription>}
             {fieldState.invalid && (
               <FieldError id={errorId} errors={[fieldState.error]} />
             )}

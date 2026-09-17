@@ -57,7 +57,9 @@ test.describe("Toà nhà và Phòng", () => {
     await expect(page.getByRole("row").nth(1)).toContainText("2.500.000");
   });
 
-  test("creates a Toà nhà through the dialog and toasts", async ({ page }) => {
+  test("creates a Toà nhà through the FormSheet and toasts", async ({
+    page,
+  }) => {
     await page.goto(ROUTES.BUILDINGS);
     await expect(page.getByText("Trọ Sinh Viên Xanh")).toBeVisible();
 
@@ -73,6 +75,37 @@ test.describe("Toà nhà và Phòng", () => {
 
     await expect(page.getByText("Đã thêm toà nhà Trọ E2E")).toBeVisible();
     await expect(page.getByText("Trọ E2E", { exact: true })).toBeVisible();
+  });
+
+  test("edits a Toà nhà's Cài đặt through the Sheet and sees it change in place", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.buildingDetailPath("b1"));
+    await expect(
+      page.getByRole("heading", { name: "Trọ Sinh Viên Xanh" }),
+    ).toBeVisible();
+
+    const settingsTab = page.getByRole("tabpanel", { name: "Cài đặt" });
+    await page.getByRole("tab", { name: "Cài đặt" }).click();
+    await expect(settingsTab.getByText("3.500")).toBeVisible();
+
+    await page.getByRole("button", { name: "Cài đặt" }).click();
+    const sheet = page.getByRole("dialog", { name: "Cài đặt toà nhà" });
+    await sheet.getByLabel("Giá điện / kWh").fill("4200");
+    await expect(
+      sheet.getByText("Vượt trần giá điện cho người thuê"),
+    ).toBeVisible();
+
+    await sheet.getByRole("button", { name: "Lưu lại" }).click();
+    await expect(
+      page.getByText("Đã cập nhật cài đặt Trọ Sinh Viên Xanh"),
+    ).toBeVisible();
+
+    // Still saved despite the cap warning — the tab now reads the new price.
+    await expect(settingsTab.getByText("4.200")).toBeVisible();
+    await expect(
+      settingsTab.getByText("Vượt trần giá điện cho người thuê"),
+    ).toBeVisible();
   });
 
   test("opens a Phòng from its card and finds its Toà nhà scope applied", async ({
