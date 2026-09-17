@@ -1,11 +1,14 @@
 // Derived from hooks-ts useLocalStorage.ts @ 9bd12431bb24b84d211f0d735c6bef79fe1be85a (hooks-ts@0.12.0), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts
-// patched: guard SSR trong initializer (theo nhánh refactor/change-structure upstream)
+// patched: guard SSR in the initializer (per upstream's unmerged refactor/change-structure branch)
 import { useState } from "react";
 
 /**
  * `[value, setValue]` persisted to `localStorage` as JSON under `key`. On the
- * server — no `window` — the initializer returns `initialValue` with no
- * thrown error; `setValue` does not accept an updater function.
+ * server — no `window` — the initializer returns `initialValue` directly;
+ * upstream reads `window.localStorage` unconditionally there, so a server
+ * render throws a `ReferenceError` its own try/catch swallows into a
+ * `console.error` on every request. `setValue` does not accept an updater
+ * function.
  *
  * @example
  * const [theme, setTheme] = useLocalStorage("theme", "light");

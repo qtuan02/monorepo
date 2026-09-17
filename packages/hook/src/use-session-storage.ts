@@ -1,5 +1,5 @@
 // Derived from hooks-ts useSessionStorage.ts @ 9bd12431bb24b84d211f0d735c6bef79fe1be85a (hooks-ts@0.12.0), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts
-// patched: guard SSR trong initializer (theo nhánh refactor/change-structure upstream)
+// patched: guard SSR in the initializer (per upstream's unmerged refactor/change-structure branch)
 import { useEffect, useState } from "react";
 
 type UseSessionStorageReturn<T> = [T, (value: T) => void, () => void];
@@ -8,7 +8,9 @@ type UseSessionStorageReturn<T> = [T, (value: T) => void, () => void];
  * `[value, setValue, removeValue]` persisted to `sessionStorage` as JSON under
  * `key`; an effect seeds the key with `initialValue` the first time it is
  * missing. On the server — no `window` — the initializer returns
- * `initialValue` with no thrown error.
+ * `initialValue` directly; upstream reads `sessionStorage` unconditionally
+ * there, so a server render throws a `ReferenceError` its own try/catch
+ * swallows into a `console.error` on every request.
  *
  * @example
  * const [draft, setDraft, clearDraft] = useSessionStorage("draft", "");

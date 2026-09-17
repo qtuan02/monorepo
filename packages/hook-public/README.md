@@ -52,7 +52,7 @@ open the hook's page on the workspace's docs site (`apps/documents` in the repos
 | `@fe-monorepo/hook/use-is-mobile` | `useIsMobile()`, `MOBILE_BREAKPOINT` | `useMediaQuery` pinned to Tailwind's `md` breakpoint (768px). |
 | `@fe-monorepo/hook/use-copy-to-clipboard` | `useCopyToClipboard()` | `[copiedText, copy]`; `copy(text)` resolves `void` — `copiedText` is `text` after a successful copy, `null` after a failed one, and the hook only warns when the Clipboard API is unavailable. |
 | `@fe-monorepo/hook/use-isomorphic-layout-effect` | `useIsomorphicLayoutEffect` | `useLayoutEffect` in the browser, `useEffect` on the server. |
-| `@fe-monorepo/hook/use-local-storage` | `useLocalStorage(key, initialValue)` | `[value, setValue]` persisted to `localStorage` as JSON. SSR-safe: the initializer returns `initialValue` with no `window`. |
+| `@fe-monorepo/hook/use-local-storage` | `useLocalStorage(key, initialValue)` | `[value, setValue]` persisted to `localStorage` as JSON. SSR-safe: unlike upstream, the initializer returns `initialValue` on the server instead of throwing on the missing `window`. |
 | `@fe-monorepo/hook/use-session-storage` | `useSessionStorage(key, initialValue)` | `[value, setValue, removeValue]` persisted to `sessionStorage` as JSON. SSR-safe, same as above. |
 
 ## TypeScript
