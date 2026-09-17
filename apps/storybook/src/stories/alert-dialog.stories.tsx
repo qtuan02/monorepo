@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { BluetoothIcon, CircleFadingPlusIcon } from "lucide-react";
+import { RocketIcon } from "lucide-react";
 
 import {
   AlertDialog,
@@ -15,9 +15,27 @@ import {
 } from "@monorepo/ui/components/alert-dialog";
 import { Button } from "@monorepo/ui/components/button";
 
+import { northwindPeople } from "~/support/people";
+import { atlasProject as atlas, northwindProjects } from "~/support/projects";
+
+const liam = northwindPeople.find((person) => person.id === "liam-bennett");
+const comet =
+  northwindProjects.find((project) => project.id === "comet") ?? atlas;
+
 const meta = {
   title: "Storybook/AlertDialog",
   component: AlertDialog,
+  subcomponents: {
+    AlertDialogTrigger,
+    AlertDialogContent,
+    AlertDialogHeader,
+    AlertDialogMedia,
+    AlertDialogTitle,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogAction,
+    AlertDialogCancel,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof AlertDialog>;
 
@@ -26,116 +44,134 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <AlertDialog>
       <AlertDialogTrigger
-        render={<Button variant="outline">Show Dialog</Button>}
+        render={<Button variant="outline">Remove teammate</Button>}
       />
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Remove {liam?.name} from {atlas.name}?
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account from our servers.
+            They'll lose access to every file and invoice in this project
+            immediately.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline" size="default">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction variant="default" size="default">
-            Continue
-          </AlertDialogAction>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction variant="destructive">Remove</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   ),
 };
 
-export const Basic: Story = {
-  args: {},
+export const Sizes: Story = {
   render: () => (
-    <AlertDialog>
-      <AlertDialogTrigger
-        render={<Button variant="outline">Show Dialog</Button>}
-      />
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel variant="outline" size="default">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction variant="default" size="default">
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <div className="flex flex-wrap gap-2">
+      <AlertDialog>
+        <AlertDialogTrigger
+          render={<Button variant="outline">Delete invoice</Button>}
+        />
+        <AlertDialogContent size="default">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete invoice INV-2043?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the record for {comet.name} and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive">Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog>
+        <AlertDialogTrigger
+          render={<Button variant="outline">Disable Slack bot</Button>}
+        />
+        <AlertDialogContent size="sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Disable the Northwind bot?</AlertDialogTitle>
+            <AlertDialogDescription>
+              It will stop posting invoice reminders to #billing.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction>Disable</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   ),
 };
 
 export const WithMedia: Story = {
-  args: {},
   render: () => (
     <AlertDialog>
       <AlertDialogTrigger
-        render={<Button variant="outline">Share Project</Button>}
+        render={<Button variant="outline">Share project</Button>}
       />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogMedia>
-            <CircleFadingPlusIcon />
+            <RocketIcon />
           </AlertDialogMedia>
-          <AlertDialogTitle>Share this project?</AlertDialogTitle>
+          <AlertDialogTitle>Share {atlas.name} with a client?</AlertDialogTitle>
           <AlertDialogDescription>
-            Anyone with the link will be able to view and edit this project.
+            Anyone with the link can view every file and invoice in this
+            project.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline" size="default">
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction variant="default" size="default">
-            Share
-          </AlertDialogAction>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction>Share</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   ),
 };
 
-export const SmallWithMedia: Story = {
-  args: {},
+export const Stacking: Story = {
   render: () => (
     <AlertDialog>
       <AlertDialogTrigger
-        render={<Button variant="outline">Show Dialog</Button>}
+        render={<Button variant="destructive">Delete {comet.name}</Button>}
       />
-
-      <AlertDialogContent size="sm">
+      <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogMedia>
-            <BluetoothIcon />
-          </AlertDialogMedia>
-          <AlertDialogTitle>Allow accessory to connect?</AlertDialogTitle>
+          <AlertDialogTitle>Delete project</AlertDialogTitle>
           <AlertDialogDescription>
-            Do you want to allow the USB accessory to connect to this device?
+            This removes {comet.name} for every Northwind member.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel variant="outline" size="default">
-            Don't allow
-          </AlertDialogCancel>
-          <AlertDialogAction variant="default" size="default">
-            Allow
-          </AlertDialogAction>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialog>
+            <AlertDialogTrigger
+              render={<Button variant="destructive">Delete</Button>}
+            />
+            <AlertDialogContent size="sm">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This confirmation opens above the first alert dialog — a
+                  stacking regression would hide it behind the page instead.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogAction variant="destructive">
+                  Delete {comet.name}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

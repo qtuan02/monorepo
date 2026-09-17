@@ -1,15 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { useState } from "react";
 import {
-  CalculatorIcon,
-  CalendarIcon,
-  CreditCardIcon,
+  FolderIcon,
+  PlusIcon,
   SettingsIcon,
-  SmileIcon,
   UserIcon,
+  UserPlusIcon,
 } from "lucide-react";
 
+import { Button } from "@monorepo/ui/components/button";
 import {
   Command,
+  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
@@ -19,9 +21,22 @@ import {
   CommandShortcut,
 } from "@monorepo/ui/components/command";
 
+import { northwindPeople } from "~/support/people";
+import { northwindProjects } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Command",
   component: Command,
+  subcomponents: {
+    CommandDialog,
+    CommandInput,
+    CommandList,
+    CommandEmpty,
+    CommandGroup,
+    CommandItem,
+    CommandSeparator,
+    CommandShortcut,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Command>;
 
@@ -30,45 +45,86 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    stage: { width: "sm" },
+    controls: { disable: true },
+  },
   render: () => (
-    <Command className="max-w-sm rounded-lg border">
-      <CommandInput placeholder="Type a command or search..." />
+    <Command className="rounded-lg border">
+      <CommandInput placeholder="Search Northwind..." />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Suggestions">
-          <CommandItem>
-            <CalendarIcon />
-            <span>Calendar</span>
-          </CommandItem>
-          <CommandItem>
-            <SmileIcon />
-            <span>Search Emoji</span>
-          </CommandItem>
-          <CommandItem disabled>
-            <CalculatorIcon />
-            <span>Calculator</span>
-          </CommandItem>
+        <CommandGroup heading="Projects">
+          {northwindProjects.map((project) => (
+            <CommandItem key={project.id}>
+              <FolderIcon />
+              <span>{project.name}</span>
+            </CommandItem>
+          ))}
         </CommandGroup>
         <CommandSeparator />
-        <CommandGroup heading="Settings">
+        <CommandGroup heading="People">
+          {northwindPeople.slice(0, 3).map((person) => (
+            <CommandItem key={person.id}>
+              <UserIcon />
+              <span>{person.name}</span>
+            </CommandItem>
+          ))}
+        </CommandGroup>
+        <CommandSeparator />
+        <CommandGroup heading="Actions">
           <CommandItem>
-            <UserIcon />
-            <span>Profile</span>
-            <CommandShortcut>⌘P</CommandShortcut>
+            <UserPlusIcon />
+            <span>Invite teammate</span>
+            <CommandShortcut>⌘I</CommandShortcut>
           </CommandItem>
           <CommandItem>
-            <CreditCardIcon />
-            <span>Billing</span>
-            <CommandShortcut>⌘B</CommandShortcut>
+            <PlusIcon />
+            <span>New project</span>
+            <CommandShortcut>⌘N</CommandShortcut>
           </CommandItem>
           <CommandItem>
             <SettingsIcon />
             <span>Settings</span>
-            <CommandShortcut>⌘S</CommandShortcut>
+            <CommandShortcut>⌘,</CommandShortcut>
           </CommandItem>
         </CommandGroup>
       </CommandList>
     </Command>
   ),
+};
+
+export const Stacking: Story = {
+  render: () => {
+    const [open, setOpen] = useState(false);
+
+    return (
+      <div className="w-full">
+        <div className="rounded-lg border bg-card p-6 text-sm text-muted-foreground">
+          Northwind workspace — Atlas billing migration overview.
+        </div>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => setOpen(true)}
+        >
+          Open command palette (⌘K)
+        </Button>
+        <CommandDialog open={open} onOpenChange={setOpen}>
+          <CommandInput placeholder="Search Northwind..." />
+          <CommandList>
+            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandGroup heading="Projects">
+              {northwindProjects.map((project) => (
+                <CommandItem key={project.id}>
+                  <FolderIcon />
+                  <span>{project.name}</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </CommandDialog>
+      </div>
+    );
+  },
 };
