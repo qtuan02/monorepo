@@ -46,7 +46,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   parameters: { controls: { disable: true } },
   render: () => (
-    <Item variant="outline" className="w-full max-w-md">
+    <Item variant="outline">
       <ItemMedia variant="icon">
         <FolderIcon />
       </ItemMedia>
@@ -65,7 +65,7 @@ export const Default: Story = {
 
 export const Group: Story = {
   render: () => (
-    <ItemGroup className="w-full max-w-md">
+    <ItemGroup>
       {northwindNotifications.map((notification, index) => {
         const person = personOf(notification.personId);
         return (
@@ -96,7 +96,7 @@ export const Group: Story = {
 
 export const Sizes: Story = {
   render: () => (
-    <div className="flex w-full max-w-md flex-col gap-3">
+    <div className="flex flex-col gap-3">
       {northwindProjects.slice(0, 3).map((project, index) => (
         <Item
           key={project.id}
