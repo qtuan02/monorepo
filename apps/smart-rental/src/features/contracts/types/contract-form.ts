@@ -8,28 +8,36 @@ export const positiveNumber = (error: string) =>
     .min(1, { error })
     .pipe(z.coerce.number<string>({ error }).positive({ error }));
 
-export const contractFormSchema = z.object({
-  buildingId: z.string().min(1, { error: "Vui lòng chọn toà nhà" }),
-  roomId: z.string().min(1, { error: "Vui lòng chọn phòng" }),
-  tenantName: z
-    .string({ error: "Vui lòng nhập tên Người thuê" })
-    .trim()
-    .min(2, { error: "Vui lòng nhập tên Người thuê" }),
-  tenantPhone: z
-    .string({ error: "Số điện thoại không hợp lệ" })
-    .trim()
-    .min(9, { error: "Số điện thoại không hợp lệ" }),
-  tenantIdCard: z
-    .string({ error: "CCCD không hợp lệ" })
-    .trim()
-    .min(9, { error: "CCCD không hợp lệ" }),
-  startDate: z.string().min(1, { error: "Vui lòng chọn ngày bắt đầu" }),
-  termMonths: positiveNumber("Vui lòng nhập thời hạn").pipe(
-    z.number().int({ error: "Thời hạn là số tháng nguyên" }),
-  ),
-  rentAmount: positiveNumber("Vui lòng nhập giá thuê"),
-  depositAmount: positiveNumber("Vui lòng nhập tiền cọc"),
-});
+/** Wizard step 1–3 fields (spec #153 §3.5): Phòng, Người thuê, rồi điều khoản. */
+export const contractFormSchema = z
+  .object({
+    roomId: z.string().min(1, { error: "Vui lòng chọn phòng" }),
+    tenantId: z.string().min(1, { error: "Vui lòng chọn người thuê" }),
+    startDate: z.string().min(1, { error: "Vui lòng chọn ngày bắt đầu" }),
+    endDate: z.string().min(1, { error: "Vui lòng chọn ngày kết thúc" }),
+    rentAmount: positiveNumber("Vui lòng nhập giá thuê"),
+    depositAmount: positiveNumber("Vui lòng nhập tiền cọc"),
+    // "Chu kỳ thu" — ngày trong tháng tiền thuê đến hạn.
+    paymentDueDay: positiveNumber("Vui lòng nhập ngày thu").pipe(
+      z
+        .number()
+        .int({ error: "Ngày thu là số nguyên" })
+        .min(1, { error: "Ngày thu từ 1 đến 31" })
+        .max(31, { error: "Ngày thu từ 1 đến 31" }),
+    ),
+    // "Báo trước" — mặc định 30 ngày, không enforce phạt (spec #153).
+    noticeDays: positiveNumber("Vui lòng nhập số ngày báo trước").pipe(
+      z.number().int({ error: "Số ngày báo trước là số nguyên" }),
+    ),
+  })
+  .refine(
+    (values) =>
+      !values.startDate || !values.endDate || values.endDate > values.startDate,
+    {
+      error: "Ngày kết thúc phải sau ngày bắt đầu",
+      path: ["endDate"],
+    },
+  );
 
 export type ContractFormInput = z.input<typeof contractFormSchema>;
 export type ContractFormValues = z.output<typeof contractFormSchema>;

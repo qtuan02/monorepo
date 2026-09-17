@@ -21,6 +21,7 @@ function contract(overrides: Partial<Contract>): Contract {
     depositStatus: "HELD",
     depositReturnedAmount: 0,
     paymentDueDay: 5,
+    noticeDays: 30,
     startDate: "01/01/2026",
     endDate: "31/12/2027",
     status: "ACTIVE",

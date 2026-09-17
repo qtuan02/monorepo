@@ -1,45 +1,42 @@
 import * as z from "zod";
 
-/** The four things a landlord ticks off before a Thanh lý can proceed. */
-export const liquidationChecklist = [
-  {
-    id: "assetCheck",
-    title: "Kiểm tra tài sản",
-    description: "Kiểm tra điều kiện phòng, nội thất và trang thiết bị",
-  },
-  {
-    id: "settleUtilities",
-    title: "Thanh toán tiện ích",
-    description: "Thanh toán hoá đơn điện nước còn nợ",
-  },
-  {
-    id: "collectKeys",
-    title: "Tập hợp chìa khóa",
-    description: "Thu hồi chìa khóa phòng từ Người thuê",
-  },
-  {
-    id: "finalInspection",
-    title: "Kiểm tra cuối cùng",
-    description: "Xác nhận trạng thái phòng với Người thuê",
-  },
+/**
+ * Quyết toán Cọc (spec #153): giữ toàn bộ (không hoàn) / hoàn toàn bộ / hoàn
+ * một phần — the three a landlord picks from once Cọc is no longer `HELD`.
+ */
+export const liquidationDecisionOptions = [
+  { value: "FORFEITED", label: "Giữ toàn bộ (không hoàn)" },
+  { value: "RETURNED", label: "Hoàn toàn bộ" },
+  { value: "PARTIAL_RETURNED", label: "Hoàn một phần" },
 ] as const;
 
-export type LiquidationChecklistId =
-  (typeof liquidationChecklist)[number]["id"];
-
-const CHECKLIST_ERROR = "Hoàn thành toàn bộ danh sách kiểm tra";
-
-// A box that must be ticked: `false` fails, as `z.literal(true)` would make it —
-// but through `refine`, so the form's input type stays `boolean` and an unticked
-// default is not a type error.
-const ticked = z.boolean().refine((value) => value, { error: CHECKLIST_ERROR });
-
-export const liquidationFormSchema = z.object({
-  assetCheck: ticked,
-  settleUtilities: ticked,
-  collectKeys: ticked,
-  finalInspection: ticked,
-} satisfies Record<LiquidationChecklistId, typeof ticked>);
+export const liquidationFormSchema = z
+  .object({
+    decision: z.enum(["FORFEITED", "RETURNED", "PARTIAL_RETURNED"], {
+      error: "Vui lòng chọn cách quyết toán Cọc",
+    }),
+    // Only read (and required) when `decision` is `PARTIAL_RETURNED` — the
+    // default the template seeds it with is "availableAfterDebt", editable down.
+    returnAmount: z
+      .string()
+      .trim()
+      .pipe(z.coerce.number<string>().nonnegative())
+      .optional(),
+    reason: z
+      .string()
+      .trim()
+      .transform((value) => value || undefined),
+  })
+  .refine(
+    (values) => values.decision !== "PARTIAL_RETURNED" || !!values.reason,
+    { error: "Vui lòng nhập lý do hoàn một phần", path: ["reason"] },
+  )
+  .refine(
+    (values) =>
+      values.decision !== "PARTIAL_RETURNED" ||
+      values.returnAmount !== undefined,
+    { error: "Vui lòng nhập số tiền hoàn lại", path: ["returnAmount"] },
+  );
 
 export type LiquidationFormInput = z.input<typeof liquidationFormSchema>;
 export type LiquidationFormValues = z.output<typeof liquidationFormSchema>;

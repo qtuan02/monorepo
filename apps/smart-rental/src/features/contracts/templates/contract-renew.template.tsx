@@ -24,13 +24,15 @@ import type {
 } from "~/features/contracts/types/renew-contract-form";
 import type { Contract } from "~/types/contract";
 import { InfoRow } from "~/components/card/info-card";
-import { TextField } from "~/components/form/text-field";
+import { CurrencyField } from "~/components/form/currency-field";
+import { DateField } from "~/components/form/date-field";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
+import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { renewContractFormSchema } from "~/features/contracts/types/renew-contract-form";
 import { useGetContract, useRenewContract } from "~/hooks/api/contract";
+import { isContractLive } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
 
@@ -45,12 +47,16 @@ export default function ContractRenewTemplate({
   contractId,
 }: ContractRenewTemplateProps) {
   const { data: contract, isLoading } = useGetContract(contractId);
-  const backTo = ROUTES.contractDetailPath(contractId);
+  const breadcrumb = [
+    { label: "Hợp đồng", to: ROUTES.CONTRACTS },
+    { label: contractId, to: ROUTES.contractDetailPath(contractId) },
+    { label: "Gia hạn" },
+  ];
 
   if (isLoading) {
     return (
-      <DetailPageShell title={TITLE} backTo={backTo}>
-        <CardGridSkeleton itemCount={2} />
+      <DetailPageShell title={TITLE} breadcrumb={breadcrumb}>
+        <DetailSkeleton />
       </DetailPageShell>
     );
   }
@@ -68,9 +74,30 @@ export default function ContractRenewTemplate({
     );
   }
 
+  const isLive = isContractLive(contract);
+
   return (
-    <DetailPageShell title={TITLE} backTo={backTo}>
-      <RenewForm key={contract.id} contract={contract} />
+    <DetailPageShell
+      title={TITLE}
+      breadcrumb={[
+        { label: "Hợp đồng", to: ROUTES.CONTRACTS },
+        {
+          label: contract.contractNumber,
+          to: ROUTES.contractDetailPath(contract.id),
+        },
+        { label: "Gia hạn" },
+      ]}
+    >
+      {isLive ? (
+        <RenewForm key={contract.id} contract={contract} />
+      ) : (
+        <EmptyPanel
+          icon={FileX}
+          title="Không thể gia hạn"
+          description={`Hợp đồng ${contract.contractNumber} đã kết thúc — chỉ Hợp đồng Đang hiệu lực hoặc Sắp hết hạn mới gia hạn được.`}
+          className="border"
+        />
+      )}
     </DetailPageShell>
   );
 }
@@ -147,19 +174,17 @@ function RenewForm({ contract }: { contract: Contract }) {
               noValidate
               className="space-y-6"
             >
-              <TextField
+              <DateField
                 control={form.control}
                 name="newEndDate"
-                label="Ngày kết thúc mới *"
-                type="date"
-                description={`Hợp đồng hiện tại sẽ kết thúc vào ${contract.endDate}`}
+                label="Ngày kết thúc mới"
+                required
               />
-              <TextField
+              <CurrencyField
                 control={form.control}
                 name="newRentAmount"
-                label="Tiền thuê mới (VND) *"
-                type="number"
-                min={0}
+                label="Tiền thuê mới"
+                required
                 description={`Tiền thuê hiện tại: ${formatCurrency(contract.rentAmount)}`}
               />
               <Controller

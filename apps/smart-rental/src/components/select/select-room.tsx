@@ -17,6 +17,8 @@ interface RoomOption {
 interface SelectRoomProps {
   /** The Building scope a wizard already picked — narrows the option list. */
   buildingId?: string | null;
+  /** Only `available` Phòng — the Hợp đồng wizard's own step 1 (spec #153). */
+  onlyAvailable?: boolean;
   value?: string;
   onValueChange: (roomId: string | null) => void;
   disabled?: boolean;
@@ -30,16 +32,19 @@ interface SelectRoomProps {
  */
 export function SelectRoom({
   buildingId,
+  onlyAvailable,
   value,
   onValueChange,
   disabled,
   placeholder = "Tìm phòng",
 }: SelectRoomProps) {
   const { data: rooms = [], isFetching } = useGetRooms({ buildingId });
-  const options: RoomOption[] = rooms.map((room) => ({
-    value: room.id,
-    label: `${room.name} · Tầng ${room.floor}`,
-  }));
+  const options: RoomOption[] = rooms
+    .filter((room) => !onlyAvailable || room.status === "available")
+    .map((room) => ({
+      value: room.id,
+      label: `${room.name} · Tầng ${room.floor}`,
+    }));
 
   const selected = options.find((option) => option.value === value) ?? null;
 

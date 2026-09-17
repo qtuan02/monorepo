@@ -52,6 +52,7 @@ const contract: Contract = {
   depositStatus: "HELD",
   depositReturnedAmount: 0,
   paymentDueDay: 5,
+  noticeDays: 30,
   startDate: "01/01/2026",
   endDate: "05/10/2026", // within the 30-day EXPIRING window of "today"
   status: "ACTIVE",

@@ -22,6 +22,8 @@ interface TenantFormSheetProps {
   onOpenChange: (open: boolean) => void;
   /** Present → sửa; absent → thêm mới. Key the element on `tenant?.id` so a new tenant remounts the form. */
   tenant?: Tenant;
+  /** Fires only on a successful create — the Hợp đồng wizard's own step 2 selects the new id straight away. */
+  onCreated?: (tenant: Tenant) => void;
 }
 
 const FORM_ID = "tenant-form";
@@ -37,6 +39,7 @@ export default function TenantFormSheet({
   open,
   onOpenChange,
   tenant,
+  onCreated,
 }: TenantFormSheetProps) {
   const isEdit = !!tenant;
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
@@ -84,6 +87,7 @@ export default function TenantFormSheet({
           });
           form.reset();
           onOpenChange(false);
+          onCreated?.(created);
         },
       },
     );
