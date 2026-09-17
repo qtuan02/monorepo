@@ -11,9 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import { Field, FieldGroup } from "@monorepo/ui/components/field";
+import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
-import { Label } from "@monorepo/ui/components/label";
 
 import { atlasProject } from "~/support/projects";
 
@@ -50,7 +49,7 @@ export const Default: Story = {
       <CardContent>
         <FieldGroup>
           <Field>
-            <Label htmlFor="invite-email">Email</Label>
+            <FieldLabel htmlFor="invite-email">Email</FieldLabel>
             <Input
               id="invite-email"
               type="email"

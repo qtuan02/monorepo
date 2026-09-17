@@ -31,8 +31,8 @@ import {
 import { toast } from "@monorepo/ui/components/toast";
 
 // There is no <Form>/<FormField> wrapper: shadcn retired that family, and the
-// current convention is Controller + the Field primitives (see ADR-0003 and
-// .agents/rules/forms-field-components.md).
+// current convention is Controller + the Field primitives (see
+// .agents/rules/forms-schema-driven.md and forms-field-components.md).
 //
 // Each story writes its form out inline rather than rendering a wrapper
 // component, so Storybook's "Show code" prints the form itself — a wrapper
@@ -49,7 +49,7 @@ const meta = {
 A form is a composition, not a component — there is no \`<Form>\` or \`<FormField>\` in
 \`@monorepo/ui\`. shadcn retired that family and its registry item is empty in every base
 style, so the convention is **\`Controller\` + the \`Field\` primitives**, with Zod driving
-validation through \`zodResolver\` (ADR-0003).
+validation through \`zodResolver\` (see the \`forms-*\` rules).
 
 ### Anatomy
 
@@ -319,7 +319,9 @@ export const WithTextarea: Story = {
 
 const inviteFormSchema = z.object({
   email: z.email({ error: "Please enter a valid email address." }),
-  // Not z.boolean(): that accepts `false`, so an unticked box would submit.
+  // `z.literal(true)` is the rule's spelling, but its inferred type is `true`, so a
+  // `false` default would not typecheck — the refine rejects the unticked box the
+  // same way while keeping the field `boolean`.
   acceptTerms: z.boolean().refine((accepted) => accepted, {
     error: "You must accept the terms to continue.",
   }),

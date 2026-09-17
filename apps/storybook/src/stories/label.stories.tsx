@@ -3,6 +3,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Input } from "@monorepo/ui/components/input";
 import { Label } from "@monorepo/ui/components/label";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/Label",
   component: Label,
@@ -29,7 +31,7 @@ export const WithInput: Story = {
   render: () => (
     <div className="flex flex-col gap-2">
       <Label htmlFor="atlas-owner">Owner</Label>
-      <Input id="atlas-owner" defaultValue="Mira Okafor" />
+      <Input id="atlas-owner" defaultValue={currentPerson.name} />
     </div>
   ),
 };

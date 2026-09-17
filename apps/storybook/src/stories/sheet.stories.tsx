@@ -12,9 +12,8 @@ import {
   AlertDialogTrigger,
 } from "@monorepo/ui/components/alert-dialog";
 import { Button } from "@monorepo/ui/components/button";
-import { Field, FieldGroup } from "@monorepo/ui/components/field";
+import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
-import { Label } from "@monorepo/ui/components/label";
 import {
   Sheet,
   SheetClose,
@@ -64,11 +63,11 @@ export const Default: Story = {
         </SheetHeader>
         <FieldGroup className="px-4">
           <Field>
-            <Label htmlFor="sheet-project-name">Name</Label>
+            <FieldLabel htmlFor="sheet-project-name">Name</FieldLabel>
             <Input id="sheet-project-name" defaultValue={atlas.name} />
           </Field>
           <Field>
-            <Label htmlFor="sheet-project-owner">Owner</Label>
+            <FieldLabel htmlFor="sheet-project-owner">Owner</FieldLabel>
             <Input id="sheet-project-owner" defaultValue={currentPerson.name} />
           </Field>
         </FieldGroup>

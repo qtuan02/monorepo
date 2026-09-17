@@ -10,6 +10,8 @@ import {
 } from "@monorepo/ui/components/field";
 import { Switch } from "@monorepo/ui/components/switch";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/Switch",
   component: Switch,
@@ -42,14 +44,16 @@ export const Default: Story = {
 };
 
 export const States: Story = {
+  parameters: { stage: { width: "sm" } },
   render: () => (
-    <FieldGroup className="w-full max-w-sm">
+    <FieldGroup>
       <FieldLabel htmlFor="switch-atlas-updates">
         <Field orientation="horizontal">
           <FieldContent>
             <FieldTitle>Atlas updates</FieldTitle>
             <FieldDescription>
-              Notify Mira Okafor when the billing migration status changes.
+              Notify {currentPerson.name} when the billing migration status
+              changes.
             </FieldDescription>
           </FieldContent>
           <Switch id="switch-atlas-updates" defaultChecked />
@@ -78,5 +82,14 @@ export const States: Story = {
         </Field>
       </FieldLabel>
     </FieldGroup>
+  ),
+};
+
+export const Sizes: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Switch size="sm" aria-label="Small switch" defaultChecked />
+      <Switch aria-label="Default switch" defaultChecked />
+    </div>
   ),
 };

@@ -9,6 +9,8 @@ import {
 } from "@monorepo/ui/components/alert";
 import { Button } from "@monorepo/ui/components/button";
 
+import { tomasReyes } from "~/support/people";
+
 const meta = {
   title: "Storybook/Alert",
   component: Alert,
@@ -51,8 +53,8 @@ export const Variants: Story = {
         <InfoIcon />
         <AlertTitle>Beacon onboarding reached 80%</AlertTitle>
         <AlertDescription>
-          Tomás Reyes updated the Beacon rollout checklist. Four steps left
-          before it ships to every Northwind team.
+          {tomasReyes.name} updated the Beacon rollout checklist. Four steps
+          left before it ships to every Northwind team.
         </AlertDescription>
       </Alert>
       <Alert variant="destructive">

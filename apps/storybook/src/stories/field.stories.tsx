@@ -17,6 +17,8 @@ import {
   RadioGroupItem,
 } from "@monorepo/ui/components/radio-group";
 
+import { currentPerson, tomasReyes } from "~/support/people";
+
 const meta = {
   title: "Storybook/Field",
   component: Field,
@@ -44,7 +46,7 @@ export const Default: Story = {
     <FieldGroup className="w-full">
       <Field>
         <FieldLabel htmlFor="teammate-name">Name</FieldLabel>
-        <Input id="teammate-name" placeholder="Tomás Reyes" required />
+        <Input id="teammate-name" placeholder={tomasReyes.name} required />
       </Field>
       <Field>
         <FieldLabel htmlFor="teammate-email">Email</FieldLabel>
@@ -135,7 +137,7 @@ export const Responsive: Story = {
       <FieldSet>
         <FieldLegend>Profile</FieldLegend>
         <FieldDescription>
-          Fill in Mira Okafor's profile information.
+          Fill in {currentPerson.name}'s profile information.
         </FieldDescription>
         <FieldGroup>
           <Field orientation="responsive">
@@ -143,7 +145,11 @@ export const Responsive: Story = {
               <FieldLabel htmlFor="profile-name">Name</FieldLabel>
               <FieldDescription>Shown across Northwind.</FieldDescription>
             </FieldContent>
-            <Input id="profile-name" defaultValue="Mira Okafor" required />
+            <Input
+              id="profile-name"
+              defaultValue={currentPerson.name}
+              required
+            />
           </Field>
           <Field orientation="responsive">
             <Button type="submit">Save</Button>

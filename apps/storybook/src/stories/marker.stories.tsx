@@ -7,6 +7,9 @@ import {
   MarkerIcon,
 } from "@monorepo/ui/components/marker";
 
+import { hanaSato } from "~/support/people";
+import { atlasProject } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Marker",
   component: Marker,
@@ -29,7 +32,8 @@ export const Default: Story = {
         <InfoIcon />
       </MarkerIcon>
       <MarkerContent>
-        Hana Sato requested a review on Atlas — 2 minutes ago
+        {hanaSato.name} requested a review on {atlasProject.name} — 2 minutes
+        ago
       </MarkerContent>
     </Marker>
   ),
@@ -45,7 +49,9 @@ export const Variants: Story = {
         <MarkerIcon>
           <InfoIcon />
         </MarkerIcon>
-        <MarkerContent>Hana Sato requested a review on Atlas</MarkerContent>
+        <MarkerContent>
+          {hanaSato.name} requested a review on {atlasProject.name}
+        </MarkerContent>
       </Marker>
       <Marker variant="separator">
         <MarkerContent>Today</MarkerContent>

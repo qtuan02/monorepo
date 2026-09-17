@@ -114,3 +114,34 @@ export const Orientation: Story = {
     </Tabs>
   ),
 };
+
+export const Variants: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {(["default", "line"] as const).map((variant) => (
+        <Tabs key={variant} defaultValue="overview">
+          <TabsList variant={variant}>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="invoices">Invoices</TabsTrigger>
+            <TabsTrigger value="team">Team</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <p className="text-sm text-muted-foreground">
+              {atlasProject.summary}, owned by {currentPerson.name}.
+            </p>
+          </TabsContent>
+          <TabsContent value="invoices">
+            <p className="text-sm text-muted-foreground">
+              {atlasInvoiceCount} invoice billed against {atlasProject.name}.
+            </p>
+          </TabsContent>
+          <TabsContent value="team">
+            <p className="text-sm text-muted-foreground">
+              {northwindPeople.length} Northwind members have access.
+            </p>
+          </TabsContent>
+        </Tabs>
+      ))}
+    </div>
+  ),
+};

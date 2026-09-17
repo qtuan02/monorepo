@@ -10,7 +10,6 @@ const meta = {
   component: ScrollArea,
   subcomponents: { ScrollBar },
   tags: ["autodocs"],
-  parameters: { layout: "padded" },
 } satisfies Meta<typeof ScrollArea>;
 
 export default meta;

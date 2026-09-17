@@ -12,6 +12,7 @@ const meta = {
   component: DatePicker,
   subcomponents: { DatePickerInput, DateRangePicker },
   tags: ["autodocs"],
+  parameters: { stage: { width: "sm" } },
 } satisfies Meta<typeof DatePicker>;
 
 export default meta;
@@ -27,13 +28,11 @@ export const Default: Story = {
     const [date, setDate] = useState<Date | undefined>(new Date(2026, 7, 14));
 
     return (
-      <div className="w-64">
-        <DatePicker
-          calendar={{ defaultMonth: new Date(2026, 7) }}
-          onValueChange={setDate}
-          value={date}
-        />
-      </div>
+      <DatePicker
+        calendar={{ defaultMonth: new Date(2026, 7) }}
+        onValueChange={setDate}
+        value={date}
+      />
     );
   },
 };
@@ -53,13 +52,11 @@ export const Range: Story = {
     >({ from: new Date(2026, 7, 10), to: new Date(2026, 7, 16) });
 
     return (
-      <div className="w-80">
-        <DateRangePicker
-          calendar={{ defaultMonth: new Date(2026, 7) }}
-          onValueChange={setRange}
-          value={range}
-        />
-      </div>
+      <DateRangePicker
+        calendar={{ defaultMonth: new Date(2026, 7) }}
+        onValueChange={setRange}
+        value={range}
+      />
     );
   },
 };
@@ -77,13 +74,11 @@ export const WithInput: Story = {
     const [date, setDate] = useState<Date | undefined>(new Date(2026, 7, 14));
 
     return (
-      <div className="w-64">
-        <DatePickerInput
-          calendar={{ defaultMonth: new Date(2026, 7) }}
-          onValueChange={setDate}
-          value={date}
-        />
-      </div>
+      <DatePickerInput
+        calendar={{ defaultMonth: new Date(2026, 7) }}
+        onValueChange={setDate}
+        value={date}
+      />
     );
   },
 };
@@ -101,19 +96,17 @@ export const WithDropdowns: Story = {
     const [date, setDate] = useState<Date | undefined>();
 
     return (
-      <div className="w-64">
-        <DatePicker
-          calendar={{
-            captionLayout: "dropdown",
-            defaultMonth: new Date(2000, 0),
-            endMonth: new Date(2026, 11),
-            startMonth: new Date(1940, 0),
-          }}
-          onValueChange={setDate}
-          placeholder="Date of birth"
-          value={date}
-        />
-      </div>
+      <DatePicker
+        calendar={{
+          captionLayout: "dropdown",
+          defaultMonth: new Date(2000, 0),
+          endMonth: new Date(2026, 11),
+          startMonth: new Date(1940, 0),
+        }}
+        onValueChange={setDate}
+        placeholder="Date of birth"
+        value={date}
+      />
     );
   },
 };

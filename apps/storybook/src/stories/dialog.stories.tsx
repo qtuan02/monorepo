@@ -11,11 +11,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@monorepo/ui/components/dialog";
-import { Field, FieldGroup } from "@monorepo/ui/components/field";
+import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 import { Label } from "@monorepo/ui/components/label";
 
-import { currentPerson } from "~/support/people";
+import { currentPerson, hanaSato } from "~/support/people";
 import { atlasProject as atlas } from "~/support/projects";
 
 const meta = {
@@ -56,11 +56,11 @@ export const Default: Story = {
           </DialogHeader>
           <FieldGroup>
             <Field>
-              <Label htmlFor="project-name">Name</Label>
+              <FieldLabel htmlFor="project-name">Name</FieldLabel>
               <Input id="project-name" name="name" defaultValue={atlas.name} />
             </Field>
             <Field>
-              <Label htmlFor="project-owner">Owner</Label>
+              <FieldLabel htmlFor="project-owner">Owner</FieldLabel>
               <Input
                 id="project-owner"
                 name="owner"
@@ -126,9 +126,9 @@ export const StickyFooter: Story = {
         <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <p key={`dialog-history-${index}`} className="mb-4 leading-normal">
-              Notification #{index + 1}: Mira Okafor updated the {atlas.name}{" "}
-              billing schedule and notified the Northwind team. Invoice INV-2041
-              was marked paid the same day.
+              Notification #{index + 1}: {currentPerson.name} updated the{" "}
+              {atlas.name} billing schedule and notified the Northwind team.
+              Invoice INV-2041 was marked paid the same day.
             </p>
           ))}
         </div>
@@ -158,7 +158,7 @@ export const ScrollableContent: Story = {
             <p key={`dialog-notes-${index}`} className="mb-4 leading-normal">
               Entry #{index + 1}: the {atlas.name} billing migration moved
               another batch of Northwind invoices onto the new schedule, with no
-              downtime reported by Hana Sato's on-call rotation.
+              downtime reported by {hanaSato.name}'s on-call rotation.
             </p>
           ))}
         </div>

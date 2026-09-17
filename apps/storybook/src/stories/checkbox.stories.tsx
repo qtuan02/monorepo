@@ -11,6 +11,8 @@ import {
   FieldSet,
 } from "@monorepo/ui/components/field";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/Checkbox",
   component: Checkbox,
@@ -38,8 +40,9 @@ export const Default: Story = {
 };
 
 export const States: Story = {
+  parameters: { stage: { width: "sm" } },
   render: () => (
-    <FieldGroup className="max-w-sm">
+    <FieldGroup>
       <Field orientation="horizontal">
         <Checkbox id="atlas-terms" name="atlas-terms" />
         <FieldLabel htmlFor="atlas-terms">
@@ -66,7 +69,9 @@ export const States: Story = {
 export const Group: Story = {
   render: () => (
     <FieldSet>
-      <FieldLegend variant="label">Notify Mira Okafor about:</FieldLegend>
+      <FieldLegend variant="label">
+        Notify {currentPerson.name} about:
+      </FieldLegend>
       <FieldDescription>
         Choose which Northwind events send a notification.
       </FieldDescription>

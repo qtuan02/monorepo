@@ -25,7 +25,9 @@ ngoài dải `3000+n` / `3100+n` vì app không có E2E server của riêng nó.
   deploy.
 - Mọi file có story tên **`Default`**. Đây là story `documents` nhúng qua iframe
   làm ví dụ đầu tiên người đọc thấy, nên `args` mặc định của nó luôn là tổ hợp
-  đẹp nhất, không phải tổ hợp đơn giản nhất.
+  đẹp nhất, không phải tổ hợp đơn giản nhất. Ngoại lệ duy nhất: `accordion`
+  (hai story `Single`/`Multiple`, bảng override của generator chọn `single` —
+  ghi ở README của `documents`; convention test mirror qua `NO_DEFAULT_EXPORT`).
 - Trang **Introduction** đứng ngoài hai prefix trên (`title: "Introduction"`,
   top-level) — generator của `documents` không dẫn xuất gì từ nó nên đổi tên
   story bên trong (`Welcome`) không ảnh hưởng contract.
@@ -98,7 +100,9 @@ tên mô tả, không gán vào bảng trên.
   story đó (`parameters.controls.disable`).
 
 Bỏ mọi `args: {}` thừa — nó không làm gì ngoài gợi ý sai rằng Controls đang
-sống.
+sống. Một compound có props bắt buộc không có default (`DataTable` `columns`/`data`,
+`Chart`, `InputOTP`) buộc TypeScript đòi `args` dù `render` tự cấp — chỗ đó viết
+`args: {} as Story["args"]` kèm một dòng comment, và chỉ chỗ đó.
 
 ## Thế giới Northwind
 
@@ -108,15 +112,16 @@ Mọi copy trong story tiếng Anh, có chủ đích, cùng một "thế giới"
 
 | File | Giữ |
 | --- | --- |
-| `people.ts` | 8 người (`northwindPeople`) + `currentPerson` (người "tôi" của phần lớn story) |
+| `people.ts` | 8 người (`northwindPeople`) + `currentPerson` (người "tôi" của phần lớn story), `tomasReyes`, `hanaSato` — tên người luôn import, không spell literal |
 | `projects.ts` | 4 project — Atlas (billing migration), Beacon (onboarding), Comet (mobile app), Delta (design system) |
 | `invoices.ts` | invoice `INV-…`, trạng thái `paid`/`pending`/`overdue` |
 | `notifications.ts` | thông báo gắn với một người |
+| `conversation.ts` | một thread chat Northwind (`northwindConversation`, `conversationOpener`/`conversationReply`) cho Attachment, Bubble, Message, MessageScroller, Questionnaire |
 
 Sửa cast/project/invoice thì sửa ở đây — mọi story import theo đường dẫn file
 (`~/support/people`, …), không có barrel để import qua.
 
-## Test — bốn seam
+## Test — bốn seam quy ước, cộng ba test hành vi
 
 1. **`test/stories.test.tsx`** *(có sẵn)* — compose mọi story dưới
    `src/stories/*.stories.tsx` qua `preview.tsx` thật, render và mở mọi
@@ -125,11 +130,9 @@ Sửa cast/project/invoice thì sửa ở đây — mọi story import theo đư
    cả `introduction.stories.tsx`. Với mọi module: có export `Default` (trừ
    Introduction, giữ tên `Welcome`); `title` bắt đầu `Storybook/`/`Hooks/` hoặc
    là `Introduction`; `parameters.stage.width` nếu có thì thuộc thang bốn giá
-   trị. Với các file trong `STANDARDIZED` (hằng số trong chính file test —
-   ticket này: `button`, `dialog`): `Default` có `render` ⇒ Controls tắt +
-   `subcomponents` không rỗng; `Default` không `render` dưới `Storybook/` ⇒
-   `argTypes` không rỗng. Mỗi ticket họ primitive nối thêm slug của mình vào
-   `STANDARDIZED`; ticket cuối cùng xoá hằng số này để test áp toàn bộ.
+   trị; `Default` có `render` ⇒ Controls tắt + `subcomponents` không rỗng;
+   `Default` không `render` dưới `Storybook/` ⇒ `argTypes` không rỗng. Áp cho
+   mọi file — ngoại lệ duy nhất là `NO_DEFAULT_EXPORT` (`accordion`, xem trên).
 3. **`test/preview-decorators.test.tsx`** — compose một story mẫu
    (`button.stories.tsx`) với `initialGlobals: { theme: "dark" }` qua
    `composeStory`'s thứ ba, khẳng định `documentElement` mang/mất class `dark`;
@@ -139,6 +142,12 @@ Sửa cast/project/invoice thì sửa ở đây — mọi story import theo đư
 4. **`apps/documents/test/…/component-detail.template.test.tsx`** và bản hook
    — khẳng định `src` của iframe mang `globals=theme:dark` khi dark, không
    mang gì khi light.
+
+Ba test còn lại kiểm hành vi chứ không kiểm quy ước: `form-stories.test.tsx`
+(Controller ↔ zodResolver ↔ FieldError qua story `Form`), `date-picker-stories.test.tsx`
+(mask `dd/MM/yyyy` của `DatePickerInput` qua story `WithInput`), và
+`command-selected.test.tsx` — pin `data-selected="true"` của cmdk và cách `command.tsx`
+style nó; ở đây vì runner của `packages/ui` là node, không có jsdom.
 
 `bun run test:coverage` không có ngưỡng gate (xem `testing-coverage`); bốn seam
 trên là thứ giữ quy ước không trôi, thay cho một rule trong `.agents/rules/`.

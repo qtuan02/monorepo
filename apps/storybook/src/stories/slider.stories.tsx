@@ -6,7 +6,6 @@ const meta = {
   title: "Storybook/Slider",
   component: Slider,
   tags: ["autodocs"],
-  parameters: { layout: "padded" },
   argTypes: {
     disabled: {
       control: "boolean",

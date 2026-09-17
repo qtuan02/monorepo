@@ -91,3 +91,23 @@ export const Orientation: Story = {
     </ToggleGroup>
   ),
 };
+
+export const Variants: Story = {
+  render: () => (
+    <div className="flex flex-col items-start gap-4">
+      {(["default", "outline"] as const).map((variant) => (
+        <ToggleGroup key={variant} variant={variant} defaultValue={["bold"]}>
+          <ToggleGroupItem value="bold" aria-label="Bold">
+            <BoldIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="italic" aria-label="Italic">
+            <ItalicIcon />
+          </ToggleGroupItem>
+          <ToggleGroupItem value="underline" aria-label="Underline">
+            <UnderlineIcon />
+          </ToggleGroupItem>
+        </ToggleGroup>
+      ))}
+    </div>
+  ),
+};

@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { Separator } from "@monorepo/ui/components/separator";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/Separator",
   component: Separator,
@@ -36,7 +38,9 @@ export const Orientation: Story = {
       <div className="flex flex-col gap-3 text-sm">
         <span>Billing migration</span>
         <Separator />
-        <span className="text-muted-foreground">Owned by Mira Okafor</span>
+        <span className="text-muted-foreground">
+          Owned by {currentPerson.name}
+        </span>
       </div>
     </div>
   ),

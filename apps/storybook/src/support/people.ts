@@ -20,22 +20,28 @@ export const currentPerson: NorthwindPerson = {
 
 // The Northwind cast every story in this workshop draws its copy from — edit
 // here, and every story that imports a person picks up the change.
+// The two teammates most stories name beside "you" — exported so a story
+// spells neither name as a literal.
+export const tomasReyes: NorthwindPerson = {
+  id: "tomas-reyes",
+  name: "Tomás Reyes",
+  email: "tomas@northwind.dev",
+  role: "Admin",
+  initials: "TR",
+};
+
+export const hanaSato: NorthwindPerson = {
+  id: "hana-sato",
+  name: "Hana Sato",
+  email: "hana@northwind.dev",
+  role: "Admin",
+  initials: "HS",
+};
+
 export const northwindPeople: NorthwindPerson[] = [
   currentPerson,
-  {
-    id: "tomas-reyes",
-    name: "Tomás Reyes",
-    email: "tomas@northwind.dev",
-    role: "Admin",
-    initials: "TR",
-  },
-  {
-    id: "hana-sato",
-    name: "Hana Sato",
-    email: "hana@northwind.dev",
-    role: "Admin",
-    initials: "HS",
-  },
+  tomasReyes,
+  hanaSato,
   {
     id: "liam-bennett",
     name: "Liam Bennett",

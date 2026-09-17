@@ -41,3 +41,25 @@ export const Default: Story = {
     </Select>
   ),
 };
+
+export const Sizes: Story = {
+  parameters: { stage: { width: "sm" } },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["sm", "default"] as const).map((size) => (
+        <Select key={size} defaultValue={northwindProjects[0]?.id}>
+          <SelectTrigger size={size} className="w-full">
+            <SelectValue placeholder="Select a project" />
+          </SelectTrigger>
+          <SelectContent>
+            {northwindProjects.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ))}
+    </div>
+  ),
+};

@@ -111,3 +111,21 @@ export const Sizes: Story = {
     </div>
   ),
 };
+
+export const Variants: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["default", "outline", "muted"] as const).map((variant) => (
+        <Item key={variant} variant={variant}>
+          <ItemMedia variant="icon">
+            <FolderIcon />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>{atlasProject.name} billing docs</ItemTitle>
+            <ItemDescription>{variant}</ItemDescription>
+          </ItemContent>
+        </Item>
+      ))}
+    </div>
+  ),
+};

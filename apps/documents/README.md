@@ -67,8 +67,8 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   hai pill trước/sau sát phải) → hero kính đậm (swatch 120px, h1 slug mono, meta
   `gói/subpath · N export`, action Storybook đen đặc + npm kính) → panel **Ví dụ**
   (`detail-example.tsx`: iframe story `Default` của primitive trên Storybook đã deploy,
-  `storybookExampleId` từ generator; sáng cả ở dark mode vì preview Storybook không có
-  theme switch) → hai panel `1.25fr | 1fr`: Import (`CodeBlock` nền indigo, dòng import
+  `storybookExampleId` từ generator, kèm `globals=theme:dark` trên URL khi người đọc
+  đang dark nên iframe đổi theme theo trang) → hai panel `1.25fr | 1fr`: Import (`CodeBlock` nền indigo, dòng import
   copy được) và Export (`<ul>` chip mono). Hook không có nút Storybook lẫn ví dụ, mô tả
   từ Locale message.
 - **Palette, font, theme** — mục kế tiếp sau Env.

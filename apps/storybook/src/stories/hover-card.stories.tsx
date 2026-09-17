@@ -65,7 +65,7 @@ export const Stacking: Story = {
             />
             <HoverCardContent className="w-72">
               <p className="text-sm">
-                {mira?.role} — this confirmation opens above the popover, a
+                {mira?.role} — this card opens above the popover, where a
                 stacking regression would hide it behind the panel instead.
               </p>
             </HoverCardContent>

@@ -85,8 +85,8 @@ export const Stacking: Story = {
             />
             <TooltipContent>
               <p>
-                This confirmation opens above the popover — a stacking
-                regression would hide it behind the panel instead.
+                This tooltip opens above the popover — a stacking regression
+                would hide it behind the panel instead.
               </p>
             </TooltipContent>
           </Tooltip>
