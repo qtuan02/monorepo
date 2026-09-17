@@ -22,6 +22,7 @@ import type {
   SendLogStatus,
 } from "~/types/communication";
 import type { ComplianceStatus, ComplianceType } from "~/types/compliance";
+import type { ContractStatus } from "~/types/contract";
 import type { DashboardTaskPriority } from "~/types/dashboard";
 import type { InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
@@ -32,6 +33,7 @@ import type {
   SupplierBillType,
 } from "~/types/supplier-bill";
 import type { TaskPriority, TaskStatus, TaskType } from "~/types/task";
+import type { TenantStatus } from "~/types/tenant";
 import type { UtilityStatus, UtilityType } from "~/types/utility";
 
 /**
@@ -207,6 +209,28 @@ export const dashboardTaskPriorityConfig: Record<
   urgent: { label: "Khẩn cấp", className: statusTone.error },
   high: { label: "Cao", className: statusTone.primary },
   medium: { label: "Vừa", className: statusTone.neutral },
+};
+
+export const tenantStatusConfig: Record<TenantStatus, StatusConfig> = {
+  active: { label: "Đang thuê", className: statusTone.success },
+  pending: { label: "Chờ vào", className: statusTone.info },
+  overdue: { label: "Nợ cước", className: statusTone.error },
+  ended: { label: "Đã trả", className: statusTone.neutral },
+};
+
+export const contractStatusConfig: Record<ContractStatus, StatusConfig> = {
+  active: {
+    label: "Đang hoạt động",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
+  ending: {
+    label: "Sắp hết hạn",
+    className: statusTone.warning,
+    icon: AlertCircle,
+  },
+  ended: { label: "Đã hết hạn", className: statusTone.neutral, icon: XCircle },
+  pending: { label: "Chờ xử lý", className: statusTone.info, icon: Clock },
 };
 
 /** A config read as the option list of a faceted filter, in the config's order. */

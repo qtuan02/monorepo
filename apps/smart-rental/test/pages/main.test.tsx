@@ -56,14 +56,14 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   ],
   [ROUTES.ROOMS, "Danh sách phòng trọ", "Phòng 101"],
   [ROUTES.roomDetailPath("R-B1-102"), "Chi tiết phòng", "Phòng 102"],
-  [ROUTES.TENANTS, "Quản lý khách thuê"],
+  [ROUTES.TENANTS, "Quản lý khách thuê", "Trần Thị B"],
   [ROUTES.TENANT_CREATE, "Thêm khách thuê mới"],
-  [ROUTES.tenantDetailPath("t-1"), "Chi tiết khách thuê"],
-  [ROUTES.CONTRACTS, "Quản lý hợp đồng"],
+  [ROUTES.tenantDetailPath("T003"), "Chi tiết khách thuê", "Nguyễn Văn C"],
+  [ROUTES.CONTRACTS, "Quản lý hợp đồng", "HĐ-002"],
   [ROUTES.CONTRACT_CREATE, "Tạo hợp đồng mới"],
-  [ROUTES.contractDetailPath("c-1"), "Chi tiết hợp đồng"],
-  [ROUTES.contractRenewPath("c-1"), "Gia hạn hợp đồng"],
-  [ROUTES.contractLiquidationPath("c-1"), "Thanh lý hợp đồng"],
+  [ROUTES.contractDetailPath("C004"), "Chi tiết hợp đồng", "HĐ-004"],
+  [ROUTES.contractRenewPath("C004"), "Gia hạn hợp đồng", "HĐ-004"],
+  [ROUTES.contractLiquidationPath("C004"), "Thanh lý hợp đồng", "HĐ-004"],
   [ROUTES.INVOICES, "Quản lý hóa đơn", "HÓA-001"],
   [ROUTES.INVOICE_BATCH, "Tạo hóa đơn hàng loạt", "Nguyễn Văn A"],
   [ROUTES.invoiceDetailPath("I002"), "Chi tiết hóa đơn", "HÓA-002"],
@@ -138,10 +138,12 @@ describe("the route tree", () => {
       }
     });
 
-    it("carries the route param into a detail placeholder", () => {
+    it("names the id a detail screen could not find in its Mock", async () => {
       renderAt(ROUTES.contractRenewPath("c-42"));
 
-      expect(screen.getByText("c-42")).toBeInTheDocument();
+      expect(
+        await screen.findByText("Không có hợp đồng nào với mã c-42."),
+      ).toBeInTheDocument();
     });
 
     it.each(guestScreens)("%s bounces to the dashboard", (path) => {
