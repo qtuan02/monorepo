@@ -14,6 +14,7 @@ function entryWith(count: number): ComponentDocsEntry {
     exports: Array.from({ length: count }, (_, index) => `Export${index + 1}`),
     description: null,
     storybookDocsId: "components-probe",
+    storybookExampleId: "components-probe--default",
   };
 }
 

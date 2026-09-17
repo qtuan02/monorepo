@@ -361,6 +361,8 @@
         "import": "Import",
         "exports": "Export",
         "storybook": "Mở trên Storybook",
+        "example": "Ví dụ",
+        "exampleFrame": "Ví dụ {slug} trên Storybook",
         "prev": "Trước: {slug}",
         "next": "Sau: {slug}"
       }

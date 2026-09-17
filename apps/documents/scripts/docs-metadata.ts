@@ -38,6 +38,16 @@ const STORYBOOK_DOCS_ID_OVERRIDES: Record<string, string> = {
   direction: "storybook-directionprovider",
 };
 
+/**
+ * The story a detail page embeds as its example. Every stories file exports a
+ * `Default` story except the one listed here, whose two stories are named for
+ * the accordion's two modes instead. Same reason as the table above for being
+ * a table: the stories are not on disk where this runs.
+ */
+const STORYBOOK_EXAMPLE_STORY_OVERRIDES: Record<string, string> = {
+  accordion: "single",
+};
+
 export interface DocsSource {
   /** Path of the source directory, relative to the repo root. */
   directory: string;
@@ -201,6 +211,18 @@ export function toStorybookDocsId(slug: string): string {
   );
 }
 
+/**
+ * A story id is the docs id plus the story's export name, lower-cased with
+ * dashes between words — `storybook-button--default`. It is what
+ * `iframe.html?id=…&viewMode=story` renders on its own, with no Storybook
+ * chrome around it.
+ */
+export function toStorybookExampleId(slug: string): string {
+  const story = STORYBOOK_EXAMPLE_STORY_OVERRIDES[slug] ?? "default";
+
+  return `${toStorybookDocsId(slug)}--${story}`;
+}
+
 export function buildDocsEntry(
   source: DocsSource,
   fileName: string,
@@ -257,6 +279,7 @@ export function buildComponentCatalogue(
     items: catalogue.items.map((item) => ({
       ...item,
       storybookDocsId: toStorybookDocsId(item.slug),
+      storybookExampleId: toStorybookExampleId(item.slug),
     })),
   };
 }

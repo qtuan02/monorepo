@@ -26,7 +26,7 @@ bun run --filter @monorepo/documents dev       # http://localhost:3003
 | Router | `src/pages/main.tsx` | `react-router` 8 declarative; mọi path lấy từ `~/constants/routes.ts`. |
 | Guard | *(không có)* | Site public: `ProtectedRoute` / `GuestRoute`, slice `auth`, `use-auth-store` và cả `~/libs/http-client` của Template đã bị **xoá** thay vì để không dùng. Catch-all 404 giữ nguyên. |
 | Metadata | `scripts/generate-docs-metadata.ts` | Xem mục dưới — đây là thứ thay `src/constants/*.json` viết tay của bản cũ. |
-| Demo | Storybook | Site này **không** render preview. 63 file preview thủ công của bản cũ bị bỏ; mỗi trang primitive link sang trang docs của nó trên Storybook. |
+| Demo | Storybook | Site này **không viết** preview nào: 63 file preview thủ công của bản cũ bị bỏ. Mỗi trang primitive nhúng story `Default` của nó từ Storybook đã deploy (`iframe.html?id=<storyId>&viewMode=story`) làm ví dụ, và link sang trang docs của nó cho variant + bảng props. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA; image thì builder Bun → `nginx:stable-alpine` như Template. |
 
 ## Hình dạng
@@ -60,11 +60,14 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   grid item. Hover nhấc 3px + bóng tầng 4; dưới `prefers-reduced-motion` chỉ còn bóng, không nhấc. Swatch là
   gradient hue sinh xác định từ slug — cùng màu ở tile, ở palette và ở hero chi tiết.
   Lọc rỗng → `Empty` với nút xoá bộ lọc.
-- **Trang chi tiết.** Thanh công cụ (`Component / dialog` + trước/sau) → hero kính đậm
-  (swatch 120px, h1 slug mono, meta `gói/subpath · N export`, action Storybook đen đặc
-  + npm kính) → hai panel `1.25fr | 1fr`: Import (`CodeBlock` nền indigo, dòng import
-  copy được) và Export (`<ul>` chip mono). Hook không có nút Storybook, mô tả từ Locale
-  message.
+- **Trang chi tiết.** Thanh công cụ hai nửa đẩy về hai mép (`Component / dialog` bên trái,
+  hai pill trước/sau sát phải) → hero kính đậm (swatch 120px, h1 slug mono, meta
+  `gói/subpath · N export`, action Storybook đen đặc + npm kính) → panel **Ví dụ**
+  (`detail-example.tsx`: iframe story `Default` của primitive trên Storybook đã deploy,
+  `storybookExampleId` từ generator; sáng cả ở dark mode vì preview Storybook không có
+  theme switch) → hai panel `1.25fr | 1fr`: Import (`CodeBlock` nền indigo, dòng import
+  copy được) và Export (`<ul>` chip mono). Hook không có nút Storybook lẫn ví dụ, mô tả
+  từ Locale message.
 - **Palette, font, theme** — mục kế tiếp sau Env.
 
 ## Env
@@ -74,7 +77,7 @@ nhóm base:
 
 | Key | Bắt buộc | Dùng ở |
 | --- | --- | --- |
-| `PUBLIC_DOCUMENTS_STORYBOOK_URL` | có | `~/components/link/storybook-link.tsx` — dựng link `<url>/?path=/docs/<docsId>--docs` trên mỗi trang primitive |
+| `PUBLIC_DOCUMENTS_STORYBOOK_URL` | có | `~/components/link/storybook-link.tsx` (link `<url>/?path=/docs/<docsId>--docs`) và `~/components/detail/detail-example.tsx` (iframe `<url>/iframe.html?id=<storyId>&viewMode=story`) trên mỗi trang primitive. Mặc định trong `.env.example` là Storybook đã deploy, `https://storybook-monorepo-ui.vercel.app`; trỏ `http://localhost:6006` khi muốn xem story local |
 
 Key mang **tên app** theo quy ước của ticket 03. Nó cố ý **không** `.optional()`:
 thiếu giá trị thì build image đỏ ngay và gọi đúng tên biến, thay vì ship 63 trang
@@ -137,8 +140,8 @@ trên nền phẳng. Viền `#C7D2FE` cố ý là cạnh mềm (≈1.3–1.5:1),
 
 | Nguồn | Ra | Mỗi entry mang |
 | --- | --- | --- |
-| `packages/ui/src/components/*.tsx` | `src/generated/components.json` | `slug` (tên file bỏ đuôi) · `subpath` (`components/<slug>`) · `importPath` (`@fe-monorepo/ui/...`) · `exports` · `description` · `storybookDocsId` |
-| `packages/hook/src/*.ts` | `src/generated/hooks.json` | như trên, trừ `storybookDocsId`; `subpath` là tên file trần (gói hook không có prefix) |
+| `packages/ui/src/components/*.tsx` | `src/generated/components.json` | `slug` (tên file bỏ đuôi) · `subpath` (`components/<slug>`) · `importPath` (`@fe-monorepo/ui/...`) · `exports` · `description` · `storybookDocsId` · `storybookExampleId` |
+| `packages/hook/src/*.ts` | `src/generated/hooks.json` | như trên, trừ hai id Storybook; `subpath` là tên file trần (gói hook không có prefix) |
 
 **Chạy lúc nào** — năm hook `pre*` trong `package.json`, không phải một bước tay:
 `predev`, `prebuild`, `pretypecheck`, `pretest`, `pretest:coverage`. Treo ở cả
@@ -164,6 +167,9 @@ khi JSON tồn tại và fail ngay ở bước resolve import. Gọi tay đượ
   thật: `turbo prune --docker` bỏ `apps/storybook` khỏi build context. Chỗ đối
   chiếu id với story thật là `test/generated/catalogue-invariants.test.ts`, chạy
   trên checkout có đủ hai thư mục.
+- `storybookExampleId` là `<storybookDocsId>--default` — story mọi file stories đều
+  export, trừ `accordion` (hai story `Single`/`Multiple`, bảng override chọn `single`).
+  Cùng test invariant đối chiếu id này với `export const` thật trong file stories.
 
 **Ở đâu, và vì sao gitignore** — `src/generated/` là dữ liệu dẫn xuất và **không**
 commit (`.gitignore` của app). Commit nó là mở đường cho nó lệch khỏi
@@ -185,7 +191,7 @@ làm cache của app miss đúng lúc cần.
 | --- | --- | --- | --- |
 | `/` | `ROUTES.HOME` | `home-page.tsx` | Bắt đầu — cài đặt, peer dependency, nối CSS + `@source`, ví dụ Button, "không có root entry" |
 | `/components` | `ROUTES.COMPONENTS` | `components-page.tsx` | Lưới 63 tile, có ô lọc (debounce 300ms), tile rộng từ 10 export |
-| `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Trước/sau, hero, Import, chip export, link Storybook |
+| `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Trước/sau, hero, ví dụ (iframe story Storybook), Import, chip export, link Storybook |
 | `/hooks` | `ROUTES.HOOKS` | `hooks-page.tsx` | Lưới 5 tile hook, có mô tả |
 | `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Trước/sau, hero, Import, chip export |
 | `*` | — | `not-found-page.tsx` | 404, **trong** shell để còn đường quay lại |
@@ -216,7 +222,7 @@ trong `.env` ở root và không ai thấy:
 | `PUBLIC_APP_ENV` | base schema | **Có** |
 | `PUBLIC_BASE_DOMAIN` | base schema | **Có** |
 | `PUBLIC_BASE_DOMAIN_API` | base schema | **Có** |
-| `PUBLIC_DOCUMENTS_STORYBOOK_URL` | app | **Có** |
+| `PUBLIC_DOCUMENTS_STORYBOOK_URL` | app | **Có** — production: `https://storybook-monorepo-ui.vercel.app` (Storybook đã deploy) |
 
 ## Chạy kiểm
 
@@ -236,7 +242,7 @@ Những gì được kiểm, và vì sao chỉ chừng đó:
 | File | Kiểm |
 | --- | --- |
 | `test/scripts/docs-metadata.test.ts` | Parser, trên hai fixture giả ghi ra thư mục tạm (một `.tsx`, một `.ts`): danh sách export xuống dòng, `export type` bị loại, JSDoc đúng block, file hỏng thì **ném** và gọi tên file |
-| `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; `storybookDocsId` trỏ đúng story thật |
+| `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; `storybookDocsId` trỏ đúng story thật; `storybookExampleId` là một `export const` của file stories đó |
 | `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ |
 | `test/features/component/components/component-card.test.tsx` · `test/components/tile/tile.test.tsx` | Tile rộng ở 10 export và không rộng ở 9 — trên `listitem`, là grid item; tên link bắt đầu bằng slug; `+n` |
 | `test/features/component/templates/component-list.template.test.tsx` | Lọc rỗng hiện nút xoá bộ lọc, bấm thì danh sách quay lại |

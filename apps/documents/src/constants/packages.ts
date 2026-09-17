@@ -69,4 +69,9 @@ export const INSTALL_COMMANDS: readonly InstallCommand[] = [
     label: "pnpm",
     command: `pnpm add ${UI_PACKAGE_NAME} ${HOOK_PACKAGE_NAME}`,
   },
+  {
+    id: "yarn",
+    label: "yarn",
+    command: `yarn add ${UI_PACKAGE_NAME} ${HOOK_PACKAGE_NAME}`,
+  },
 ];

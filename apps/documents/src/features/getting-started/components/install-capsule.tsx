@@ -37,7 +37,7 @@ export default function InstallCapsule({ className }: InstallCapsuleProps) {
       className={cn(
         // The primitive stacks a horizontal Tabs (`data-horizontal:flex-col`),
         // which is what a capsule wants below `sm` — tabs over the command —
-        // and not above it, where the three sit in one row. The same variant
+        // and not above it, where the four sit in one row. The same variant
         // is what overrides it, since a bare `flex-row` would lose to it.
         "glass glass-deep bg-(--glass-strong) flex w-full max-w-full items-center gap-2.5 rounded-[28px] p-2 sm:w-auto sm:gap-4 sm:rounded-full sm:data-horizontal:flex-row",
         className,

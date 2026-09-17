@@ -10,6 +10,7 @@ import {
   HOOK_SOURCE,
   parseDocsModule,
   toStorybookDocsId,
+  toStorybookExampleId,
 } from "../../scripts/docs-metadata";
 
 /**
@@ -169,6 +170,21 @@ describe("toStorybookDocsId", () => {
 
   it("uses the override where the story is named after the export, not the file", () => {
     expect(toStorybookDocsId("direction")).toBe("storybook-directionprovider");
+  });
+});
+
+describe("toStorybookExampleId", () => {
+  it("names the `Default` story under the docs id", () => {
+    expect(toStorybookExampleId("button")).toBe("storybook-button--default");
+    expect(toStorybookExampleId("direction")).toBe(
+      "storybook-directionprovider--default",
+    );
+  });
+
+  it("uses the override for the one stories file with no `Default` story", () => {
+    expect(toStorybookExampleId("accordion")).toBe(
+      "storybook-accordion--single",
+    );
   });
 });
 

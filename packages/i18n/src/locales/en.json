@@ -361,6 +361,8 @@
         "import": "Import",
         "exports": "Exports",
         "storybook": "Open in Storybook",
+        "example": "Example",
+        "exampleFrame": "{slug} example on Storybook",
         "prev": "Previous: {slug}",
         "next": "Next: {slug}"
       }

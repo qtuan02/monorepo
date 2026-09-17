@@ -15,10 +15,10 @@ interface StorybookLinkProps {
 }
 
 /**
- * The demo link every primitive page ends with. This site renders no live
- * preview of its own — Storybook already renders every primitive with its
- * variants and a real props table, so duplicating that here would be 63
- * hand-written previews to keep in step with the package.
+ * The demo link every primitive page carries. The page embeds one story as
+ * its example (`detail-example.tsx`); the variants and the real props table
+ * stay on Storybook's docs page, which this opens — duplicating them here
+ * would be 63 hand-written previews to keep in step with the package.
  *
  * A plain `<a>` styled with `buttonVariants`, not `<Button render={...}>`: Base
  * UI's Button assumes a native `<button>` and would either warn on every render

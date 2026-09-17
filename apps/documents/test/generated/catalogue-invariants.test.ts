@@ -142,12 +142,40 @@ describe("every component's Storybook demo link", () => {
       expect(offenders).toEqual([]);
     },
   );
+
+  it.runIf(existsSync(storiesDirectory))(
+    "embeds a story its stories file actually exports",
+    () => {
+      // A story id is `<docs id>--<export name>`, the name lower-cased with a
+      // dash before each capital: `PopoverStory` → `popover-story`. The stories
+      // file is the slug's own (`button.stories.tsx`), which the first
+      // invariant of this block already relies on.
+      const offenders = componentCatalogue.items
+        .filter((item) => {
+          const source = readFileSync(
+            join(storiesDirectory, `${item.slug}.stories.tsx`),
+            "utf8",
+          );
+          const storyIds = [...source.matchAll(/^export const (\w+)/gm)].map(
+            ([, name]) =>
+              `${item.storybookDocsId}--${(name ?? "")
+                .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+                .toLowerCase()}`,
+          );
+
+          return !storyIds.includes(item.storybookExampleId);
+        })
+        .map((item) => `${item.slug} → ${item.storybookExampleId}`);
+
+      expect(offenders).toEqual([]);
+    },
+  );
 });
 
 /**
  * The catalogue is generated; the prose that describes each hook is not.
  *
- * `hook-card.tsx` and `hook-detail.template.tsx` both read a hook's description
+ * `hook-tile.tsx` and `hook-detail.template.tsx` both read a hook's description
  * through a key built from its slug, and i18next answers a missing key by
  * returning the key itself — so adding `packages/hook/src/use-foo.ts` (the very
  * move the invariant above *requires* to keep passing) would ship the literal

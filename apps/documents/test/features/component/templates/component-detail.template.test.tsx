@@ -83,6 +83,27 @@ describe("the component detail page", () => {
     );
   });
 
+  it("embeds that primitive's Default story from Storybook as the example", () => {
+    const entry = componentCatalogue.items.find(
+      (item) => item.slug === "button",
+    );
+    if (!entry) throw new Error("`button` is missing from the catalogue");
+
+    renderAtSlug(entry.slug);
+
+    // The story alone (`viewMode=story`), not the docs page: the docs page is
+    // what the hero's link opens, and embedding it would show the whole
+    // props table twice.
+    expect(
+      screen.getByTitle(`Ví dụ ${entry.slug} trên Storybook`),
+    ).toHaveAttribute(
+      "src",
+      expect.stringContaining(
+        `iframe.html?id=${entry.storybookExampleId}&viewMode=story`,
+      ),
+    );
+  });
+
   it("links to both neighbours in catalogue order from an entry in the middle", () => {
     const [prev, entry, next] = [entryAt(20), entryAt(21), entryAt(22)];
 

@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 
+import { DetailExample } from "~/components/detail/detail-example";
 import { DetailHero } from "~/components/detail/detail-hero";
 import { DetailPanels } from "~/components/detail/detail-panels";
 import { DetailToolbar } from "~/components/detail/detail-toolbar";
@@ -68,6 +69,14 @@ export default function ComponentDetailTemplate() {
         description={entry.description}
         npmUrl={NPM_URLS.ui}
         storybookDocsId={entry.storybookDocsId}
+      />
+
+      <DetailExample
+        heading={t("documents.components.detail.example")}
+        title={t("documents.components.detail.exampleFrame", {
+          slug: entry.slug,
+        })}
+        storyId={entry.storybookExampleId}
       />
 
       <DetailPanels
