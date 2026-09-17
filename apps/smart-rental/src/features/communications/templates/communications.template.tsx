@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Bell, Mail, MessageSquare, Send } from "lucide-react";
-import { useSearchParams } from "react-router";
 
 import {
   Card,
@@ -17,13 +16,13 @@ import {
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
 
-import type { SendLogStatus } from "~/types/communication";
+import type { SendLog, SendLogStatus } from "~/types/communication";
 import { SummaryCard } from "~/components/card/summary-card";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { ErrorPanel } from "~/components/panel/error-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
+import { QuerySection } from "~/components/panel/query-section";
 import {
   channelConfig,
   sendLogStatusConfig,
@@ -31,17 +30,16 @@ import {
 } from "~/constants/status";
 import { sendLogColumns } from "~/features/communications/components/send-log-columns";
 import TemplateCard from "~/features/communications/components/template-card";
-import {
-  useGetNotificationTemplates,
-  useGetSendLogs,
-} from "~/hooks/api/communication";
+import { useGetNotificationTemplates } from "~/hooks/api/notification-template";
+import { useGetSendLogs } from "~/hooks/api/send-log";
+import { useUrlTab } from "~/hooks/use-url-tab";
 
-const TAB_PARAM = "tab";
 const TABS = ["overview", "logs", "automation"] as const;
-type Tab = (typeof TABS)[number];
 
 const ALL_CHANNELS = "all";
 type ChannelTab = typeof ALL_CHANNELS | "zalo" | "sms" | "email";
+
+const LOGS_ERROR = "Không thể tải nhật ký gửi tin.";
 
 /** The two rules the prototype showed; neither is wired to anything yet. */
 const automationRules = [
@@ -59,70 +57,29 @@ const automationRules = [
   },
 ];
 
+function countByStatus(logs: SendLog[], status: SendLogStatus) {
+  return logs.filter((log) => log.status === status).length;
+}
+
 /**
  * "Liên lạc" (Thông báo): the tab rides on the URL — "Tổng quan & Mẫu tin"
  * with a count per send status and the templates by channel, "Nhật ký gửi
- * tin" on the list composite, and the two automation switches.
+ * tin" on the list composite, and the two automation switches. Two queries,
+ * each section gated on its own.
  */
 export default function CommunicationsTemplate() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const rawTab = searchParams.get(TAB_PARAM);
-  const tab: Tab = TABS.includes(rawTab as Tab) ? (rawTab as Tab) : "overview";
+  const [tab, setTab] = useUrlTab(TABS);
   const [channelTab, setChannelTab] = useState<ChannelTab>(ALL_CHANNELS);
 
   const templatesQuery = useGetNotificationTemplates();
   const logsQuery = useGetSendLogs();
 
-  const setTab = (next: string) =>
-    setSearchParams(
-      (previous) => {
-        const params = new URLSearchParams(previous);
-        if (next === "overview") params.delete(TAB_PARAM);
-        else params.set(TAB_PARAM, next);
-        return params;
-      },
-      { replace: true },
-    );
-
-  const templates = templatesQuery.data ?? [];
-  const logs = logsQuery.data ?? [];
-  const visibleTemplates =
-    channelTab === ALL_CHANNELS
-      ? templates
-      : templates.filter((template) => template.channel === channelTab);
-  const countByStatus = (status: SendLogStatus) =>
-    logs.filter((log) => log.status === status).length;
-
-  if (templatesQuery.isLoading || logsQuery.isLoading) {
-    return (
-      <div className="space-y-6">
-        <CommunicationsHeader />
-        <LoadingPanel className="md:grid-cols-4" itemCount={4} />
-      </div>
-    );
-  }
-
-  if (templatesQuery.isError || logsQuery.isError) {
-    return (
-      <div className="space-y-6">
-        <CommunicationsHeader />
-        <ErrorPanel
-          description="Không thể tải dữ liệu liên lạc."
-          action={{
-            label: "Thử lại",
-            onClick: () => {
-              void templatesQuery.refetch();
-              void logsQuery.refetch();
-            },
-          }}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
-      <CommunicationsHeader />
+      <ListPageHeader
+        title="Liên lạc"
+        description="Gửi thông báo cho khách thuê qua nhiều kênh."
+      />
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">
         <TabsList className="bg-muted/50">
@@ -132,31 +89,39 @@ export default function CommunicationsTemplate() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-8">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <SummaryCard
-              label="Tổng tin nhắn"
-              value={logs.length}
-              icon={Bell}
-            />
-            <SummaryCard
-              label="Đã gửi"
-              value={countByStatus("sent")}
-              icon={Send}
-              iconClassName="bg-emerald-100 text-emerald-600"
-            />
-            <SummaryCard
-              label="Chờ gửi"
-              value={countByStatus("pending")}
-              icon={MessageSquare}
-              iconClassName="bg-blue-100 text-blue-600"
-            />
-            <SummaryCard
-              label="Thất bại"
-              value={countByStatus("failed")}
-              icon={Mail}
-              iconClassName="bg-red-100 text-red-600"
-            />
-          </div>
+          <QuerySection
+            query={logsQuery}
+            errorText={LOGS_ERROR}
+            loading={<LoadingPanel className="md:grid-cols-4" itemCount={4} />}
+          >
+            {(logs) => (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <SummaryCard
+                  label="Tổng tin nhắn"
+                  value={logs.length}
+                  icon={Bell}
+                />
+                <SummaryCard
+                  label="Đã gửi"
+                  value={countByStatus(logs, "sent")}
+                  icon={Send}
+                  iconClassName="bg-emerald-100 text-emerald-600"
+                />
+                <SummaryCard
+                  label="Chờ gửi"
+                  value={countByStatus(logs, "pending")}
+                  icon={MessageSquare}
+                  iconClassName="bg-blue-100 text-blue-600"
+                />
+                <SummaryCard
+                  label="Thất bại"
+                  value={countByStatus(logs, "failed")}
+                  icon={Mail}
+                  iconClassName="bg-red-100 text-red-600"
+                />
+              </div>
+            )}
+          </QuerySection>
 
           <section className="space-y-4">
             <h2 className="flex items-center gap-2 text-lg font-semibold">
@@ -164,69 +129,93 @@ export default function CommunicationsTemplate() {
               Mẫu thông báo
             </h2>
 
-            {templates.length > 0 ? (
-              <Tabs
-                value={channelTab}
-                onValueChange={(value) => setChannelTab(value as ChannelTab)}
-                className="space-y-6"
-              >
-                <TabsList>
-                  <TabsTrigger value={ALL_CHANNELS}>Tất cả</TabsTrigger>
-                  <TabsTrigger value="zalo">Zalo ZNS</TabsTrigger>
-                  <TabsTrigger value="sms">SMS</TabsTrigger>
-                  <TabsTrigger value="email">Email</TabsTrigger>
-                </TabsList>
-                <TabsContent value={channelTab}>
-                  {visibleTemplates.length > 0 ? (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {visibleTemplates.map((template) => (
-                        <TemplateCard key={template.id} template={template} />
-                      ))}
-                    </div>
-                  ) : (
-                    <EmptyPanel
-                      title="Chưa có mẫu"
-                      description="Chưa có mẫu thông báo nào cho kênh này."
-                      className="border"
-                    />
-                  )}
-                </TabsContent>
-              </Tabs>
-            ) : (
-              <EmptyPanel
-                title="Chưa có mẫu"
-                description="Thêm mẫu thông báo để gửi nhanh cho khách thuê."
-                className="border"
-              />
-            )}
+            <QuerySection
+              query={templatesQuery}
+              errorText="Không thể tải mẫu thông báo."
+            >
+              {(templates) => {
+                const visible =
+                  channelTab === ALL_CHANNELS
+                    ? templates
+                    : templates.filter((t) => t.channel === channelTab);
+
+                return templates.length > 0 ? (
+                  <Tabs
+                    value={channelTab}
+                    onValueChange={(value) =>
+                      setChannelTab(value as ChannelTab)
+                    }
+                    className="space-y-6"
+                  >
+                    <TabsList>
+                      <TabsTrigger value={ALL_CHANNELS}>Tất cả</TabsTrigger>
+                      <TabsTrigger value="zalo">Zalo ZNS</TabsTrigger>
+                      <TabsTrigger value="sms">SMS</TabsTrigger>
+                      <TabsTrigger value="email">Email</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value={channelTab}>
+                      {visible.length > 0 ? (
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                          {visible.map((template) => (
+                            <TemplateCard
+                              key={template.id}
+                              template={template}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <EmptyPanel
+                          title="Chưa có mẫu"
+                          description="Chưa có mẫu thông báo nào cho kênh này."
+                          className="border"
+                        />
+                      )}
+                    </TabsContent>
+                  </Tabs>
+                ) : (
+                  <EmptyPanel
+                    title="Chưa có mẫu"
+                    description="Thêm mẫu thông báo để gửi nhanh cho khách thuê."
+                    className="border"
+                  />
+                );
+              }}
+            </QuerySection>
           </section>
         </TabsContent>
 
         <TabsContent value="logs">
-          <DataTable
-            columns={sendLogColumns}
-            data={logs}
-            getRowId={(log) => log.id}
-            search={{ columnId: "tenant", placeholder: "Tìm kiếm khách..." }}
-            facets={[
-              {
-                columnId: "channel",
-                title: "Kênh",
-                options: toFilterOptions(channelConfig),
-              },
-              {
-                columnId: "status",
-                title: "Trạng thái",
-                options: toFilterOptions(sendLogStatusConfig),
-              },
-            ]}
-            empty={{
-              icon: Send,
-              title: "Không có nhật ký phù hợp",
-              description: "Thử đổi bộ lọc hoặc từ khóa tìm kiếm.",
-            }}
-            resultLabel={(count) => `${count} tin đã gửi`}
-          />
+          <QuerySection query={logsQuery} errorText={LOGS_ERROR}>
+            {(logs) => (
+              <DataTable
+                columns={sendLogColumns}
+                data={logs}
+                getRowId={(log) => log.id}
+                search={{
+                  columnId: "tenant",
+                  placeholder: "Tìm kiếm khách...",
+                }}
+                facets={[
+                  {
+                    columnId: "channel",
+                    title: "Kênh",
+                    options: toFilterOptions(channelConfig),
+                  },
+                  {
+                    columnId: "status",
+                    title: "Trạng thái",
+                    options: toFilterOptions(sendLogStatusConfig),
+                  },
+                ]}
+                empty={{
+                  icon: Send,
+                  title: "Không có nhật ký phù hợp",
+                  description: "Thử đổi bộ lọc hoặc từ khóa tìm kiếm.",
+                }}
+                resultLabel={(count) => `${count} tin đã gửi`}
+              />
+            )}
+          </QuerySection>
         </TabsContent>
 
         <TabsContent value="automation">
@@ -257,14 +246,5 @@ export default function CommunicationsTemplate() {
         </TabsContent>
       </Tabs>
     </div>
-  );
-}
-
-function CommunicationsHeader() {
-  return (
-    <ListPageHeader
-      title="Liên lạc"
-      description="Gửi thông báo cho khách thuê qua nhiều kênh."
-    />
   );
 }

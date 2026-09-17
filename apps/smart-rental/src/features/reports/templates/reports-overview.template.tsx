@@ -7,7 +7,6 @@ import {
   Users,
   Zap,
 } from "lucide-react";
-import { useSearchParams } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -28,8 +27,8 @@ import { toast } from "@monorepo/ui/components/toast";
 import { SummaryCard } from "~/components/card/summary-card";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { ErrorPanel } from "~/components/panel/error-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
+import { QuerySection } from "~/components/panel/query-section";
 import OccupancyBar from "~/components/progress/occupancy-bar";
 import ReportFiltersBar from "~/features/reports/components/report-filters-bar";
 import ReportTable from "~/features/reports/components/report-table";
@@ -42,52 +41,37 @@ import {
   useGetProfitLossSummary,
   useGetReportRows,
 } from "~/hooks/api/report";
+import { useUrlTab } from "~/hooks/use-url-tab";
 import { formatCurrency } from "~/utils/currency";
 
-const TAB_PARAM = "tab";
 const TABS = ["pnl", "utilities", "overdue", "performance"] as const;
-type Tab = (typeof TABS)[number];
 
 /** The prototype's fixed figure — one "Lãi dịch vụ" per floor, no calculation behind it. */
 const SERVICE_PROFIT = 850000;
 
+const ROWS_ERROR = "Không thể tải dữ liệu báo cáo.";
+
+function rowKey(row: { month: string; building: string; floor: string }) {
+  return `${row.month}-${row.building}-${row.floor}`;
+}
+
 /**
  * "Báo cáo": KPI cards over the P&L summary, then four tabs — the tab rides
- * on the URL, the three filters stay in state as in the prototype. "Xuất báo
- * cáo" only toasts; the export has no flow yet.
+ * on the URL, the three filters stay in state as in the prototype. Three
+ * queries, each section gated on its own, so the KPI cards paint while the
+ * rows are still loading. "Xuất báo cáo" only toasts; the export has no
+ * flow yet.
  */
 export default function ReportsOverviewTemplate() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const rawTab = searchParams.get(TAB_PARAM);
-  const tab: Tab = TABS.includes(rawTab as Tab) ? (rawTab as Tab) : "pnl";
+  const [tab, setTab] = useUrlTab(TABS);
   const [filters, setFilters] = useState(defaultReportFilters);
 
   const rowsQuery = useGetReportRows();
   const summaryQuery = useGetProfitLossSummary();
   const overdueQuery = useGetOverdueDebts();
 
-  const setTab = (next: string) =>
-    setSearchParams(
-      (previous) => {
-        const params = new URLSearchParams(previous);
-        if (next === "pnl") params.delete(TAB_PARAM);
-        else params.set(TAB_PARAM, next);
-        return params;
-      },
-      { replace: true },
-    );
-
   const allRows = rowsQuery.data ?? [];
   const rows = filterReportRows(allRows, filters);
-  const buildings = [...new Set(allRows.map((row) => row.building))];
-  const floors = [...new Set(allRows.map((row) => row.floor))];
-  const summary = summaryQuery.data;
-  const overdueDebts = overdueQuery.data ?? [];
-
-  const isLoading =
-    rowsQuery.isLoading || summaryQuery.isLoading || overdueQuery.isLoading;
-  const isError =
-    rowsQuery.isError || summaryQuery.isError || overdueQuery.isError;
 
   return (
     <div className="space-y-6">
@@ -112,29 +96,19 @@ export default function ReportsOverviewTemplate() {
         }
       />
 
-      {isLoading ? (
-        <LoadingPanel className="md:grid-cols-4" itemCount={4} />
-      ) : isError || !summary ? (
-        <ErrorPanel
-          description="Không thể tải dữ liệu báo cáo."
-          action={{
-            label: "Thử lại",
-            onClick: () => {
-              void rowsQuery.refetch();
-              void summaryQuery.refetch();
-              void overdueQuery.refetch();
-            },
-          }}
-        />
-      ) : (
-        <>
-          <ReportFiltersBar
-            buildings={buildings}
-            floors={floors}
-            filters={filters}
-            onChange={setFilters}
-          />
+      <ReportFiltersBar
+        buildings={[...new Set(allRows.map((row) => row.building))]}
+        floors={[...new Set(allRows.map((row) => row.floor))]}
+        filters={filters}
+        onChange={setFilters}
+      />
 
+      <QuerySection
+        query={summaryQuery}
+        errorText="Không thể tải tóm tắt lãi lỗ."
+        loading={<LoadingPanel className="md:grid-cols-4" itemCount={4} />}
+      >
+        {(summary) => (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <SummaryCard
               label="Tổng doanh thu"
@@ -161,17 +135,21 @@ export default function ReportsOverviewTemplate() {
               iconClassName="bg-purple-100 text-purple-600"
             />
           </div>
+        )}
+      </QuerySection>
 
-          <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-            <TabsList className="bg-muted/50">
-              <TabsTrigger value="pnl">Tổng hợp P&L</TabsTrigger>
-              <TabsTrigger value="utilities">Lợi nhuận dịch vụ</TabsTrigger>
-              <TabsTrigger value="overdue">Công nợ quá hạn</TabsTrigger>
-              <TabsTrigger value="performance">Hiệu suất phòng</TabsTrigger>
-            </TabsList>
+      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
+        <TabsList className="bg-muted/50">
+          <TabsTrigger value="pnl">Tổng hợp P&L</TabsTrigger>
+          <TabsTrigger value="utilities">Lợi nhuận dịch vụ</TabsTrigger>
+          <TabsTrigger value="overdue">Công nợ quá hạn</TabsTrigger>
+          <TabsTrigger value="performance">Hiệu suất phòng</TabsTrigger>
+        </TabsList>
 
-            <TabsContent value="pnl">
-              {rows.length > 0 ? (
+        <TabsContent value="pnl">
+          <QuerySection query={rowsQuery} errorText={ROWS_ERROR}>
+            {() =>
+              rows.length > 0 ? (
                 <ReportTable rows={rows} />
               ) : (
                 <EmptyPanel
@@ -183,10 +161,14 @@ export default function ReportsOverviewTemplate() {
                   }}
                   className="border"
                 />
-              )}
-            </TabsContent>
+              )
+            }
+          </QuerySection>
+        </TabsContent>
 
-            <TabsContent value="utilities">
+        <TabsContent value="utilities">
+          <QuerySection query={rowsQuery} errorText={ROWS_ERROR}>
+            {() => (
               <div className="grid gap-6 lg:grid-cols-2">
                 <Card>
                   <CardHeader>
@@ -200,7 +182,7 @@ export default function ReportsOverviewTemplate() {
                   <CardContent className="space-y-4">
                     {rows.map((row) => (
                       <div
-                        key={`${row.month}-${row.building}-${row.floor}`}
+                        key={rowKey(row)}
                         className="flex items-center justify-between border-b pb-2 last:border-0"
                       >
                         <div>
@@ -239,18 +221,25 @@ export default function ReportsOverviewTemplate() {
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>
+            )}
+          </QuerySection>
+        </TabsContent>
 
-            <TabsContent value="overdue">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <AlertCircle className="text-destructive size-4" />
-                    Danh sách công nợ quá hạn
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {overdueDebts.length > 0 ? (
+        <TabsContent value="overdue">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <AlertCircle className="text-destructive size-4" />
+                Danh sách công nợ quá hạn
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <QuerySection
+                query={overdueQuery}
+                errorText="Không thể tải danh sách công nợ."
+              >
+                {(overdueDebts) =>
+                  overdueDebts.length > 0 ? (
                     overdueDebts.map((debt) => (
                       <div
                         key={debt.id}
@@ -280,21 +269,25 @@ export default function ReportsOverviewTemplate() {
                       title="Không có công nợ quá hạn"
                       description="Danh sách trống trong kỳ báo cáo hiện tại."
                     />
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
+                  )
+                }
+              </QuerySection>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-            <TabsContent value="performance">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Hiệu suất lấp đầy</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {rows.length > 0 ? (
+        <TabsContent value="performance">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Hiệu suất lấp đầy</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <QuerySection query={rowsQuery} errorText={ROWS_ERROR}>
+                {() =>
+                  rows.length > 0 ? (
                     rows.map((row) => (
                       <OccupancyBar
-                        key={`${row.month}-${row.building}-${row.floor}`}
+                        key={rowKey(row)}
                         rate={row.occupancyRate}
                         label={`${row.building} - ${row.floor}`}
                       />
@@ -303,13 +296,13 @@ export default function ReportsOverviewTemplate() {
                     <p className="text-muted-foreground text-sm">
                       Không có dữ liệu cho bộ lọc hiện tại.
                     </p>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </>
-      )}
+                  )
+                }
+              </QuerySection>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2, Send } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -27,6 +27,14 @@ export default function TemplateCard({ template }: TemplateCardProps) {
   const channel = channelConfig[template.channel];
   const ChannelIcon = channel.icon;
 
+  // The timer is an external system: it clears if the card unmounts mid-flash
+  // (a channel tab switch), rather than firing setState on a gone component.
+  useEffect(() => {
+    if (!isSent) return;
+    const timer = setTimeout(() => setIsSent(false), SENT_FLASH_MS);
+    return () => clearTimeout(timer);
+  }, [isSent]);
+
   const send = () => {
     setIsSent(true);
     toast.add({
@@ -34,7 +42,6 @@ export default function TemplateCard({ template }: TemplateCardProps) {
       description: template.name,
       type: "success",
     });
-    setTimeout(() => setIsSent(false), SENT_FLASH_MS);
   };
 
   return (

@@ -9,14 +9,11 @@ import {
   SelectValue,
 } from "@monorepo/ui/components/select";
 
-import type {
-  OccupancyBucket,
-  ReportFilters,
-} from "~/features/reports/utils/report-filters";
+import type { ReportFilters } from "~/features/reports/utils/report-filters";
+import { occupancyBucketConfig, toFilterOptions } from "~/constants/status";
 import {
   ALL,
   defaultReportFilters,
-  occupancyBucketConfig,
 } from "~/features/reports/utils/report-filters";
 
 interface ReportFiltersBarProps {
@@ -87,11 +84,10 @@ export default function ReportFiltersBar({
       <FilterSelect
         value={filters.status}
         allLabel="Tất cả trạng thái"
-        options={Object.entries(occupancyBucketConfig).map(
-          ([value, { label }]) => ({ value, label }),
-        )}
+        options={toFilterOptions(occupancyBucketConfig)}
+        // Every option is a config key or ALL, so the cast only restates that.
         onChange={(status) =>
-          onChange({ ...filters, status: status as OccupancyBucket | "all" })
+          onChange({ ...filters, status: status as ReportFilters["status"] })
         }
       />
       <Button type="button" variant="outline" size="sm">

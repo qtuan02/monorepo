@@ -12,30 +12,38 @@ const kwh = (error: string) =>
     .min(1, { error })
     .pipe(z.coerce.number<string>({ error }).int({ error }).min(0, { error }));
 
-const tierSchema = z.object({
-  from: kwh("Từ (kWh) phải là số nguyên không âm"),
-  // Blank is the open-ended last step.
-  to: z
-    .string()
-    .trim()
-    .transform((value) => (value === "" ? null : value))
-    .pipe(
-      z.coerce
-        .number<string>({ error: "Đến (kWh) phải là số nguyên không âm" })
-        .int({ error: "Đến (kWh) phải là số nguyên không âm" })
-        .min(0, { error: "Đến (kWh) phải là số nguyên không âm" })
-        .nullable(),
-    ),
-  price: z
-    .string()
-    .trim()
-    .min(1, { error: "Đơn giá là bắt buộc" })
-    .pipe(
-      z.coerce
-        .number<string>({ error: "Đơn giá phải là số không âm" })
-        .min(0, { error: "Đơn giá phải là số không âm" }),
-    ),
-});
+const tierSchema = z
+  .object({
+    from: kwh("Từ (kWh) phải là số nguyên không âm"),
+    // Blank is the open-ended last step.
+    to: z
+      .string()
+      .trim()
+      .transform((value) => (value === "" ? null : value))
+      .pipe(
+        z.coerce
+          .number<string>({ error: "Đến (kWh) phải là số nguyên không âm" })
+          .int({ error: "Đến (kWh) phải là số nguyên không âm" })
+          .min(0, { error: "Đến (kWh) phải là số nguyên không âm" })
+          .nullable(),
+      ),
+    price: z
+      .string()
+      .trim()
+      .min(1, { error: "Đơn giá là bắt buộc" })
+      .pipe(
+        z.coerce
+          .number<string>({ error: "Đơn giá phải là số không âm" })
+          .min(0, { error: "Đơn giá phải là số không âm" }),
+      ),
+  })
+  // A step that ends before it starts is nonsense in any tariff; continuity
+  // BETWEEN steps is a business rule the prototype never had, left to the
+  // spec owner.
+  .refine((tier) => tier.to === null || tier.from <= tier.to, {
+    error: "Đến (kWh) phải lớn hơn hoặc bằng Từ (kWh)",
+    path: ["to"],
+  });
 
 export const electricityTierFormSchema = z.object({
   useVat: z.boolean(),

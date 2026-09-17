@@ -17,6 +17,7 @@ import type {
   SendLogStatus,
 } from "~/types/communication";
 import type { ComplianceStatus, ComplianceType } from "~/types/compliance";
+import type { OccupancyBucket } from "~/types/report";
 import type { RoomStatus, RoomType } from "~/types/room";
 import type { TaskPriority, TaskStatus, TaskType } from "~/types/task";
 
@@ -111,6 +112,12 @@ export const sendLogStatusConfig: Record<SendLogStatus, StatusConfig> = {
   sent: { label: "Đã gửi", className: statusTone.success, icon: CheckCircle2 },
   pending: { label: "Chờ gửi", className: statusTone.warning, icon: Clock },
   failed: { label: "Thất bại", className: statusTone.error, icon: XCircle },
+};
+
+export const occupancyBucketConfig: Record<OccupancyBucket, StatusConfig> = {
+  good: { label: "Tốt", className: statusTone.success },
+  warning: { label: "Cảnh báo", className: statusTone.warning },
+  critical: { label: "Nguy hiểm", className: statusTone.error },
 };
 
 /** The tone here colours a channel's icon tile, not a badge. */

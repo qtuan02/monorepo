@@ -29,3 +29,6 @@ export interface ProfitLossSummary {
   totalProfit: number;
   avgOccupancy: number;
 }
+
+/** The prototype's three occupancy bands: ≥ 90 good, ≥ 70 warning, else critical. */
+export type OccupancyBucket = "good" | "warning" | "critical";

@@ -41,6 +41,16 @@ describe("electricityTierFormSchema", () => {
     ).toBe(false);
   });
 
+  it("rejects a step that ends before it starts, on the «Đến» field", () => {
+    const result = electricityTierFormSchema.safeParse({
+      useVat: false,
+      tiers: [{ from: "100", to: "50", price: "1" }],
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(["tiers", 0, "to"]);
+  });
+
   it("needs at least one step", () => {
     expect(
       electricityTierFormSchema.safeParse({ useVat: false, tiers: [] }).success,
