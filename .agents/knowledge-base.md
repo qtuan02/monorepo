@@ -350,18 +350,21 @@ ADR-0004, and none of it is visible from a single file.
   emits preflight and the whole utility layer twice. The script throws if either upstream import line
   it replaces is gone, if a `@custom-variant` went missing, or if a `@monorepo/` string survived into
   a file that will sit on npm.
-- **A consumer must write the `@source` line, and nothing warns when they don't.** Tailwind v4 skips
-  `node_modules`, so these three lines are the contract:
+- **The shipped `globals.css` registers its own `@source`, and nothing warns if that line is lost.**
+  Tailwind v4 skips `node_modules` and resolves `@source` relative to the stylesheet that carries it,
+  so `build.ts` writes `@source "./";` into `dist/globals.css` and the consumer contract is two lines:
 
   ```css
   @import "tailwindcss";
   @import "@fe-monorepo/ui/globals.css";
-  @source "../node_modules/@fe-monorepo/ui/dist";
   ```
 
-  Verified by deleting the third: `vite build` stays green, a stylesheet is still emitted, and every
-  utility the primitives use compiles to nothing. That is why `publish:smoke` asserts on the *built*
-  CSS (`.whitespace-nowrap`, `[data-orientation=vertical]`) rather than on the shipped file.
+  Before 2026-09-17 the consumer wrote a third line, `@source "../node_modules/@fe-monorepo/ui/dist";`,
+  and a misaimed path failed the same silent way a missing one did: `vite build` stays green, a
+  stylesheet is still emitted, and every utility the primitives use compiles to nothing. That is why
+  `publish:smoke`'s consumer writes only the two lines and asserts on the *built* CSS
+  (`.whitespace-nowrap`, `[data-orientation=vertical]`) rather than on the shipped file — it is the one
+  place the self-registration is proven on a real tarball.
 - **`tw-animate-css` and `tailwind-scrollbar` are real `dependencies` of the ui shell, not peers.**
   `dist/globals.css` `@import`s/`@plugin`s them, and Tailwind resolves those specifiers relative to
   that CSS file inside `node_modules`. Miss them and components lose their animations and scrollbars,

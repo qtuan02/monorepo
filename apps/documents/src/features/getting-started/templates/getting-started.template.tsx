@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
@@ -21,40 +22,83 @@ import { ROUTES } from "~/constants/routes";
 import { useDocumentTitle } from "~/hooks/use-document-title";
 import CatalogueCards from "../components/catalogue-cards";
 import Hero from "../components/hero";
+import InstallCapsule from "../components/install-capsule";
 import PeerDependencyList from "../components/peer-dependency-list";
 import {
   FIRST_EXAMPLE_SNIPPET,
+  HOOK_EXAMPLE_SNIPPET,
   NO_ROOT_ENTRY_SNIPPET,
   STYLESHEET_SNIPPET,
+  THEME_SNIPPET,
 } from "../constants/snippets";
 
-/**
- * The numbered panels below the cards, in reading order — the install step
- * lives in the hero. One list, so a panel's `01 / 04` is its position here
- * and adding a fifth is one entry rather than four edits.
- */
-const PANELS = [
-  {
-    id: "peers",
-    body: (
-      <>
-        <PeerDependencyList
-          packageName={UI_PACKAGE_NAME}
-          peers={PEER_DEPENDENCIES.ui}
-        />
-        <PeerDependencyList
-          packageName={HOOK_PACKAGE_NAME}
-          peers={PEER_DEPENDENCIES.hook}
-        />
-      </>
-    ),
-  },
-  { id: "css", body: <StylesheetPanelBody /> },
-  { id: "example", body: <CodeBlock code={FIRST_EXAMPLE_SNIPPET} /> },
-  { id: "noRootEntry", body: <CodeBlock code={NO_ROOT_ENTRY_SNIPPET} /> },
-] as const;
+interface Panel {
+  /** The `documents.home.<id>` key its title and description live under. */
+  id: string;
+  body: ReactNode;
+}
 
-/** The one panel with copy of its own: the snippet, the warning, the note. */
+interface Guide {
+  packageName: string;
+  /** The `documents.home.guides.<id>` key of its lead sentence. */
+  id: "ui" | "hook";
+  panels: readonly Panel[];
+}
+
+/**
+ * Two guides, one per published package, each its own numbered stack so a
+ * reader who came for the hooks never wades through Tailwind. A panel's
+ * `01 / 06` is its position in its guide, and adding one is one entry.
+ * Install opens each guide — the capsule moved here from the hero for the
+ * same reason the guides are apart: one package, one command.
+ */
+const GUIDES: readonly Guide[] = [
+  {
+    packageName: UI_PACKAGE_NAME,
+    id: "ui",
+    panels: [
+      {
+        id: "install",
+        body: <InstallCapsule packageName={UI_PACKAGE_NAME} />,
+      },
+      {
+        id: "peers",
+        body: (
+          <PeerDependencyList
+            packageName={UI_PACKAGE_NAME}
+            peers={PEER_DEPENDENCIES.ui}
+          />
+        ),
+      },
+      { id: "css", body: <StylesheetPanelBody /> },
+      { id: "theme", body: <ThemePanelBody /> },
+      { id: "example", body: <CodeBlock code={FIRST_EXAMPLE_SNIPPET} /> },
+      { id: "noRootEntry", body: <CodeBlock code={NO_ROOT_ENTRY_SNIPPET} /> },
+    ],
+  },
+  {
+    packageName: HOOK_PACKAGE_NAME,
+    id: "hook",
+    panels: [
+      {
+        id: "install",
+        body: <InstallCapsule packageName={HOOK_PACKAGE_NAME} />,
+      },
+      {
+        id: "peers",
+        body: (
+          <PeerDependencyList
+            packageName={HOOK_PACKAGE_NAME}
+            peers={PEER_DEPENDENCIES.hook}
+          />
+        ),
+      },
+      { id: "hook", body: <CodeBlock code={HOOK_EXAMPLE_SNIPPET} /> },
+    ],
+  },
+];
+
+/** The stylesheet panel: the snippet, the warning, the note. */
 function StylesheetPanelBody() {
   const { t } = useTranslation();
 
@@ -66,13 +110,27 @@ function StylesheetPanelBody() {
           warning variant, so the three token utilities are set here. */}
       <Alert className="border-warning/50 bg-warning/20 text-foreground rounded-[14px]">
         <TriangleAlert />
-        <AlertTitle>{t("documents.home.css.sourceWarningTitle")}</AlertTitle>
+        <AlertTitle>{t("documents.home.css.importWarningTitle")}</AlertTitle>
         <AlertDescription className="text-foreground/80">
-          {t("documents.home.css.sourceWarning")}
+          {t("documents.home.css.importWarning")}
         </AlertDescription>
       </Alert>
       <p className="text-muted-foreground text-sm">
         {t("documents.home.css.fragmentNote")}
+      </p>
+    </>
+  );
+}
+
+/** The theme panel: the override snippet, then the one rule that makes it win. */
+function ThemePanelBody() {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <CodeBlock code={THEME_SNIPPET} />
+      <p className="text-muted-foreground text-sm">
+        {t("documents.home.theme.layerNote")}
       </p>
     </>
   );
@@ -88,17 +146,39 @@ export default function GettingStartedTemplate() {
       <Hero />
       <CatalogueCards />
 
-      <div className="space-y-4.5 pb-10">
-        {PANELS.map((panel, index) => (
-          <DocsSection
-            key={panel.id}
-            index={index + 1}
-            total={PANELS.length}
-            title={t(`documents.home.${panel.id}.title`)}
-            description={t(`documents.home.${panel.id}.description`)}
+      <div className="space-y-12 pb-10">
+        {GUIDES.map((guide) => (
+          <section
+            key={guide.id}
+            aria-labelledby={`guide-${guide.id}`}
+            className="space-y-4.5"
           >
-            {panel.body}
-          </DocsSection>
+            <div className="px-1 pt-2">
+              <h2
+                id={`guide-${guide.id}`}
+                className="font-heading text-3xl font-extrabold tracking-[-0.04em]"
+              >
+                <span className="prism-text font-mono">
+                  {guide.packageName}
+                </span>
+              </h2>
+              <p className="text-muted-foreground mt-2 max-w-prose text-base">
+                {t(`documents.home.guides.${guide.id}`)}
+              </p>
+            </div>
+
+            {guide.panels.map((panel, index) => (
+              <DocsSection
+                key={panel.id}
+                index={index + 1}
+                total={guide.panels.length}
+                title={t(`documents.home.${panel.id}.title`)}
+                description={t(`documents.home.${panel.id}.description`)}
+              >
+                {panel.body}
+              </DocsSection>
+            ))}
+          </section>
         ))}
 
         {/* Styled links, never `<Button render={<Link/>}>`: these navigate,

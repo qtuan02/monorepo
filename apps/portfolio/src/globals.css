@@ -94,20 +94,21 @@
 :root {
   --radius: 0px;
 
-  /* #0a0a0a — 18.65:1 on the #f8f8f9 background, 19.8:1 on a white card. The
-     theme's blue-grey `#3d4c63` is the EMR "normal text"; this page is ink. */
+  /* #0a0a0a — 19.8:1 on the white background and card. Since the shared
+     theme was reset to shadcn's neutral default (`79c52df`) this equals the
+     theme's own value; it stays declared so the pole is this app's decision
+     and survives the next edit to `theme.css`. */
   --foreground: oklch(0.145 0 0);
-  /* The same ink. The theme's `#f0f0f0` reads 1.07:1 on its background — a
-     card whose edge does not exist. */
+  /* The same ink. The theme's border is a light grey (`oklch(0.922 0 0)`,
+     1.2:1 on white) — a card whose edge barely exists. */
   --border: oklch(0.145 0 0);
   --hard-shadow: oklch(0.145 0 0);
 
   /* indigo-600 #4f39f6 — white on it reads 6.46:1 */
   --primary: oklch(0.511 0.262 277);
   --primary-foreground: oklch(1 0 0);
-  /* #6262fa — 4.26:1 on the #f8f8f9 background. The theme's own ring is
-     `#bae6df`, which reads 1.28:1 there: no focus indicator at all by WCAG's
-     3:1, so this one is darker than a like-for-like retint would be. */
+  /* #6262fa — 4.3:1 on white, clear of WCAG's 3:1 for a focus indicator,
+     and on the accent hue so the ring reads as the page's own. */
   --ring: oklch(0.585 0.22 277);
   /* #eff2fe — the hover wash, `--primary-hover`'s role */
   --accent: oklch(0.962 0.016 277);
@@ -122,7 +123,7 @@
 }
 
 .dark {
-  /* #fafafa — 18.97:1 on the #0a0a0a background, 17.18:1 on the #171717 card.
+  /* #fafafa — 18.97:1 on the #0a0a0a background, 15.6:1 on the theme's card.
      The theme already sits here for text; the border (a 10% white) and the
      shadow do not, and all three are declared so the inversion is this app's
      own decision rather than a coincidence of the shared theme. */
@@ -130,7 +131,7 @@
   --border: oklch(0.985 0 0);
   --hard-shadow: oklch(0.985 0 0);
 
-  /* #7e89f9 — lifted for dark, as the theme lifts its teal */
+  /* #7e89f9 — lifted for dark, as every dark palette lifts its accent */
   --primary: oklch(0.673 0.165 277);
   /* deep indigo #1a1b4d — 5.22:1 on the above */
   --primary-foreground: oklch(0.257 0.09 277);
@@ -158,8 +159,8 @@
  * `.dark` swap still reaches it.
  *
  * `--shadow-hard` is the shadow itself, not a colour: the solid 4px offset
- * every block on the page casts, as one `shadow-hard` utility (the dock, not
- * a block of the page, spells its own). The offset is written once, here,
+ * every block on the page casts — and the dock — as one `shadow-hard`
+ * utility. The offset is written once, here,
  * and the colour is the token above — so
  * `~/features/home/components/standard-block.tsx` names the shape without
  * spelling `4px 4px 0 0` in a className. `inline` also means the offset is
@@ -175,6 +176,10 @@
      shadow shortens by the same 2px, so the block reads as pushed into the
      page. Declared beside its sibling so the two offsets add up in one place. */
   --shadow-hard-pressed: 2px 2px 0 0 var(--hard-shadow);
+  /* The body floor on a phone (`ux#67`): 15px, one step above the 14px meta
+     floor and below `text-base`. One `text-body` utility, so the five prose
+     call sites agree on the number without each spelling `text-[15px]`. */
+  --text-body: 15px;
 }
 
 /**

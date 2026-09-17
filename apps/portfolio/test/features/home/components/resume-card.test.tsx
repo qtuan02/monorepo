@@ -3,7 +3,7 @@ import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
-import { ResumeCard } from "~/features/home/components/resume-card";
+import ResumeCard from "~/features/home/components/resume-card";
 import { render } from "../../../support/render";
 
 /** What a static image import evaluates to — enough for `next/image` to size. */
@@ -34,13 +34,19 @@ describe("ResumeCard", () => {
     );
 
     const toggle = screen.getByRole("button", {
-      name: "Xem chi tiết công việc",
+      name: /Xem chi tiết công việc/,
     });
 
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     // The heading wraps the button, so the row is one Tab stop that announces
-    // its own state — the WAI-ARIA accordion shape.
-    expect(screen.getByRole("heading", { level: 3 })).toContainElement(toggle);
+    // its own state — the WAI-ARIA accordion shape. Its name keeps the
+    // organisation in front of the toggle's label: an `aria-label` on the
+    // button would make every Work heading read as the same three words.
+    const heading = screen.getByRole("heading", {
+      level: 3,
+      name: /^MedViet.*Xem chi tiết công việc$/,
+    });
+    expect(heading).toContainElement(toggle);
     expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
@@ -59,7 +65,7 @@ describe("ResumeCard", () => {
     );
 
     const toggle = screen.getByRole("button", {
-      name: "Xem chi tiết công việc",
+      name: /Xem chi tiết công việc/,
     });
 
     await user.click(toggle);
@@ -83,7 +89,7 @@ describe("ResumeCard", () => {
     );
 
     expect(
-      screen.getByRole("button", { name: "Xem chi tiết công việc" }),
+      screen.getByRole("button", { name: /Xem chi tiết công việc/ }),
     ).toHaveAttribute("aria-expanded", "true");
   });
 
@@ -121,12 +127,12 @@ describe("ResumeCard", () => {
     );
 
     expect(screen.getByText("VDA 2025")).toBeInTheDocument();
-    // The badge takes no tab stop — it sits inside the toggle — and the
-    // toggle's `aria-label` swallows its text, so the tooltip alone would leave
-    // the award readable by mouse only. The description is what carries it to a
-    // screen reader and to a phone.
+    // The badge takes no tab stop — it sits inside the toggle — and its full
+    // name is a tooltip, so the tooltip alone would leave the award readable by
+    // mouse only. The description is what carries it to a screen reader and to
+    // a phone.
     expect(
-      screen.getByRole("button", { name: "Xem chi tiết công việc" }),
+      screen.getByRole("button", { name: /Xem chi tiết công việc/ }),
     ).toHaveAccessibleDescription("Vietnam Digital Awards 2025");
   });
 
@@ -160,7 +166,7 @@ describe("ResumeCard", () => {
     );
 
     const toggle = screen.getByRole("button", {
-      name: "Xem chi tiết công việc",
+      name: /Xem chi tiết công việc/,
     });
     const bodySelector = `#${CSS.escape(toggle.getAttribute("aria-controls") ?? "")}`;
 
@@ -231,7 +237,7 @@ describe("ResumeCard", () => {
     // A row with only a tech stack still counts as having a body — otherwise it
     // would render as a link with no href.
     expect(
-      screen.getByRole("button", { name: "Xem chi tiết công việc" }),
+      screen.getByRole("button", { name: /Xem chi tiết công việc/ }),
     ).toBeInTheDocument();
     expect(screen.getByText("React.js, PostgreSQL")).toBeInTheDocument();
   });

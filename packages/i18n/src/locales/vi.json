@@ -279,8 +279,6 @@
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",
-      "title": "Tài liệu @fe-monorepo",
-      "description": "Cách cài, import và dùng hai gói @fe-monorepo/ui và @fe-monorepo/hook.",
       "pageTitle": "{page} · Tài liệu @fe-monorepo"
     },
     "nav": {
@@ -327,20 +325,37 @@
         "storybook": "Demo & bảng props",
         "storybookCta": "Mở Storybook"
       },
+      "guides": {
+        "ui": "Primitive Base UI kiểu shadcn `base-vega`, mỗi component một subpath. Cần Tailwind v4 và một dòng import stylesheet.",
+        "hook": "Hook React dùng chung, mỗi hook một subpath. Không stylesheet, không cấu hình — cài là dùng."
+      },
+      "install": {
+        "title": "Cài đặt",
+        "description": "Một gói, một lệnh. Chọn trình quản lý gói bạn dùng rồi sao chép."
+      },
       "peers": {
         "title": "Peer dependency",
         "description": "Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package."
       },
       "css": {
         "title": "Nối stylesheet",
-        "description": "Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó.",
-        "sourceWarningTitle": "Thiếu dòng @source",
-        "sourceWarning": "Tailwind v4 không quét node_modules. Thiếu dòng này, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
+        "description": "Hai dòng trong entry Tailwind v4 của bạn — không có dòng @source nào phải tự viết.",
+        "importWarningTitle": "Dòng import globals.css không phải tuỳ chọn",
+        "importWarning": "Tailwind v4 không quét node_modules, và resolve @source tương đối với stylesheet chứa nó — nên globals.css tự khai @source \"./\" trỏ vào dist của chính package. Bỏ dòng import, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
         "fragmentNote": "globals.css là một fragment chứ không phải entry Tailwind đầy đủ: nó cố ý không chứa @import “tailwindcss”, vì tailwindcss là peer dependency thuộc về bạn."
+      },
+      "theme": {
+        "title": "Theme của riêng bạn",
+        "description": "Token là biến CSS trên :root và .dark, được @theme inline map thành utility — nên brand của bạn chỉ là khai lại biến sau dòng import.",
+        "layerNote": "Viết phần override unlayered như trên. Khối :root / .dark trong package cũng unlayered, nên khối khai sau thắng theo thứ tự nguồn — còn cùng những dòng đó đặt trong @layer base sẽ compile, ship, và thua. Dark mode là class .dark trên phần tử tổ tiên, không phải prefers-color-scheme."
       },
       "example": {
         "title": "Ví dụ đầu tiên",
         "description": "Mỗi primitive nằm ở subpath mang đúng tên file của nó."
+      },
+      "hook": {
+        "title": "Dùng hook",
+        "description": "Không stylesheet, không peer nào ngoài react và react-dom: cài xong là import theo subpath mang tên file."
       },
       "noRootEntry": {
         "title": "Không có root entry",
@@ -369,7 +384,7 @@
     },
     "hooks": {
       "title": "Hook",
-      "description": "Năm hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
+      "description": "{count} hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
       "count": "{count, plural, other {# hook}}",
       "detail": {
         "exportSummary": "{count, plural, other {# export}}",
@@ -397,7 +412,6 @@
       }
     },
     "code": {
-      "copy": "Sao chép",
       "copied": "Đã sao chép",
       "copyLabel": "Sao chép đoạn mã"
     },

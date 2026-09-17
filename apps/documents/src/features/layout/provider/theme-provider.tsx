@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 export type Theme = "light" | "dark";
 
-/** The key the inline script in `index.html` and the E2E spec read too. */
+/** The key the inline script in `index.html` reads too — keep the two equal. */
 export const THEME_STORAGE_KEY = "theme";
 
 interface ThemeContextValue {

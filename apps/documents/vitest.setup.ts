@@ -35,7 +35,7 @@ globalThis.ResizeObserver ??= class {
 } as never;
 Element.prototype.scrollIntoView ??= () => {};
 
-// Importing the app's i18n wires the real message catalogs, so `t("auth.…")`
+// Importing the app's i18n wires the real message catalogs, so `t("documents.…")`
 // resolves to the string a user reads instead of the key. The language is pinned
 // because i18next would otherwise detect jsdom's `navigator.language`, making the
 // same assertion resolve to `en` on one machine and `vi` on another.

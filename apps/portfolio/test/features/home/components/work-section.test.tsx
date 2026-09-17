@@ -17,7 +17,7 @@ describe("WorkSection", () => {
     render(<WorkSection />);
 
     const toggles = screen.getAllByRole("button", {
-      name: "Xem chi tiết công việc",
+      name: /Xem chi tiết công việc/,
     });
 
     expect(toggles).toHaveLength(WORK_ITEMS.length);

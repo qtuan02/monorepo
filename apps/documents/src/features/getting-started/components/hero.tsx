@@ -2,12 +2,12 @@ import { useTranslation } from "react-i18next";
 
 import { GlassPanel } from "~/components/panel/glass-panel";
 import { componentCatalogue, hookCatalogue } from "~/constants/docs-catalogue";
-import InstallCapsule from "./install-capsule";
 
 /**
  * The centred hero of the landing page, on the full backdrop: the version
  * tag, the two-line headline with the gradient second line, the lead that
- * counts both catalogues, and the install capsule. The `<h1>` is the
+ * counts both catalogues. The install capsule sits in each package's own
+ * guide below, not here — the two guides are kept apart. The `<h1>` is the
  * headline — the page's name, "Bắt đầu", is the nav item and the document
  * title, not a heading a visitor reads twice.
  */
@@ -15,7 +15,7 @@ export default function Hero() {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col items-center pt-12 pb-10 text-center sm:pt-16">
+    <div className="flex flex-col items-center pt-12 pb-8 text-center sm:pt-16">
       <GlassPanel className="text-muted-foreground inline-flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-2 text-[13px] font-medium">
         <span
           aria-hidden="true"
@@ -39,8 +39,6 @@ export default function Hero() {
           hooks: hookCatalogue.items.length,
         })}
       </p>
-
-      <InstallCapsule className="mt-7" />
     </div>
   );
 }

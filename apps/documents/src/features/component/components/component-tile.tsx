@@ -9,7 +9,7 @@ const WIDE_TILE_EXPORTS = 10;
 /** How many export names the preview line spells out before `+n`. */
 const PREVIEW_EXPORTS = 3;
 
-interface ComponentCardProps {
+interface ComponentTileProps {
   entry: ComponentDocsEntry;
 }
 
@@ -19,7 +19,7 @@ interface ComponentCardProps {
  * line under it previews the first exports so a reader can tell `dialog`
  * from `alert-dialog` without opening either.
  */
-export default function ComponentCard({ entry }: ComponentCardProps) {
+export default function ComponentTile({ entry }: ComponentTileProps) {
   const { t } = useTranslation();
 
   const names = entry.exports.slice(0, PREVIEW_EXPORTS).join(", ");

@@ -26,7 +26,7 @@ const DESKTOP_WIDTH = 1440;
  * `ux#67`: body copy is at least 15 px on a phone, meta at least 14 px.
  *
  * Pinned here rather than in jsdom because a Tailwind class only becomes a
- * pixel once a browser has resolved the stylesheet — `text-[15px]` and
+ * pixel once a browser has resolved the stylesheet — `text-body` (15px) and
  * `text-xs` are indistinguishable to a `className` assertion.
  *
  * This spec exists because the rule was checked by hand once and never written

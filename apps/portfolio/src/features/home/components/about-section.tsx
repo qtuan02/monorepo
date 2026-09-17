@@ -21,7 +21,7 @@ export default function AboutSection() {
     <section id="about">
       <div className="space-y-3">
         <SectionHeading>{t("portfolio.about.title")}</SectionHeading>
-        <StandardBlock className="space-y-2 text-[15px] leading-relaxed">
+        <StandardBlock className="space-y-2 text-body leading-relaxed">
           <p>{t("portfolio.about.experience")}</p>
           <p>{t("portfolio.about.mindset")}</p>
         </StandardBlock>
