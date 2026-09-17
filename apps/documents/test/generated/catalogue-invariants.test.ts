@@ -34,9 +34,8 @@ function sourceSlugs(directory: string, extension: string): string[] {
 /**
  * Membership, not order: the invariant is that the catalogue still describes
  * the directory. Both sides are sorted the same way here so a failure prints a
- * readable diff — what order the generator emits is its own business (it sorts
- * by file name, so `message-scroller` lands before `message`), and asserting it
- * here would report a rename twice.
+ * readable diff — what order the generator emits is its own business, and
+ * asserting it here would report a rename twice.
  */
 function sorted(slugs: readonly string[]): string[] {
   return [...slugs].sort((left, right) => left.localeCompare(right));
@@ -118,8 +117,10 @@ describe("the hook catalogue", () => {
  * instead (plus a small override table). This is the checkout that does have
  * them, which makes it the only place the derivation can be checked.
  */
-describe("every component's Storybook demo link", () => {
+describe("every entry's Storybook demo link", () => {
   const storiesDirectory = resolve(repoRoot, "apps/storybook/src/stories");
+  // A hook's story sits beside the primitives', under a `Hooks/` title.
+  const entries = [...componentCatalogue.items, ...hookCatalogue.items];
 
   it.runIf(existsSync(storiesDirectory))(
     "points at a docs id a real story produces",
@@ -147,7 +148,7 @@ describe("every component's Storybook demo link", () => {
           }),
       );
 
-      const offenders = componentCatalogue.items
+      const offenders = entries
         .filter((item) => !docsIds.has(item.storybookDocsId))
         .map((item) => `${item.slug} → ${item.storybookDocsId}`);
 
@@ -162,7 +163,7 @@ describe("every component's Storybook demo link", () => {
       // dash before each capital: `PopoverStory` → `popover-story`. The stories
       // file is the slug's own (`button.stories.tsx`), which the first
       // invariant of this block already relies on.
-      const offenders = componentCatalogue.items
+      const offenders = entries
         .filter((item) => {
           const source = readFileSync(
             join(storiesDirectory, `${item.slug}.stories.tsx`),

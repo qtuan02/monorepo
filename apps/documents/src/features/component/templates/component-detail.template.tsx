@@ -39,24 +39,14 @@ export default function ComponentDetailTemplate() {
     componentCatalogue.items,
     entry.slug,
   );
-  const neighbour = (
-    target: typeof entry,
-    labelKey:
-      | "documents.components.detail.prev"
-      | "documents.components.detail.next",
-  ) => ({
-    slug: target.slug,
-    to: ROUTES.componentBySlugPath(target.slug),
-    label: t(labelKey, { slug: target.slug }),
-  });
-
   return (
     <>
       <DetailToolbar
         section={t("documents.nav.components")}
         slug={entry.slug}
-        prev={prev && neighbour(prev, "documents.components.detail.prev")}
-        next={next && neighbour(next, "documents.components.detail.next")}
+        prev={prev}
+        next={next}
+        buildPath={ROUTES.componentBySlugPath}
       />
 
       <DetailHero

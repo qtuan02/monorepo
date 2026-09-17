@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 
-import { GlassPanel } from "~/components/panel/glass-panel";
 import { componentCatalogue, hookCatalogue } from "~/constants/docs-catalogue";
 
 /**
@@ -16,13 +15,14 @@ export default function Hero() {
 
   return (
     <div className="flex flex-col items-center pt-12 pb-8 text-center sm:pt-16">
-      <GlassPanel className="text-muted-foreground inline-flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-2 text-[13px] font-medium">
+      {/* The `tile` surface, not a GlassPanel: a tag this small earns no blur. */}
+      <span className="tile text-muted-foreground inline-flex items-center gap-2 rounded-full py-1.5 pr-3.5 pl-2 text-[13px] font-medium">
         <span
           aria-hidden="true"
           className="size-4.5 rounded-full bg-[linear-gradient(135deg,var(--aurora-cyan),var(--aurora-indigo))]"
         />
         {t("documents.home.hero.tag", { version: __APP_VERSION__ })}
-      </GlassPanel>
+      </span>
 
       <h1 className="font-heading mt-5 max-w-[15ch] text-[2.5rem] leading-[1.02] font-extrabold tracking-[-0.04em] text-balance sm:text-6xl">
         {/* The space before the break is the accessible name's word gap — a

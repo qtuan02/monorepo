@@ -288,6 +288,11 @@ describe("where the override sits in the cascade", () => {
     expect(region).toMatch(
       /\[data-open\],\s*\[data-closed\]\s*\{\s*animation:\s*none;/,
     );
+    // The Sheet slides on a transition, not a keyframe — `animation: none`
+    // alone would leave the mobile menu moving.
+    expect(region).toMatch(
+      /\[data-starting-style\],\s*\[data-ending-style\]\s*\{\s*transition:\s*none;/,
+    );
   });
 
   it("wires ::selection to the selection tokens, which theme.css declares but never applies", () => {

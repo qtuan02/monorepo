@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router";
 
+import { DetailExample } from "~/components/detail/detail-example";
 import { DetailHero } from "~/components/detail/detail-hero";
 import { DetailPanels } from "~/components/detail/detail-panels";
 import { DetailToolbar } from "~/components/detail/detail-toolbar";
@@ -31,22 +32,14 @@ export default function HookDetailTemplate() {
   }
 
   const { prev, next } = catalogueNeighbours(hookCatalogue.items, entry.slug);
-  const neighbour = (
-    target: typeof entry,
-    labelKey: "documents.hooks.detail.prev" | "documents.hooks.detail.next",
-  ) => ({
-    slug: target.slug,
-    to: ROUTES.hookBySlugPath(target.slug),
-    label: t(labelKey, { slug: target.slug }),
-  });
-
   return (
     <>
       <DetailToolbar
         section={t("documents.nav.hooks")}
         slug={entry.slug}
-        prev={prev && neighbour(prev, "documents.hooks.detail.prev")}
-        next={next && neighbour(next, "documents.hooks.detail.next")}
+        prev={prev}
+        next={next}
+        buildPath={ROUTES.hookBySlugPath}
       />
 
       <DetailHero
@@ -62,6 +55,16 @@ export default function HookDetailTemplate() {
         // hook page does take from the source.
         description={t(`documents.hooks.items.${entry.slug}.description`)}
         npmUrl={NPM_URLS.hook}
+        storybookDocsId={entry.storybookDocsId}
+      />
+
+      {/* The same frame a primitive page embeds: the hook's story on Storybook
+          is a small screen that uses it, so a reader sees it work before
+          reading how it is called. */}
+      <DetailExample
+        heading={t("documents.hooks.detail.example")}
+        title={t("documents.hooks.detail.exampleFrame", { slug: entry.slug })}
+        storyId={entry.storybookExampleId}
       />
 
       <DetailPanels
@@ -75,7 +78,7 @@ export default function HookDetailTemplate() {
           entry.example === null
             ? undefined
             : {
-                heading: t("documents.hooks.detail.example"),
+                heading: t("documents.hooks.detail.usage"),
                 code: entry.example,
               }
         }

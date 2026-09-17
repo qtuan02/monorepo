@@ -111,14 +111,21 @@
  * open/close animations the `@monorepo/ui` primitives carry — the palette's
  * Dialog, the mobile Sheet, the language Select — through `tw-animate-css`,
  * which has no reduced-motion guard of its own. Base UI marks a popup
- * `data-open` / `data-closed` while it animates, so those two attributes are
- * the whole selector. Unlayered, so it beats the `@layer utilities` classes
- * without `!important`; `test/globals.test.ts` pins it.
+ * `data-open` / `data-closed` while it animates, and the Sheet slides with a
+ * `transition` keyed off `data-starting-style` / `data-ending-style` instead
+ * of a keyframe — so both pairs are the selector. Unlayered, so it beats the
+ * `@layer utilities` classes without `!important`; `test/globals.test.ts`
+ * pins it.
  */
 @media (prefers-reduced-motion: reduce) {
   [data-open],
   [data-closed] {
     animation: none;
+  }
+
+  [data-starting-style],
+  [data-ending-style] {
+    transition: none;
   }
 }
 

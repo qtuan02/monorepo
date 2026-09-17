@@ -31,10 +31,14 @@ export const STYLESHEET_SNIPPET: readonly CodeToken[] = [
   ...STYLESHEET_IMPORTS,
 ];
 
-export const THEME_SNIPPET: readonly CodeToken[] = [
+/**
+ * The two snippets that carry a comment take it as an argument: a comment is
+ * prose, so it is a Locale message the template resolves, never a literal here.
+ */
+export const themeSnippet = (brandComment: string): readonly CodeToken[] => [
   ...STYLESHEET_IMPORTS,
   "\n\n:root {\n  --primary: oklch(0.55 0.2 260);\n  --primary-foreground: oklch(0.98 0 0);\n  --radius: 0.375rem;\n}\n\n.dark {\n  --primary: oklch(0.7 0.18 260);\n}\n\n",
-  comment("/* token của riêng bạn → bg-brand, text-brand */"),
+  comment(brandComment),
   "\n",
   keyword("@theme inline"),
   " {\n  --color-brand: var(--brand);\n}\n:root {\n  --brand: oklch(0.72 0.19 45);\n}",
@@ -61,7 +65,15 @@ export const FIRST_EXAMPLE_SNIPPET: readonly CodeToken[] = [
   ")}>Save</Button>;\n}",
 ];
 
-export const HOOK_EXAMPLE_SNIPPET: readonly CodeToken[] = [
+export const hookExampleSnippet = (
+  usageComment: string,
+): readonly CodeToken[] => [
+  keyword("import"),
+  " { useState } ",
+  keyword("from"),
+  " ",
+  string('"react"'),
+  ";\n",
   keyword("import"),
   " { useDebounce } ",
   keyword("from"),
@@ -76,7 +88,7 @@ export const HOOK_EXAMPLE_SNIPPET: readonly CodeToken[] = [
   ");\n  ",
   keyword("const"),
   " debouncedSearch = useDebounce(search, 500);\n  ",
-  comment("// lọc hoặc fetch theo `debouncedSearch`, bind input vào `search`"),
+  comment(usageComment),
   "\n}",
 ];
 

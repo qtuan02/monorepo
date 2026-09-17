@@ -17,6 +17,9 @@ vi.mock("~/constants/docs-catalogue", () => {
     importPath: `@fe-monorepo/x/${subpath}`,
     exports: [slug],
     description: null,
+    example: null,
+    storybookDocsId: slug,
+    storybookExampleId: `${slug}--default`,
   });
 
   return {
@@ -24,8 +27,8 @@ vi.mock("~/constants/docs-catalogue", () => {
       package: "@fe-monorepo/ui",
       generatedFrom: "packages/ui/src/components",
       items: [
-        { ...entry("alert", "components/alert"), storybookDocsId: "alert" },
-        { ...entry("button", "components/button"), storybookDocsId: "button" },
+        entry("alert", "components/alert"),
+        entry("button", "components/button"),
       ],
     },
     hookCatalogue: {

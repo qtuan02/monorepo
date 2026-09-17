@@ -11,6 +11,8 @@ function entry(slug: string): DocsEntry {
     exports: [],
     description: null,
     example: null,
+    storybookDocsId: `storybook-${slug}`,
+    storybookExampleId: `storybook-${slug}--default`,
   };
 }
 

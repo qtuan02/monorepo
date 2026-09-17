@@ -18,7 +18,7 @@ interface DetailHeroProps {
   exportSummary: string;
   description?: string | null;
   npmUrl: string;
-  /** Present on a primitive only: a hook has no Storybook page. */
+  /** Every entry has a Storybook docs page; the 404 branch is the one caller without one. */
   storybookDocsId?: string;
 }
 
@@ -38,7 +38,7 @@ const glassActionClassName =
  * the slug as the page's one `<h1>`, and the specifier a consumer types with
  * the export count beside it — the same colour and the same name the tile and
  * the search palette showed, so arriving here reads as the same thing.
- * Actions stack on the right: Storybook when there is one, npm always.
+ * Actions stack on the right: Storybook, then npm.
  */
 export function DetailHero({
   slug,

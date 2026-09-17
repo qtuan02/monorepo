@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 
-import type { ComponentDocsEntry } from "~/types/docs-catalogue";
+import type { DocsEntry } from "~/types/docs-catalogue";
 import { Tile } from "~/components/tile/tile";
 import { ROUTES } from "~/constants/routes";
 
@@ -10,7 +10,7 @@ const WIDE_TILE_EXPORTS = 10;
 const PREVIEW_EXPORTS = 3;
 
 interface ComponentTileProps {
-  entry: ComponentDocsEntry;
+  entry: DocsEntry;
 }
 
 /**

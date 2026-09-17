@@ -1,6 +1,7 @@
 import { CodeBlock } from "~/components/code/code-block";
 import { ImportSnippet } from "~/components/code/import-snippet";
 import { GlassPanel } from "~/components/panel/glass-panel";
+import { PanelHeading } from "./panel-heading";
 
 interface DetailPanelsProps {
   exports: readonly string[];
@@ -28,16 +29,14 @@ export function DetailPanels({
   return (
     <div className="grid grid-cols-1 gap-4 pb-10 lg:grid-cols-[1.25fr_1fr]">
       <GlassPanel className="p-5 sm:p-6">
-        <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
-          {importHeading}
-        </h2>
+        <PanelHeading>{importHeading}</PanelHeading>
         <ImportSnippet exports={exports} importPath={importPath} />
       </GlassPanel>
 
       <GlassPanel className="p-5 sm:p-6">
-        <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
+        <PanelHeading>
           {exportsHeading} · {exports.length}
-        </h2>
+        </PanelHeading>
         <ul className="flex flex-wrap gap-2">
           {exports.map((name) => (
             // The export name is unique within its module — the stable key.
@@ -53,9 +52,7 @@ export function DetailPanels({
 
       {example && (
         <GlassPanel className="p-5 sm:p-6 lg:col-span-2">
-          <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
-            {example.heading}
-          </h2>
+          <PanelHeading>{example.heading}</PanelHeading>
           <CodeBlock code={example.code} />
         </GlassPanel>
       )}

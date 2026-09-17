@@ -48,8 +48,8 @@ export const PEER_DEPENDENCIES: Record<
 };
 
 export interface InstallCommand {
+  /** The package manager's name — the tab's value and its label alike. */
   id: string;
-  label: string;
   command: string;
 }
 
@@ -61,9 +61,9 @@ export interface InstallCommand {
  */
 export function installCommands(packageName: string): InstallCommand[] {
   return [
-    { id: "bun", label: "bun", command: `bun add ${packageName}` },
-    { id: "npm", label: "npm", command: `npm install ${packageName}` },
-    { id: "pnpm", label: "pnpm", command: `pnpm add ${packageName}` },
-    { id: "yarn", label: "yarn", command: `yarn add ${packageName}` },
+    { id: "bun", command: `bun add ${packageName}` },
+    { id: "npm", command: `npm install ${packageName}` },
+    { id: "pnpm", command: `pnpm add ${packageName}` },
+    { id: "yarn", command: `yarn add ${packageName}` },
   ];
 }

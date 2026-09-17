@@ -347,6 +347,7 @@
       "theme": {
         "title": "Your own theme",
         "description": "The tokens are CSS variables on :root and .dark, mapped onto utilities by @theme inline — so a brand is a redeclaration after the import, and nothing else.",
+        "snippetComment": "/* a token of your own → bg-brand, text-brand */",
         "layerNote": "Write the override unlayered, as above. The package’s own :root / .dark blocks are unlayered too, so a later block wins by source order — while the same lines inside @layer base would compile, ship and lose. Dark mode is a .dark class on an ancestor, not prefers-color-scheme."
       },
       "example": {
@@ -355,7 +356,8 @@
       },
       "hook": {
         "title": "Use a hook",
-        "description": "No stylesheet and no peer beyond react and react-dom: once installed, import by the subpath named after the file."
+        "description": "No stylesheet and no peer beyond react and react-dom: once installed, import by the subpath named after the file.",
+        "snippetComment": "// filter or fetch on `debouncedSearch`; bind the input to `search`"
       },
       "noRootEntry": {
         "title": "There is no root entry",
@@ -377,10 +379,12 @@
         "exports": "Exports",
         "storybook": "Open in Storybook",
         "example": "Example",
-        "exampleFrame": "{slug} example on Storybook",
-        "prev": "Previous: {slug}",
-        "next": "Next: {slug}"
+        "exampleFrame": "{slug} example on Storybook"
       }
+    },
+    "detail": {
+      "prev": "Previous: {slug}",
+      "next": "Next: {slug}"
     },
     "hooks": {
       "title": "Hooks",
@@ -391,8 +395,8 @@
         "import": "Import",
         "exports": "Exports",
         "example": "Example",
-        "prev": "Previous: {slug}",
-        "next": "Next: {slug}"
+        "exampleFrame": "{slug} example on Storybook",
+        "usage": "Usage"
       },
       "items": {
         "use-debounce": {

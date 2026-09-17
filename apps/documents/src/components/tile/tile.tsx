@@ -8,8 +8,8 @@ import { Swatch } from "~/components/swatch/swatch";
 interface TileProps {
   to: string;
   slug: string;
-  /** The number in the corner — an entry's export count. */
-  count: number;
+  /** The number in the corner — a primitive's export count. A hook has one export, so it shows none. */
+  count?: number;
   /** Two columns from `md` — the list decides from its data, never by hand. */
   wide?: boolean;
   /** The line(s) under the slug: an export preview, a hook's sentence. */
@@ -39,9 +39,11 @@ export function Tile({ to, slug, count, wide, children }: TileProps) {
         <Swatch slug={slug} className="mb-3" />
         <span className="font-mono text-sm font-semibold">{slug}</span>
         {children}
-        <span className="bg-(--tile) text-muted-foreground absolute top-3.5 right-3.5 rounded-full px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums">
-          {count}
-        </span>
+        {count !== undefined && (
+          <span className="bg-(--tile) text-muted-foreground absolute top-3.5 right-3.5 rounded-full px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums">
+            {count}
+          </span>
+        )}
       </Link>
     </li>
   );

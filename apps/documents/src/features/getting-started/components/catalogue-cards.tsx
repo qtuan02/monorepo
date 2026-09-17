@@ -41,6 +41,12 @@ function CountCard({
 }: CountCardProps) {
   return (
     <Link to={to} className={cardClassName}>
+      {/* First in the DOM so it paints under the text — a later absolute
+          sibling would sit on top of the count's label. */}
+      <span
+        aria-hidden="true"
+        className={cn(cardSwatchClassName, swatchClassName)}
+      />
       {/* The literal spaces are for the accessible name: the spans are inline,
           so without them a screen reader hears "Component63primitive". A
           whitespace-only text node is not a flex item, so layout is unmoved. */}
@@ -59,10 +65,6 @@ function CountCard({
           {label}
         </span>
       </span>
-      <span
-        aria-hidden="true"
-        className={cn(cardSwatchClassName, swatchClassName)}
-      />
     </Link>
   );
 }
@@ -108,13 +110,6 @@ export default function CatalogueCards() {
           "text-primary-foreground border-primary-foreground/35 bg-[linear-gradient(135deg,var(--primary),var(--aurora-violet))]",
         )}
       >
-        <span className={cn(cardHeadingClassName, "text-primary-foreground")}>
-          {t("documents.home.cards.storybook")}
-        </span>{" "}
-        <span className="bg-card text-foreground relative inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-(--sh-2)">
-          {t("documents.home.cards.storybookCta")}
-          <ArrowUpRight aria-hidden="true" className="size-4" />
-        </span>
         <span
           aria-hidden="true"
           className={cn(
@@ -122,6 +117,13 @@ export default function CatalogueCards() {
             "bg-[conic-gradient(from_90deg,var(--aurora-cyan),var(--aurora-pink),var(--aurora-amber),var(--aurora-cyan))] opacity-60",
           )}
         />
+        <span className={cn(cardHeadingClassName, "text-primary-foreground")}>
+          {t("documents.home.cards.storybook")}
+        </span>{" "}
+        <span className="bg-card text-foreground relative inline-flex w-fit items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold shadow-(--sh-2)">
+          {t("documents.home.cards.storybookCta")}
+          <ArrowUpRight aria-hidden="true" className="size-4" />
+        </span>
       </a>
     </div>
   );

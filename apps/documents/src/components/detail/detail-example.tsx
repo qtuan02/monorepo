@@ -1,5 +1,6 @@
 import { GlassPanel } from "~/components/panel/glass-panel";
 import { env } from "~/env";
+import { PanelHeading } from "./panel-heading";
 
 interface DetailExampleProps {
   /** The heading — "Ví dụ". */
@@ -24,9 +25,7 @@ export function DetailExample({ heading, title, storyId }: DetailExampleProps) {
 
   return (
     <GlassPanel className="mb-4 p-5 sm:p-6">
-      <h2 className="text-primary mb-3.5 font-mono text-xs font-semibold tracking-wider uppercase">
-        {heading}
-      </h2>
+      <PanelHeading>{heading}</PanelHeading>
       <iframe
         src={src}
         title={title}

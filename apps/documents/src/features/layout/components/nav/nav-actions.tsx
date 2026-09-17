@@ -1,11 +1,13 @@
 import { BookMarked, Package } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router";
 
 import { buttonVariants } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import { SelectLanguage } from "~/components/select/select-language";
 import { NPM_URLS } from "~/constants/packages";
+import { ROUTES } from "~/constants/routes";
 import { env } from "~/env";
 import ThemeToggleButton from "./theme-toggle-button";
 
@@ -26,6 +28,13 @@ export const roundControlClassName =
  */
 export default function NavActions() {
   const { t } = useTranslation();
+  const { pathname } = useLocation();
+  // The hook pages point at the hook package — the same prefix match NavLinks
+  // lights the section with, so the two never disagree.
+  const npmUrl =
+    pathname === ROUTES.HOOKS || pathname.startsWith(`${ROUTES.HOOKS}/`)
+      ? NPM_URLS.hook
+      : NPM_URLS.ui;
 
   return (
     <div className="flex items-center gap-1.5">
@@ -37,7 +46,7 @@ export default function NavActions() {
       <ThemeToggleButton className={roundControlClassName} />
 
       <a
-        href={NPM_URLS.ui}
+        href={npmUrl}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={t("documents.nav.npm")}

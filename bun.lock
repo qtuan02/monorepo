@@ -340,6 +340,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@hookform/resolvers": "catalog:",
+        "@monorepo/hook": "workspace:*",
         "@monorepo/ui": "workspace:*",
         "react": "catalog:react19",
         "react-dom": "catalog:react19",

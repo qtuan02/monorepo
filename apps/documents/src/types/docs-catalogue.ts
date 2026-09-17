@@ -21,10 +21,7 @@ export interface DocsEntry {
   description: string | null;
   /** That block's `@example` body, line for line — the usage snippet a hook page shows. */
   example: string | null;
-}
-
-/** A component entry always carries the ids of its Storybook docs page and example story. */
-export interface ComponentDocsEntry extends DocsEntry {
+  /** The Storybook docs page — `storybook-button`, `hooks-usedebounce`. */
   storybookDocsId: string;
   /** The story the detail page embeds — `storybook-button--default`. */
   storybookExampleId: string;

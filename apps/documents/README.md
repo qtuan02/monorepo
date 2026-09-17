@@ -21,7 +21,7 @@ bun run --filter @monorepo/documents dev       # http://localhost:3003
 | Port | `ports.env` | Dev **3003**, E2E **3103** — khai đúng một chỗ; `vite.config.ts` đọc cả hai qua `ports.ts` (`server.port` / `preview.port`, `strictPort` cả hai), `playwright.config.ts` đọc `E2E_PORT`. |
 | Env | `src/env.ts` | Flavor `vite` của `@monorepo/env`; `.env` **ở root repo**, tới qua `envDir: "../../"` + `envPrefix: "PUBLIC_"` (**không** `VITE_`). |
 | Shell | `src/features/layout/` | **Không có sidebar.** `nav-pill.template.tsx` (nav pill kính dính đầu trang) · `components/nav/search-palette.tsx` (`⌘K` / `Ctrl K`) · `components/backdrop.tsx` · `provider/theme-provider.tsx`. Thứ tự DOM: skip link → nav pill → backdrop → `<main id>` → footer một dòng. |
-| Panel · tile · swatch | `src/components/{panel,tile,swatch,detail,page}/` | `GlassPanel` (utility `glass`), `Tile` (nền đục, **không** blur, tự render `<li>`), `Swatch` (hue từ `~/utils/slug-to-hue.ts`), `DetailToolbar` / `DetailHero` / `DetailPanels`, `ListHeader`, `DocsSection`. |
+| Panel · tile · swatch | `src/components/{panel,tile,swatch,detail,page,catalogue,code,search,link}/` | `GlassPanel` (utility `glass`), `Tile` (nền đục, **không** blur, tự render `<li>`), `Swatch` (hue từ `~/utils/slug-to-hue.ts`), `DetailToolbar` / `DetailHero` / `DetailExample` (iframe story) / `DetailPanels` / `PanelHeading`, `ListHeader`, `DocsSection`, `CatalogueList` (đầu trang + lọc + lưới, tile qua render prop — hai list template chỉ còn là vỏ), `CodeBlock` / `ImportSnippet`, `FilterInput` / `FilterEmpty`, `StorybookLink`. |
 | Palette · font · theme | `src/globals.css` | Override **toàn bộ** palette dùng chung ở tầng app (ADR-0009), hai webfont qua `@fontsource-variable`, dark mode "indigo night" — xem mục Font & palette. |
 | Router | `src/pages/main.tsx` | `react-router` 8 declarative; mọi path lấy từ `~/constants/routes.ts`. |
 | Guard | *(không có)* | Site public: `ProtectedRoute` / `GuestRoute`, slice `auth`, `use-auth-store` và cả `~/libs/http-client` của Template đã bị **xoá** thay vì để không dùng. Catch-all 404 giữ nguyên. |
@@ -201,7 +201,7 @@ làm cache của app miss đúng lúc cần.
 | `/components` | `ROUTES.COMPONENTS` | `components-page.tsx` | Lưới 63 tile, có ô lọc (debounce 300ms), tile rộng từ 10 export |
 | `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Trước/sau, hero, ví dụ (iframe story Storybook), Import, chip export, link Storybook |
 | `/hooks` | `ROUTES.HOOKS` | `hooks-page.tsx` | Lưới 5 tile hook, có mô tả |
-| `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Trước/sau, hero, Import, chip export, panel Ví dụ từ `@example` |
+| `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Cùng hình dạng trang component: trước/sau, hero (+ link Storybook), **Ví dụ** (iframe story `Hooks/useX` của `apps/storybook`, một story mỗi hook — `use-<slug>.stories.tsx`), Import, chip export, panel **Cách dùng** từ `@example` |
 | `*` | — | `not-found-page.tsx` | 404, **trong** shell để còn đường quay lại |
 
 Slug lạ ở hai route động **không** redirect: trang tự render 404 tại chính URL đó

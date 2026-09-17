@@ -2,11 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseSync } from "oxc-parser";
 
-import type {
-  ComponentDocsEntry,
-  DocsCatalogue,
-  DocsEntry,
-} from "../src/types/docs-catalogue.ts";
+import type { DocsCatalogue, DocsEntry } from "../src/types/docs-catalogue.ts";
 import {
   HOOK_PACKAGE_NAME,
   HOOK_SUBPATH_PREFIX,
@@ -57,6 +53,11 @@ export interface DocsSource {
   packageName: string;
   /** Prefix every subpath carries (`components/` for the UI package). */
   subpathPrefix: string;
+  /**
+   * The first segment of every story title in this source — `Storybook/Button`,
+   * `Hooks/useDebounce` — lower-cased, which is how Storybook starts the id.
+   */
+  storybookTitlePrefix: string;
 }
 
 export const COMPONENT_SOURCE: DocsSource = {
@@ -64,6 +65,7 @@ export const COMPONENT_SOURCE: DocsSource = {
   extension: ".tsx",
   packageName: UI_PACKAGE_NAME,
   subpathPrefix: UI_COMPONENT_SUBPATH_PREFIX,
+  storybookTitlePrefix: "storybook",
 };
 
 export const HOOK_SOURCE: DocsSource = {
@@ -71,6 +73,7 @@ export const HOOK_SOURCE: DocsSource = {
   extension: ".ts",
   packageName: HOOK_PACKAGE_NAME,
   subpathPrefix: HOOK_SUBPATH_PREFIX,
+  storybookTitlePrefix: "hooks",
 };
 
 /** The fields a single source file yields, before it is given a subpath. */
@@ -256,12 +259,13 @@ export function parseDocsModule(
 /**
  * Storybook derives a docs id by lower-casing the story title and collapsing
  * every run of non-alphanumeric characters into a dash. Every title in this
- * workspace is `Storybook/<ComponentName>`, so the id is the slug with its
- * dashes removed — except where the override table says otherwise.
+ * workspace is `<Prefix>/<camelName>` — `Storybook/AlertDialog`,
+ * `Hooks/useDebounce` — so the id is the prefix plus the slug with its dashes
+ * removed, except where the override table says otherwise.
  */
-export function toStorybookDocsId(slug: string): string {
+export function toStorybookDocsId(slug: string, prefix = "storybook"): string {
   return (
-    STORYBOOK_DOCS_ID_OVERRIDES[slug] ?? `storybook-${slug.replaceAll("-", "")}`
+    STORYBOOK_DOCS_ID_OVERRIDES[slug] ?? `${prefix}-${slug.replaceAll("-", "")}`
   );
 }
 
@@ -271,10 +275,13 @@ export function toStorybookDocsId(slug: string): string {
  * `iframe.html?id=…&viewMode=story` renders on its own, with no Storybook
  * chrome around it.
  */
-export function toStorybookExampleId(slug: string): string {
+export function toStorybookExampleId(
+  slug: string,
+  prefix = "storybook",
+): string {
   const story = STORYBOOK_EXAMPLE_STORY_OVERRIDES[slug] ?? "default";
 
-  return `${toStorybookDocsId(slug)}--${story}`;
+  return `${toStorybookDocsId(slug, prefix)}--${story}`;
 }
 
 export function buildDocsEntry(
@@ -293,6 +300,8 @@ export function buildDocsEntry(
     exports,
     description,
     example,
+    storybookDocsId: toStorybookDocsId(slug, source.storybookTitlePrefix),
+    storybookExampleId: toStorybookExampleId(slug, source.storybookTitlePrefix),
   };
 }
 
@@ -301,9 +310,16 @@ export function buildCatalogue(
   source: DocsSource,
   directoryPath: string,
 ): DocsCatalogue {
+  // Sorted on the slug, not the file name: with the extension on, "alert-dialog.tsx"
+  // lands before "alert.tsx", and the palette and a filtered grid — which both
+  // tie-break on the slug — would then disagree with prev/next about the order.
   const fileNames = readdirSync(directoryPath)
     .filter((fileName) => fileName.endsWith(source.extension))
-    .sort((left, right) => left.localeCompare(right));
+    .sort((left, right) =>
+      left
+        .slice(0, -source.extension.length)
+        .localeCompare(right.slice(0, -source.extension.length)),
+    );
 
   const items = fileNames.map((fileName) =>
     buildDocsEntry(
@@ -320,23 +336,11 @@ export function buildCatalogue(
   };
 }
 
-/** The component catalogue: every entry additionally carries its Storybook id. */
-export function buildComponentCatalogue(
-  repoRoot: string,
-): DocsCatalogue<ComponentDocsEntry> {
-  const catalogue = buildCatalogue(
+export function buildComponentCatalogue(repoRoot: string): DocsCatalogue {
+  return buildCatalogue(
     COMPONENT_SOURCE,
     join(repoRoot, COMPONENT_SOURCE.directory),
   );
-
-  return {
-    ...catalogue,
-    items: catalogue.items.map((item) => ({
-      ...item,
-      storybookDocsId: toStorybookDocsId(item.slug),
-      storybookExampleId: toStorybookExampleId(item.slug),
-    })),
-  };
 }
 
 export function buildHookCatalogue(repoRoot: string): DocsCatalogue {

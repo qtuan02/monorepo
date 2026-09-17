@@ -52,9 +52,6 @@ describe("the hook detail page", () => {
     expect(
       screen.getByText(/Trả lại value sau delay mili-giây/),
     ).toBeInTheDocument();
-
-    // A hook has no Storybook page, so the hero carries only the npm action.
-    expect(screen.queryByRole("link", { name: /Storybook/ })).toBeNull();
   });
 
   it("shows the consumer's npm specifier, with no `components/` prefix", () => {
@@ -69,11 +66,33 @@ describe("the hook detail page", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the hook's own `@example` as the example panel", () => {
-    renderAtSlug("use-debounce");
+  it("embeds the hook's story from Storybook as the example, and links its docs page", () => {
+    const entry = findHook("use-debounce");
+    if (!entry) throw new Error("`use-debounce` is missing from the catalogue");
+
+    renderAtSlug(entry.slug);
 
     expect(
       screen.getByRole("heading", { level: 2, name: "Ví dụ" }),
+    ).toBeInTheDocument();
+    // `Hooks/useDebounce` slugified — the story lives beside the primitives'.
+    expect(
+      screen.getByTitle("Ví dụ use-debounce trên Storybook"),
+    ).toHaveAttribute(
+      "src",
+      expect.stringContaining("iframe.html?id=hooks-usedebounce--default"),
+    );
+    expect(screen.getByRole("link", { name: /Storybook/ })).toHaveAttribute(
+      "href",
+      expect.stringContaining("path=/docs/hooks-usedebounce--docs"),
+    );
+  });
+
+  it("shows the hook's own `@example` as the usage panel", () => {
+    renderAtSlug("use-debounce");
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Cách dùng" }),
     ).toBeInTheDocument();
     // A line from `packages/hook/src/use-debounce.ts`'s JSDoc, not from any
     // catalogue or README — the source is the only place it is written.
@@ -82,14 +101,14 @@ describe("the hook detail page", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders no example panel for a hook whose JSDoc has no `@example`", () => {
+  it("renders no usage panel for a hook whose JSDoc has no `@example`", () => {
     const entry = findHook("use-debounce");
     if (!entry) throw new Error("`use-debounce` is missing from the catalogue");
     vi.mocked(findHook).mockReturnValueOnce({ ...entry, example: null });
 
     renderAtSlug("use-debounce");
 
-    expect(screen.queryByRole("heading", { name: "Ví dụ" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Cách dùng" })).toBeNull();
     // The rest of the page is unaffected: the import panel still renders.
     expect(
       screen.getByRole("heading", { level: 2, name: "Import" }),

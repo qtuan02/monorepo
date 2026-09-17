@@ -347,6 +347,7 @@
       "theme": {
         "title": "Theme của riêng bạn",
         "description": "Token là biến CSS trên :root và .dark, được @theme inline map thành utility — nên brand của bạn chỉ là khai lại biến sau dòng import.",
+        "snippetComment": "/* token của riêng bạn → bg-brand, text-brand */",
         "layerNote": "Viết phần override unlayered như trên. Khối :root / .dark trong package cũng unlayered, nên khối khai sau thắng theo thứ tự nguồn — còn cùng những dòng đó đặt trong @layer base sẽ compile, ship, và thua. Dark mode là class .dark trên phần tử tổ tiên, không phải prefers-color-scheme."
       },
       "example": {
@@ -355,7 +356,8 @@
       },
       "hook": {
         "title": "Dùng hook",
-        "description": "Không stylesheet, không peer nào ngoài react và react-dom: cài xong là import theo subpath mang tên file."
+        "description": "Không stylesheet, không peer nào ngoài react và react-dom: cài xong là import theo subpath mang tên file.",
+        "snippetComment": "// lọc hoặc fetch theo `debouncedSearch`, bind input vào `search`"
       },
       "noRootEntry": {
         "title": "Không có root entry",
@@ -377,10 +379,12 @@
         "exports": "Export",
         "storybook": "Mở trên Storybook",
         "example": "Ví dụ",
-        "exampleFrame": "Ví dụ {slug} trên Storybook",
-        "prev": "Trước: {slug}",
-        "next": "Sau: {slug}"
+        "exampleFrame": "Ví dụ {slug} trên Storybook"
       }
+    },
+    "detail": {
+      "prev": "Trước: {slug}",
+      "next": "Sau: {slug}"
     },
     "hooks": {
       "title": "Hook",
@@ -391,8 +395,8 @@
         "import": "Import",
         "exports": "Export",
         "example": "Ví dụ",
-        "prev": "Trước: {slug}",
-        "next": "Sau: {slug}"
+        "exampleFrame": "Ví dụ {slug} trên Storybook",
+        "usage": "Cách dùng"
       },
       "items": {
         "use-debounce": {

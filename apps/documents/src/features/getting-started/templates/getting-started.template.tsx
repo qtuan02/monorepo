@@ -26,10 +26,10 @@ import InstallCapsule from "../components/install-capsule";
 import PeerDependencyList from "../components/peer-dependency-list";
 import {
   FIRST_EXAMPLE_SNIPPET,
-  HOOK_EXAMPLE_SNIPPET,
+  hookExampleSnippet,
   NO_ROOT_ENTRY_SNIPPET,
   STYLESHEET_SNIPPET,
-  THEME_SNIPPET,
+  themeSnippet,
 } from "../constants/snippets";
 
 interface Panel {
@@ -93,7 +93,7 @@ const GUIDES: readonly Guide[] = [
           />
         ),
       },
-      { id: "hook", body: <CodeBlock code={HOOK_EXAMPLE_SNIPPET} /> },
+      { id: "hook", body: <HookPanelBody /> },
     ],
   },
 ];
@@ -128,11 +128,24 @@ function ThemePanelBody() {
 
   return (
     <>
-      <CodeBlock code={THEME_SNIPPET} />
+      <CodeBlock
+        code={themeSnippet(t("documents.home.theme.snippetComment"))}
+      />
       <p className="text-muted-foreground text-sm">
         {t("documents.home.theme.layerNote")}
       </p>
     </>
+  );
+}
+
+/** The hook guide's one snippet, its comment in the reader's language. */
+function HookPanelBody() {
+  const { t } = useTranslation();
+
+  return (
+    <CodeBlock
+      code={hookExampleSnippet(t("documents.home.hook.snippetComment"))}
+    />
   );
 }
 

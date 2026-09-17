@@ -2,11 +2,11 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import type { ComponentDocsEntry } from "~/types/docs-catalogue";
+import type { DocsEntry } from "~/types/docs-catalogue";
 import ComponentTile from "~/features/component/components/component-tile";
 
 /** A primitive with `count` exports named `Export1…ExportN`. */
-function entryWith(count: number): ComponentDocsEntry {
+function entryWith(count: number): DocsEntry {
   return {
     slug: "probe",
     subpath: "components/probe",
@@ -19,7 +19,7 @@ function entryWith(count: number): ComponentDocsEntry {
   };
 }
 
-function renderCard(entry: ComponentDocsEntry) {
+function renderCard(entry: DocsEntry) {
   return render(
     <MemoryRouter>
       <ComponentTile entry={entry} />

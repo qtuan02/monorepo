@@ -227,6 +227,8 @@ describe("buildDocsEntry", () => {
       subpath: "use-fake-thing",
       importPath: "@fe-monorepo/hook/use-fake-thing",
       exports: ["useFakeThing"],
+      storybookDocsId: "hooks-usefakething",
+      storybookExampleId: "hooks-usefakething--default",
     });
   });
 });
@@ -239,6 +241,15 @@ describe("toStorybookDocsId", () => {
 
   it("uses the override where the story is named after the export, not the file", () => {
     expect(toStorybookDocsId("direction")).toBe("storybook-directionprovider");
+  });
+
+  it("starts a hook's id with the `Hooks/` prefix its titles carry", () => {
+    expect(toStorybookDocsId("use-debounce", "hooks")).toBe(
+      "hooks-usedebounce",
+    );
+    expect(toStorybookExampleId("use-debounce", "hooks")).toBe(
+      "hooks-usedebounce--default",
+    );
   });
 });
 

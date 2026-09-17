@@ -56,7 +56,7 @@ export default function InstallCapsule({
             value={entry.id}
             className="data-active:bg-card h-7 rounded-full px-3 text-[12.5px]"
           >
-            {entry.label}
+            {entry.id}
           </TabsTrigger>
         ))}
       </TabsList>
