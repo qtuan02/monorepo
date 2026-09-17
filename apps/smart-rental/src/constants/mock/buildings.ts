@@ -1,4 +1,5 @@
 import type { Building } from "~/types/building";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Toà nhà read comes from (ADR-0012, spec #153): three Toà
@@ -85,3 +86,5 @@ export function withBuildingName<T extends { buildingId: string }>(
 ): T & { buildingName: string } {
   return { ...record, buildingName: resolveBuildingName(record.buildingId) };
 }
+
+export const resetMockBuildings = trackMockReset(mockBuildings);

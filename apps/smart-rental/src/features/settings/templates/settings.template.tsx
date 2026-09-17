@@ -1,117 +1,119 @@
-import { BarChart3, Bell, RotateCcw, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Building2, RotateCcw, Settings as SettingsIcon } from "lucide-react";
 import { Link } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
+import { Card, CardContent } from "@monorepo/ui/components/card";
+import { toast } from "@monorepo/ui/components/toast";
 
-import type { Setting, SettingCategory } from "~/types/setting";
+import { InfoCard, InfoRow } from "~/components/card/info-card";
+import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { ListPageHeader } from "~/components/page/list-page-header";
+import { EmptyPanel } from "~/components/panel/empty-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { QuerySection } from "~/components/panel/query-section";
 import { ROUTES } from "~/constants/routes";
-import ElectricityTierConfig from "~/features/settings/components/electricity-tier-config";
-import SettingGroup from "~/features/settings/components/setting-group";
-import { settingCategoryOrder } from "~/features/settings/constants/setting-categories";
-import {
-  useGetElectricityTierConfig,
-  useGetSettings,
-} from "~/hooks/api/setting";
-
-const quickLinks = [
-  { to: ROUTES.COMPLIANCE, label: "Khai báo lưu trú", icon: ShieldCheck },
-  { to: ROUTES.COMMUNICATIONS, label: "Thông báo", icon: Bell },
-  { to: ROUTES.REPORTS, label: "Báo cáo", icon: BarChart3 },
-];
-
-const quickLinkClassName = buttonVariants({ variant: "outline", size: "sm" });
-
-function groupByCategory(settings: Setting[]) {
-  const byCategory: Record<SettingCategory, Setting[]> = {
-    building: [],
-    rent: [],
-    notification: [],
-    billing: [],
-  };
-  for (const setting of settings) byCategory[setting.category].push(setting);
-  return byCategory;
-}
+import { useGetBuildings } from "~/hooks/api/building";
+import { useGetLandlordProfile, useResetMockData } from "~/hooks/api/setting";
 
 /**
- * "Cài đặt hệ thống": the quick links, Giá điện bậc thang, then the four
- * read-only groups — two queries, each section gated on its own. "Khôi phục
- * mặc định" has no flow yet, as in the prototype.
+ * "Cài đặt" toàn cục (spec #153 §10 row 32): hồ sơ chủ nhà, một nút khôi
+ * phục Mock, và một link tới Cài đặt của từng Toà nhà — the bậc thang form
+ * and the "Tuân thủ & liên lạc" quick-link card are both gone; the first
+ * because Bảng giá is now flat per Toà nhà, the second because a card of
+ * dead links is not a setting (research C.1 #23).
  */
 export default function SettingsTemplate() {
-  const settingsQuery = useGetSettings();
-  const tierQuery = useGetElectricityTierConfig();
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const profileQuery = useGetLandlordProfile();
+  const buildingsQuery = useGetBuildings();
+  const resetMockData = useResetMockData();
+
+  const handleReset = () =>
+    resetMockData.mutate(undefined, {
+      onSuccess: () => {
+        setIsResetOpen(false);
+        toast.add({ title: "Đã khôi phục dữ liệu mẫu", type: "success" });
+      },
+    });
 
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Cài đặt hệ thống"
-        description="Quản lý các cấu hình và thông tin cơ bản của hệ thống quản lý trọ."
+        title="Cài đặt"
+        description="Hồ sơ chủ nhà và các Toà nhà đang quản lý."
         actions={
-          <Button type="button" variant="outline" size="sm">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsResetOpen(true)}
+          >
             <RotateCcw />
-            Khôi phục mặc định
+            Khôi phục dữ liệu mẫu
           </Button>
         }
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">
-            Khai báo lưu trú & thông báo
-          </CardTitle>
-          <CardDescription>
-            Truy cập nhanh các màn hình hệ thống liên quan đến khai báo lưu trú
-            và gửi thông báo.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          {quickLinks.map(({ to, label, icon: Icon }) => (
-            <Link key={to} to={to} className={quickLinkClassName}>
-              <Icon />
-              {label}
-            </Link>
-          ))}
-        </CardContent>
-      </Card>
-
       <QuerySection
-        query={tierQuery}
-        errorText="Không thể tải cấu hình điện bậc thang."
+        query={profileQuery}
+        errorText="Không thể tải hồ sơ chủ nhà."
         loading={<CardGridSkeleton className="lg:grid-cols-1" itemCount={1} />}
       >
-        {(config) => <ElectricityTierConfig config={config} />}
+        {(profile) => (
+          <InfoCard title="Hồ sơ chủ nhà">
+            <InfoRow label="Họ tên" value={profile.name} />
+            <InfoRow label="Số điện thoại" value={profile.phone} />
+            <InfoRow label="Email" value={profile.email} />
+          </InfoCard>
+        )}
       </QuerySection>
 
       <QuerySection
-        query={settingsQuery}
-        errorText="Không thể tải cài đặt."
-        loading={<CardGridSkeleton className="lg:grid-cols-2" itemCount={4} />}
+        query={buildingsQuery}
+        errorText="Không thể tải danh sách Toà nhà."
+        loading={<CardGridSkeleton itemCount={3} />}
       >
-        {(settings) => {
-          const byCategory = groupByCategory(settings);
-          return (
-            <div className="space-y-4">
-              {settingCategoryOrder.map((category) => (
-                <SettingGroup
-                  key={category}
-                  category={category}
-                  settings={byCategory[category]}
-                />
-              ))}
-            </div>
-          );
-        }}
+        {(buildings) =>
+          buildings.length > 0 ? (
+            <Card>
+              <CardContent className="flex flex-wrap gap-2">
+                {buildings.map((building) => (
+                  <Link
+                    key={building.id}
+                    to={ROUTES.buildingDetailPath(building.id)}
+                    className={buttonVariants({
+                      variant: "outline",
+                      size: "sm",
+                    })}
+                  >
+                    <SettingsIcon />
+                    Cài đặt {building.name}
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          ) : (
+            <EmptyPanel
+              icon={Building2}
+              title="Chưa có Toà nhà."
+              description="Thêm một Toà nhà để cấu hình Bảng giá và Tài khoản nhận tiền."
+              className="border"
+            />
+          )
+        }
       </QuerySection>
+
+      <ConfirmActionDialog
+        open={isResetOpen}
+        onOpenChange={setIsResetOpen}
+        title="Khôi phục dữ liệu mẫu"
+        description="Toàn bộ Toà nhà, Phòng, Người thuê, Hợp đồng, Hoá đơn, Chỉ số, Chi phí và Khai báo lưu trú sẽ trở về dữ liệu mẫu ban đầu. Mọi thay đổi trong phiên này sẽ mất."
+        actionLabel="Khôi phục"
+        variant="destructive"
+        isPending={resetMockData.isPending}
+        onConfirm={handleReset}
+      />
     </div>
   );
 }

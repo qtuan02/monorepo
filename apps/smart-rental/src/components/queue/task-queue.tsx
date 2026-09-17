@@ -17,7 +17,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Task, TaskType } from "~/types/task";
 import { ROUTES } from "~/constants/routes";
-import { taskRelatedPath } from "~/features/tasks/utils/task-due";
+import { taskRelatedPath } from "~/utils/task-due";
 
 const taskTypeIcon: Record<TaskType, LucideIcon> = {
   invoice_overdue: Bell,

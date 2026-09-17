@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { ROUTES } from "~/constants/routes";
-import {
-  formatDueLabel,
-  taskRelatedPath,
-} from "~/features/tasks/utils/task-due";
+import { formatDueLabel, taskRelatedPath } from "~/utils/task-due";
 
 const task = {
   id: "task-1",

@@ -1,5 +1,6 @@
 import type { Utility, UtilityType } from "~/types/utility";
 import { mockRooms } from "~/constants/mock/rooms";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /** Chỉ số hai kỳ 08–09/2026 (spec #153) — kỳ 09 chưa lập Đợt, nên vẫn còn việc. */
 const READING_MONTHS = ["2026-08", "2026-09"] as const;
@@ -54,3 +55,5 @@ export const mockUtilities: Utility[] = READING_MONTHS.flatMap((month) =>
     buildReading(room, "water", month, index, false),
   ]),
 );
+
+export const resetMockUtilities = trackMockReset(mockUtilities);

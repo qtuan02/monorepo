@@ -1,4 +1,5 @@
 import type { Contract } from "~/types/contract";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Hợp đồng read comes from (ADR-0012, spec #153) — one per
@@ -304,3 +305,5 @@ export const mockContracts: Contract[] = [
     lastUpdated: "01/09/2026",
   },
 ];
+
+export const resetMockContracts = trackMockReset(mockContracts);

@@ -1,125 +1,76 @@
-import { useState } from "react";
-import { AlertCircle, Download, Droplets, Zap } from "lucide-react";
+import { Download, FileBarChart } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@monorepo/ui/components/tabs";
 import { toast } from "@monorepo/ui/components/toast";
 
+import type { MonthlyPoint } from "~/types/dashboard";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
+import RevenueChart from "~/components/chart/revenue-chart";
+import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
-import { EmptyPanel } from "~/components/panel/empty-panel";
 import {
   CardGridSkeleton,
   TableSkeleton,
 } from "~/components/panel/loading-panel";
 import { QuerySection } from "~/components/panel/query-section";
-import OccupancyBar from "~/components/progress/occupancy-bar";
-import ReportFiltersBar from "~/features/reports/components/report-filters-bar";
-import ReportTable from "~/features/reports/components/report-table";
+import BuildingComparisonTable from "~/features/reports/components/building-comparison-table";
+import FloorOccupancyChart from "~/features/reports/components/floor-occupancy-chart";
+import { reportColumns } from "~/features/reports/components/report-columns";
 import {
-  defaultReportFilters,
-  filterReportRows,
-} from "~/features/reports/utils/report-filters";
-import {
-  useGetOverdueDebts,
+  useGetBuildingComparison,
+  useGetFloorOccupancy,
   useGetProfitLossSummary,
   useGetReportRows,
 } from "~/hooks/api/report";
-import { useUrlTab } from "~/hooks/use-url-tab";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
-import { buildReportRowsCsv } from "~/utils/report-rows";
+import {
+  buildBuildingComparisonCsv,
+  buildReportRowsCsv,
+} from "~/utils/report-rows";
 
-const TABS = ["pnl", "utilities", "overdue", "performance"] as const;
-
-/** The prototype's fixed figure — one "Lãi dịch vụ" per floor, no calculation behind it. */
-const SERVICE_PROFIT = 850000;
-
-const ROWS_ERROR = "Không thể tải dữ liệu báo cáo.";
-
-function rowKey(row: { month: string; building: string; floor: string }) {
-  return `${row.month}-${row.building}-${row.floor}`;
+function downloadCsv(filename: string, csv: string) {
+  // A leading BOM so Excel reads the Vietnamese diacritics as UTF-8.
+  const blob = new Blob([`﻿${csv}`], {
+    type: "text/csv;charset=utf-8;",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
-/**
- * "Báo cáo": KPI cards over the P&L summary, then four tabs — the tab rides
- * on the URL, the three filters stay in state as in the prototype. Three
- * queries, each section gated on its own, so the KPI cards paint while the
- * rows are still loading. "Xuất báo cáo" downloads the on-screen (filtered)
- * rows as CSV (spec #153 §10 row 13) — a toast instead when there is nothing
- * to export.
- */
-export default function ReportsOverviewTemplate() {
-  const [tab, setTab] = useUrlTab(TABS);
-  const [filters, setFilters] = useState(defaultReportFilters);
-  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
+/** One Toà nhà: doanh thu 6 kỳ + lấp đầy theo tầng on chart, kỳ on a `DataTable`. */
+function SingleBuildingReport({ buildingId }: { buildingId: string }) {
+  const summaryQuery = useGetProfitLossSummary({ buildingId });
+  const rowsQuery = useGetReportRows({ buildingId });
+  const floorQuery = useGetFloorOccupancy({ buildingId });
+  const rows = rowsQuery.data ?? [];
 
-  const rowsQuery = useGetReportRows({ buildingId: selectedBuildingId });
-  const summaryQuery = useGetProfitLossSummary({
-    buildingId: selectedBuildingId,
-  });
-  const overdueQuery = useGetOverdueDebts({ buildingId: selectedBuildingId });
-
-  const allRows = rowsQuery.data ?? [];
-  const rows = filterReportRows(allRows, filters);
-
-  // CSV of the rows currently on screen — the filters above narrow it too.
-  function exportRowsCsv() {
+  function exportCsv() {
     if (rows.length === 0) {
-      toast.add({
-        title: "Không có dòng nào để xuất",
-        description: "Thử đổi bộ lọc toà, tầng hoặc trạng thái.",
-      });
+      toast.add({ title: "Không có dòng nào để xuất" });
       return;
     }
-    // A leading BOM so Excel reads the Vietnamese diacritics as UTF-8.
-    const blob = new Blob([`﻿${buildReportRowsCsv(rows)}`], {
-      type: "text/csv;charset=utf-8;",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "bao-cao.csv";
-    link.click();
-    URL.revokeObjectURL(url);
+    downloadCsv("bao-cao.csv", buildReportRowsCsv(rows));
   }
 
   return (
-    <div className="space-y-6">
-      <ListPageHeader
-        title="Báo cáo"
-        description="Phân tích doanh thu, chi phí và hiệu suất quản lý."
-        actions={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={exportRowsCsv}
-          >
-            <Download />
-            Xuất báo cáo
-          </Button>
-        }
-      />
-
-      <ReportFiltersBar
-        buildings={[...new Set(allRows.map((row) => row.building))]}
-        floors={[...new Set(allRows.map((row) => row.floor))]}
-        filters={filters}
-        onChange={setFilters}
-      />
+    <>
+      <div className="flex items-center justify-end">
+        <Button type="button" variant="outline" size="sm" onClick={exportCsv}>
+          <Download />
+          Xuất báo cáo
+        </Button>
+      </div>
 
       <QuerySection
         query={summaryQuery}
@@ -147,192 +98,139 @@ export default function ReportsOverviewTemplate() {
         )}
       </QuerySection>
 
-      <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-        <TabsList className="bg-muted/50">
-          <TabsTrigger value="pnl">Tổng hợp P&L</TabsTrigger>
-          <TabsTrigger value="utilities">Lợi nhuận dịch vụ</TabsTrigger>
-          <TabsTrigger value="overdue">Công nợ quá hạn</TabsTrigger>
-          <TabsTrigger value="performance">Hiệu suất phòng</TabsTrigger>
-        </TabsList>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Doanh thu theo tháng</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuerySection
+              query={rowsQuery}
+              errorText="Không thể tải doanh thu."
+              loading={
+                <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
+              }
+            >
+              {(reportRows) => {
+                const revenueByMonth: MonthlyPoint[] = reportRows.map(
+                  (row) => ({
+                    month: row.month,
+                    value: Math.round(row.revenue / 1_000_000),
+                  }),
+                );
+                return <RevenueChart data={revenueByMonth} />;
+              }}
+            </QuerySection>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="pnl">
-          <QuerySection
-            query={rowsQuery}
-            errorText={ROWS_ERROR}
-            loading={<TableSkeleton />}
-          >
-            {() =>
-              rows.length > 0 ? (
-                <ReportTable rows={rows} />
-              ) : (
-                <EmptyPanel
-                  title="Không có dòng báo cáo"
-                  description="Thử đổi bộ lọc toà, tầng hoặc trạng thái."
-                  action={{
-                    label: "Đặt lại bộ lọc",
-                    onClick: () => setFilters(defaultReportFilters),
-                  }}
-                  className="border"
-                />
-              )
-            }
-          </QuerySection>
-        </TabsContent>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Lấp đầy theo tầng</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuerySection
+              query={floorQuery}
+              errorText="Không thể tải lấp đầy theo tầng."
+              loading={
+                <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
+              }
+            >
+              {(floors) => <FloorOccupancyChart data={floors} />}
+            </QuerySection>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="utilities">
-          <QuerySection
-            query={rowsQuery}
-            errorText={ROWS_ERROR}
-            loading={
-              <CardGridSkeleton itemCount={2} className="lg:grid-cols-2" />
-            }
-          >
-            {() => (
-              <div className="grid gap-6 lg:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      So sánh tiêu thụ & Lợi nhuận
-                    </CardTitle>
-                    <CardDescription>
-                      Thu từ Người thuê vs Chi cho nhà cung cấp
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {rows.map((row) => (
-                      <div
-                        key={rowKey(row)}
-                        className="flex items-center justify-between border-b pb-2 last:border-0"
-                      >
-                        <div>
-                          <p className="font-medium">{row.floor}</p>
-                          <p className="text-muted-foreground flex items-center gap-1 text-xs tabular-nums">
-                            <Zap className="size-3" />
-                            {row.electricityUsage} kWh
-                            <Droplets className="ml-2 size-3" />
-                            {row.waterUsage} m³
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-success">
-                            +{formatCurrency(SERVICE_PROFIT)}
-                          </p>
-                          <p className="text-muted-foreground text-[10px]">
-                            Lãi dịch vụ
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      Cảnh báo thất thoát
-                    </CardTitle>
-                    <CardDescription>
-                      Hệ thống phát hiện chênh lệch bất thường
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <EmptyPanel
-                      title="Không có cảnh báo"
-                      description="Mọi chỉ số đều nằm trong ngưỡng an toàn."
-                    />
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </QuerySection>
-        </TabsContent>
+      <QuerySection
+        query={rowsQuery}
+        errorText="Không thể tải dữ liệu báo cáo."
+        loading={<TableSkeleton />}
+      >
+        {(reportRows) => (
+          <DataTable
+            columns={reportColumns}
+            data={reportRows}
+            getRowId={(row) => row.month}
+            paginate={false}
+            facets={[
+              {
+                columnId: "month",
+                title: "Kỳ",
+                options: reportRows.map((row) => ({
+                  value: row.month,
+                  label: row.month,
+                })),
+              },
+            ]}
+            empty={{
+              icon: FileBarChart,
+              title: "Không có dòng báo cáo",
+              description: "Toà nhà này chưa có Hoá đơn nào.",
+            }}
+          />
+        )}
+      </QuerySection>
+    </>
+  );
+}
 
-        <TabsContent value="overdue">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <AlertCircle className="text-destructive size-4" />
-                Danh sách công nợ quá hạn
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <QuerySection
-                query={overdueQuery}
-                errorText="Không thể tải danh sách công nợ."
-                loading={
-                  <CardGridSkeleton itemCount={3} className="grid-cols-1" />
-                }
-              >
-                {(overdueDebts) =>
-                  overdueDebts.length > 0 ? (
-                    overdueDebts.map((debt) => (
-                      <div
-                        key={debt.id}
-                        className="hover:bg-muted/50 flex items-start justify-between gap-4 rounded-lg border p-3"
-                      >
-                        <div>
-                          <p className="font-medium">{debt.tenant}</p>
-                          <p className="text-muted-foreground text-sm">
-                            {debt.room}
-                          </p>
-                          <p className="text-destructive mt-1 text-xs">
-                            {debt.reason}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-destructive font-semibold tabular-nums">
-                            {formatCurrency(debt.amount)}
-                          </p>
-                          <p className="text-muted-foreground text-xs">
-                            Quá hạn {debt.daysOverdue} ngày
-                          </p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <EmptyPanel
-                      title="Không có công nợ quá hạn"
-                      description="Danh sách trống trong kỳ báo cáo hiện tại."
-                    />
-                  )
-                }
-              </QuerySection>
-            </CardContent>
-          </Card>
-        </TabsContent>
+/** Scope `null`: một bảng so sánh giữa các Toà nhà (spec #153 §10 row 29). */
+function BuildingComparisonReport() {
+  const comparisonQuery = useGetBuildingComparison();
+  const rows = comparisonQuery.data ?? [];
 
-        <TabsContent value="performance">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Hiệu suất lấp đầy</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <QuerySection
-                query={rowsQuery}
-                errorText={ROWS_ERROR}
-                loading={
-                  <CardGridSkeleton itemCount={3} className="grid-cols-1" />
-                }
-              >
-                {() =>
-                  rows.length > 0 ? (
-                    rows.map((row) => (
-                      <OccupancyBar
-                        key={rowKey(row)}
-                        rate={row.occupancyRate}
-                        label={`${row.building} - ${row.floor}`}
-                      />
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-sm">
-                      Không có dữ liệu cho bộ lọc hiện tại.
-                    </p>
-                  )
-                }
-              </QuerySection>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+  function exportCsv() {
+    if (rows.length === 0) {
+      toast.add({ title: "Không có dòng nào để xuất" });
+      return;
+    }
+    downloadCsv("bao-cao-so-sanh.csv", buildBuildingComparisonCsv(rows));
+  }
+
+  return (
+    <>
+      <div className="flex items-center justify-end">
+        <Button type="button" variant="outline" size="sm" onClick={exportCsv}>
+          <Download />
+          Xuất báo cáo
+        </Button>
+      </div>
+
+      <QuerySection
+        query={comparisonQuery}
+        errorText="Không thể tải bảng so sánh."
+        loading={<TableSkeleton />}
+      >
+        {(comparisonRows) => <BuildingComparisonTable rows={comparisonRows} />}
+      </QuerySection>
+    </>
+  );
+}
+
+/**
+ * "Báo cáo" theo Building scope của shell (spec #153 §10 row 29): một Toà
+ * nhà → doanh thu 6 kỳ + lấp đầy theo tầng trên chart, cùng kỳ trên
+ * `DataTable`; `null` → bảng so sánh giữa các Toà nhà. Bốn tab cũ và
+ * `ReportFiltersBar` đều gỡ — không còn "Lợi nhuận dịch vụ" (một con số cứng
+ * mỗi tầng) hay "Cảnh báo thất thoát" (luôn rỗng), và không còn key trùng
+ * (research C.1 #19 — chúng đến từ Mock cũ, đã bỏ ở ADR-0012).
+ */
+export default function ReportsOverviewTemplate() {
+  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
+
+  return (
+    <div className="space-y-6">
+      <ListPageHeader
+        title="Báo cáo"
+        description="Phân tích doanh thu, chi phí và hiệu suất quản lý."
+      />
+
+      {selectedBuildingId ? (
+        <SingleBuildingReport buildingId={selectedBuildingId} />
+      ) : (
+        <BuildingComparisonReport />
+      )}
     </div>
   );
 }

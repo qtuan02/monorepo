@@ -1,4 +1,5 @@
 import type { NotificationTemplate, SendLog } from "~/types/communication";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /** The Mock every Thông báo read comes from (spec #127). */
 export const mockNotificationTemplates: NotificationTemplate[] = [
@@ -56,3 +57,8 @@ export const mockSendLogs: SendLog[] = [
     recipient: "0987654321",
   },
 ];
+
+export const resetMockNotificationTemplates = trackMockReset(
+  mockNotificationTemplates,
+);
+export const resetMockSendLogs = trackMockReset(mockSendLogs);

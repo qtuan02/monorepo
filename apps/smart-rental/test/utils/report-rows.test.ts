@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import type { Building } from "~/types/building";
 import type { Invoice } from "~/types/invoice";
+import type { ReportRow } from "~/types/report";
 import type { Room } from "~/types/room";
 import {
-  buildOverdueDebts,
+  buildBuildingComparisonRows,
+  buildFloorOccupancy,
   buildProfitLossSummary,
   buildReportRows,
+  occupancyBucket,
 } from "~/utils/report-rows";
 
 const buildings: Building[] = [
@@ -159,33 +162,91 @@ describe("buildProfitLossSummary", () => {
   });
 });
 
-describe("buildOverdueDebts", () => {
-  const today = new Date("2026-09-17T00:00:00.000Z");
+describe("occupancyBucket", () => {
+  it("is good from 90, warning from 70, critical below", () => {
+    expect(occupancyBucket(90)).toBe("good");
+    expect(occupancyBucket(89)).toBe("warning");
+    expect(occupancyBucket(70)).toBe("warning");
+    expect(occupancyBucket(69)).toBe("critical");
+  });
+});
 
-  it("only lists an invoice that derives OVERDUE", () => {
-    const debts = buildOverdueDebts(
-      [
-        invoice({ dueDate: "05/09/2026" }),
-        invoice({ id: "I002", paidAmount: 1_000_000 }),
-      ],
-      today,
-    );
-
-    expect(debts.map((debt) => debt.id)).toEqual(["I001"]);
+describe("buildFloorOccupancy", () => {
+  const room = (patch: Partial<Room>): Room => ({
+    id: "r0",
+    buildingId: "b1",
+    name: "",
+    area: 20,
+    price: 0,
+    status: "occupied",
+    type: "single",
+    tenant: null,
+    lastUpdated: "",
+    floor: 1,
+    ...patch,
   });
 
-  it("reports the remaining amount, not the full invoice total", () => {
-    const [debt] = buildOverdueDebts(
-      [
-        invoice({
-          dueDate: "05/09/2026",
-          amount: 1_000_000,
-          paidAmount: 300_000,
-        }),
-      ],
-      today,
-    );
+  it("groups by floor and computes occupied/total for each", () => {
+    const result = buildFloorOccupancy([
+      room({ id: "r1", floor: 1, status: "occupied" }),
+      room({ id: "r2", floor: 1, status: "available" }),
+      room({ id: "r3", floor: 2, status: "occupied" }),
+    ]);
 
-    expect(debt?.amount).toBe(700_000);
+    expect(result).toEqual([
+      { floor: 1, occupancyRate: 50 },
+      { floor: 2, occupancyRate: 100 },
+    ]);
+  });
+
+  it("sorts floors ascending", () => {
+    const result = buildFloorOccupancy([
+      room({ id: "r1", floor: 3 }),
+      room({ id: "r2", floor: 1 }),
+    ]);
+
+    expect(result.map((row) => row.floor)).toEqual([1, 3]);
+  });
+});
+
+describe("buildBuildingComparisonRows", () => {
+  const row = (patch: Partial<ReportRow>): ReportRow => ({
+    month: "09/2026",
+    building: "b1",
+    floor: "Tất cả tầng",
+    revenue: 0,
+    expenses: 0,
+    profit: 0,
+    occupancyRate: 0,
+    waterUsage: 0,
+    electricityUsage: 0,
+    overdueTenants: 0,
+    totalTenants: 0,
+    ...patch,
+  });
+
+  it("totals revenue/expenses/profit across every kỳ of the same Toà nhà", () => {
+    const comparison = buildBuildingComparisonRows([
+      row({ building: "A", revenue: 1000, expenses: 400, profit: 600 }),
+      row({ building: "A", revenue: 1200, expenses: 500, profit: 700 }),
+      row({ building: "B", revenue: 2000, expenses: 800, profit: 1200 }),
+    ]);
+
+    expect(comparison).toEqual([
+      {
+        building: "A",
+        revenue: 2200,
+        expenses: 900,
+        profit: 1300,
+        occupancyRate: 0,
+      },
+      {
+        building: "B",
+        revenue: 2000,
+        expenses: 800,
+        profit: 1200,
+        occupancyRate: 0,
+      },
+    ]);
   });
 });

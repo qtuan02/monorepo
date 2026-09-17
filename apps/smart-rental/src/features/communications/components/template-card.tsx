@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CheckCircle2, Send } from "lucide-react";
+import { CheckCircle2, MessageSquareText } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -21,26 +21,29 @@ interface TemplateCardProps {
   template: NotificationTemplate;
 }
 
-/** One mẫu tin: channel tile, preview, and a "Gửi ngay" that only simulates the send (no backend yet). */
+/**
+ * One mẫu tin: channel tile, preview, and a single "Dùng mẫu" (spec #153
+ * §10 row 26 — Gửi nhắc is a log on Hoá đơn, not a send from here; this
+ * button only points the landlord at where to send it, it never sends).
+ */
 export default function TemplateCard({ template }: TemplateCardProps) {
-  const [isSent, setIsSent] = useState(false);
+  const [isUsed, setIsUsed] = useState(false);
   const channel = channelConfig[template.channel];
   const ChannelIcon = channel.icon;
 
   // The timer is an external system: it clears if the card unmounts mid-flash
-  // (a channel tab switch), rather than firing setState on a gone component.
+  // (a channel filter switch), rather than firing setState on a gone component.
   useEffect(() => {
-    if (!isSent) return;
-    const timer = setTimeout(() => setIsSent(false), SENT_FLASH_MS);
+    if (!isUsed) return;
+    const timer = setTimeout(() => setIsUsed(false), SENT_FLASH_MS);
     return () => clearTimeout(timer);
-  }, [isSent]);
+  }, [isUsed]);
 
-  const send = () => {
-    setIsSent(true);
+  const useTemplate = () => {
+    setIsUsed(true);
     toast.add({
-      title: "Đã mô phỏng gửi thông báo",
-      description: template.name,
-      type: "success",
+      title: `Đã dùng mẫu — ${template.name}`,
+      description: "Chọn Hoá đơn cần nhắc trong màn Hoá đơn để gửi.",
     });
   };
 
@@ -82,20 +85,20 @@ export default function TemplateCard({ template }: TemplateCardProps) {
           <Button
             type="button"
             size="sm"
-            variant={isSent ? "secondary" : "default"}
-            disabled={isSent}
-            onClick={send}
+            variant={isUsed ? "secondary" : "default"}
+            disabled={isUsed}
+            onClick={useTemplate}
             className="w-full"
           >
-            {isSent ? (
+            {isUsed ? (
               <>
                 <CheckCircle2 className="text-success" />
-                Đã gửi!
+                Đã dùng!
               </>
             ) : (
               <>
-                <Send />
-                Gửi ngay
+                <MessageSquareText />
+                Dùng mẫu
               </>
             )}
           </Button>

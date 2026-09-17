@@ -1,4 +1,5 @@
 import type { SupplierBill } from "~/types/supplier-bill";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Hoá đơn nhà cung cấp read comes from (spec #127) — the
@@ -260,3 +261,5 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
     totalAmount: 4200000,
   },
 ];
+
+export const resetMockSupplierBills = trackMockReset(mockSupplierBills);

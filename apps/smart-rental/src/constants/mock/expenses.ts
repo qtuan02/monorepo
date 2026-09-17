@@ -1,4 +1,5 @@
 import type { Expense } from "~/types/expense";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Chi phí read comes from (spec #127) — the prototype's 13
@@ -111,3 +112,5 @@ export const mockExpenses: Omit<Expense, "buildingName">[] = [
     expenseDate: "2024-05-02",
   },
 ];
+
+export const resetMockExpenses = trackMockReset(mockExpenses);

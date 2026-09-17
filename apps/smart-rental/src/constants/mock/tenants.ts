@@ -1,4 +1,5 @@
 import type { Tenant } from "~/types/tenant";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Người thuê read comes from (ADR-0012, spec #153) — one per
@@ -219,3 +220,5 @@ export const mockTenants: Tenant[] = [
     gender: "female",
   },
 ];
+
+export const resetMockTenants = trackMockReset(mockTenants);

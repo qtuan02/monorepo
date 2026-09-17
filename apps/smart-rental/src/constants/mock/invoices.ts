@@ -9,6 +9,7 @@ import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { formatDate, formatMonth } from "~/utils/date";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /** Sáu kỳ 04–09/2026 (spec #153 — one period alone cannot feed a 6-month chart or a history tab). */
 const BILLING_MONTHS = [
@@ -186,3 +187,6 @@ export const mockBatchInvoiceItems: BatchInvoiceItem[] = [
     service: 100000,
   },
 ];
+
+export const resetMockInvoices = trackMockReset(mockInvoices);
+export const resetMockBatchInvoiceItems = trackMockReset(mockBatchInvoiceItems);
