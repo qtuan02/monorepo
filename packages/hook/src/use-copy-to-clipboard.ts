@@ -3,6 +3,18 @@ import { useState } from "react";
 
 type CopiedValueType = string | null;
 
+/**
+ * `[copiedText, copy]` — `copiedText` is the text after a successful copy,
+ * `null` after a failed one; `copy` only warns when the Clipboard API is
+ * unavailable.
+ *
+ * @example
+ * const [copiedText, copy] = useCopyToClipboard();
+ *
+ * <Button onClick={() => void copy(snippet)}>
+ *   {copiedText === snippet ? "Copied" : "Copy"}
+ * </Button>;
+ */
 export const useCopyToClipboard = (): [
   CopiedValueType,
   (text: string) => Promise<void>,

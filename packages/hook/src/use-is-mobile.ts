@@ -4,6 +4,14 @@ import { useMediaQuery } from "./use-media-query";
 // where the sidebar switches from an inline column to a sheet.
 export const MOBILE_BREAKPOINT = 768;
 
+/**
+ * `useMediaQuery` pinned below Tailwind's `md` breakpoint (768px).
+ *
+ * @example
+ * const isMobile = useIsMobile();
+ *
+ * return isMobile ? <Sheet /> : <Sidebar />;
+ */
 export function useIsMobile(): boolean {
   return useMediaQuery(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
 }

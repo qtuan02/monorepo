@@ -375,6 +375,7 @@
         "exportSummary": "{count, plural, one {# export} other {# exports}}",
         "import": "Import",
         "exports": "Exports",
+        "example": "Example",
         "prev": "Previous: {slug}",
         "next": "Next: {slug}"
       },
