@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { ImportSnippet } from "~/components/code/import-snippet";
 import { GlassPanel } from "~/components/panel/glass-panel";
 
@@ -6,19 +8,23 @@ interface DetailPanelsProps {
   importPath: string;
   importHeading: string;
   exportsHeading: string;
+  /** A further full-width panel under the two — the hook page's example. */
+  children?: ReactNode;
 }
 
 /**
  * The body of a detail page: the import line to copy and the export list as
  * chips, side by side (`1.25fr | 1fr`) from `lg`, stacked below. Chips rather
  * than a table because a list of names has one column and nothing to compare —
- * a `<ul>` says exactly that.
+ * a `<ul>` says exactly that. `children` lands as a third row spanning both
+ * columns, so a page that has more to show keeps the same gap.
  */
 export function DetailPanels({
   exports,
   importPath,
   importHeading,
   exportsHeading,
+  children,
 }: DetailPanelsProps) {
   return (
     <div className="grid grid-cols-1 gap-4 pb-10 lg:grid-cols-[1.25fr_1fr]">
@@ -45,6 +51,8 @@ export function DetailPanels({
           ))}
         </ul>
       </GlassPanel>
+
+      {children}
     </div>
   );
 }

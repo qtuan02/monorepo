@@ -140,7 +140,7 @@ trên nền phẳng. Viền `#C7D2FE` cố ý là cạnh mềm (≈1.3–1.5:1),
 
 | Nguồn | Ra | Mỗi entry mang |
 | --- | --- | --- |
-| `packages/ui/src/components/*.tsx` | `src/generated/components.json` | `slug` (tên file bỏ đuôi) · `subpath` (`components/<slug>`) · `importPath` (`@fe-monorepo/ui/...`) · `exports` · `description` · `storybookDocsId` · `storybookExampleId` |
+| `packages/ui/src/components/*.tsx` | `src/generated/components.json` | `slug` (tên file bỏ đuôi) · `subpath` (`components/<slug>`) · `importPath` (`@fe-monorepo/ui/...`) · `exports` · `description` · `example` · `storybookDocsId` · `storybookExampleId` |
 | `packages/hook/src/*.ts` | `src/generated/hooks.json` | như trên, trừ hai id Storybook; `subpath` là tên file trần (gói hook không có prefix) |
 
 **Chạy lúc nào** — năm hook `pre*` trong `package.json`, không phải một bước tay:
@@ -159,8 +159,13 @@ khi JSON tồn tại và fail ngay ở bước resolve import. Gọi tay đượ
   không phải regex: một danh sách `export { ... }` xuống dòng, hay một
   `export type`, là chỗ regex sai ngay lần đầu. `export type` và `default` bị
   loại — bảng export là những thứ consumer gọi được.
-- `description` là block JSDoc **ngay trên** declaration được export đầu tiên;
-  JSDoc của một import ở trên nữa không tính.
+- `description` và `example` đọc từ **một** block JSDoc: block ngay trên declaration
+  được export đầu tiên **có** JSDoc (`use-is-mobile` export hằng breakpoint trước
+  hook, nên không phải "export đầu tiên"); JSDoc của một import ở trên nữa không
+  tính. `description` là phần trước tag đầu tiên gộp thành một câu; `example` là
+  phần sau `@example` tới tag kế, giữ nguyên xuống dòng và thụt đầu dòng, `null`
+  khi không có. Trang hook render `example` thành panel "Ví dụ" — nguồn duy nhất
+  của snippet là source hook, không có bản copy trong i18n hay README.
 - `storybookDocsId` suy ra từ slug (`alert-dialog` → `storybook-alertdialog`), cộng
   một bảng override nhỏ cho trường hợp story đặt tên theo component chứ không theo
   file (`direction` → `storybook-directionprovider`). Script không tra được title
@@ -193,7 +198,7 @@ làm cache của app miss đúng lúc cần.
 | `/components` | `ROUTES.COMPONENTS` | `components-page.tsx` | Lưới 63 tile, có ô lọc (debounce 300ms), tile rộng từ 10 export |
 | `/components/:slug` | `ROUTES.COMPONENT_BY_SLUG` · `ROUTES.componentBySlugPath(slug)` | `component-detail-page.tsx` | Trước/sau, hero, ví dụ (iframe story Storybook), Import, chip export, link Storybook |
 | `/hooks` | `ROUTES.HOOKS` | `hooks-page.tsx` | Lưới 5 tile hook, có mô tả |
-| `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Trước/sau, hero, Import, chip export |
+| `/hooks/:slug` | `ROUTES.HOOK_BY_SLUG` · `ROUTES.hookBySlugPath(slug)` | `hook-detail-page.tsx` | Trước/sau, hero, Import, chip export, panel Ví dụ từ `@example` |
 | `*` | — | `not-found-page.tsx` | 404, **trong** shell để còn đường quay lại |
 
 Slug lạ ở hai route động **không** redirect: trang tự render 404 tại chính URL đó
@@ -241,9 +246,9 @@ Những gì được kiểm, và vì sao chỉ chừng đó:
 
 | File | Kiểm |
 | --- | --- |
-| `test/scripts/docs-metadata.test.ts` | Parser, trên hai fixture giả ghi ra thư mục tạm (một `.tsx`, một `.ts`): danh sách export xuống dòng, `export type` bị loại, JSDoc đúng block, file hỏng thì **ném** và gọi tên file |
-| `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; `storybookDocsId` trỏ đúng story thật; `storybookExampleId` là một `export const` của file stories đó |
-| `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ |
+| `test/scripts/docs-metadata.test.ts` | Parser, trên hai fixture giả ghi ra thư mục tạm (một `.tsx`, một `.ts`): danh sách export xuống dòng, `export type` bị loại, JSDoc đúng block, `@example` nhiều dòng / không có / có tag theo sau, file hỏng thì **ném** và gọi tên file |
+| `test/generated/catalogue-invariants.test.ts` | Bất biến: mọi file trong hai thư mục nguồn đều có entry; specifier luôn `@fe-monorepo/*`; mọi primitive có ít nhất một export; mọi hook có `example` khác `null`; `storybookDocsId` trỏ đúng story thật; `storybookExampleId` là một `export const` của file stories đó |
+| `test/features/*/templates/*-detail.template.test.tsx` | Đúng một nhánh mỗi trang: slug có trong catalogue → chip export (`listitem`); slug lạ → 404 tại chỗ; trang hook: panel Ví dụ từ source, và không có panel khi entry giả có `example: null` |
 | `test/features/component/components/component-card.test.tsx` · `test/components/tile/tile.test.tsx` | Tile rộng ở 10 export và không rộng ở 9 — trên `listitem`, là grid item; tên link bắt đầu bằng slug; `+n` |
 | `test/features/component/templates/component-list.template.test.tsx` | Lọc rỗng hiện nút xoá bộ lọc, bấm thì danh sách quay lại |
 | `test/features/layout/**` | Shell (`layout.template`: nav pill, palette, thứ tự DOM) và `theme-provider` |

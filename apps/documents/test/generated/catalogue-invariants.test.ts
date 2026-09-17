@@ -97,6 +97,18 @@ describe("the hook catalogue", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("carries a usage example for every hook, read from its `@example`", () => {
+    const offenders = hookCatalogue.items
+      .filter((item) => item.example === null)
+      .map((item) => item.slug);
+
+    // The snippet on `/hooks/<slug>` has exactly one source: the `@example` in
+    // the hook's own JSDoc, which is also what a consumer sees on hover. A hook
+    // without one would ship a page with no example and nothing red — this is
+    // the red.
+    expect(offenders).toEqual([]);
+  });
 });
 
 /**

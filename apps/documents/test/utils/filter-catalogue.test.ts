@@ -10,6 +10,7 @@ function entry(slug: string): DocsEntry {
     importPath: `@fe-monorepo/ui/components/${slug}`,
     exports: [],
     description: null,
+    example: null,
   };
 }
 

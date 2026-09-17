@@ -58,6 +58,39 @@ export function useFakeThing(): number {
 }
 `;
 
+/**
+ * One block carrying both things the generator reads — the description and an
+ * `@example` — plus a tag after the example, which is where the example has to
+ * stop. The example keeps its blank line and its indent.
+ */
+const EXAMPLE_FIXTURE = `/**
+ * Counts renders.
+ *
+ * @example
+ * const count = useRenderCount();
+ *
+ * if (count > 1) {
+ *   console.log("re-rendered");
+ * }
+ * @returns the number of renders so far
+ */
+export function useRenderCount(): number {
+  return 1;
+}
+`;
+
+/** The hook is the second export, and the only one carrying a JSDoc. */
+const LATER_EXPORT_FIXTURE = `export const LIMIT = 768;
+
+/**
+ * Below the limit.
+ * @example const mobile = useBelowLimit();
+ */
+export function useBelowLimit(): boolean {
+  return false;
+}
+`;
+
 let fixtureDirectory: string;
 
 beforeAll(() => {
@@ -111,6 +144,42 @@ describe("parseDocsModule", () => {
     );
 
     expect(description).not.toContain("Documents the import above");
+  });
+
+  it("cuts the description at the first tag and keeps the example's lines verbatim", () => {
+    const { description, example } = parseDocsModule(
+      "use-render-count.ts",
+      EXAMPLE_FIXTURE,
+    );
+
+    expect(description).toBe("Counts renders.");
+    expect(example).toBe(
+      [
+        "const count = useRenderCount();",
+        "",
+        "if (count > 1) {",
+        '  console.log("re-rendered");',
+        "}",
+      ].join("\n"),
+    );
+  });
+
+  it("returns a null example when the block has no @example tag", () => {
+    const { example } = parseDocsModule("use-fake-thing.ts", HOOK_FIXTURE);
+
+    expect(example).toBeNull();
+  });
+
+  it("reads an @example written on the tag's own line, off a later export", () => {
+    // `use-is-mobile` exports its breakpoint before its hook: the block that
+    // describes the module sits on the first export that carries one.
+    const { description, example } = parseDocsModule(
+      "use-below-limit.ts",
+      LATER_EXPORT_FIXTURE,
+    );
+
+    expect(description).toBe("Below the limit.");
+    expect(example).toBe("const mobile = useBelowLimit();");
   });
 
   it("returns null when the module carries no JSDoc at all", () => {
