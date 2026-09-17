@@ -15,9 +15,21 @@ import { Field, FieldGroup } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 import { Label } from "@monorepo/ui/components/label";
 
+import { currentPerson } from "~/support/people";
+import { atlasProject as atlas } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Dialog",
   component: Dialog,
+  subcomponents: {
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+    DialogClose,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Dialog>;
 
@@ -26,28 +38,34 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <Dialog>
       <form>
         <DialogTrigger
-          render={<Button variant="outline">Open Dialog</Button>}
+          render={<Button variant="outline">Rename project</Button>}
         />
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
+            <DialogTitle>Rename project</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you're done.
+              Update how {atlas.name} shows up across Northwind.
             </DialogDescription>
           </DialogHeader>
           <FieldGroup>
             <Field>
-              <Label htmlFor="name-1">Name</Label>
-              <Input id="name-1" name="name" defaultValue="Pedro Duarte" />
+              <Label htmlFor="project-name">Name</Label>
+              <Input id="project-name" name="name" defaultValue={atlas.name} />
             </Field>
             <Field>
-              <Label htmlFor="username-1">Username</Label>
-              <Input id="username-1" name="username" defaultValue="@peduarte" />
+              <Label htmlFor="project-owner">Owner</Label>
+              <Input
+                id="project-owner"
+                name="owner"
+                defaultValue={currentPerson.name}
+              />
             </Field>
           </FieldGroup>
           <DialogFooter>
@@ -61,15 +79,14 @@ export const Default: Story = {
 };
 
 export const CloseButton: Story = {
-  args: {},
   render: () => (
     <Dialog>
-      <DialogTrigger render={<Button variant="outline">Share</Button>} />
+      <DialogTrigger render={<Button variant="outline">Share Atlas</Button>} />
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Share link</DialogTitle>
           <DialogDescription>
-            Anyone who has this link will be able to view this.
+            Anyone on Northwind with this link can view {atlas.name}.
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center gap-2">
@@ -79,7 +96,7 @@ export const CloseButton: Story = {
             </Label>
             <Input
               id="link"
-              defaultValue="https://ui.shadcn.com/docs/installation"
+              defaultValue="https://northwind.dev/atlas"
               readOnly
             />
           </div>
@@ -93,30 +110,25 @@ export const CloseButton: Story = {
 };
 
 export const StickyFooter: Story = {
-  args: {},
   render: () => (
     <Dialog>
       <DialogTrigger
-        render={<Button variant="outline">Sticky Footer</Button>}
+        render={<Button variant="outline">Delivery history</Button>}
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Sticky Footer</DialogTitle>
+          <DialogTitle>Delivery history</DialogTitle>
           <DialogDescription>
-            This dialog has a sticky footer that stays visible while the content
-            scrolls.
+            Every notification Northwind has sent about {atlas.name}, oldest
+            first. The footer stays visible while the content scrolls.
           </DialogDescription>
         </DialogHeader>
         <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
           {Array.from({ length: 10 }).map((_, index) => (
-            <p key={`dialog-para-${index}`} className="mb-4 leading-normal">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
+            <p key={`dialog-history-${index}`} className="mb-4 leading-normal">
+              Notification #{index + 1}: Mira Okafor updated the {atlas.name}{" "}
+              billing schedule and notified the Northwind team. Invoice INV-2041
+              was marked paid the same day.
             </p>
           ))}
         </div>
@@ -129,32 +141,67 @@ export const StickyFooter: Story = {
 };
 
 export const ScrollableContent: Story = {
-  args: {},
   render: () => (
     <Dialog>
       <DialogTrigger
-        render={<Button variant="outline">Scrollable Content</Button>}
+        render={<Button variant="outline">Release notes</Button>}
       />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Scrollable Content</DialogTitle>
+          <DialogTitle>Release notes</DialogTitle>
           <DialogDescription>
-            This is a dialog with scrollable content.
+            What shipped on {atlas.name} this quarter.
           </DialogDescription>
         </DialogHeader>
         <div className="no-scrollbar -mx-4 max-h-[50vh] overflow-y-auto px-4">
           {Array.from({ length: 10 }).map((_, index) => (
-            <p key={`dialog-para-${index}`} className="mb-4 leading-normal">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-              enim ad minim veniam, quis nostrud exercitation ullamco laboris
-              nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-              reprehenderit in voluptate velit esse cillum dolore eu fugiat
-              nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-              sunt in culpa qui officia deserunt mollit anim id est laborum.
+            <p key={`dialog-notes-${index}`} className="mb-4 leading-normal">
+              Entry #{index + 1}: the {atlas.name} billing migration moved
+              another batch of Northwind invoices onto the new schedule, with no
+              downtime reported by Hana Sato's on-call rotation.
             </p>
           ))}
         </div>
+      </DialogContent>
+    </Dialog>
+  ),
+};
+
+export const Stacking: Story = {
+  render: () => (
+    <Dialog>
+      <DialogTrigger render={<Button variant="outline">Delete Atlas</Button>} />
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Delete project</DialogTitle>
+          <DialogDescription>
+            This removes {atlas.name} for every Northwind member.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose render={<Button variant="outline">Cancel</Button>} />
+          <Dialog>
+            <DialogTrigger
+              render={<Button variant="destructive">Delete</Button>}
+            />
+            <DialogContent className="sm:max-w-xs">
+              <DialogHeader>
+                <DialogTitle>Are you sure?</DialogTitle>
+                <DialogDescription>
+                  This confirmation opens above the first dialog — a stacking
+                  regression would hide it behind the page instead.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <DialogClose
+                  render={
+                    <Button variant="destructive">Delete {atlas.name}</Button>
+                  }
+                />
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   ),
