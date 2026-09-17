@@ -26,10 +26,10 @@ interface SupplierBillDetailTemplateProps {
   billId: string;
 }
 
-const TITLE = "Chi tiết hóa đơn nhà cung cấp";
+const TITLE = "Chi tiết hoá đơn nhà cung cấp";
 
 /**
- * "Chi tiết hóa đơn nhà cung cấp": the amount and its status, the facts, and
+ * "Chi tiết hoá đơn nhà cung cấp": the amount and its status, the facts, and
  * the invoice image when the record carries one (the Mock has none yet).
  */
 export default function SupplierBillDetailTemplate({
@@ -50,8 +50,8 @@ export default function SupplierBillDetailTemplate({
       <DetailPageShell title={TITLE} backTo={ROUTES.SUPPLIER_BILLS}>
         <EmptyPanel
           icon={Receipt}
-          title="Không tìm thấy hóa đơn nhà cung cấp."
-          description={`Không có hóa đơn nào với mã ${billId}.`}
+          title="Không tìm thấy hoá đơn nhà cung cấp."
+          description={`Không có hoá đơn nào với mã ${billId}.`}
           className="border"
         />
       </DetailPageShell>
@@ -79,15 +79,15 @@ export default function SupplierBillDetailTemplate({
       </Card>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <InfoCard title="Thông tin hóa đơn">
-          <InfoRow label="Mã hóa đơn" value={bill.id} />
-          <InfoRow label="Tòa nhà" value={bill.buildingName} />
+        <InfoCard title="Thông tin hoá đơn">
+          <InfoRow label="Mã hoá đơn" value={bill.id} />
+          <InfoRow label="Toà nhà" value={bill.buildingName} />
           <InfoRow
             label="Loại dịch vụ"
             value={supplierBillTypeConfig[bill.type].label}
           />
           <InfoRow label="Nhà cung cấp" value={bill.supplierName} />
-          <InfoRow label="Kỳ hóa đơn" value={bill.billingPeriod} />
+          <InfoRow label="Kỳ hoá đơn" value={bill.billingPeriod} />
           {bill.totalMeterIndex !== undefined && (
             <InfoRow label="Tổng chỉ số" value={bill.totalMeterIndex} />
           )}
@@ -102,16 +102,16 @@ export default function SupplierBillDetailTemplate({
           />
         </InfoCard>
 
-        <InfoCard title="Ảnh hóa đơn">
+        <InfoCard title="Ảnh hoá đơn">
           {bill.invoiceImageUrl ? (
             <img
               src={bill.invoiceImageUrl}
-              alt={`Hóa đơn ${bill.supplierName} kỳ ${bill.billingPeriod}`}
+              alt={`Hoá đơn ${bill.supplierName} kỳ ${bill.billingPeriod}`}
               className="w-full rounded-lg border object-contain"
             />
           ) : (
             <p className="text-muted-foreground text-sm italic">
-              Chưa có ảnh hóa đơn.
+              Chưa có ảnh hoá đơn.
             </p>
           )}
         </InfoCard>

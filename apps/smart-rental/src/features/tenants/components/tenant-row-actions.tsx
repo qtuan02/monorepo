@@ -9,7 +9,7 @@ interface TenantRowActionsProps {
   side?: "top" | "bottom";
 }
 
-/** The "⋯" of a Người thuê row or card. "Tạo hóa đơn" has no flow yet, as in the prototype. */
+/** The "⋯" of a Người thuê row or card. "Tạo hoá đơn" has no flow yet, as in the prototype. */
 export default function TenantRowActions({
   tenant,
   side = "bottom",
@@ -24,7 +24,7 @@ export default function TenantRowActions({
           icon: <UserCircle />,
           link: ROUTES.tenantDetailPath(tenant.id),
         },
-        { key: "invoice", label: "Tạo hóa đơn", icon: <CreditCard /> },
+        { key: "invoice", label: "Tạo hoá đơn", icon: <CreditCard /> },
       ]}
     />
   );

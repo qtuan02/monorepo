@@ -33,7 +33,7 @@ const TITLE = "Chi tiết phòng";
 
 /** What the status card says under the badge, per status. */
 const statusNote = {
-  available: "Sẵn sàng cho khách mới",
+  available: "Sẵn sàng cho Người thuê mới",
   maintenance: "Đang trong quá trình bảo trì",
   reserved: "Đã được đặt trước",
 } as const;
@@ -150,22 +150,22 @@ export default function RoomDetailTemplate({
             <InfoRow label="Cập nhật lần cuối" value={room.lastUpdated} />
           </InfoCard>
 
-          <InfoCard title="Thông tin khách thuê">
+          <InfoCard title="Thông tin Người thuê">
             {room.tenant ? (
               <>
-                <InfoRow label="Tên khách" value={room.tenant} isHighlighted />
+                <InfoRow label="Tên Người thuê" value={room.tenant} isHighlighted />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="mt-3 w-full"
                 >
-                  Xem hồ sơ khách thuê
+                  Xem hồ sơ Người thuê
                 </Button>
               </>
             ) : (
               <p className="text-muted-foreground text-sm italic">
-                Phòng này hiện chưa có khách thuê
+                Phòng này hiện chưa có Người thuê
               </p>
             )}
           </InfoCard>
@@ -186,7 +186,7 @@ export default function RoomDetailTemplate({
               <div className="space-y-2 text-sm">
                 {room.status === "occupied" ? (
                   <>
-                    <p className="font-medium">Khách thuê hiện tại</p>
+                    <p className="font-medium">Người thuê hiện tại</p>
                     <p className="text-muted-foreground">{room.tenant}</p>
                   </>
                 ) : (
@@ -232,7 +232,7 @@ export default function RoomDetailTemplate({
                 size="sm"
                 className="w-full"
               >
-                Tạo hóa đơn
+                Tạo hoá đơn
               </Button>
               {room.tenant && (
                 <Button

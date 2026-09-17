@@ -20,7 +20,7 @@ describe("batchInvoiceFormSchema", () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe(
-      "Vui lòng chọn ít nhất một hóa đơn",
+      "Vui lòng chọn ít nhất một hoá đơn",
     );
   });
 
@@ -34,6 +34,6 @@ describe("batchInvoiceFormSchema", () => {
     expect(
       batchInvoiceFormSchema.safeParse({ month: "", selectedInvoiceIds: ["1"] })
         .error?.issues[0]?.message,
-    ).toBe("Vui lòng chọn kỳ hóa đơn");
+    ).toBe("Vui lòng chọn kỳ hoá đơn");
   });
 });

@@ -67,9 +67,9 @@ export default function ContractLiquidationTemplate({
 
   return (
     <DetailPageShell title={TITLE} backTo={backTo}>
-      <Alert className="border-amber-200 bg-amber-50 text-amber-800">
-        <AlertTriangle className="text-amber-600" />
-        <AlertDescription className="text-amber-800">
+      <Alert className="border-warning/20 bg-warning/10 text-warning">
+        <AlertTriangle className="text-warning" />
+        <AlertDescription className="text-warning">
           Thanh lý hợp đồng là quá trình không thể hoàn tác. Vui lòng kiểm tra
           kỹ thông tin trước khi xác nhận.
         </AlertDescription>
@@ -153,7 +153,7 @@ function LiquidationFlow({ contract }: { contract: Contract }) {
           </CardHeader>
           <CardContent className="space-y-3">
             <InfoRow label="Số hợp đồng" value={contract.contractNumber} />
-            <InfoRow label="Khách thuê" value={contract.tenant} />
+            <InfoRow label="Người thuê" value={contract.tenant} />
             <InfoRow label="Phòng" value={contract.room} />
             <InfoRow
               label="Tiền đặt cọc"
@@ -200,11 +200,11 @@ function LiquidationFlow({ contract }: { contract: Contract }) {
                     />
                   </div>
                 </div>
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-                  <p className="mb-3 text-sm font-medium text-red-900">
+                <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-3">
+                  <p className="mb-3 text-sm font-medium text-destructive">
                     Phí vi phạm
                   </p>
-                  <p className="text-sm text-red-800">
+                  <p className="text-sm text-destructive">
                     Làm hỏng cửa sổ: {formatCurrency(PENALTY_AMOUNT)}
                   </p>
                 </div>
@@ -227,14 +227,14 @@ function LiquidationFlow({ contract }: { contract: Contract }) {
 
         {step === 2 && (
           <>
-            <Card className="border-emerald-200 bg-emerald-50">
+            <Card className="border-success/20 bg-success/10">
               <CardHeader>
-                <CardTitle className="text-base text-emerald-900">
+                <CardTitle className="text-base text-success">
                   Sẵn sàng hoàn tất
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-emerald-800">
+                <p className="text-sm text-success">
                   Tất cả các bước đã được hoàn thành. Nhấp "Xác nhận thanh lý"
                   để hoàn tất quá trình.
                 </p>

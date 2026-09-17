@@ -20,8 +20,8 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
 /**
- * "Hóa đơn nhà cung cấp": the three KPIs over the scoped list, then the
- * table. "Thêm hóa đơn" has no flow yet, as in the prototype.
+ * "Hoá đơn nhà cung cấp": the three KPIs over the scoped list, then the
+ * table. "Thêm hoá đơn" has no flow yet, as in the prototype.
  */
 export default function SupplierBillListTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
@@ -34,12 +34,12 @@ export default function SupplierBillListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Hóa đơn nhà cung cấp"
+        title="Hoá đơn nhà cung cấp"
         description="Theo dõi và quản lý các khoản chi trả cho dịch vụ đầu vào."
         actions={
           <Button type="button" size="sm">
             <Plus />
-            Thêm hóa đơn
+            Thêm hoá đơn
           </Button>
         }
       />
@@ -48,7 +48,7 @@ export default function SupplierBillListTemplate() {
         <LoadingPanel itemCount={6} />
       ) : isError ? (
         <ErrorPanel
-          description="Không tải được danh sách hóa đơn nhà cung cấp."
+          description="Không tải được danh sách hoá đơn nhà cung cấp."
           action={{ label: "Thử lại", onClick: () => refetch() }}
         />
       ) : (
@@ -63,10 +63,10 @@ export default function SupplierBillListTemplate() {
               label="Chờ thanh toán"
               value={formatCurrency(totals.pendingAmount)}
               icon={Activity}
-              iconClassName="bg-amber-100 text-amber-600"
+              iconClassName="bg-warning/10 text-warning"
             />
             <SummaryCard
-              label="Số hóa đơn"
+              label="Số hoá đơn"
               value={totals.count}
               icon={Receipt}
             />
@@ -88,7 +88,7 @@ export default function SupplierBillListTemplate() {
               },
               {
                 columnId: "billingPeriod",
-                title: "Kỳ hóa đơn",
+                title: "Kỳ hoá đơn",
                 // Latest period first — `YYYY-MM` sorts as text.
                 options: toDistinctOptions(
                   bills
@@ -105,11 +105,11 @@ export default function SupplierBillListTemplate() {
             ]}
             empty={{
               icon: Receipt,
-              title: "Không tìm thấy hóa đơn nhà cung cấp",
+              title: "Không tìm thấy hoá đơn nhà cung cấp",
               description:
                 "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
             }}
-            resultLabel={(count) => `${count} hóa đơn được tìm thấy`}
+            resultLabel={(count) => `${count} hoá đơn được tìm thấy`}
           />
         </>
       )}

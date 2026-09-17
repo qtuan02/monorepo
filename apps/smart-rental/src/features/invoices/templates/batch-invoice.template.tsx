@@ -37,7 +37,7 @@ const FORM_ID = "batch-invoice-form";
 const allIds = mockBatchInvoiceItems.map((item) => item.id);
 
 /**
- * "Tạo hóa đơn hàng loạt" — an Đợt hoá đơn: pick the month, tick the Phòng to
+ * "Tạo hoá đơn hàng loạt" — an Đợt hoá đơn: pick the month, tick the Phòng to
  * bill, review the amounts. The prototype pinned the month in copy; here it
  * is a native month input, defaulting to this month. Submit is the
  * prototype's own `TODO` — nothing is created yet.
@@ -74,8 +74,8 @@ export default function BatchInvoiceTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Tạo hóa đơn hàng loạt"
-        description="Lập hóa đơn cho mọi phòng đang thuê trong một kỳ."
+        title="Tạo hoá đơn hàng loạt"
+        description="Lập hoá đơn cho mọi phòng đang thuê trong một kỳ."
         actions={
           <>
             <Button type="button" variant="outline" size="sm">
@@ -84,7 +84,7 @@ export default function BatchInvoiceTemplate() {
             </Button>
             <Button type="submit" size="sm" form={FORM_ID}>
               <Send />
-              Tạo & Gửi {selectedIds.length} hóa đơn
+              Tạo & Gửi {selectedIds.length} hoá đơn
             </Button>
           </>
         }
@@ -96,7 +96,7 @@ export default function BatchInvoiceTemplate() {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid} className="max-w-xs">
-              <FieldLabel htmlFor={field.name}>Kỳ hóa đơn</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Kỳ hoá đơn</FieldLabel>
               <Input
                 {...field}
                 id={field.name}
@@ -110,7 +110,7 @@ export default function BatchInvoiceTemplate() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Xem trước danh sách hóa đơn</CardTitle>
+            <CardTitle>Xem trước danh sách hoá đơn</CardTitle>
             <CardDescription>
               Kiểm tra lại số tiền trước khi tạo chính thức
             </CardDescription>
@@ -134,7 +134,7 @@ export default function BatchInvoiceTemplate() {
                     />
                   </TableHead>
                   <TableHead>Phòng</TableHead>
-                  <TableHead>Khách thuê</TableHead>
+                  <TableHead>Người thuê</TableHead>
                   <TableHead>Tiền phòng</TableHead>
                   <TableHead>Điện & Nước</TableHead>
                   <TableHead>Dịch vụ</TableHead>

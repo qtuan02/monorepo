@@ -44,7 +44,7 @@ const scannedIdentity = {
 };
 
 /**
- * "Thêm khách thuê mới": the identity block is filled by a simulated CCCD
+ * "Thêm Người thuê mới": the identity block is filled by a simulated CCCD
  * scan (a two-second wait, then fixed values — the prototype's stand-in for
  * OCR) and stays editable; the rest is typed. Submit writes into the Mock and
  * lands back on the list.
@@ -84,7 +84,7 @@ export default function TenantCreateTemplate() {
       {
         onSuccess: (tenant) => {
           toast.add({
-            title: `Đã thêm khách thuê ${tenant.name}`,
+            title: `Đã thêm Người thuê ${tenant.name}`,
             type: "success",
           });
           navigate(ROUTES.TENANTS);
@@ -98,10 +98,10 @@ export default function TenantCreateTemplate() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">
-            Thêm khách thuê mới
+            Thêm Người thuê mới
           </h1>
           <p className="text-muted-foreground">
-            Nhập thông tin chi tiết hồ sơ khách thuê
+            Nhập thông tin chi tiết hồ sơ Người thuê
           </p>
         </div>
         <Link
@@ -125,7 +125,7 @@ export default function TenantCreateTemplate() {
           </CardHeader>
           <CardContent className="space-y-4">
             {scan === "done" ? (
-              <div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-emerald-700">
+              <div className="flex items-center gap-2 rounded-md border border-success/20 bg-success/10 p-3 text-success">
                 <CheckCircle2 className="size-5" />
                 <span className="text-sm font-medium">
                   Trích xuất thành công! Vui lòng kiểm tra lại.
@@ -241,7 +241,7 @@ export default function TenantCreateTemplate() {
           Hủy bỏ
         </Link>
         <Button type="submit" form={FORM_ID} disabled={createTenant.isPending}>
-          Lưu hồ sơ khách thuê
+          Lưu hồ sơ Người thuê
         </Button>
       </div>
     </div>

@@ -38,7 +38,7 @@ export default function RoomListTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Danh sách phòng trọ"
-        description="Quản lý toàn bộ phòng trọ, trạng thái và thông tin khách thuê."
+        description="Quản lý toàn bộ phòng trọ, trạng thái và thông tin Người thuê."
         actions={
           <>
             <Button type="button" variant="outline" size="sm">

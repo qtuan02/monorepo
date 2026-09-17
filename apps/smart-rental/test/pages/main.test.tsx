@@ -47,37 +47,37 @@ function heading(name: string) {
 // ported screen adds a third column — text only its Mock can put on screen —
 // so a route wired to a placeholder, or a Mock that stopped flowing, fails.
 const guardedScreens: [path: string, heading: string, mockText?: string][] = [
-  [ROUTES.HOME, "Tổng quan", "Sửa vòi nước phòng 108"],
-  [ROUTES.BUILDINGS, "Quản lý Tòa nhà", "Trọ Sinh Viên Xanh"],
+  [ROUTES.HOME, "Tổng quan"],
+  [ROUTES.BUILDINGS, "Quản lý Toà nhà", "Trọ Sinh Viên Xanh"],
   [
     ROUTES.buildingDetailPath("b2"),
-    "Chi tiết tòa nhà",
+    "Chi tiết toà nhà",
     "Căn hộ Dịch Vụ Cao Cấp",
   ],
   [ROUTES.ROOMS, "Danh sách phòng trọ", "Phòng 101"],
   [ROUTES.roomDetailPath("R-B1-102"), "Chi tiết phòng", "Phòng 102"],
-  [ROUTES.TENANTS, "Quản lý khách thuê", "Trần Thị B"],
-  [ROUTES.TENANT_CREATE, "Thêm khách thuê mới"],
-  [ROUTES.tenantDetailPath("T003"), "Chi tiết khách thuê", "Nguyễn Văn C"],
+  [ROUTES.TENANTS, "Quản lý Người thuê", "Trần Thị B"],
+  [ROUTES.TENANT_CREATE, "Thêm Người thuê mới"],
+  [ROUTES.tenantDetailPath("T003"), "Chi tiết Người thuê", "Lê Văn C"],
   [ROUTES.CONTRACTS, "Quản lý hợp đồng", "HĐ-002"],
   [ROUTES.CONTRACT_CREATE, "Tạo hợp đồng mới"],
   [ROUTES.contractDetailPath("C004"), "Chi tiết hợp đồng", "HĐ-004"],
   [ROUTES.contractRenewPath("C004"), "Gia hạn hợp đồng", "HĐ-004"],
   [ROUTES.contractLiquidationPath("C004"), "Thanh lý hợp đồng", "HĐ-004"],
-  [ROUTES.INVOICES, "Quản lý hóa đơn", "HÓA-001"],
-  [ROUTES.INVOICE_BATCH, "Tạo hóa đơn hàng loạt", "Nguyễn Văn A"],
-  [ROUTES.invoiceDetailPath("I002"), "Chi tiết hóa đơn", "HÓA-002"],
-  [ROUTES.UTILITIES, "Tiện ích", "Phòng 101"],
-  [ROUTES.METER_INPUT, "Nhập chỉ số điện nước", "3400"],
+  [ROUTES.INVOICES, "Quản lý hoá đơn", "HÓA-001"],
+  [ROUTES.INVOICE_BATCH, "Tạo hoá đơn hàng loạt", "Nguyễn Văn A"],
+  [ROUTES.invoiceDetailPath("I002"), "Chi tiết hoá đơn", "HÓA-002"],
+  [ROUTES.UTILITIES, "Tiện ích", "Phòng 102"],
+  [ROUTES.METER_INPUT, "Nhập chỉ số điện nước", "1000"],
   [
-    ROUTES.utilityDetailPath("util-003"),
+    ROUTES.utilityDetailPath("util-202609-R-B1-102-d"),
     "Chi tiết chỉ số điện nước",
     "Phòng 102",
   ],
-  [ROUTES.SUPPLIER_BILLS, "Hóa đơn nhà cung cấp", "Viettel Business"],
+  [ROUTES.SUPPLIER_BILLS, "Hoá đơn nhà cung cấp", "Viettel Business"],
   [
     ROUTES.supplierBillDetailPath("sb2"),
-    "Chi tiết hóa đơn nhà cung cấp",
+    "Chi tiết hoá đơn nhà cung cấp",
     "Dawaco",
   ],
   [ROUTES.EXPENSES, "Chi phí vận hành", "Thay bóng đèn hành lang tầng 1-3"],
@@ -86,10 +86,11 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
     "Chi tiết chi phí",
     "Chi phí bảo vệ ca đêm",
   ],
-  [ROUTES.RECONCILIATION, "Đối soát chi phí", "Rác thải"],
-  [ROUTES.TASKS, "Trung tâm nhiệm vụ", "Bảo trì - Vệ sinh máy lạnh Phòng 103"],
-  [ROUTES.REPORTS, "Báo cáo", "Trọ Sinh Viên Xanh - Tầng 1"],
-  [ROUTES.COMPLIANCE, "Tuân thủ", "Phạm Thị Duyên"],
+  // Ba màn mất Mock (ADR-0012) — vẫn còn heading, chỉ còn empty state.
+  [ROUTES.RECONCILIATION, "Đối soát chi phí", "Không có dữ liệu đối soát"],
+  [ROUTES.TASKS, "Trung tâm nhiệm vụ", "Không có nhiệm vụ"],
+  [ROUTES.REPORTS, "Báo cáo", "Không có dòng báo cáo"],
+  [ROUTES.COMPLIANCE, "Tuân thủ", "Nguyễn Văn A"],
   [ROUTES.COMMUNICATIONS, "Liên lạc", "ZNS: Nhắc đóng tiền nhà"],
   [ROUTES.SETTINGS, "Cài đặt hệ thống", "Nhà trọ Quốc Tế"],
 ];
@@ -159,7 +160,7 @@ describe("the route tree", () => {
       expect(heading("Chào mừng!")).toBeInTheDocument();
       expect(screen.getByLabelText("Tên khu trọ")).toBeInTheDocument();
       expect(
-        screen.queryByRole("link", { name: "Tòa nhà" }),
+        screen.queryByRole("link", { name: "Toà nhà" }),
       ).not.toBeInTheDocument();
     });
 
@@ -169,7 +170,7 @@ describe("the route tree", () => {
       expect(router.state.location.pathname).toBe("/khong-ton-tai");
       expect(heading("404 Không tìm thấy")).toBeInTheDocument();
       // "Inside the shell" is the sidebar being there around the 404.
-      expect(screen.getByRole("link", { name: "Tòa nhà" })).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Toà nhà" })).toBeInTheDocument();
     });
 
     it("marks the sidebar item of the area the path falls under", () => {
@@ -209,7 +210,7 @@ describe("the route tree", () => {
 
         expect(heading(name)).toBeInTheDocument();
         expect(
-          screen.queryByRole("link", { name: "Tòa nhà" }),
+          screen.queryByRole("link", { name: "Toà nhà" }),
         ).not.toBeInTheDocument();
       },
     );

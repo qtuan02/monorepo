@@ -30,7 +30,7 @@ export const expenseColumns = helper.columns([
   }),
   helper.accessor("buildingName", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Tòa nhà" />
+      <DataTableColumnHeader column={column} title="Toà nhà" />
     ),
   }),
   helper.accessor("expenseDate", {

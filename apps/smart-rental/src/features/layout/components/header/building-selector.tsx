@@ -28,7 +28,7 @@ export default function BuildingSelector() {
   );
 
   const options = [
-    { id: ALL_BUILDINGS, name: "Tất cả tòa nhà" },
+    { id: ALL_BUILDINGS, name: "Tất cả toà nhà" },
     ...buildings.map(({ id, name }) => ({ id, name })),
   ];
   const value = selectedBuildingId ?? ALL_BUILDINGS;
@@ -42,7 +42,7 @@ export default function BuildingSelector() {
       }
     >
       <SelectTrigger
-        aria-label="Tòa nhà"
+        aria-label="Toà nhà"
         className="hover:bg-accent h-9 gap-2 border-none bg-transparent px-2 shadow-none"
       >
         <Building2 className="text-muted-foreground size-4 shrink-0" />

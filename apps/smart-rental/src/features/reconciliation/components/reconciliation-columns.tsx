@@ -40,12 +40,12 @@ export const reconciliationColumns = helper.columns([
     header: ({ column }) => (
       <DataTableColumnHeader
         column={column}
-        title="Thu từ khách thuê"
+        title="Thu từ Người thuê"
         className="ml-auto"
       />
     ),
     cell: ({ getValue }) => (
-      <div className="text-right font-medium text-emerald-600 tabular-nums">
+      <div className="text-right font-medium text-success tabular-nums">
         {formatCurrency(getValue())}
       </div>
     ),
@@ -59,7 +59,7 @@ export const reconciliationColumns = helper.columns([
       />
     ),
     cell: ({ getValue }) => (
-      <div className="text-right font-medium text-red-600 tabular-nums">
+      <div className="text-right font-medium text-destructive tabular-nums">
         {formatCurrency(getValue())}
       </div>
     ),
@@ -80,7 +80,7 @@ export const reconciliationColumns = helper.columns([
           <div
             className={cn(
               "flex items-center gap-1 font-bold tabular-nums",
-              isGain ? "text-emerald-600" : "text-red-600",
+              isGain ? "text-success" : "text-destructive",
             )}
           >
             {isGain ? <ArrowUp /> : <ArrowDown />}
@@ -91,7 +91,7 @@ export const reconciliationColumns = helper.columns([
             <div
               className={cn(
                 "text-[10px] font-medium opacity-70",
-                trendRate > 0 ? "text-emerald-600" : "text-red-600",
+                trendRate > 0 ? "text-success" : "text-destructive",
               )}
             >
               {trendRate > 0 ? "+" : ""}

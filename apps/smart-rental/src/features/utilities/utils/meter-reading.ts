@@ -1,10 +1,10 @@
-import type { Utility, UtilityStatus, UtilityType } from "~/types/utility";
+import type { MeterEntryStatus, Utility, UtilityType } from "~/types/utility";
 
 export interface MeterReading {
   /** New − old; `null` while the field is empty or not a number. */
   consumption: number | null;
   /** `null` while empty; `anomaly` when the reading went backwards or is not a number. */
-  status: UtilityStatus | null;
+  status: MeterEntryStatus | null;
 }
 
 /**
@@ -23,8 +23,8 @@ export function readMeter(oldIndex: number, input: string): MeterReading {
 
 /** A row's badge over its two readings: an anomaly wins, a draft beats untouched. */
 export function combineMeterStatus(
-  ...statuses: (UtilityStatus | null)[]
-): UtilityStatus | null {
+  ...statuses: (MeterEntryStatus | null)[]
+): MeterEntryStatus | null {
   if (statuses.includes("anomaly")) return "anomaly";
   if (statuses.includes("draft")) return "draft";
   return null;
@@ -50,6 +50,9 @@ export function estimateUtilityCost(
 
 export interface UtilityStats {
   totalReadings: number;
+  /** Not derived from persisted data — the field it once read (`anomaly`)
+   * left `UtilityStatus`'s enum with ADR-0012; a later ticket recomputes this
+   * from consumption ratios. */
   anomalyCount: number;
   pendingVerifyCount: number;
 }
@@ -57,7 +60,7 @@ export interface UtilityStats {
 export function calculateUtilityStats(utilities: Utility[]): UtilityStats {
   return {
     totalReadings: utilities.length,
-    anomalyCount: utilities.filter((u) => u.status === "anomaly").length,
-    pendingVerifyCount: utilities.filter((u) => u.status === "draft").length,
+    anomalyCount: 0,
+    pendingVerifyCount: utilities.filter((u) => u.status === "DRAFT").length,
   };
 }

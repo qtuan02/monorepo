@@ -13,11 +13,11 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
   test("scopes both lists to the selected Toà nhà", async ({ page }) => {
     await page.goto(ROUTES.INVOICES);
-    await expect(page.getByText("30 hóa đơn được tìm thấy")).toBeVisible();
+    await expect(page.getByText("30 hoá đơn được tìm thấy")).toBeVisible();
 
-    await page.getByRole("combobox", { name: "Tòa nhà" }).click();
+    await page.getByRole("combobox", { name: "Toà nhà" }).click();
     await page.getByRole("option", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
-    await expect(page.getByText("10 hóa đơn được tìm thấy")).toBeVisible();
+    await expect(page.getByText("10 hoá đơn được tìm thấy")).toBeVisible();
 
     await page.getByRole("link", { name: "Tiện ích" }).click();
     // Only Phòng 201/202 sit in b2 — three readings.

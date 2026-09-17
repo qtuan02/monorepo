@@ -1,160 +1,73 @@
-import type { MeterInputRoom, Utility } from "~/types/utility";
+import type { MeterInputRoom, Utility, UtilityType } from "~/types/utility";
+import { mockRooms } from "~/constants/mock/rooms";
+
+/** Chỉ số hai kỳ 08–09/2026 (spec #153) — kỳ 09 chưa lập Đợt, nên vẫn còn việc. */
+const READING_MONTHS = ["2026-08", "2026-09"] as const;
+
+const occupiedRooms = mockRooms.filter((room) => room.status === "occupied");
+
+function buildReading(
+  room: (typeof occupiedRooms)[number],
+  type: UtilityType,
+  month: string,
+  index: number,
+  isAnomaly: boolean,
+): Utility {
+  const base = type === "electricity" ? 120 : 8;
+  const oldIndex = 1000 + index * 25;
+  // Kỳ 08 tiêu thụ bình thường; kỳ 09 của phòng đầu tiên (electric) vọt hơn
+  // 2× kỳ trước — spec #153's "≥ 1 Chỉ số tiêu thụ > 2× kỳ trước".
+  const consumption = isAnomaly ? base * 2 + 30 : base + (index % 5) * 3;
+  const newIndex = oldIndex + consumption;
+
+  return {
+    id: `util-${month.replace("-", "")}-${room.id}-${type === "electricity" ? "d" : "n"}`,
+    buildingId: room.buildingId,
+    roomId: room.id,
+    roomName: room.name,
+    month,
+    type,
+    oldIndex,
+    newIndex,
+    consumption,
+    status: month === "2026-09" ? "DRAFT" : "VERIFIED",
+    updatedAt: month === "2026-09" ? "2026-09-15T09:00:00Z" : "2026-08-27T09:00:00Z",
+    proofImages: [],
+  };
+}
 
 /**
- * The Mock every Chỉ số điện nước read comes from (spec #127). The prototype's
- * ten readings, plus a `buildingId` each — its `Utility` declared the field but
- * its Mock never set it, and without one the Building scope would empty this
- * list under every Toà nhà. Phòng 10x sit in `b1`, 20x in `b2`, as `rooms.ts`
- * has them.
+ * The Mock every Chỉ số điện nước read comes from (ADR-0012, spec #153) —
+ * điện + nước, hai kỳ, for every occupied Phòng. The first Phòng's electric
+ * reading in kỳ 09 is the ">2×" record the spec calls for.
  */
-export const mockUtilities: Utility[] = [
-  {
-    id: "util-001",
-    buildingId: "b1",
-    roomId: "room-001",
-    roomName: "Phòng 101",
-    month: "2024-04",
-    type: "electricity",
-    oldIndex: 1200,
-    newIndex: 1350,
-    consumption: 150,
-    status: "verified",
-    updatedAt: "2024-04-25T10:30:00Z",
-    proofImages: ["/images/meter-001.jpg"],
-  },
-  {
-    id: "util-002",
-    buildingId: "b1",
-    roomId: "room-001",
-    roomName: "Phòng 101",
-    month: "2024-04",
-    type: "water",
-    oldIndex: 45,
-    newIndex: 52,
-    consumption: 7,
-    status: "verified",
-    updatedAt: "2024-04-25T10:35:00Z",
-    proofImages: ["/images/meter-002.jpg"],
-  },
-  {
-    id: "util-003",
-    buildingId: "b1",
-    roomId: "room-002",
-    roomName: "Phòng 102",
-    month: "2024-04",
-    type: "electricity",
-    oldIndex: 2100,
-    newIndex: 2280,
-    consumption: 180,
-    status: "anomaly",
-    updatedAt: "2024-04-24T14:20:00Z",
-    proofImages: ["/images/meter-003.jpg"],
-  },
-  {
-    id: "util-004",
-    buildingId: "b1",
-    roomId: "room-002",
-    roomName: "Phòng 102",
-    month: "2024-04",
-    type: "water",
-    oldIndex: 78,
-    newIndex: 95,
-    consumption: 17,
-    status: "draft",
-    updatedAt: "2024-04-23T09:15:00Z",
-    proofImages: [],
-  },
-  {
-    id: "util-005",
-    buildingId: "b1",
-    roomId: "room-003",
-    roomName: "Phòng 103",
-    month: "2024-04",
-    type: "electricity",
-    oldIndex: 890,
-    newIndex: 1010,
-    consumption: 120,
-    status: "verified",
-    updatedAt: "2024-04-25T11:00:00Z",
-    proofImages: ["/images/meter-005.jpg"],
-  },
-  {
-    id: "util-006",
-    buildingId: "b1",
-    roomId: "room-003",
-    roomName: "Phòng 103",
-    month: "2024-04",
-    type: "water",
-    oldIndex: 34,
-    newIndex: 41,
-    consumption: 7,
-    status: "verified",
-    updatedAt: "2024-04-25T11:05:00Z",
-    proofImages: ["/images/meter-006.jpg"],
-  },
-  {
-    id: "util-007",
-    buildingId: "b1",
-    roomId: "room-004",
-    roomName: "Phòng 104",
-    month: "2024-04",
-    type: "electricity",
-    oldIndex: 1500,
-    newIndex: 1650,
-    consumption: 150,
-    status: "draft",
-    updatedAt: "2024-04-22T08:00:00Z",
-    proofImages: [],
-  },
-  {
-    id: "util-008",
-    buildingId: "b2",
-    roomId: "room-005",
-    roomName: "Phòng 201",
-    month: "2024-04",
-    type: "electricity",
-    oldIndex: 2300,
-    newIndex: 2520,
-    consumption: 220,
-    status: "anomaly",
-    updatedAt: "2024-04-21T16:45:00Z",
-    proofImages: ["/images/meter-008.jpg"],
-  },
-  {
-    id: "util-009",
-    buildingId: "b2",
-    roomId: "room-005",
-    roomName: "Phòng 201",
-    month: "2024-04",
-    type: "water",
-    oldIndex: 120,
-    newIndex: 145,
-    consumption: 25,
-    status: "anomaly",
-    updatedAt: "2024-04-21T16:50:00Z",
-    proofImages: ["/images/meter-009.jpg"],
-  },
-  {
-    id: "util-010",
-    buildingId: "b2",
-    roomId: "room-006",
-    roomName: "Phòng 202",
-    month: "2024-04",
-    type: "electricity",
-    oldIndex: 1700,
-    newIndex: 1820,
-    consumption: 120,
-    status: "verified",
-    updatedAt: "2024-04-25T12:00:00Z",
-    proofImages: ["/images/meter-010.jpg"],
-  },
-];
+export const mockUtilities: Utility[] = READING_MONTHS.flatMap((month) =>
+  occupiedRooms.flatMap((room, index) => [
+    buildReading(
+      room,
+      "electricity",
+      month,
+      index,
+      month === "2026-09" && index === 0,
+    ),
+    buildReading(room, "water", month, index, false),
+  ]),
+);
 
 /** The Phòng the "Nhập chỉ số" screen lists, with last month's readings. */
-export const mockMeterInputRooms: MeterInputRoom[] = [
-  { id: "1", name: "101", lastElectricity: 1250, lastWater: 450 },
-  { id: "2", name: "102", lastElectricity: 3400, lastWater: 890 },
-  { id: "3", name: "103", lastElectricity: 2100, lastWater: 560 },
-  { id: "4", name: "201", lastElectricity: 1560, lastWater: 320 },
-  { id: "5", name: "202", lastElectricity: 4200, lastWater: 1100 },
-];
+export const mockMeterInputRooms: MeterInputRoom[] = occupiedRooms.map(
+  (room) => {
+    const electric = mockUtilities.find(
+      (u) => u.roomId === room.id && u.type === "electricity" && u.month === "2026-09",
+    );
+    const water = mockUtilities.find(
+      (u) => u.roomId === room.id && u.type === "water" && u.month === "2026-09",
+    );
+    return {
+      id: room.id,
+      name: room.name,
+      lastElectricity: electric?.oldIndex ?? 0,
+      lastWater: water?.oldIndex ?? 0,
+    };
+  },
+);

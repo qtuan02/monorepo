@@ -46,12 +46,12 @@ export default function MeterInputTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Nhập chỉ số điện nước"
-        description="Kỳ hóa đơn: Tháng 10/2023"
+        description="Kỳ hoá đơn: Tháng 10/2023"
         actions={
           <>
             <Button type="submit" variant="outline" size="sm" form={FORM_ID}>
               <Calculator />
-              Tính toán hóa đơn
+              Tính toán hoá đơn
             </Button>
             <Button type="submit" size="sm" form={FORM_ID}>
               <Save />

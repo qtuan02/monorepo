@@ -28,7 +28,7 @@ export default function LiquidationSummaryCard({
   const isRefund = balance > 0;
 
   return (
-    <Card className="border-blue-200 bg-blue-50">
+    <Card className="border-info/20 bg-info/10">
       <CardHeader>
         <CardTitle className="text-base">Tóm tắt thanh toán</CardTitle>
       </CardHeader>
@@ -36,7 +36,7 @@ export default function LiquidationSummaryCard({
         <SummaryLine
           label="Tiền đặt cọc"
           value={formatCurrency(summary.depositAmount)}
-          className="text-emerald-600"
+          className="text-success"
         />
         {summary.outstandingFees > 0 && (
           <SummaryLine
@@ -53,12 +53,12 @@ export default function LiquidationSummaryCard({
           />
         )}
         <div className="flex items-center justify-between rounded-lg border-t bg-linear-to-r from-blue-100 to-blue-50 p-3 pt-4">
-          <p className="text-sm font-medium">Hoàn lại cho khách</p>
+          <p className="text-sm font-medium">Hoàn lại cho Người thuê</p>
           <div className="text-right">
             <p
               className={cn(
                 "text-xl font-bold",
-                isRefund ? "text-emerald-600" : "text-destructive",
+                isRefund ? "text-success" : "text-destructive",
               )}
             >
               {isRefund ? "+" : ""}
@@ -68,8 +68,8 @@ export default function LiquidationSummaryCard({
               variant="outline"
               className={
                 isRefund
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                  : "border-red-200 bg-red-50 text-red-700"
+                  ? "border-success/20 bg-success/10 text-success"
+                  : "border-destructive/20 bg-destructive/10 text-destructive"
               }
             >
               {isRefund ? "Phải hoàn lại" : "Còn nợ"}

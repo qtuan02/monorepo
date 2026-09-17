@@ -50,7 +50,7 @@ export const contractColumns = helper.columns([
   }),
   helper.accessor("tenant", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Khách thuê" />
+      <DataTableColumnHeader column={column} title="Người thuê" />
     ),
   }),
   helper.accessor("room", {

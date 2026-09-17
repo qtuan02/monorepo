@@ -40,7 +40,7 @@ export const mockExpenses: Omit<Expense, "buildingName">[] = [
   },
   {
     id: "exp-5",
-    buildingId: "b4",
+    buildingId: "b1",
     category: "Sửa chữa",
     amount: 4500000,
     description: "Sửa hệ thống bơm nước",
@@ -72,7 +72,7 @@ export const mockExpenses: Omit<Expense, "buildingName">[] = [
   },
   {
     id: "exp-9",
-    buildingId: "b4",
+    buildingId: "b2",
     category: "Thiết bị",
     amount: 8500000,
     description: "Lắp đặt 02 camera hành lang tầng 5",
@@ -91,7 +91,7 @@ export const mockExpenses: Omit<Expense, "buildingName">[] = [
     buildingId: "b2",
     category: "Quảng cáo",
     amount: 2000000,
-    description: "Chạy quảng cáo Facebook tìm khách thuê",
+    description: "Chạy quảng cáo Facebook tìm Người thuê",
     expenseDate: "2024-04-30",
   },
   {
@@ -99,7 +99,7 @@ export const mockExpenses: Omit<Expense, "buildingName">[] = [
     buildingId: "b1",
     category: "Điện tổng",
     amount: 12500000,
-    description: "Thanh toán tiền điện tổng tòa nhà tháng 4",
+    description: "Thanh toán tiền điện tổng toà nhà tháng 4",
     expenseDate: "2024-05-02",
   },
   {

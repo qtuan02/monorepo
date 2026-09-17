@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 
-const base = { id: "b", name: "n", address: "a" };
+const base = {
+  id: "b",
+  name: "n",
+  address: "a",
+  collectionDay: 5,
+  priceList: { electricityPricePerKwh: 3500, waterPricePerM3: 15000, serviceFee: 0 },
+};
 
 describe("getBuildingStats", () => {
   it("derives the free rooms and the occupancy from what the Mock has", () => {

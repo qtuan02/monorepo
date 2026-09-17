@@ -22,7 +22,7 @@ import type {
   SendLogStatus,
 } from "~/types/communication";
 import type { ComplianceStatus, ComplianceType } from "~/types/compliance";
-import type { ContractStatus } from "~/types/contract";
+import type { ContractStatus, DepositStatus } from "~/types/contract";
 import type { DashboardTaskPriority } from "~/types/dashboard";
 import type { InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
@@ -34,21 +34,25 @@ import type {
 } from "~/types/supplier-bill";
 import type { TaskPriority, TaskStatus, TaskType } from "~/types/task";
 import type { TenantStatus } from "~/types/tenant";
-import type { UtilityStatus, UtilityType } from "~/types/utility";
+import type {
+  MeterEntryStatus,
+  UtilityStatus,
+  UtilityType,
+} from "~/types/utility";
 
 /**
  * The one home for every status/display config (spec #127 folded the
  * prototype's eight files here). A tone is a bg/text/border trio on the
- * Tailwind palette — light only, this app has no dark mode — and a config is
- * what `StatusBadge` and a faceted filter both read.
+ * theme's status tokens (ADR-0011) — light only, this app has no dark mode —
+ * and a config is what `StatusBadge` and a faceted filter both read.
  */
 export const statusTone = {
-  success: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  warning: "bg-amber-50 text-amber-700 border-amber-300",
-  error: "bg-red-50 text-red-700 border-red-300",
-  info: "bg-blue-50 text-blue-700 border-blue-300",
-  neutral: "bg-zinc-50 text-zinc-500 border-zinc-200",
-  muted: "bg-slate-50 text-slate-700 border-slate-300",
+  success: "bg-success/10 text-success border-success/20",
+  warning: "bg-warning/10 text-warning border-warning/20",
+  error: "bg-destructive/10 text-destructive border-destructive/20",
+  info: "bg-info/10 text-info border-info/20",
+  neutral: "bg-muted text-muted-foreground border-border",
+  muted: "bg-muted text-muted-foreground border-border",
   primary: "bg-primary/10 text-primary border-primary/20",
 } as const;
 
@@ -88,23 +92,34 @@ export const roomTypeConfig: Record<RoomType, StatusConfig> = {
 };
 
 export const invoiceStatusConfig: Record<InvoiceStatus, StatusConfig> = {
-  paid: {
-    label: "Đã thanh toán",
+  DRAFT: { label: "Nháp", className: statusTone.neutral, icon: Clock },
+  UNPAID: { label: "Chưa thu", className: statusTone.info, icon: Clock },
+  PARTIAL: {
+    label: "Thu một phần",
+    className: statusTone.warning,
+    icon: AlertCircle,
+  },
+  PAID: {
+    label: "Đã thu",
     className: statusTone.success,
     icon: CheckCircle2,
   },
-  pending: { label: "Chờ thanh toán", className: statusTone.info, icon: Clock },
-  overdue: { label: "Quá hạn", className: statusTone.error, icon: AlertCircle },
-  cancelled: { label: "Đã hủy", className: statusTone.muted, icon: Ban },
+  OVERDUE: { label: "Quá hạn", className: statusTone.error, icon: AlertCircle },
+  CANCELLED: { label: "Đã huỷ", className: statusTone.muted, icon: Ban },
 };
 
 export const utilityStatusConfig: Record<UtilityStatus, StatusConfig> = {
-  draft: { label: "Nháp", className: statusTone.neutral, icon: Clock },
-  verified: {
+  DRAFT: { label: "Nháp", className: statusTone.neutral, icon: Clock },
+  VERIFIED: {
     label: "Đã xác minh",
     className: statusTone.success,
     icon: CheckCircle2,
   },
+};
+
+/** "Nhập chỉ số"'s own live badge — never a persisted `UtilityStatus`. */
+export const meterEntryStatusConfig: Record<MeterEntryStatus, StatusConfig> = {
+  draft: { label: "Nháp", className: statusTone.neutral, icon: Clock },
   anomaly: {
     label: "Bất thường",
     className: statusTone.error,
@@ -116,12 +131,12 @@ export const utilityStatusConfig: Record<UtilityStatus, StatusConfig> = {
 export const utilityTypeConfig: Record<UtilityType, StatusConfig> = {
   electricity: {
     label: "Điện",
-    className: "bg-amber-100 text-amber-600 border-amber-200",
+    className: "bg-warning/10 text-warning border-warning/20",
     icon: Zap,
   },
   water: {
     label: "Nước",
-    className: "bg-blue-100 text-blue-600 border-blue-200",
+    className: "bg-info/10 text-info border-info/20",
     icon: Droplets,
   },
 };
@@ -146,7 +161,7 @@ export const taskPriorityConfig: Record<TaskPriority, StatusConfig> = {
 };
 
 export const taskTypeConfig: Record<TaskType, StatusConfig> = {
-  invoice_overdue: { label: "Hóa đơn quá hạn", className: statusTone.info },
+  invoice_overdue: { label: "Hoá đơn quá hạn", className: statusTone.info },
   contract_expiring: {
     label: "Hợp đồng sắp hết hạn",
     className: statusTone.info,
@@ -165,9 +180,8 @@ export const complianceStatusConfig: Record<ComplianceStatus, StatusConfig> = {
 };
 
 export const complianceTypeConfig: Record<ComplianceType, StatusConfig> = {
-  residence_declaration: { label: "Khai báo nơi ở" },
-  safety_inspection: { label: "Kiểm tra an toàn" },
-  documentation: { label: "Tài liệu" },
+  residence_notification: { label: "Thông báo lưu trú" },
+  residence_registration: { label: "Đăng ký tạm trú" },
 };
 
 export const sendLogStatusConfig: Record<SendLogStatus, StatusConfig> = {
@@ -186,18 +200,18 @@ export const occupancyBucketConfig: Record<OccupancyBucket, StatusConfig> = {
 export const channelConfig: Record<CommunicationChannel, StatusConfig> = {
   sms: {
     label: "SMS",
-    className: "bg-blue-100 text-blue-600",
+    className: "bg-info/10 text-info",
     icon: MessageSquare,
   },
   email: {
     label: "Email",
-    className: "bg-purple-100 text-purple-600",
+    className: "bg-primary/10 text-primary",
     icon: Mail,
   },
-  zalo: { label: "Zalo", className: "bg-cyan-100 text-cyan-600", icon: Send },
+  zalo: { label: "Zalo", className: "bg-success/10 text-success", icon: Send },
   in_app: {
     label: "Trong ứng dụng",
-    className: "bg-zinc-100 text-zinc-600",
+    className: "bg-muted text-muted-foreground",
     icon: Bell,
   },
 };
@@ -213,24 +227,46 @@ export const dashboardTaskPriorityConfig: Record<
 
 export const tenantStatusConfig: Record<TenantStatus, StatusConfig> = {
   active: { label: "Đang thuê", className: statusTone.success },
-  pending: { label: "Chờ vào", className: statusTone.info },
-  overdue: { label: "Nợ cước", className: statusTone.error },
-  ended: { label: "Đã trả", className: statusTone.neutral },
+  ended: { label: "Đã rời", className: statusTone.neutral },
 };
 
 export const contractStatusConfig: Record<ContractStatus, StatusConfig> = {
-  active: {
-    label: "Đang hoạt động",
+  DRAFT: { label: "Nháp", className: statusTone.neutral, icon: Clock },
+  ACTIVE: {
+    label: "Đang hiệu lực",
     className: statusTone.success,
     icon: CheckCircle2,
   },
-  ending: {
+  EXPIRING: {
     label: "Sắp hết hạn",
     className: statusTone.warning,
     icon: AlertCircle,
   },
-  ended: { label: "Đã hết hạn", className: statusTone.neutral, icon: XCircle },
-  pending: { label: "Chờ xử lý", className: statusTone.info, icon: Clock },
+  EXPIRED: {
+    label: "Đã hết hạn",
+    className: statusTone.neutral,
+    icon: XCircle,
+  },
+  TERMINATED: {
+    label: "Đã thanh lý",
+    className: statusTone.muted,
+    icon: XCircle,
+  },
+};
+
+export const depositStatusConfig: Record<DepositStatus, StatusConfig> = {
+  HELD: { label: "Đang giữ", className: statusTone.info, icon: Clock },
+  RETURNED: {
+    label: "Đã hoàn",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
+  PARTIAL_RETURNED: {
+    label: "Hoàn một phần",
+    className: statusTone.warning,
+    icon: AlertCircle,
+  },
+  FORFEITED: { label: "Không hoàn", className: statusTone.error, icon: Ban },
 };
 
 /** A config read as the option list of a faceted filter, in the config's order. */

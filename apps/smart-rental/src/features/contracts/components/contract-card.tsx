@@ -52,7 +52,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             <div className="flex items-center justify-between">
               <dt className="text-muted-foreground flex items-center gap-2 text-xs">
                 <User className="size-3.5" />
-                Khách thuê
+                Người thuê
               </dt>
               <dd className="font-semibold">{contract.tenant}</dd>
             </div>
@@ -86,7 +86,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             </div>
             <div className="space-y-1 border-l pl-4">
               <dt className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
-                <Landmark className="size-2.5 text-emerald-600/70" />
+                <Landmark className="size-2.5 text-success/70" />
                 Tiền cọc
               </dt>
               <dd className="text-foreground/80 text-sm font-bold">

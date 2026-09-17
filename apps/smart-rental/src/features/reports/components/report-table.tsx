@@ -31,7 +31,7 @@ export default function ReportTable({ rows }: ReportTableProps) {
       <CardHeader>
         <CardTitle className="text-base">Tổng hợp P&L</CardTitle>
         <CardDescription>
-          Doanh thu, chi phí và lợi nhuận theo tòa/tầng
+          Doanh thu, chi phí và lợi nhuận theo toà/tầng
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -39,7 +39,7 @@ export default function ReportTable({ rows }: ReportTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead>Tháng</TableHead>
-              <TableHead>Tòa/Tầng</TableHead>
+              <TableHead>Toà/Tầng</TableHead>
               <TableHead className="text-right">Doanh thu</TableHead>
               <TableHead className="text-right">Chi phí</TableHead>
               <TableHead className="text-right">Lợi nhuận</TableHead>
@@ -53,7 +53,7 @@ export default function ReportTable({ rows }: ReportTableProps) {
                 <TableCell>
                   {row.building} - {row.floor}
                 </TableCell>
-                <TableCell className="text-right font-medium text-emerald-600 tabular-nums">
+                <TableCell className="text-right font-medium text-success tabular-nums">
                   {formatCurrency(row.revenue)}
                 </TableCell>
                 <TableCell className="text-destructive text-right font-medium tabular-nums">

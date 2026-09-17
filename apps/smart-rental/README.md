@@ -38,9 +38,34 @@ drift cần "đồng bộ" ngược:
 1. **Không i18n.** Đã gỡ `~/libs/i18n.ts`, bridge `~/libs/dayjs.ts`, `select-language`,
    `header-clock`, và `@monorepo/i18n` + `react-i18next` khỏi deps. Mọi copy hardcode
    tiếng Việt như prototype; `@monorepo/dayjs` set locale `vi` **một lần** ở `src/index.tsx`.
-2. **Không dark mode.** Light only; theme dùng chung của `@monorepo/tailwind-config`
-   không đổi.
+2. **Không dark mode.** Light only, không có toggle — nhưng từ pha 2 `globals.css` đã
+   viết sẵn khối `.dark` cùng hue với `:root` (xem § Token/accent (ADR-0011) dưới đây),
+   chờ ngày app có công tắc.
 3. **Không slice `home`.** `/` là dashboard (`~/features/dashboard`), không có launcher.
+
+## Token/accent (ADR-0011)
+
+Pha 2 override accent ở **tầng app** — [ADR-0011](../../docs/adr/0011-smart-rental-ledger-palette-override.md),
+cùng hình dạng `apps/portfolio` (ADR-0008) và `apps/documents` (ADR-0009) đã làm: khối
+`:root`/`.dark` **unlayered** trong `src/globals.css`, đứng ngoài mọi `@layer` nên thắng
+`theme.css` mà không cần `!important`.
+
+| Token | Giá trị | Ghi chú |
+| --- | --- | --- |
+| `--primary`, `--ring`, `--sidebar-primary` | `#1E3A5F` | Navy, `colors#105` (Invoice & Billing) — màu hành động duy nhất app này mang |
+| `--background` | `#F8FAFC` | Nền |
+| `--foreground` | `#0F172A` | Chữ |
+| `--muted-foreground` | `#475569` | Chữ phụ |
+| `--accent` / `--accent-foreground` | `#EFF6FF` / `#1E3A5F` | Nền hover/chọn |
+| `--radius` | `0.375rem` | Bề mặt phẳng, hairline `--border` (hướng "Sổ cái") |
+
+`--success`/`--warning`/`--info`/`--destructive`, `--chart-*` và mọi `--sidebar-*` khác
+**giữ nguyên của theme** — một trạng thái không đổi nghĩa giữa các app (điều kiện
+ADR-0009 áp cho ADR-0011). `~/constants/status.ts`'s `statusTone` chỉ còn đọc các token
+này (`bg-success/10 text-success`, …) — không còn class palette Tailwind thô
+(`emerald-*`, `blue-*`, …) cho trạng thái hay icon trong `src/`, kiểm bằng
+`test/globals.test.ts`. Chữ là `@fontsource-variable/ibm-plex-sans` (subset
+`vietnamese`), import trong `globals.css`.
 
 ## Bảng route
 

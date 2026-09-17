@@ -101,7 +101,7 @@ export const roomColumns = helper.columns([
   }),
   helper.accessor("tenant", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Khách thuê" />
+      <DataTableColumnHeader column={column} title="Người thuê" />
     ),
     cell: ({ getValue }) =>
       getValue() ?? <span className="text-muted-foreground italic">—</span>,

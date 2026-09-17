@@ -14,7 +14,7 @@ const helper = createDataTableColumnHelper<SendLog>();
 export const sendLogColumns = helper.columns([
   helper.accessor("tenant", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Khách" />
+      <DataTableColumnHeader column={column} title="Người thuê" />
     ),
     cell: ({ getValue }) => <span className="font-medium">{getValue()}</span>,
     filterFn: "includesString",

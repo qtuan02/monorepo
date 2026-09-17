@@ -6,11 +6,11 @@ import type {
   ReconciliationItem,
   ReconciliationListParams,
 } from "~/types/reconciliation";
-import { mockReconciliationItems } from "~/constants/mock/reconciliation";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
-// The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock.
+// `~/constants/mock/reconciliation` was dropped (ADR-0012) — Đối soát is
+// computed from Hoá đơn + Hoá đơn nhà cung cấp + Chi phí, a later ticket's
+// job. Until then this answers empty, so the screen's own empty state shows.
 const reconciliationQueryKeyFactory = queryKeysFactory("reconciliation");
 
 export const reconciliationQueryKeys = {
@@ -25,11 +25,7 @@ export function useGetReconciliationItems(
 ): UseQueryResult<ReconciliationItem[], Error> {
   return useQuery<ReconciliationItem[], Error>({
     queryKey: reconciliationQueryKeys.getReconciliationItems(params),
-    // The Building scope is a query param, as it will be on the backend.
-    queryFn: async () =>
-      mockReconciliationItems.filter(
-        (item) => !params?.buildingId || item.buildingId === params.buildingId,
-      ),
+    queryFn: async () => [],
     ...options,
   });
 }

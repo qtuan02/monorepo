@@ -38,11 +38,11 @@ interface InvoiceDetailTemplateProps {
   invoiceId: string;
 }
 
-const TITLE = "Chi tiết hóa đơn";
+const TITLE = "Chi tiết hoá đơn";
 
 /**
- * "Chi tiết hóa đơn": the amount, the Người thuê, the payment state and the
- * VietQR dialog. "Tải PDF", "Chỉnh sửa", "In hóa đơn", "Xem hồ sơ khách" and
+ * "Chi tiết hoá đơn": the amount, the Người thuê, the payment state and the
+ * VietQR dialog. "Tải PDF", "Chỉnh sửa", "In hoá đơn", "Xem hồ sơ Người thuê" and
  * the two "thanh toán" confirmations have no flow yet, as in the prototype;
  * "Xóa" confirms and lands back on the list, which is all the prototype did.
  */
@@ -90,8 +90,8 @@ export default function InvoiceDetailTemplate({
       <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES} actions={actions}>
         <EmptyPanel
           icon={ReceiptText}
-          title="Không tìm thấy hóa đơn."
-          description={`Không có hóa đơn nào với mã ${invoiceId}.`}
+          title="Không tìm thấy hoá đơn."
+          description={`Không có hoá đơn nào với mã ${invoiceId}.`}
           className="border"
         />
       </DetailPageShell>
@@ -130,8 +130,8 @@ export default function InvoiceDetailTemplate({
             </CardContent>
           </Card>
 
-          <InfoCard title="Thông tin khách thuê">
-            <InfoRow label="Tên khách" value={invoice.tenant} isHighlighted />
+          <InfoCard title="Thông tin Người thuê">
+            <InfoRow label="Tên Người thuê" value={invoice.tenant} isHighlighted />
             <InfoRow label="Phòng" value={invoice.room} />
             <InfoRow label="Tầng" value={`Tầng ${invoice.floor}`} />
             <Button
@@ -141,11 +141,11 @@ export default function InvoiceDetailTemplate({
               className="mt-3 w-full"
             >
               <User />
-              Xem hồ sơ khách
+              Xem hồ sơ Người thuê
             </Button>
           </InfoCard>
 
-          <InfoCard title="Chi tiết hóa đơn">
+          <InfoCard title="Chi tiết hoá đơn">
             <InfoRow
               label="Tiền thuê phòng"
               value={formatCurrency(invoice.amount)}
@@ -201,7 +201,7 @@ export default function InvoiceDetailTemplate({
                 </p>
                 {invoice.paymentDate && (
                   <p className="flex items-center gap-2">
-                    <CheckCircle2 className="size-4 text-emerald-600" />
+                    <CheckCircle2 className="size-4 text-success" />
                     Thanh toán: {invoice.paymentDate}
                   </p>
                 )}
@@ -226,7 +226,7 @@ export default function InvoiceDetailTemplate({
             <CardContent>
               <dl className="space-y-3">
                 <StatItem
-                  label="Mã hóa đơn"
+                  label="Mã hoá đơn"
                   value={invoice.invoiceNumber}
                   valueClassName="font-mono text-sm"
                 />
@@ -271,7 +271,7 @@ export default function InvoiceDetailTemplate({
                 className="w-full"
               >
                 <Printer />
-                In hóa đơn
+                In hoá đơn
               </Button>
             </CardContent>
           </Card>
@@ -281,8 +281,8 @@ export default function InvoiceDetailTemplate({
       <ConfirmActionDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        title="Xóa hóa đơn"
-        description={`Bạn có chắc chắn muốn xóa hóa đơn "${invoice.invoiceNumber}" không? Hành động này không thể hoàn tác.`}
+        title="Xóa hoá đơn"
+        description={`Bạn có chắc chắn muốn xóa hoá đơn "${invoice.invoiceNumber}" không? Hành động này không thể hoàn tác.`}
         actionLabel="Xóa"
         variant="destructive"
         onConfirm={() => navigate(ROUTES.INVOICES, { replace: true })}

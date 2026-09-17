@@ -23,7 +23,7 @@ interface BuildingDetailTemplateProps {
   buildingId: string;
 }
 
-const TITLE = "Chi tiết tòa nhà";
+const TITLE = "Chi tiết toà nhà";
 
 export default function BuildingDetailTemplate({
   buildingId,
@@ -44,8 +44,8 @@ export default function BuildingDetailTemplate({
       <DetailPageShell title={TITLE} backTo={ROUTES.BUILDINGS}>
         <EmptyPanel
           icon={Building2}
-          title="Không tìm thấy tòa nhà."
-          description={`Không có tòa nhà nào với mã ${buildingId}.`}
+          title="Không tìm thấy toà nhà."
+          description={`Không có toà nhà nào với mã ${buildingId}.`}
           className="border"
         />
       </DetailPageShell>
@@ -70,7 +70,7 @@ export default function BuildingDetailTemplate({
                 <StatItem
                   label="Phòng trống"
                   value={stats.availableRooms}
-                  valueClassName="text-emerald-700"
+                  valueClassName="text-success"
                 />
                 <StatItem
                   label="Đang hoạt động"
@@ -80,9 +80,9 @@ export default function BuildingDetailTemplate({
             </CardContent>
           </Card>
 
-          <InfoCard title="Thông tin tòa nhà">
-            <InfoRow label="Mã tòa nhà" value={building.id} />
-            <InfoRow label="Tên tòa nhà" value={building.name} />
+          <InfoCard title="Thông tin toà nhà">
+            <InfoRow label="Mã toà nhà" value={building.id} />
+            <InfoRow label="Tên toà nhà" value={building.name} />
             <InfoRow label="Địa chỉ" value={building.address} />
             <InfoRow label="Mô tả" value={building.description ?? "---"} />
           </InfoCard>

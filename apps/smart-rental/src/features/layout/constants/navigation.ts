@@ -2,17 +2,17 @@ import type { LucideIcon } from "lucide-react";
 import {
   Banknote,
   BarChart3,
-  Building,
+  Bell,
   Building2,
-  CheckSquare,
-  Droplet,
+  DoorOpen,
+  Gauge,
   Home,
-  MessageSquare,
-  ReceiptPoundSterling,
+  ListChecks,
+  Receipt,
   ReceiptText,
   ScrollText,
   Settings,
-  Shield,
+  ShieldCheck,
   Users,
   Wallet,
 } from "lucide-react";
@@ -35,12 +35,13 @@ export interface NavigationSection {
  * The prototype's `appRouteManifest`, reduced to what the shell reads: the 15
  * areas in sidebar order, grouped as before, with the title + description the
  * header shows for the area a path falls under. Paths come from `ROUTES` — the
- * manifest never carried a route element here, `~/pages/main.tsx` does.
+ * manifest never carried a route element here, `~/pages/main.tsx` does. Copy
+ * and icons follow the glossary (ADR-0011, brief §4/§7).
  */
 /** The area the header falls back to when no path matches. */
 export const dashboardItem: NavigationItem = {
   path: ROUTES.HOME,
-  title: "Tổng quan",
+  title: "Hôm nay",
   description: "Tổng quan hoạt động quản lý phòng trọ.",
   icon: Home,
 };
@@ -52,27 +53,27 @@ export const navigationSections: NavigationSection[] = [
       dashboardItem,
       {
         path: ROUTES.BUILDINGS,
-        title: "Tòa nhà",
-        description: "Quản lý danh sách tòa nhà.",
-        icon: Building,
-      },
-      {
-        path: ROUTES.ROOMS,
-        title: "Phòng trọ",
-        description: "Quản lý danh sách phòng và trạng thái.",
+        title: "Toà nhà",
+        description: "Quản lý danh sách Toà nhà.",
         icon: Building2,
       },
       {
+        path: ROUTES.ROOMS,
+        title: "Phòng",
+        description: "Quản lý danh sách phòng và trạng thái.",
+        icon: DoorOpen,
+      },
+      {
         path: ROUTES.TENANTS,
-        title: "Khách thuê",
-        description: "Theo dõi thông tin khách thuê.",
+        title: "Người thuê",
+        description: "Theo dõi thông tin Người thuê.",
         icon: Users,
       },
       {
         path: ROUTES.TASKS,
-        title: "Trung tâm nhiệm vụ",
-        description: "Xem các nhiệm vụ cần xử lý.",
-        icon: CheckSquare,
+        title: "Việc cần làm",
+        description: "Xem các việc cần xử lý.",
+        icon: ListChecks,
       },
     ],
   },
@@ -87,32 +88,32 @@ export const navigationSections: NavigationSection[] = [
       },
       {
         path: ROUTES.INVOICES,
-        title: "Hóa đơn",
+        title: "Hoá đơn",
         description: "Theo dõi thanh toán và công nợ.",
         icon: ReceiptText,
       },
       {
         path: ROUTES.UTILITIES,
-        title: "Tiện ích",
+        title: "Chỉ số điện nước",
         description: "Quản lý chỉ số điện nước.",
-        icon: Droplet,
+        icon: Gauge,
       },
       {
         path: ROUTES.SUPPLIER_BILLS,
-        title: "Hóa đơn nhà cung cấp",
-        description: "Quản lý hóa đơn từ nhà cung cấp dịch vụ.",
-        icon: ReceiptPoundSterling,
+        title: "Hoá đơn nhà cung cấp",
+        description: "Quản lý hoá đơn từ nhà cung cấp dịch vụ.",
+        icon: Receipt,
       },
       {
         path: ROUTES.EXPENSES,
-        title: "Chi phí vận hành",
+        title: "Chi phí",
         description: "Quản lý các khoản chi phí hoạt động.",
         icon: Wallet,
       },
       {
         path: ROUTES.RECONCILIATION,
-        title: "Đối soát chi phí",
-        description: "Đối soát thu chi theo tòa nhà.",
+        title: "Đối soát",
+        description: "Đối soát thu chi theo Toà nhà.",
         icon: Banknote,
       },
       {
@@ -128,15 +129,15 @@ export const navigationSections: NavigationSection[] = [
     items: [
       {
         path: ROUTES.COMPLIANCE,
-        title: "Tuân thủ",
+        title: "Khai báo lưu trú",
         description: "Quản lý khai báo nơi ở và kiểm tra an toàn.",
-        icon: Shield,
+        icon: ShieldCheck,
       },
       {
         path: ROUTES.COMMUNICATIONS,
-        title: "Liên lạc",
-        description: "Gửi thông báo cho khách thuê.",
-        icon: MessageSquare,
+        title: "Thông báo",
+        description: "Gửi thông báo cho Người thuê.",
+        icon: Bell,
       },
       {
         path: ROUTES.SETTINGS,

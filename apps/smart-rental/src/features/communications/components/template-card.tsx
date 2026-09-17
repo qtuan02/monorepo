@@ -89,7 +89,7 @@ export default function TemplateCard({ template }: TemplateCardProps) {
           >
             {isSent ? (
               <>
-                <CheckCircle2 className="text-emerald-500" />
+                <CheckCircle2 className="text-success" />
                 Đã gửi!
               </>
             ) : (

@@ -65,7 +65,7 @@ test.describe("dashboard", () => {
       page.getByLabel("Biểu đồ tỷ lệ lấp đầy").locator("svg.recharts-surface"),
     ).toBeVisible();
 
-    await page.getByRole("combobox", { name: "Tòa nhà" }).click();
+    await page.getByRole("combobox", { name: "Toà nhà" }).click();
     await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
 
     await expect(page.getByText("15", { exact: true })).toBeVisible();

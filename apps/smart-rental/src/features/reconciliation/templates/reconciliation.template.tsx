@@ -33,7 +33,7 @@ export default function ReconciliationTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Đối soát chi phí"
-        description="So sánh giữa số tiền thu từ khách và chi trả cho nhà cung cấp theo hạng mục dịch vụ."
+        description="So sánh giữa số tiền thu từ Người thuê và chi trả cho nhà cung cấp theo hạng mục dịch vụ."
       />
 
       {isLoading ? (
@@ -50,13 +50,13 @@ export default function ReconciliationTemplate() {
               label="Tổng thu dịch vụ"
               value={formatCurrency(stats.totalIncomeAmount)}
               icon={Receipt}
-              iconClassName="bg-emerald-100 text-emerald-600"
+              iconClassName="bg-success/10 text-success"
             />
             <SummaryCard
               label="Tổng chi dịch vụ"
               value={formatCurrency(stats.totalExpenseAmount)}
               icon={Receipt}
-              iconClassName="bg-red-100 text-red-600"
+              iconClassName="bg-destructive/10 text-destructive"
             />
             <SummaryCard
               label="Chênh lệch (Lợi nhuận)"
@@ -64,8 +64,8 @@ export default function ReconciliationTemplate() {
               icon={isProfit ? TrendingUp : TrendingDown}
               iconClassName={
                 isProfit
-                  ? "bg-blue-100 text-blue-600"
-                  : "bg-orange-100 text-orange-600"
+                  ? "bg-info/10 text-info"
+                  : "bg-warning/10 text-warning"
               }
             />
             <SummaryCard
@@ -94,7 +94,7 @@ export default function ReconciliationTemplate() {
               icon: Receipt,
               title: "Không có dữ liệu đối soát",
               description:
-                "Dữ liệu sẽ hiển thị khi có hóa đơn khách thuê và hóa đơn nhà cung cấp trong cùng kỳ.",
+                "Dữ liệu sẽ hiển thị khi có hoá đơn Người thuê và hoá đơn nhà cung cấp trong cùng kỳ.",
             }}
             resultLabel={(count) => `${count} hạng mục được tìm thấy`}
           />

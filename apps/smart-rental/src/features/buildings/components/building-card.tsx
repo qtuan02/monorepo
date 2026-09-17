@@ -40,7 +40,7 @@ export default function BuildingCard({ building }: BuildingCardProps) {
             <StatItem
               label="Phòng trống"
               value={stats.availableRooms}
-              valueClassName="text-emerald-700"
+              valueClassName="text-success"
             />
           </dl>
           <OccupancyBar rate={stats.occupancyRate} />

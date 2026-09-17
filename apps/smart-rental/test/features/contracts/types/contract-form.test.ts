@@ -31,7 +31,7 @@ describe("contractFormSchema", () => {
     });
 
     expect(result.error?.issues.map((issue) => issue.message)).toEqual([
-      "Vui lòng chọn tòa nhà",
+      "Vui lòng chọn toà nhà",
       "Vui lòng chọn phòng",
     ]);
   });

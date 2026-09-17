@@ -9,12 +9,12 @@ export const positiveNumber = (error: string) =>
     .pipe(z.coerce.number<string>({ error }).positive({ error }));
 
 export const contractFormSchema = z.object({
-  buildingId: z.string().min(1, { error: "Vui lòng chọn tòa nhà" }),
+  buildingId: z.string().min(1, { error: "Vui lòng chọn toà nhà" }),
   roomId: z.string().min(1, { error: "Vui lòng chọn phòng" }),
   tenantName: z
-    .string({ error: "Vui lòng nhập tên khách" })
+    .string({ error: "Vui lòng nhập tên Người thuê" })
     .trim()
-    .min(2, { error: "Vui lòng nhập tên khách" }),
+    .min(2, { error: "Vui lòng nhập tên Người thuê" }),
   tenantPhone: z
     .string({ error: "Số điện thoại không hợp lệ" })
     .trim()

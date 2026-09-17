@@ -122,7 +122,7 @@ function RenewForm({ contract }: { contract: Contract }) {
           </CardHeader>
           <CardContent className="space-y-3">
             <InfoRow label="Số hợp đồng" value={contract.contractNumber} />
-            <InfoRow label="Khách thuê" value={contract.tenant} />
+            <InfoRow label="Người thuê" value={contract.tenant} />
             <InfoRow label="Phòng" value={contract.room} />
             <InfoRow
               label="Tiền thuê"
@@ -239,16 +239,16 @@ function RenewConfirmCard({
   const delta = newRent - currentRent;
 
   return (
-    <Card className="h-fit border-emerald-200 bg-emerald-50">
+    <Card className="h-fit border-success/20 bg-success/10">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base text-emerald-900">
+        <CardTitle className="flex items-center gap-2 text-base text-success">
           <CheckCircle2 className="size-5" />
           Xác nhận gia hạn
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Alert className="border-emerald-200">
-          <AlertCircle className="text-emerald-600" />
+        <Alert className="border-success/20">
+          <AlertCircle className="text-success" />
           <AlertDescription>
             Vui lòng kiểm tra thông tin trước khi xác nhận
           </AlertDescription>
@@ -264,7 +264,7 @@ function RenewConfirmCard({
             Thay đổi tiền thuê:{" "}
             <span
               className={cn(
-                delta > 0 ? "text-destructive" : "text-emerald-600",
+                delta > 0 ? "text-destructive" : "text-success",
               )}
             >
               {delta > 0 ? "+" : ""}

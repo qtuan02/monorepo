@@ -6,7 +6,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 interface SummaryCardProps {
   label: string;
   value: string | number;
-  /** One line under the number — "trên toàn bộ tòa nhà". */
+  /** One line under the number — "trên toàn bộ toà nhà". */
   description?: string;
   icon?: LucideIcon;
   iconClassName?: string;
@@ -46,7 +46,7 @@ export function SummaryCard({
               <span
                 className={cn(
                   "text-xs font-semibold",
-                  trend.isPositive ? "text-emerald-600" : "text-destructive",
+                  trend.isPositive ? "text-success" : "text-destructive",
                 )}
               >
                 {trend.isPositive ? "↑" : "↓"}{" "}

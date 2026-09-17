@@ -13,7 +13,7 @@ import { useGetBuildings } from "~/hooks/api/building";
 import { useBuildingStore } from "~/stores/use-building-store";
 
 /**
- * "Quản lý Tòa nhà": a card grid, as the prototype — a Toà nhà is a handful of
+ * "Quản lý Toà nhà": a card grid, as the prototype — a Toà nhà is a handful of
  * rows, not a table. Under a Building scope only that Toà nhà shows; the
  * scope is the selector's business, so the filter is applied here over the
  * unscoped list the selector also reads.
@@ -30,12 +30,12 @@ export default function BuildingListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Quản lý Tòa nhà"
-        description="Quản lý danh sách các khu trọ, tòa nhà của bạn"
+        title="Quản lý Toà nhà"
+        description="Quản lý danh sách các khu trọ, toà nhà của bạn"
         actions={
           <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
             <Plus />
-            Thêm tòa nhà
+            Thêm toà nhà
           </Button>
         }
       />
@@ -44,15 +44,15 @@ export default function BuildingListTemplate() {
         <LoadingPanel />
       ) : isError ? (
         <ErrorPanel
-          description="Không tải được danh sách tòa nhà."
+          description="Không tải được danh sách toà nhà."
           action={{ label: "Thử lại", onClick: () => refetch() }}
         />
       ) : buildings.length === 0 ? (
         <EmptyPanel
           icon={Building2}
-          title="Chưa có tòa nhà"
-          description="Thêm tòa nhà đầu tiên để bắt đầu quản lý phòng."
-          action={{ label: "Thêm tòa nhà", onClick: () => setIsFormOpen(true) }}
+          title="Chưa có toà nhà"
+          description="Thêm toà nhà đầu tiên để bắt đầu quản lý phòng."
+          action={{ label: "Thêm toà nhà", onClick: () => setIsFormOpen(true) }}
           className="border"
         />
       ) : (

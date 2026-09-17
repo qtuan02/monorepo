@@ -16,7 +16,7 @@ interface ResidenceChecklistCardProps {
   items: ComplianceItem[];
 }
 
-/** "Danh sách tuân thủ theo khách": every item, with its kind, status and the date that matters. */
+/** "Danh sách khai báo lưu trú theo Người thuê": every item, with its kind, status and the date that matters. */
 export default function ResidenceChecklistCard({
   items,
 }: ResidenceChecklistCardProps) {
@@ -24,7 +24,7 @@ export default function ResidenceChecklistCard({
     <Card>
       <CardHeader>
         <CardTitle className="text-base">
-          Danh sách tuân thủ theo khách
+          Danh sách khai báo lưu trú theo Người thuê
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">

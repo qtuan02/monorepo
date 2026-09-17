@@ -50,11 +50,11 @@ interface Step {
 const STEPS: [Step, ...Step[]] = [
   {
     id: "building",
-    title: "Tạo tòa nhà đầu tiên",
+    title: "Tạo toà nhà đầu tiên",
     description: "Nhập thông tin cơ bản về khu trọ của bạn.",
-    cardTitle: "Tòa nhà của bạn",
+    cardTitle: "Toà nhà của bạn",
     cardDescription:
-      "Thông tin tòa nhà hoặc khu trọ đầu tiên. Bạn có thể thêm nhiều hơn sau này.",
+      "Thông tin toà nhà hoặc khu trọ đầu tiên. Bạn có thể thêm nhiều hơn sau này.",
     fields: [
       {
         name: "buildingName",

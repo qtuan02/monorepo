@@ -48,7 +48,7 @@ const TITLE = "Chi tiết hợp đồng";
 
 /**
  * "Chi tiết hợp đồng". "Tải PDF", "Chỉnh sửa", "In hợp đồng" and "Xem hồ sơ
- * khách" have no flow yet, as in the prototype; "Xóa" confirms, then removes
+ * Người thuê" have no flow yet, as in the prototype; "Xóa" confirms, then removes
  * the entry from the Mock. Gia hạn and Thanh lý link to their screens.
  */
 export default function ContractDetailTemplate({
@@ -113,7 +113,8 @@ export default function ContractDetailTemplate({
 
   const status = contractStatusConfig[contract.status];
   const expiry = getContractExpiryMeta(contract.endDate);
-  const isEnded = contract.status === "ended";
+  const isEnded =
+    contract.status === "EXPIRED" || contract.status === "TERMINATED";
 
   const handleDelete = () =>
     deleteContract.mutate(contract.id, {
@@ -134,7 +135,7 @@ export default function ContractDetailTemplate({
           <AlertCircle />
           <AlertDescription>
             Hợp đồng sẽ hết hạn trong {expiry.daysUntilEnd} ngày. Vui lòng gia
-            hạn hoặc liên hệ khách thuê.
+            hạn hoặc liên hệ Người thuê.
           </AlertDescription>
         </Alert>
       )}
@@ -164,8 +165,8 @@ export default function ContractDetailTemplate({
             </CardContent>
           </Card>
 
-          <InfoCard title="Thông tin khách thuê">
-            <InfoRow label="Tên khách" value={contract.tenant} isHighlighted />
+          <InfoCard title="Thông tin Người thuê">
+            <InfoRow label="Tên Người thuê" value={contract.tenant} isHighlighted />
             <InfoRow label="Phòng" value={contract.room} />
             <InfoRow label="Tầng" value={`Tầng ${contract.floor}`} />
             <Button
@@ -175,7 +176,7 @@ export default function ContractDetailTemplate({
               className="mt-3 w-full"
             >
               <User />
-              Xem hồ sơ khách
+              Xem hồ sơ Người thuê
             </Button>
           </InfoCard>
 
@@ -231,7 +232,7 @@ export default function ContractDetailTemplate({
                 />
               </div>
               <div className="space-y-2 text-sm">
-                <p className="font-medium">Khách thuê</p>
+                <p className="font-medium">Người thuê</p>
                 <p className="text-muted-foreground">{contract.tenant}</p>
               </div>
               <Separator />

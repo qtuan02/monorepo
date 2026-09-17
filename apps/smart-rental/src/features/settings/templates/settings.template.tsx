@@ -1,4 +1,4 @@
-import { BarChart3, MessageSquare, RotateCcw, Shield } from "lucide-react";
+import { BarChart3, Bell, RotateCcw, ShieldCheck } from "lucide-react";
 import { Link } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
@@ -24,8 +24,8 @@ import {
 } from "~/hooks/api/setting";
 
 const quickLinks = [
-  { to: ROUTES.COMPLIANCE, label: "Tuân thủ", icon: Shield },
-  { to: ROUTES.COMMUNICATIONS, label: "Liên lạc", icon: MessageSquare },
+  { to: ROUTES.COMPLIANCE, label: "Khai báo lưu trú", icon: ShieldCheck },
+  { to: ROUTES.COMMUNICATIONS, label: "Thông báo", icon: Bell },
   { to: ROUTES.REPORTS, label: "Báo cáo", icon: BarChart3 },
 ];
 
@@ -66,10 +66,12 @@ export default function SettingsTemplate() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Tuân thủ & liên lạc</CardTitle>
+          <CardTitle className="text-base">
+            Khai báo lưu trú & thông báo
+          </CardTitle>
           <CardDescription>
-            Truy cập nhanh các màn hình hệ thống liên quan đến tuân thủ và gửi
-            thông báo.
+            Truy cập nhanh các màn hình hệ thống liên quan đến khai báo lưu
+            trú và gửi thông báo.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">

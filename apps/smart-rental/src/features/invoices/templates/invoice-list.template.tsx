@@ -30,8 +30,8 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
 /**
- * "Quản lý hóa đơn": four KPI tiles over the list composite, cards or table
- * by `?view=`. "Xuất Excel" has no flow yet, as in the prototype; "Tạo hóa
+ * "Quản lý hoá đơn": four KPI tiles over the list composite, cards or table
+ * by `?view=`. "Xuất Excel" has no flow yet, as in the prototype; "Tạo hoá
  * đơn" leads to the Đợt hoá đơn screen, the one create flow the prototype had.
  */
 export default function InvoiceListTemplate() {
@@ -46,8 +46,8 @@ export default function InvoiceListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Quản lý hóa đơn"
-        description="Theo dõi và quản lý tất cả hóa đơn thanh toán từ khách thuê."
+        title="Quản lý hoá đơn"
+        description="Theo dõi và quản lý tất cả hoá đơn thanh toán từ Người thuê."
         actions={
           <>
             <Button type="button" variant="outline" size="sm">
@@ -59,7 +59,7 @@ export default function InvoiceListTemplate() {
               className={buttonVariants({ size: "sm" })}
             >
               <Plus />
-              Tạo hóa đơn
+              Tạo hoá đơn
             </Link>
           </>
         }
@@ -69,14 +69,14 @@ export default function InvoiceListTemplate() {
         <LoadingPanel />
       ) : isError ? (
         <ErrorPanel
-          description="Không tải được danh sách hóa đơn."
+          description="Không tải được danh sách hoá đơn."
           action={{ label: "Thử lại", onClick: () => refetch() }}
         />
       ) : (
         <>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <SummaryCard
-              label="Tổng hóa đơn"
+              label="Tổng hoá đơn"
               value={stats.total}
               icon={FileText}
             />
@@ -84,19 +84,19 @@ export default function InvoiceListTemplate() {
               label="Đã thanh toán"
               value={formatCurrency(stats.paidAmount)}
               icon={CheckCircle2}
-              iconClassName="bg-emerald-50 text-emerald-700"
+              iconClassName="bg-success/10 text-success"
             />
             <SummaryCard
               label="Chờ thanh toán"
               value={formatCurrency(stats.pendingAmount)}
               icon={Clock}
-              iconClassName="bg-blue-50 text-blue-700"
+              iconClassName="bg-info/10 text-info"
             />
             <SummaryCard
               label="Quá hạn"
               value={formatCurrency(stats.overdueAmount)}
               icon={AlertCircle}
-              iconClassName="bg-red-50 text-red-700"
+              iconClassName="bg-destructive/10 text-destructive"
             />
           </div>
 
@@ -107,7 +107,7 @@ export default function InvoiceListTemplate() {
               getRowId={(invoice) => invoice.id}
               search={{
                 columnId: "invoiceNumber",
-                placeholder: "Tìm số hóa đơn...",
+                placeholder: "Tìm số hoá đơn...",
               }}
               facets={[
                 {
@@ -118,11 +118,11 @@ export default function InvoiceListTemplate() {
               ]}
               empty={{
                 icon: FileText,
-                title: "Không tìm thấy hóa đơn",
+                title: "Không tìm thấy hoá đơn",
                 description:
                   "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
               }}
-              resultLabel={(count) => `${count} hóa đơn được tìm thấy`}
+              resultLabel={(count) => `${count} hoá đơn được tìm thấy`}
               viewSwitch={<ListViewSwitch />}
               renderRows={
                 view === "grid"

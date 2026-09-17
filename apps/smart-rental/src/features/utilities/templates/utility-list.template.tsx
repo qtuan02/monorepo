@@ -26,10 +26,10 @@ import { useGetUtilities } from "~/hooks/api/utility";
 import { useBuildingStore } from "~/stores/use-building-store";
 
 /**
- * "Tiện ích" — the Chỉ số điện nước list (the heading keeps the prototype's
- * copy; the code keeps the glossary's name). Three KPI tiles over the list
- * composite, cards or table by `?view=`. "Lịch sử chốt" has no flow yet, as
- * in the prototype; "Thêm chỉ số" leads to the meter-input screen.
+ * "Chỉ số điện nước" (ADR-0011 — the heading now matches the glossary's
+ * name). Three KPI tiles over the list composite, cards or table by
+ * `?view=`. "Lịch sử chốt" has no flow yet, as in the prototype; "Thêm chỉ
+ * số" leads to the meter-input screen.
  */
 export default function UtilityListTemplate() {
   const [view, setView] = useListView();
@@ -43,7 +43,7 @@ export default function UtilityListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Tiện ích"
+        title="Chỉ số điện nước"
         description="Quản lý chỉ số điện nước và tiêu thụ hàng tháng."
         actions={
           <>
@@ -80,13 +80,13 @@ export default function UtilityListTemplate() {
               label="Bất thường"
               value={stats.anomalyCount}
               icon={AlertCircle}
-              iconClassName="bg-red-50 text-red-700"
+              iconClassName="bg-destructive/10 text-destructive"
             />
             <SummaryCard
               label="Chờ xác minh"
               value={stats.pendingVerifyCount}
               icon={Clock}
-              iconClassName="bg-blue-50 text-blue-700"
+              iconClassName="bg-info/10 text-info"
               className="sm:col-span-2 lg:col-span-1"
             />
           </div>

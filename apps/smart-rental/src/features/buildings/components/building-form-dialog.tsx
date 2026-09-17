@@ -34,7 +34,7 @@ interface BuildingFormDialogProps {
 
 const FORM_ID = "building-form";
 
-/** "Thêm tòa nhà mới": a Zod-validated form that writes into the Mock and toasts. */
+/** "Thêm toà nhà mới": a Zod-validated form that writes into the Mock and toasts. */
 export default function BuildingFormDialog({
   open,
   onOpenChange,
@@ -55,7 +55,7 @@ export default function BuildingFormDialog({
     createBuilding.mutate(values, {
       onSuccess: (building) => {
         toast.add({
-          title: `Đã thêm tòa nhà ${building.name}`,
+          title: `Đã thêm toà nhà ${building.name}`,
           type: "success",
         });
         form.reset();
@@ -68,9 +68,9 @@ export default function BuildingFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Thêm tòa nhà mới</DialogTitle>
+          <DialogTitle>Thêm toà nhà mới</DialogTitle>
           <DialogDescription>
-            Tạo tòa nhà hoặc khu trọ mới để quản lý.
+            Tạo toà nhà hoặc khu trọ mới để quản lý.
           </DialogDescription>
         </DialogHeader>
         <form id={FORM_ID} onSubmit={onSubmit} noValidate>
@@ -80,7 +80,7 @@ export default function BuildingFormDialog({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Tên tòa nhà</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>Tên toà nhà</FieldLabel>
                   <Input
                     {...field}
                     id={field.name}

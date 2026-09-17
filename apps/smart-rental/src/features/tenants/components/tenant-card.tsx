@@ -6,7 +6,7 @@ import {
   CardHeader,
 } from "@monorepo/ui/components/card";
 
-import type { Tenant } from "~/types/tenant";
+import type { TenantView } from "~/types/tenant";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatItem } from "~/components/card/stat-item";
@@ -16,7 +16,7 @@ import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
 
 interface TenantCardProps {
-  tenant: Tenant;
+  tenant: TenantView;
 }
 
 /** One tile of the Người thuê card view. */

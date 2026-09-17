@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   AlertCircle,
   Download,
+  Droplets,
   TrendingDown,
   TrendingUp,
   Users,
@@ -114,25 +115,25 @@ export default function ReportsOverviewTemplate() {
               label="Tổng doanh thu"
               value={formatCurrency(summary.totalRevenue)}
               icon={TrendingUp}
-              iconClassName="bg-emerald-100 text-emerald-600"
+              iconClassName="bg-success/10 text-success"
             />
             <SummaryCard
               label="Chi phí"
               value={formatCurrency(summary.totalExpenses)}
               icon={TrendingDown}
-              iconClassName="bg-red-100 text-red-600"
+              iconClassName="bg-destructive/10 text-destructive"
             />
             <SummaryCard
               label="Lợi nhuận"
               value={formatCurrency(summary.totalProfit)}
               icon={Zap}
-              iconClassName="bg-blue-100 text-blue-600"
+              iconClassName="bg-info/10 text-info"
             />
             <SummaryCard
               label="Lấp đầy phòng"
               value={`${summary.avgOccupancy}%`}
               icon={Users}
-              iconClassName="bg-purple-100 text-purple-600"
+              iconClassName="bg-primary/10 text-primary"
             />
           </div>
         )}
@@ -154,7 +155,7 @@ export default function ReportsOverviewTemplate() {
               ) : (
                 <EmptyPanel
                   title="Không có dòng báo cáo"
-                  description="Thử đổi bộ lọc tòa, tầng hoặc trạng thái."
+                  description="Thử đổi bộ lọc toà, tầng hoặc trạng thái."
                   action={{
                     label: "Đặt lại bộ lọc",
                     onClick: () => setFilters(defaultReportFilters),
@@ -176,7 +177,7 @@ export default function ReportsOverviewTemplate() {
                       So sánh tiêu thụ & Lợi nhuận
                     </CardTitle>
                     <CardDescription>
-                      Thu từ khách vs Chi cho nhà cung cấp
+                      Thu từ Người thuê vs Chi cho nhà cung cấp
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -187,13 +188,15 @@ export default function ReportsOverviewTemplate() {
                       >
                         <div>
                           <p className="font-medium">{row.floor}</p>
-                          <p className="text-muted-foreground text-xs">
-                            ⚡ {row.electricityUsage} kWh | 💧 {row.waterUsage}{" "}
-                            m³
+                          <p className="text-muted-foreground flex items-center gap-1 text-xs tabular-nums">
+                            <Zap className="size-3" />
+                            {row.electricityUsage} kWh
+                            <Droplets className="ml-2 size-3" />
+                            {row.waterUsage} m³
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-emerald-600">
+                          <p className="text-sm font-bold text-success">
                             +{formatCurrency(SERVICE_PROFIT)}
                           </p>
                           <p className="text-muted-foreground text-[10px]">

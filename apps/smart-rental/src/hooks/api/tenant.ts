@@ -9,8 +9,11 @@ import type {
   CreateTenantRequest,
   Tenant,
   TenantListParams,
+  TenantView,
 } from "~/types/tenant";
-import { mockTenants, pickAvatarColor } from "~/constants/mock/tenants";
+import { mockBuildings } from "~/constants/mock/buildings";
+import { mockContracts } from "~/constants/mock/contracts";
+import { mockTenants } from "~/constants/mock/tenants";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
 
@@ -25,29 +28,48 @@ export const tenantQueryKeys = {
   getTenant: (tenantId: string) => tenantQueryKeyFactory.detail(tenantId),
 };
 
+/**
+ * A Người thuê has no stored status (ADR-0012) — this is the temporary,
+ * hook-computed stand-in old screens still read: an `ACTIVE`/`EXPIRING`
+ * Hợp đồng means "Đang thuê", anything else (or none) means "Đã rời". The
+ * real derivation — folding in an overdue-Hoá-đơn flag — is a later ticket.
+ */
+function withStatus(tenant: Tenant): TenantView {
+  const hasLiveContract = mockContracts.some(
+    (contract) =>
+      contract.tenantId === tenant.id &&
+      (contract.status === "ACTIVE" || contract.status === "EXPIRING"),
+  );
+  return { ...tenant, status: hasLiveContract ? "active" : "ended" };
+}
+
 export function useGetTenants(
   params?: TenantListParams,
-  options?: UseQueryOptionsWrapper<Tenant[]>,
-): UseQueryResult<Tenant[], Error> {
-  return useQuery<Tenant[], Error>({
+  options?: UseQueryOptionsWrapper<TenantView[]>,
+): UseQueryResult<TenantView[], Error> {
+  return useQuery<TenantView[], Error>({
     queryKey: tenantQueryKeys.getTenants(params),
     queryFn: async () =>
-      mockTenants.filter(
-        (tenant) =>
-          !params?.buildingId || tenant.buildingId === params.buildingId,
-      ),
+      mockTenants
+        .filter(
+          (tenant) =>
+            !params?.buildingId || tenant.buildingId === params.buildingId,
+        )
+        .map(withStatus),
     ...options,
   });
 }
 
 export function useGetTenant(
   tenantId: string,
-  options?: UseQueryOptionsWrapper<Tenant | null>,
-): UseQueryResult<Tenant | null, Error> {
-  return useQuery<Tenant | null, Error>({
+  options?: UseQueryOptionsWrapper<TenantView | null>,
+): UseQueryResult<TenantView | null, Error> {
+  return useQuery<TenantView | null, Error>({
     queryKey: tenantQueryKeys.getTenant(tenantId),
-    queryFn: async () =>
-      mockTenants.find((tenant) => tenant.id === tenantId) ?? null,
+    queryFn: async () => {
+      const tenant = mockTenants.find((item) => item.id === tenantId);
+      return tenant ? withStatus(tenant) : null;
+    },
     ...options,
   });
 }
@@ -63,7 +85,7 @@ export function useCreateTenant(
     mutationFn: async (request: CreateTenantRequest) => {
       const tenant: Tenant = {
         id: `T${String(mockTenants.length + 1).padStart(3, "0")}`,
-        buildingId: request.buildingId,
+        buildingId: request.buildingId ?? (mockBuildings[0]?.id ?? "b1"),
         name: request.fullName,
         phone: request.phone,
         email: request.email,
@@ -73,10 +95,8 @@ export function useCreateTenant(
         depositAmount: 0,
         moveInDate: formatDate(new Date()),
         contractEnd: "—",
-        status: "pending",
         idNumber: request.idCard,
         gender: "male",
-        avatarColor: pickAvatarColor(mockTenants.length),
       };
       mockTenants.unshift(tenant);
       return tenant;

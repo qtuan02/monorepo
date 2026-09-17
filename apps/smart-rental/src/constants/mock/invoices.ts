@@ -1,35 +1,157 @@
-import type { BatchInvoiceItem, Invoice } from "~/types/invoice";
+import type {
+  BatchInvoiceItem,
+  Invoice,
+  InvoiceLineItem,
+  InvoicePayment,
+  InvoiceStatus,
+} from "~/types/invoice";
+import { sumInvoicePayments } from "~/utils/invoice-payments";
+import { formatDate, formatMonth } from "~/utils/date";
+import { mockBuildings } from "~/constants/mock/buildings";
+import { mockContracts } from "~/constants/mock/contracts";
+
+/** Sáu kỳ 04–09/2026 (spec #153 — one period alone cannot feed a 6-month chart or a history tab). */
+const BILLING_MONTHS = [
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+] as const;
+
+/** Flat preview rates per Toà nhà — the EVN tiers live in Cài đặt (a later ticket). */
+const DEFAULT_CHARGE = { electric: 350_000, water: 90_000 };
+const UTILITY_CHARGE: Record<string, { electric: number; water: number }> = {
+  b1: DEFAULT_CHARGE,
+  b2: { electric: 550_000, water: 150_000 },
+  b3: { electric: 300_000, water: 80_000 },
+};
 
 /**
- * The Mock every Hoá đơn read comes from (spec #127), generated exactly as the
- * prototype generated it — 30 Hoá đơn, ten per Toà nhà.
+ * Kỳ 09/2026 — "hôm nay" 17/09/2026 — needs ≥ 3 Quá hạn, ≥ 1 Thu một phần
+ * (spec #153); the rest is a mix of Đã thu / Chưa thu so the list isn't a
+ * single status. Indexed against `mockContracts`, in order.
  */
-export const mockInvoices: Invoice[] = Array.from(
-  { length: 30 },
-  (_, i): Invoice => ({
-    id: `I${String(i + 1).padStart(3, "0")}`,
-    invoiceNumber: `HÓA-${String(i + 1).padStart(3, "0")}`,
-    tenant:
-      i % 2 === 0
-        ? `Nguyễn Văn ${String.fromCharCode(65 + i)}`
-        : `Trần Thị ${String.fromCharCode(65 + i)}`,
-    room: `Phòng ${101 + (i % 20)}`,
-    floor: Math.floor(i / 10) + 1,
-    amount: 3000000 + (i % 5) * 200000,
-    month: "04/2026",
-    dueDate: "10/04/2026",
-    status:
-      i % 5 === 0
-        ? "overdue"
-        : i % 8 === 0
-          ? "cancelled"
-          : i % 3 === 0
-            ? "pending"
-            : "paid",
-    paymentDate: i % 3 === 0 ? null : "08/04/2026",
-    lastUpdated: "20/04/2026",
-    buildingId: i < 10 ? "b1" : i < 20 ? "b2" : "b3",
-  }),
+const SEPTEMBER_STATUS: InvoiceStatus[] = [
+  "OVERDUE",
+  "OVERDUE",
+  "OVERDUE",
+  "PARTIAL",
+  "PAID",
+  "PAID",
+  "PAID",
+  "PAID",
+  "UNPAID",
+  "UNPAID",
+  "UNPAID",
+  "UNPAID",
+  "UNPAID",
+  "UNPAID",
+];
+
+function buildLineItems(
+  contract: (typeof mockContracts)[number],
+): InvoiceLineItem[] {
+  const charge = UTILITY_CHARGE[contract.buildingId] ?? DEFAULT_CHARGE;
+  const building = mockBuildings.find((b) => b.id === contract.buildingId);
+
+  return [
+    {
+      type: "RENT",
+      description: "Tiền phòng",
+      quantity: 1,
+      unitPrice: contract.rentAmount,
+      amount: contract.rentAmount,
+    },
+    {
+      type: "ELECTRIC",
+      description: "Tiền điện",
+      quantity: 1,
+      unitPrice: charge.electric,
+      amount: charge.electric,
+    },
+    {
+      type: "WATER",
+      description: "Tiền nước",
+      quantity: 1,
+      unitPrice: charge.water,
+      amount: charge.water,
+    },
+    {
+      type: "SERVICE",
+      description: "Phí dịch vụ",
+      quantity: 1,
+      unitPrice: building?.priceList.serviceFee ?? 0,
+      amount: building?.priceList.serviceFee ?? 0,
+    },
+  ];
+}
+
+function buildDueDate(buildingId: string, billingMonth: string): string {
+  const building = mockBuildings.find((b) => b.id === buildingId);
+  const day = String(building?.collectionDay ?? 5).padStart(2, "0");
+  return formatDate(`${billingMonth}-${day}`);
+}
+
+function buildPayments(status: InvoiceStatus, total: number): InvoicePayment[] {
+  if (status === "PAID") {
+    return [{ amount: total, method: "BANK_TRANSFER", paidAt: "2026-09-03" }];
+  }
+  if (status === "PARTIAL") {
+    return [{ amount: Math.round(total / 2), method: "CASH", paidAt: "2026-09-12" }];
+  }
+  return [];
+}
+
+function buildInvoice(
+  contract: (typeof mockContracts)[number],
+  billingMonth: string,
+  status: InvoiceStatus,
+  sequence: number,
+): Invoice {
+  const lineItems = buildLineItems(contract);
+  const amount = lineItems.reduce((sum, item) => sum + item.amount, 0);
+  const payments = buildPayments(status, amount);
+  const paidAmount = sumInvoicePayments(payments);
+  const lastPayment = payments.at(-1);
+
+  return {
+    id: `I${String(sequence).padStart(3, "0")}`,
+    buildingId: contract.buildingId,
+    contractId: contract.id,
+    invoiceNumber: `HÓA-${String(sequence).padStart(3, "0")}`,
+    tenant: contract.tenant,
+    room: contract.room,
+    floor: contract.floor,
+    amount,
+    lineItems,
+    payments,
+    paidAmount,
+    billingMonth,
+    month: formatMonth(billingMonth),
+    dueDate: buildDueDate(contract.buildingId, billingMonth),
+    status,
+    paymentDate: lastPayment ? formatDate(lastPayment.paidAt) : null,
+    lastUpdated: "17/09/2026",
+  };
+}
+
+/**
+ * The Mock every Hoá đơn read comes from (ADR-0012, spec #153) — one per
+ * Hợp đồng per kỳ (14 × 6 = 84). Months 04–08 are settled (`PAID`); 09 is
+ * "hôm nay"'s kỳ and carries the mix `SEPTEMBER_STATUS` names.
+ */
+export const mockInvoices: Invoice[] = BILLING_MONTHS.flatMap(
+  (billingMonth, monthIndex) =>
+    mockContracts.map((contract, contractIndex) => {
+      const status: InvoiceStatus =
+        monthIndex === BILLING_MONTHS.length - 1
+          ? (SEPTEMBER_STATUS[contractIndex] ?? "UNPAID")
+          : "PAID";
+      const sequence = monthIndex * mockContracts.length + contractIndex + 1;
+      return buildInvoice(contract, billingMonth, status, sequence);
+    }),
 );
 
 /** The Phòng an Đợt hoá đơn would bill, as the prototype previewed them. */

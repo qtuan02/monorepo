@@ -11,7 +11,7 @@ import type { MeterInputFormValues } from "~/features/utilities/types/meter-inpu
 import type { MeterReading } from "~/features/utilities/utils/meter-reading";
 import type { MeterInputRoom } from "~/types/utility";
 import { StatusBadge } from "~/components/badge/status-badge";
-import { utilityStatusConfig } from "~/constants/status";
+import { meterEntryStatusConfig } from "~/constants/status";
 import {
   combineMeterStatus,
   readMeter,
@@ -103,7 +103,7 @@ export default function MeterInputRow({
       <ConsumptionCell reading={water} />
       <TableCell className="text-right">
         {status ? (
-          <StatusBadge config={utilityStatusConfig[status]} />
+          <StatusBadge config={meterEntryStatusConfig[status]} />
         ) : (
           <Badge variant="outline">Chưa nhập</Badge>
         )}

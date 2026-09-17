@@ -125,7 +125,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb14",
-    buildingId: "b4",
+    buildingId: "b1",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -133,7 +133,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb15",
-    buildingId: "b4",
+    buildingId: "b1",
     type: "water",
     supplierName: "Dawaco",
     billingPeriod: "2024-03",
@@ -141,7 +141,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb16",
-    buildingId: "b5",
+    buildingId: "b2",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -149,7 +149,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb17",
-    buildingId: "b5",
+    buildingId: "b2",
     type: "internet",
     supplierName: "VNPT",
     billingPeriod: "2024-03",
@@ -157,7 +157,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb18",
-    buildingId: "b6",
+    buildingId: "b3",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -165,7 +165,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb19",
-    buildingId: "b7",
+    buildingId: "b1",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -173,7 +173,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb20",
-    buildingId: "b7",
+    buildingId: "b1",
     type: "water",
     supplierName: "Dawaco",
     billingPeriod: "2024-03",
@@ -181,7 +181,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb21",
-    buildingId: "b8",
+    buildingId: "b2",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -189,7 +189,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb22",
-    buildingId: "b9",
+    buildingId: "b3",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -197,7 +197,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb23",
-    buildingId: "b10",
+    buildingId: "b1",
     type: "electricity",
     supplierName: "EVN Đà Nẵng",
     billingPeriod: "2024-03",
@@ -205,7 +205,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb24",
-    buildingId: "b10",
+    buildingId: "b1",
     type: "other",
     supplierName: "Dịch vụ Hồ bơi",
     billingPeriod: "2024-03",
@@ -237,7 +237,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb28",
-    buildingId: "b4",
+    buildingId: "b2",
     type: "internet",
     supplierName: "FPT Telecom",
     billingPeriod: "2024-03",
@@ -245,7 +245,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb29",
-    buildingId: "b7",
+    buildingId: "b1",
     type: "trash",
     supplierName: "Môi trường Đô thị",
     billingPeriod: "2024-03",
@@ -253,7 +253,7 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
   },
   {
     id: "sb30",
-    buildingId: "b10",
+    buildingId: "b2",
     type: "water",
     supplierName: "Dawaco",
     billingPeriod: "2024-03",

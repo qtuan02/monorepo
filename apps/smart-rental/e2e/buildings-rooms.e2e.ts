@@ -61,17 +61,17 @@ test.describe("Toà nhà và Phòng", () => {
     await page.goto(ROUTES.BUILDINGS);
     await expect(page.getByText("Trọ Sinh Viên Xanh")).toBeVisible();
 
-    await page.getByRole("button", { name: "Thêm tòa nhà" }).click();
+    await page.getByRole("button", { name: "Thêm toà nhà" }).click();
     await page.getByRole("button", { name: "Lưu lại" }).click();
     await expect(
-      page.getByText("Tên tòa nhà phải có ít nhất 2 ký tự"),
+      page.getByText("Tên toà nhà phải có ít nhất 2 ký tự"),
     ).toBeVisible();
 
-    await page.getByLabel("Tên tòa nhà").fill("Trọ E2E");
+    await page.getByLabel("Tên toà nhà").fill("Trọ E2E");
     await page.getByLabel("Địa chỉ").fill("1 Đường Kiểm Thử, Đà Nẵng");
     await page.getByRole("button", { name: "Lưu lại" }).click();
 
-    await expect(page.getByText("Đã thêm tòa nhà Trọ E2E")).toBeVisible();
+    await expect(page.getByText("Đã thêm toà nhà Trọ E2E")).toBeVisible();
     await expect(page.getByText("Trọ E2E", { exact: true })).toBeVisible();
   });
 
@@ -82,7 +82,7 @@ test.describe("Toà nhà và Phòng", () => {
     await expect(page.getByText("Phòng 201").first()).toBeVisible();
     await expect(page.getByText("Đã đặt").first()).toBeVisible();
 
-    await page.getByRole("combobox", { name: "Tòa nhà" }).click();
+    await page.getByRole("combobox", { name: "Toà nhà" }).click();
     await page.getByRole("option", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
     await page.getByRole("button", { name: "Quay lại" }).click();
     await expect(page.getByText("10 phòng được tìm thấy")).toBeVisible();

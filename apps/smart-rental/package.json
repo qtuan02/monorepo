@@ -16,6 +16,7 @@
     "e2e:headed": "playwright test --project=watch --headed --workers=1"
   },
   "dependencies": {
+    "@fontsource-variable/ibm-plex-sans": "catalog:",
     "@hookform/resolvers": "catalog:",
     "@monorepo/api": "workspace:*",
     "@monorepo/dayjs": "workspace:*",

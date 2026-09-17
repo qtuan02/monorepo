@@ -24,21 +24,21 @@ const summaryTiles: {
   {
     type: "invoice_overdue",
     icon: AlertCircle,
-    iconClassName: "bg-red-100 text-red-600",
+    iconClassName: "bg-destructive/10 text-destructive",
   },
   {
     type: "contract_expiring",
     icon: Clock,
-    iconClassName: "bg-amber-100 text-amber-600",
+    iconClassName: "bg-warning/10 text-warning",
   },
   {
     type: "maintenance",
     icon: Wrench,
-    iconClassName: "bg-blue-100 text-blue-600",
+    iconClassName: "bg-info/10 text-info",
   },
 ];
 
-/** "Trung tâm nhiệm vụ": a count per kind over the whole list, then the filtered card grid. */
+/** "Việc cần làm" (ADR-0011): a count per kind over the whole list, then the filtered card grid. */
 export default function TaskCenterTemplate() {
   const { data, isLoading, isError, refetch } = useGetTasks();
   const tasks = data ?? [];
@@ -46,7 +46,7 @@ export default function TaskCenterTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Trung tâm nhiệm vụ"
+        title="Việc cần làm"
         description="Quản lý những nhiệm vụ cần xử lý"
       />
 

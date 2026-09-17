@@ -62,6 +62,16 @@ export function useCreateBuilding(
         address: request.address,
         totalFloors: request.totalFloors,
         utilityCycleDay: request.utilityCycleDay,
+        // The form has no Bảng giá / Tài khoản nhận tiền step yet (spec #153's
+        // Cài đặt tab is a later ticket) — a fresh Toà nhà gets the workspace
+        // default price list and no bank account, same as a real one waiting
+        // to be configured.
+        collectionDay: request.utilityCycleDay,
+        priceList: {
+          electricityPricePerKwh: 3500,
+          waterPricePerM3: 15000,
+          serviceFee: 100000,
+        },
         note: request.note,
         description: request.note,
         totalRooms: 0,

@@ -33,7 +33,7 @@ describe("OnboardingWizardTemplate", () => {
     expect(
       await screen.findByText("Tên khu trọ tối thiểu 2 ký tự"),
     ).toBeInTheDocument();
-    expect(screen.getByText("Tòa nhà của bạn")).toBeInTheDocument();
+    expect(screen.getByText("Toà nhà của bạn")).toBeInTheDocument();
 
     // …and moves on once its own fields hold.
     await user.type(screen.getByLabelText("Tên khu trọ"), "Trọ Sinh Viên");

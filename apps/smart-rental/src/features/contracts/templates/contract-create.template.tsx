@@ -42,7 +42,7 @@ const FORM_ID = "contract-form";
 const wizardSteps: { title: string; fields: (keyof ContractFormInput)[] }[] = [
   { title: "Chọn phòng", fields: ["buildingId", "roomId"] },
   {
-    title: "Khách thuê",
+    title: "Người thuê",
     fields: ["tenantName", "tenantPhone", "tenantIdCard"],
   },
   {
@@ -125,7 +125,7 @@ export default function ContractCreateTemplate() {
           {step === 1 && (
             <Card>
               <CardHeader>
-                <CardTitle>Thông tin khách thuê</CardTitle>
+                <CardTitle>Thông tin Người thuê</CardTitle>
                 <CardDescription>
                   Nhập thông tin người đại diện thuê phòng
                 </CardDescription>
@@ -249,7 +249,7 @@ function RoomStep({ form }: { form: ContractForm }) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Tòa nhà</FieldLabel>
+              <FieldLabel htmlFor={field.name}>Toà nhà</FieldLabel>
               <Select
                 value={field.value}
                 onValueChange={(value) => {
@@ -261,7 +261,7 @@ function RoomStep({ form }: { form: ContractForm }) {
                   id={field.name}
                   aria-invalid={fieldState.invalid}
                 >
-                  <SelectValue placeholder="Chọn tòa nhà..." />
+                  <SelectValue placeholder="Chọn toà nhà..." />
                 </SelectTrigger>
                 <SelectContent>
                   {buildings.map((building) => (

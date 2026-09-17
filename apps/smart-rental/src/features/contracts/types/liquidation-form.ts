@@ -10,17 +10,17 @@ export const liquidationChecklist = [
   {
     id: "settleUtilities",
     title: "Thanh toán tiện ích",
-    description: "Thanh toán hóa đơn điện nước còn nợ",
+    description: "Thanh toán hoá đơn điện nước còn nợ",
   },
   {
     id: "collectKeys",
     title: "Tập hợp chìa khóa",
-    description: "Thu hồi chìa khóa phòng từ khách",
+    description: "Thu hồi chìa khóa phòng từ Người thuê",
   },
   {
     id: "finalInspection",
     title: "Kiểm tra cuối cùng",
-    description: "Xác nhận trạng thái phòng với khách",
+    description: "Xác nhận trạng thái phòng với Người thuê",
   },
 ] as const;
 

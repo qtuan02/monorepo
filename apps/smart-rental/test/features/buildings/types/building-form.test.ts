@@ -26,7 +26,7 @@ describe("buildingFormSchema", () => {
 
     expect(result.success).toBe(false);
     expect(result.error?.issues[0]?.message).toBe(
-      "Tên tòa nhà phải có ít nhất 2 ký tự",
+      "Tên toà nhà phải có ít nhất 2 ký tự",
     );
   });
 

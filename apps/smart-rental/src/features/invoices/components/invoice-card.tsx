@@ -35,7 +35,7 @@ export default function InvoiceCard({ invoice }: InvoiceCardProps) {
           <div className="bg-muted/50 space-y-2 rounded-lg p-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-xs font-medium">
-                Khách thuê
+                Người thuê
               </span>
               <span className="font-medium">{invoice.tenant}</span>
             </div>

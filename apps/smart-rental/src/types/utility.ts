@@ -4,11 +4,19 @@
  */
 export type UtilityType = "electricity" | "water";
 
-export type UtilityStatus = "draft" | "verified" | "anomaly";
+/**
+ * Enum per `billing-service` contract (ADR-0012) — "bất thường" is not a
+ * persisted state: it is computed live while entering a reading (see
+ * `MeterEntryStatus`), never written to a Chỉ số record.
+ */
+export type UtilityStatus = "DRAFT" | "VERIFIED";
+
+/** The live "while typing" state of one reading on "Nhập chỉ số" — never persisted. */
+export type MeterEntryStatus = "draft" | "anomaly";
 
 export interface Utility {
   id: string;
-  buildingId?: string;
+  buildingId: string;
   roomId: string;
   roomName: string;
   /** `YYYY-MM`. */

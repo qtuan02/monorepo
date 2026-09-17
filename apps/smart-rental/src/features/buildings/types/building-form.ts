@@ -12,9 +12,9 @@ const wholeNumber = (error: string) =>
 
 export const buildingFormSchema = z.object({
   name: z
-    .string({ error: "Tên tòa nhà phải có ít nhất 2 ký tự" })
+    .string({ error: "Tên toà nhà phải có ít nhất 2 ký tự" })
     .trim()
-    .min(2, { error: "Tên tòa nhà phải có ít nhất 2 ký tự" }),
+    .min(2, { error: "Tên toà nhà phải có ít nhất 2 ký tự" }),
   address: z
     .string({ error: "Địa chỉ phải có ít nhất 5 ký tự" })
     .trim()

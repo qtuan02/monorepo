@@ -45,8 +45,8 @@ const LOGS_ERROR = "Không thể tải nhật ký gửi tin.";
 const automationRules = [
   {
     key: "invoice-reminder",
-    label: "Nhắc nợ hóa đơn",
-    description: "Tự động gửi tin khi có hóa đơn mới (Kênh Zalo)",
+    label: "Nhắc nợ hoá đơn",
+    description: "Tự động gửi tin khi có hoá đơn mới (Kênh Zalo)",
     isOn: true,
   },
   {
@@ -78,7 +78,7 @@ export default function CommunicationsTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Liên lạc"
-        description="Gửi thông báo cho khách thuê qua nhiều kênh."
+        description="Gửi thông báo cho Người thuê qua nhiều kênh."
       />
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">
@@ -105,19 +105,19 @@ export default function CommunicationsTemplate() {
                   label="Đã gửi"
                   value={countByStatus(logs, "sent")}
                   icon={Send}
-                  iconClassName="bg-emerald-100 text-emerald-600"
+                  iconClassName="bg-success/10 text-success"
                 />
                 <SummaryCard
                   label="Chờ gửi"
                   value={countByStatus(logs, "pending")}
                   icon={MessageSquare}
-                  iconClassName="bg-blue-100 text-blue-600"
+                  iconClassName="bg-info/10 text-info"
                 />
                 <SummaryCard
                   label="Thất bại"
                   value={countByStatus(logs, "failed")}
                   icon={Mail}
-                  iconClassName="bg-red-100 text-red-600"
+                  iconClassName="bg-destructive/10 text-destructive"
                 />
               </div>
             )}
@@ -175,7 +175,7 @@ export default function CommunicationsTemplate() {
                 ) : (
                   <EmptyPanel
                     title="Chưa có mẫu"
-                    description="Thêm mẫu thông báo để gửi nhanh cho khách thuê."
+                    description="Thêm mẫu thông báo để gửi nhanh cho Người thuê."
                     className="border"
                   />
                 );
@@ -193,7 +193,7 @@ export default function CommunicationsTemplate() {
                 getRowId={(log) => log.id}
                 search={{
                   columnId: "tenant",
-                  placeholder: "Tìm kiếm khách...",
+                  placeholder: "Tìm kiếm Người thuê...",
                 }}
                 facets={[
                   {
@@ -223,7 +223,7 @@ export default function CommunicationsTemplate() {
             <CardHeader>
               <CardTitle>Cấu hình gửi thông báo tự động</CardTitle>
               <CardDescription>
-                Thiết lập các sự kiện để hệ thống tự động gửi tin cho khách thuê
+                Thiết lập các sự kiện để hệ thống tự động gửi tin cho Người thuê
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

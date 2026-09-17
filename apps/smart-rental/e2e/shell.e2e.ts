@@ -15,8 +15,8 @@ test.describe("shell", () => {
   test("keeps the Building scope across a reload, and `null` is every Toà nhà", async ({
     page,
   }) => {
-    const selector = page.getByRole("combobox", { name: "Tòa nhà" });
-    await expect(selector).toContainText("Tất cả tòa nhà");
+    const selector = page.getByRole("combobox", { name: "Toà nhà" });
+    await expect(selector).toContainText("Tất cả toà nhà");
 
     await selector.click();
     await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
@@ -26,9 +26,9 @@ test.describe("shell", () => {
     await expect(selector).toContainText("Trọ Sinh Viên Xanh");
 
     await selector.click();
-    await page.getByRole("option", { name: "Tất cả tòa nhà" }).click();
+    await page.getByRole("option", { name: "Tất cả toà nhà" }).click();
     await page.reload();
-    await expect(selector).toContainText("Tất cả tòa nhà");
+    await expect(selector).toContainText("Tất cả toà nhà");
   });
 
   test("navigates through the sidebar and marks the open area", async ({

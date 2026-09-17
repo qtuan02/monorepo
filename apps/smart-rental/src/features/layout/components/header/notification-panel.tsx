@@ -49,23 +49,23 @@ const notificationTypeConfig: Record<
 > = {
   invoice: {
     icon: ReceiptText,
-    colorClass: "text-amber-600",
-    bgClass: "bg-amber-100",
+    colorClass: "text-warning",
+    bgClass: "bg-warning/10",
   },
   contract: {
     icon: FileText,
-    colorClass: "text-blue-600",
-    bgClass: "bg-blue-100",
+    colorClass: "text-info",
+    bgClass: "bg-info/10",
   },
   maintenance: {
     icon: Wrench,
-    colorClass: "text-red-600",
-    bgClass: "bg-red-100",
+    colorClass: "text-destructive",
+    bgClass: "bg-destructive/10",
   },
   tenant: {
     icon: Users,
-    colorClass: "text-emerald-600",
-    bgClass: "bg-emerald-100",
+    colorClass: "text-success",
+    bgClass: "bg-success/10",
   },
   system: {
     icon: Settings,
@@ -80,8 +80,8 @@ const initialNotifications: Notification[] = [
   {
     id: "1",
     type: "invoice",
-    title: "Hóa đơn quá hạn",
-    description: "Phòng 204 chưa thanh toán hóa đơn tháng 4, quá hạn 2 ngày.",
+    title: "Hoá đơn quá hạn",
+    description: "Phòng 204 chưa thanh toán hoá đơn tháng 4, quá hạn 2 ngày.",
     time: "5 phút trước",
     isRead: false,
   },
@@ -104,7 +104,7 @@ const initialNotifications: Notification[] = [
   {
     id: "4",
     type: "tenant",
-    title: "Khách thuê mới",
+    title: "Người thuê mới",
     description: "Trần Văn B đã ký hợp đồng và nhận phòng 201 thành công.",
     time: "3 giờ trước",
     isRead: true,
@@ -113,7 +113,7 @@ const initialNotifications: Notification[] = [
     id: "5",
     type: "invoice",
     title: "Thanh toán thành công",
-    description: "Phòng 105 đã thanh toán đủ hóa đơn tháng 4 – 3,000,000 đ.",
+    description: "Phòng 105 đã thanh toán đủ hoá đơn tháng 4 – 3,000,000 đ.",
     time: "5 giờ trước",
     isRead: true,
   },

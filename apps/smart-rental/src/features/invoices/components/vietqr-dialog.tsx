@@ -44,7 +44,7 @@ export default function VietQrDialog({
         <DialogHeader>
           <DialogTitle>Mã thanh toán VietQR</DialogTitle>
           <DialogDescription>
-            Quét mã QR dưới đây bằng ứng dụng ngân hàng để thanh toán hóa đơn.
+            Quét mã QR dưới đây bằng ứng dụng ngân hàng để thanh toán hoá đơn.
           </DialogDescription>
         </DialogHeader>
 

@@ -71,7 +71,7 @@ export default function ReportFiltersBar({
     <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
       <FilterSelect
         value={filters.building}
-        allLabel="Tất cả tòa"
+        allLabel="Tất cả toà"
         options={buildings.map((name) => ({ value: name, label: name }))}
         onChange={(building) => onChange({ ...filters, building })}
       />

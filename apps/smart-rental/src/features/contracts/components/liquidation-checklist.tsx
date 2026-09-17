@@ -63,7 +63,7 @@ export default function LiquidationChecklist({
           </CardDescription>
           <Progress value={(completed / total) * 100} className="mt-4">
             <ProgressTrack>
-              <ProgressIndicator className="bg-emerald-500" />
+              <ProgressIndicator className="bg-success/10" />
             </ProgressTrack>
           </Progress>
         </CardHeader>
@@ -78,7 +78,7 @@ export default function LiquidationChecklist({
                   orientation="horizontal"
                   className={cn(
                     "rounded-lg border p-3 transition-colors",
-                    field.value ? "bg-emerald-50" : "hover:bg-muted/50",
+                    field.value ? "bg-success/10" : "hover:bg-muted/50",
                   )}
                 >
                   <Checkbox

@@ -46,7 +46,7 @@ describe("InvoiceDetailTemplate", () => {
     renderInvoice("khong-co");
 
     expect(
-      await screen.findByText("Không tìm thấy hóa đơn."),
+      await screen.findByText("Không tìm thấy hoá đơn."),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: "Thanh toán VietQR" }),

@@ -6,9 +6,9 @@ export const mockNotificationTemplates: NotificationTemplate[] = [
     id: "T001",
     name: "ZNS: Nhắc đóng tiền nhà",
     channel: "zalo",
-    description: "Mẫu Zalo ZNS nhắc nhở thanh toán hóa đơn hàng tháng",
+    description: "Mẫu Zalo ZNS nhắc nhở thanh toán hoá đơn hàng tháng",
     preview:
-      "Chào bạn, hóa đơn tiền nhà tháng này là {amount}đ. Vui lòng thanh toán trước ngày {dueDate}.",
+      "Chào bạn, hoá đơn tiền nhà tháng này là {amount}đ. Vui lòng thanh toán trước ngày {dueDate}.",
   },
   {
     id: "T002",

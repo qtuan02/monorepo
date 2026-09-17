@@ -15,7 +15,7 @@ describe("SearchDialog", () => {
     await user.keyboard("hợp đồng");
     expect(screen.queryByText("Truy cập nhanh")).not.toBeInTheDocument();
     expect(screen.getByText("Hợp đồng #HĐ-2024-089")).toBeInTheDocument();
-    expect(screen.queryByText("Tòa nhà Sunrise")).not.toBeInTheDocument();
+    expect(screen.queryByText("Toà nhà Sunrise")).not.toBeInTheDocument();
   });
 
   it("says so when nothing matches", async () => {

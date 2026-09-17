@@ -72,7 +72,7 @@ export default function ExpenseDetailTemplate({
       <div className="grid gap-6 lg:grid-cols-2">
         <InfoCard title="Thông tin chi phí">
           <InfoRow label="Mã khoản chi" value={expense.id} />
-          <InfoRow label="Tòa nhà" value={expense.buildingName} />
+          <InfoRow label="Toà nhà" value={expense.buildingName} />
           <InfoRow label="Ngày chi" value={formatDate(expense.expenseDate)} />
           <InfoRow label="Danh mục" value={expense.category} />
           <InfoRow

@@ -21,7 +21,7 @@ const helper = createDataTableColumnHelper<Invoice>();
 export const invoiceColumns = helper.columns([
   helper.accessor("invoiceNumber", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Số hóa đơn" />
+      <DataTableColumnHeader column={column} title="Số hoá đơn" />
     ),
     cell: ({ getValue }) => (
       <div className="flex items-center gap-3">
@@ -35,7 +35,7 @@ export const invoiceColumns = helper.columns([
   }),
   helper.accessor("tenant", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Khách thuê" />
+      <DataTableColumnHeader column={column} title="Người thuê" />
     ),
     cell: ({ row }) => (
       <div className="flex flex-col">

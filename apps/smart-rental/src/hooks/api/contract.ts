@@ -13,6 +13,7 @@ import type {
   CreateContractRequest,
   RenewContractRequest,
 } from "~/types/contract";
+import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
 import { queryKeysFactory } from "~/libs/query-key-factory";
@@ -70,20 +71,32 @@ export function useCreateContract(
   return useMutation({
     mutationFn: async (request: CreateContractRequest) => {
       const room = mockRooms.find((item) => item.id === request.roomId);
+      const building = mockBuildings.find(
+        (item) => item.id === request.buildingId,
+      );
       const start = dayjs(request.startDate);
       const nextNumber = String(mockContracts.length + 1).padStart(3, "0");
       const contract: Contract = {
         id: `C${nextNumber}`,
         contractNumber: `HĐ-${nextNumber}`,
         buildingId: request.buildingId,
+        roomId: request.roomId,
+        // No Người thuê picker yet (spec #153's combobox wizard is a later
+        // ticket) — a synthetic id, so referential integrity of the initial
+        // Mock is unaffected by what a session creates at runtime.
+        tenantId: `T-new-${nextNumber}`,
         tenant: request.tenantName,
         room: room?.name ?? request.roomId,
         floor: room?.floor ?? 0,
         rentAmount: request.rentAmount,
         depositAmount: request.depositAmount,
+        depositStatus: "HELD",
+        depositReturnedAmount: 0,
+        paymentDueDay: building?.collectionDay ?? 5,
         startDate: formatDate(start.toDate()),
         endDate: formatDate(start.add(request.termMonths, "month").toDate()),
-        status: "active",
+        status: "ACTIVE",
+        renewalHistory: [],
         lastUpdated: formatDate(new Date()),
       };
       mockContracts.unshift(contract);
@@ -116,12 +129,31 @@ export function useRenewContract(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (request: RenewContractRequest) =>
-      updateMockContract(request.contractId, {
+    mutationFn: async (request: RenewContractRequest) => {
+      const contract = mockContracts.find(
+        (item) => item.id === request.contractId,
+      );
+      if (!contract) {
+        throw new Error(
+          `Không có hợp đồng nào với mã ${request.contractId}.`,
+        );
+      }
+      return updateMockContract(request.contractId, {
+        renewalHistory: [
+          ...contract.renewalHistory,
+          {
+            renewedAt: new Date().toISOString(),
+            previousEndDate: contract.endDate,
+            newEndDate: formatDate(request.newEndDate),
+            previousRentAmount: contract.rentAmount,
+            newRentAmount: request.newRentAmount,
+          },
+        ],
         endDate: formatDate(request.newEndDate),
         rentAmount: request.newRentAmount,
-        status: "active",
-      }),
+        status: "ACTIVE",
+      });
+    },
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: contractQueryKeys.all }),
     ...options,
@@ -135,7 +167,10 @@ export function useLiquidateContract(
 
   return useMutation({
     mutationFn: async (contractId: string) =>
-      updateMockContract(contractId, { status: "ended" }),
+      updateMockContract(contractId, {
+        status: "TERMINATED",
+        terminatedAt: formatDate(new Date()),
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: contractQueryKeys.all }),
     ...options,

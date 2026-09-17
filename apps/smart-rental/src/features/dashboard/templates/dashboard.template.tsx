@@ -30,12 +30,12 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatMillions } from "~/utils/currency";
 
 /**
- * "Tổng quan": the prototype's dashboard — four KPIs, revenue and cash flow
- * behind two tabs, the occupancy donut, then tasks and activities — read for
- * the Building scope, which is a query param as it will be on the backend.
- * The heading is the screen's name rather than the prototype's "Xin chào!",
- * which moves down to the description: the sidebar, the header and the seam
- * test all call this screen "Tổng quan".
+ * "Hôm nay" (ADR-0011): the prototype's dashboard — four KPIs, revenue and
+ * cash flow behind two tabs, the occupancy donut, then tasks and activities —
+ * read for the Building scope, which is a query param as it will be on the
+ * backend. The heading is the screen's name rather than the prototype's "Xin
+ * chào!", which moves down to the description: the sidebar, the header and
+ * the seam test all call this screen "Hôm nay".
  */
 export default function DashboardTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
@@ -46,7 +46,7 @@ export default function DashboardTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Tổng quan"
+        title="Hôm nay"
         description="Xin chào! 👋 Đây là tổng quan hoạt động quản lý phòng trọ trong tháng này."
       />
 
@@ -63,7 +63,7 @@ export default function DashboardTemplate() {
             <SummaryCard
               label="Tổng số phòng"
               value={data.totalRooms}
-              description="trên toàn bộ tòa nhà"
+              description="trên toàn bộ toà nhà"
               icon={Building2}
               trend={{ value: "+12", isPositive: true }}
             />
@@ -82,7 +82,7 @@ export default function DashboardTemplate() {
               trend={{ value: "+15.3%", isPositive: true }}
             />
             <SummaryCard
-              label="Chi phí vận hành"
+              label="Chi phí"
               value={formatMillions(data.operatingCost)}
               description="tiền điện, nước, dịch vụ"
               icon={TrendingUp}
@@ -133,7 +133,7 @@ export default function DashboardTemplate() {
                   Tỷ lệ lấp đầy
                 </CardTitle>
                 <CardDescription>
-                  Trạng thái phòng hiện tại của tòa nhà
+                  Trạng thái phòng hiện tại của toà nhà
                 </CardDescription>
               </CardHeader>
               <CardContent>

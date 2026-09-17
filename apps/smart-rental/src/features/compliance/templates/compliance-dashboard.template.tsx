@@ -14,13 +14,13 @@ import ResidenceChecklistCard from "~/features/compliance/components/residence-c
 import { useGetComplianceItems } from "~/hooks/api/compliance";
 
 const summaryTiles: { status: ComplianceStatus; iconClassName: string }[] = [
-  { status: "completed", iconClassName: "bg-emerald-100 text-emerald-600" },
-  { status: "pending", iconClassName: "bg-blue-100 text-blue-600" },
-  { status: "overdue", iconClassName: "bg-red-100 text-red-600" },
+  { status: "completed", iconClassName: "bg-success/10 text-success" },
+  { status: "pending", iconClassName: "bg-info/10 text-info" },
+  { status: "overdue", iconClassName: "bg-destructive/10 text-destructive" },
 ];
 
 /**
- * "Tuân thủ" (Khai báo lưu trú): a count per status, the two kinds that get
+ * "Khai báo lưu trú" (ADR-0011): a count per status, the two kinds that get
  * a card of their own, then the full checklist. "Tạo file CT01" and "Thêm
  * yêu cầu" have no flow yet, as in the prototype.
  */
@@ -31,7 +31,7 @@ export default function ComplianceDashboardTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Tuân thủ"
+        title="Khai báo lưu trú"
         description="Quản lý khai báo nơi ở, kiểm tra an toàn và tài liệu."
         actions={
           <>
@@ -51,12 +51,12 @@ export default function ComplianceDashboardTemplate() {
         <LoadingPanel itemCount={3} />
       ) : isError ? (
         <ErrorPanel
-          description="Không thể tải dữ liệu tuân thủ."
+          description="Không thể tải dữ liệu khai báo lưu trú."
           action={{ label: "Thử lại", onClick: () => refetch() }}
         />
       ) : items.length === 0 ? (
         <EmptyPanel
-          title="Chưa có yêu cầu tuân thủ"
+          title="Chưa có yêu cầu khai báo lưu trú"
           description="Thêm yêu cầu hoặc đồng bộ dữ liệu để theo dõi tại đây."
           className="border"
         />
@@ -78,14 +78,14 @@ export default function ComplianceDashboardTemplate() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <ComplianceTypeCard
-              type="residence_declaration"
+              type="residence_notification"
               items={items}
-              emptyText="Không có mục khai báo nơi ở."
+              emptyText="Không có mục thông báo lưu trú."
             />
             <ComplianceTypeCard
-              type="safety_inspection"
+              type="residence_registration"
               items={items}
-              emptyText="Không có mục kiểm tra an toàn."
+              emptyText="Không có mục đăng ký tạm trú."
             />
           </div>
 

@@ -17,7 +17,8 @@ export default function ContractRowActions({
   side = "bottom",
 }: ContractRowActionsProps) {
   const [, copy] = useCopyToClipboard();
-  const isEnded = contract.status === "ended";
+  const isEnded =
+    contract.status === "EXPIRED" || contract.status === "TERMINATED";
 
   return (
     <EntityActionMenu

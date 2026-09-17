@@ -9,9 +9,9 @@ export const settingCategoryConfig: Record<
   { label: string; icon: LucideIcon; description: string }
 > = {
   building: {
-    label: "Thông tin tòa nhà",
+    label: "Thông tin toà nhà",
     icon: Building2,
-    description: "Quản lý thông tin cơ bản về tòa nhà",
+    description: "Quản lý thông tin cơ bản về toà nhà",
   },
   rent: {
     label: "Cấu hình tiền thuê",
@@ -24,9 +24,9 @@ export const settingCategoryConfig: Record<
     description: "Cấu hình hệ thống thông báo",
   },
   billing: {
-    label: "Hóa đơn & Thanh toán",
+    label: "Hoá đơn & Thanh toán",
     icon: CreditCard,
-    description: "Cài đặt hóa đơn và thanh toán",
+    description: "Cài đặt hoá đơn và thanh toán",
   },
 };
 

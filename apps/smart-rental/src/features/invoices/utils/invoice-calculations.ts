@@ -30,10 +30,10 @@ export function buildInvoiceSummaryStats(
 
   for (const invoice of invoices) {
     stats.totalAmount += invoice.amount;
-    if (invoice.status === "paid") stats.paidAmount += invoice.amount;
-    else if (invoice.status === "pending")
+    if (invoice.status === "PAID") stats.paidAmount += invoice.amount;
+    else if (invoice.status === "UNPAID" || invoice.status === "PARTIAL")
       stats.pendingAmount += invoice.amount;
-    else if (invoice.status === "overdue")
+    else if (invoice.status === "OVERDUE")
       stats.overdueAmount += invoice.amount;
   }
 

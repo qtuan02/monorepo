@@ -44,12 +44,12 @@ export const supplierBillColumns = helper.columns([
   }),
   helper.accessor("buildingName", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Tòa nhà" />
+      <DataTableColumnHeader column={column} title="Toà nhà" />
     ),
   }),
   helper.accessor("billingPeriod", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Kỳ hóa đơn" />
+      <DataTableColumnHeader column={column} title="Kỳ hoá đơn" />
     ),
     cell: ({ getValue }) => <span className="font-mono">{getValue()}</span>,
     filterFn: facetFilterFn,

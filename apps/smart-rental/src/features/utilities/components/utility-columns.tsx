@@ -32,7 +32,7 @@ export const utilityColumns = helper.columns([
   }),
   helper.accessor("month", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Kỳ hóa đơn" />
+      <DataTableColumnHeader column={column} title="Kỳ hoá đơn" />
     ),
     cell: ({ getValue }) => (
       <span className="flex items-center gap-2 font-medium">
@@ -73,7 +73,7 @@ export const utilityColumns = helper.columns([
         <span className="text-muted-foreground text-[10px] uppercase">
           {utilityUnit[row.original.type]}
         </span>
-        <ArrowUpRight className="size-3 text-emerald-500" />
+        <ArrowUpRight className="size-3 text-success" />
       </span>
     ),
   }),

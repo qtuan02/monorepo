@@ -5,20 +5,20 @@ import {
   DataTableColumnHeader,
 } from "@monorepo/ui/components/data-table";
 
-import type { Tenant } from "~/types/tenant";
+import type { TenantView } from "~/types/tenant";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { tenantStatusConfig } from "~/constants/status";
 import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
 
-const helper = createDataTableColumnHelper<Tenant>();
+const helper = createDataTableColumnHelper<TenantView>();
 
 /** The Người thuê table: `name` carries the search, `status` the facet. */
 export const tenantColumns = helper.columns([
   helper.accessor("name", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Khách thuê" />
+      <DataTableColumnHeader column={column} title="Người thuê" />
     ),
     cell: ({ row }) => (
       <div className="flex items-center gap-3">

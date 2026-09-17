@@ -10,6 +10,7 @@ import {
 
 const utility = (status: Utility["status"]): Utility => ({
   id: status,
+  buildingId: "b1",
   roomId: "room-001",
   roomName: "Phòng 101",
   month: "2024-04",
@@ -66,14 +67,13 @@ describe("estimateUtilityCost", () => {
 });
 
 describe("calculateUtilityStats", () => {
-  it("counts readings, anomalies and drafts", () => {
+  it("counts readings and drafts — anomaly is never a persisted status (ADR-0012)", () => {
     expect(
       calculateUtilityStats([
-        utility("verified"),
-        utility("anomaly"),
-        utility("draft"),
-        utility("draft"),
+        utility("VERIFIED"),
+        utility("DRAFT"),
+        utility("DRAFT"),
       ]),
-    ).toEqual({ totalReadings: 4, anomalyCount: 1, pendingVerifyCount: 2 });
+    ).toEqual({ totalReadings: 3, anomalyCount: 0, pendingVerifyCount: 2 });
   });
 });

@@ -35,7 +35,7 @@ export function LifecycleStepper({ steps }: LifecycleStepperProps) {
                 className={cn(
                   "flex size-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
                   step.isCompleted
-                    ? "border-emerald-500 bg-emerald-500 text-white"
+                    ? "border-success/20 bg-success/10 text-white"
                     : step.isActive
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-muted text-muted-foreground",
@@ -47,7 +47,7 @@ export function LifecycleStepper({ steps }: LifecycleStepperProps) {
                 <div
                   className={cn(
                     "h-12 w-0.5",
-                    next.isCompleted ? "bg-emerald-500" : "bg-border",
+                    next.isCompleted ? "bg-success/10" : "bg-border",
                   )}
                 />
               )}

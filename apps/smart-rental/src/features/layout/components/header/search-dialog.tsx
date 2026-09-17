@@ -26,7 +26,7 @@ interface SearchResult {
 const sampleResults: SearchResult[] = [
   {
     id: "1",
-    title: "Phòng 101 – Tòa A",
+    title: "Phòng 101 – Toà A",
     subtitle: "Đang thuê • Nguyễn Văn An",
     category: "Phòng trọ",
     icon: Building2,
@@ -34,8 +34,8 @@ const sampleResults: SearchResult[] = [
   {
     id: "2",
     title: "Nguyễn Thị Bình",
-    subtitle: "Khách thuê • Phòng 205",
-    category: "Khách thuê",
+    subtitle: "Người thuê • Phòng 205",
+    category: "Người thuê",
     icon: Users,
   },
   {
@@ -47,25 +47,25 @@ const sampleResults: SearchResult[] = [
   },
   {
     id: "4",
-    title: "Hóa đơn tháng 4 – Phòng 302",
+    title: "Hoá đơn tháng 4 – Phòng 302",
     subtitle: "Chưa thanh toán • 2,500,000 đ",
-    category: "Hóa đơn",
+    category: "Hoá đơn",
     icon: ReceiptText,
   },
   {
     id: "5",
-    title: "Tòa nhà Sunrise",
+    title: "Toà nhà Sunrise",
     subtitle: "45/48 phòng • Đường Lê Lợi, Q.1",
-    category: "Tòa nhà",
+    category: "Toà nhà",
     icon: Building2,
   },
 ];
 
 const quickLinks: { label: string; icon: LucideIcon }[] = [
   { label: "Phòng trọ", icon: Building2 },
-  { label: "Khách thuê", icon: Users },
+  { label: "Người thuê", icon: Users },
   { label: "Hợp đồng", icon: FileText },
-  { label: "Hóa đơn", icon: ReceiptText },
+  { label: "Hoá đơn", icon: ReceiptText },
 ];
 
 // Results grouped by category, in first-seen order — the prototype's shape.
@@ -128,13 +128,13 @@ export default function SearchDialog() {
         open={open}
         onOpenChange={handleOpenChange}
         title="Tìm kiếm"
-        description="Tìm phòng, khách thuê, hợp đồng, hóa đơn"
+        description="Tìm phòng, Người thuê, hợp đồng, hoá đơn"
         className="sm:max-w-xl"
       >
         {/* CommandDialog is only the Dialog: the cmdk root is ours to mount. */}
         <Command>
           <CommandInput
-            placeholder="Tìm kiếm phòng, khách thuê, hợp đồng..."
+            placeholder="Tìm kiếm phòng, Người thuê, hợp đồng..."
             value={query}
             onValueChange={setQuery}
           />

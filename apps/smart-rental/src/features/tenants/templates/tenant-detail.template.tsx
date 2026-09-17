@@ -42,12 +42,12 @@ interface TenantDetailTemplateProps {
   tenantId: string;
 }
 
-const TITLE = "Chi tiết khách thuê";
+const TITLE = "Chi tiết Người thuê";
 
 const genderLabel = { male: "Nam", female: "Nữ" } as const;
 
 /**
- * "Chi tiết khách thuê". "In hồ sơ", "Chỉnh sửa" and the quick actions have
+ * "Chi tiết Người thuê". "In hồ sơ", "Chỉnh sửa" and the quick actions have
  * no flow yet, as in the prototype; "Xóa" confirms, then removes the entry
  * from the Mock.
  */
@@ -95,8 +95,8 @@ export default function TenantDetailTemplate({
       <DetailPageShell title={TITLE} backTo={ROUTES.TENANTS} actions={actions}>
         <EmptyPanel
           icon={UserX}
-          title="Không tìm thấy khách thuê"
-          description={`Không có khách thuê nào với mã ${tenantId}.`}
+          title="Không tìm thấy Người thuê"
+          description={`Không có Người thuê nào với mã ${tenantId}.`}
           className="border"
         />
       </DetailPageShell>
@@ -109,7 +109,7 @@ export default function TenantDetailTemplate({
     deleteTenant.mutate(tenant.id, {
       onSuccess: () => {
         toast.add({
-          title: `Đã xóa khách thuê ${tenant.name}`,
+          title: `Đã xóa Người thuê ${tenant.name}`,
           type: "success",
         });
         setIsDeleteOpen(false);
@@ -157,7 +157,7 @@ export default function TenantDetailTemplate({
           </Card>
 
           <InfoCard title="Thông tin cá nhân">
-            <InfoRow label="ID khách" value={tenant.id} />
+            <InfoRow label="ID Người thuê" value={tenant.id} />
             <InfoRow label="Tên" value={tenant.name} />
             <InfoRow label="Số CCCD/CMND" value={tenant.idNumber} />
             <InfoRow label="Giới tính" value={genderLabel[tenant.gender]} />
@@ -241,7 +241,7 @@ export default function TenantDetailTemplate({
                 className="w-full"
               >
                 <CreditCard />
-                Tạo hóa đơn
+                Tạo hoá đơn
               </Button>
               <Button
                 type="button"
@@ -297,8 +297,8 @@ export default function TenantDetailTemplate({
       <ConfirmActionDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        title="Xóa khách thuê"
-        description={`Bạn có chắc chắn muốn xóa khách thuê "${tenant.name}" không? Hành động này không thể hoàn tác.`}
+        title="Xóa Người thuê"
+        description={`Bạn có chắc chắn muốn xóa Người thuê "${tenant.name}" không? Hành động này không thể hoàn tác.`}
         actionLabel="Xóa"
         variant="destructive"
         isPending={deleteTenant.isPending}
