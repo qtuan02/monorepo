@@ -418,6 +418,7 @@
         "@testing-library/react": "catalog:testing",
         "@types/node": "catalog:",
         "@types/react": "catalog:react19",
+        "@types/react-dom": "catalog:react19",
         "jsdom": "catalog:testing",
         "react": "catalog:react19",
         "react-dom": "catalog:react19",

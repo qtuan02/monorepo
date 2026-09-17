@@ -394,6 +394,12 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect ở trình duyệt, useEffect ở phía server."
+        },
+        "use-local-storage": {
+          "description": "[value, setValue] lưu vào localStorage dạng JSON; an toàn khi render phía server, trả initialValue khi không có window."
+        },
+        "use-session-storage": {
+          "description": "[value, setValue, removeValue] lưu vào sessionStorage dạng JSON; an toàn khi render phía server, trả initialValue khi không có window."
         }
       }
     },

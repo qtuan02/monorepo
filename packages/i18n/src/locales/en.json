@@ -394,6 +394,12 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect in the browser, useEffect on the server."
+        },
+        "use-local-storage": {
+          "description": "[value, setValue] persisted to localStorage as JSON; SSR-safe, returns initialValue with no window."
+        },
+        "use-session-storage": {
+          "description": "[value, setValue, removeValue] persisted to sessionStorage as JSON; SSR-safe, returns initialValue with no window."
         }
       }
     },
