@@ -9,7 +9,17 @@ type UseCounterReturn = {
   set: (value: number) => void;
 };
 
-/** Numeric counter with increment, decrement, reset and a direct setter. */
+/**
+ * Numeric counter with increment, decrement, reset and a direct setter.
+ *
+ * @example
+ * const { count, increment, decrement, reset } = useCounter(1);
+ *
+ * <span>{count}</span>;
+ * <Button onClick={increment}>+</Button>;
+ * <Button onClick={decrement}>-</Button>;
+ * <Button onClick={reset}>Đặt lại</Button>;
+ */
 export function useCounter(initialValue = 0): UseCounterReturn {
   const [count, setCount] = useState(initialValue);
 

@@ -2,7 +2,14 @@
 // patched: useState thay ref-in-render (react.dev; React Compiler refs lint)
 import { useState } from "react";
 
-/** Returns the value from the previous render, or undefined on the first one. */
+/**
+ * Returns the value from the previous render, or undefined on the first one.
+ *
+ * @example
+ * const previousStatus = usePrevious(status);
+ *
+ * const justDischarged = previousStatus === "admitted" && status === "discharged";
+ */
 export function usePrevious<T>(value: T): T | undefined {
   const [current, setCurrent] = useState(value);
   const [previous, setPrevious] = useState<T | undefined>(undefined);

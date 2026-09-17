@@ -1,7 +1,15 @@
 // Derived from hooks-ts useCountdown.ts @ 9bd12431bb24b84d211f0d735c6bef79fe1be85a (hooks-ts@0.12.0), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts
 import { useEffect, useState } from "react";
 
-/** Counts down from an initial number of seconds once per second, with a reset. */
+/**
+ * Counts down from an initial number of seconds once per second, with a reset.
+ *
+ * @example
+ * const [secondsLeft, restart] = useCountdown(60);
+ *
+ * <span>Gửi lại mã sau {secondsLeft}s</span>;
+ * <Button disabled={secondsLeft > 0} onClick={restart}>Gửi lại</Button>;
+ */
 export function useCountdown(initialSeconds: number): [number, () => void] {
   const [timeLeft, setTimeLeft] = useState<number>(initialSeconds);
 

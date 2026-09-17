@@ -10,7 +10,15 @@ type UseBooleanReturnType = {
   setFalse: () => void;
 };
 
-/** Boolean state with toggle, setTrue and setFalse helpers alongside the raw setter. */
+/**
+ * Boolean state with toggle, setTrue and setFalse helpers alongside the raw setter.
+ *
+ * @example
+ * const { value: open, setTrue: openDialog, setFalse: closeDialog } = useBoolean();
+ *
+ * <Button onClick={openDialog}>Mở</Button>;
+ * <Dialog open={open} onOpenChange={(next) => (next ? openDialog() : closeDialog())} />;
+ */
 export function useBoolean(initialValue = false): UseBooleanReturnType {
   if (typeof initialValue !== "boolean") {
     throw new Error("useBoolean: Initial value must be a boolean");
