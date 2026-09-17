@@ -2,15 +2,20 @@ import { useState } from "react";
 import { Building2, Plus } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
+import { toast } from "@monorepo/ui/components/toast";
 
+import type { Building } from "~/types/building";
+import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { LoadingPanel } from "~/components/panel/loading-panel";
 import BuildingCard from "~/features/buildings/components/building-card";
-import BuildingFormDialog from "~/features/buildings/components/building-form-dialog";
-import { useGetBuildings } from "~/hooks/api/building";
+import BuildingFormSheet from "~/features/buildings/components/building-form-sheet";
+import { useDeleteBuilding, useGetBuildings } from "~/hooks/api/building";
+import { useGetContracts } from "~/hooks/api/contract";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { canDeleteBuilding } from "~/utils/building-delete";
 
 /**
  * "Quản lý Toà nhà": a card grid, as the prototype — a Toà nhà is a handful of
@@ -20,12 +25,31 @@ import { useBuildingStore } from "~/stores/use-building-store";
  */
 export default function BuildingListTemplate() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [deletingBuilding, setDeletingBuilding] = useState<Building | null>(
+    null,
+  );
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetBuildings();
+  const contractsQuery = useGetContracts();
+  const deleteBuilding = useDeleteBuilding();
 
   const buildings = (data ?? []).filter(
     (building) => !selectedBuildingId || building.id === selectedBuildingId,
   );
+  const contracts = contractsQuery.data ?? [];
+
+  const handleDelete = () => {
+    if (!deletingBuilding) return;
+    deleteBuilding.mutate(deletingBuilding.id, {
+      onSuccess: () => {
+        toast.add({
+          title: `Đã xóa ${deletingBuilding.name}`,
+          type: "success",
+        });
+        setDeletingBuilding(null);
+      },
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -58,12 +82,28 @@ export default function BuildingListTemplate() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {buildings.map((building) => (
-            <BuildingCard key={building.id} building={building} />
+            <BuildingCard
+              key={building.id}
+              building={building}
+              canDelete={canDeleteBuilding(building.id, contracts)}
+              onDelete={() => setDeletingBuilding(building)}
+            />
           ))}
         </div>
       )}
 
-      <BuildingFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} />
+      <BuildingFormSheet open={isFormOpen} onOpenChange={setIsFormOpen} />
+
+      <ConfirmActionDialog
+        open={!!deletingBuilding}
+        onOpenChange={(open) => !open && setDeletingBuilding(null)}
+        title="Xóa toà nhà"
+        description={`Bạn có chắc chắn muốn xóa toà nhà "${deletingBuilding?.name}" không? Hành động này không thể hoàn tác.`}
+        actionLabel="Xóa"
+        variant="destructive"
+        isPending={deleteBuilding.isPending}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

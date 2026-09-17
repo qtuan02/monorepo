@@ -9,6 +9,12 @@ interface EntityListCardProps {
   header: ReactNode;
   content: ReactNode;
   footer?: ReactNode;
+  /**
+   * An invisible full-cover `Link` (`absolute inset-0 z-0`) that makes the
+   * whole card a link — every actionable control inside `footer` must sit
+   * above it (`relative z-10`) so its own click does not fall through to it.
+   */
+  overlay?: ReactNode;
   className?: string;
 }
 
@@ -18,6 +24,7 @@ export function EntityListCard({
   header,
   content,
   footer,
+  overlay,
   className,
 }: EntityListCardProps) {
   return (
@@ -27,6 +34,7 @@ export function EntityListCard({
         className,
       )}
     >
+      {overlay}
       <div
         className={cn(
           "absolute inset-x-0 top-0 h-1 bg-linear-to-r opacity-0 transition-opacity duration-300 group-hover:opacity-100",
