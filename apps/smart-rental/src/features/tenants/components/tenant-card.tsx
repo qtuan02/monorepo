@@ -7,6 +7,7 @@ import {
 } from "@monorepo/ui/components/card";
 
 import type { TenantView } from "~/types/tenant";
+import { TenantAvatar } from "~/components/avatar/tenant-avatar";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatItem } from "~/components/card/stat-item";
@@ -15,7 +16,6 @@ import {
   tenantStatusConfig,
 } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
-import TenantAvatar from "./tenant-avatar";
 import TenantRowActions from "./tenant-row-actions";
 
 interface TenantCardProps {

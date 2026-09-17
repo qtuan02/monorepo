@@ -4,23 +4,30 @@ import { useBoolean } from "@monorepo/hook/use-boolean";
 import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
 
+import { northwindInvoices } from "~/support/invoices";
+
+const invoice = northwindInvoices.find((item) => item.id === "INV-2042");
+
 function Demo() {
-  const { value, toggle, setTrue, setFalse } = useBoolean(false);
+  const { value: isPaid, toggle, setTrue, setFalse } = useBoolean(false);
 
   return (
     <div className="flex flex-col items-start gap-3">
-      <Badge variant={value ? "default" : "secondary"}>
-        {value ? "true" : "false"}
-      </Badge>
+      <p className="text-sm">
+        {invoice?.id}{" "}
+        <Badge variant={isPaid ? "default" : "secondary"}>
+          {isPaid ? "paid" : "pending"}
+        </Badge>
+      </p>
       <div className="flex gap-2">
         <Button variant="outline" onClick={toggle}>
           toggle
         </Button>
         <Button variant="outline" onClick={setTrue}>
-          setTrue
+          Mark paid
         </Button>
         <Button variant="outline" onClick={setFalse}>
-          setFalse
+          Mark pending
         </Button>
       </div>
     </div>

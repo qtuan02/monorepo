@@ -4,22 +4,25 @@ import { useState } from "react";
 import { useThrottle } from "@monorepo/hook/use-throttle";
 import { Input } from "@monorepo/ui/components/input";
 
+import { northwindInvoices } from "~/support/invoices";
+
 function Demo() {
-  const [text, setText] = useState("");
-  const throttledText = useThrottle(text, 1000);
+  const [query, setQuery] = useState("");
+  const throttledQuery = useThrottle(query, 1000);
+  const matches = northwindInvoices.filter((invoice) =>
+    invoice.id.toLowerCase().includes(throttledQuery.toLowerCase()),
+  );
 
   return (
-    <div className="flex max-w-sm flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <Input
-        value={text}
-        placeholder="Type continuously…"
-        onChange={(event) => setText(event.target.value)}
+        value={query}
+        placeholder="Search invoices, e.g. INV-2042…"
+        onChange={(event) => setQuery(event.target.value)}
       />
       <p className="text-muted-foreground text-sm">
-        Immediate: <code>{text || "—"}</code>
-      </p>
-      <p className="text-sm">
-        Throttled (at most once per 1000ms): <code>{throttledText || "—"}</code>
+        {matches.length} match{matches.length === 1 ? "" : "es"} (throttled to
+        once per second)
       </p>
     </div>
   );
@@ -35,4 +38,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  parameters: {
+    stage: { width: "sm" },
+  },
+};

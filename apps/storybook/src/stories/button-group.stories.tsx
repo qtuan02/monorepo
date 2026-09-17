@@ -1,14 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  AudioLinesIcon,
-  BotIcon,
-  ChevronDownIcon,
-  PlusIcon,
-} from "lucide-react";
+import { BotIcon, ChevronDownIcon, PlusIcon } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
   ButtonGroup,
+  ButtonGroupSeparator,
   ButtonGroupText,
 } from "@monorepo/ui/components/button-group";
 import {
@@ -17,30 +13,20 @@ import {
   FieldLabel,
 } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "@monorepo/ui/components/input-group";
 import { Label } from "@monorepo/ui/components/label";
 import {
   Popover,
   PopoverContent,
-  PopoverDescription,
   PopoverHeader,
   PopoverTitle,
   PopoverTrigger,
 } from "@monorepo/ui/components/popover";
 import { Textarea } from "@monorepo/ui/components/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@monorepo/ui/components/tooltip";
 
 const meta = {
   title: "Storybook/ButtonGroup",
   component: ButtonGroup,
+  subcomponents: { ButtonGroupText, ButtonGroupSeparator },
   tags: ["autodocs"],
 } satisfies Meta<typeof ButtonGroup>;
 
@@ -49,78 +35,47 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <ButtonGroup>
-      <ButtonGroupText render={<Label htmlFor="name">Text</Label>} />
-      <Input placeholder="Type something here..." id="name" />
+      <ButtonGroupText render={<Label htmlFor="project-name">Name</Label>} />
+      <Input placeholder="Atlas" id="project-name" />
     </ButtonGroup>
   ),
 };
 
-export const Nested: Story = {
-  args: {},
-  render: () => (
-    <ButtonGroup>
-      <ButtonGroup>
-        <Button variant="outline" size="icon">
-          <PlusIcon />
-        </Button>
-      </ButtonGroup>
-      <ButtonGroup>
-        <InputGroup>
-          <InputGroupInput placeholder="Send a message..." />
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <InputGroupAddon align="inline-end">
-                  <AudioLinesIcon />
-                </InputGroupAddon>
-              }
-            />
-            <TooltipContent>Voice Mode</TooltipContent>
-          </Tooltip>
-        </InputGroup>
-      </ButtonGroup>
-    </ButtonGroup>
-  ),
-};
-
-export const Size: Story = {
-  args: {},
+export const Sizes: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <div className="flex flex-col items-start gap-8">
       <ButtonGroup>
         <Button variant="outline" size="sm">
-          Small
+          Rename
         </Button>
         <Button variant="outline" size="sm">
-          Button
-        </Button>
-        <Button variant="outline" size="sm">
-          Group
+          Archive
         </Button>
         <Button variant="outline" size="icon-sm">
           <PlusIcon />
         </Button>
       </ButtonGroup>
       <ButtonGroup>
-        <Button variant="outline">Default</Button>
-        <Button variant="outline">Button</Button>
-        <Button variant="outline">Group</Button>
+        <Button variant="outline">Rename</Button>
+        <Button variant="outline">Archive</Button>
         <Button variant="outline" size="icon">
           <PlusIcon />
         </Button>
       </ButtonGroup>
       <ButtonGroup>
         <Button variant="outline" size="lg">
-          Large
+          Rename
         </Button>
         <Button variant="outline" size="lg">
-          Button
-        </Button>
-        <Button variant="outline" size="lg">
-          Group
+          Archive
         </Button>
         <Button variant="outline" size="icon-lg">
           <PlusIcon />
@@ -130,8 +85,24 @@ export const Size: Story = {
   ),
 };
 
-export const PopoverStory: Story = {
-  args: {},
+export const Orientation: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
+  render: () => (
+    <ButtonGroup orientation="vertical">
+      <Button variant="outline">Rename</Button>
+      <Button variant="outline">Archive</Button>
+      <Button variant="outline">Delete</Button>
+    </ButtonGroup>
+  ),
+};
+
+export const Copilot: Story = {
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
     <ButtonGroup>
       <Button variant="outline">
@@ -140,7 +111,7 @@ export const PopoverStory: Story = {
       <Popover>
         <PopoverTrigger
           render={
-            <Button variant="outline" size="icon" aria-label="Open Popover">
+            <Button variant="outline" size="icon" aria-label="Open Copilot">
               <ChevronDownIcon />
             </Button>
           }
@@ -148,17 +119,14 @@ export const PopoverStory: Story = {
         <PopoverContent align="end" className="rounded-xl text-sm">
           <PopoverHeader>
             <PopoverTitle>Start a new task with Copilot</PopoverTitle>
-            <PopoverDescription>
-              Describe your task in natural language.
-            </PopoverDescription>
           </PopoverHeader>
           <Field>
-            <FieldLabel htmlFor="task" className="sr-only">
-              Task Description
+            <FieldLabel htmlFor="copilot-task" className="sr-only">
+              Task description
             </FieldLabel>
             <Textarea
-              id="task"
-              placeholder="I need to..."
+              id="copilot-task"
+              placeholder="Rename Atlas to Atlas Billing…"
               className="resize-none"
             />
             <FieldDescription>

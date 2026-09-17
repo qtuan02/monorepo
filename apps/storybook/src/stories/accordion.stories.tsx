@@ -10,7 +10,9 @@ import {
 const meta = {
   title: "Storybook/Accordion",
   component: Accordion,
+  subcomponents: { AccordionItem, AccordionTrigger, AccordionContent },
   tags: ["autodocs"],
+  parameters: { stage: { width: "lg" } },
 } satisfies Meta<typeof Accordion>;
 
 export default meta;
@@ -18,28 +20,28 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Single: Story = {
-  args: {} as Story["args"],
   render: () => (
-    <Accordion defaultValue={["shipping"]} className="max-w-lg">
-      <AccordionItem value="shipping">
-        <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+    <Accordion defaultValue={["invite"]}>
+      <AccordionItem value="invite">
+        <AccordionTrigger>How do I invite a teammate?</AccordionTrigger>
         <AccordionContent>
-          We offer standard (5-7 days), express (2-3 days), and overnight
-          shipping. Free shipping on international orders.
+          From the header, open the Northwind menu and choose Invite. They'll
+          get an email at their @northwind.dev address with a join link.
         </AccordionContent>
       </AccordionItem>
-      <AccordionItem value="returns">
-        <AccordionTrigger>What is your return policy?</AccordionTrigger>
+      <AccordionItem value="overdue">
+        <AccordionTrigger>What happens to an overdue invoice?</AccordionTrigger>
         <AccordionContent>
-          Returns accepted within 30 days. Items must be unused and in original
-          packaging. Refunds processed within 5-7 business days.
+          An invoice moves to overdue seven days after its due date. The project
+          owner gets a notification, and billing can resend it from the invoice
+          detail page.
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="support">
-        <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+        <AccordionTrigger>How do I contact Northwind support?</AccordionTrigger>
         <AccordionContent>
-          Reach us via email, live chat, or phone. We respond within 24 hours
-          during business days.
+          Email support@northwind.dev or use the in-app chat — we reply within
+          one business day.
         </AccordionContent>
       </AccordionItem>
     </Accordion>
@@ -47,32 +49,28 @@ export const Single: Story = {
 };
 
 export const Multiple: Story = {
-  args: {} as Story["args"],
   render: () => (
-    <Accordion
-      multiple
-      defaultValue={["shipping", "returns", "support"]}
-      className="max-w-lg"
-    >
-      <AccordionItem value="shipping">
-        <AccordionTrigger>What are your shipping options?</AccordionTrigger>
+    <Accordion multiple defaultValue={["invite", "overdue", "support"]}>
+      <AccordionItem value="invite">
+        <AccordionTrigger>How do I invite a teammate?</AccordionTrigger>
         <AccordionContent>
-          We offer standard (5-7 days), express (2-3 days), and overnight
-          shipping. Free shipping on international orders.
+          From the header, open the Northwind menu and choose Invite. They'll
+          get an email at their @northwind.dev address with a join link.
         </AccordionContent>
       </AccordionItem>
-      <AccordionItem value="returns">
-        <AccordionTrigger>What is your return policy?</AccordionTrigger>
+      <AccordionItem value="overdue">
+        <AccordionTrigger>What happens to an overdue invoice?</AccordionTrigger>
         <AccordionContent>
-          Returns accepted within 30 days. Items must be unused and in original
-          packaging. Refunds processed within 5-7 business days.
+          An invoice moves to overdue seven days after its due date. The project
+          owner gets a notification, and billing can resend it from the invoice
+          detail page.
         </AccordionContent>
       </AccordionItem>
       <AccordionItem value="support">
-        <AccordionTrigger>How can I contact customer support?</AccordionTrigger>
+        <AccordionTrigger>How do I contact Northwind support?</AccordionTrigger>
         <AccordionContent>
-          Reach us via email, live chat, or phone. We respond within 24 hours
-          during business days.
+          Email support@northwind.dev or use the in-app chat — we reply within
+          one business day.
         </AccordionContent>
       </AccordionItem>
     </Accordion>

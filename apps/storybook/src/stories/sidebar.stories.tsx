@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import {
-  CalendarIcon,
-  HomeIcon,
-  InboxIcon,
-  SearchIcon,
+  BuildingIcon,
+  CreditCardIcon,
+  LayoutDashboardIcon,
   SettingsIcon,
+  UsersIcon,
 } from "lucide-react";
 
 import {
@@ -23,9 +23,25 @@ import {
   SidebarTrigger,
 } from "@monorepo/ui/components/sidebar";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/Sidebar",
   component: Sidebar,
+  subcomponents: {
+    SidebarProvider,
+    SidebarHeader,
+    SidebarContent,
+    SidebarGroup,
+    SidebarGroupLabel,
+    SidebarGroupContent,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarFooter,
+    SidebarInset,
+    SidebarTrigger,
+  },
   tags: ["autodocs"],
   parameters: {
     layout: "fullscreen",
@@ -36,17 +52,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const items = [
-  { title: "Home", icon: HomeIcon },
-  { title: "Inbox", icon: InboxIcon },
-  { title: "Calendar", icon: CalendarIcon },
-  { title: "Search", icon: SearchIcon },
+const navItems = [
+  { title: "Overview", icon: LayoutDashboardIcon },
+  { title: "Projects", icon: BuildingIcon },
+  { title: "Invoices", icon: CreditCardIcon },
+  { title: "Team", icon: UsersIcon },
   { title: "Settings", icon: SettingsIcon },
 ];
 
 export const Default: Story = {
-  args: {},
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         story:
@@ -61,16 +77,16 @@ export const Default: Story = {
       <SidebarProvider className="min-h-full">
         <Sidebar>
           <SidebarHeader>
-            <span className="px-2 text-sm font-semibold">Monorepo</span>
+            <span className="px-2 text-sm font-semibold">Northwind</span>
           </SidebarHeader>
           <SidebarContent>
             <SidebarGroup>
-              <SidebarGroupLabel>Application</SidebarGroupLabel>
+              <SidebarGroupLabel>Workspace</SidebarGroupLabel>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {items.map((item) => (
+                  {navItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton isActive={item.title === "Home"}>
+                      <SidebarMenuButton isActive={item.title === "Overview"}>
                         <item.icon />
                         <span>{item.title}</span>
                       </SidebarMenuButton>
@@ -81,16 +97,18 @@ export const Default: Story = {
             </SidebarGroup>
           </SidebarContent>
           <SidebarFooter>
-            <span className="px-2 text-xs text-muted-foreground">v1.0.0</span>
+            <span className="px-2 text-xs text-muted-foreground">
+              {currentPerson.name} · {currentPerson.role}
+            </span>
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
           <header className="flex h-12 items-center gap-2 border-b px-4">
             <SidebarTrigger />
-            <span className="text-sm font-medium">Dashboard</span>
+            <span className="text-sm font-medium">Overview</span>
           </header>
           <div className="p-6 text-sm text-muted-foreground">
-            Page content goes here.
+            {currentPerson.name} owns 4 active projects across Northwind.
           </div>
         </SidebarInset>
       </SidebarProvider>

@@ -17,24 +17,6 @@ const storyModules = import.meta.glob<StoryFile>("../src/**/*.stories.tsx", {
 
 const STAGE_WIDTHS = new Set(["sm", "md", "lg", "full"]);
 
-// Ticket #169 (foundation) standardizes only these two files as the samples
-// the eight family tickets copy from. Each family ticket appends its own slugs
-// here; the ticket that closes the spec deletes this list so every check below
-// runs against all 82 story files at once instead of two.
-const STANDARDIZED = new Set([
-  "button",
-  "dialog",
-  "separator",
-  "scroll-area",
-  "resizable",
-  "direction",
-  "attachment",
-  "message",
-  "message-scroller",
-  "bubble",
-  "questionnaire",
-]);
-
 // `accordion` is the one file the `Default`-export contract does not reach —
 // `apps/documents/README.md` documents it as an intentional exception (its two
 // stories are `Single`/`Multiple`; the generator's own override table picks
@@ -97,32 +79,30 @@ describe("story conventions", () => {
         }
       });
 
-      if (STANDARDIZED.has(slug)) {
-        test("Default follows the leaf/compound args policy", () => {
-          const Default = storyModule.Default as AnyStory | undefined;
-          if (!Default) return;
+      test("Default follows the leaf/compound args policy", () => {
+        const Default = storyModule.Default as AnyStory | undefined;
+        if (!Default) return;
 
-          if (typeof Default.render === "function") {
-            // Compound primitive: Default keeps `render`, so Controls must be
-            // off and the anatomy must be listed as subcomponents.
-            expect(Default.parameters?.controls?.disable).toBe(true);
-            expect(
-              meta.subcomponents !== undefined &&
-                Object.keys(meta.subcomponents).length > 0,
-              `${filePath}'s meta has no subcomponents`,
-            ).toBe(true);
-          } else if (meta.title?.startsWith("Storybook/")) {
-            // Leaf primitive under Storybook/: Default runs on args, so the
-            // Controls tab needs explicit argTypes to stay alive. Hooks/ is
-            // exempt — a hook's Demo component takes no props.
-            expect(
-              meta.argTypes !== undefined &&
-                Object.keys(meta.argTypes).length > 0,
-              `${filePath}'s meta has no argTypes`,
-            ).toBe(true);
-          }
-        });
-      }
+        if (typeof Default.render === "function") {
+          // Compound primitive: Default keeps `render`, so Controls must be
+          // off and the anatomy must be listed as subcomponents.
+          expect(Default.parameters?.controls?.disable).toBe(true);
+          expect(
+            meta.subcomponents !== undefined &&
+              Object.keys(meta.subcomponents).length > 0,
+            `${filePath}'s meta has no subcomponents`,
+          ).toBe(true);
+        } else if (meta.title?.startsWith("Storybook/")) {
+          // Leaf primitive under Storybook/: Default runs on args, so the
+          // Controls tab needs explicit argTypes to stay alive. Hooks/ is
+          // exempt — a hook's Demo component takes no props.
+          expect(
+            meta.argTypes !== undefined &&
+              Object.keys(meta.argTypes).length > 0,
+            `${filePath}'s meta has no argTypes`,
+          ).toBe(true);
+        }
+      });
     });
   }
 });

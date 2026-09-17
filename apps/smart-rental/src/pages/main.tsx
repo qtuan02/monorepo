@@ -40,7 +40,6 @@ import SignInPage from "./sign-in-page";
 import SupplierBillDetailPage from "./supplier-bill-detail-page";
 import SupplierBillListPage from "./supplier-bill-list-page";
 import TaskCenterPage from "./task-center-page";
-import TenantCreatePage from "./tenant-create-page";
 import TenantDetailPage from "./tenant-detail-page";
 import TenantListPage from "./tenant-list-page";
 import UtilityDetailPage from "./utility-detail-page";
@@ -91,7 +90,6 @@ export function AppRoutes() {
           <Route path={ROUTES.ROOM_DETAIL} element={<RoomDetailPage />} />
 
           <Route path={ROUTES.TENANTS} element={<TenantListPage />} />
-          <Route path={ROUTES.TENANT_CREATE} element={<TenantCreatePage />} />
           <Route path={ROUTES.TENANT_DETAIL} element={<TenantDetailPage />} />
 
           <Route path={ROUTES.CONTRACTS} element={<ContractListPage />} />

@@ -4,22 +4,25 @@ import { useState } from "react";
 import { useDebounce } from "@monorepo/hook/use-debounce";
 import { Input } from "@monorepo/ui/components/input";
 
+import { northwindPeople } from "~/support/people";
+
 function Demo() {
-  const [text, setText] = useState("");
-  const debouncedText = useDebounce(text, 500);
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 500);
+  const matches = northwindPeople.filter((person) =>
+    person.name.toLowerCase().includes(debouncedQuery.toLowerCase()),
+  );
 
   return (
-    <div className="flex max-w-sm flex-col gap-3">
+    <div className="flex flex-col gap-3">
       <Input
-        value={text}
-        placeholder="Type quickly…"
-        onChange={(event) => setText(event.target.value)}
+        value={query}
+        placeholder="Search Northwind members…"
+        onChange={(event) => setQuery(event.target.value)}
       />
       <p className="text-muted-foreground text-sm">
-        Immediate: <code>{text || "—"}</code>
-      </p>
-      <p className="text-sm">
-        Debounced (500ms): <code>{debouncedText || "—"}</code>
+        {matches.length} match{matches.length === 1 ? "" : "es"} for "
+        {debouncedQuery || "…"}" (debounced 500ms)
       </p>
     </div>
   );
@@ -35,4 +38,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  parameters: {
+    stage: { width: "sm" },
+  },
+};

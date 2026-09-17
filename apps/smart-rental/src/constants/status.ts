@@ -21,7 +21,11 @@ import type {
   CommunicationChannel,
   SendLogStatus,
 } from "~/types/communication";
-import type { ComplianceStatus, ComplianceType } from "~/types/compliance";
+import type {
+  ComplianceStatus,
+  ComplianceType,
+  ResidenceNotificationStatus,
+} from "~/types/compliance";
 import type { ContractStatus, DepositStatus } from "~/types/contract";
 import type { DashboardTaskPriority } from "~/types/dashboard";
 import type { InvoiceStatus } from "~/types/invoice";
@@ -188,6 +192,15 @@ export const complianceStatusConfig: Record<ComplianceStatus, StatusConfig> = {
 export const complianceTypeConfig: Record<ComplianceType, StatusConfig> = {
   residence_notification: { label: "Thông báo lưu trú" },
   residence_registration: { label: "Đăng ký tạm trú" },
+};
+
+/** Thông báo lưu trú's own two states (ticket #161) — no "quá hạn", just sent or not yet. */
+export const residenceNotificationStatusConfig: Record<
+  ResidenceNotificationStatus,
+  StatusConfig
+> = {
+  sent: { label: "Đã gửi", className: statusTone.success, icon: CheckCircle2 },
+  not_sent: { label: "Chưa gửi", className: statusTone.warning, icon: Clock },
 };
 
 export const sendLogStatusConfig: Record<SendLogStatus, StatusConfig> = {
