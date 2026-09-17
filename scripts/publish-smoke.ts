@@ -35,7 +35,18 @@ import {
  * [`verify-release.ts`](./verify-release.ts).
  */
 
-/** Packs one shell and returns the tarball path `npm pack` reported. */
+/**
+ * The upstream license of the hooks Derived from hooks-ts (ADR-0010). Both
+ * shells carry a copy — `@fe-monorepo/ui` vendors one such hook into
+ * `dist/internal/` — and only a shell's `files` field decides whether it is
+ * packed, so the tarball's own entry list is what gets checked.
+ */
+const THIRD_PARTY_LICENSE = "LICENSE-hooks-ts";
+
+/**
+ * Packs one shell and returns the tarball path `npm pack` reported, after
+ * asserting the tarball carries `LICENSE-hooks-ts`.
+ */
 function pack(shell: Shell, destination: string): string {
   const result = spawnSync(
     "npm",
@@ -54,14 +65,31 @@ function pack(shell: Shell, destination: string): string {
   // `npm pack --json` reports one entry per packed package; taking the filename
   // it names rather than globbing the directory keeps two shells apart.
   const packed: unknown = JSON.parse(result.stdout);
-  const first = Array.isArray(packed) ? packed[0] : undefined;
-  const filename: unknown =
-    first && typeof first === "object"
-      ? Reflect.get(first, "filename")
-      : undefined;
+  const first: unknown = Array.isArray(packed) ? packed[0] : undefined;
+  if (!first || typeof first !== "object") {
+    throw new Error(`npm pack reported nothing for ${shell.name}`);
+  }
 
+  const filename: unknown = Reflect.get(first, "filename");
   if (typeof filename !== "string") {
     throw new Error(`npm pack reported no filename for ${shell.name}`);
+  }
+
+  // `files` here is the packed entry list — `[{ path, size, mode }]` — not the
+  // `files` field of package.json, which is exactly the point.
+  const entries: unknown = Reflect.get(first, "files");
+  const packedPaths = Array.isArray(entries)
+    ? entries.map((entry: unknown) =>
+        entry && typeof entry === "object"
+          ? Reflect.get(entry, "path")
+          : undefined,
+      )
+    : [];
+
+  if (!packedPaths.includes(THIRD_PARTY_LICENSE)) {
+    throw new Error(
+      `${shell.name} tarball lacks ${THIRD_PARTY_LICENSE} — list it in \`files\` of ${shell.dir}/package.json`,
+    );
   }
 
   return join(destination, filename);

@@ -204,3 +204,12 @@ picks up types with no `paths` entry and no `@types/*` package.
 ## License
 
 MIT
+
+## Third-party notices
+
+`sidebar` reads the viewport through two hooks compiled into `dist/internal/` from this
+workspace's hook package. One of them, `use-media-query`, is derived from
+[hooks-ts](https://github.com/michal-worwag/hooks-ts) (`hooks-ts@0.12.0`, MIT © 2024 Michał
+Worwąg); the upstream license ships in this package as
+[`LICENSE-hooks-ts`](./LICENSE-hooks-ts). Nothing under `dist/internal/` is part of the
+public `exports`.
