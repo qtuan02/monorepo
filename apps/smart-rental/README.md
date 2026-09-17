@@ -27,7 +27,7 @@ bun run dev:smart-rental     # http://localhost:3006
 | Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133), mỗi cái trên một primitive `@monorepo/ui`. `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack từ `useDataTable` của primitive `data-table`; **search/facet/page/size sống trên URL** (`use-table-search-params.ts` qua `useSearchParams`, `replace` history, không `nuqs`), sort và chọn dòng ở trong table; `renderRows` cho một body khác (grid Phòng) trên đúng trang đã lọc. Ô tìm kiếm debounce 300ms qua `@monorepo/hook/use-debounce`; cột facet gắn `filterFn: facetFilterFn`, cột tìm gắn `"includesString"`. `pagination-bar.tsx` là **một** thanh phân trang (gộp hai hệ của prototype); `badge/status-badge.tsx` là **một** badge nhận `StatusConfig` (gộp bốn). Còn `page/` (`list-page-header`, `detail-page-shell` — có `<h1>` sr-only cho seam test), `panel/` (empty/error/loading), `card/` (summary, info + `InfoRow`, entity-list, `stat-item` — cặp `dt`/`dd` mọi màn chi tiết dùng), `dialog/confirm-action-dialog`, `menu/entity-action-menu`, `navigation/page-back-button`, `stepper/lifecycle-stepper` (danh sách bước dọc có nối — `ContractLifecycleStepper` của prototype, onboarding và Hợp đồng dùng chung). |
 | Status config | `~/constants/status.ts` | **Một** nơi cho mọi config trạng thái/hiển thị (tám file của prototype gộp về): `statusTone`, `StatusConfig`, `roomStatusConfig`, `roomTypeConfig`, `toFilterOptions()`. Slice sau thêm config của mình vào đây. |
 | Utils | `~/utils/` | `currency.ts` (`Intl` `vi-VN` VND), `date.ts` (`@monorepo/dayjs` + `DATE_FORMAT`), `pagination.ts` (`getTotalPages` ≥ 1, `clampPage` hai phía, `getPageItems`, bảng cỡ trang) — đều có unit test. |
-| Runner | `Dockerfile` · `nginx.conf` | Như Template: builder Bun → `nginx:stable-alpine`. |
+| Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA (§ Deploy Vercel); image thì builder Bun → `nginx:stable-alpine` như Template, giữ cho job `docker` của CI. |
 
 ## Ba khác biệt có chủ ý so với `_template_vite`
 
@@ -153,6 +153,35 @@ literal tiếng Việt + ba variant `Badge` như prototype.
 
 Cho tới khi slice tương ứng được port, mỗi route còn lại render một **template placeholder**
 chỉ có heading của màn hình (và id của route với màn chi tiết).
+
+## Deploy Vercel
+
+`vercel.json` chép nguyên mẫu của `apps/documents`, chỉ đổi filter: install/build trỏ về
+root repo và gọi bun qua `npx --yes bun@1.4.0` chứ không phải `bun` trần — builder của
+Vercel mang bun của nó và không đọc nổi `bun.lock` do bun 1.4 ghi
+(`UnknownLockfileVersion`); lý do đầy đủ ở README của `documents` § Deploy Vercel. Rewrite
+`/(.*)` → `/index.html` là bắt buộc: không có nó, refresh giữa `/rooms/R101` 404 ở tầng
+hosting chứ không tới được router.
+
+Trên Vercel **không có `.env` ở root** — biến đến từ Environment Variables trong dashboard,
+Vite gộp `process.env` khớp tiền tố `PUBLIC_` vào `import.meta.env` lúc build. App
+không thêm key riêng, nên dashboard chỉ cần **ba** key của `baseEnvSchema`, cho cả
+Production lẫn Preview (ở local chúng nằm sẵn trong `.env` root nên không ai thấy):
+
+| Key | Nguồn | Bắt buộc |
+| --- | --- | --- |
+| `PUBLIC_APP_ENV` | base schema | **Có** — `production` |
+| `PUBLIC_BASE_DOMAIN` | base schema | **Có** — URL Vercel của chính app |
+| `PUBLIC_BASE_DOMAIN_API` | base schema | **Có** — pha 1 chưa gọi API, đặt tạm cùng URL |
+
+Tạo project Vercel: Root Directory `apps/smart-rental`, framework Vite (đọc từ
+`vercel.json`), không cần Build/Install override — hai lệnh đã nằm trong file. Chạy thử
+đúng lệnh Vercel sẽ chạy: `npx --yes bun@1.4.0 x turbo run build --filter=@monorepo/smart-rental`
+từ root.
+
+Source cũ (`qtuan02/fe-motel-rsbuild`, Rsbuild) được **archive** sau khi URL sống, README
+đầu trang trỏ sang `qtuan02/monorepo` `apps/smart-rental`; thư mục local
+`D:\Personal\smart-rental\frontend` không đụng.
 
 ## Test
 

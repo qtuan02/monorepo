@@ -40,9 +40,11 @@ test.describe("shell", () => {
     await expect(
       page.getByRole("heading", { name: "Quản lý hợp đồng" }),
     ).toBeVisible();
-    await expect(page.getByRole("link", { name: "Hợp đồng" })).toHaveAttribute(
-      "data-active",
-    );
+    // `exact`: the list screen itself carries a "Thêm hợp đồng" link (#137),
+    // which the substring match would also resolve.
+    await expect(
+      page.getByRole("link", { name: "Hợp đồng", exact: true }),
+    ).toHaveAttribute("data-active");
   });
 
   test("opens the sidebar as a sheet on a phone", async ({ page }) => {
