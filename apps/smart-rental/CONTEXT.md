@@ -66,7 +66,8 @@ _Avoid_: cost, khoản chi
 
 **Đối soát** (`Reconciliation`):
 Bảng thu – chi theo dòng của một Toà nhà, cho ra lãi/lỗ; đọc từ Hoá đơn, Hoá đơn nhà cung cấp và
-Chi phí, không nhập tay.
+Chi phí, không nhập tay. Pha 1 (#140) chưa có phép join đó: các dòng Đối soát là Mock riêng, đúng
+như prototype; bốn số tổng (thu, chi, lãi/lỗ, biên lợi nhuận) tính từ các dòng đang hiển thị.
 _Avoid_: báo cáo (đó là Báo cáo), P&L, cân đối
 
 **Khai báo lưu trú** (`Compliance`):

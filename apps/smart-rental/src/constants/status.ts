@@ -6,12 +6,19 @@ import {
   Circle,
   Clock,
   Droplets,
+  TrendingDown,
+  TrendingUp,
   Wrench,
   Zap,
 } from "lucide-react";
 
 import type { InvoiceStatus } from "~/types/invoice";
+import type { ReconciliationStatus } from "~/types/reconciliation";
 import type { RoomStatus, RoomType } from "~/types/room";
+import type {
+  SupplierBillPaymentStatus,
+  SupplierBillType,
+} from "~/types/supplier-bill";
 import type { UtilityStatus, UtilityType } from "~/types/utility";
 
 /**
@@ -103,6 +110,13 @@ export const utilityTypeConfig: Record<UtilityType, StatusConfig> = {
     icon: Droplets,
   },
 };
+/**
+ * The distinct values of a free-text column as a facet's options — for a
+ * column with no fixed vocabulary (an expense category, a billing period).
+ */
+export function toDistinctOptions(values: string[]): FilterOption[] {
+  return [...new Set(values)].map((value) => ({ value, label: value }));
+}
 
 /** A config read as the option list of a faceted filter, in the config's order. */
 export function toFilterOptions(
@@ -114,3 +128,36 @@ export function toFilterOptions(
     icon,
   }));
 }
+
+export const supplierBillTypeConfig: Record<SupplierBillType, StatusConfig> = {
+  electricity: { label: "Điện" },
+  water: { label: "Nước" },
+  trash: { label: "Rác" },
+  internet: { label: "Internet" },
+  other: { label: "Khác" },
+};
+
+/** Derived, not stored: a Hoá đơn nhà cung cấp with a `paymentDate` is paid. */
+export const supplierBillPaymentConfig: Record<
+  SupplierBillPaymentStatus,
+  StatusConfig
+> = {
+  paid: {
+    label: "Đã thanh toán",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
+  pending: {
+    label: "Chờ thanh toán",
+    className: statusTone.warning,
+    icon: Clock,
+  },
+};
+
+export const reconciliationStatusConfig: Record<
+  ReconciliationStatus,
+  StatusConfig
+> = {
+  gain: { label: "Lãi", className: statusTone.success, icon: TrendingUp },
+  loss: { label: "Lỗ", className: statusTone.error, icon: TrendingDown },
+};
