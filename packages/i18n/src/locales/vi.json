@@ -433,6 +433,15 @@
         },
         "use-previous": {
           "description": "Trả về giá trị của lần render trước, undefined ở lần đầu."
+        },
+        "use-hover": {
+          "description": "Theo dõi con trỏ có đang ở trên một phần tử hay không, qua mouseenter/mouseleave."
+        },
+        "use-on-screen": {
+          "description": "Báo một phần tử có đang nằm trong viewport hay không, qua IntersectionObserver."
+        },
+        "use-throttle": {
+          "description": "Throttle value: cập nhật ngay ở lần đổi đầu tiên ngoài cửa sổ delay, và một lần nữa cho giá trị cuối khi cửa sổ đóng."
         }
       }
     },

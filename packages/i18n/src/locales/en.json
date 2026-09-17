@@ -433,6 +433,15 @@
         },
         "use-previous": {
           "description": "Returns the value from the previous render, undefined on the first one."
+        },
+        "use-hover": {
+          "description": "Tracks whether the pointer is over an element, via mouseenter/mouseleave."
+        },
+        "use-on-screen": {
+          "description": "Reports whether an element is inside the viewport, via IntersectionObserver."
+        },
+        "use-throttle": {
+          "description": "Throttles a value: updates immediately on the first change outside the delay window, and once more for the last value when the window closes."
         }
       }
     },
