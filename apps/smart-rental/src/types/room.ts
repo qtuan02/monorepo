@@ -21,3 +21,18 @@ export interface RoomListParams {
   /** The Building scope; `null` or absent means every Toà nhà. */
   buildingId?: string | null;
 }
+
+export interface CreateRoomRequest {
+  buildingId: string;
+  name: string;
+  floor: number;
+  area: number;
+  type: RoomType;
+  status: RoomStatus;
+  price: number;
+  tenant: string | null;
+}
+
+export interface UpdateRoomRequest extends CreateRoomRequest {
+  roomId: string;
+}

@@ -69,11 +69,12 @@ export interface FilterOption {
   icon?: LucideIcon;
 }
 
+/** Tone meaning over tint (spec #153 §10 row 4 fixes the old "occupied = grey primary" reading). */
 export const roomStatusConfig: Record<RoomStatus, StatusConfig> = {
-  available: { label: "Trống", className: statusTone.success, icon: Circle },
+  available: { label: "Trống", className: statusTone.muted, icon: Circle },
   occupied: {
     label: "Đã thuê",
-    className: statusTone.primary,
+    className: statusTone.success,
     icon: CheckCircle2,
   },
   maintenance: {

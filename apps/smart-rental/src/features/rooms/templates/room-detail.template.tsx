@@ -1,29 +1,38 @@
 import { useState } from "react";
-import { DoorOpen, Download, Edit, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { DoorOpen, Edit, FileText, Gauge, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router";
 
-import { Button } from "@monorepo/ui/components/button";
+import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import { Separator } from "@monorepo/ui/components/separator";
 import { toast } from "@monorepo/ui/components/toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@monorepo/ui/components/tooltip";
 
 import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
-import { StatItem } from "~/components/card/stat-item";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
+import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { roomStatusConfig, roomTypeConfig } from "~/constants/status";
+import ContractCard from "~/features/contracts/components/contract-card";
+import RoomFormSheet from "~/features/rooms/components/room-form-sheet";
+import UtilityCard from "~/features/utilities/components/utility-card";
+import { useGetBuilding } from "~/hooks/api/building";
+import { useGetContracts } from "~/hooks/api/contract";
 import { useDeleteRoom, useGetRoom } from "~/hooks/api/room";
+import { useGetUtilities } from "~/hooks/api/utility";
 import { formatCurrency } from "~/utils/currency";
+import { canDeleteRoom } from "~/utils/room-delete";
 
 interface RoomDetailTemplateProps {
   roomId: string;
@@ -31,61 +40,37 @@ interface RoomDetailTemplateProps {
 
 const TITLE = "Chi tiết phòng";
 
-/** What the status card says under the badge, per status. */
-const statusNote = {
-  available: "Sẵn sàng cho Người thuê mới",
-  maintenance: "Đang trong quá trình bảo trì",
-  reserved: "Đã được đặt trước",
-} as const;
-
 /**
- * "Chi tiết phòng". "In phòng" and "Chỉnh sửa" have no flow yet, as in the
- * prototype; "Xóa" goes through the confirm dialog and really removes the
- * Phòng from the Mock, then lands back on the list.
+ * "Chi tiết phòng" (spec #153 §10 row 35): header entity + tabs Tổng quan ·
+ * Hợp đồng · Chỉ số, cột phải chỉ liên kết. "Xóa" is disabled with a tooltip
+ * reason while the Phòng has a live Hợp đồng (§10 row 37); a Phòng trống
+ * deletes through the confirm dialog and lands back on the list.
  */
 export default function RoomDetailTemplate({
   roomId,
 }: RoomDetailTemplateProps) {
   const navigate = useNavigate();
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { data: room, isLoading } = useGetRoom(roomId);
+  const roomQuery = useGetRoom(roomId);
   const deleteRoom = useDeleteRoom();
 
-  const actions = (
-    <>
-      <Button type="button" variant="outline" size="sm">
-        <Download />
-        In phòng
-      </Button>
-      <Button type="button" variant="outline" size="sm">
-        <Edit />
-        Chỉnh sửa
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="text-destructive hover:text-destructive"
-        disabled={!room}
-        onClick={() => setIsDeleteOpen(true)}
-      >
-        <Trash2 />
-        Xóa
-      </Button>
-    </>
-  );
+  const room = roomQuery.data;
+  const buildingQuery = useGetBuilding(room?.buildingId ?? "");
+  const contractsQuery = useGetContracts({ buildingId: room?.buildingId });
+  const utilitiesQuery = useGetUtilities({ buildingId: room?.buildingId });
 
-  if (isLoading) {
+  if (roomQuery.isLoading) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS} actions={actions}>
-        <CardGridSkeleton itemCount={3} />
+      <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS}>
+        <DetailSkeleton />
       </DetailPageShell>
     );
   }
 
   if (!room) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS} actions={actions}>
+      <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS}>
         <EmptyPanel
           icon={DoorOpen}
           title="Không tìm thấy phòng."
@@ -98,6 +83,13 @@ export default function RoomDetailTemplate({
 
   const status = roomStatusConfig[room.status];
   const typeLabel = roomTypeConfig[room.type].label;
+  const roomContracts = (contractsQuery.data ?? []).filter(
+    (contract) => contract.roomId === room.id,
+  );
+  const roomUtilities = (utilitiesQuery.data ?? [])
+    .filter((utility) => utility.roomId === room.id)
+    .sort((a, b) => b.month.localeCompare(a.month));
+  const canDelete = canDeleteRoom(room.id, contractsQuery.data ?? []);
 
   const handleDelete = () =>
     deleteRoom.mutate(room.id, {
@@ -108,150 +100,155 @@ export default function RoomDetailTemplate({
       },
     });
 
+  const deleteButton = (
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      className="text-destructive hover:text-destructive"
+      disabled={!canDelete}
+      onClick={() => setIsDeleteOpen(true)}
+    >
+      <Trash2 />
+      Xóa
+    </Button>
+  );
+
+  const actions = (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => setIsEditOpen(true)}
+      >
+        <Edit />
+        Chỉnh sửa
+      </Button>
+      {canDelete ? (
+        deleteButton
+      ) : (
+        // ponytail: hover-only reason — a disabled <button> drops out of the
+        // tab order natively, and the wrapping span stays non-interactive
+        // (Biome's noNoninteractiveTabindex) rather than faking a second
+        // focus stop around it.
+        <Tooltip>
+          <TooltipTrigger render={<span>{deleteButton}</span>} />
+          <TooltipContent>
+            Phòng còn hợp đồng hiệu lực, không thể xoá.
+          </TooltipContent>
+        </Tooltip>
+      )}
+    </>
+  );
+
   return (
-    <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS} actions={actions}>
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <CardTitle className="text-2xl">{room.name}</CardTitle>
-                  <CardDescription className="mt-1">
-                    Tầng {room.floor}
-                  </CardDescription>
-                </div>
-                <StatusBadge config={status} />
-              </div>
-            </CardHeader>
-            <Separator />
-            <CardContent>
-              <dl className="grid grid-cols-2 gap-6 sm:grid-cols-3">
-                <StatItem label="Loại phòng" value={typeLabel} />
-                <StatItem label="Diện tích" value={`${room.area}m²`} />
-                <StatItem
-                  label="Giá thuê/tháng"
-                  value={formatCurrency(room.price)}
-                />
-              </dl>
-            </CardContent>
-          </Card>
-
-          <InfoCard title="Thông tin cơ bản">
-            <InfoRow label="ID phòng" value={room.id} />
-            <InfoRow label="Tầng" value={`Tầng ${room.floor}`} />
-            <InfoRow label="Loại phòng" value={typeLabel} />
-            <InfoRow label="Diện tích" value={`${room.area}m²`} />
-            <InfoRow
-              label="Giá thuê/tháng"
-              value={formatCurrency(room.price)}
-              isHighlighted
-            />
-            <InfoRow label="Cập nhật lần cuối" value={room.lastUpdated} />
-          </InfoCard>
-
-          <InfoCard title="Thông tin Người thuê">
-            {room.tenant ? (
+    <>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.ROOMS}
+        name={room.name}
+        badge={<StatusBadge config={status} />}
+        meta={[
+          buildingQuery.data?.name,
+          `Tầng ${room.floor}`,
+          `${formatCurrency(room.price)}/tháng`,
+        ].filter((item): item is string => !!item)}
+        actions={actions}
+        tabs={[
+          {
+            value: "overview",
+            label: "Tổng quan",
+            content: (
               <>
-                <InfoRow
-                  label="Tên Người thuê"
-                  value={room.tenant}
-                  isHighlighted
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="mt-3 w-full"
-                >
-                  Xem hồ sơ Người thuê
-                </Button>
+                <InfoCard title="Thông tin phòng">
+                  <InfoRow label="Mã phòng" value={room.id} />
+                  <InfoRow label="Loại phòng" value={typeLabel} />
+                  <InfoRow label="Diện tích" value={`${room.area}m²`} />
+                  <InfoRow label="Cập nhật lần cuối" value={room.lastUpdated} />
+                </InfoCard>
+
+                <InfoCard title="Người thuê hiện tại">
+                  {room.tenant ? (
+                    <InfoRow
+                      label="Tên Người thuê"
+                      value={room.tenant}
+                      isHighlighted
+                    />
+                  ) : (
+                    <p className="text-muted-foreground text-sm italic">
+                      Phòng này hiện chưa có Người thuê
+                    </p>
+                  )}
+                </InfoCard>
               </>
-            ) : (
-              <p className="text-muted-foreground text-sm italic">
-                Phòng này hiện chưa có Người thuê
-              </p>
-            )}
-          </InfoCard>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Trạng thái hiện tại</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-muted/50 rounded-lg p-4">
-                <StatusBadge
-                  config={status}
-                  className="w-full justify-center"
+            ),
+          },
+          {
+            value: "contracts",
+            label: "Hợp đồng",
+            content:
+              roomContracts.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {roomContracts.map((contract) => (
+                    <ContractCard key={contract.id} contract={contract} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyPanel
+                  icon={FileText}
+                  title="Chưa có hợp đồng."
+                  description="Phòng này chưa từng gắn với hợp đồng nào."
+                  className="border"
                 />
-              </div>
-              <div className="space-y-2 text-sm">
-                {room.status === "occupied" ? (
-                  <>
-                    <p className="font-medium">Người thuê hiện tại</p>
-                    <p className="text-muted-foreground">{room.tenant}</p>
-                  </>
-                ) : (
-                  <p className="font-medium">{statusNote[room.status]}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
+              ),
+          },
+          {
+            value: "utilities",
+            label: "Chỉ số",
+            content:
+              roomUtilities.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {roomUtilities.map((utility) => (
+                    <UtilityCard key={utility.id} utility={utility} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyPanel
+                  icon={Gauge}
+                  title="Chưa có chỉ số."
+                  description="Phòng này chưa có bản ghi chỉ số điện nước nào."
+                  className="border"
+                />
+              ),
+          },
+        ]}
+        sidebar={
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Chi tiết thanh toán</CardTitle>
+              <CardTitle className="text-base">Liên kết</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="space-y-2">
-                <p className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                  Giá thuê hàng tháng
-                </p>
-                <p className="text-lg font-bold">
-                  {formatCurrency(room.price)}
-                </p>
-              </div>
-              <Separator />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
+            <CardContent>
+              <Link
+                to={ROUTES.buildingDetailPath(room.buildingId)}
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className: "w-full",
+                })}
               >
-                Xem lịch sử thanh toán
-              </Button>
+                Xem toà nhà
+              </Link>
             </CardContent>
           </Card>
+        }
+      />
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Nhanh chóng</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                Tạo hoá đơn
-              </Button>
-              {room.tenant && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                >
-                  Xem hợp đồng
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <RoomFormSheet
+        room={room}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
 
       <ConfirmActionDialog
         open={isDeleteOpen}
@@ -263,6 +260,6 @@ export default function RoomDetailTemplate({
         isPending={deleteRoom.isPending}
         onConfirm={handleDelete}
       />
-    </DetailPageShell>
+    </>
   );
 }

@@ -113,6 +113,12 @@ interface DataTableProps<TData extends DataTableRowData> {
     selectedRows: TData[],
     clearSelection: () => void,
   ) => ReactNode;
+  /**
+   * `false` shows the whole filtered+sorted set with no `PaginationBar` —
+   * the Phòng grid groups by floor and must show the entire scope at once
+   * (spec #153 §10 row 43). Default `true`.
+   */
+  paginate?: boolean;
 }
 
 /**
@@ -135,6 +141,7 @@ export function DataTable<TData extends DataTableRowData>({
   renderRows,
   renderMobileRow,
   selectionActions,
+  paginate = true,
 }: DataTableProps<TData>) {
   const facetIds = facets.map((facet) => facet.columnId);
   const { params, setParams } = useTableSearchParams(facetIds);
@@ -187,16 +194,21 @@ export function DataTable<TData extends DataTableRowData>({
 
   const filteredCount = table.getFilteredRowModel().rows.length;
   const pageCount = table.getPageCount();
-  const rows = table.getRowModel().rows;
+  // Filtered + sorted, pre-pagination — what `paginate={false}` shows in full.
+  const rows = paginate
+    ? table.getRowModel().rows
+    : table.getSortedRowModel().rows;
   const selectedCount = Object.keys(table.state.rowSelection ?? {}).length;
   const isFiltering = columnFilters.length > 0;
 
   // A `?page=` past the last page (a stale link, a shorter list after a
-  // filter) is corrected in the URL, the external system that owns it.
+  // filter) is corrected in the URL, the external system that owns it —
+  // moot while the whole set is already on screen.
   useEffect(() => {
+    if (!paginate) return;
     const safePage = clampPage(params.page, pageCount);
     if (safePage !== params.page) setParams({ page: safePage });
-  }, [params.page, pageCount, setParams]);
+  }, [paginate, params.page, pageCount, setParams]);
 
   // Counts per option over the whole scoped list, not the filtered one, so a
   // facet still shows what selecting it would reveal.
@@ -317,7 +329,7 @@ export function DataTable<TData extends DataTableRowData>({
         />
       )}
 
-      {filteredCount > 0 && (
+      {filteredCount > 0 && paginate && (
         <PaginationBar
           totalItems={filteredCount}
           currentPage={params.page}

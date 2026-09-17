@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Download, FileText, Plus } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -13,18 +14,22 @@ import {
   toFilterOptions,
 } from "~/constants/status";
 import { roomColumns } from "~/features/rooms/components/room-columns";
+import RoomFormSheet from "~/features/rooms/components/room-form-sheet";
 import RoomGrid from "~/features/rooms/components/room-grid";
+import RoomMobileRow from "~/features/rooms/components/room-mobile-row";
 import { useGetRooms } from "~/hooks/api/room";
 import { useBuildingStore } from "~/stores/use-building-store";
 
 /**
- * "Danh sách phòng" (ADR-0011): the first consumer of the list composite. The
- * view (cards by floor, or the table) rides on the URL beside the filters, so
- * a reload keeps it too. "Xuất Excel" and "Thêm phòng" have no flow yet, as in
- * the prototype.
+ * "Danh sách phòng" (spec #153 §10 row 43): the grid groups by floor and
+ * shows the whole scope, never a page — `paginate={false}` only while that
+ * view is current, the table keeps normal paging. The view (cards by floor,
+ * or the table) rides on the URL beside the filters, so a reload keeps it.
+ * "Xuất Excel" has no flow yet, as in every other list screen.
  */
 export default function RoomListTemplate() {
   const [view, setView] = useListView();
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetRooms({
     buildingId: selectedBuildingId,
@@ -41,7 +46,7 @@ export default function RoomListTemplate() {
               <Download />
               Xuất Excel
             </Button>
-            <Button type="button" size="sm">
+            <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
               <Plus />
               Thêm phòng
             </Button>
@@ -88,8 +93,16 @@ export default function RoomListTemplate() {
           renderRows={
             view === "grid" ? (rooms) => <RoomGrid rooms={rooms} /> : undefined
           }
+          renderMobileRow={(room) => <RoomMobileRow room={room} />}
+          paginate={view !== "grid"}
         />
       )}
+
+      <RoomFormSheet
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        defaultBuildingId={selectedBuildingId}
+      />
     </div>
   );
 }
