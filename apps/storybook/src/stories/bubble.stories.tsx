@@ -8,10 +8,12 @@ import {
   BubbleReactions,
 } from "@monorepo/ui/components/bubble";
 
+import { conversationOpener, conversationReply } from "~/support/conversation";
+
 const meta = {
   title: "Storybook/Bubble",
   component: Bubble,
-  subcomponents: { BubbleGroup, BubbleContent },
+  subcomponents: { BubbleGroup, BubbleContent, BubbleReactions },
   tags: ["autodocs"],
   parameters: { stage: { width: "sm" } },
 } satisfies Meta<typeof Bubble>;
@@ -25,14 +27,10 @@ export const Default: Story = {
   render: () => (
     <BubbleGroup>
       <Bubble align="start" variant="muted">
-        <BubbleContent>
-          Hi Mira, I'm the Northwind Assistant. How can I help today?
-        </BubbleContent>
+        <BubbleContent>{conversationOpener.text}</BubbleContent>
       </Bubble>
       <Bubble align="end" variant="default">
-        <BubbleContent>
-          Can you pull up invoice INV-2041 for Atlas?
-        </BubbleContent>
+        <BubbleContent>{conversationReply.text}</BubbleContent>
       </Bubble>
     </BubbleGroup>
   ),

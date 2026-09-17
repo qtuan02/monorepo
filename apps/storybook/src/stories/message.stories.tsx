@@ -10,6 +10,8 @@ import {
   MessageHeader,
 } from "@monorepo/ui/components/message";
 
+import { conversationOpener, conversationReply } from "~/support/conversation";
+
 const meta = {
   title: "Storybook/Message",
   component: Message,
@@ -37,18 +39,14 @@ export const Default: Story = {
         <MessageContent>
           <MessageHeader>Northwind Assistant</MessageHeader>
           <Bubble variant="muted">
-            <BubbleContent>
-              Hi Mira, I'm the Northwind Assistant. How can I help today?
-            </BubbleContent>
+            <BubbleContent>{conversationOpener.text}</BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>
       <Message align="end">
         <MessageContent>
           <Bubble align="end" variant="default">
-            <BubbleContent>
-              Can you pull up invoice INV-2041 for Atlas?
-            </BubbleContent>
+            <BubbleContent>{conversationReply.text}</BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>

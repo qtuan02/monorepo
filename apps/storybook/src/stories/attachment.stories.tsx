@@ -23,6 +23,7 @@ const meta = {
     AttachmentDescription,
     AttachmentActions,
     AttachmentAction,
+    AttachmentGroup,
   },
   tags: ["autodocs"],
 } satisfies Meta<typeof Attachment>;
@@ -98,7 +99,7 @@ export const States: Story = {
 
 export const Group: Story = {
   render: () => (
-    <AttachmentGroup className="max-w-md">
+    <AttachmentGroup>
       <Attachment orientation="vertical">
         <AttachmentMedia variant="icon">
           <FileTextIcon />
