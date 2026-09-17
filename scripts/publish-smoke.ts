@@ -78,15 +78,16 @@ function pack(shell: Shell, destination: string): string {
   // `files` here is the packed entry list — `[{ path, size, mode }]` — not the
   // `files` field of package.json, which is exactly the point.
   const entries: unknown = Reflect.get(first, "files");
-  const packedPaths = Array.isArray(entries)
-    ? entries.map((entry: unknown) =>
-        entry && typeof entry === "object"
-          ? Reflect.get(entry, "path")
-          : undefined,
-      )
-    : [];
+  const packedLicense =
+    Array.isArray(entries) &&
+    entries.some(
+      (entry: unknown) =>
+        entry &&
+        typeof entry === "object" &&
+        Reflect.get(entry, "path") === THIRD_PARTY_LICENSE,
+    );
 
-  if (!packedPaths.includes(THIRD_PARTY_LICENSE)) {
+  if (!packedLicense) {
     throw new Error(
       `${shell.name} tarball lacks ${THIRD_PARTY_LICENSE} — list it in \`files\` of ${shell.dir}/package.json`,
     );
