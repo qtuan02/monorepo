@@ -40,6 +40,7 @@ import { toast } from "@monorepo/ui/components/toast";
 const meta = {
   title: "Storybook/Form",
   component: Field,
+  subcomponents: { FieldGroup, FieldLabel, FieldDescription, FieldError },
   tags: ["autodocs"],
   parameters: {
     docs: {
@@ -109,8 +110,8 @@ const profileFormSchema = z.object({
 });
 
 export const Default: Story = {
-  args: {},
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         story:
@@ -129,7 +130,7 @@ export const Default: Story = {
     });
 
     return (
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Profile settings</CardTitle>
           <CardDescription>
@@ -150,7 +151,7 @@ export const Default: Story = {
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       autoComplete="username"
-                      placeholder="monorepo"
+                      placeholder="mira"
                     />
                     <FieldDescription>
                       This is your public display name.
@@ -173,7 +174,7 @@ export const Default: Story = {
                       type="email"
                       aria-invalid={fieldState.invalid}
                       autoComplete="email"
-                      placeholder="you@example.com"
+                      placeholder="you@northwind.dev"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -219,7 +220,6 @@ const bugReportFormSchema = z.object({
 });
 
 export const WithTextarea: Story = {
-  args: {},
   parameters: {
     docs: {
       description: {
@@ -239,7 +239,7 @@ export const WithTextarea: Story = {
     });
 
     return (
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Bug report</CardTitle>
           <CardDescription>
@@ -260,7 +260,7 @@ export const WithTextarea: Story = {
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       autoComplete="off"
-                      placeholder="Login button not working on mobile"
+                      placeholder="Invoice totals off by a cent on mobile"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -326,7 +326,6 @@ const inviteFormSchema = z.object({
 });
 
 export const HorizontalField: Story = {
-  args: {},
   parameters: {
     docs: {
       description: {
@@ -346,7 +345,7 @@ export const HorizontalField: Story = {
     });
 
     return (
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Invite a teammate</CardTitle>
           <CardDescription>
@@ -368,7 +367,7 @@ export const HorizontalField: Story = {
                       id={field.name}
                       type="email"
                       aria-invalid={fieldState.invalid}
-                      placeholder="teammate@example.com"
+                      placeholder="teammate@northwind.dev"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
