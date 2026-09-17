@@ -160,13 +160,14 @@ chỉ có heading của màn hình (và id của route với màn chi tiết).
 root repo và gọi bun qua `npx --yes bun@1.4.0` chứ không phải `bun` trần — builder của
 Vercel mang bun của nó và không đọc nổi `bun.lock` do bun 1.4 ghi
 (`UnknownLockfileVersion`); lý do đầy đủ ở README của `documents` § Deploy Vercel. Rewrite
-`/(.*)` → `/index.html` là bắt buộc: không có nó, refresh giữa `/rooms/R101` 404 ở tầng
+`/(.*)` → `/index.html` là bắt buộc: không có nó, refresh giữa `/rooms/R-B1-101` 404 ở tầng
 hosting chứ không tới được router.
 
 Trên Vercel **không có `.env` ở root** — biến đến từ Environment Variables trong dashboard,
 Vite gộp `process.env` khớp tiền tố `PUBLIC_` vào `import.meta.env` lúc build. App
 không thêm key riêng, nên dashboard chỉ cần **ba** key của `baseEnvSchema`, cho cả
-Production lẫn Preview (ở local chúng nằm sẵn trong `.env` root nên không ai thấy):
+Production lẫn Preview — `documents` khai **bốn** vì key thứ tư (`PUBLIC_DOCUMENTS_STORYBOOK_URL`)
+là của riêng nó (ở local ba key này nằm sẵn trong `.env` root nên không ai thấy):
 
 | Key | Nguồn | Bắt buộc |
 | --- | --- | --- |
@@ -180,8 +181,8 @@ Tạo project Vercel: Root Directory `apps/smart-rental`, framework Vite (đọc
 từ root.
 
 Source cũ (`qtuan02/fe-motel-rsbuild`, Rsbuild) được **archive** sau khi URL sống, README
-đầu trang trỏ sang `qtuan02/monorepo` `apps/smart-rental`; thư mục local
-`D:\Personal\smart-rental\frontend` không đụng.
+đầu trang trỏ sang `qtuan02/monorepo` `apps/smart-rental`; bản checkout local của nó
+không đụng.
 
 ## Test
 

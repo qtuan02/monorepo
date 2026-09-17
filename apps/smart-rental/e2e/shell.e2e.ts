@@ -34,7 +34,7 @@ test.describe("shell", () => {
   test("navigates through the sidebar and marks the open area", async ({
     page,
   }) => {
-    await page.getByRole("link", { name: "Hợp đồng" }).click();
+    await page.getByRole("link", { name: "Hợp đồng", exact: true }).click();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.CONTRACTS}$`));
     await expect(
@@ -50,9 +50,13 @@ test.describe("shell", () => {
   test("opens the sidebar as a sheet on a phone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await expect(page.getByRole("link", { name: "Hợp đồng" })).toBeHidden();
+    await expect(
+      page.getByRole("link", { name: "Hợp đồng", exact: true }),
+    ).toBeHidden();
     await page.getByRole("button", { name: "Toggle Sidebar" }).click();
-    await expect(page.getByRole("link", { name: "Hợp đồng" })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Hợp đồng", exact: true }),
+    ).toBeVisible();
   });
 
   test("signs out from the nav-user menu", async ({ page }) => {
