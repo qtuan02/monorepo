@@ -3,12 +3,24 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
 import type { OverdueDebt, ProfitLossSummary, ReportRow } from "~/types/report";
+import type { TenantView } from "~/types/tenant";
+import { mockBuildings } from "~/constants/mock/buildings";
+import { mockContracts } from "~/constants/mock/contracts";
+import { mockExpenses } from "~/constants/mock/expenses";
+import { mockInvoices } from "~/constants/mock/invoices";
+import { mockRooms } from "~/constants/mock/rooms";
+import { mockTenants } from "~/constants/mock/tenants";
+import { mockUtilities } from "~/constants/mock/utilities";
 import { queryKeysFactory } from "~/libs/query-key-factory";
+import {
+  buildOverdueDebts,
+  buildProfitLossSummary,
+  buildReportRows,
+} from "~/utils/report-rows";
+import { deriveTenantStatus, hasOverdueInvoice } from "~/utils/tenant-status";
 
 // `~/constants/mock/reports` was dropped (ADR-0012) — Báo cáo is computed
-// from Hoá đơn + Hoá đơn nhà cung cấp + Chi phí by Building scope and kỳ, a
-// later ticket's job. Until then every read answers empty/zeroed, so
-// "Báo cáo" shows its own empty states rather than the prototype's fixed rows.
+// from Hoá đơn + Chi phí + Chỉ số by `~/utils/report-rows`.
 const reportQueryKeyFactory = queryKeysFactory("report");
 
 export const reportQueryKeys = {
@@ -18,12 +30,35 @@ export const reportQueryKeys = {
   getOverdueDebts: () => reportQueryKeyFactory.detail("overdue-debts"),
 };
 
+function buildTenantViews(): TenantView[] {
+  return mockTenants.map((tenant) => ({
+    ...tenant,
+    status: deriveTenantStatus(tenant.id, mockContracts),
+    hasOverdueInvoice: hasOverdueInvoice(
+      tenant.id,
+      mockContracts,
+      mockInvoices,
+    ),
+  }));
+}
+
+function getRows(): ReportRow[] {
+  return buildReportRows({
+    buildings: mockBuildings,
+    rooms: mockRooms,
+    invoices: mockInvoices,
+    expenses: mockExpenses,
+    utilities: mockUtilities,
+    tenantViews: buildTenantViews(),
+  });
+}
+
 export function useGetReportRows(
   options?: UseQueryOptionsWrapper<ReportRow[]>,
 ): UseQueryResult<ReportRow[], Error> {
   return useQuery<ReportRow[], Error>({
     queryKey: reportQueryKeys.getReportRows(),
-    queryFn: async () => [],
+    queryFn: async () => getRows(),
     ...options,
   });
 }
@@ -33,12 +68,7 @@ export function useGetProfitLossSummary(
 ): UseQueryResult<ProfitLossSummary, Error> {
   return useQuery<ProfitLossSummary, Error>({
     queryKey: reportQueryKeys.getProfitLossSummary(),
-    queryFn: async () => ({
-      totalRevenue: 0,
-      totalExpenses: 0,
-      totalProfit: 0,
-      avgOccupancy: 0,
-    }),
+    queryFn: async () => buildProfitLossSummary(getRows()),
     ...options,
   });
 }
@@ -48,7 +78,7 @@ export function useGetOverdueDebts(
 ): UseQueryResult<OverdueDebt[], Error> {
   return useQuery<OverdueDebt[], Error>({
     queryKey: reportQueryKeys.getOverdueDebts(),
-    queryFn: async () => [],
+    queryFn: async () => buildOverdueDebts(mockInvoices),
     ...options,
   });
 }

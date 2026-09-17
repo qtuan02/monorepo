@@ -1,4 +1,4 @@
-import { Calendar, Home, Phone } from "lucide-react";
+import { AlertCircle, Calendar, Home, Phone } from "lucide-react";
 
 import {
   createDataTableColumnHelper,
@@ -64,8 +64,16 @@ export const tenantColumns = helper.columns([
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Trạng thái" />
     ),
-    cell: ({ getValue }) => (
-      <StatusBadge config={tenantStatusConfig[getValue()]} />
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1.5">
+        <StatusBadge config={tenantStatusConfig[row.original.status]} />
+        {row.original.hasOverdueInvoice && (
+          <AlertCircle
+            className="text-destructive size-4 shrink-0"
+            aria-label="Có hoá đơn quá hạn"
+          />
+        )}
+      </div>
     ),
     filterFn: facetFilterFn,
   }),

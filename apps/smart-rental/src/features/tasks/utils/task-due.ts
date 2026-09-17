@@ -14,6 +14,10 @@ export function taskRelatedPath(task: Task): string {
       return ROUTES.roomDetailPath(task.relatedId);
     case "tenant":
       return ROUTES.tenantDetailPath(task.relatedId);
+    case "utility":
+      return ROUTES.utilityDetailPath(task.relatedId);
+    case "building":
+      return ROUTES.buildingDetailPath(task.relatedId);
   }
 }
 

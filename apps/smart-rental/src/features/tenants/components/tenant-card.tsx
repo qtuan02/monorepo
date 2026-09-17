@@ -1,4 +1,4 @@
-import { Calendar, DoorOpen, Mail, Phone } from "lucide-react";
+import { AlertCircle, Calendar, DoorOpen, Mail, Phone } from "lucide-react";
 
 import {
   CardContent,
@@ -43,7 +43,20 @@ export default function TenantCard({ tenant }: TenantCardProps) {
       }
       content={
         <CardContent className="space-y-3 pt-3">
-          <StatusBadge config={tenantStatusConfig[tenant.status]} />
+          <div className="flex flex-wrap gap-2">
+            <StatusBadge config={tenantStatusConfig[tenant.status]} />
+            {tenant.hasOverdueInvoice && (
+              <StatusBadge
+                config={{
+                  label: "Có hoá đơn quá hạn",
+                  className:
+                    "bg-destructive/10 text-destructive border-destructive/20",
+                  icon: AlertCircle,
+                }}
+                isCompact
+              />
+            )}
+          </div>
           <div className="text-muted-foreground space-y-1.5 text-xs">
             <p className="flex items-center gap-2">
               <Phone className="size-3 shrink-0 opacity-70" />

@@ -13,9 +13,11 @@ import type {
 } from "~/types/tenant";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
+import { mockInvoices } from "~/constants/mock/invoices";
 import { mockTenants } from "~/constants/mock/tenants";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
+import { deriveTenantStatus, hasOverdueInvoice } from "~/utils/tenant-status";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
 // answers with the Mock. Wiring `be-motel` later is swapping those lines for a
@@ -28,19 +30,17 @@ export const tenantQueryKeys = {
   getTenant: (tenantId: string) => tenantQueryKeyFactory.detail(tenantId),
 };
 
-/**
- * A Người thuê has no stored status (ADR-0012) — this is the temporary,
- * hook-computed stand-in old screens still read: an `ACTIVE`/`EXPIRING`
- * Hợp đồng means "Đang thuê", anything else (or none) means "Đã rời". The
- * real derivation — folding in an overdue-Hoá-đơn flag — is a later ticket.
- */
+/** The two hook-computed fields every screen reads off a Người thuê (ADR-0012). */
 function withStatus(tenant: Tenant): TenantView {
-  const hasLiveContract = mockContracts.some(
-    (contract) =>
-      contract.tenantId === tenant.id &&
-      (contract.status === "ACTIVE" || contract.status === "EXPIRING"),
-  );
-  return { ...tenant, status: hasLiveContract ? "active" : "ended" };
+  return {
+    ...tenant,
+    status: deriveTenantStatus(tenant.id, mockContracts),
+    hasOverdueInvoice: hasOverdueInvoice(
+      tenant.id,
+      mockContracts,
+      mockInvoices,
+    ),
+  };
 }
 
 export function useGetTenants(

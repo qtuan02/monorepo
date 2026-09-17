@@ -167,6 +167,12 @@ export const taskTypeConfig: Record<TaskType, StatusConfig> = {
     className: statusTone.info,
   },
   maintenance: { label: "Bảo trì", className: statusTone.info },
+  utility_anomaly: { label: "Chỉ số bất thường", className: statusTone.info },
+  residence_notification: {
+    label: "Thiếu Thông báo lưu trú",
+    className: statusTone.info,
+  },
+  batch_pending: { label: "Chưa lập Đợt hoá đơn", className: statusTone.info },
 };
 
 export const complianceStatusConfig: Record<ComplianceStatus, StatusConfig> = {

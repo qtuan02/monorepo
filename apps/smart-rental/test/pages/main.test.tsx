@@ -86,10 +86,10 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
     "Chi tiết chi phí",
     "Chi phí bảo vệ ca đêm",
   ],
-  // Ba màn mất Mock (ADR-0012) — vẫn còn heading, chỉ còn empty state.
-  [ROUTES.RECONCILIATION, "Đối soát", "Không có dữ liệu đối soát"],
-  [ROUTES.TASKS, "Việc cần làm", "Không có nhiệm vụ"],
-  [ROUTES.REPORTS, "Báo cáo", "Không có dòng báo cáo"],
+  // Ba màn mất Mock ở #154 (ADR-0012) — #155 tính lại từ Hoá đơn/Hợp đồng/Chi phí.
+  [ROUTES.RECONCILIATION, "Đối soát", "Tiền điện"],
+  [ROUTES.TASKS, "Việc cần làm", "Hoá đơn quá hạn"],
+  [ROUTES.REPORTS, "Báo cáo", "04/2026"],
   [ROUTES.COMPLIANCE, "Khai báo lưu trú", "Nguyễn Văn A"],
   [ROUTES.COMMUNICATIONS, "Thông báo", "ZNS: Nhắc đóng tiền nhà"],
   [ROUTES.SETTINGS, "Cài đặt hệ thống", "Nhà trọ Quốc Tế"],
@@ -137,6 +137,34 @@ describe("the route tree", () => {
       if (mockText) {
         expect(await screen.findAllByText(mockText)).not.toHaveLength(0);
       }
+    });
+
+    // Spec #153 §10 row 9 / ADR-0012 — a fact computed at read time, on the
+    // screen that shows it, rather than trusted from the Mock's own literal.
+    it("shows a derived Quá hạn badge on the invoice list", async () => {
+      renderAt(ROUTES.INVOICES);
+
+      expect(await screen.findAllByText("Quá hạn")).not.toHaveLength(0);
+    });
+
+    it("shows a derived Sắp hết hạn badge on the contract list", async () => {
+      renderAt(ROUTES.CONTRACTS);
+
+      expect(await screen.findAllByText("Sắp hết hạn")).not.toHaveLength(0);
+    });
+
+    it("shows a derived Đang thuê badge on the tenant list", async () => {
+      renderAt(ROUTES.TENANTS);
+
+      expect(await screen.findAllByText("Đang thuê")).not.toHaveLength(0);
+    });
+
+    it("lists a Việc cần làm item pointing at an existing Hoá đơn", async () => {
+      renderAt(ROUTES.TASKS);
+
+      expect(
+        await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/),
+      ).not.toHaveLength(0);
     });
 
     it("names the id a detail screen could not find in its Mock", async () => {
