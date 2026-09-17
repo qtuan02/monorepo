@@ -1,4 +1,6 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -20,12 +22,19 @@ const initialAuthState = useAuthStore.getState();
  * A data router with one splat route around `<AppRoutes />`, rather than a
  * `MemoryRouter`: only a data router exposes `state.historyAction`, which is
  * what proves a guard bounced with `replace` and not `push`.
+ *
+ * A fresh `QueryClient` per render, the provider `MainApp` gives the tree: the
+ * shell's Building scope selector reads its Toà nhà through `~/hooks/api`.
  */
 function renderAt(path: string) {
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
     initialEntries: [path],
   });
-  render(<RouterProvider router={router} />);
+  render(
+    <QueryClientProvider client={new QueryClient()}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
   return router;
 }
 
@@ -120,10 +129,13 @@ describe("the route tree", () => {
       expect(heading("Tổng quan")).toBeInTheDocument();
     });
 
-    it("renders onboarding", () => {
+    it("renders onboarding — chromeless, like the guest screens", () => {
       renderAt(ROUTES.ONBOARDING);
 
       expect(heading("Chào mừng!")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: "Tòa nhà" }),
+      ).not.toBeInTheDocument();
     });
 
     it("renders the 404 inside the shell for an unknown path, not sign-in", () => {
@@ -131,15 +143,51 @@ describe("the route tree", () => {
 
       expect(router.state.location.pathname).toBe("/khong-ton-tai");
       expect(heading("404 Không tìm thấy")).toBeInTheDocument();
+      // "Inside the shell" is the sidebar being there around the 404.
+      expect(screen.getByRole("link", { name: "Tòa nhà" })).toBeInTheDocument();
+    });
+
+    it("marks the sidebar item of the area the path falls under", () => {
+      renderAt(ROUTES.contractRenewPath("c-1"));
+
+      expect(screen.getByRole("link", { name: "Hợp đồng" })).toHaveAttribute(
+        "data-active",
+      );
+      expect(
+        screen.getByRole("link", { name: "Tổng quan" }),
+      ).not.toHaveAttribute("data-active");
+    });
+
+    it("signs out from the nav-user menu and lands on sign-in", async () => {
+      const user = userEvent.setup();
+      useAuthStore.setState({
+        user: { name: "Admin User", email: "admin@gmail.com" },
+      });
+      const router = renderAt(ROUTES.HOME);
+
+      await user.click(screen.getByRole("button", { name: "Tài khoản" }));
+      await user.click(
+        await screen.findByRole("menuitem", { name: "Đăng xuất" }),
+      );
+
+      expect(useAuthStore.getState().token).toBeNull();
+      expect(router.state.location.pathname).toBe(ROUTES.AUTH_LOGIN);
+      expect(heading("Đăng nhập")).toBeInTheDocument();
     });
   });
 
   describe("signed out", () => {
-    it.each(guestScreens)("%s renders «%s»", (path, name) => {
-      renderAt(path);
+    it.each(guestScreens)(
+      "%s renders «%s» with no shell around it",
+      (path, name) => {
+        renderAt(path);
 
-      expect(heading(name)).toBeInTheDocument();
-    });
+        expect(heading(name)).toBeInTheDocument();
+        expect(
+          screen.queryByRole("link", { name: "Tòa nhà" }),
+        ).not.toBeInTheDocument();
+      },
+    );
 
     it("bounces a guarded route to sign-in with `replace`", () => {
       const router = renderAt(ROUTES.BUILDINGS);

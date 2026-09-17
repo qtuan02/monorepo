@@ -19,7 +19,7 @@ import { useAuthStore } from "~/stores/use-auth-store";
 
 export default function SignInForm() {
   const navigate = useNavigate();
-  const setToken = useAuthStore((s) => s.setToken);
+  const signIn = useAuthStore((s) => s.signIn);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
@@ -30,7 +30,10 @@ export default function SignInForm() {
 
   // A push, as in the prototype: GuestRoute already keeps Back off this screen.
   const onSubmit = form.handleSubmit((values) => {
-    setToken(`local-${values.email}`);
+    signIn(`local-${values.email}`, {
+      name: "Admin User",
+      email: values.email,
+    });
     navigate(ROUTES.HOME);
   });
 

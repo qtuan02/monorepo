@@ -44,7 +44,7 @@ const fields = [
 
 export default function RegisterForm() {
   const navigate = useNavigate();
-  const setToken = useAuthStore((s) => s.setToken);
+  const signIn = useAuthStore((s) => s.signIn);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerFormSchema),
@@ -54,7 +54,7 @@ export default function RegisterForm() {
   // The prototype sent a landlord to onboarding after registering; with `role`
   // gone the landlord is the only account there is.
   const onSubmit = form.handleSubmit((values) => {
-    setToken(`local-${values.email}`);
+    signIn(`local-${values.email}`, { name: values.name, email: values.email });
     navigate(ROUTES.ONBOARDING);
   });
 

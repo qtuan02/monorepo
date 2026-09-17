@@ -6,7 +6,10 @@ const AUTH_TOKEN = "e2e-token";
 // ~/stores/use-auth-store.ts), so the app boots already signed in.
 const AUTH_STORAGE_KEY = "auth";
 const AUTH_STORAGE_VALUE = JSON.stringify({
-  state: { token: AUTH_TOKEN },
+  state: {
+    token: AUTH_TOKEN,
+    user: { name: "Admin User", email: "admin@gmail.com" },
+  },
   version: 0,
 });
 
