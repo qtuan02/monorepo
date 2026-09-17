@@ -90,3 +90,15 @@ export const mockBuildings: Building[] = [
     description: "Kết hợp cho thuê ngắn hạn và dài hạn",
   },
 ];
+
+/**
+ * The one place a `buildingId` becomes a name. The prototype's supplier-bill
+ * and expense repositories each faked it as `Toa nha B1`; both joins now read
+ * the Mock above (#140).
+ */
+export function resolveBuildingName(buildingId: string): string {
+  return (
+    mockBuildings.find((building) => building.id === buildingId)?.name ??
+    "Không xác định"
+  );
+}

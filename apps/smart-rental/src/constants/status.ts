@@ -1,7 +1,19 @@
 import type { LucideIcon } from "lucide-react";
-import { CheckCircle2, Circle, Clock, Wrench } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  Clock,
+  TrendingDown,
+  TrendingUp,
+  Wrench,
+} from "lucide-react";
 
+import type { ReconciliationStatus } from "~/types/reconciliation";
 import type { RoomStatus, RoomType } from "~/types/room";
+import type {
+  SupplierBillPaymentStatus,
+  SupplierBillType,
+} from "~/types/supplier-bill";
 
 /**
  * The one home for every status/display config (spec #127 folded the
@@ -63,3 +75,36 @@ export function toFilterOptions(
     icon,
   }));
 }
+
+export const supplierBillTypeConfig: Record<SupplierBillType, StatusConfig> = {
+  electricity: { label: "Điện" },
+  water: { label: "Nước" },
+  trash: { label: "Rác" },
+  internet: { label: "Internet" },
+  other: { label: "Khác" },
+};
+
+/** Derived, not stored: a Hoá đơn nhà cung cấp with a `paymentDate` is paid. */
+export const supplierBillPaymentConfig: Record<
+  SupplierBillPaymentStatus,
+  StatusConfig
+> = {
+  paid: {
+    label: "Đã thanh toán",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
+  pending: {
+    label: "Chờ thanh toán",
+    className: statusTone.warning,
+    icon: Clock,
+  },
+};
+
+export const reconciliationStatusConfig: Record<
+  ReconciliationStatus,
+  StatusConfig
+> = {
+  gain: { label: "Lãi", className: statusTone.success, icon: TrendingUp },
+  loss: { label: "Lỗ", className: statusTone.error, icon: TrendingDown },
+};
