@@ -20,7 +20,11 @@ export const liquidationFormSchema = z
     returnAmount: z
       .string()
       .trim()
-      .pipe(z.coerce.number<string>().nonnegative())
+      .pipe(
+        z.coerce
+          .number<string>({ error: "Số tiền hoàn lại không hợp lệ" })
+          .nonnegative({ error: "Số tiền hoàn lại không hợp lệ" }),
+      )
       .optional(),
     reason: z
       .string()
