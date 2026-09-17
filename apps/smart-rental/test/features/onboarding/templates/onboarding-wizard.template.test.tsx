@@ -13,7 +13,7 @@ function renderWizard() {
   const router = createMemoryRouter(
     [
       { path: ROUTES.ONBOARDING, element: <OnboardingWizardTemplate /> },
-      { path: ROUTES.HOME, element: <h1>Tổng quan</h1> },
+      { path: ROUTES.HOME, element: <h1>Hôm nay</h1> },
     ],
     { initialEntries: [ROUTES.ONBOARDING] },
   );
@@ -57,7 +57,7 @@ describe("OnboardingWizardTemplate", () => {
     // Step 3 is optional — "Hoàn thành" with no email goes to the dashboard.
     await user.click(screen.getByRole("button", { name: "Hoàn thành" }));
     expect(
-      await screen.findByRole("heading", { name: "Tổng quan" }),
+      await screen.findByRole("heading", { name: "Hôm nay" }),
     ).toBeInTheDocument();
     expect(router.state.location.pathname).toBe(ROUTES.HOME);
   }, 15_000);
@@ -83,7 +83,7 @@ describe("OnboardingWizardTemplate", () => {
     await user.click(screen.getByRole("button", { name: "Bỏ qua" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Tổng quan" }),
+      await screen.findByRole("heading", { name: "Hôm nay" }),
     ).toBeInTheDocument();
     expect(router.state.location.pathname).toBe(ROUTES.HOME);
   });

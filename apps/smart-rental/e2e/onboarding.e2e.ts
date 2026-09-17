@@ -27,8 +27,6 @@ test.describe("onboarding", () => {
     await page.getByRole("button", { name: "Hoàn thành" }).click();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(
-      page.getByRole("heading", { name: "Tổng quan" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
   });
 });

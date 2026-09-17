@@ -15,7 +15,7 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
 /**
- * "Chi phí vận hành": the three KPIs over the scoped list, then the table.
+ * "Chi phí" (ADR-0011): the three KPIs over the scoped list, then the table.
  * "Thêm chi phí" has no flow yet, as in the prototype.
  */
 export default function ExpenseListTemplate() {
@@ -29,7 +29,7 @@ export default function ExpenseListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Chi phí vận hành"
+        title="Chi phí"
         description="Theo dõi các khoản chi nội bộ, bảo trì và vận hành theo từng toà nhà."
         actions={
           <Button type="button" size="sm">

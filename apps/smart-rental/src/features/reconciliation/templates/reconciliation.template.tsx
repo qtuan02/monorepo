@@ -16,7 +16,7 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
 /**
- * "Đối soát chi phí": the four totals over the scoped lines, then the
+ * "Đối soát" (ADR-0011): the four totals over the scoped lines, then the
  * income-versus-expense table. The lines come from their own Mock rather
  * than from Hoá đơn and Hoá đơn nhà cung cấp, as in the prototype.
  */
@@ -32,7 +32,7 @@ export default function ReconciliationTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Đối soát chi phí"
+        title="Đối soát"
         description="So sánh giữa số tiền thu từ Người thuê và chi trả cho nhà cung cấp theo hạng mục dịch vụ."
       />
 

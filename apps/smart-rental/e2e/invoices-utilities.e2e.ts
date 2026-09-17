@@ -19,7 +19,7 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await page.getByRole("option", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
     await expect(page.getByText("10 hoá đơn được tìm thấy")).toBeVisible();
 
-    await page.getByRole("link", { name: "Tiện ích" }).click();
+    await page.getByRole("link", { name: "Chỉ số điện nước" }).click();
     // Only Phòng 201/202 sit in b2 — three readings.
     await expect(page.getByText("3 chỉ số được tìm thấy")).toBeVisible();
   });

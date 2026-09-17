@@ -62,7 +62,7 @@ function countByStatus(logs: SendLog[], status: SendLogStatus) {
 }
 
 /**
- * "Liên lạc" (Thông báo): the tab rides on the URL — "Tổng quan & Mẫu tin"
+ * "Thông báo" (ADR-0011): the tab rides on the URL — "Tổng quan & Mẫu tin"
  * with a count per send status and the templates by channel, "Nhật ký gửi
  * tin" on the list composite, and the two automation switches. Two queries,
  * each section gated on its own.
@@ -77,7 +77,7 @@ export default function CommunicationsTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Liên lạc"
+        title="Thông báo"
         description="Gửi thông báo cho Người thuê qua nhiều kênh."
       />
 

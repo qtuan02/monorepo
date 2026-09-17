@@ -22,9 +22,9 @@ import { useGetRooms } from "~/hooks/api/room";
 import { useBuildingStore } from "~/stores/use-building-store";
 
 /**
- * "Danh sách phòng trọ": the first consumer of the list composite. The view
- * (cards by floor, or the table) rides on the URL beside the filters, so a
- * reload keeps it too. "Xuất Excel" and "Thêm phòng" have no flow yet, as in
+ * "Danh sách phòng" (ADR-0011): the first consumer of the list composite. The
+ * view (cards by floor, or the table) rides on the URL beside the filters, so
+ * a reload keeps it too. "Xuất Excel" and "Thêm phòng" have no flow yet, as in
  * the prototype.
  */
 export default function RoomListTemplate() {
@@ -37,7 +37,7 @@ export default function RoomListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Danh sách phòng trọ"
+        title="Danh sách phòng"
         description="Quản lý toàn bộ phòng trọ, trạng thái và thông tin Người thuê."
         actions={
           <>

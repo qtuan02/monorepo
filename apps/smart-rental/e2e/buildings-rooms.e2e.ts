@@ -16,7 +16,7 @@ test.describe("Toà nhà và Phòng", () => {
   }) => {
     await page.goto(ROUTES.ROOMS);
     await expect(
-      page.getByRole("heading", { name: "Danh sách phòng trọ" }),
+      page.getByRole("heading", { name: "Danh sách phòng" }),
     ).toBeVisible();
     await expect(page.getByText("45 phòng được tìm thấy")).toBeVisible();
 

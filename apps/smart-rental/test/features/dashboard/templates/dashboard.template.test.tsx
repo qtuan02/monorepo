@@ -17,7 +17,7 @@ function renderDashboard() {
   );
 }
 
-// "Tổng quan" now reads off `~/constants/mock/{rooms,invoices,expenses}`
+// "Hôm nay" now reads off `~/constants/mock/{rooms,invoices,expenses}`
 // (ADR-0012) rather than a fixed `mockDashboard` — the totals here are
 // derived by hand from those Mocks (18 Phòng, 14 occupied; the kỳ 09 total
 // per Hợp đồng), not copied from the hook.

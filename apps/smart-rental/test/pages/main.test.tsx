@@ -54,7 +54,7 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
     "Chi tiết toà nhà",
     "Căn hộ Dịch Vụ Cao Cấp",
   ],
-  [ROUTES.ROOMS, "Danh sách phòng trọ", "Phòng 101"],
+  [ROUTES.ROOMS, "Danh sách phòng", "Phòng 101"],
   [ROUTES.roomDetailPath("R-B1-102"), "Chi tiết phòng", "Phòng 102"],
   [ROUTES.TENANTS, "Quản lý Người thuê", "Trần Thị B"],
   [ROUTES.TENANT_CREATE, "Thêm Người thuê mới"],
@@ -80,18 +80,18 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
     "Chi tiết hoá đơn nhà cung cấp",
     "Dawaco",
   ],
-  [ROUTES.EXPENSES, "Chi phí vận hành", "Thay bóng đèn hành lang tầng 1-3"],
+  [ROUTES.EXPENSES, "Chi phí", "Thay bóng đèn hành lang tầng 1-3"],
   [
     ROUTES.expenseDetailPath("exp-3"),
     "Chi tiết chi phí",
     "Chi phí bảo vệ ca đêm",
   ],
   // Ba màn mất Mock (ADR-0012) — vẫn còn heading, chỉ còn empty state.
-  [ROUTES.RECONCILIATION, "Đối soát chi phí", "Không có dữ liệu đối soát"],
+  [ROUTES.RECONCILIATION, "Đối soát", "Không có dữ liệu đối soát"],
   [ROUTES.TASKS, "Việc cần làm", "Không có nhiệm vụ"],
   [ROUTES.REPORTS, "Báo cáo", "Không có dòng báo cáo"],
   [ROUTES.COMPLIANCE, "Khai báo lưu trú", "Nguyễn Văn A"],
-  [ROUTES.COMMUNICATIONS, "Liên lạc", "ZNS: Nhắc đóng tiền nhà"],
+  [ROUTES.COMMUNICATIONS, "Thông báo", "ZNS: Nhắc đóng tiền nhà"],
   [ROUTES.SETTINGS, "Cài đặt hệ thống", "Nhà trọ Quốc Tế"],
 ];
 

@@ -9,16 +9,12 @@ test.describe("dashboard", () => {
   test("keeps the session across a reload", async ({ page }) => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
-    await expect(
-      page.getByRole("heading", { name: "Tổng quan" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
 
     await page.reload();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(
-      page.getByRole("heading", { name: "Tổng quan" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
   });
 
   test("boots without a console error", async ({ page }) => {
@@ -29,9 +25,7 @@ test.describe("dashboard", () => {
 
     await signIn(page);
     await page.goto(ROUTES.HOME);
-    await expect(
-      page.getByRole("heading", { name: "Tổng quan" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
 
     // Vite bakes whatever is in the local .env without validating it, so a
     // PUBLIC_* key missing/invalid there only surfaces once createEnv runs in

@@ -59,9 +59,7 @@ test.describe("auth guard — signed out", () => {
     await page.getByRole("button", { name: "Đăng nhập" }).click();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(
-      page.getByRole("heading", { name: "Tổng quan" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
   });
 });
 
@@ -71,8 +69,6 @@ test.describe("auth guard — signed in", () => {
     await page.goto(ROUTES.AUTH_LOGIN);
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(
-      page.getByRole("heading", { name: "Tổng quan" }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Hôm nay" })).toBeVisible();
   });
 });

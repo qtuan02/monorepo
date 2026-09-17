@@ -8,7 +8,7 @@ import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
-// `~/constants/mock/dashboard` was dropped (ADR-0012) — "Tổng quan" is now
+// `~/constants/mock/dashboard` was dropped (ADR-0012) — "Hôm nay" is now
 // read off the surviving Mocks (Phòng, Hoá đơn, Chi phí) rather than a fixed
 // set of numbers, so a Building scope is a real filter and not a percentage
 // applied to one shared total. `pendingTasks` / `recentActivities` stay empty
