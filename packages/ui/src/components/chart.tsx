@@ -364,6 +364,22 @@ function getPayloadConfigFromPayload(
   return configLabelKey in config ? config[configLabelKey] : config[key];
 }
 
+// The marks a chart is drawn with, re-exported so an app composes a chart from
+// this one entry: `recharts` stays a dependency of this package alone, and no
+// app has to install a second copy just to place a <Bar> inside a
+// <ChartContainer>. Only what a consumer needs on the canvas — the container,
+// tooltip and legend above are still the styled way in.
+export {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  XAxis,
+  YAxis,
+} from "recharts";
+
 export {
   ChartContainer,
   ChartLegend,

@@ -6,9 +6,12 @@ import { cn } from "@monorepo/ui/utils/cn";
 interface SummaryCardProps {
   label: string;
   value: string | number;
+  /** One line under the number — "trên toàn bộ tòa nhà". */
+  description?: string;
   icon?: LucideIcon;
   iconClassName?: string;
-  trend?: { value: number; isPositive: boolean };
+  /** A number is a percent; a string is shown as written ("+12"). */
+  trend?: { value: number | string; isPositive: boolean };
   className?: string;
 }
 
@@ -16,6 +19,7 @@ interface SummaryCardProps {
 export function SummaryCard({
   label,
   value,
+  description,
   icon: Icon,
   iconClassName = "bg-primary/10 text-primary",
   trend,
@@ -45,10 +49,18 @@ export function SummaryCard({
                   trend.isPositive ? "text-emerald-600" : "text-destructive",
                 )}
               >
-                {trend.isPositive ? "↑" : "↓"} {Math.abs(trend.value)}%
+                {trend.isPositive ? "↑" : "↓"}{" "}
+                {typeof trend.value === "number"
+                  ? `${Math.abs(trend.value)}%`
+                  : trend.value}
               </span>
             )}
           </div>
+          {description && (
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              {description}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

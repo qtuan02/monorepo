@@ -8,3 +8,8 @@ const CURRENCY_FORMATTER = new Intl.NumberFormat("vi-VN", {
 export function formatCurrency(value: number): string {
   return CURRENCY_FORMATTER.format(value);
 }
+
+/** The dashboard's short form: VND in triệu, one decimal — `545.2tr`. */
+export function formatMillions(value: number): string {
+  return `${(value / 1_000_000).toFixed(1)}tr`;
+}

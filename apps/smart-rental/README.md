@@ -24,7 +24,7 @@ bun run dev:smart-rental     # http://localhost:3006
 | Shell | `src/features/layout/` | Shell Portal của prototype trên primitive `sidebar` / `command` / `popover` / `dropdown-menu`: `templates/layout.template.tsx` (`SidebarProvider` + `SidebarInset`, chỉ cột nội dung cuộn) · `components/sidebar/` (`app-sidebar` 15 mục ba nhóm, `nav-user` đăng xuất) · `components/header/` (`app-header`, `building-selector`, `notification-panel`, `search-dialog` — ⌘K/Ctrl+K mở) · `constants/navigation.ts` (manifest 15 khu vực: path từ `ROUTES`, title/description header đọc) · `utils/navigation.ts` (`isNavigationItemActive` khớp theo **segment** — `/rooms-x` không phải `/rooms`, chặt hơn `startsWith` của prototype một bậc — và `resolveNavigationItem` cho header). Header **không** render `<h1>` — heading là của màn hình, seam test assert nó. |
 | Building scope | `src/stores/use-building-store.ts` | Zustand + `persist` localStorage thường, key `building`; `selectedBuildingId: string | null`, `null` = mọi Toà nhà. Đọc qua selector hẹp. |
 | Dữ liệu | `~/hooks/api` | Pha 1 là **Mock** đứng sau hook TanStack Query (`hooks/api/building.ts` là khuôn: key từ `queryKeysFactory`, `queryFn` trả Mock). Mock nằm ở **`~/constants/mock/<entity>.ts`** chứ không trong slice như spec ghi: `~/hooks/api` phục vụ nó và hook không được import `~/features` (`architecture-circular-dependencies`, CRITICAL — rule thắng spec). `~/libs/http-client.ts` chỉ export `httpClient`, chưa có service class — khi `be-motel` có contract, việc nối là đổi `queryFn`. |
-| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133), mỗi cái trên một primitive `@monorepo/ui`. `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack từ `useDataTable` của primitive `data-table`; **search/facet/page/size sống trên URL** (`use-table-search-params.ts` qua `useSearchParams`, `replace` history, không `nuqs`), sort và chọn dòng ở trong table; `renderRows` cho một body khác (grid Phòng) trên đúng trang đã lọc. Ô tìm kiếm debounce 300ms qua `@monorepo/hook/use-debounce`; cột facet gắn `filterFn: facetFilterFn`, cột tìm gắn `"includesString"`. `pagination-bar.tsx` là **một** thanh phân trang (gộp hai hệ của prototype); `badge/status-badge.tsx` là **một** badge nhận `StatusConfig` (gộp bốn). Còn `page/` (`list-page-header`, `detail-page-shell` — có `<h1>` sr-only cho seam test), `panel/` (empty/error/loading), `card/` (summary, info + `InfoRow`, entity-list, `stat-item` — cặp `dt`/`dd` mọi màn chi tiết dùng), `dialog/confirm-action-dialog`, `menu/entity-action-menu`, `navigation/page-back-button`. |
+| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133), mỗi cái trên một primitive `@monorepo/ui`. `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack từ `useDataTable` của primitive `data-table`; **search/facet/page/size sống trên URL** (`use-table-search-params.ts` qua `useSearchParams`, `replace` history, không `nuqs`), sort và chọn dòng ở trong table; `renderRows` cho một body khác (grid Phòng) trên đúng trang đã lọc. Ô tìm kiếm debounce 300ms qua `@monorepo/hook/use-debounce`; cột facet gắn `filterFn: facetFilterFn`, cột tìm gắn `"includesString"`. `pagination-bar.tsx` là **một** thanh phân trang (gộp hai hệ của prototype); `badge/status-badge.tsx` là **một** badge nhận `StatusConfig` (gộp bốn). Còn `page/` (`list-page-header`, `detail-page-shell` — có `<h1>` sr-only cho seam test), `panel/` (empty/error/loading), `card/` (summary, info + `InfoRow`, entity-list, `stat-item` — cặp `dt`/`dd` mọi màn chi tiết dùng), `dialog/confirm-action-dialog`, `menu/entity-action-menu`, `navigation/page-back-button`, `stepper/lifecycle-stepper` (danh sách bước dọc có nối — `ContractLifecycleStepper` của prototype, onboarding và Hợp đồng dùng chung). |
 | Status config | `~/constants/status.ts` | **Một** nơi cho mọi config trạng thái/hiển thị (tám file của prototype gộp về): `statusTone`, `StatusConfig`, `roomStatusConfig`, `roomTypeConfig`, `toFilterOptions()`. Slice sau thêm config của mình vào đây. |
 | Utils | `~/utils/` | `currency.ts` (`Intl` `vi-VN` VND), `date.ts` (`@monorepo/dayjs` + `DATE_FORMAT`), `pagination.ts` (`getTotalPages` ≥ 1, `clampPage` hai phía, `getPageItems`, bảng cỡ trang) — đều có unit test. |
 | Runner | `Dockerfile` · `nginx.conf` | Như Template: builder Bun → `nginx:stable-alpine`. |
@@ -74,6 +74,24 @@ tại template trên danh sách không scope mà selector cũng đọc. Ba đi�
 thay vì hiện 0; hai bản `roomStatusConfig` khác màu của prototype gộp theo bản badge;
 kéo thả hàng, menu ẩn cột và "Ẩn cột" trong header không port. Các nút "Xuất Excel",
 "Thêm phòng", "In phòng", "Chỉnh sửa" chưa có flow — giữ như prototype.
+
+**Dashboard** (`/`, #142): bốn `SummaryCard` + biểu đồ doanh thu và thu/chi sau hai tab, donut tỷ lệ
+lấp đầy, việc cần làm, hoạt động gần đây — đọc qua `useGetDashboard({ buildingId })` với
+Building scope là param. Ba biểu đồ dựng trên primitive `chart` của `@monorepo/ui`, và **app
+không import `recharts`**: primitive re-export các mark (`Bar`, `BarChart`, `Pie`, `Cell`,
+`XAxis`…) bên cạnh `ChartContainer`/`ChartTooltip`/`ChartLegend` (changeset minor, cùng
+động tác #133 với `data-table`). Mock ở `~/constants/mock/dashboard.ts` là đúng các literal
+prototype viết thẳng trong page (không tổng hợp từ slice khác), với ba điểm lệch có chủ ý:
+chuỗi doanh thu cố định thay `Math.random()` mỗi render; một Toà nhà đọc **lát cắt** của
+tổng theo bảng `mockDashboardShare` (mười tỷ lệ cộng bằng 1 — tỷ lệ lấp đầy, việc cần làm
+và hoạt động giữ nguyên vì "một phần của một câu" vô nghĩa) để đổi scope thì số đổi; và
+`<h1>` là "Tổng quan" (tên màn hình mà sidebar, header và seam test gọi), câu "Xin chào!"
+của prototype xuống dòng mô tả. Trend trên thẻ (+12, +2.5%…) là literal như prototype.
+
+**Onboarding** (`/onboarding`, #142): wizard ba bước như prototype trên `LifecycleStepper` +
+`Controller` + `field`; mỗi bước `trigger` đúng field của mình, "Hoàn thành" và "Bỏ qua"
+đều về `/` — không submit gì, như prototype. Schema ở
+`features/onboarding/types/onboarding-form.ts`, mọi field là string.
 
 Cho tới khi slice tương ứng được port, mỗi route còn lại render một **template placeholder**
 chỉ có heading của màn hình (và id của route với màn chi tiết).
