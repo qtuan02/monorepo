@@ -75,11 +75,11 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   [ROUTES.EXPENSES, "Chi phí vận hành"],
   [ROUTES.expenseDetailPath("e-1"), "Chi tiết chi phí"],
   [ROUTES.RECONCILIATION, "Đối soát chi phí"],
-  [ROUTES.TASKS, "Trung tâm nhiệm vụ"],
-  [ROUTES.REPORTS, "Báo cáo"],
-  [ROUTES.COMPLIANCE, "Tuân thủ"],
-  [ROUTES.COMMUNICATIONS, "Liên lạc"],
-  [ROUTES.SETTINGS, "Cài đặt hệ thống"],
+  [ROUTES.TASKS, "Trung tâm nhiệm vụ", "Bảo trì - Vệ sinh máy lạnh Phòng 103"],
+  [ROUTES.REPORTS, "Báo cáo", "Trọ Sinh Viên Xanh - Tầng 1"],
+  [ROUTES.COMPLIANCE, "Tuân thủ", "Phạm Thị Duyên"],
+  [ROUTES.COMMUNICATIONS, "Liên lạc", "ZNS: Nhắc đóng tiền nhà"],
+  [ROUTES.SETTINGS, "Cài đặt hệ thống", "Nhà trọ Quốc Tế"],
 ];
 
 const guestScreens: [path: string, heading: string][] = [

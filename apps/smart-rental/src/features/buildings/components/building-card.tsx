@@ -14,9 +14,9 @@ import { cn } from "@monorepo/ui/utils/cn";
 import type { Building } from "~/types/building";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatItem } from "~/components/card/stat-item";
+import OccupancyBar from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
 import { getBuildingStats } from "~/features/buildings/utils/building-stats";
-import OccupancyBar from "./occupancy-bar";
 
 interface BuildingCardProps {
   building: Building;
