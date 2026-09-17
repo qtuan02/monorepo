@@ -35,8 +35,9 @@ describe("InvoiceDetailTemplate", () => {
       name: "Mã thanh toán VietQR",
     });
     expect(dialog).toHaveTextContent("Thanh toan HÓA-001");
-    // I001: 3.000.000 + (0 % 5) * 200.000 — vi-VN spells the thousands with a dot.
-    expect(dialog).toHaveTextContent("3.000.000");
+    // I001 = C001's kỳ 04: rent 2.700.000 + điện 350.000 + nước 90.000 +
+    // dịch vụ 100.000 — vi-VN spells the thousands with a dot.
+    expect(dialog).toHaveTextContent("3.240.000");
     expect(
       screen.getByRole("img", { name: "Mã VietQR cho HÓA-001" }),
     ).toBeInTheDocument();

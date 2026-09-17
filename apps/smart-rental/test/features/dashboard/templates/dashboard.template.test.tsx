@@ -17,6 +17,10 @@ function renderDashboard() {
   );
 }
 
+// "Tổng quan" now reads off `~/constants/mock/{rooms,invoices,expenses}`
+// (ADR-0012) rather than a fixed `mockDashboard` — the totals here are
+// derived by hand from those Mocks (18 Phòng, 14 occupied; the kỳ 09 total
+// per Hợp đồng), not copied from the hook.
 describe("DashboardTemplate", () => {
   beforeEach(() => {
     useBuildingStore.setState(initialBuildingState, true);
@@ -26,25 +30,25 @@ describe("DashboardTemplate", () => {
     renderDashboard();
 
     expect(
-      screen.getByRole("heading", { level: 1, name: "Tổng quan" }),
+      screen.getByRole("heading", { level: 1, name: "Hôm nay" }),
     ).toBeInTheDocument();
-    expect(await screen.findByText("145")).toBeInTheDocument();
-    expect(screen.getByText("545.2tr")).toBeInTheDocument();
-    expect(screen.getByText("Sửa vòi nước phòng 108")).toBeInTheDocument();
+    expect(await screen.findByText("18")).toBeInTheDocument();
+    expect(screen.getByText("77.8%")).toBeInTheDocument();
+    expect(screen.getByText("66.6tr")).toBeInTheDocument();
   });
 
   it("reads one Toà nhà's slice once the Building scope changes", async () => {
     useBuildingStore.setState({ selectedBuildingId: "b1" });
     renderDashboard();
 
-    expect(await screen.findByText("15")).toBeInTheDocument();
-    expect(screen.getByText("54.5tr")).toBeInTheDocument();
-    expect(screen.queryByText("145")).not.toBeInTheDocument();
+    expect(await screen.findByText("6")).toBeInTheDocument();
+    expect(screen.getByText("16.4tr")).toBeInTheDocument();
+    expect(screen.queryByText("18")).not.toBeInTheDocument();
   });
 
   it("switches the chart card between Doanh thu and Thu vs Chi", async () => {
     renderDashboard();
-    await screen.findByText("145");
+    await screen.findByText("18");
 
     expect(
       screen.getByRole("tab", { name: "Doanh thu", selected: true }),

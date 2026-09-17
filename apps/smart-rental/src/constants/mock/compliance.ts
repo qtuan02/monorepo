@@ -34,7 +34,8 @@ export const mockComplianceItems: ComplianceItem[] = mockTenants.flatMap(
       tenant: tenant.name,
       room: tenant.room,
       type: "residence_registration",
-      status: index % 3 === 0 ? "overdue" : index % 3 === 1 ? "pending" : "completed",
+      status:
+        index % 3 === 0 ? "overdue" : index % 3 === 1 ? "pending" : "completed",
       dueDate: tenant.contractEnd,
       completedDate: index % 3 === 2 ? tenant.moveInDate : undefined,
     });

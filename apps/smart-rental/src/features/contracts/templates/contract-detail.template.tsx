@@ -166,7 +166,11 @@ export default function ContractDetailTemplate({
           </Card>
 
           <InfoCard title="Thông tin Người thuê">
-            <InfoRow label="Tên Người thuê" value={contract.tenant} isHighlighted />
+            <InfoRow
+              label="Tên Người thuê"
+              value={contract.tenant}
+              isHighlighted
+            />
             <InfoRow label="Phòng" value={contract.room} />
             <InfoRow label="Tầng" value={`Tầng ${contract.floor}`} />
             <Button

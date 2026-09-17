@@ -31,7 +31,8 @@ function buildReading(
     newIndex,
     consumption,
     status: month === "2026-09" ? "DRAFT" : "VERIFIED",
-    updatedAt: month === "2026-09" ? "2026-09-15T09:00:00Z" : "2026-08-27T09:00:00Z",
+    updatedAt:
+      month === "2026-09" ? "2026-09-15T09:00:00Z" : "2026-08-27T09:00:00Z",
     proofImages: [],
   };
 }
@@ -58,10 +59,14 @@ export const mockUtilities: Utility[] = READING_MONTHS.flatMap((month) =>
 export const mockMeterInputRooms: MeterInputRoom[] = occupiedRooms.map(
   (room) => {
     const electric = mockUtilities.find(
-      (u) => u.roomId === room.id && u.type === "electricity" && u.month === "2026-09",
+      (u) =>
+        u.roomId === room.id &&
+        u.type === "electricity" &&
+        u.month === "2026-09",
     );
     const water = mockUtilities.find(
-      (u) => u.roomId === room.id && u.type === "water" && u.month === "2026-09",
+      (u) =>
+        u.roomId === room.id && u.type === "water" && u.month === "2026-09",
     );
     return {
       id: room.id,

@@ -263,9 +263,7 @@ function RenewConfirmCard({
           <p className="text-muted-foreground border-t pt-3 text-xs">
             Thay đổi tiền thuê:{" "}
             <span
-              className={cn(
-                delta > 0 ? "text-destructive" : "text-success",
-              )}
+              className={cn(delta > 0 ? "text-destructive" : "text-success")}
             >
               {delta > 0 ? "+" : ""}
               {formatCurrency(delta)}

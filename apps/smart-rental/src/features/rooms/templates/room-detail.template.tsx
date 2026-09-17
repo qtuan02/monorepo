@@ -153,7 +153,11 @@ export default function RoomDetailTemplate({
           <InfoCard title="Thông tin Người thuê">
             {room.tenant ? (
               <>
-                <InfoRow label="Tên Người thuê" value={room.tenant} isHighlighted />
+                <InfoRow
+                  label="Tên Người thuê"
+                  value={room.tenant}
+                  isHighlighted
+                />
                 <Button
                   type="button"
                   variant="outline"

@@ -131,7 +131,11 @@ export default function InvoiceDetailTemplate({
           </Card>
 
           <InfoCard title="Thông tin Người thuê">
-            <InfoRow label="Tên Người thuê" value={invoice.tenant} isHighlighted />
+            <InfoRow
+              label="Tên Người thuê"
+              value={invoice.tenant}
+              isHighlighted
+            />
             <InfoRow label="Phòng" value={invoice.room} />
             <InfoRow label="Tầng" value={`Tầng ${invoice.floor}`} />
             <Button

@@ -4,7 +4,9 @@
  * (the tenant's, tracked here). "safety_inspection" / "documentation" are
  * dropped — a facility's own obligations, out of this ticket's scope.
  */
-export type ComplianceType = "residence_notification" | "residence_registration";
+export type ComplianceType =
+  | "residence_notification"
+  | "residence_registration";
 
 export type ComplianceStatus = "completed" | "pending" | "overdue";
 

@@ -63,9 +63,7 @@ export default function ReconciliationTemplate() {
               value={formatCurrency(stats.netProfitAmount)}
               icon={isProfit ? TrendingUp : TrendingDown}
               iconClassName={
-                isProfit
-                  ? "bg-info/10 text-info"
-                  : "bg-warning/10 text-warning"
+                isProfit ? "bg-info/10 text-info" : "bg-warning/10 text-warning"
               }
             />
             <SummaryCard

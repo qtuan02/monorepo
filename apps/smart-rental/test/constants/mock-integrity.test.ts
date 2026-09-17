@@ -37,13 +37,34 @@ describe("Mock referential integrity (ADR-0012)", () => {
   const contractIds = new Set(mockContracts.map((c) => c.id));
 
   it("has no id duplicated within any entity", () => {
-    assertNoDuplicateIds("buildings", mockBuildings.map((b) => b.id));
-    assertNoDuplicateIds("rooms", mockRooms.map((r) => r.id));
-    assertNoDuplicateIds("tenants", mockTenants.map((t) => t.id));
-    assertNoDuplicateIds("contracts", mockContracts.map((c) => c.id));
-    assertNoDuplicateIds("invoices", mockInvoices.map((i) => i.id));
-    assertNoDuplicateIds("utilities", mockUtilities.map((u) => u.id));
-    assertNoDuplicateIds("compliance", mockComplianceItems.map((c) => c.id));
+    assertNoDuplicateIds(
+      "buildings",
+      mockBuildings.map((b) => b.id),
+    );
+    assertNoDuplicateIds(
+      "rooms",
+      mockRooms.map((r) => r.id),
+    );
+    assertNoDuplicateIds(
+      "tenants",
+      mockTenants.map((t) => t.id),
+    );
+    assertNoDuplicateIds(
+      "contracts",
+      mockContracts.map((c) => c.id),
+    );
+    assertNoDuplicateIds(
+      "invoices",
+      mockInvoices.map((i) => i.id),
+    );
+    assertNoDuplicateIds(
+      "utilities",
+      mockUtilities.map((u) => u.id),
+    );
+    assertNoDuplicateIds(
+      "compliance",
+      mockComplianceItems.map((c) => c.id),
+    );
   });
 
   it("has no id shared across two different entities", () => {

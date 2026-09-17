@@ -5,10 +5,10 @@ import type {
   InvoicePayment,
   InvoiceStatus,
 } from "~/types/invoice";
-import { sumInvoicePayments } from "~/utils/invoice-payments";
-import { formatDate, formatMonth } from "~/utils/date";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
+import { formatDate, formatMonth } from "~/utils/date";
+import { sumInvoicePayments } from "~/utils/invoice-payments";
 
 /** Sáu kỳ 04–09/2026 (spec #153 — one period alone cannot feed a 6-month chart or a history tab). */
 const BILLING_MONTHS = [
@@ -99,7 +99,9 @@ function buildPayments(status: InvoiceStatus, total: number): InvoicePayment[] {
     return [{ amount: total, method: "BANK_TRANSFER", paidAt: "2026-09-03" }];
   }
   if (status === "PARTIAL") {
-    return [{ amount: Math.round(total / 2), method: "CASH", paidAt: "2026-09-12" }];
+    return [
+      { amount: Math.round(total / 2), method: "CASH", paidAt: "2026-09-12" },
+    ];
   }
   return [];
 }

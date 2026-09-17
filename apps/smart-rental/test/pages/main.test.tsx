@@ -47,7 +47,7 @@ function heading(name: string) {
 // ported screen adds a third column — text only its Mock can put on screen —
 // so a route wired to a placeholder, or a Mock that stopped flowing, fails.
 const guardedScreens: [path: string, heading: string, mockText?: string][] = [
-  [ROUTES.HOME, "Tổng quan"],
+  [ROUTES.HOME, "Hôm nay"],
   [ROUTES.BUILDINGS, "Quản lý Toà nhà", "Trọ Sinh Viên Xanh"],
   [
     ROUTES.buildingDetailPath("b2"),
@@ -67,7 +67,7 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   [ROUTES.INVOICES, "Quản lý hoá đơn", "HÓA-001"],
   [ROUTES.INVOICE_BATCH, "Tạo hoá đơn hàng loạt", "Nguyễn Văn A"],
   [ROUTES.invoiceDetailPath("I002"), "Chi tiết hoá đơn", "HÓA-002"],
-  [ROUTES.UTILITIES, "Tiện ích", "Phòng 102"],
+  [ROUTES.UTILITIES, "Chỉ số điện nước", "Phòng 102"],
   [ROUTES.METER_INPUT, "Nhập chỉ số điện nước", "1000"],
   [
     ROUTES.utilityDetailPath("util-202609-R-B1-102-d"),
@@ -88,9 +88,9 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   ],
   // Ba màn mất Mock (ADR-0012) — vẫn còn heading, chỉ còn empty state.
   [ROUTES.RECONCILIATION, "Đối soát chi phí", "Không có dữ liệu đối soát"],
-  [ROUTES.TASKS, "Trung tâm nhiệm vụ", "Không có nhiệm vụ"],
+  [ROUTES.TASKS, "Việc cần làm", "Không có nhiệm vụ"],
   [ROUTES.REPORTS, "Báo cáo", "Không có dòng báo cáo"],
-  [ROUTES.COMPLIANCE, "Tuân thủ", "Nguyễn Văn A"],
+  [ROUTES.COMPLIANCE, "Khai báo lưu trú", "Nguyễn Văn A"],
   [ROUTES.COMMUNICATIONS, "Liên lạc", "ZNS: Nhắc đóng tiền nhà"],
   [ROUTES.SETTINGS, "Cài đặt hệ thống", "Nhà trọ Quốc Tế"],
 ];
@@ -151,7 +151,7 @@ describe("the route tree", () => {
       const router = renderAt(path);
 
       expect(router.state.location.pathname).toBe(ROUTES.HOME);
-      expect(heading("Tổng quan")).toBeInTheDocument();
+      expect(heading("Hôm nay")).toBeInTheDocument();
     });
 
     it("renders onboarding — chromeless, like the guest screens", () => {
@@ -179,9 +179,9 @@ describe("the route tree", () => {
       expect(screen.getByRole("link", { name: "Hợp đồng" })).toHaveAttribute(
         "data-active",
       );
-      expect(
-        screen.getByRole("link", { name: "Tổng quan" }),
-      ).not.toHaveAttribute("data-active");
+      expect(screen.getByRole("link", { name: "Hôm nay" })).not.toHaveAttribute(
+        "data-active",
+      );
     });
 
     it("signs out from the nav-user menu and lands on sign-in", async () => {

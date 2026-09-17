@@ -85,7 +85,7 @@ export function useCreateTenant(
     mutationFn: async (request: CreateTenantRequest) => {
       const tenant: Tenant = {
         id: `T${String(mockTenants.length + 1).padStart(3, "0")}`,
-        buildingId: request.buildingId ?? (mockBuildings[0]?.id ?? "b1"),
+        buildingId: request.buildingId ?? mockBuildings[0]?.id ?? "b1",
         name: request.fullName,
         phone: request.phone,
         email: request.email,

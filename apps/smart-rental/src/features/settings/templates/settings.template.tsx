@@ -70,8 +70,8 @@ export default function SettingsTemplate() {
             Khai báo lưu trú & thông báo
           </CardTitle>
           <CardDescription>
-            Truy cập nhanh các màn hình hệ thống liên quan đến khai báo lưu
-            trú và gửi thông báo.
+            Truy cập nhanh các màn hình hệ thống liên quan đến khai báo lưu trú
+            và gửi thông báo.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">

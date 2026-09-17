@@ -4,8 +4,8 @@ import {
   List,
   Plus,
   UserCheck,
-  UserX,
   Users,
+  UserX,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
 
@@ -134,7 +134,10 @@ export default function TenantListTemplate() {
               columns={tenantColumns}
               data={data ?? []}
               getRowId={(tenant) => tenant.id}
-              search={{ columnId: "name", placeholder: "Tìm tên Người thuê..." }}
+              search={{
+                columnId: "name",
+                placeholder: "Tìm tên Người thuê...",
+              }}
               facets={[
                 {
                   columnId: "status",

@@ -134,9 +134,7 @@ export function useRenewContract(
         (item) => item.id === request.contractId,
       );
       if (!contract) {
-        throw new Error(
-          `Không có hợp đồng nào với mã ${request.contractId}.`,
-        );
+        throw new Error(`Không có hợp đồng nào với mã ${request.contractId}.`);
       }
       return updateMockContract(request.contractId, {
         renewalHistory: [

@@ -7,7 +7,11 @@ const base = {
   name: "n",
   address: "a",
   collectionDay: 5,
-  priceList: { electricityPricePerKwh: 3500, waterPricePerM3: 15000, serviceFee: 0 },
+  priceList: {
+    electricityPricePerKwh: 3500,
+    waterPricePerM3: 15000,
+    serviceFee: 0,
+  },
 };
 
 describe("getBuildingStats", () => {
