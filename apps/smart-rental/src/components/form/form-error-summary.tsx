@@ -22,11 +22,14 @@ export function FormErrorSummary<TValues extends FieldValues>({
   errors,
   minErrors = 2,
 }: FormErrorSummaryProps<TValues>) {
-  const messages = Object.values(errors)
-    .map((error) =>
-      error && typeof error.message === "string" ? error.message : undefined,
+  const entries = Object.entries(errors)
+    .map(([name, error]) =>
+      error && typeof error.message === "string"
+        ? { name, message: error.message }
+        : undefined,
     )
-    .filter((message): message is string => !!message);
+    .filter((entry): entry is { name: string; message: string } => !!entry);
+  const messages = entries.map((entry) => entry.message);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,8 +44,8 @@ export function FormErrorSummary<TValues extends FieldValues>({
       <AlertTitle>Vui lòng kiểm tra lại {messages.length} lỗi</AlertTitle>
       <AlertDescription>
         <ul className="list-disc pl-4">
-          {messages.map((message) => (
-            <li key={message}>{message}</li>
+          {entries.map((entry) => (
+            <li key={entry.name}>{entry.message}</li>
           ))}
         </ul>
       </AlertDescription>
