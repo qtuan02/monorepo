@@ -17,3 +17,16 @@ export interface ExpenseListParams {
   /** The Building scope; `null` or absent means every Toà nhà. */
   buildingId?: string | null;
 }
+
+export interface CreateExpenseRequest {
+  buildingId: string;
+  category: string;
+  amount: number;
+  description?: string;
+  expenseDate: string;
+  receiptImageUrl?: string;
+}
+
+export interface UpdateExpenseRequest extends CreateExpenseRequest {
+  expenseId: string;
+}

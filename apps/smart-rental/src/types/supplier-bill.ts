@@ -29,3 +29,18 @@ export interface SupplierBillListParams {
 
 /** Derived from `paymentDate` — the record stores no status of its own. */
 export type SupplierBillPaymentStatus = "paid" | "pending";
+
+export interface CreateSupplierBillRequest {
+  buildingId: string;
+  type: SupplierBillType;
+  supplierName: string;
+  billingPeriod: string;
+  totalAmount: number;
+  totalMeterIndex?: number;
+  paymentDate?: string;
+  invoiceImageUrl?: string;
+}
+
+export interface UpdateSupplierBillRequest extends CreateSupplierBillRequest {
+  billId: string;
+}

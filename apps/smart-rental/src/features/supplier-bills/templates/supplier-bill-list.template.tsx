@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Plus, Receipt } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -14,6 +15,7 @@ import {
   toFilterOptions,
 } from "~/constants/status";
 import { supplierBillColumns } from "~/features/supplier-bills/components/supplier-bill-columns";
+import SupplierBillFormSheet from "~/features/supplier-bills/components/supplier-bill-form-sheet";
 import { getSupplierBillTotals } from "~/features/supplier-bills/utils/supplier-bill-payment";
 import { useGetSupplierBills } from "~/hooks/api/supplier-bill";
 import { useBuildingStore } from "~/stores/use-building-store";
@@ -21,9 +23,10 @@ import { formatCurrency } from "~/utils/currency";
 
 /**
  * "Hoá đơn nhà cung cấp": the three KPIs over the scoped list, then the
- * table. "Thêm hoá đơn" has no flow yet, as in the prototype.
+ * table.
  */
 export default function SupplierBillListTemplate() {
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetSupplierBills({
     buildingId: selectedBuildingId,
@@ -37,7 +40,7 @@ export default function SupplierBillListTemplate() {
         title="Hoá đơn nhà cung cấp"
         description="Theo dõi và quản lý các khoản chi trả cho dịch vụ đầu vào."
         actions={
-          <Button type="button" size="sm">
+          <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
             <Plus />
             Thêm hoá đơn
           </Button>
@@ -108,6 +111,12 @@ export default function SupplierBillListTemplate() {
           />
         </>
       )}
+
+      <SupplierBillFormSheet
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        defaultBuildingId={selectedBuildingId}
+      />
     </div>
   );
 }
