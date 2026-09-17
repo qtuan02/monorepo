@@ -1,7 +1,16 @@
 import type { LucideIcon } from "lucide-react";
-import { CheckCircle2, Circle, Clock, Wrench } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Circle,
+  Clock,
+  Wrench,
+  XCircle,
+} from "lucide-react";
 
+import type { ContractStatus } from "~/types/contract";
 import type { RoomStatus, RoomType } from "~/types/room";
+import type { TenantStatus } from "~/types/tenant";
 
 /**
  * The one home for every status/display config (spec #127 folded the
@@ -51,6 +60,28 @@ export const roomTypeConfig: Record<RoomType, StatusConfig> = {
   double: { label: "Phòng đôi" },
   studio: { label: "Studio" },
   suite: { label: "Suite" },
+};
+
+export const tenantStatusConfig: Record<TenantStatus, StatusConfig> = {
+  active: { label: "Đang thuê", className: statusTone.success },
+  pending: { label: "Chờ vào", className: statusTone.info },
+  overdue: { label: "Nợ cước", className: statusTone.error },
+  ended: { label: "Đã trả", className: statusTone.neutral },
+};
+
+export const contractStatusConfig: Record<ContractStatus, StatusConfig> = {
+  active: {
+    label: "Đang hoạt động",
+    className: statusTone.success,
+    icon: CheckCircle2,
+  },
+  ending: {
+    label: "Sắp hết hạn",
+    className: statusTone.warning,
+    icon: AlertCircle,
+  },
+  ended: { label: "Đã hết hạn", className: statusTone.neutral, icon: XCircle },
+  pending: { label: "Chờ xử lý", className: statusTone.info, icon: Clock },
 };
 
 /** A config read as the option list of a faceted filter, in the config's order. */
