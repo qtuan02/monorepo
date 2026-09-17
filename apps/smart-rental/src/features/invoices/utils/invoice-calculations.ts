@@ -12,11 +12,16 @@ export interface InvoiceSummaryStats {
   total: number;
   totalAmount: number;
   paidAmount: number;
-  pendingAmount: number;
+  unpaidAmount: number;
   overdueAmount: number;
+  partialAmount: number;
 }
 
-/** The four KPI tiles over the list; a cancelled Hoá đơn counts but sits in no bucket. */
+/**
+ * The four KPI tiles over the list (spec #153 §10: Đã thu / Chưa thu / Quá
+ * hạn / Thu một phần) — a cancelled Hoá đơn counts toward `total` but sits
+ * in no bucket.
+ */
 export function buildInvoiceSummaryStats(
   invoices: Invoice[],
 ): InvoiceSummaryStats {
@@ -24,17 +29,19 @@ export function buildInvoiceSummaryStats(
     total: invoices.length,
     totalAmount: 0,
     paidAmount: 0,
-    pendingAmount: 0,
+    unpaidAmount: 0,
     overdueAmount: 0,
+    partialAmount: 0,
   };
 
   for (const invoice of invoices) {
     stats.totalAmount += invoice.amount;
     if (invoice.status === "PAID") stats.paidAmount += invoice.amount;
-    else if (invoice.status === "UNPAID" || invoice.status === "PARTIAL")
-      stats.pendingAmount += invoice.amount;
+    else if (invoice.status === "UNPAID") stats.unpaidAmount += invoice.amount;
     else if (invoice.status === "OVERDUE")
       stats.overdueAmount += invoice.amount;
+    else if (invoice.status === "PARTIAL")
+      stats.partialAmount += invoice.amount;
   }
 
   return stats;

@@ -27,7 +27,7 @@ import { InfoRow } from "~/components/card/info-card";
 import { TextField } from "~/components/form/text-field";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { renewContractFormSchema } from "~/features/contracts/types/renew-contract-form";
 import { useGetContract, useRenewContract } from "~/hooks/api/contract";
@@ -50,7 +50,7 @@ export default function ContractRenewTemplate({
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={backTo}>
-        <LoadingPanel itemCount={2} />
+        <CardGridSkeleton itemCount={2} />
       </DetailPageShell>
     );
   }

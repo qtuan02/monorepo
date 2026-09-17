@@ -22,7 +22,7 @@ import type { Contract } from "~/types/contract";
 import { InfoRow } from "~/components/card/info-card";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { LifecycleStepper } from "~/components/stepper/lifecycle-stepper";
 import { ROUTES } from "~/constants/routes";
 import LiquidationChecklist from "~/features/contracts/components/liquidation-checklist";
@@ -47,7 +47,7 @@ export default function ContractLiquidationTemplate({
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={backTo}>
-        <LoadingPanel itemCount={2} />
+        <CardGridSkeleton itemCount={2} />
       </DetailPageShell>
     );
   }

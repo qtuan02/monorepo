@@ -27,7 +27,7 @@ import { StatItem } from "~/components/card/stat-item";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { invoiceStatusConfig } from "~/constants/status";
 import VietQrDialog from "~/features/invoices/components/vietqr-dialog";
@@ -84,7 +84,7 @@ export default function InvoiceDetailTemplate({
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES} actions={actions}>
-        <LoadingPanel itemCount={3} />
+        <CardGridSkeleton itemCount={3} />
       </DetailPageShell>
     );
   }

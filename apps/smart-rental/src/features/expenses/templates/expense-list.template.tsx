@@ -1,12 +1,12 @@
-import { Activity, FileText, Plus, Receipt } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { TableSkeleton } from "~/components/panel/loading-panel";
 import { toDistinctOptions } from "~/constants/status";
 import { expenseColumns } from "~/features/expenses/components/expense-columns";
 import { getExpenseStats } from "~/features/expenses/utils/expense-stats";
@@ -40,7 +40,10 @@ export default function ExpenseListTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel itemCount={6} />
+        <div className="space-y-6">
+          <KpiStripSkeleton count={3} />
+          <TableSkeleton />
+        </div>
       ) : isError ? (
         <ErrorPanel
           description="Không tải được danh sách chi phí."
@@ -48,25 +51,19 @@ export default function ExpenseListTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
-            <SummaryCard
-              label="Tổng chi phí"
-              value={formatCurrency(stats.totalAmount)}
-              icon={Receipt}
-            />
-            <SummaryCard
-              label="Số phiếu chi"
-              value={stats.totalCount}
-              icon={Activity}
-              iconClassName="bg-info/10 text-info"
-            />
-            <SummaryCard
-              label="Trung bình/khoản"
-              value={formatCurrency(stats.averageAmount)}
-              icon={Receipt}
-              iconClassName="bg-warning/10 text-warning"
-            />
-          </div>
+          <KpiStrip
+            items={[
+              {
+                label: "Tổng chi phí",
+                value: formatCurrency(stats.totalAmount),
+              },
+              { label: "Số phiếu chi", value: stats.totalCount },
+              {
+                label: "Trung bình/khoản",
+                value: formatCurrency(stats.averageAmount),
+              },
+            ]}
+          />
 
           <DataTable
             columns={expenseColumns}

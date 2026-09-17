@@ -3,20 +3,19 @@ import { FileDown, Plus } from "lucide-react";
 import { Button } from "@monorepo/ui/components/button";
 
 import type { ComplianceStatus } from "~/types/compliance";
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
 import { complianceStatusConfig } from "~/constants/status";
 import ComplianceTypeCard from "~/features/compliance/components/compliance-type-card";
 import ResidenceChecklistCard from "~/features/compliance/components/residence-checklist-card";
 import { useGetComplianceItems } from "~/hooks/api/compliance";
 
-const summaryTiles: { status: ComplianceStatus; iconClassName: string }[] = [
-  { status: "completed", iconClassName: "bg-success/10 text-success" },
-  { status: "pending", iconClassName: "bg-info/10 text-info" },
-  { status: "overdue", iconClassName: "bg-destructive/10 text-destructive" },
+const summaryTiles: { status: ComplianceStatus }[] = [
+  { status: "completed" },
+  { status: "pending" },
+  { status: "overdue" },
 ];
 
 /**
@@ -48,7 +47,7 @@ export default function ComplianceDashboardTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel itemCount={3} />
+        <KpiStripSkeleton count={3} />
       ) : isError ? (
         <ErrorPanel
           description="Không thể tải dữ liệu khai báo lưu trú."
@@ -62,19 +61,12 @@ export default function ComplianceDashboardTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-3">
-            {summaryTiles.map((tile) => (
-              <SummaryCard
-                key={tile.status}
-                label={complianceStatusConfig[tile.status].label}
-                value={
-                  items.filter((item) => item.status === tile.status).length
-                }
-                icon={complianceStatusConfig[tile.status].icon}
-                iconClassName={tile.iconClassName}
-              />
-            ))}
-          </div>
+          <KpiStrip
+            items={summaryTiles.map((tile) => ({
+              label: complianceStatusConfig[tile.status].label,
+              value: items.filter((item) => item.status === tile.status).length,
+            }))}
+          />
 
           <div className="grid gap-6 lg:grid-cols-2">
             <ComplianceTypeCard

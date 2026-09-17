@@ -46,7 +46,10 @@ test.describe("Toà nhà và Phòng", () => {
     page,
   }) => {
     await page.goto(ROUTES.ROOMS);
-    await page.getByRole("tab", { name: "Dạng bảng" }).click();
+    // Ticket #157 — the view switch is a real `ToggleGroup` now (component
+    // map: a switch has no panel, so `Tabs` was the wrong semantics), a
+    // button rather than a tab.
+    await page.getByRole("button", { name: "Dạng bảng" }).click();
     await expect(page).toHaveURL(/view=table/);
     await expect(page.getByRole("table")).toBeVisible();
 

@@ -1,11 +1,11 @@
-import { AlertCircle, CheckSquare, Clock, Wrench } from "lucide-react";
+import { CheckSquare } from "lucide-react";
 
 import type { TaskType } from "~/types/task";
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import {
   taskPriorityConfig,
   taskStatusConfig,
@@ -17,26 +17,10 @@ import { taskColumns } from "~/features/tasks/components/task-columns";
 import { useGetTasks } from "~/hooks/api/task";
 import { useBuildingStore } from "~/stores/use-building-store";
 
-const summaryTiles: {
-  type: TaskType;
-  icon: typeof AlertCircle;
-  iconClassName: string;
-}[] = [
-  {
-    type: "invoice_overdue",
-    icon: AlertCircle,
-    iconClassName: "bg-destructive/10 text-destructive",
-  },
-  {
-    type: "contract_expiring",
-    icon: Clock,
-    iconClassName: "bg-warning/10 text-warning",
-  },
-  {
-    type: "maintenance",
-    icon: Wrench,
-    iconClassName: "bg-info/10 text-info",
-  },
+const summaryTiles: { type: TaskType }[] = [
+  { type: "invoice_overdue" },
+  { type: "contract_expiring" },
+  { type: "maintenance" },
 ];
 
 /** "Việc cần làm" (ADR-0011): a count per kind over the whole list, then the filtered card grid. */
@@ -55,7 +39,10 @@ export default function TaskCenterTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel />
+        <div className="space-y-6">
+          <KpiStripSkeleton count={3} />
+          <CardGridSkeleton />
+        </div>
       ) : isError ? (
         <ErrorPanel
           description="Không tải được danh sách nhiệm vụ."
@@ -63,17 +50,12 @@ export default function TaskCenterTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {summaryTiles.map((tile) => (
-              <SummaryCard
-                key={tile.type}
-                label={taskTypeConfig[tile.type].label}
-                value={tasks.filter((task) => task.type === tile.type).length}
-                icon={tile.icon}
-                iconClassName={tile.iconClassName}
-              />
-            ))}
-          </div>
+          <KpiStrip
+            items={summaryTiles.map((tile) => ({
+              label: taskTypeConfig[tile.type].label,
+              value: tasks.filter((task) => task.type === tile.type).length,
+            }))}
+          />
 
           <DataTable
             columns={taskColumns}

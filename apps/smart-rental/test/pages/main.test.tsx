@@ -5,9 +5,13 @@ import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import { mockInvoices } from "~/constants/mock/invoices";
 import { ROUTES } from "~/constants/routes";
+import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
+import { formatCurrency } from "~/utils/currency";
+import { deriveInvoiceStatus } from "~/utils/invoice-status";
 
 // The one seam of spec #127: the route tree mounted at a path, asserting what
 // the landlord sees. Every domain ticket adds its rows here; a page that fails
@@ -145,6 +149,39 @@ describe("the route tree", () => {
       renderAt(ROUTES.INVOICES);
 
       expect(await screen.findAllByText("Quá hạn")).not.toHaveLength(0);
+    });
+
+    // Ticket #157 — the KPI strip's own numbers, over the whole (unscoped)
+    // Mock, the same derivation the read path applies (ADR-0012).
+    //
+    // `formatCurrency` interposes a NBSP before "₫" (`Intl.NumberFormat`'s
+    // `vi-VN` currency format); RTL's default text normalizer only
+    // normalizes the ELEMENT's own text before comparing, never the query
+    // string, so a raw NBSP in the query never matches the collapsed-to-a-
+    // plain-space text `getByText` actually compares against.
+    const NBSP = String.fromCharCode(160);
+    function withoutNbsp(text: string) {
+      return text.split(NBSP).join(" ");
+    }
+
+    it("shows correct KPI totals on the invoice list", async () => {
+      renderAt(ROUTES.INVOICES);
+
+      const stats = buildInvoiceSummaryStats(
+        mockInvoices.map((invoice) => ({
+          ...invoice,
+          status: deriveInvoiceStatus(invoice),
+        })),
+      );
+
+      expect(
+        await screen.findAllByText(
+          withoutNbsp(formatCurrency(stats.paidAmount)),
+        ),
+      ).not.toHaveLength(0);
+      expect(
+        screen.getAllByText(withoutNbsp(formatCurrency(stats.overdueAmount))),
+      ).not.toHaveLength(0);
     });
 
     it("shows a derived Sắp hết hạn badge on the contract list", async () => {

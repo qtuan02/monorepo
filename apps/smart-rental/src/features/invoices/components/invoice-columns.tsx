@@ -7,7 +7,10 @@ import {
 
 import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
-import { facetFilterFn } from "~/components/data-table/data-table";
+import {
+  createSelectionColumn,
+  facetFilterFn,
+} from "~/components/data-table/data-table";
 import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
 import InvoiceRowActions from "./invoice-row-actions";
@@ -19,6 +22,7 @@ const helper = createDataTableColumnHelper<Invoice>();
  * the prototype also searched `tenant`, but the composite searches one column.
  */
 export const invoiceColumns = helper.columns([
+  createSelectionColumn<Invoice>(),
   helper.accessor("invoiceNumber", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Số hoá đơn" />

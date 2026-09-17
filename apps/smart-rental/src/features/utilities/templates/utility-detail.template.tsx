@@ -12,7 +12,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { utilityStatusConfig, utilityTypeConfig } from "~/constants/status";
 import {
@@ -61,7 +61,7 @@ export default function UtilityDetailTemplate({
         backTo={ROUTES.UTILITIES}
         actions={actions}
       >
-        <LoadingPanel itemCount={2} className="lg:grid-cols-2" />
+        <CardGridSkeleton itemCount={2} className="lg:grid-cols-2" />
       </DetailPageShell>
     );
   }

@@ -11,7 +11,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import {
   supplierBillPaymentConfig,
@@ -40,7 +40,7 @@ export default function SupplierBillDetailTemplate({
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={ROUTES.SUPPLIER_BILLS}>
-        <LoadingPanel itemCount={2} />
+        <CardGridSkeleton itemCount={2} />
       </DetailPageShell>
     );
   }

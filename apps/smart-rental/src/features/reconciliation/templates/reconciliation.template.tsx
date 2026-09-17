@@ -1,10 +1,10 @@
-import { Banknote, Receipt, TrendingDown, TrendingUp } from "lucide-react";
+import { Receipt } from "lucide-react";
 
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { TableSkeleton } from "~/components/panel/loading-panel";
 import {
   reconciliationStatusConfig,
   toFilterOptions,
@@ -27,7 +27,6 @@ export default function ReconciliationTemplate() {
   });
   const items = data ?? [];
   const stats = getReconciliationStats(items);
-  const isProfit = stats.netProfitAmount >= 0;
 
   return (
     <div className="space-y-6">
@@ -37,7 +36,10 @@ export default function ReconciliationTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel itemCount={4} className="lg:grid-cols-4" />
+        <div className="space-y-6">
+          <KpiStripSkeleton />
+          <TableSkeleton />
+        </div>
       ) : isError ? (
         <ErrorPanel
           description="Không tải được dữ liệu đối soát."
@@ -45,33 +47,26 @@ export default function ReconciliationTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <SummaryCard
-              label="Tổng thu dịch vụ"
-              value={formatCurrency(stats.totalIncomeAmount)}
-              icon={Receipt}
-              iconClassName="bg-success/10 text-success"
-            />
-            <SummaryCard
-              label="Tổng chi dịch vụ"
-              value={formatCurrency(stats.totalExpenseAmount)}
-              icon={Receipt}
-              iconClassName="bg-destructive/10 text-destructive"
-            />
-            <SummaryCard
-              label="Chênh lệch (Lợi nhuận)"
-              value={formatCurrency(stats.netProfitAmount)}
-              icon={isProfit ? TrendingUp : TrendingDown}
-              iconClassName={
-                isProfit ? "bg-info/10 text-info" : "bg-warning/10 text-warning"
-              }
-            />
-            <SummaryCard
-              label="Tỷ suất lợi nhuận"
-              value={`${stats.profitMargin}%`}
-              icon={Banknote}
-            />
-          </div>
+          <KpiStrip
+            items={[
+              {
+                label: "Tổng thu dịch vụ",
+                value: formatCurrency(stats.totalIncomeAmount),
+              },
+              {
+                label: "Tổng chi dịch vụ",
+                value: formatCurrency(stats.totalExpenseAmount),
+              },
+              {
+                label: "Chênh lệch (Lợi nhuận)",
+                value: formatCurrency(stats.netProfitAmount),
+              },
+              {
+                label: "Tỷ suất lợi nhuận",
+                value: `${stats.profitMargin}%`,
+              },
+            ]}
+          />
 
           <DataTable
             columns={reconciliationColumns}

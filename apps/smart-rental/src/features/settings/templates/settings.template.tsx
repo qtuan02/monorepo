@@ -12,7 +12,7 @@ import {
 
 import type { Setting, SettingCategory } from "~/types/setting";
 import { ListPageHeader } from "~/components/page/list-page-header";
-import { LoadingPanel } from "~/components/panel/loading-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { QuerySection } from "~/components/panel/query-section";
 import { ROUTES } from "~/constants/routes";
 import ElectricityTierConfig from "~/features/settings/components/electricity-tier-config";
@@ -87,7 +87,7 @@ export default function SettingsTemplate() {
       <QuerySection
         query={tierQuery}
         errorText="Không thể tải cấu hình điện bậc thang."
-        loading={<LoadingPanel className="lg:grid-cols-1" itemCount={1} />}
+        loading={<CardGridSkeleton className="lg:grid-cols-1" itemCount={1} />}
       >
         {(config) => <ElectricityTierConfig config={config} />}
       </QuerySection>
@@ -95,7 +95,7 @@ export default function SettingsTemplate() {
       <QuerySection
         query={settingsQuery}
         errorText="Không thể tải cài đặt."
-        loading={<LoadingPanel className="lg:grid-cols-2" itemCount={4} />}
+        loading={<CardGridSkeleton className="lg:grid-cols-2" itemCount={4} />}
       >
         {(settings) => {
           const byCategory = groupByCategory(settings);

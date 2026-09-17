@@ -1,4 +1,4 @@
-import { Building2, DollarSign, TrendingUp, UserCheck } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 import {
   Card,
@@ -15,10 +15,9 @@ import {
 } from "@monorepo/ui/components/tabs";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import { SummaryCard } from "~/components/card/summary-card";
+import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { LoadingPanel } from "~/components/panel/loading-panel";
 import { statusTone } from "~/constants/status";
 import CashFlowChart from "~/features/dashboard/components/cash-flow-chart";
 import OccupancyDonutChart from "~/features/dashboard/components/occupancy-donut-chart";
@@ -51,7 +50,7 @@ export default function DashboardTemplate() {
       />
 
       {isLoading ? (
-        <LoadingPanel itemCount={4} className="lg:grid-cols-4" />
+        <KpiStripSkeleton />
       ) : isError || !data ? (
         <ErrorPanel
           description="Không tải được số liệu tổng quan."
@@ -59,36 +58,34 @@ export default function DashboardTemplate() {
         />
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <SummaryCard
-              label="Tổng số phòng"
-              value={data.totalRooms}
-              description="trên toàn bộ toà nhà"
-              icon={Building2}
-              trend={{ value: "+12", isPositive: true }}
-            />
-            <SummaryCard
-              label="Tỷ lệ lấp đầy"
-              value={`${data.occupancyRate}%`}
-              description="hiệu suất tối ưu"
-              icon={UserCheck}
-              trend={{ value: "+2.5%", isPositive: true }}
-            />
-            <SummaryCard
-              label="Doanh thu tháng"
-              value={formatMillions(data.monthlyRevenue)}
-              description="kỳ báo cáo tháng 4"
-              icon={DollarSign}
-              trend={{ value: "+15.3%", isPositive: true }}
-            />
-            <SummaryCard
-              label="Chi phí"
-              value={formatMillions(data.operatingCost)}
-              description="tiền điện, nước, dịch vụ"
-              icon={TrendingUp}
-              trend={{ value: "-4.2%", isPositive: false }}
-            />
-          </div>
+          <KpiStrip
+            items={[
+              {
+                label: "Tổng số phòng",
+                value: data.totalRooms,
+                description: "trên toàn bộ toà nhà",
+                trend: { value: "+12", isPositive: true },
+              },
+              {
+                label: "Tỷ lệ lấp đầy",
+                value: `${data.occupancyRate}%`,
+                description: "hiệu suất tối ưu",
+                trend: { value: "+2.5%", isPositive: true },
+              },
+              {
+                label: "Doanh thu tháng",
+                value: formatMillions(data.monthlyRevenue),
+                description: "kỳ báo cáo tháng 4",
+                trend: { value: "+15.3%", isPositive: true },
+              },
+              {
+                label: "Chi phí",
+                value: formatMillions(data.operatingCost),
+                description: "tiền điện, nước, dịch vụ",
+                trend: { value: "-4.2%", isPositive: false },
+              },
+            ]}
+          />
 
           <div className="grid gap-4 lg:grid-cols-7">
             <Card className="lg:col-span-4">

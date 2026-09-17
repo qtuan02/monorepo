@@ -6,7 +6,11 @@ import { describe, expect, it } from "vitest";
 
 import { createDataTableColumnHelper } from "@monorepo/ui/components/data-table";
 
-import { DataTable, facetFilterFn } from "~/components/data-table/data-table";
+import {
+  createSelectionColumn,
+  DataTable,
+  facetFilterFn,
+} from "~/components/data-table/data-table";
 
 type Row = { id: string; name: string; status: "a" | "b" };
 
@@ -154,5 +158,70 @@ describe("DataTable — URL-owned list state", () => {
         name: "Xóa toàn bộ bộ lọc",
       }),
     ).toBeInTheDocument();
+  });
+});
+
+const selectableColumns = helper.columns([
+  createSelectionColumn<Row>(),
+  ...columns,
+]);
+
+function SelectableSubject() {
+  return (
+    <DataTable
+      columns={selectableColumns}
+      data={rows.slice(0, 3)}
+      getRowId={(row) => row.id}
+      empty={{ title: "Không có gì" }}
+      renderMobileRow={(row) => <span>Mobile: {row.name}</span>}
+      selectionActions={(selected, clearSelection) => (
+        <button type="button" onClick={clearSelection}>
+          Hành động ({selected.length})
+        </button>
+      )}
+    />
+  );
+}
+
+function renderSelectable() {
+  const router = createMemoryRouter(
+    [{ path: "/", element: <SelectableSubject /> }],
+    { initialEntries: ["/"] },
+  );
+  render(<RouterProvider router={router} />);
+  return router;
+}
+
+describe("DataTable — mobile rows and row selection", () => {
+  it("renders a mobile substitute for every row alongside the table", () => {
+    renderSelectable();
+
+    const mobileRows = document.querySelectorAll(
+      '[data-slot="data-table-mobile-row"]',
+    );
+    expect(mobileRows).toHaveLength(3);
+    expect(screen.getByText("Mobile: Row 1")).toBeInTheDocument();
+  });
+
+  it("shows the selection bar only once a row is checked, and clears on demand", async () => {
+    const user = userEvent.setup();
+    renderSelectable();
+
+    expect(screen.queryByText(/Đã chọn/)).not.toBeInTheDocument();
+
+    const firstRow = screen.getByText("Row 1").closest("tr");
+    if (!firstRow) throw new Error("expected the Row 1 <tr>");
+    await user.click(
+      within(firstRow).getByRole("checkbox", { name: "Chọn dòng" }),
+    );
+
+    expect(screen.getByText("Đã chọn 1")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Hành động (1)" }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Bỏ chọn" }));
+
+    expect(screen.queryByText(/Đã chọn/)).not.toBeInTheDocument();
   });
 });
