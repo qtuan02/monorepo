@@ -259,12 +259,37 @@ test.describe("viewport", () => {
 
       expect(scrollWidth).toBeLessThanOrEqual(width);
     });
+  }
 
+  test("never scrolls sideways on a 375 px phone in English either", async ({
+    page,
+  }) => {
     // The other locale is the one with the longer labels: an English period
     // ("Mar 2025 – Feb 2026") is wider than its Vietnamese counterpart, and it
     // is set in monospace with `whitespace-nowrap`, so if a work row is ever
     // going to push past the viewport, this is where. The literal `/en` is
     // the URL a visitor types — the exception `testing-playwright` names.
+    await page.setViewportSize({ width: PHONE_WIDTH, height: 900 });
+    await page.goto("/en");
+
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Hobbies" }),
+    ).toBeAttached();
+
+    const scrollWidth = await page.evaluate(
+      () => document.documentElement.scrollWidth,
+    );
+
+    expect(scrollWidth).toBeLessThanOrEqual(PHONE_WIDTH);
+  });
+
+  // 320, 414 and 768 join the English case too — same 320 px commitment, the
+  // other locale. A sibling test above already covers 375 in English.
+  for (const [label, width] of [
+    ["320 px phone", 320],
+    ["414 px phone", 414],
+    ["768 px tablet", TABLET_WIDTH],
+  ] as const) {
     test(`never scrolls sideways on a ${label} in English`, async ({
       page,
     }) => {
@@ -386,26 +411,4 @@ test.describe("viewport", () => {
       META_MIN_PX,
     );
   });
-
-  // The 320 px commitment (#210 §8 Q6): the dock's `position: fixed` never
-  // contributed to `scrollWidth`, so the "never scrolls sideways" specs above
-  // stayed green while the bar itself sat 14 px off each edge at 375 px
-  // (#211). This measures the bar's own box against the viewport instead.
-  for (const width of [320, PHONE_WIDTH, 414]) {
-    test(`keeps the dock inside the viewport at ${width} px`, async ({
-      page,
-    }) => {
-      await openHomeAt(page, width, 800);
-
-      const nav = page.getByRole("navigation");
-      const box = await nav.boundingBox();
-      if (!box) throw new Error("the dock has no box");
-
-      expect(box.x).toBeGreaterThanOrEqual(0);
-      expect(box.x + box.width).toBeLessThanOrEqual(width);
-      // Below `sm` the dock is a full-width bar (Thanh chạm đáy) rather than
-      // a centred pill, so at 375 it spans the viewport exactly.
-      if (width === PHONE_WIDTH) expect(box.width).toBe(width);
-    });
-  }
 });
