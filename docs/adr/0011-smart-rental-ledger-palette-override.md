@@ -23,3 +23,4 @@ Quyết định: **Building scope là một hàng tabs của shell** ngay dướ
 - `apps/smart-rental/src/globals.css` mang khối `:root`/`.dark` unlayered và `apps/smart-rental/test/globals.test.ts` (copy `contrast.ts` của portfolio) là hợp đồng: mỗi cặp nền/chữ đo AA, không import chéo app.
 - `AppHeader`, `BuildingSelector` và test shell đổi hình; thêm `bottom-nav.tsx` trong slice `layout`. Test seam `test/pages/main.test.tsx` giữ.
 - `ADR-0008` không còn đúng ở câu "app duy nhất override" — đã có ba; không sửa lại 0008, chuỗi ADR tự nói điều đó.
+- Ticket #181 (spec #179) thêm bốn token chữ `--success/-warning/-info/-destructive-foreground-strong` vào chính khối override này — hiện AA (≥ 4,5:1) trên nền `/10` và trên card, việc bốn hue gốc không làm được vì chúng vốn tuned cho nền fill đặc, không phải chữ nhỏ trên wash 10%. Sống ở tầng app cho tới khi app thứ hai cần cùng cách chữa; khi đó nâng lên `theme.css` như bốn token `--success` v.v. đã ở đó, không lặp lại ở từng app.

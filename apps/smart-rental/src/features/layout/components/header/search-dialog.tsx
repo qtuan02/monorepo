@@ -21,6 +21,7 @@ import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetRooms } from "~/hooks/api/room";
 import { useGetTenants } from "~/hooks/api/tenant";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { isMacPlatform } from "~/utils/platform";
 
 interface SearchResult {
   id: string;
@@ -190,6 +191,7 @@ export default function SearchDialog() {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const shortcutLabel = isMacPlatform() ? "⌘K" : "Ctrl K";
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -222,7 +224,7 @@ export default function SearchDialog() {
       >
         <Search />
         Tìm kiếm...
-        <Kbd className="absolute top-1.5 right-1.5">⌘K</Kbd>
+        <Kbd className="absolute top-1.5 right-1.5">{shortcutLabel}</Kbd>
       </Button>
       <Button
         variant="ghost"
