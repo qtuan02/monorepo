@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, FileX } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -135,16 +135,18 @@ function RenewForm({ contract }: { contract: Contract }) {
   });
   const newEndDate = useWatch({ control: form.control, name: "newEndDate" });
 
-  // Thời hạn thêm 6/12/khác tháng (spec #179) — extends the current end
-  // date, trừ khi chọn "Khác".
-  useEffect(() => {
-    if (termMode === "custom") return;
-    const months = termMode === "6" ? 6 : 12;
-    form.setValue(
-      "newEndDate",
-      computeRenewedEndDate(contract.endDate, months),
-    );
-  }, [termMode, contract.endDate, form]);
+  // Thời hạn thêm 6/12/khác tháng (spec #179) — derived from `termMode`, a
+  // plain computation, so the toggle's own handler writes it directly
+  // rather than a watching effect (react-effects-sync-only.md).
+  const onTermModeChange = (mode: TermMode) => {
+    if (mode !== "custom") {
+      form.setValue(
+        "newEndDate",
+        computeRenewedEndDate(contract.endDate, mode === "6" ? 6 : 12),
+      );
+    }
+    setTermMode(mode);
+  };
 
   // Card xác nhận có từ đầu (spec #179 §3.4) — "Xác nhận gia hạn" is its own
   // submit button, wired via `form={FORM_ID}` rather than a two-click flow.
@@ -204,7 +206,7 @@ function RenewForm({ contract }: { contract: Contract }) {
                   value={[termMode]}
                   onValueChange={(next) => {
                     const selected = next[0];
-                    if (selected) setTermMode(selected as TermMode);
+                    if (selected) onTermModeChange(selected as TermMode);
                   }}
                   variant="outline"
                   size="sm"

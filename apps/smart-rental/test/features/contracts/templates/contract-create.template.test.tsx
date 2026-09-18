@@ -61,6 +61,13 @@ describe("ContractCreateTemplate — điều khoản điền sẵn, tóm tắt s
   afterEach(() => {
     useAuthStore.setState(initialAuthState, true);
     useBuildingStore.setState(initialBuildingState, true);
+    // The "ký xong" test pushes a throwaway tenant straight onto the Mock
+    // (no fixture in mock/tenants.ts starts with no Hợp đồng) — pop it back
+    // off so it doesn't leak into a later test in this file.
+    const testTenantIndex = mockTenants.findIndex(
+      (tenant) => tenant.id === "T-test-186",
+    );
+    if (testTenantIndex !== -1) mockTenants.splice(testTenantIndex, 1);
   });
 
   it("seeds tiền thuê từ giá Phòng, cọc và thời hạn theo toggle", async () => {

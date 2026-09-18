@@ -11,7 +11,7 @@ test.describe("Hợp đồng", () => {
     await signIn(page);
   });
 
-  test("wizard: the horizontal stepper collapses to one line at 390 px", async ({
+  test("wizard: 2 bước, the horizontal stepper collapses to one line at 390 px", async ({
     page,
   }) => {
     await page.goto(ROUTES.CONTRACT_CREATE);
@@ -19,18 +19,20 @@ test.describe("Hợp đồng", () => {
       page.getByRole("heading", { name: "Tạo hợp đồng mới" }),
     ).toBeVisible();
 
-    // Desktop: every step's pill is visible at once. Scoped to `main` and
-    // `exact` — "Người thuê"/"Chọn phòng" etc. also name a sidebar link, a
-    // bottom-nav link and the search palette's own copy, which Playwright's
-    // strict mode otherwise treats as extra matches for the same text.
+    // Desktop: both step pills are visible at once (spec #179 §3.4 — 2 bước
+    // thay 4). Scoped to `main` and `exact` — the sidebar/bottom-nav/search
+    // palette also carry "Người thuê", which strict mode would otherwise
+    // treat as an extra match for the same text.
     const main = page.getByRole("main");
-    await expect(main.getByText("Chọn phòng", { exact: true })).toBeVisible();
-    await expect(main.getByText("Người thuê", { exact: true })).toBeVisible();
-    await expect(main.getByText("Điều khoản", { exact: true })).toBeVisible();
-    await expect(main.getByText("Xác nhận", { exact: true })).toBeVisible();
+    await expect(
+      main.getByText("Phòng & Người thuê", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      main.getByText("Điều khoản & xác nhận", { exact: true }),
+    ).toBeVisible();
 
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect(page.getByText("Bước 1/4 · Chọn phòng")).toBeVisible();
+    await expect(page.getByText("Bước 1/2 · Phòng & Người thuê")).toBeVisible();
 
     // Step 1: only "available" Phòng of the Building scope are offered.
     await page.getByPlaceholder("Tìm phòng trống…").click();

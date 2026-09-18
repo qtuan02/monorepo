@@ -66,6 +66,17 @@ type ContractForm = ReturnType<
 type DepositMode = "1" | "2" | "custom";
 type TermMode = "6" | "12" | "custom";
 
+/** 1/2 tháng tiền thuê, hoặc `null` for "Khác" (the caller keeps whatever was typed). */
+function depositMultiplier(mode: DepositMode): number | null {
+  if (mode === "custom") return null;
+  return mode === "1" ? 1 : 2;
+}
+
+function termMonths(mode: TermMode): number | null {
+  if (mode === "custom") return null;
+  return mode === "6" ? 6 : 12;
+}
+
 /**
  * "Tạo hợp đồng mới": the two-step wizard (spec #179 §3.4) — "Phòng & Người
  * thuê" side by side, then "Điều khoản & xác nhận" where tiền thuê/cọc/thời
@@ -83,30 +94,32 @@ export default function ContractCreateTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const createContract = useCreateContract();
 
+  const initialStartDate = dayjs().format("YYYY-MM-DD");
   const form = useForm<ContractFormInput, unknown, ContractFormValues>({
     resolver: zodResolver(contractFormSchema),
     defaultValues: {
       roomId: "",
       tenantId: "",
-      startDate: dayjs().format("YYYY-MM-DD"),
-      endDate: "",
+      startDate: initialStartDate,
+      // Computed once, synchronously, from the same default term (12 tháng)
+      // the "Thời hạn" toggle itself defaults to — no effect needed for it.
+      endDate: computeContractEndDate(initialStartDate, 12),
       rentAmount: "",
       depositAmount: "",
       noticeDays: "30",
     },
   });
 
-  const [roomId, rentAmount, startDate] = useWatch({
-    control: form.control,
-    name: ["roomId", "rentAmount", "startDate"],
-  });
+  const [roomId] = useWatch({ control: form.control, name: ["roomId"] });
   const { data: room } = useGetRoom(roomId, { enabled: !!roomId });
   const { data: building } = useGetBuilding(room?.buildingId ?? "", {
     enabled: !!room?.buildingId,
   });
 
   // `?room=` prefill (spec #179): an unknown or no-longer-trống Phòng leaves
-  // step 1 empty rather than silently pre-selecting the wrong thing.
+  // step 1 empty rather than silently pre-selecting the wrong thing. This
+  // syncs to an external resource settling (the query), not to another form
+  // field, so it stays an effect (react-effects-sync-only.md).
   const prefillRoomQuery = useGetRoom(prefillRoomId ?? "", {
     enabled: !!prefillRoomId,
   });
@@ -123,27 +136,40 @@ export default function ContractCreateTemplate() {
     }
   }, [prefillRoomId, prefillRoomQuery.isSuccess, prefillRoomQuery.data, form]);
 
-  // Tiền thuê điền sẵn từ giá Phòng khi chọn phòng (spec #179 §3.4).
+  // Tiền thuê điền sẵn từ giá Phòng khi chọn phòng (spec #179 §3.4) — the
+  // same "seed a field once an external resource settles" shape as the
+  // prefill effect above.
   useEffect(() => {
     if (room) form.setValue("rentAmount", String(room.price));
   }, [room, form]);
 
-  // Cọc = tiền thuê × 1/2 tháng, trừ khi chọn "Khác".
-  useEffect(() => {
-    if (depositMode === "custom") return;
-    const multiplier = depositMode === "1" ? 1 : 2;
+  // Cọc/ngày kết thúc are DERIVED from other form fields (tiền thuê, ngày
+  // bắt đầu), not from an external resource — computed once, imperatively,
+  // at the moment they matter (the toggle click, or the "Tiếp theo" that
+  // first reveals them) rather than kept continuously in sync by a watching
+  // effect (react-effects-sync-only.md: "deriving state in an effect").
+  const recomputeDeposit = (mode: DepositMode) => {
+    const multiplier = depositMultiplier(mode);
+    if (multiplier === null) return; // "Khác" — the landlord types it directly.
+    const rent = Number(form.getValues("rentAmount")) || 0;
+    form.setValue("depositAmount", String(rent * multiplier));
+  };
+  const recomputeEndDate = (mode: TermMode) => {
+    const months = termMonths(mode);
+    if (months === null) return; // "Khác" — the landlord picks the date directly.
     form.setValue(
-      "depositAmount",
-      String((Number(rentAmount) || 0) * multiplier),
+      "endDate",
+      computeContractEndDate(form.getValues("startDate"), months),
     );
-  }, [depositMode, rentAmount, form]);
-
-  // Ngày kết thúc = ngày bắt đầu + thời hạn, trừ khi chọn "Khác".
-  useEffect(() => {
-    if (termMode === "custom" || !startDate) return;
-    const months = termMode === "6" ? 6 : 12;
-    form.setValue("endDate", computeContractEndDate(startDate, months));
-  }, [termMode, startDate, form]);
+  };
+  const onDepositModeChange = (mode: DepositMode) => {
+    recomputeDeposit(mode);
+    setDepositMode(mode);
+  };
+  const onTermModeChange = (mode: TermMode) => {
+    recomputeEndDate(mode);
+    setTermMode(mode);
+  };
 
   const steps = wizardSteps.map((wizardStep, index) => ({
     id: wizardStep.title,
@@ -154,7 +180,14 @@ export default function ContractCreateTemplate() {
 
   const nextStep = async () => {
     const fields = wizardSteps[step]?.fields ?? [];
-    if (await form.trigger(fields)) setStep((s) => Math.min(s + 1, LAST_STEP));
+    if (!(await form.trigger(fields))) return;
+    if (step === 0) {
+      // Tiền thuê only just arrived (step 1 doesn't need it) — seed cọc/
+      // ngày kết thúc from it now that step 2 is about to show them.
+      recomputeDeposit(depositMode);
+      recomputeEndDate(termMode);
+    }
+    setStep((s) => Math.min(s + 1, LAST_STEP));
   };
   const prevStep = () => setStep((s) => Math.max(s - 1, 0));
 
@@ -211,9 +244,9 @@ export default function ContractCreateTemplate() {
             room={room}
             building={building}
             depositMode={depositMode}
-            onDepositModeChange={setDepositMode}
+            onDepositModeChange={onDepositModeChange}
             termMode={termMode}
-            onTermModeChange={setTermMode}
+            onTermModeChange={onTermModeChange}
             onBack={prevStep}
             isPending={createContract.isPending}
           />
