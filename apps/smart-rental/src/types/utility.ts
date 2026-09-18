@@ -5,11 +5,11 @@
 export type UtilityType = "electricity" | "water";
 
 /**
- * Enum per `billing-service` contract (ADR-0012) — "bất thường" is not a
- * persisted state: it is computed live while entering a reading (see
- * `MeterEntryStatus`), never written to a Chỉ số record.
+ * Nháp → Đã chốt (ADR-0013) — "bất thường" is not a persisted state: it is
+ * computed live while entering a reading (see `MeterEntryStatus`), never
+ * written to a Chỉ số record.
  */
-export type UtilityStatus = "DRAFT" | "VERIFIED";
+export type UtilityStatus = "DRAFT" | "FINALIZED";
 
 /** The live "while typing" state of one reading on "Nhập chỉ số" — never persisted. */
 export type MeterEntryStatus = "draft" | "anomaly" | "approved";

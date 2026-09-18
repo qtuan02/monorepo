@@ -29,7 +29,7 @@ function verifiedReading(overrides: Partial<Utility>): Utility {
     oldIndex: 1000,
     newIndex: 1120,
     consumption: 120,
-    status: "VERIFIED",
+    status: "FINALIZED",
     updatedAt: new Date().toISOString(),
     proofImages: [],
     ...overrides,

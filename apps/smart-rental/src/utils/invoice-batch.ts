@@ -26,7 +26,7 @@ export interface BatchInvoiceRow {
 /**
  * The Đợt hoá đơn preview rows for one Toà nhà + kỳ (spec #153 §10 rows 6/12/25):
  * every Hợp đồng hiệu lực, gated by whether điện + nước of the kỳ are both
- * `VERIFIED` and no Hoá đơn already covers this (contract, kỳ) pair. Lives in
+ * `FINALIZED` and no Hoá đơn already covers this (contract, kỳ) pair. Lives in
  * `~/utils` because `~/hooks/api/invoice` calls it.
  */
 export function buildBatchInvoiceRows(
@@ -59,8 +59,8 @@ export function buildBatchInvoiceRows(
         (invoice) =>
           invoice.contractId === contract.id && invoice.billingMonth === month,
       );
-      const hasVerifiedReadings =
-        electricity?.status === "VERIFIED" && water?.status === "VERIFIED";
+      const hasFinalizedReadings =
+        electricity?.status === "FINALIZED" && water?.status === "FINALIZED";
 
       return {
         contractId: contract.id,
@@ -72,7 +72,7 @@ export function buildBatchInvoiceRows(
         electricityConsumption: electricity?.consumption ?? null,
         waterConsumption: water?.consumption ?? null,
         alreadyInvoiced,
-        eligible: hasVerifiedReadings && !alreadyInvoiced,
+        eligible: hasFinalizedReadings && !alreadyInvoiced,
       };
     });
 }
@@ -118,20 +118,22 @@ export function buildBatchInvoiceLineItems(
 }
 
 /**
- * Hạn thu every Hoá đơn of one Đợt shares — the Toà nhà's ngày thu, that kỳ.
- * `collectionDay` is settable up to 31 (`building-settings-form.ts`), so it
- * is clamped to the kỳ's real length — 31 in a 30-day or February kỳ would
- * otherwise roll `dayjs` into the NEXT month (e.g. "2026-02-31" → 03/03/2026),
- * putting the due date outside the billing period it belongs to.
+ * Hạn thu every Hoá đơn of one Đợt shares — the Toà nhà's Ngày thu, of the
+ * month AFTER the kỳ being billed (ADR-0013: Hoá đơn Kỳ 09 hạn là Ngày thu
+ * tháng 10). `collectionDay` is settable up to 31
+ * (`building-settings-form.ts`), so it is clamped to that next month's real
+ * length — 31 in a 30-day or February month would otherwise roll `dayjs`
+ * into the month after (e.g. "2026-02-31" → 03/03/2026).
  */
 export function buildBatchInvoiceDueDate(
   building: Pick<Building, "collectionDay">,
   month: string,
 ): string {
-  const daysInMonth = dayjs(month, "YYYY-MM").daysInMonth();
+  const dueMonth = dayjs(month, "YYYY-MM").add(1, "month");
+  const daysInMonth = dueMonth.daysInMonth();
   const day = String(Math.min(building.collectionDay, daysInMonth)).padStart(
     2,
     "0",
   );
-  return formatDate(`${month}-${day}`);
+  return formatDate(`${dueMonth.format("YYYY-MM")}-${day}`);
 }

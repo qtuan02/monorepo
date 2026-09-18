@@ -17,14 +17,6 @@ export const contractFormSchema = z
     endDate: z.string().min(1, { error: "Vui lòng chọn ngày kết thúc" }),
     rentAmount: positiveNumber("Vui lòng nhập giá thuê"),
     depositAmount: positiveNumber("Vui lòng nhập tiền cọc"),
-    // "Chu kỳ thu" — ngày trong tháng tiền thuê đến hạn.
-    paymentDueDay: positiveNumber("Vui lòng nhập ngày thu").pipe(
-      z
-        .number()
-        .int({ error: "Ngày thu là số nguyên" })
-        .min(1, { error: "Ngày thu từ 1 đến 31" })
-        .max(31, { error: "Ngày thu từ 1 đến 31" }),
-    ),
     // "Báo trước" — mặc định 30 ngày, không enforce phạt (spec #153).
     noticeDays: positiveNumber("Vui lòng nhập số ngày báo trước").pipe(
       z.number().int({ error: "Số ngày báo trước là số nguyên" }),

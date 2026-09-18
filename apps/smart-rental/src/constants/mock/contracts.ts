@@ -5,9 +5,9 @@ import { trackMockReset } from "~/utils/mock-reset";
  * The Mock every Hợp đồng read comes from (ADR-0012, spec #153) — one per
  * occupied Phòng (14, down from the prototype's 30), `roomId` / `tenantId`
  * referencing `mock/rooms.ts` / `mock/tenants.ts`. Three sit within 30 days of
- * "today" (2026-09-17) — `EXPIRING` — satisfying spec #153's "≥ 2 Hợp đồng
- * sắp hết hạn"; `paymentDueDay` mirrors each Toà nhà's `collectionDay`.
- * `renewalHistory` starts empty — no Gia hạn has run yet.
+ * "today" (2026-09-18) — `EXPIRING` — satisfying spec #153's "≥ 2 Hợp đồng
+ * sắp hết hạn". No due day of its own (ADR-0013) — that is the Toà nhà's
+ * `collectionDay`. `renewalHistory` starts empty — no Gia hạn has run yet.
  */
 export const mockContracts: Contract[] = [
   {
@@ -23,7 +23,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 2700000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 5,
     noticeDays: 30,
     startDate: "01/10/2025",
     endDate: "30/09/2026",
@@ -44,7 +43,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 2900000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 5,
     noticeDays: 30,
     startDate: "01/11/2025",
     endDate: "31/10/2026",
@@ -65,7 +63,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 2500000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 5,
     noticeDays: 30,
     startDate: "15/01/2026",
     endDate: "14/01/2027",
@@ -86,7 +83,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 2700000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 5,
     noticeDays: 30,
     startDate: "01/03/2026",
     endDate: "05/10/2026",
@@ -107,7 +103,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 2900000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 5,
     noticeDays: 30,
     startDate: "01/04/2026",
     endDate: "31/03/2027",
@@ -128,7 +123,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 5000000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 10,
     noticeDays: 30,
     startDate: "01/12/2025",
     endDate: "30/11/2026",
@@ -149,7 +143,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 5500000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 10,
     noticeDays: 30,
     startDate: "01/02/2026",
     endDate: "31/01/2027",
@@ -170,7 +163,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 5000000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 10,
     noticeDays: 30,
     startDate: "01/05/2026",
     endDate: "15/10/2026",
@@ -191,7 +183,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 5500000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 10,
     noticeDays: 30,
     startDate: "01/01/2026",
     endDate: "31/12/2026",
@@ -212,7 +203,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 6000000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 10,
     noticeDays: 30,
     startDate: "01/06/2026",
     endDate: "31/05/2027",
@@ -233,7 +223,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 6000000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 10,
     noticeDays: 30,
     startDate: "01/07/2026",
     endDate: "30/06/2027",
@@ -254,7 +243,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 3500000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 1,
     noticeDays: 30,
     startDate: "01/09/2025",
     endDate: "28/02/2027",
@@ -275,7 +263,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 3500000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 1,
     noticeDays: 30,
     startDate: "01/02/2026",
     endDate: "25/10/2026",
@@ -296,7 +283,6 @@ export const mockContracts: Contract[] = [
     depositAmount: 3700000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 1,
     noticeDays: 30,
     startDate: "01/08/2026",
     endDate: "31/07/2027",

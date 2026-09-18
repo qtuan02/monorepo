@@ -11,7 +11,10 @@ export interface InvoiceSummaryStats {
 /**
  * The four KPI tiles over the list (spec #153 §10: Đã thu / Chưa thu / Quá
  * hạn / Thu một phần) — a cancelled Hoá đơn counts toward `total` but sits
- * in no bucket.
+ * in no bucket. `overdueAmount` is the phần còn lại (`amount - paidAmount`),
+ * not the full invoice amount — an OVERDUE invoice can carry a partial
+ * payment too, and "Hôm nay"'s own Quá hạn KPI (`~/utils/dashboard-summary`)
+ * already reads it this way; the two must report the same number.
  */
 export function buildInvoiceSummaryStats(
   invoices: Invoice[],
@@ -28,7 +31,7 @@ export function buildInvoiceSummaryStats(
     if (invoice.status === "PAID") stats.paidAmount += invoice.amount;
     else if (invoice.status === "UNPAID") stats.unpaidAmount += invoice.amount;
     else if (invoice.status === "OVERDUE")
-      stats.overdueAmount += invoice.amount;
+      stats.overdueAmount += invoice.amount - invoice.paidAmount;
     else if (invoice.status === "PARTIAL")
       stats.partialAmount += invoice.amount;
   }

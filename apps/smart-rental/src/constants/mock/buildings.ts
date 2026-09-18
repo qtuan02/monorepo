@@ -14,7 +14,6 @@ export const mockBuildings: Building[] = [
     name: "Trọ Sinh Viên Xanh",
     address: "123 Ngũ Hành Sơn, Đà Nẵng",
     totalFloors: 2,
-    utilityCycleDay: 28,
     collectionDay: 5,
     priceList: {
       electricityPricePerKwh: 3500,
@@ -38,7 +37,6 @@ export const mockBuildings: Building[] = [
     name: "Căn hộ Dịch Vụ Cao Cấp",
     address: "456 Võ Nguyên Giáp, Đà Nẵng",
     totalFloors: 4,
-    utilityCycleDay: 30,
     collectionDay: 10,
     priceList: {
       electricityPricePerKwh: 3800,
@@ -61,7 +59,6 @@ export const mockBuildings: Building[] = [
     name: "Chung cư Mini Lê Duẩn",
     address: "789 Lê Duẩn, Đà Nẵng",
     totalFloors: 1,
-    utilityCycleDay: 25,
     collectionDay: 1,
     priceList: {
       electricityPricePerKwh: 3500,

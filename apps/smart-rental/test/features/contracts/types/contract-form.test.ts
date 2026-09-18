@@ -9,7 +9,6 @@ const valid = {
   endDate: "2026-11-01",
   rentAmount: "3000000",
   depositAmount: "3000000",
-  paymentDueDay: "5",
   noticeDays: "30",
 };
 
@@ -18,7 +17,6 @@ describe("contractFormSchema", () => {
     expect(contractFormSchema.parse(valid)).toMatchObject({
       rentAmount: 3000000,
       depositAmount: 3000000,
-      paymentDueDay: 5,
       noticeDays: 30,
     });
   });
@@ -47,13 +45,7 @@ describe("contractFormSchema", () => {
     expect(result.error?.issues[0]?.path).toEqual(["endDate"]);
   });
 
-  it("wants ngày thu within 1–31 and a positive rent", () => {
-    expect(
-      contractFormSchema.safeParse({ ...valid, paymentDueDay: "32" }).success,
-    ).toBe(false);
-    expect(
-      contractFormSchema.safeParse({ ...valid, paymentDueDay: "0" }).success,
-    ).toBe(false);
+  it("wants a positive rent", () => {
     expect(
       contractFormSchema.safeParse({ ...valid, rentAmount: "0" }).success,
     ).toBe(false);

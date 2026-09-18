@@ -22,7 +22,7 @@ describe("BuildingFormSheet", () => {
       "Tên toà nhà",
       "Địa chỉ",
       "Số tầng",
-      "Ngày chốt điện nước",
+      "Ngày thu trong tháng",
     ]) {
       const field = screen.getByText(label).closest('[data-slot="field"]');
       expect(field).not.toBeNull();

@@ -373,27 +373,28 @@ describe("Hôm nay", () => {
     expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
   });
 
-  it("shows every Toà nhà's «chưa lập Đợt» kỳ once no Toà nhà is scoped", async () => {
+  // ADR-0013 — "Kỳ chưa lập Đợt" only fires once the Kỳ's own ngày chốt
+  // (cuối tháng) has passed; the Mock's current Kỳ 09 is still mid-month, so
+  // this is never a Việc yet at "hôm nay" (see `~/utils/task-derivation`,
+  // covered with a pinned `today` past cuối tháng).
+  it("does not show a «chưa lập Đợt» task before the Kỳ's ngày chốt has passed", async () => {
     renderAt(ROUTES.HOME);
 
-    expect(
-      await screen.findByText(/^Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/^Chung cư Mini Lê Duẩn chưa lập Đợt hoá đơn/),
-    ).toBeInTheDocument();
+    await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
+    expect(screen.queryByText(/chưa lập Đợt hoá đơn/)).not.toBeInTheDocument();
   });
 
   it("scopes the queue to just its own Toà nhà once one is selected", async () => {
     useBuildingStore.setState({ selectedBuildingId: "b1" });
     renderAt(ROUTES.HOME);
 
+    // C001 (b1, Nguyễn Văn A) is quá hạn — present; C012 (b3, Phan Thị M) is
+    // quá hạn too, but scoped OUT once b1 is selected.
     expect(
-      await screen.findByText(/^Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn/),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText(/^Chung cư Mini Lê Duẩn chưa lập Đợt hoá đơn/),
-    ).not.toBeInTheDocument();
+      await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/),
+    ).not.toHaveLength(0);
+    expect(screen.getAllByText(/Nguyễn Văn A/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Phan Thị M/)).not.toBeInTheDocument();
   });
 
   it("navigates a Việc cần làm action to the entity's own, existing route", async () => {

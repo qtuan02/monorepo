@@ -3,7 +3,11 @@ import { describe, expect, it } from "vitest";
 import type { Invoice } from "~/types/invoice";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 
-const invoice = (status: Invoice["status"], amount: number): Invoice => ({
+const invoice = (
+  status: Invoice["status"],
+  amount: number,
+  paidAmount = 0,
+): Invoice => ({
   id: status,
   contractId: "C001",
   invoiceNumber: "HÓA-001",
@@ -13,7 +17,7 @@ const invoice = (status: Invoice["status"], amount: number): Invoice => ({
   amount,
   lineItems: [],
   payments: [],
-  paidAmount: 0,
+  paidAmount,
   reminders: [],
   billingMonth: "2026-04",
   month: "04/2026",
@@ -41,5 +45,15 @@ describe("buildInvoiceSummaryStats", () => {
       overdueAmount: 4,
       partialAmount: 7,
     });
+  });
+
+  it("counts an OVERDUE invoice's overdueAmount as phần còn lại, not the full amount", () => {
+    // An OVERDUE invoice can still carry a partial payment (deriveInvoiceStatus
+    // never treats "chưa đủ, past due" as PARTIAL) — the KPI must match "Hôm
+    // nay"'s own overdue.amount (~/utils/dashboard-summary), which is already
+    // `amount - paidAmount`.
+    expect(
+      buildInvoiceSummaryStats([invoice("OVERDUE", 100, 40)]).overdueAmount,
+    ).toBe(60);
   });
 });

@@ -103,7 +103,6 @@ export function useCreateContract(
         depositAmount: request.depositAmount,
         depositStatus: "HELD",
         depositReturnedAmount: 0,
-        paymentDueDay: request.paymentDueDay,
         noticeDays: request.noticeDays,
         startDate: formatDate(request.startDate),
         endDate: formatDate(request.endDate),

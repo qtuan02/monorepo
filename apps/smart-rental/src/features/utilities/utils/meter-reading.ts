@@ -64,7 +64,7 @@ export function estimateUtilityCost(
 export interface UtilityStats {
   /** The most recent kỳ present in the scoped Mock; `null` when it has none. */
   month: string | null;
-  verifiedCount: number;
+  finalizedCount: number;
   draftCount: number;
   anomalyCount: number;
 }
@@ -88,7 +88,7 @@ export function calculateUtilityStats(utilities: Utility[]): UtilityStats {
 
   return {
     month,
-    verifiedCount: periodUtilities.filter((u) => u.status === "VERIFIED")
+    finalizedCount: periodUtilities.filter((u) => u.status === "FINALIZED")
       .length,
     draftCount: periodUtilities.filter((u) => u.status === "DRAFT").length,
     anomalyCount: anomalousThisPeriod.length,

@@ -17,7 +17,7 @@ export const buildingFormSchema = z.object({
   totalFloors: wholeNumber("Ít nhất 1 tầng").pipe(
     z.number().min(1, { error: "Ít nhất 1 tầng" }),
   ),
-  utilityCycleDay: wholeNumber("Ngày từ 1 đến 31").pipe(
+  collectionDay: wholeNumber("Ngày từ 1 đến 31").pipe(
     z
       .number()
       .min(1, { error: "Ngày từ 1 đến 31" })

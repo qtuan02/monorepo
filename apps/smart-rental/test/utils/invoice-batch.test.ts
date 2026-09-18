@@ -24,7 +24,6 @@ function contract(overrides: Partial<Contract> = {}): Contract {
     depositAmount: 2_700_000,
     depositStatus: "HELD",
     depositReturnedAmount: 0,
-    paymentDueDay: 5,
     noticeDays: 30,
     startDate: "01/01/2026",
     endDate: "31/12/2026",
@@ -46,7 +45,7 @@ function utility(overrides: Partial<Utility> = {}): Utility {
     oldIndex: 1000,
     newIndex: 1120,
     consumption: 120,
-    status: "VERIFIED",
+    status: "FINALIZED",
     updatedAt: "2026-10-01T00:00:00.000Z",
     proofImages: [],
     ...overrides,
@@ -187,20 +186,21 @@ describe("buildBatchInvoiceLineItems", () => {
 });
 
 describe("buildBatchInvoiceDueDate", () => {
-  it("hạn đúng ngày thu của Toà nhà, trong đúng kỳ", () => {
-    expect(buildBatchInvoiceDueDate({ collectionDay: 5 }, "2026-10")).toBe(
+  it("hạn là Ngày thu của THÁNG KẾ TIẾP kỳ, không phải cùng tháng (ADR-0013)", () => {
+    expect(buildBatchInvoiceDueDate({ collectionDay: 5 }, "2026-09")).toBe(
       "05/10/2026",
     );
   });
 
-  it("clamps a ngày thu past the kỳ's own length instead of rolling into the next month", () => {
-    // February 2026 has 28 days — collectionDay 31 must stay inside February,
-    // never spill into March the way an unclamped `dayjs("2026-02-31")` would.
-    expect(buildBatchInvoiceDueDate({ collectionDay: 31 }, "2026-02")).toBe(
+  it("clamps a ngày thu past the month AFTER the kỳ's length instead of rolling further", () => {
+    // Kỳ 2026-01 → hạn thu in February 2026, which has only 28 days —
+    // collectionDay 31 must stay inside February, never spill into March
+    // the way an unclamped `dayjs("2026-02-31")` would.
+    expect(buildBatchInvoiceDueDate({ collectionDay: 31 }, "2026-01")).toBe(
       "28/02/2026",
     );
-    // April has 30 days.
-    expect(buildBatchInvoiceDueDate({ collectionDay: 31 }, "2026-04")).toBe(
+    // Kỳ 2026-03 → hạn thu in April 2026, which has 30 days.
+    expect(buildBatchInvoiceDueDate({ collectionDay: 31 }, "2026-03")).toBe(
       "30/04/2026",
     );
   });

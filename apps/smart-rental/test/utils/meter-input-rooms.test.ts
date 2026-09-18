@@ -31,7 +31,7 @@ function utility(overrides: Partial<Utility>): Utility {
     oldIndex: 1000,
     newIndex: 1120,
     consumption: 120,
-    status: "VERIFIED",
+    status: "FINALIZED",
     updatedAt: "2026-08-27T09:00:00Z",
     proofImages: [],
     ...overrides,
@@ -51,7 +51,7 @@ describe("buildMeterInputRooms", () => {
     expect(rows.map((r) => r.id)).toEqual(["R-001"]);
   });
 
-  it("takes the last VERIFIED reading strictly before the kỳ as the baseline", () => {
+  it("takes the last FINALIZED reading strictly before the kỳ as the baseline", () => {
     const rooms = [room({})];
     const utilities = [
       utility({

@@ -99,18 +99,18 @@ describe("estimateUtilityCost", () => {
 });
 
 describe("calculateUtilityStats", () => {
-  it("scopes verified/draft/anomaly counts to the latest kỳ present, not a running total", () => {
+  it("scopes finalized/draft/anomaly counts to the latest kỳ present, not a running total", () => {
     const utilities: Utility[] = [
       utility({
-        id: "aug-verified",
+        id: "aug-finalized",
         month: "2026-08",
-        status: "VERIFIED",
+        status: "FINALIZED",
         consumption: 100,
       }),
       utility({
-        id: "sep-verified",
+        id: "sep-finalized",
         month: "2026-09",
-        status: "VERIFIED",
+        status: "FINALIZED",
         consumption: 90,
       }),
       utility({
@@ -123,7 +123,7 @@ describe("calculateUtilityStats", () => {
 
     expect(calculateUtilityStats(utilities)).toEqual({
       month: "2026-09",
-      verifiedCount: 1,
+      finalizedCount: 1,
       draftCount: 1,
       anomalyCount: 0,
     });
@@ -135,7 +135,7 @@ describe("calculateUtilityStats", () => {
         id: "aug",
         roomId: "room-003",
         month: "2026-08",
-        status: "VERIFIED",
+        status: "FINALIZED",
         oldIndex: 1000,
         newIndex: 1100,
         consumption: 100,
@@ -157,7 +157,7 @@ describe("calculateUtilityStats", () => {
   it("returns a null kỳ over an empty list", () => {
     expect(calculateUtilityStats([])).toEqual({
       month: null,
-      verifiedCount: 0,
+      finalizedCount: 0,
       draftCount: 0,
       anomalyCount: 0,
     });

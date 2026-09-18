@@ -87,7 +87,10 @@ export default function InvoiceListTemplate() {
           <KpiStrip
             items={[
               { label: "Đã thu", value: formatCurrency(stats.paidAmount) },
-              { label: "Chưa thu", value: formatCurrency(stats.unpaidAmount) },
+              {
+                label: "Chưa đến hạn",
+                value: formatCurrency(stats.unpaidAmount),
+              },
               { label: "Quá hạn", value: formatCurrency(stats.overdueAmount) },
               {
                 label: "Thu một phần",

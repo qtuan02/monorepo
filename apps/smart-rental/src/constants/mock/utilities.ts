@@ -2,10 +2,22 @@ import type { Utility, UtilityType } from "~/types/utility";
 import { mockRooms } from "~/constants/mock/rooms";
 import { trackMockReset } from "~/utils/mock-reset";
 
-/** Chỉ số hai kỳ 08–09/2026 (spec #153) — kỳ 09 chưa lập Đợt, nên vẫn còn việc. */
+/**
+ * Chỉ số hai Kỳ 08–09/2026 (ADR-0013) — 08 Đã chốt cho mọi Phòng (Đợt của
+ * nó đã lập, `mock/invoices.ts`), 09 vẫn Nháp: mỗi Toà nhà đang chốt dở.
+ */
 const READING_MONTHS = ["2026-08", "2026-09"] as const;
+const DRAFT_MONTH = "2026-09";
 
 const occupiedRooms = mockRooms.filter((room) => room.status === "occupied");
+
+// Mỗi Toà nhà, Kỳ 09: đúng một Phòng bất thường (điện vọt > 2× Kỳ 08) và
+// đúng một Phòng chưa nhập chỉ số nào — dữ liệu mẫu "đang chốt dở" tự nhất
+// quán (ADR-0013), chứ không tự mâu thuẫn như trước round 3. R-B1-102 nằm
+// ngoài cả hai tập — `test/pages/main.test.tsx` trỏ thẳng route chi tiết
+// chỉ số của nó cho Kỳ 09.
+const ANOMALOUS_ROOM_IDS = new Set(["R-B1-103", "R-B2-202", "R-B3-302"]);
+const MISSING_ROOM_IDS = new Set(["R-B1-106", "R-B2-208", "R-B3-304"]);
 
 function buildReading(
   room: (typeof occupiedRooms)[number],
@@ -16,8 +28,8 @@ function buildReading(
 ): Utility {
   const base = type === "electricity" ? 120 : 8;
   const oldIndex = 1000 + index * 25;
-  // Kỳ 08 tiêu thụ bình thường; kỳ 09 của phòng đầu tiên (electric) vọt hơn
-  // 2× kỳ trước — spec #153's "≥ 1 Chỉ số tiêu thụ > 2× kỳ trước".
+  // Kỳ 08 tiêu thụ bình thường; một Phòng bất thường mỗi Toà nhà (điện) vọt
+  // hơn 2× kỳ trước — spec #153's "≥ 1 Chỉ số tiêu thụ > 2× kỳ trước".
   const consumption = isAnomaly ? base * 2 + 30 : base + (index % 5) * 3;
   const newIndex = oldIndex + consumption;
 
@@ -31,29 +43,32 @@ function buildReading(
     oldIndex,
     newIndex,
     consumption,
-    status: month === "2026-09" ? "DRAFT" : "VERIFIED",
+    status: month === DRAFT_MONTH ? "DRAFT" : "FINALIZED",
     updatedAt:
-      month === "2026-09" ? "2026-09-15T09:00:00Z" : "2026-08-27T09:00:00Z",
+      month === DRAFT_MONTH ? "2026-09-15T09:00:00Z" : "2026-08-27T09:00:00Z",
     proofImages: [],
   };
 }
 
 /**
- * The Mock every Chỉ số điện nước read comes from (ADR-0012, spec #153) —
- * điện + nước, hai kỳ, for every occupied Phòng. The first Phòng's electric
- * reading in kỳ 09 is the ">2×" record the spec calls for.
+ * The Mock every Chỉ số điện nước read comes from (ADR-0012, spec #153,
+ * ADR-0013) — điện + nước, hai Kỳ, for every occupied Phòng đã chốt (08);
+ * Kỳ 09 skips each Toà nhà's one "chưa nhập" Phòng entirely and flags its
+ * one anomalous Phòng's điện reading.
  */
 export const mockUtilities: Utility[] = READING_MONTHS.flatMap((month) =>
-  occupiedRooms.flatMap((room, index) => [
-    buildReading(
-      room,
-      "electricity",
-      month,
-      index,
-      month === "2026-09" && index === 0,
-    ),
-    buildReading(room, "water", month, index, false),
-  ]),
+  occupiedRooms
+    .filter((room) => month !== DRAFT_MONTH || !MISSING_ROOM_IDS.has(room.id))
+    .flatMap((room, index) => [
+      buildReading(
+        room,
+        "electricity",
+        month,
+        index,
+        month === DRAFT_MONTH && ANOMALOUS_ROOM_IDS.has(room.id),
+      ),
+      buildReading(room, "water", month, index, false),
+    ]),
 );
 
 export const resetMockUtilities = trackMockReset(mockUtilities);

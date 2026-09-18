@@ -34,7 +34,7 @@ export default function BuildingFormSheet({
       name: "",
       address: "",
       totalFloors: "1",
-      utilityCycleDay: "1",
+      collectionDay: "1",
       note: "",
     },
   });
@@ -98,8 +98,8 @@ export default function BuildingFormSheet({
           />
           <TextField
             control={form.control}
-            name="utilityCycleDay"
-            label="Ngày chốt điện nước"
+            name="collectionDay"
+            label="Ngày thu trong tháng"
             required
             type="number"
             min={1}

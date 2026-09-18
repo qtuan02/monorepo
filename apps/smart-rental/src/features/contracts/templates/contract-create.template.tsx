@@ -42,7 +42,6 @@ const wizardSteps: { title: string; fields: (keyof ContractFormInput)[] }[] = [
       "endDate",
       "rentAmount",
       "depositAmount",
-      "paymentDueDay",
       "noticeDays",
     ],
   },
@@ -75,7 +74,6 @@ export default function ContractCreateTemplate() {
       endDate: "",
       rentAmount: "3000000",
       depositAmount: "3000000",
-      paymentDueDay: "5",
       noticeDays: "30",
     },
   });
@@ -249,7 +247,7 @@ function TenantStep({
   );
 }
 
-/** Step 3: dates via `DateField`, tiền via `CurrencyField`, chu kỳ thu + báo trước. */
+/** Step 3: dates via `DateField`, tiền via `CurrencyField`, báo trước. */
 function TermsStep({ form }: { form: ContractForm }) {
   return (
     <div className="space-y-4">
@@ -281,25 +279,14 @@ function TermsStep({ form }: { form: ContractForm }) {
           required
         />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <TextField
-          control={form.control}
-          name="paymentDueDay"
-          label="Chu kỳ thu (ngày trong tháng)"
-          type="number"
-          min={1}
-          max={31}
-          required
-        />
-        <TextField
-          control={form.control}
-          name="noticeDays"
-          label="Báo trước (ngày)"
-          type="number"
-          min={1}
-          required
-        />
-      </div>
+      <TextField
+        control={form.control}
+        name="noticeDays"
+        label="Báo trước (ngày)"
+        type="number"
+        min={1}
+        required
+      />
     </div>
   );
 }
@@ -312,26 +299,18 @@ function PreviewStep({
   form: ContractForm;
   room: { name: string } | null | undefined;
 }) {
-  const [
-    tenantId,
-    startDate,
-    endDate,
-    rentAmount,
-    depositAmount,
-    paymentDueDay,
-    noticeDays,
-  ] = useWatch({
-    control: form.control,
-    name: [
-      "tenantId",
-      "startDate",
-      "endDate",
-      "rentAmount",
-      "depositAmount",
-      "paymentDueDay",
-      "noticeDays",
-    ],
-  });
+  const [tenantId, startDate, endDate, rentAmount, depositAmount, noticeDays] =
+    useWatch({
+      control: form.control,
+      name: [
+        "tenantId",
+        "startDate",
+        "endDate",
+        "rentAmount",
+        "depositAmount",
+        "noticeDays",
+      ],
+    });
   const { data: tenant } = useGetTenant(tenantId, { enabled: !!tenantId });
 
   return (
@@ -346,10 +325,7 @@ function PreviewStep({
         {formatCurrency(Number(rentAmount) || 0)}/tháng, cọc{" "}
         {formatCurrency(Number(depositAmount) || 0)}.
       </p>
-      <p>
-        Thu ngày {paymentDueDay || "—"} hằng tháng, báo trước{" "}
-        {noticeDays || "—"} ngày.
-      </p>
+      <p>Báo trước {noticeDays || "—"} ngày.</p>
     </div>
   );
 }

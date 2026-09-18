@@ -174,10 +174,6 @@ export default function ContractDetailTemplate({
                   isHighlighted
                 />
                 <InfoRow
-                  label="Chu kỳ thu"
-                  value={`Ngày ${contract.paymentDueDay} hằng tháng`}
-                />
-                <InfoRow
                   label="Báo trước"
                   value={`${contract.noticeDays} ngày`}
                 />

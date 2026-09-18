@@ -6,7 +6,7 @@ const valid = {
   name: "Trọ Mới",
   address: "12 Lê Lợi, Đà Nẵng",
   totalFloors: "3",
-  utilityCycleDay: "25",
+  collectionDay: "25",
   note: "",
 };
 
@@ -16,7 +16,7 @@ describe("buildingFormSchema", () => {
       name: "Trọ Mới",
       address: "12 Lê Lợi, Đà Nẵng",
       totalFloors: 3,
-      utilityCycleDay: 25,
+      collectionDay: 25,
       note: undefined,
     });
   });
@@ -30,10 +30,10 @@ describe("buildingFormSchema", () => {
     );
   });
 
-  it("keeps the cycle day inside a month", () => {
+  it("keeps the collection day inside a month", () => {
     const result = buildingFormSchema.safeParse({
       ...valid,
-      utilityCycleDay: "32",
+      collectionDay: "32",
     });
 
     expect(result.success).toBe(false);

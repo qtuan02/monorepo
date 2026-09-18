@@ -124,8 +124,8 @@ export const invoicePaymentMethodConfig: Record<
 
 export const utilityStatusConfig: Record<UtilityStatus, StatusConfig> = {
   DRAFT: { label: "Nháp", className: statusTone.neutral, icon: Clock },
-  VERIFIED: {
-    label: "Đã xác minh",
+  FINALIZED: {
+    label: "Đã chốt",
     className: statusTone.success,
     icon: CheckCircle2,
   },

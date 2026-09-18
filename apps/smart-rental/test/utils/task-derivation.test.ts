@@ -8,7 +8,10 @@ import type { Tenant } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
 import { deriveTasks } from "~/utils/task-derivation";
 
-const today = new Date("2026-09-17T00:00:00.000Z");
+const today = new Date("2026-09-18T00:00:00.000Z");
+// Past the ngày chốt (cuối tháng) of the current Kỳ — the only moment
+// batch_pending is allowed to fire (ADR-0013).
+const pastCycleEnd = new Date("2026-09-30T00:00:00.000Z");
 
 const building: Building = {
   id: "b1",
@@ -51,7 +54,6 @@ const contract: Contract = {
   depositAmount: 2_000_000,
   depositStatus: "HELD",
   depositReturnedAmount: 0,
-  paymentDueDay: 5,
   noticeDays: 30,
   startDate: "01/01/2026",
   endDate: "05/10/2026", // within the 30-day EXPIRING window of "today"
@@ -102,12 +104,15 @@ const previousUtility: Utility = {
   oldIndex: 900,
   newIndex: 1000,
   consumption: 100,
-  status: "VERIFIED",
+  status: "FINALIZED",
 };
 
 const noComplianceItems: ComplianceItem[] = [];
 
-function derive(overrides: Partial<Parameters<typeof deriveTasks>[0]> = {}) {
+function derive(
+  overrides: Partial<Parameters<typeof deriveTasks>[0]> = {},
+  todayOverride: Date = today,
+) {
   return deriveTasks(
     {
       contracts: [contract],
@@ -118,7 +123,7 @@ function derive(overrides: Partial<Parameters<typeof deriveTasks>[0]> = {}) {
       buildings: [building],
       ...overrides,
     },
-    today,
+    todayOverride,
   );
 }
 
@@ -150,9 +155,12 @@ describe("deriveTasks", () => {
     });
   });
 
-  it("skips the utility_anomaly source once the reading is VERIFIED", () => {
+  it("skips the utility_anomaly source once the reading is FINALIZED", () => {
     const tasks = derive({
-      utilities: [previousUtility, { ...anomalousUtility, status: "VERIFIED" }],
+      utilities: [
+        previousUtility,
+        { ...anomalousUtility, status: "FINALIZED" },
+      ],
     });
 
     expect(tasks.some((t) => t.type === "utility_anomaly")).toBe(false);
@@ -184,26 +192,45 @@ describe("deriveTasks", () => {
     expect(tasks.some((t) => t.type === "residence_notification")).toBe(false);
   });
 
-  it("adds a batch_pending task while the Toà nhà still has an unconfirmed reading this kỳ", () => {
-    const tasks = derive();
+  it("adds batch_pending once the Kỳ's ngày chốt has passed and no Hoá đơn exists yet", () => {
+    const tasks = derive({ invoices: [] }, pastCycleEnd);
     const task = tasks.find((t) => t.type === "batch_pending");
 
-    expect(task).toMatchObject({ relatedEntity: "building", relatedId: "b1" });
+    expect(task).toMatchObject({
+      relatedEntity: "building",
+      relatedId: "b1",
+      title: "Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn kỳ 09/2026",
+    });
   });
 
-  it("skips batch_pending once every reading this kỳ is VERIFIED", () => {
-    const tasks = derive({
-      utilities: [previousUtility, { ...anomalousUtility, status: "VERIFIED" }],
-    });
+  it("never fires before the Kỳ's ngày chốt, however incomplete the Chỉ số are", () => {
+    // `today` is still inside September — the Kỳ isn't over yet, so "chưa
+    // lập Đợt" is not a Việc regardless of how many readings are missing.
+    const tasks = derive({ invoices: [], utilities: [] });
 
     expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
   });
 
-  it("adds batch_pending when the Toà nhà has no Chỉ số at all yet this kỳ", () => {
-    const tasks = derive({ utilities: [] });
-    const task = tasks.find((t) => t.type === "batch_pending");
+  it("skips batch_pending once a Hoá đơn of the Kỳ already exists", () => {
+    const tasks = derive({ invoices: [overdueInvoice] }, pastCycleEnd);
 
-    expect(task).toMatchObject({ relatedEntity: "building", relatedId: "b1" });
+    expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
+  });
+
+  it("scopes batch_pending to one Toà nhà when buildingId is given", () => {
+    const otherBuilding = { ...building, id: "b2", name: "Toà nhà khác" };
+    const tasks = derive(
+      {
+        invoices: [],
+        buildings: [building, otherBuilding],
+        buildingId: "b1",
+      },
+      pastCycleEnd,
+    );
+
+    expect(
+      tasks.every((t) => t.type !== "batch_pending" || t.relatedId === "b1"),
+    ).toBe(true);
   });
 
   it("scopes to one Toà nhà when buildingId is given", () => {
@@ -213,9 +240,6 @@ describe("deriveTasks", () => {
       buildingId: "b1",
     });
 
-    expect(
-      tasks.every((t) => t.type !== "batch_pending" || t.relatedId === "b1"),
-    ).toBe(true);
     expect(tasks.some((t) => t.relatedEntity === "invoice")).toBe(true);
   });
 

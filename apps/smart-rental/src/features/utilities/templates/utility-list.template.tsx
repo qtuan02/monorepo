@@ -67,7 +67,7 @@ export default function UtilityListTemplate() {
         <>
           <KpiStrip
             items={[
-              { label: "Đã xác nhận", value: stats.verifiedCount },
+              { label: "Đã chốt", value: stats.finalizedCount },
               { label: "Nháp", value: stats.draftCount },
               { label: "Bất thường", value: stats.anomalyCount },
             ]}

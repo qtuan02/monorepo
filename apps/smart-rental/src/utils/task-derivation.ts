@@ -9,6 +9,7 @@ import type { Task } from "~/types/task";
 import type { Tenant } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
 import { deriveContractStatus, isContractLive } from "~/utils/contract-status";
+import { formatMonth } from "~/utils/date";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
 import { findAnomalousUtilities } from "~/utils/utility-anomaly";
 
@@ -91,7 +92,7 @@ export function deriveTasks(
   }
 
   for (const utility of findAnomalousUtilities(utilities)) {
-    if (utility.status === "VERIFIED") continue; // "chưa xác nhận"
+    if (utility.status === "FINALIZED") continue; // "chưa chốt"
     tasks.push({
       id: `utility_anomaly-${utility.id}`,
       type: "utility_anomaly",
@@ -135,34 +136,37 @@ export function deriveTasks(
     });
   }
 
-  for (const building of buildings) {
-    const currentMonthUtilities = utilities.filter(
-      (utility) =>
-        utility.buildingId === building.id && utility.month === currentMonth,
-    );
-    // "Đã lập Đợt" only once every Chỉ số of the kỳ is VERIFIED — a building
-    // with no readings at all yet is exactly as unbatched as one with some
-    // still DRAFT (spec #153 §10 row 9: flow Nhập chỉ số → Đợt).
-    const isBatchedThisMonth =
-      currentMonthUtilities.length > 0 &&
-      currentMonthUtilities.every((utility) => utility.status === "VERIFIED");
-    if (isBatchedThisMonth) continue;
+  // "Kỳ chưa lập Đợt" is suy from Hoá đơn, not Chỉ số (ADR-0013) — a building
+  // with no Hoá đơn of the current Kỳ yet, and only once the Kỳ's own ngày
+  // chốt (cuối tháng) has passed. Đang chốt dở, still within the month, is
+  // not yet a Việc — it is the Kỳ progress KPI's job to say so.
+  const cycleEndDate = dayjs(currentMonth, "YYYY-MM")
+    .endOf("month")
+    .format("YYYY-MM-DD");
+  const isPastCycleEnd = todayIso >= cycleEndDate;
 
-    tasks.push({
-      id: `batch_pending-${building.id}`,
-      type: "batch_pending",
-      title: `${building.name} chưa lập Đợt hoá đơn kỳ ${currentMonth}`,
-      description:
-        currentMonthUtilities.length === 0
-          ? "Chưa có Chỉ số điện nước cho kỳ này."
-          : "Còn Chỉ số chưa xác nhận — xác nhận trước khi lập Đợt.",
-      priority: "low",
-      status: "open",
-      relatedEntity: "building",
-      relatedId: building.id,
-      dueDate: todayIso,
-      createdAt,
-    });
+  if (isPastCycleEnd) {
+    for (const building of buildings) {
+      const hasInvoicesThisCycle = invoices.some(
+        (invoice) =>
+          invoice.buildingId === building.id &&
+          invoice.billingMonth === currentMonth,
+      );
+      if (hasInvoicesThisCycle) continue;
+
+      tasks.push({
+        id: `batch_pending-${building.id}`,
+        type: "batch_pending",
+        title: `${building.name} chưa lập Đợt hoá đơn kỳ ${formatMonth(currentMonth)}`,
+        description: `Kỳ ${formatMonth(currentMonth)} chưa có Hoá đơn nào được lập.`,
+        priority: "low",
+        status: "open",
+        relatedEntity: "building",
+        relatedId: building.id,
+        dueDate: todayIso,
+        createdAt,
+      });
+    }
   }
 
   return tasks;

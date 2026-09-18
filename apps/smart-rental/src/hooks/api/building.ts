@@ -71,11 +71,10 @@ export function useCreateBuilding(
         name: request.name,
         address: request.address,
         totalFloors: request.totalFloors,
-        utilityCycleDay: request.utilityCycleDay,
         // The create form has no Bảng giá / Tài khoản nhận tiền step — a fresh
         // Toà nhà gets the workspace default price list and no bank account,
         // both editable afterwards from the detail screen's Cài đặt tab.
-        collectionDay: request.utilityCycleDay,
+        collectionDay: request.collectionDay,
         priceList: {
           electricityPricePerKwh: 3500,
           waterPricePerM3: 15000,

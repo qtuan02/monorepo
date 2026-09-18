@@ -19,9 +19,11 @@ export interface Building {
   name: string;
   address: string;
   totalFloors?: number;
-  /** Day of the month (1–31) the Chỉ số điện nước are read. */
-  utilityCycleDay?: number;
-  /** Ngày thu trong tháng — a Hoá đơn's `dueDate` is this day of its billing month. */
+  /**
+   * Ngày thu trong tháng (ADR-0013) — the ONE day a Toà nhà sets. A Hoá đơn
+   * of Kỳ `YYYY-MM` falls due this day of the FOLLOWING month; ngày chốt
+   * chỉ số is never settable, always the last day of the Kỳ itself.
+   */
   collectionDay: number;
   priceList: PriceList;
   /** Absent when the landlord has not declared one yet — no VietQR without it. */
@@ -39,7 +41,7 @@ export interface CreateBuildingRequest {
   name: string;
   address: string;
   totalFloors: number;
-  utilityCycleDay: number;
+  collectionDay: number;
   note?: string;
 }
 

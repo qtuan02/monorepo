@@ -47,8 +47,6 @@ export interface Contract {
   depositStatus: DepositStatus;
   /** > 0 only once some of the cọc has actually been handed back. */
   depositReturnedAmount: number;
-  /** Ngày trong tháng tiền thuê đến hạn ("chu kỳ thu"); mirrors the Toà nhà's `collectionDay`. */
-  paymentDueDay: number;
   /** "Thời hạn báo trước" trước khi hết hạn, ngày — mặc định 30, không enforce phạt (spec #153). */
   noticeDays: number;
   /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
@@ -76,7 +74,6 @@ export interface CreateContractRequest {
   endDate: string;
   rentAmount: number;
   depositAmount: number;
-  paymentDueDay: number;
   noticeDays: number;
 }
 

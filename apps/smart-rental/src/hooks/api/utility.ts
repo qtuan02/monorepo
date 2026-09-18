@@ -95,7 +95,7 @@ export interface ConfirmMeterReadingsRequest {
 
 /**
  * "Lưu n chỉ số" — the one save action on "Nhập chỉ số" (spec #153 §10 row
- * 27): upserts every entered reading as `VERIFIED` (a blocked, unapproved
+ * 27): upserts every entered reading as `FINALIZED` (a blocked, unapproved
  * anomaly never reaches here — the template gates the button). Invalidates
  * `task` too, so a fixed anomaly drops off Hôm nay's queue immediately, and
  * `invoice` because Đợt hoá đơn's own eligibility (`buildBatchInvoiceRows`)
@@ -123,7 +123,7 @@ export function useConfirmMeterReadings(
           existing.oldIndex = entry.oldIndex;
           existing.newIndex = entry.newIndex;
           existing.consumption = entry.consumption;
-          existing.status = "VERIFIED";
+          existing.status = "FINALIZED";
           existing.updatedAt = updatedAt;
           saved.push(existing);
         } else {
@@ -137,7 +137,7 @@ export function useConfirmMeterReadings(
             oldIndex: entry.oldIndex,
             newIndex: entry.newIndex,
             consumption: entry.consumption,
-            status: "VERIFIED",
+            status: "FINALIZED",
             updatedAt,
             proofImages: [],
           };
