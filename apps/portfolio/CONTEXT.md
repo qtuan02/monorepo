@@ -8,7 +8,7 @@ từ vựng riêng của app, chốt lần đầu ở vòng grill 2026-09-06.
 
 **CV site**:
 Chính app này: một trang, đọc theo thứ tự một bản CV — hero → giới thiệu → quá trình làm việc →
-dự án → kỹ năng → học vấn → liên hệ. Một cột trên điện thoại; từ desktop là **cột đọc** + **rail**
+dự án → kỹ năng → học vấn → liên hệ. Một cột trên điện thoại; từ tablet dọc (`md`) là **cột đọc** + **rail**
 (xem dưới), thứ tự DOM không đổi. Quá trình làm việc là phần chính; dự án là
 phần phụ **học và demo**, đáng một link chứ không đáng một pitch (#125). Người đọc là nhà tuyển dụng và crawler.
 _Avoid_: portfolio (gợi ý dự án đứng trước công việc), landing page, trang cá nhân
@@ -51,9 +51,10 @@ của light chứ không phải bản làm mờ. Hệ quả: mọi tỉ lệ tư
 _Avoid_: dark mode "dịu", dimmed.
 
 **Rail**:
-Cột 1/3 bên phải từ `lg`, dính khi cuộn, chứa phần tham chiếu — kỹ năng, học vấn, liên hệ, sở
-thích (section 5–8). Bên trái là **cột đọc** 2/3 — giới thiệu, quá trình làm việc, dự án (section
-2–4). Hero trải cả hai. Hai nhóm đúng là thứ tự DOM cắt làm đôi, nên không có gì được sắp lại
+Cột bên phải từ `md` — 2/5 ở tablet dọc, 1/3 từ `lg` — dính khi cuộn ở cả hai, chứa phần tham
+chiếu — kỹ năng, học vấn, liên hệ, sở thích (section 5–8). Bên trái là **cột đọc** — 3/5 rồi 2/3 —
+giới thiệu, quá trình làm việc, dự án (section 2–4). Ngưỡng `md` chốt ở vòng responsive
+2026-09-18: một cột 720 px cho ~100 ký tự/dòng. Hero trải cả hai. Hai nhóm đúng là thứ tự DOM cắt làm đôi, nên không có gì được sắp lại
 về mặt đọc. (#123)
 _Avoid_: sidebar (gợi điều hướng), cột phụ.
 
@@ -62,7 +63,8 @@ Trạng thái hover của **mọi** khối tiêu chuẩn, hero lẫn khối tĩn
 về phía bóng và bóng rút từ 4px về 2px (utility `shadow-hard-pressed`, cặp với `shadow-hard`).
 Trên trang này lún là chất liệu, không phải lời hứa bấm được (#124 mở rộng từ #123, vốn chỉ cho
 khối bấm được). Riêng **control trong dock** không lún theo hover — thanh đã lún rồi — mà lún 1px
-khi bấm (`:active`). Ngược với "nhấc" (lift) của v1.
+khi bấm (`:active`). Ngược với "nhấc" (lift) của v1. Ngoại lệ (2026-09-18): dưới `sm` dock là **thanh chạm đáy**
+(xem dưới) và không lún — một thanh full-width dịch 2px sẽ hở khe; control trong nó vẫn lún 1px khi bấm.
 _Avoid_: lift, hover scale.
 
 **Neutral override**:
@@ -70,3 +72,11 @@ Hai token `--foreground` và `--border` app đẩy về hai cực ở tầng app
 khác với theme EMR dùng chung; `--muted-foreground` cố ý **không** thuộc nhóm này. App duy nhất
 trong workspace làm vậy; hợp đồng ghim ở `test/globals.test.ts`.
 _Avoid_: đổi theme, sửa `tooling/tailwind`.
+
+**Thanh chạm đáy** (dock dưới `sm`):
+Hình dạng của dock trên điện thoại từ vòng responsive 2026-09-18: cùng `<nav>` và năm control ấy,
+nhưng trải hết bề rộng viewport, chạm mép dưới, chỉ còn viền trên, không bóng, không lún; nhãn ngôn
+ngữ rút thành mã (`VI`/`EN`). Từ `sm` trở lại là **pill nổi** — khối `w-max` giữa màn, có
+bóng đặc và lún — đúng dock của v2. Một dock, hai hình theo breakpoint; không phải bottom nav
+(không điều hướng trong app).
+_Avoid_: bottom nav, tab bar, dock "mobile" như một component riêng.
