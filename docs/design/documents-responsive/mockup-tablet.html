@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>documents responsive — 768 px: hiện trạng ↔ đề xuất</title>
+<style>
+  :root{--ink:#312e81;--muted:#475569;--bg:#f4f5fb;--glass:rgb(255 255 255/.58);--tile:rgb(255 255 255/.75);--edge:rgb(255 255 255/.75);--primary:#4f46e5;--code:#312e81;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif;--sh:0 1px 0 rgb(255 255 255/.7) inset,0 1px 2px rgb(49 46 129/.06),0 12px 32px -8px rgb(49 46 129/.22)}
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px;background:#e4e6f2;font:14px/1.5 var(--sans);color:var(--ink)}
+  h1{font:700 18px var(--mono);margin:0 0 4px}
+  .note{max-width:78ch;margin:0 0 24px;color:var(--muted)}
+  .row-title{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;margin:32px 0 8px;color:var(--muted)}
+  .frames{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+  .frame{width:768px;flex:none}
+  .frame>h2{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px}
+  .screen{position:relative;width:768px;height:760px;overflow:hidden;border:2px solid var(--ink);border-radius:18px;color:var(--ink);
+    background:var(--bg);background-image:radial-gradient(50% 45% at 0% 0%,rgb(167 139 250/.7),transparent 70%),radial-gradient(45% 40% at 100% 5%,rgb(103 232 249/.6),transparent 70%),radial-gradient(40% 30% at 55% 35%,rgb(244 114 182/.45),transparent 70%)}
+  .measure{position:absolute;top:8px;right:8px;z-index:3;font:11px var(--mono);background:#ffe9e9;border:1px solid #c33;padding:2px 6px;color:#c33;border-radius:6px}
+  .p .measure{background:#e6f6ea;border-color:#2a7;color:#2a7}
+  /* pill */
+  .pillwrap{position:absolute;top:16px;left:16px;right:16px;display:flex;justify-content:center}
+  .pill{width:100%;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);backdrop-filter:blur(18px);overflow:visible}
+  .brand{display:flex;align-items:center;gap:10px;font:700 15px var(--sans);padding-right:12px;margin-right:4px;border-right:1px solid rgb(49 46 129/.1)}
+  .brand i{width:30px;height:30px;border-radius:10px;flex:none;background:conic-gradient(from 210deg,#6366f1,#a78bfa,#67e8f9,#f472b6,#fbbf24,#6366f1)}
+  .cur .brand span{width:70px;line-height:1.1}
+  .p .brand span{white-space:nowrap}
+  .links{display:flex;gap:4px}
+  .links a{display:block;padding:6px 14px;border-radius:999px;font:500 14px var(--sans);color:rgb(49 46 129/.75);text-decoration:none}
+  .links a.on{background:var(--ink);color:#fff}
+  .cur .links a.on{width:66px;line-height:1.2}
+  .p .links a{white-space:nowrap}
+  .rc{width:36px;height:36px;border-radius:50%;border:1px solid var(--edge);background:var(--glass);display:flex;align-items:center;justify-content:center;flex:none;color:rgb(49 46 129/.8)}
+  .rc svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+  .search{margin-left:auto;height:36px;width:256px;flex:none;border-radius:999px;border:1px solid var(--edge);background:var(--glass);display:flex;align-items:center;gap:10px;padding:0 8px 0 14px;color:var(--muted);font-size:13.5px;white-space:nowrap}
+  .search kbd{margin-left:auto;font:11px var(--mono);border:1px solid rgb(49 46 129/.15);background:#fff;border-radius:6px;padding:2px 6px;color:var(--ink)}
+  .p .search{width:36px;padding:0;justify-content:center}
+  .p .search span,.p .search kbd{display:none}
+  .acts{display:flex;gap:6px}
+  .cut{position:absolute;top:0;bottom:0;right:0;width:2px;background:#c33;z-index:2}
+  .cut::after{content:"768";position:absolute;top:80px;right:4px;font:11px var(--mono);color:#c33}
+  /* page */
+  .page{position:absolute;inset:0;padding:110px 16px 0;overflow:hidden}
+  .h2{font:800 30px var(--mono);letter-spacing:-.04em;margin:0 0 4px;background:linear-gradient(90deg,#6366f1,#a78bfa,#f472b6,#fb923c);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .guide{color:var(--muted);margin:0 0 18px;max-width:65ch}
+  .panel{padding:28px;border-radius:18px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);backdrop-filter:blur(18px);display:grid;gap:28px;margin-bottom:16px}
+  .cur .panel{grid-template-columns:260px 1fr}
+  .kick{font:600 12px var(--mono);letter-spacing:.06em;color:var(--primary);margin:0}
+  .panel h3{font:600 24px var(--sans);letter-spacing:-.03em;margin:6px 0 0}
+  .panel p{margin:8px 0 0;color:var(--muted);font-size:16px}
+  .code{position:relative;min-width:0;border-radius:14px;background:var(--code);color:#e0e7ff;font:13.5px/1.7 var(--mono);padding:16px 56px 16px 16px;white-space:pre;overflow:hidden}
+  .code .cp{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgb(224 231 255/.12)}
+  .code .k{color:#c4b5fd}.code .s{color:#67e8f9}
+  .cur .code::after{content:"";position:absolute;right:0;top:0;bottom:0;width:70px;background:linear-gradient(90deg,transparent,rgb(49 46 129/.95))}
+  .cur .code .bar{position:absolute;left:16px;right:16px;bottom:6px;height:4px;border-radius:2px;background:rgb(255 255 255/.15)}
+  .cur .code .bar i{display:block;width:55%;height:100%;border-radius:2px;background:rgb(255 255 255/.5)}
+  .p .panel{grid-template-columns:1fr;gap:20px}
+  /* cards */
+  .cards{display:grid;gap:16px;margin-bottom:20px}
+  .cur .cards{grid-template-columns:1.2fr 1fr 1fr}
+  .p .cards{grid-template-columns:1fr 1fr}
+  .card{position:relative;min-height:150px;padding:22px;border-radius:18px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden}
+  .card .hd{position:absolute;top:20px;left:22px;font:600 12.5px var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .card .num{font:800 56px/1 var(--sans);letter-spacing:-.05em}
+  .card .lbl{margin-left:8px;font:500 15px var(--sans);color:var(--muted)}
+  .cur .card .lbl.wrap{display:block;margin:4px 0 0}
+  .card.sb{background:linear-gradient(135deg,#4f46e5,#a78bfa);color:#fff}
+  .card.sb .hd{color:#fff}
+  .card.sb .cta{display:inline-flex;width:max-content;padding:8px 16px;border-radius:999px;background:#fff;color:var(--ink);font:600 14px var(--sans)}
+  .p .card.sb{grid-column:1/-1;min-height:120px}
+  .card .sw{position:absolute;right:-30px;bottom:-30px;width:150px;height:150px;border-radius:40px;opacity:.9;filter:blur(2px)}
+</style>
+</head>
+<body>
+<h1>apps/documents — 768 px (tablet dọc)</h1>
+<p class="note">Trái: hiện trạng đo trên bản build — <code>scrollWidth 815/768</code>: ô tìm <code>md:w-64</code> 256 px đẩy pill lên 850 px, brand và "Bắt đầu" vỡ dòng, hai nút npm/Storybook ra ngoài màn; <code>DocsSection</code> hai cột 260|374 nên cả 5 snippet cuộn ngang; ba card 1.2/1/1 cho card Hook 225 px, nhãn vỡ. Phải: đề xuất §3.1-A / §3.2 / §3.7 của brief — ô tìm rộng chỉ từ <code>lg</code> (ở <code>md</code> là nút tròn), <code>DocsSection</code> một cột tới <code>lg</code>, card 2 cột + Storybook trải hai. Cùng một DOM, chỉ đổi class theo breakpoint.</p>
+
+<p class="row-title">1 · Nav pill + Getting Started</p>
+<div class="frames">
+<div class="frame cur"><h2>Hiện trạng</h2><div class="screen">
+<div class="measure">scrollWidth 815 · pill 70 px</div>
+<div class="cut"></div>
+<div class="pillwrap"><div class="pill" style="width:799px">
+  <div class="brand"><i></i><span>@fe-monorepo</span></div>
+  <div class="links"><a class="on">Bắt đầu</a><a>Component</a><a>Hook</a></div>
+  <div class="search">⌕ <span>Tìm component, hook…</span><kbd>Ctrl K</kbd></div>
+  <div class="acts"><div class="rc">🇻🇳</div><div class="rc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M9 4v8l3-2 3 2V4"/></svg></div></div>
+</div></div>
+<div class="page">
+  <div class="cards">
+    <div class="card"><span class="hd">Component</span><span class="sw" style="background:conic-gradient(#6366f1,#67e8f9,#6366f1)"></span><span><span class="num">63</span><span class="lbl">primitive Base UI</span></span></div>
+    <div class="card"><span class="hd">Hook</span><span class="sw" style="background:linear-gradient(135deg,#f472b6,#fbbf24)"></span><span><span class="num">18</span><span class="lbl wrap">hook dùng<br>chung</span></span></div>
+    <div class="card sb"><span class="hd">Demo &amp; bảng props</span><span class="cta">Mở Storybook ↗</span></div>
+  </div>
+  <p class="h2">@fe-monorepo/ui</p>
+  <p class="guide">Primitive Base UI kiểu shadcn `base-vega`, mỗi component một subpath. Cần Tailwind v4 và một dòng import stylesheet.</p>
+  <div class="panel">
+    <div><p class="kick">03 / 06</p><h3>Nối stylesheet</h3><p>Hai dòng trong entry Tailwind v4 của bạn — không có dòng @source nào phải tự viết.</p></div>
+    <div class="code"><span class="cp"></span><span class="k">/* src/index.css */</span>
+<span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+<span class="k">@import</span> <span class="s">"@fe-monorepo/ui/globals.css"</span>;<span class="bar"><i></i></span></div>
+  </div>
+</div>
+</div></div>
+
+<div class="frame p"><h2>Đề xuất — A: ô tìm rộng từ lg, DocsSection 1 cột tới lg</h2><div class="screen">
+<div class="measure">pill 634 (vi) / 694 (en) &lt; 714</div>
+<div class="pillwrap"><div class="pill">
+  <div class="brand"><i></i><span>@fe-monorepo</span></div>
+  <div class="links"><a class="on">Bắt đầu</a><a>Component</a><a>Hook</a></div>
+  <div class="search">⌕</div>
+  <div class="acts"><div class="rc">🇻🇳</div><div class="rc"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M9 4v8l3-2 3 2V4"/></svg></div></div>
+</div></div>
+<div class="page" style="padding-top:94px">
+  <div class="cards">
+    <div class="card"><span class="hd">Component</span><span class="sw" style="background:conic-gradient(#6366f1,#67e8f9,#6366f1)"></span><span><span class="num">63</span><span class="lbl">primitive Base UI</span></span></div>
+    <div class="card"><span class="hd">Hook</span><span class="sw" style="background:linear-gradient(135deg,#f472b6,#fbbf24)"></span><span><span class="num">18</span><span class="lbl">hook dùng chung</span></span></div>
+    <div class="card sb"><span class="hd">Demo &amp; bảng props</span><span class="cta">Mở Storybook ↗</span></div>
+  </div>
+  <p class="h2">@fe-monorepo/ui</p>
+  <div class="panel">
+    <div><p class="kick">03 / 06</p><h3>Nối stylesheet</h3><p>Hai dòng trong entry Tailwind v4 của bạn — không có dòng @source nào phải tự viết.</p></div>
+    <div class="code"><span class="cp"></span><span class="k">/* src/index.css */</span>
+<span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+<span class="k">@import</span> <span class="s">"@fe-monorepo/ui/globals.css"</span>;</div>
+  </div>
+</div>
+</div></div>
+</div>
+</body>
+</html>
