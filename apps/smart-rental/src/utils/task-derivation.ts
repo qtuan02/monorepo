@@ -9,6 +9,7 @@ import type { Task } from "~/types/task";
 import type { Tenant } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
 import { deriveContractStatus, isContractLive } from "~/utils/contract-status";
+import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
 import { formatMonth } from "~/utils/date";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
 import { findAnomalousUtilities } from "~/utils/utility-anomaly";
@@ -140,12 +141,7 @@ export function deriveTasks(
   // with no Hoá đơn of the current Kỳ yet, and only once the Kỳ's own ngày
   // chốt (cuối tháng) has passed. Đang chốt dở, still within the month, is
   // not yet a Việc — it is the Kỳ progress KPI's job to say so.
-  const cycleEndDate = dayjs(currentMonth, "YYYY-MM")
-    .endOf("month")
-    .format("YYYY-MM-DD");
-  const isPastCycleEnd = todayIso >= cycleEndDate;
-
-  if (isPastCycleEnd) {
+  if (isCycleClosingDatePassed(currentMonth, today)) {
     for (const building of buildings) {
       const hasInvoicesThisCycle = invoices.some(
         (invoice) =>

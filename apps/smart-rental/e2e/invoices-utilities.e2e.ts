@@ -146,80 +146,54 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     ).toBe(true);
   });
 
-  // Ticket #164, spec #153 §10 row 12 — "Phòng thiếu Chỉ số không tick được".
-  // The Mock only carries Chỉ số through 09/2026, so any later kỳ has none
-  // yet — every row of the Đợt hoá đơn table is "chưa đủ điều kiện".
-  test("Đợt hoá đơn: a kỳ with no Chỉ số ticks nothing and blocks the submit", async ({
+  // Ticket #182, ADR-0013 — "Kỳ điện nước & hoá đơn" replaced Đợt hoá đơn +
+  // Nhập chỉ số. The Mock only carries Chỉ số through 09/2026, so a kỳ after
+  // that has none yet — every occupied Phòng of that kỳ is "Thiếu chỉ số"
+  // and the lập button counts zero.
+  test("Kỳ: a month with no Chỉ số shows Thiếu chỉ số and blocks Lập", async ({
     page,
   }) => {
-    await page.goto(ROUTES.INVOICE_BATCH);
-    await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
-
-    await page.getByRole("button", { name: "Kỳ hoá đơn" }).click();
     const nextMonth = new Date();
     nextMonth.setMonth(nextMonth.getMonth() + 1);
-    await page
-      .getByRole("button", { name: `Th ${nextMonth.getMonth() + 1}` })
-      .click();
+    const month = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, "0")}`;
+
+    await page.goto(ROUTES.cycleDetailPath(month));
+    await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
 
     const row = page.getByRole("row", { name: "Phòng 102" });
-    await expect(row.getByText("Chưa đủ điều kiện")).toBeVisible();
-    await expect(row.getByRole("checkbox")).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
+    await expect(row.getByText("Thiếu chỉ số")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Tạo & Gửi 0 hoá đơn" }),
+      page.getByRole("button", { name: "Lập 0 hoá đơn" }),
     ).toBeDisabled();
   });
 
-  test("derives consumption and status while a reading is typed, and gates the save button on duyệt", async ({
+  // Kỳ 09/2026 is the Mock's "đang chốt dở" kỳ (ADR-0013): a READY Phòng,
+  // an ANOMALY one, and one still MISSING — chỉ số mới arrives pre-filled
+  // from the saved Nháp, and Lập stays disabled until the kỳ's ngày chốt.
+  test("Kỳ hiện tại: chỉ số mới điền sẵn Nháp; Lập vẫn khoá trước ngày chốt", async ({
     page,
   }) => {
-    await page.goto(ROUTES.METER_INPUT);
-    // Nhập chỉ số needs a Toà nhà scoped first (spec #153 §10 row 4) — the
-    // shell's own scope row sits above the routed content on every screen.
+    await page.goto(ROUTES.cycleDetailPath("2026-09"));
     await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
 
-    // Cells join with no separator ("Phòng 1021000—1000—…"), so a `\b`-based
-    // regex can't tell "102" from the start of "1000" — a plain substring
-    // match still lands on the one row that starts with it.
-    const row = page.getByRole("row", { name: "Phòng 102" });
-    await expect(row.getByText("Chưa nhập")).toBeVisible();
-
-    await row.getByLabel("Chỉ số điện mới phòng Phòng 102").fill("99999");
-    // Playwright's text match is case-insensitive by default, and "Duyệt bất
-    // thường" would otherwise also match — the badge's own text is exact.
-    await expect(row.getByText("Bất thường", { exact: true })).toBeVisible();
-
-    const saveButton = page.getByRole("button", { name: /^Lưu \d+ chỉ số$/ });
-    await expect(saveButton).toBeDisabled();
+    // Cells join with no separator, so a plain substring match still lands
+    // on the one row that starts with it.
+    const readyRow = page.getByRole("row", { name: "Phòng 102" });
+    await expect(readyRow.getByText("Sẵn sàng")).toBeVisible();
     await expect(
-      page.getByText(/Có chỉ số bất thường chưa được duyệt/),
+      readyRow.getByLabel("Chỉ số điện mới phòng Phòng 102"),
+    ).not.toHaveValue("");
+
+    const anomalyRow = page.getByRole("row", { name: "Phòng 103" });
+    await expect(
+      anomalyRow.getByText("Bất thường", { exact: true }),
     ).toBeVisible();
 
-    await row.getByRole("button", { name: "Duyệt bất thường" }).click();
-    await expect(row.getByText("Đã duyệt", { exact: true })).toBeVisible();
-    await expect(saveButton).toBeEnabled();
-  });
+    const missingRow = page.getByRole("row", { name: "Phòng 106" });
+    await expect(missingRow.getByText("Thiếu chỉ số")).toBeVisible();
 
-  // Ticket #163, spec #153 §10 row 27 — no eight-column table at 390 px.
-  test("swaps to a Phòng card list at 390 px, with no horizontal overflow", async ({
-    page,
-  }) => {
-    await page.goto(ROUTES.METER_INPUT);
-    await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
-    await page.setViewportSize({ width: 390, height: 844 });
-
-    await expect(page.getByRole("table")).toBeHidden();
     await expect(
-      page.locator('[data-slot="meter-input-mobile-card"]').first(),
-    ).toBeVisible();
-
-    const contentWidth = await page.evaluate(() => {
-      const content = document.querySelector("main");
-      return content ? content.scrollWidth - content.clientWidth : 0;
-    });
-    expect(contentWidth).toBeLessThanOrEqual(1);
+      page.getByRole("button", { name: /^Lập \d+ hoá đơn$/ }),
+    ).toBeDisabled();
   });
 });

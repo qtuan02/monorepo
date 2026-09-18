@@ -4,9 +4,7 @@ import type { PriceList } from "~/types/building";
 import type { Utility } from "~/types/utility";
 import {
   calculateUtilityStats,
-  combineMeterStatus,
   estimateUtilityCost,
-  readMeter,
 } from "~/features/utilities/utils/meter-reading";
 
 const priceList: PriceList = {
@@ -32,56 +30,6 @@ function utility(overrides: Partial<Utility>): Utility {
     ...overrides,
   };
 }
-
-describe("readMeter", () => {
-  it("is empty until something is typed", () => {
-    expect(readMeter(1250, "")).toEqual({ consumption: null, status: null });
-    expect(readMeter(1250, "  ")).toEqual({ consumption: null, status: null });
-  });
-
-  it("consumption is new − old, as a draft, under 2× the previous period", () => {
-    expect(readMeter(1250, "1300", 40)).toEqual({
-      consumption: 50,
-      status: "draft",
-    });
-  });
-
-  it("flags a reading below the last one as an anomaly", () => {
-    expect(readMeter(1250, "1200")).toEqual({
-      consumption: -50,
-      status: "anomaly",
-    });
-  });
-
-  it("flags consumption above 2× the previous period as an anomaly (ADR-0012)", () => {
-    expect(readMeter(1000, "1250", 100)).toEqual({
-      consumption: 250,
-      status: "anomaly",
-    });
-  });
-
-  it("has no previous period to compare against — never anomalous by ratio", () => {
-    expect(readMeter(1000, "5000")).toEqual({
-      consumption: 4000,
-      status: "draft",
-    });
-  });
-
-  it("flags a non-number as an anomaly rather than NaN", () => {
-    expect(readMeter(1250, "abc")).toEqual({
-      consumption: null,
-      status: "anomaly",
-    });
-  });
-});
-
-describe("combineMeterStatus", () => {
-  it("lets an anomaly win, then a draft, else untouched", () => {
-    expect(combineMeterStatus(null, null)).toBeNull();
-    expect(combineMeterStatus("draft", null)).toBe("draft");
-    expect(combineMeterStatus("draft", "anomaly")).toBe("anomaly");
-  });
-});
 
 describe("estimateUtilityCost", () => {
   it("prices off the Toà nhà's own Bảng giá, never a hard-coded rate", () => {

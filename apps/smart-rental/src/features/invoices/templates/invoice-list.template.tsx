@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bell, Download, FileText, Plus } from "lucide-react";
 import { Link } from "react-router";
 
+import dayjs from "@monorepo/dayjs";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import { toast } from "@monorepo/ui/components/toast";
 
@@ -41,7 +42,8 @@ function exportInvoicesCsv(invoices: Invoice[]) {
  * "Quản lý hoá đơn" — the list-screen foundation's exemplar (spec #153
  * §10 rows 16/35/36): a KPI strip, the list composite in card or table view,
  * a selection action bar once rows are checked, and a mobile Item list when
- * the table itself is showing. "Tạo hoá đơn" leads to the Đợt hoá đơn screen.
+ * the table itself is showing. "Tạo hoá đơn" leads to the current Kỳ screen
+ * (ADR-0013).
  */
 export default function InvoiceListTemplate() {
   const [view, setView] = useListView();
@@ -63,7 +65,7 @@ export default function InvoiceListTemplate() {
         description={`${stats.total} hoá đơn`}
         actions={
           <Link
-            to={ROUTES.INVOICE_BATCH}
+            to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
             className={buttonVariants({ size: "sm" })}
           >
             <Plus />

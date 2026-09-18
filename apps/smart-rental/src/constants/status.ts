@@ -27,6 +27,7 @@ import type {
   ResidenceNotificationStatus,
 } from "~/types/compliance";
 import type { ContractStatus, DepositStatus } from "~/types/contract";
+import type { CycleRowStatus } from "~/types/cycle";
 import type { InvoicePaymentMethod, InvoiceStatus } from "~/types/invoice";
 import type { ReconciliationStatus } from "~/types/reconciliation";
 import type { OccupancyBucket } from "~/types/report";
@@ -37,11 +38,7 @@ import type {
 } from "~/types/supplier-bill";
 import type { TaskPriority, TaskStatus, TaskType } from "~/types/task";
 import type { TenantStatus } from "~/types/tenant";
-import type {
-  MeterEntryStatus,
-  UtilityStatus,
-  UtilityType,
-} from "~/types/utility";
+import type { UtilityStatus, UtilityType } from "~/types/utility";
 
 /**
  * The one home for every status/display config (spec #127 folded the
@@ -136,16 +133,22 @@ export const utilityStatusConfig: Record<UtilityStatus, StatusConfig> = {
   },
 };
 
-/** "Nhập chỉ số"'s own live badge — never a persisted `UtilityStatus`. */
-export const meterEntryStatusConfig: Record<MeterEntryStatus, StatusConfig> = {
-  draft: { label: "Nháp", className: statusTone.neutral, icon: Clock },
-  anomaly: {
+/** One row's badge on "Kỳ điện nước & hoá đơn" (ADR-0013) — never persisted, `cycle-rows` derives it fresh from the Mock every read. */
+export const cycleRowStatusConfig: Record<CycleRowStatus, StatusConfig> = {
+  EMPTY: { label: "Không lập", className: statusTone.muted, icon: Circle },
+  MISSING: {
+    label: "Thiếu chỉ số",
+    className: statusTone.warning,
+    icon: Clock,
+  },
+  ANOMALY: {
     label: "Bất thường",
     className: statusTone.error,
     icon: AlertCircle,
   },
-  approved: {
-    label: "Đã duyệt",
+  READY: { label: "Sẵn sàng", className: statusTone.info, icon: CheckCircle2 },
+  INVOICED: {
+    label: "Đã có hoá đơn",
     className: statusTone.success,
     icon: CheckCircle2,
   },

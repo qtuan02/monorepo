@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 
+import dayjs from "@monorepo/dayjs";
 import { buttonVariants } from "@monorepo/ui/components/button";
 import {
   Card,
@@ -44,11 +45,13 @@ export default function DashboardTemplate() {
             : "Tổng quan hoạt động quản lý phòng trọ."
         }
         actions={
+          // Tạm trỏ sang màn Kỳ hiện tại (ADR-0013) — Hôm nay's own 3-KPI
+          // rework is a later ticket (spec #179).
           <Link
-            to={ROUTES.INVOICE_BATCH}
+            to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
             className={buttonVariants({ size: "sm" })}
           >
-            Lập đợt hoá đơn
+            Lập Đợt hoá đơn
           </Link>
         }
       />

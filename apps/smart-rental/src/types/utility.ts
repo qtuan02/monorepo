@@ -5,14 +5,11 @@
 export type UtilityType = "electricity" | "water";
 
 /**
- * Nháp → Đã chốt (ADR-0013) — "bất thường" is not a persisted state: it is
- * computed live while entering a reading (see `MeterEntryStatus`), never
+ * Nháp → Đã chốt (ADR-0013) — "bất thường" is never a persisted state: it is
+ * a cờ suy ra off the reading itself (see `~/utils/utility-anomaly`), never
  * written to a Chỉ số record.
  */
 export type UtilityStatus = "DRAFT" | "FINALIZED";
-
-/** The live "while typing" state of one reading on "Nhập chỉ số" — never persisted. */
-export type MeterEntryStatus = "draft" | "anomaly" | "approved";
 
 export interface Utility {
   id: string;
@@ -36,19 +33,4 @@ export interface UtilityListParams {
   buildingId?: string | null;
   /** Scope to one Phòng's own Chỉ số — a Hợp đồng detail screen's "Chỉ số" tab. */
   roomId?: string;
-}
-
-/**
- * One Phòng on the "Nhập chỉ số" screen: its last readings before the
- * selected kỳ, plus the previous period's own consumption — the baseline
- * `isUtilityAnomalous` needs to catch a "> 2× kỳ trước" reading, not just a
- * regression against the index alone.
- */
-export interface MeterInputRoom {
-  id: string;
-  name: string;
-  lastElectricity: number;
-  lastWater: number;
-  previousElectricityConsumption: number;
-  previousWaterConsumption: number;
 }

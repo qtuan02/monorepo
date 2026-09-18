@@ -13,7 +13,6 @@ import GuestRoute from "~/features/auth/provider/guest-route";
 import ProtectedRoute from "~/features/auth/provider/protected-route";
 import AuthLayoutTemplate from "~/features/auth/templates/auth-layout.template";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
-import BatchInvoicePage from "./batch-invoice-page";
 import BuildingDetailPage from "./building-detail-page";
 import BuildingListPage from "./building-list-page";
 import CommunicationsPage from "./communications-page";
@@ -23,12 +22,12 @@ import ContractDetailPage from "./contract-detail-page";
 import ContractLiquidationPage from "./contract-liquidation-page";
 import ContractListPage from "./contract-list-page";
 import ContractRenewPage from "./contract-renew-page";
+import CyclePage from "./cycle-page";
 import DashboardPage from "./dashboard-page";
 import ExpenseDetailPage from "./expense-detail-page";
 import ExpenseListPage from "./expense-list-page";
 import InvoiceDetailPage from "./invoice-detail-page";
 import InvoiceListPage from "./invoice-list-page";
-import MeterInputPage from "./meter-input-page";
 import ReconciliationPage from "./reconciliation-page";
 import ReportsOverviewPage from "./reports-overview-page";
 import RoomDetailPage from "./room-detail-page";
@@ -105,11 +104,11 @@ export function AppRoutes() {
           />
 
           <Route path={ROUTES.INVOICES} element={<InvoiceListPage />} />
-          <Route path={ROUTES.INVOICE_BATCH} element={<BatchInvoicePage />} />
           <Route path={ROUTES.INVOICE_DETAIL} element={<InvoiceDetailPage />} />
 
+          <Route path={ROUTES.CYCLE_DETAIL} element={<CyclePage />} />
+
           <Route path={ROUTES.UTILITIES} element={<UtilityListPage />} />
-          <Route path={ROUTES.METER_INPUT} element={<MeterInputPage />} />
           <Route path={ROUTES.UTILITY_DETAIL} element={<UtilityDetailPage />} />
 
           <Route

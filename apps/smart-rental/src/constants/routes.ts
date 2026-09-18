@@ -29,11 +29,12 @@ export const ROUTES = {
   CONTRACT_LIQUIDATION: "/contracts/:contractId/liquidation",
 
   INVOICES: "/invoices",
-  INVOICE_BATCH: "/invoices/batch",
   INVOICE_DETAIL: "/invoices/:invoiceId",
 
+  /** "Kỳ điện nước & hoá đơn" (ADR-0013) — one Toà nhà, one Kỳ; replaces INVOICE_BATCH + METER_INPUT. */
+  CYCLE_DETAIL: "/cycles/:month",
+
   UTILITIES: "/utilities",
-  METER_INPUT: "/utilities/meter-input",
   UTILITY_DETAIL: "/utilities/:utilityId",
 
   SUPPLIER_BILLS: "/supplier-bills",
@@ -61,6 +62,8 @@ export const ROUTES = {
   contractLiquidationPath: (contractId: string) =>
     `/contracts/${contractId}/liquidation`,
   invoiceDetailPath: (invoiceId: string) => `/invoices/${invoiceId}`,
+  /** `month` is `YYYY-MM`. */
+  cycleDetailPath: (month: string) => `/cycles/${month}`,
   utilityDetailPath: (utilityId: string) => `/utilities/${utilityId}`,
   supplierBillDetailPath: (billId: string) => `/supplier-bills/${billId}`,
   expenseDetailPath: (expenseId: string) => `/expenses/${expenseId}`,

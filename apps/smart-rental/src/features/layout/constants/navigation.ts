@@ -4,6 +4,7 @@ import {
   BarChart3,
   Bell,
   Building2,
+  CalendarRange,
   DoorOpen,
   Gauge,
   Home,
@@ -16,6 +17,8 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+
+import dayjs from "@monorepo/dayjs";
 
 import { ROUTES } from "~/constants/routes";
 
@@ -91,6 +94,19 @@ const invoicesItem: NavigationItem = {
   icon: ReceiptText,
 };
 
+/**
+ * "Kỳ điện nước & hoá đơn" (ADR-0013) — always points at the CURRENT kỳ,
+ * so opening it never asks the landlord to pick a month first. Replaces the
+ * old Đợt hoá đơn + Nhập chỉ số entries; `/utilities` keeps its own row as
+ * read-only history.
+ */
+const cyclesItem: NavigationItem = {
+  path: ROUTES.cycleDetailPath(dayjs().format("YYYY-MM")),
+  title: "Kỳ điện nước & hoá đơn",
+  description: "Chốt chỉ số điện nước và lập hoá đơn theo kỳ.",
+  icon: CalendarRange,
+};
+
 const utilitiesItem: NavigationItem = {
   path: ROUTES.UTILITIES,
   title: "Chỉ số điện nước",
@@ -156,6 +172,7 @@ export const navigationSections: NavigationSection[] = [
     label: "Quản lý",
     items: [
       contractsItem,
+      cyclesItem,
       invoicesItem,
       utilitiesItem,
       supplierBillsItem,

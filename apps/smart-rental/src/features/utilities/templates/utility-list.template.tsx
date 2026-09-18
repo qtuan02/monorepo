@@ -1,7 +1,4 @@
-import { FileText, Plus } from "lucide-react";
-import { Link } from "react-router";
-
-import { buttonVariants } from "@monorepo/ui/components/button";
+import { FileText } from "lucide-react";
 
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
@@ -9,7 +6,6 @@ import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
-import { ROUTES } from "~/constants/routes";
 import {
   toFilterOptions,
   utilityStatusConfig,
@@ -24,9 +20,10 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatMonth } from "~/utils/date";
 
 /**
- * "Chỉ số điện nước" (ADR-0011 — the heading now matches the glossary's
- * name). Three KPI tiles over the list composite, cards or table by
- * `?view=`. "Thêm chỉ số" leads to the meter-input screen.
+ * "Chỉ số điện nước" — lịch sử chỉ đọc từ ADR-0013: nhập/chốt chỉ số giờ
+ * sống ở màn "Kỳ điện nước & hoá đơn" (`/cycles/:month`), nên màn này không
+ * còn nút nhập. Ba KPI tile trên list composite, cards hoặc table theo
+ * `?view=`.
  */
 export default function UtilityListTemplate() {
   const [view, setView] = useListView();
@@ -41,16 +38,7 @@ export default function UtilityListTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Chỉ số điện nước"
-        description="Quản lý chỉ số điện nước và tiêu thụ hàng tháng."
-        actions={
-          <Link
-            to={ROUTES.METER_INPUT}
-            className={buttonVariants({ size: "sm" })}
-          >
-            <Plus />
-            Thêm chỉ số
-          </Link>
-        }
+        description="Lịch sử chỉ số điện nước và tiêu thụ hàng tháng."
       />
 
       {isLoading ? (

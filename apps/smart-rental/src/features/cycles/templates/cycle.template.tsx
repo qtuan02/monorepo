@@ -1,0 +1,294 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Receipt, Save } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router";
+
+import dayjs from "@monorepo/dayjs";
+import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import { Card, CardContent } from "@monorepo/ui/components/card";
+import {
+  Table,
+  TableBody,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@monorepo/ui/components/table";
+import { toast } from "@monorepo/ui/components/toast";
+
+import type { CycleFormValues } from "~/features/cycles/types/cycle-form";
+import type { CycleRow } from "~/types/cycle";
+import type { UtilityType } from "~/types/utility";
+import { ListPageHeader } from "~/components/page/list-page-header";
+import { BuildingScopeRequiredPanel } from "~/components/panel/building-scope-required-panel";
+import { ErrorPanel } from "~/components/panel/error-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
+import { ROUTES } from "~/constants/routes";
+import { CycleTableRow } from "~/features/cycles/components/cycle-table-row";
+import { cycleFormSchema } from "~/features/cycles/types/cycle-form";
+import { useGetBuilding } from "~/hooks/api/building";
+import {
+  useCreateCycleInvoices,
+  useGetCycleRows,
+  useSaveCycleReadings,
+} from "~/hooks/api/cycle";
+import { useBuildingStore } from "~/stores/use-building-store";
+import { formatCurrency } from "~/utils/currency";
+import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
+import { formatDate, formatMonth } from "~/utils/date";
+
+const FORM_ID = "cycle-form";
+
+/** `null` while the field is empty or not a whole number. */
+function parseNewIndex(input: string): number | null {
+  if (input.trim() === "") return null;
+  const value = Number(input);
+  return Number.isFinite(value) ? value : null;
+}
+
+interface CycleFormProps {
+  buildingId: string;
+  month: string;
+  rows: CycleRow[];
+}
+
+/**
+ * The Kỳ table for one Toà nhà + kỳ, remounted (via the parent's `key`)
+ * whenever either changes — a fresh mount is what gives it fresh
+ * `defaultValues` off the just-fetched `rows` (see
+ * `meter-input.template.tsx`'s own note on this shape, now folded in here).
+ */
+function CycleForm({ buildingId, month, rows }: CycleFormProps) {
+  const saveReadings = useSaveCycleReadings();
+  const createInvoices = useCreateCycleInvoices();
+  const form = useForm<CycleFormValues>({
+    resolver: zodResolver(cycleFormSchema),
+    defaultValues: {
+      rows: rows.map((row) => ({
+        roomId: row.roomId,
+        newElectricity:
+          row.newElectricity != null ? String(row.newElectricity) : "",
+        newWater: row.newWater != null ? String(row.newWater) : "",
+      })),
+    },
+  });
+
+  const readyCount = rows.filter((row) => row.status === "READY").length;
+  const closingDate = dayjs(month, "YYYY-MM").endOf("month").toDate();
+  const closingPassed = isCycleClosingDatePassed(month);
+  const disabledReason =
+    readyCount === 0
+      ? "Chưa có Phòng nào đủ điều kiện lập hoá đơn."
+      : !closingPassed
+        ? `Chỉ lập được từ sau ngày chốt của kỳ, ${formatDate(closingDate)}.`
+        : null;
+
+  const onSaveDraft = form.handleSubmit((values) => {
+    const entries: {
+      roomId: string;
+      roomName: string;
+      type: UtilityType;
+      oldIndex: number;
+      newIndex: number;
+      consumption: number;
+    }[] = [];
+
+    rows.forEach((row, index) => {
+      if (!row.contractId || row.status === "INVOICED") return;
+      const value = values.rows[index];
+      if (!value) return;
+
+      const newElectricity = parseNewIndex(value.newElectricity);
+      if (newElectricity !== null) {
+        entries.push({
+          roomId: row.roomId,
+          roomName: row.roomName,
+          type: "electricity",
+          oldIndex: row.oldElectricity,
+          newIndex: newElectricity,
+          consumption: newElectricity - row.oldElectricity,
+        });
+      }
+
+      const newWater = parseNewIndex(value.newWater);
+      if (newWater !== null) {
+        entries.push({
+          roomId: row.roomId,
+          roomName: row.roomName,
+          type: "water",
+          oldIndex: row.oldWater,
+          newIndex: newWater,
+          consumption: newWater - row.oldWater,
+        });
+      }
+    });
+
+    if (entries.length === 0) return;
+    saveReadings.mutate(
+      { buildingId, month, entries },
+      {
+        onSuccess: () =>
+          toast.add({ title: `Đã lưu nháp ${entries.length} chỉ số` }),
+      },
+    );
+  });
+
+  const onCreateInvoices = () => {
+    createInvoices.mutate(
+      { buildingId, month },
+      {
+        onSuccess: (created) =>
+          toast.add({
+            title: `Đã lập ${created.length} hoá đơn`,
+            type: "success",
+          }),
+      },
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Button
+          type="submit"
+          form={FORM_ID}
+          variant="outline"
+          size="sm"
+          disabled={saveReadings.isPending}
+        >
+          <Save />
+          Lưu nháp chỉ số
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          disabled={!!disabledReason || createInvoices.isPending}
+          onClick={onCreateInvoices}
+        >
+          <Receipt />
+          Lập {readyCount} hoá đơn
+        </Button>
+      </div>
+      {disabledReason && (
+        <p className="text-muted-foreground text-right text-sm">
+          {disabledReason}
+        </p>
+      )}
+
+      <form id={FORM_ID} onSubmit={onSaveDraft} noValidate>
+        <Card>
+          <CardContent className="overflow-x-auto p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-24">Phòng</TableHead>
+                  <TableHead>Điện cũ</TableHead>
+                  <TableHead>Điện mới</TableHead>
+                  <TableHead>Tiêu thụ điện</TableHead>
+                  <TableHead>Nước cũ</TableHead>
+                  <TableHead>Nước mới</TableHead>
+                  <TableHead>Tiêu thụ nước</TableHead>
+                  <TableHead>Tiền phòng</TableHead>
+                  <TableHead>Tiền điện</TableHead>
+                  <TableHead>Tiền nước</TableHead>
+                  <TableHead className="text-right">Tổng</TableHead>
+                  <TableHead className="text-right">Trạng thái</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {rows.map((row, index) => (
+                  <CycleTableRow
+                    key={row.roomId}
+                    index={index}
+                    row={row}
+                    control={form.control}
+                  />
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </form>
+    </div>
+  );
+}
+
+interface CycleRowsSectionProps {
+  buildingId: string;
+  month: string;
+}
+
+function CycleRowsSection({ buildingId, month }: CycleRowsSectionProps) {
+  const rowsQuery = useGetCycleRows(buildingId, month);
+
+  if (rowsQuery.isLoading) return <CardGridSkeleton itemCount={1} />;
+  if (rowsQuery.isError) {
+    return (
+      <ErrorPanel
+        description="Không tải được dữ liệu của kỳ."
+        action={{ label: "Thử lại", onClick: () => rowsQuery.refetch() }}
+      />
+    );
+  }
+
+  return (
+    <CycleForm
+      key={`${buildingId}-${month}`}
+      buildingId={buildingId}
+      month={month}
+      rows={rowsQuery.data ?? []}
+    />
+  );
+}
+
+interface CycleTemplateProps {
+  /** `YYYY-MM`, declared on the route path — always present when this renders. */
+  month: string;
+}
+
+/**
+ * "Kỳ điện nước & hoá đơn" (`/cycles/:month`, ADR-0013) — one Toà nhà, the
+ * whole chuỗi tháng in one screen: chỉ số cũ (đọc), chỉ số mới điền sẵn
+ * Nháp, tiêu thụ, tiền theo Bảng giá của Toà nhà, trạng thái hàng, rồi
+ * "Lưu nháp chỉ số" và "Lập n hoá đơn". Replaces the old Đợt hoá đơn +
+ * Nhập chỉ số screens (spec #182).
+ */
+export default function CycleTemplate({ month }: CycleTemplateProps) {
+  const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
+  const buildingQuery = useGetBuilding(selectedBuildingId ?? "", {
+    enabled: !!selectedBuildingId,
+  });
+  const building = buildingQuery.data;
+
+  return (
+    <div className="space-y-6">
+      <ListPageHeader
+        title={
+          building
+            ? `Kỳ ${formatMonth(month)} · ${building.name}`
+            : "Kỳ điện nước & hoá đơn"
+        }
+        description={
+          building
+            ? `Bảng giá: ${formatCurrency(building.priceList.electricityPricePerKwh)}/kWh điện · ${formatCurrency(building.priceList.waterPricePerM3)}/m³ nước · ${formatCurrency(building.priceList.serviceFee)} dịch vụ`
+            : "Chốt chỉ số điện nước và lập hoá đơn cho các Phòng đủ điều kiện của kỳ."
+        }
+        actions={
+          <Link
+            to={ROUTES.UTILITIES}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            Xem các Kỳ trước
+          </Link>
+        }
+      />
+
+      {!selectedBuildingId ? (
+        <BuildingScopeRequiredPanel description="Kỳ áp dụng cho đúng một Toà nhà — chọn Toà nhà ở thanh phía trên." />
+      ) : buildingQuery.isLoading || !building ? (
+        <CardGridSkeleton itemCount={1} />
+      ) : (
+        <CycleRowsSection buildingId={selectedBuildingId} month={month} />
+      )}
+    </div>
+  );
+}

@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Bell, FileClock, Gauge, ShieldAlert, Wrench } from "lucide-react";
 import { Link } from "react-router";
 
+import dayjs from "@monorepo/dayjs";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import {
   Item,
@@ -67,7 +68,13 @@ function actionsFor(task: Task): TaskAction[] {
     case "residence_notification":
       return [{ kind: "link", label: "Khai báo", to: taskRelatedPath(task) }];
     case "batch_pending":
-      return [{ kind: "link", label: "Lập đợt", to: ROUTES.INVOICE_BATCH }];
+      return [
+        {
+          kind: "link",
+          label: "Lập đợt",
+          to: ROUTES.cycleDetailPath(dayjs().format("YYYY-MM")),
+        },
+      ];
     case "maintenance":
       return [{ kind: "link", label: "Xem", to: taskRelatedPath(task) }];
   }

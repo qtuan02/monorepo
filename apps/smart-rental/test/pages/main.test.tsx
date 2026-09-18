@@ -78,14 +78,8 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   [ROUTES.contractRenewPath("C004"), "Gia hạn hợp đồng", "HĐ-004"],
   [ROUTES.contractLiquidationPath("C004"), "Thanh lý hợp đồng", "HĐ-004"],
   [ROUTES.INVOICES, "Hoá đơn", "HÓA-001"],
-  // Scope null: both now require picking one Toà nhà first (spec #153 §10
-  // row 4) — the guard panel's own heading, not the form's mock text; see
-  // the dedicated "Building scope required" tests below for the full round
-  // trip once a Toà nhà is selected.
-  [ROUTES.INVOICE_BATCH, "Tạo hoá đơn hàng loạt"],
   [ROUTES.invoiceDetailPath("I002"), "Chi tiết hoá đơn", "HÓA-002"],
   [ROUTES.UTILITIES, "Chỉ số điện nước", "Phòng 102"],
-  [ROUTES.METER_INPUT, "Nhập chỉ số điện nước"],
   [
     ROUTES.utilityDetailPath("util-202609-R-B1-102-d"),
     "Chi tiết chỉ số điện nước",
@@ -465,47 +459,35 @@ describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
   });
 });
 
-// Ticket #159, spec #153 §10 row 4 — the two forms that need exactly one
-// Toà nhà rather than "every Toà nhà" or "no Toà nhà".
-describe("Building scope required — Đợt hoá đơn, Nhập chỉ số", () => {
+// Ticket #182, ADR-0013 — "Kỳ điện nước & hoá đơn" replaces Đợt hoá đơn +
+// Nhập chỉ số, and still needs exactly one Toà nhà rather than "every Toà
+// nhà" or "no Toà nhà" (spec #153 §10 row 4).
+describe("Building scope required — Kỳ điện nước & hoá đơn", () => {
   beforeEach(() => {
     useAuthStore.setState(initialAuthState, true);
     useBuildingStore.setState(initialBuildingState, true);
     useAuthStore.setState({ token: "a-token" });
   });
 
-  it("blocks Đợt hoá đơn until a Toà nhà is chosen", async () => {
-    renderAt(ROUTES.INVOICE_BATCH);
+  it("blocks Kỳ until a Toà nhà is chosen", async () => {
+    renderAt(ROUTES.cycleDetailPath("2026-09"));
 
     expect(
       await screen.findByText("Chọn một Toà nhà trước khi tiếp tục"),
     ).toBeInTheDocument();
-    expect(screen.queryByText("Nguyễn Văn A")).not.toBeInTheDocument();
   });
 
-  it("shows the Đợt hoá đơn form once a Toà nhà is selected", async () => {
+  it("shows the kỳ 09/2026 table, with a READY row, once b1 is selected", async () => {
     useBuildingStore.setState({ selectedBuildingId: "b1" });
-    renderAt(ROUTES.INVOICE_BATCH);
-
-    expect(await screen.findAllByText("Nguyễn Văn A")).not.toHaveLength(0);
-  });
-
-  it("blocks Nhập chỉ số until a Toà nhà is chosen", () => {
-    renderAt(ROUTES.METER_INPUT);
+    renderAt(ROUTES.cycleDetailPath("2026-09"));
 
     expect(
-      screen.getByText("Chọn một Toà nhà trước khi tiếp tục"),
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Kỳ 09/2026 · Trọ Sinh Viên Xanh",
+      }),
     ).toBeInTheDocument();
-  });
-
-  it("shows the Nhập chỉ số form once a Toà nhà is selected", async () => {
-    useBuildingStore.setState({ selectedBuildingId: "b1" });
-    renderAt(ROUTES.METER_INPUT);
-
-    expect(await screen.findAllByText("Phòng 102")).not.toHaveLength(0);
-    expect(
-      screen.getByRole("button", { name: "Lưu 0 chỉ số" }),
-    ).toBeInTheDocument();
+    expect(await screen.findAllByText("Sẵn sàng")).not.toHaveLength(0);
   });
 });
 

@@ -1,47 +1,6 @@
 import type { PriceList } from "~/types/building";
-import type { MeterEntryStatus, Utility, UtilityType } from "~/types/utility";
-import {
-  findAnomalousUtilities,
-  isUtilityAnomalous,
-} from "~/utils/utility-anomaly";
-
-export interface MeterReading {
-  /** New − old; `null` while the field is empty or not a number. */
-  consumption: number | null;
-  /** `null` while empty; `anomaly` when it regressed or is > 2× kỳ trước. */
-  status: MeterEntryStatus | null;
-}
-
-/**
- * What one cell of "Nhập chỉ số" says about a typed value — the ratio check
- * is the same pure `isUtilityAnomalous` a persisted Chỉ số is judged by
- * (ADR-0012), so the live badge and the derived one never disagree.
- */
-export function readMeter(
-  oldIndex: number,
-  input: string,
-  previousConsumption = 0,
-): MeterReading {
-  if (input.trim() === "") return { consumption: null, status: null };
-  const newIndex = Number(input);
-  if (!Number.isFinite(newIndex))
-    return { consumption: null, status: "anomaly" };
-  const consumption = newIndex - oldIndex;
-  const anomalous = isUtilityAnomalous(
-    { oldIndex, newIndex, consumption },
-    { consumption: previousConsumption },
-  );
-  return { consumption, status: anomalous ? "anomaly" : "draft" };
-}
-
-/** A row's badge over its two readings: an anomaly wins, a draft beats untouched. */
-export function combineMeterStatus(
-  ...statuses: (MeterEntryStatus | null)[]
-): MeterEntryStatus | null {
-  if (statuses.includes("anomaly")) return "anomaly";
-  if (statuses.includes("draft")) return "draft";
-  return null;
-}
+import type { Utility, UtilityType } from "~/types/utility";
+import { findAnomalousUtilities } from "~/utils/utility-anomaly";
 
 export const utilityUnit: Record<UtilityType, string> = {
   electricity: "kWh",
