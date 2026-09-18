@@ -80,4 +80,10 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 export default withSentry(withNextIntl(nextConfig), {
   org: "sentry",
   project: "portfolio_v1",
+
+  // Sentry's Vercel Cron auto-instrumentation reads `.next/next-server.js.nft.json`,
+  // a file `output: "standalone"` above does not emit in the same place — the read
+  // throws ENOENT and fails the Vercel build after Next itself already succeeded.
+  // This site has no Vercel Cron routes, so there is nothing for it to instrument.
+  automaticVercelMonitors: false,
 });
