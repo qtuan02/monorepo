@@ -386,4 +386,26 @@ test.describe("viewport", () => {
       META_MIN_PX,
     );
   });
+
+  // The 320 px commitment (#210 §8 Q6): the dock's `position: fixed` never
+  // contributed to `scrollWidth`, so the "never scrolls sideways" specs above
+  // stayed green while the bar itself sat 14 px off each edge at 375 px
+  // (#211). This measures the bar's own box against the viewport instead.
+  for (const width of [320, PHONE_WIDTH, 414]) {
+    test(`keeps the dock inside the viewport at ${width} px`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 800);
+
+      const nav = page.getByRole("navigation");
+      const box = await nav.boundingBox();
+      if (!box) throw new Error("the dock has no box");
+
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+      // Below `sm` the dock is a full-width bar (Thanh chạm đáy) rather than
+      // a centred pill, so at 375 it spans the viewport exactly.
+      if (width === PHONE_WIDTH) expect(box.width).toBe(width);
+    });
+  }
 });
