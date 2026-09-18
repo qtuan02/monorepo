@@ -1,0 +1,73 @@
+@import "@monorepo/tailwind-config/globals";
+
+/**
+ * Tailwind v4: scan classes from workspace UI package.
+ * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
+ */
+@source "../../../packages/ui";
+
+/**
+ * The teal palette of the source app (`chat-socket-fe`), kept as an app-layer
+ * override — the same move `apps/portfolio` (ADR-0008), `apps/documents`
+ * (ADR-0009) and `apps/smart-rental` (ADR-0011) make. Unlayered, exactly like
+ * those: `@monorepo/tailwind-config/globals` pulls `theme.css` in with a plain
+ * `@import`, so its `:root`/`.dark` blocks are unlayered too, and an
+ * unlayered declaration beats one in any `@layer` regardless of source order
+ * — written inside `@layer base` this would compile, ship, and lose with
+ * nothing logged.
+ *
+ * `--radius` is not overridden here: the source's `0.625rem` is already the
+ * shared theme's default (`theme.css`), so restating it would be a no-op.
+ *
+ * `--primary`/`--ring`/`--sidebar-primary` mirror each other, same as every
+ * other app-layer override in this repo — one hue, three tokens. The sidebar
+ * itself and its hover wash are tinted the same teal as the source, not left
+ * neutral. `--online` is a token this app introduces, not one the shared
+ * theme has — its own `@theme inline` entry maps it onto a Tailwind colour
+ * utility (`bg-online`, `text-online`), the one addition to that block a new
+ * token needs.
+ */
+:root {
+  --primary: oklch(0.5 0.14 175);
+  --primary-foreground: oklch(0.99 0.002 180);
+  --ring: oklch(0.5 0.14 175);
+
+  --accent: oklch(0.955 0.015 175);
+  --accent-foreground: oklch(0.25 0.015 260);
+
+  --sidebar: oklch(0.98 0.005 180);
+  --sidebar-foreground: oklch(0.17 0.015 260);
+  --sidebar-primary: oklch(0.5 0.14 175);
+  --sidebar-primary-foreground: oklch(0.99 0.002 180);
+  --sidebar-accent: oklch(0.945 0.018 175);
+  --sidebar-accent-foreground: oklch(0.25 0.015 260);
+  --sidebar-border: oklch(0.915 0.008 180);
+  --sidebar-ring: oklch(0.5 0.14 175);
+
+  /* Messenger-style online-presence dot. */
+  --online: oklch(0.7 0.17 155);
+}
+
+.dark {
+  --primary: oklch(0.65 0.16 175);
+  --primary-foreground: oklch(0.13 0.01 260);
+  --ring: oklch(0.65 0.16 175);
+
+  --accent: oklch(0.22 0.02 175);
+  --accent-foreground: oklch(0.96 0.005 180);
+
+  --sidebar: oklch(0.16 0.012 260);
+  --sidebar-foreground: oklch(0.96 0.005 180);
+  --sidebar-primary: oklch(0.65 0.16 175);
+  --sidebar-primary-foreground: oklch(0.96 0.005 180);
+  --sidebar-accent: oklch(0.22 0.02 175);
+  --sidebar-accent-foreground: oklch(0.96 0.005 180);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.65 0.16 175);
+
+  --online: oklch(0.75 0.18 155);
+}
+
+@theme inline {
+  --color-online: var(--online);
+}
