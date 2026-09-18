@@ -1,3 +1,4 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import { ROUTES } from "../src/constants/routes";
@@ -27,7 +28,7 @@ const PAGES = [
 const SCROLL_WIDTHS = [320, 375, 414, 768, 1024];
 
 async function gotoAndWaitForHeading(
-  page: import("@playwright/test").Page,
+  page: Page,
   width: number,
   path: string,
   heading: string,
@@ -101,5 +102,32 @@ test.describe("viewport", () => {
       );
 
     expect(overflowing).toEqual([]);
+  });
+
+  // The other acceptance-criteria measurement with no E2E coverage yet: the
+  // three count cards go two-up at 768, Storybook spanning both, and the
+  // narrower (Hook) card still clears the 340px floor. The card's accessible
+  // name leads with the count ("Hook 18 hook dùng chung"), which is what
+  // tells it apart from the plain "Hook" nav link and the guide's "Xem danh
+  // sách hook" link — both also point at `/hooks`.
+  test("sizes the Hook card at least 340px wide at 768px, with Storybook spanning both columns", async ({
+    page,
+  }) => {
+    await gotoAndWaitForHeading(page, 768, ROUTES.HOME, LANDING_HEADLINE);
+
+    const hookCard = page.getByRole("link", { name: /^Hook \d/ });
+    const storybookCard = page.locator('main a[target="_blank"]');
+
+    const [hookBox, storybookBox] = await Promise.all([
+      hookCard.boundingBox(),
+      storybookCard.boundingBox(),
+    ]);
+    if (!hookBox || !storybookBox) throw new Error("a count card has no box");
+
+    expect(hookBox.width).toBeGreaterThanOrEqual(340);
+    // Spans both columns: noticeably wider than the single narrower card
+    // rather than merely "wider than", so a regression back to one column
+    // (same width as the Hook card) fails this too.
+    expect(storybookBox.width).toBeGreaterThan(hookBox.width * 1.5);
   });
 });
