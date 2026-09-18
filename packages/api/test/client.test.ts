@@ -280,6 +280,153 @@ describe("createHttpClient — failures become HttpError", () => {
   });
 });
 
+describe("createHttpClient — onAuthError (401/403 refresh + retry)", () => {
+  /** Fails every request whose Authorization header isn't the refreshed token yet. */
+  function authAdapter(refreshedToken: string, failStatus: 401 | 403) {
+    return stubAdapter((config) => {
+      const ok =
+        config.headers.get("Authorization") === `Bearer ${refreshedToken}`;
+      return ok
+        ? { status: 200, data: { id: "1" } }
+        : { status: failStatus, data: {} };
+    });
+  }
+
+  it("retries the original request once with the refreshed token on 403", async () => {
+    const { adapter, calls } = authAdapter("new-token", 403);
+    const onAuthError = vi.fn().mockResolvedValue("new-token");
+    const client = createHttpClient({ baseURL: BASE_URL, onAuthError });
+
+    await expect(client.get("/templates", { adapter })).resolves.toEqual({
+      id: "1",
+    });
+
+    expect(onAuthError).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(2);
+    expect(calls[1]?.headers.get("Authorization")).toBe("Bearer new-token");
+  });
+
+  it("does the same on 401", async () => {
+    const { adapter, calls } = authAdapter("new-token", 401);
+    const onAuthError = vi.fn().mockResolvedValue("new-token");
+    const client = createHttpClient({ baseURL: BASE_URL, onAuthError });
+
+    await expect(client.get("/templates", { adapter })).resolves.toEqual({
+      id: "1",
+    });
+    expect(onAuthError).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(2);
+  });
+
+  it("throws the original error and still fires onUnauthorized once when onAuthError resolves null", async () => {
+    const { adapter } = stubAdapter(() => ({ status: 401, data: {} }));
+    const onAuthError = vi.fn().mockResolvedValue(null);
+    const onUnauthorized = vi.fn();
+    const client = createHttpClient({
+      baseURL: BASE_URL,
+      onAuthError,
+      onUnauthorized,
+    });
+
+    const error = await rejection(client.get("/templates", { adapter }));
+
+    expect(error.statusCode).toBe(401);
+    expect(onAuthError).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).toHaveBeenCalledTimes(1);
+    expect(onUnauthorized).toHaveBeenCalledWith(error);
+  });
+
+  it("throws the original error, with no retry, when onAuthError itself throws", async () => {
+    const { adapter, calls } = stubAdapter(() => ({ status: 403, data: {} }));
+    const onAuthError = vi
+      .fn()
+      .mockRejectedValue(new Error("refresh endpoint is down"));
+    const client = createHttpClient({ baseURL: BASE_URL, onAuthError });
+
+    const error = await rejection(client.get("/templates", { adapter }));
+
+    expect(error.statusCode).toBe(403);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("does not call onAuthError a second time when the retried request fails the same way", async () => {
+    const { adapter, calls } = stubAdapter(() => ({ status: 403, data: {} }));
+    const onAuthError = vi.fn().mockResolvedValue("new-token");
+    const client = createHttpClient({ baseURL: BASE_URL, onAuthError });
+
+    const error = await rejection(client.get("/templates", { adapter }));
+
+    expect(error.statusCode).toBe(403);
+    expect(onAuthError).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(2); // the original request plus its one retry
+  });
+
+  it("dedupes concurrent 403s across requests into a single onAuthError call", async () => {
+    const { adapter, calls } = authAdapter("shared-token", 403);
+    let resolveRefresh!: (token: string | null) => void;
+    const refreshPromise = new Promise<string | null>((resolve) => {
+      resolveRefresh = resolve;
+    });
+    const onAuthError = vi.fn(() => refreshPromise);
+    const client = createHttpClient({ baseURL: BASE_URL, onAuthError });
+
+    const results = Promise.all([
+      client.get("/a", { adapter }),
+      client.get("/b", { adapter }),
+      client.get("/c", { adapter }),
+    ]);
+
+    // Flush microtasks so all three failing requests reach the interceptor —
+    // and dedupe into the one shared `refreshing` promise — before it settles.
+    for (let i = 0; i < 10; i++) {
+      await Promise.resolve();
+    }
+    resolveRefresh("shared-token");
+
+    await expect(results).resolves.toEqual([
+      { id: "1" },
+      { id: "1" },
+      { id: "1" },
+    ]);
+    expect(onAuthError).toHaveBeenCalledTimes(1);
+    expect(calls).toHaveLength(6); // 3 originals + 3 retries
+  });
+
+  it("retries with the new token when getAuthToken and onAuthError are both configured", async () => {
+    // The shape the README documents: onAuthError updates the store the app's
+    // getAuthToken reads, so the retry's request interceptor picks up the same
+    // new token the callback resolved with.
+    let token = "old-token";
+    const { adapter, calls } = authAdapter("new-token", 403);
+    const onAuthError = vi.fn().mockImplementation(async () => {
+      token = "new-token";
+      return token;
+    });
+    const client = createHttpClient({
+      baseURL: BASE_URL,
+      getAuthToken: () => token,
+      onAuthError,
+    });
+
+    await expect(client.get("/templates", { adapter })).resolves.toEqual({
+      id: "1",
+    });
+    expect(calls[1]?.headers.get("Authorization")).toBe("Bearer new-token");
+  });
+
+  it("passes withCredentials through to axios", async () => {
+    const { adapter, calls } = okAdapter([]);
+    const client = createHttpClient({
+      baseURL: BASE_URL,
+      withCredentials: true,
+    });
+
+    await client.get("/templates", { adapter });
+
+    expect(lastCall(calls).withCredentials).toBe(true);
+  });
+});
+
 describe("HttpError predicates", () => {
   const at = (statusCode: number) =>
     new HttpError({ statusCode, message: "boom" });

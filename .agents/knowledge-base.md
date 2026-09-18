@@ -166,6 +166,17 @@ React Router one reads the catalogue through the i18next Flavor, the same as a V
   the shape, with no domain behind it. Copy the shape, not the name. The type argument on
   `client.get<T>` is the entire point of the module: omit it and `T` infers `unknown`, which then
   flows through the hook and into the component.
+- **Refresh-token is opt-in on `createHttpClient`** (ADR-0014, `packages/api/README.md`):
+  `withCredentials?: boolean` (passed straight to axios) and
+  `onAuthError?: (error: HttpError) => Promise<string | null>`, which fires on a **401 or 403** from
+  a request that hasn't been retried yet. A resolved token retries the original request once with a
+  new `Authorization` header; `null` or a throw falls through to the existing throw +
+  `onUnauthorized` path. Concurrent 401/403s across requests dedupe into one in-flight
+  `onAuthError` call via a closure variable scoped to the client instance — the same scope
+  `getAuthToken` already reads per request. 403 is treated as an auth error at the client layer
+  because that is `apps/chat`'s backend contract, not a general "forbidden" rule; a backend where
+  403 means something else opts out by simply not passing `onAuthError`. Neither option changes
+  behaviour for a caller that doesn't pass it.
 
 ## TanStack Query defaults
 
