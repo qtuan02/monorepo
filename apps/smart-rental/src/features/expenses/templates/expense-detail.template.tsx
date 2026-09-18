@@ -1,19 +1,19 @@
-import { FileText } from "lucide-react";
+import { useState } from "react";
+import { Edit, FileText, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
+import { Button } from "@monorepo/ui/components/button";
+import { toast } from "@monorepo/ui/components/toast";
 
+import { ReceiptAttachment } from "~/components/attachment/receipt-attachment";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
+import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
+import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
-import { useGetExpense } from "~/hooks/api/expense";
+import ExpenseFormSheet from "~/features/expenses/components/expense-form-sheet";
+import { useDeleteExpense, useGetExpense } from "~/hooks/api/expense";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
 
@@ -24,18 +24,23 @@ interface ExpenseDetailTemplateProps {
 const TITLE = "Chi tiết chi phí";
 
 /**
- * "Chi tiết chi phí": the amount, the facts, and the receipt image when the
- * record carries one (the Mock has none yet).
+ * "Chi tiết chi phí" (spec #153 §10 row 35): header entity + facts, no tabs —
+ * a Chi phí carries no relation worth its own panel. Xoá is unconditional
+ * (§10 row 37 names no restriction for Chi phí) through the confirm dialog.
  */
 export default function ExpenseDetailTemplate({
   expenseId,
 }: ExpenseDetailTemplateProps) {
+  const navigate = useNavigate();
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const { data: expense, isLoading } = useGetExpense(expenseId);
+  const deleteExpense = useDeleteExpense();
 
   if (isLoading) {
     return (
       <DetailPageShell title={TITLE} backTo={ROUTES.EXPENSES}>
-        <CardGridSkeleton itemCount={2} />
+        <DetailSkeleton />
       </DetailPageShell>
     );
   }
@@ -53,50 +58,82 @@ export default function ExpenseDetailTemplate({
     );
   }
 
+  const handleDelete = () =>
+    deleteExpense.mutate(expense.id, {
+      onSuccess: () => {
+        toast.add({ title: "Đã xóa khoản chi", type: "success" });
+        setIsDeleteOpen(false);
+        navigate(ROUTES.EXPENSES, { replace: true });
+      },
+    });
+
   return (
-    <DetailPageShell title={TITLE} backTo={ROUTES.EXPENSES}>
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">{expense.category}</CardTitle>
-          {expense.description && (
-            <CardDescription>{expense.description}</CardDescription>
-          )}
-        </CardHeader>
-        <CardContent>
-          <p className="text-3xl font-bold tabular-nums">
-            {formatCurrency(expense.amount)}
-          </p>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-6 lg:grid-cols-2">
-        <InfoCard title="Thông tin chi phí">
-          <InfoRow label="Mã khoản chi" value={expense.id} />
-          <InfoRow label="Toà nhà" value={expense.buildingName} />
-          <InfoRow label="Ngày chi" value={formatDate(expense.expenseDate)} />
-          <InfoRow label="Danh mục" value={expense.category} />
-          <InfoRow
-            label="Số tiền"
-            value={formatCurrency(expense.amount)}
-            isHighlighted
-          />
-          <InfoRow label="Mô tả" value={expense.description ?? "—"} />
-        </InfoCard>
-
-        <InfoCard title="Ảnh biên lai">
-          {expense.receiptImageUrl ? (
-            <img
-              src={expense.receiptImageUrl}
-              alt={`Biên lai ${expense.category} ngày ${formatDate(expense.expenseDate)}`}
-              className="w-full rounded-lg border object-contain"
+    <>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.EXPENSES}
+        name={expense.category}
+        meta={[expense.buildingName, formatDate(expense.expenseDate)]}
+        actions={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditOpen(true)}
+            >
+              <Edit />
+              Chỉnh sửa
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={() => setIsDeleteOpen(true)}
+            >
+              <Trash2 />
+              Xóa
+            </Button>
+          </>
+        }
+      >
+        <div className="grid gap-6 lg:grid-cols-2">
+          <InfoCard title="Thông tin chi phí">
+            <InfoRow label="Mã khoản chi" value={expense.id} />
+            <InfoRow label="Toà nhà" value={expense.buildingName} />
+            <InfoRow label="Ngày chi" value={formatDate(expense.expenseDate)} />
+            <InfoRow label="Danh mục" value={expense.category} />
+            <InfoRow
+              label="Số tiền"
+              value={formatCurrency(expense.amount)}
+              isHighlighted
             />
-          ) : (
-            <p className="text-muted-foreground text-sm italic">
-              Chưa có ảnh biên lai.
-            </p>
-          )}
-        </InfoCard>
-      </div>
-    </DetailPageShell>
+            <InfoRow label="Mô tả" value={expense.description ?? "—"} />
+          </InfoCard>
+
+          <InfoCard title="Ảnh biên lai">
+            <ReceiptAttachment src={expense.receiptImageUrl} label="Biên lai" />
+          </InfoCard>
+        </div>
+      </DetailPageShell>
+
+      <ExpenseFormSheet
+        expense={expense}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
+
+      <ConfirmActionDialog
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        title="Xóa khoản chi"
+        description={`Bạn có chắc chắn muốn xóa khoản chi "${expense.category}" không? Hành động này không thể hoàn tác.`}
+        actionLabel="Xóa"
+        variant="destructive"
+        isPending={deleteExpense.isPending}
+        onConfirm={handleDelete}
+      />
+    </>
   );
 }

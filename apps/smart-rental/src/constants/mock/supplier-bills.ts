@@ -1,262 +1,120 @@
-import type { SupplierBill } from "~/types/supplier-bill";
+import type { SupplierBill, SupplierBillType } from "~/types/supplier-bill";
+
+/** The same six kỳ 04–09/2026 as `mockInvoices` (spec #153 §10 row 33). */
+const BILLING_PERIODS = [
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+] as const;
+
+/** Flat monthly base per Toà nhà — enough spread to tell buildings apart on screen. */
+const BASE_AMOUNT: Record<string, { electricity: number; water: number }> = {
+  b1: { electricity: 9_800_000, water: 1_950_000 },
+  b2: { electricity: 15_400_000, water: 3_200_000 },
+  b3: { electricity: 6_200_000, water: 1_400_000 },
+};
+
+const SUPPLIER_NAME: Record<SupplierBillType, string> = {
+  electricity: "EVN Đà Nẵng",
+  water: "Dawaco",
+  trash: "Môi trường Đô thị",
+  internet: "FPT Telecom",
+  other: "Dịch vụ khác",
+};
+
+// Only this one Toà nhà has already paid its 09/2026 bills — the rest stay
+// "Chờ thanh toán" so the payment-status facet/badge has both values to show.
+const OPEN_BUILDING_INDEX = 0;
+
+/** Paid early the following month — the current kỳ (09) is still open, per Toà nhà. */
+function paymentDateFor(
+  period: string,
+  buildingIndex: number,
+): string | undefined {
+  if (period === "2026-09") {
+    return buildingIndex === OPEN_BUILDING_INDEX ? "2026-09-11" : undefined;
+  }
+  const [year, month] = period.split("-").map(Number);
+  return `${year}-${String((month ?? 1) + 1).padStart(2, "0")}-05`;
+}
+
+/** ±9% month-over-month, so consecutive kỳ aren't identical numbers. */
+function withDrift(amount: number, periodIndex: number): number {
+  const factor = 1 + (periodIndex - 2) * 0.03;
+  return Math.round((amount * factor) / 1000) * 1000;
+}
+
+function buildElectricityWaterBills(): Omit<SupplierBill, "buildingName">[] {
+  const bills: Omit<SupplierBill, "buildingName">[] = [];
+  Object.entries(BASE_AMOUNT).forEach(([buildingId, base], buildingIndex) => {
+    BILLING_PERIODS.forEach((period, periodIndex) => {
+      bills.push({
+        id: `sb-${buildingId}-electricity-${period}`,
+        buildingId,
+        type: "electricity",
+        supplierName: SUPPLIER_NAME.electricity,
+        billingPeriod: period,
+        totalAmount: withDrift(base.electricity, periodIndex),
+        paymentDate: paymentDateFor(period, buildingIndex),
+      });
+      bills.push({
+        id: `sb-${buildingId}-water-${period}`,
+        buildingId,
+        type: "water",
+        supplierName: SUPPLIER_NAME.water,
+        billingPeriod: period,
+        totalAmount: withDrift(base.water, periodIndex),
+        paymentDate: paymentDateFor(period, buildingIndex),
+      });
+    });
+  });
+  return bills;
+}
 
 /**
- * The Mock every Hoá đơn nhà cung cấp read comes from (spec #127) — the
- * prototype's 30 records, without `buildingName`: the hook joins it from the
- * Toà nhà Mock through `resolveBuildingName`.
+ * The Mock every Hoá đơn nhà cung cấp read comes from (ADR-0012, spec #153
+ * §10 row 33): an điện + nước bill per Toà nhà × kỳ (36 records), plus a
+ * handful of rác/internet/khác for facet variety — down from the prototype's
+ * 30 loose, unscoped records. `buildingName` is joined by the hook.
  */
 export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
+  ...buildElectricityWaterBills(),
   {
-    id: "sb1",
-    buildingId: "b1",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 12500000,
-    paymentDate: "2024-04-05",
-  },
-  {
-    id: "sb2",
-    buildingId: "b1",
-    type: "water",
-    supplierName: "Dawaco",
-    billingPeriod: "2024-03",
-    totalAmount: 1800000,
-    paymentDate: "2024-04-07",
-  },
-  {
-    id: "sb3",
+    id: "sb-b1-trash-2026-04",
     buildingId: "b1",
     type: "trash",
-    supplierName: "Môi trường Đô thị",
-    billingPeriod: "2024-03",
-    totalAmount: 500000,
-    paymentDate: "2024-04-10",
+    supplierName: SUPPLIER_NAME.trash,
+    billingPeriod: "2026-04",
+    totalAmount: 550_000,
+    paymentDate: "2026-05-03",
   },
   {
-    id: "sb4",
-    buildingId: "b1",
-    type: "internet",
-    supplierName: "FPT Telecom",
-    billingPeriod: "2024-03",
-    totalAmount: 880000,
-    paymentDate: "2024-04-01",
-  },
-  {
-    id: "sb5",
-    buildingId: "b1",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-04",
-    totalAmount: 13200000,
-  },
-
-  {
-    id: "sb6",
-    buildingId: "b2",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 25000000,
-    paymentDate: "2024-04-05",
-  },
-  {
-    id: "sb7",
-    buildingId: "b2",
-    type: "water",
-    supplierName: "Dawaco",
-    billingPeriod: "2024-03",
-    totalAmount: 3500000,
-    paymentDate: "2024-04-07",
-  },
-  {
-    id: "sb8",
+    id: "sb-b2-internet-2026-04",
     buildingId: "b2",
     type: "internet",
     supplierName: "Viettel Business",
-    billingPeriod: "2024-03",
-    totalAmount: 2200000,
-    paymentDate: "2024-04-01",
+    billingPeriod: "2026-04",
+    totalAmount: 2_200_000,
+    paymentDate: "2026-05-01",
   },
   {
-    id: "sb9",
-    buildingId: "b2",
-    type: "other",
-    supplierName: "Bảo vệ & Vệ sinh",
-    billingPeriod: "2024-03",
-    totalAmount: 10000000,
-    paymentDate: "2024-04-10",
-  },
-  {
-    id: "sb10",
-    buildingId: "b2",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-04",
-    totalAmount: 27500000,
-  },
-
-  {
-    id: "sb11",
-    buildingId: "b3",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 18000000,
-    paymentDate: "2024-04-05",
-  },
-  {
-    id: "sb12",
-    buildingId: "b3",
-    type: "water",
-    supplierName: "Dawaco",
-    billingPeriod: "2024-03",
-    totalAmount: 2800000,
-    paymentDate: "2024-04-07",
-  },
-  {
-    id: "sb13",
-    buildingId: "b3",
-    type: "trash",
-    supplierName: "Môi trường Đô thị",
-    billingPeriod: "2024-03",
-    totalAmount: 700000,
-    paymentDate: "2024-04-10",
-  },
-  {
-    id: "sb14",
-    buildingId: "b1",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 45000000,
-  },
-  {
-    id: "sb15",
-    buildingId: "b1",
-    type: "water",
-    supplierName: "Dawaco",
-    billingPeriod: "2024-03",
-    totalAmount: 8500000,
-  },
-  {
-    id: "sb16",
-    buildingId: "b2",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 9000000,
-  },
-  {
-    id: "sb17",
-    buildingId: "b2",
-    type: "internet",
-    supplierName: "VNPT",
-    billingPeriod: "2024-03",
-    totalAmount: 1200000,
-  },
-  {
-    id: "sb18",
-    buildingId: "b3",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 4500000,
-  },
-  {
-    id: "sb19",
-    buildingId: "b1",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 22000000,
-  },
-  {
-    id: "sb20",
-    buildingId: "b1",
-    type: "water",
-    supplierName: "Dawaco",
-    billingPeriod: "2024-03",
-    totalAmount: 5200000,
-  },
-  {
-    id: "sb21",
-    buildingId: "b2",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 3500000,
-  },
-  {
-    id: "sb22",
-    buildingId: "b3",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 6800000,
-  },
-  {
-    id: "sb23",
-    buildingId: "b1",
-    type: "electricity",
-    supplierName: "EVN Đà Nẵng",
-    billingPeriod: "2024-03",
-    totalAmount: 11000000,
-  },
-  {
-    id: "sb24",
-    buildingId: "b1",
-    type: "other",
-    supplierName: "Dịch vụ Hồ bơi",
-    billingPeriod: "2024-03",
-    totalAmount: 5000000,
-  },
-  {
-    id: "sb25",
+    id: "sb-b3-other-2026-04",
     buildingId: "b3",
     type: "other",
     supplierName: "Bảo trì thang máy",
-    billingPeriod: "2024-03",
-    totalAmount: 2500000,
+    billingPeriod: "2026-04",
+    totalAmount: 1_800_000,
+    paymentDate: "2026-05-05",
   },
   {
-    id: "sb26",
-    buildingId: "b1",
-    type: "other",
-    supplierName: "Thay bóng đèn hành lang",
-    billingPeriod: "2024-04",
-    totalAmount: 350000,
-  },
-  {
-    id: "sb27",
-    buildingId: "b2",
-    type: "trash",
-    supplierName: "Môi trường Đô thị",
-    billingPeriod: "2024-03",
-    totalAmount: 1200000,
-  },
-  {
-    id: "sb28",
-    buildingId: "b2",
-    type: "internet",
-    supplierName: "FPT Telecom",
-    billingPeriod: "2024-03",
-    totalAmount: 3500000,
-  },
-  {
-    id: "sb29",
+    id: "sb-b1-trash-2026-09",
     buildingId: "b1",
     type: "trash",
-    supplierName: "Môi trường Đô thị",
-    billingPeriod: "2024-03",
-    totalAmount: 1500000,
-  },
-  {
-    id: "sb30",
-    buildingId: "b2",
-    type: "water",
-    supplierName: "Dawaco",
-    billingPeriod: "2024-03",
-    totalAmount: 4200000,
+    supplierName: SUPPLIER_NAME.trash,
+    billingPeriod: "2026-09",
+    totalAmount: 600_000,
   },
 ];

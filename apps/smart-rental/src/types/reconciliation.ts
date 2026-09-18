@@ -15,6 +15,8 @@ export interface ReconciliationItem {
 }
 
 export interface ReconciliationListParams {
-  /** The Building scope; `null` or absent means every Toà nhà. */
+  /** The Building scope; `null` or absent means every Toà nhà (one block each). */
   buildingId?: string | null;
+  /** The kỳ, `YYYY-MM` — required, picked on screen with a `MonthField`. */
+  period: string;
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { FileText, Plus } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -9,6 +10,7 @@ import { ErrorPanel } from "~/components/panel/error-panel";
 import { TableSkeleton } from "~/components/panel/loading-panel";
 import { toDistinctOptions } from "~/constants/status";
 import { expenseColumns } from "~/features/expenses/components/expense-columns";
+import ExpenseFormSheet from "~/features/expenses/components/expense-form-sheet";
 import { getExpenseStats } from "~/features/expenses/utils/expense-stats";
 import { useGetExpenses } from "~/hooks/api/expense";
 import { useBuildingStore } from "~/stores/use-building-store";
@@ -16,9 +18,9 @@ import { formatCurrency } from "~/utils/currency";
 
 /**
  * "Chi phí" (ADR-0011): the three KPIs over the scoped list, then the table.
- * "Thêm chi phí" has no flow yet, as in the prototype.
  */
 export default function ExpenseListTemplate() {
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetExpenses({
     buildingId: selectedBuildingId,
@@ -32,7 +34,7 @@ export default function ExpenseListTemplate() {
         title="Chi phí"
         description="Theo dõi các khoản chi nội bộ, bảo trì và vận hành theo từng toà nhà."
         actions={
-          <Button type="button" size="sm">
+          <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
             <Plus />
             Thêm chi phí
           </Button>
@@ -89,6 +91,12 @@ export default function ExpenseListTemplate() {
           />
         </>
       )}
+
+      <ExpenseFormSheet
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        defaultBuildingId={selectedBuildingId}
+      />
     </div>
   );
 }

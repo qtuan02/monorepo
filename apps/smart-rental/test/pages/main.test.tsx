@@ -5,15 +5,21 @@ import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import dayjs from "@monorepo/dayjs";
+
+import { mockExpenses } from "~/constants/mock/expenses";
 import { mockInvoices } from "~/constants/mock/invoices";
+import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { ROUTES } from "~/constants/routes";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
+import { getReconciliationStats } from "~/features/reconciliation/utils/reconciliation-stats";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { formatFullDate } from "~/utils/date";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
+import { buildReconciliationItems } from "~/utils/reconciliation-items";
 
 // The one seam of spec #127: the route tree mounted at a path, asserting what
 // the landlord sees. Every domain ticket adds its rows here; a page that fails
@@ -85,9 +91,9 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
     "Chi tiết chỉ số điện nước",
     "Phòng 102",
   ],
-  [ROUTES.SUPPLIER_BILLS, "Hoá đơn nhà cung cấp", "Viettel Business"],
+  [ROUTES.SUPPLIER_BILLS, "Hoá đơn nhà cung cấp", "EVN Đà Nẵng"],
   [
-    ROUTES.supplierBillDetailPath("sb2"),
+    ROUTES.supplierBillDetailPath("sb-b1-water-2026-04"),
     "Chi tiết hoá đơn nhà cung cấp",
     "Dawaco",
   ],
@@ -188,6 +194,29 @@ describe("the route tree", () => {
       ).not.toHaveLength(0);
       expect(
         screen.getAllByText(withoutNbsp(formatCurrency(stats.overdueAmount))),
+      ).not.toHaveLength(0);
+    });
+
+    // Ticket #165 — the default kỳ is the current month, and a pure function
+    // over the very same Mock is the check: Đối soát must never drift from
+    // `buildReconciliationItems`.
+    it("shows the kỳ 09/2026 total the pure function computes for b1", async () => {
+      renderAt(ROUTES.RECONCILIATION);
+
+      const period = dayjs().format("YYYY-MM");
+      const items = buildReconciliationItems(
+        mockInvoices,
+        mockSupplierBills,
+        mockExpenses,
+        "b1",
+        period,
+      );
+      const stats = getReconciliationStats(items);
+
+      expect(
+        await screen.findAllByText(
+          withoutNbsp(formatCurrency(stats.totalExpenseAmount)),
+        ),
       ).not.toHaveLength(0);
     });
 
