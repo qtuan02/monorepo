@@ -1,5 +1,7 @@
 import * as React from "react";
 
+import type { ChatMessageRecord } from "@monorepo/types/chat-message";
+
 import type { Conversation } from "~/features/conversation/types/conversation";
 import { useSendMessage } from "~/features/conversation/hooks/use-send-message";
 
@@ -13,8 +15,14 @@ interface EmojiSelection {
  * mount and needs no `conversation.id` dependency — the rewrite the ticket
  * asks for in place of the source's `useEffect(…, [conversation.id, …])`,
  * which Biome flagged as an unnecessary dependency.
+ *
+ * `onSent` is optional — only a Draft conversation's composer needs it, to
+ * navigate off the response's real `conversationId` (see conversation-panel.tsx).
  */
-export function useMessageComposer(conversation: Conversation) {
+export function useMessageComposer(
+  conversation: Conversation,
+  onSent?: (message: ChatMessageRecord) => void,
+) {
   const [content, setContent] = React.useState("");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const { sendMessage, isPending } = useSendMessage(conversation);
@@ -29,13 +37,14 @@ export function useMessageComposer(conversation: Conversation) {
 
     setContent("");
     try {
-      await sendMessage(trimmed);
+      const message = await sendMessage(trimmed);
+      if (message) onSent?.(message);
     } catch {
       // No toast here — the global MutationCache.onError already surfaced
       // the failure once. Only the composer's own content needs restoring.
       setContent(trimmed);
     }
-  }, [content, isPending, sendMessage]);
+  }, [content, isPending, onSent, sendMessage]);
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {

@@ -6,13 +6,13 @@
  * `as const` keeps each value a literal type, so a typo fails to compile rather
  * than resolving to a 404 at runtime.
  *
- * The real screens (friends, profile) land in later tickets, each adding its
- * own entry.
+ * The real screen for profile lands in a later ticket, adding its own entry.
  */
 export const ROUTES = {
   HOME: "/",
   SIGN_IN: "/sign-in",
   SIGN_UP: "/sign-up",
+  FRIENDS: "/friends",
   CONVERSATION_BY_ID: "/conversation/:conversationId",
   conversationByIdPath: (conversationId: string) =>
     `/conversation/${conversationId}`,

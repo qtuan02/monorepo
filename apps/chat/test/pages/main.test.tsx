@@ -39,16 +39,30 @@ const {
   chatAuthSignIn,
   chatAuthSignUp,
   chatUserMe,
+  chatUserSearch,
   chatConversationGetConversations,
   chatMessageGetMessages,
+  chatFriendList,
+  chatFriendRequests,
+  chatFriendAccept,
+  chatFriendDecline,
+  chatFriendCancel,
+  chatFriendRemove,
 } = vi.hoisted(() => ({
   chatHealthCheck: vi.fn(),
   chatAuthRefresh: vi.fn(),
   chatAuthSignIn: vi.fn(),
   chatAuthSignUp: vi.fn(),
   chatUserMe: vi.fn(),
+  chatUserSearch: vi.fn(),
   chatConversationGetConversations: vi.fn(),
   chatMessageGetMessages: vi.fn(),
+  chatFriendList: vi.fn(),
+  chatFriendRequests: vi.fn(),
+  chatFriendAccept: vi.fn(),
+  chatFriendDecline: vi.fn(),
+  chatFriendCancel: vi.fn(),
+  chatFriendRemove: vi.fn(),
 }));
 
 vi.mock("~/libs/http-client", () => ({
@@ -59,12 +73,21 @@ vi.mock("~/libs/http-client", () => ({
     signUp: chatAuthSignUp,
     signOut: vi.fn().mockResolvedValue(undefined),
   },
-  chatUserService: { me: chatUserMe },
+  chatUserService: { me: chatUserMe, search: chatUserSearch },
   chatConversationService: {
     getConversations: chatConversationGetConversations,
     markAsSeen: vi.fn().mockResolvedValue(undefined),
   },
   chatMessageService: { getMessages: chatMessageGetMessages },
+  chatFriendService: {
+    list: chatFriendList,
+    requests: chatFriendRequests,
+    send: vi.fn(),
+    accept: chatFriendAccept,
+    decline: chatFriendDecline,
+    cancel: chatFriendCancel,
+    remove: chatFriendRemove,
+  },
 }));
 
 // A real zustand store backed by a static, disconnected snapshot — not a
@@ -116,12 +139,25 @@ describe("the route tree", () => {
     chatHealthCheck.mockReset();
     chatAuthRefresh.mockReset();
     chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+    chatUserSearch
+      .mockReset()
+      .mockResolvedValue({ items: [], nextOffset: null });
     chatConversationGetConversations
       .mockReset()
       .mockResolvedValue({ items: [], nextCursor: null });
     chatMessageGetMessages
       .mockReset()
       .mockResolvedValue({ items: [], nextCursor: null });
+    chatFriendList
+      .mockReset()
+      .mockResolvedValue({ items: [], nextOffset: null });
+    chatFriendRequests
+      .mockReset()
+      .mockResolvedValue({ sentRequests: [], receivedRequests: [] });
+    chatFriendAccept.mockReset();
+    chatFriendDecline.mockReset();
+    chatFriendCancel.mockReset();
+    chatFriendRemove.mockReset();
   });
 
   it("blocks on the Health gate until the health check resolves", async () => {
@@ -327,6 +363,72 @@ describe("the route tree", () => {
           "c1",
           expect.objectContaining({ cursor: undefined }),
         );
+      });
+    });
+
+    describe("the /friends screen", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+      });
+
+      it("renders one friend and one received request from the mock, with the action matching its FriendStatus", async () => {
+        chatFriendList.mockResolvedValue({
+          items: [
+            {
+              id: "u2",
+              username: "lan",
+              firstName: "Lan",
+              lastName: "Nguyen",
+              joinedAt: "2026-01-01T00:00:00.000Z",
+            },
+          ],
+          nextOffset: null,
+        });
+        chatFriendRequests.mockResolvedValue({
+          sentRequests: [],
+          receivedRequests: [
+            {
+              id: "r1",
+              fromUser: {
+                id: "u3",
+                username: "minh",
+                firstName: "Minh",
+                lastName: "Tran",
+              },
+              createdAt: "2026-09-19T00:00:00.000Z",
+            },
+          ],
+        });
+
+        renderAt(ROUTES.FRIENDS);
+
+        // The friend row: FRIEND status renders "Message" + "Unfriend".
+        expect(await screen.findByText("Lan Nguyen")).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Message" }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Unfriend" }),
+        ).toBeInTheDocument();
+
+        // The received request row: Accept/Decline, not the friend row's actions.
+        expect(screen.getByText("Minh Tran")).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Accept friend request" }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Decline friend request" }),
+        ).toBeInTheDocument();
+      });
+
+      it("shows the empty states when there are no friends or requests", async () => {
+        renderAt(ROUTES.FRIENDS);
+
+        expect(
+          await screen.findByText("No friends added yet."),
+        ).toBeInTheDocument();
+        expect(screen.getByText("No received requests.")).toBeInTheDocument();
+        expect(screen.getByText("No sent requests.")).toBeInTheDocument();
       });
     });
   });

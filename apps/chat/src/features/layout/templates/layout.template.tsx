@@ -1,6 +1,10 @@
 import { useEffect } from "react";
-import { Outlet } from "react-router";
+import { Link, Outlet } from "react-router";
 
+import { buttonVariants } from "@monorepo/ui/components/button";
+import { cn } from "@monorepo/ui/utils/cn";
+
+import { ROUTES } from "~/constants/routes";
 import SignOutButton from "~/features/auth/components/sign-out-button";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useSocketStore } from "~/stores/use-socket-store";
@@ -10,7 +14,7 @@ import { useSocketStore } from "~/stores/use-socket-store";
  * page nests under. Still a bare top bar: the `conversation` slice now owns
  * its own sidebar (see conversation-shell.template.tsx), but the source
  * app's persistent bottom-nav/profile chrome has nowhere to point yet until
- * friends/profile land in a later ticket.
+ * profile lands in a later ticket.
  *
  * Also where the socket connects: subscribed to `token` (not read once via
  * `getState()`) so a refreshed token reconnects with a fresh `Authorization`
@@ -31,7 +35,15 @@ export default function LayoutTemplate() {
     <div className="flex min-h-dvh flex-col">
       <header className="border-border flex items-center justify-between border-b px-4 py-3">
         <span className="text-sm font-semibold">Chat</span>
-        <SignOutButton />
+        <nav className="flex items-center gap-2">
+          <Link
+            to={ROUTES.FRIENDS}
+            className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+          >
+            Friends
+          </Link>
+          <SignOutButton />
+        </nav>
       </header>
       <main className="flex min-h-0 flex-1 flex-col">
         <Outlet />

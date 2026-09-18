@@ -40,20 +40,23 @@ export function useSendMessage(conversation: Conversation) {
             throw new Error("No recipient for this conversation.");
           }
 
-          await sendDirectMessage.mutateAsync({
+          // Returned (not just awaited): a Draft conversation's composer
+          // reads the response's real `conversationId` off it to navigate
+          // there — see conversation-panel.tsx.
+          return await sendDirectMessage.mutateAsync({
             recipientId,
             content,
             type: ChatMessageType.TEXT,
             attachmentUrl: null,
           });
-        } else {
-          await sendGroupMessage.mutateAsync({
-            conversationId: conversation.id,
-            content,
-            type: ChatMessageType.TEXT,
-            attachmentUrl: null,
-          });
         }
+
+        return await sendGroupMessage.mutateAsync({
+          conversationId: conversation.id,
+          content,
+          type: ChatMessageType.TEXT,
+          attachmentUrl: null,
+        });
       } finally {
         isSubmittingRef.current = false;
       }

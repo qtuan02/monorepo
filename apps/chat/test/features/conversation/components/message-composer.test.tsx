@@ -3,6 +3,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { ChatMessageRecord } from "@monorepo/types/chat-message";
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 import {
   ChatConversationType,
@@ -69,13 +70,16 @@ const GROUP_CONVERSATION: Conversation = {
   title: "Weekend trip",
 };
 
-function renderComposer(conversation: Conversation) {
+function renderComposer(
+  conversation: Conversation,
+  onSent?: (message: ChatMessageRecord) => void,
+) {
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false } },
   });
   render(
     <QueryClientProvider client={queryClient}>
-      <MessageComposer conversation={conversation} />
+      <MessageComposer conversation={conversation} onSent={onSent} />
     </QueryClientProvider>,
   );
 }
@@ -177,6 +181,29 @@ describe("MessageComposer", () => {
     expect(chatMessageSendDirect).toHaveBeenCalledTimes(1);
     resolveSend?.();
     await waitFor(() => expect(textarea).toHaveValue(""));
+  });
+
+  it("calls onSent with the sent message once the mutation resolves", async () => {
+    const user = userEvent.setup();
+    const message: ChatMessageRecord = {
+      id: "m1",
+      conversationId: "c1",
+      senderId: "u1",
+      content: "Hi there",
+      type: ChatMessageType.TEXT,
+      createdAt: "2026-09-19T00:00:00.000Z",
+      updatedAt: "2026-09-19T00:00:00.000Z",
+    };
+    chatMessageSendDirect.mockResolvedValue(message);
+    const onSent = vi.fn();
+    renderComposer(DIRECT_CONVERSATION, onSent);
+
+    await user.type(
+      screen.getByLabelText("Message composer"),
+      "Hi there{Enter}",
+    );
+
+    await waitFor(() => expect(onSent).toHaveBeenCalledWith(message));
   });
 
   it("restores the composer's content when the mutation rejects", async () => {

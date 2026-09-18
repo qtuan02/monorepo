@@ -1,5 +1,6 @@
 import { Send } from "lucide-react";
 
+import type { ChatMessageRecord } from "@monorepo/types/chat-message";
 import { Button } from "@monorepo/ui/components/button";
 import { Textarea } from "@monorepo/ui/components/textarea";
 
@@ -9,10 +10,12 @@ import { useMessageComposer } from "~/features/conversation/hooks/use-message-co
 
 interface MessageComposerProps {
   conversation: Conversation;
+  onSent?: (message: ChatMessageRecord) => void;
 }
 
 export default function MessageComposer({
   conversation,
+  onSent,
 }: MessageComposerProps) {
   const {
     content,
@@ -22,7 +25,7 @@ export default function MessageComposer({
     handleKeyDown,
     handleSubmit,
     insertEmoji,
-  } = useMessageComposer(conversation);
+  } = useMessageComposer(conversation, onSent);
 
   return (
     <form

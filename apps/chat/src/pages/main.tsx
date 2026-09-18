@@ -15,6 +15,7 @@ import ProtectedRoute from "~/features/auth/provider/protected-route";
 import { ChatSocketRouteBoundary } from "~/features/chat/provider/chat-socket-provider";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
 import ConversationPage from "./conversation-page";
+import FriendsPage from "./friends-page";
 import HomePage from "./home-page";
 import SignInPage from "./sign-in-page";
 import SignUpPage from "./sign-up-page";
@@ -44,6 +45,10 @@ export function AppRoutes() {
 
         <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
           <Route element={<ProtectedRoute />}>
+            {/* Presence comes from the layout-level socket connection, not
+                this boundary — only the conversation screens need its
+                message/seen cache patching (see chat-socket-provider.tsx). */}
+            <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
             <Route element={<ChatSocketRouteBoundary />}>
               <Route index element={<HomePage />} />
               <Route

@@ -1,34 +1,79 @@
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
+import {
+  ChatConversationType,
+  ChatParticipantRole,
+} from "@monorepo/types/chat-conversation";
 import { buttonVariants } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
 
+import type { Conversation } from "~/features/conversation/types/conversation";
+import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { ROUTES } from "~/constants/routes";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
+import { createDraftConversationId } from "~/features/conversation/utils/direct-message-draft";
+import { useCurrentUserQuery } from "~/hooks/api/user";
 import { useSocketStore } from "~/stores/use-socket-store";
+import { getDisplayName } from "~/utils/display";
 
 interface ConversationPanelProps {
   conversationId?: string;
+  /** A Draft conversation (CONTEXT.md) — mutually exclusive with `conversationId`. */
+  draftUser?: DirectMessageUser;
   showBackButton?: boolean;
+}
+
+function buildDraftConversation(
+  draftUser: DirectMessageUser,
+  currentUserId: string,
+): Conversation {
+  return {
+    id: createDraftConversationId(draftUser.id),
+    type: ChatConversationType.DIRECT,
+    title: getDisplayName(draftUser),
+    lastMessage: "No messages yet.",
+    lastMessageAt: null,
+    unreadCount: 0,
+    avatarUrl: draftUser.avatarUrl ?? undefined,
+    members: [
+      {
+        userId: currentUserId,
+        displayName: "",
+        role: ChatParticipantRole.MEMBER,
+      },
+      {
+        userId: draftUser.id,
+        displayName: getDisplayName(draftUser),
+        avatarUrl: draftUser.avatarUrl ?? undefined,
+        role: ChatParticipantRole.MEMBER,
+      },
+    ],
+    otherMemberId: draftUser.id,
+  };
 }
 
 export default function ConversationPanel({
   conversationId,
+  draftUser,
   showBackButton,
 }: ConversationPanelProps) {
+  const navigate = useNavigate();
   const { conversations } = useConversationList();
-  const conversation = conversations.find((item) => item.id === conversationId);
-  const isOtherMemberOnline = useSocketStore((state) =>
-    conversation?.otherMemberId
-      ? state.onlineUsers.includes(conversation.otherMemberId)
-      : false,
-  );
+  const currentUserQuery = useCurrentUserQuery();
+  const conversation = conversationId
+    ? conversations.find((item) => item.id === conversationId)
+    : undefined;
 
-  if (!conversationId) {
+  const isOtherMemberOnline = useSocketStore((state) => {
+    const otherMemberId = conversation?.otherMemberId ?? draftUser?.id;
+    return otherMemberId ? state.onlineUsers.includes(otherMemberId) : false;
+  });
+
+  if (!conversationId && !draftUser) {
     return (
       <div className="flex h-full flex-1 items-center justify-center p-6">
         <p className="text-muted-foreground text-sm">
@@ -38,7 +83,13 @@ export default function ConversationPanel({
     );
   }
 
-  const title = conversation?.title ?? "Conversation";
+  const currentUserId = currentUserQuery.data?.id;
+  const draftConversation =
+    draftUser && currentUserId
+      ? buildDraftConversation(draftUser, currentUserId)
+      : undefined;
+  const activeConversation = conversation ?? draftConversation;
+  const title = activeConversation?.title ?? "Conversation";
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
@@ -56,16 +107,34 @@ export default function ConversationPanel({
         )}
         <ConversationAvatar
           title={title}
-          avatarUrl={conversation?.avatarUrl}
+          avatarUrl={activeConversation?.avatarUrl}
           online={isOtherMemberOnline}
         />
         <h1 className="truncate text-sm font-semibold">{title}</h1>
       </header>
       <div className="min-h-0 flex-1">
-        <MessageList conversationId={conversationId} />
+        {draftUser ? (
+          <div className="flex h-full items-center justify-center p-6">
+            <p className="text-muted-foreground text-sm">No messages yet.</p>
+          </div>
+        ) : (
+          conversationId && <MessageList conversationId={conversationId} />
+        )}
       </div>
-      {conversation && (
-        <MessageComposer key={conversation.id} conversation={conversation} />
+      {activeConversation && (
+        <MessageComposer
+          key={activeConversation.id}
+          conversation={activeConversation}
+          onSent={
+            draftUser
+              ? (message) =>
+                  navigate(
+                    ROUTES.conversationByIdPath(message.conversationId),
+                    { replace: true },
+                  )
+              : undefined
+          }
+        />
       )}
     </div>
   );
