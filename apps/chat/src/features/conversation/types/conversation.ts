@@ -21,4 +21,6 @@ export interface Conversation {
   unreadCount: number;
   avatarUrl?: string;
   members: ConversationMember[];
+  /** The other DIRECT participant's id — Presence has no group reading yet. */
+  otherMemberId?: string;
 }

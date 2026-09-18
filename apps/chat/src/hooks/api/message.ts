@@ -1,4 +1,8 @@
-import type { UseInfiniteQueryResult } from "@tanstack/react-query";
+import type {
+  InfiniteData,
+  QueryClient,
+  UseInfiniteQueryResult,
+} from "@tanstack/react-query";
 import {
   useInfiniteQuery,
   useMutation,
@@ -41,6 +45,44 @@ export const messageQueryKeys = {
 export interface MessagesReadModel {
   messages: ChatMessageRecord[];
   olderMessageCount: number;
+}
+
+type MessageInfiniteData = InfiniteData<ChatMessagePage, string | undefined>;
+
+/**
+ * Prepends a live message onto the newest-fetched page (`pages[0]`), never
+ * pushes: `pages[0].items` is itself newest-first (see the `select` above),
+ * so putting the new message at `items[0]` is what makes it land last once
+ * `useMessagesInfiniteQuery` re-orders it to chronological. Prepending there
+ * also leaves `olderMessageCount` (computed from `pages.slice(1)`)
+ * unaffected, so `firstItemIndex` doesn't shift under Virtuoso mid-scroll.
+ */
+export function appendConversationMessageToCache(
+  queryClient: QueryClient,
+  message: ChatMessageRecord,
+) {
+  queryClient.setQueriesData<MessageInfiniteData>(
+    { queryKey: messageQueryKeys.byConversation(message.conversationId) },
+    (data) => {
+      if (!data) return data;
+
+      const alreadyPresent = data.pages.some((page) =>
+        page.items.some((item) => item.id === message.id),
+      );
+      if (alreadyPresent) return data;
+
+      const [firstPage, ...restPages] = data.pages;
+      if (!firstPage) return data;
+
+      return {
+        ...data,
+        pages: [
+          { ...firstPage, items: [message, ...firstPage.items] },
+          ...restPages,
+        ],
+      };
+    },
+  );
 }
 
 export function useMessagesInfiniteQuery(

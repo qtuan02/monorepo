@@ -1,5 +1,6 @@
 import {
   Avatar,
+  AvatarBadge,
   AvatarFallback,
   AvatarImage,
 } from "@monorepo/ui/components/avatar";
@@ -16,17 +17,21 @@ function getInitials(title: string): string {
 interface ConversationAvatarProps {
   title: string;
   avatarUrl?: string;
+  /** Presence: the Messenger-style dot, omitted entirely when not online. */
+  online?: boolean;
 }
 
 /** Shared by the conversation list row and the panel header. */
 export function ConversationAvatar({
   title,
   avatarUrl,
+  online,
 }: ConversationAvatarProps) {
   return (
     <Avatar>
       {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
       <AvatarFallback>{getInitials(title)}</AvatarFallback>
+      {online && <AvatarBadge aria-label="Online" className="bg-online" />}
     </Avatar>
   );
 }

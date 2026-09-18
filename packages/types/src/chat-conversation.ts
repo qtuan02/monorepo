@@ -18,6 +18,10 @@ export interface ChatConversationParticipant {
   lastName: string;
   avatarUrl?: string | null;
   role: ChatParticipantRole;
+  // What this participant has read, for the `conversation.seen` socket event
+  // to patch in place — null until they have read anything.
+  lastReadMessageId?: string | null;
+  lastReadAt?: string | null;
 }
 
 export interface ChatConversationRecord {

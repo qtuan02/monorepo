@@ -9,6 +9,7 @@ import { ROUTES } from "~/constants/routes";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
+import { useSocketStore } from "~/stores/use-socket-store";
 
 interface ConversationPanelProps {
   conversationId?: string;
@@ -21,6 +22,11 @@ export default function ConversationPanel({
 }: ConversationPanelProps) {
   const { conversations } = useConversationList();
   const conversation = conversations.find((item) => item.id === conversationId);
+  const isOtherMemberOnline = useSocketStore((state) =>
+    conversation?.otherMemberId
+      ? state.onlineUsers.includes(conversation.otherMemberId)
+      : false,
+  );
 
   if (!conversationId) {
     return (
@@ -48,7 +54,11 @@ export default function ConversationPanel({
             <ArrowLeft className="size-4" />
           </Link>
         )}
-        <ConversationAvatar title={title} avatarUrl={conversation?.avatarUrl} />
+        <ConversationAvatar
+          title={title}
+          avatarUrl={conversation?.avatarUrl}
+          online={isOtherMemberOnline}
+        />
         <h1 className="truncate text-sm font-semibold">{title}</h1>
       </header>
       <div className="min-h-0 flex-1">

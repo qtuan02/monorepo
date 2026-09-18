@@ -1,0 +1,119 @@
+import type { ReactNode } from "react";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { matchPath, Outlet, useLocation } from "react-router";
+
+import { ChatSocketEventType } from "@monorepo/types/chat-socket";
+
+import { ROUTES } from "~/constants/routes";
+import {
+  applyConversationSeenToCache,
+  applyConversationUpdateToCache,
+  useMarkConversationAsSeenMutation,
+} from "~/hooks/api/conversation";
+import { appendConversationMessageToCache } from "~/hooks/api/message";
+import { useCurrentUserQuery } from "~/hooks/api/user";
+import {
+  subscribeToConversationMessages,
+  subscribeToConversationUpdates,
+} from "~/libs/socket";
+import { useSocketStore } from "~/stores/use-socket-store";
+
+interface ChatSocketProviderProps {
+  /** The conversation on screen right now, or "" when none is open. */
+  activeConversationId: string;
+  children: ReactNode;
+}
+
+function isFromOtherUser(senderId: string, currentUserId?: string) {
+  return !!currentUserId && senderId !== currentUserId;
+}
+
+/**
+ * Patches the TanStack Query cache from the live socket, so a message or a
+ * `seen` from another tab appears with no reload and no invalidate-driven
+ * refetch. Mounted once per authenticated subtree by `ChatSocketRouteBoundary`
+ * below — never per conversation, since `/user/queue/conversations` covers
+ * every conversation at once and only the per-message topic needs the active
+ * conversation's id.
+ */
+export function ChatSocketProvider({
+  activeConversationId,
+  children,
+}: ChatSocketProviderProps) {
+  const queryClient = useQueryClient();
+  const client = useSocketStore((state) => state.client);
+  const isConnected = useSocketStore((state) => state.isConnected);
+  const currentUserQuery = useCurrentUserQuery();
+  const currentUserId = currentUserQuery.data?.id;
+  const { mutate: markConversationAsSeen } =
+    useMarkConversationAsSeenMutation();
+
+  useEffect(() => {
+    if (!client || !isConnected) return;
+
+    return subscribeToConversationUpdates(client, (event) => {
+      if (event.eventType === ChatSocketEventType.CONVERSATION_SEEN) {
+        applyConversationSeenToCache(queryClient, event, currentUserId);
+        return;
+      }
+
+      if (event.lastMessage) {
+        appendConversationMessageToCache(queryClient, event.lastMessage);
+      }
+
+      applyConversationUpdateToCache(queryClient, event, {
+        unreadCount:
+          event.conversationId === activeConversationId &&
+          isFromOtherUser(event.lastMessage?.senderId ?? "", currentUserId)
+            ? 0
+            : undefined,
+      });
+    });
+  }, [activeConversationId, client, currentUserId, isConnected, queryClient]);
+
+  useEffect(() => {
+    if (!client || !isConnected || !activeConversationId) return;
+
+    return subscribeToConversationMessages(
+      client,
+      activeConversationId,
+      (message) => {
+        appendConversationMessageToCache(queryClient, message);
+
+        // The conversation I'm looking at just got a message from someone
+        // else — mark it seen right away instead of waiting on the next
+        // fetch/focus.
+        if (isFromOtherUser(message.senderId, currentUserId)) {
+          markConversationAsSeen(message.conversationId);
+        }
+      },
+    );
+  }, [
+    activeConversationId,
+    client,
+    currentUserId,
+    isConnected,
+    markConversationAsSeen,
+    queryClient,
+  ]);
+
+  return <>{children}</>;
+}
+
+/**
+ * The route element between `ProtectedRoute` and the guarded screens (see
+ * ~/pages/main.tsx): reads the conversation id off the URL itself, through
+ * `matchPath`, rather than have every route hand it down as a prop.
+ */
+export function ChatSocketRouteBoundary() {
+  const location = useLocation();
+  const match = matchPath(ROUTES.CONVERSATION_BY_ID, location.pathname);
+  const activeConversationId = match?.params.conversationId ?? "";
+
+  return (
+    <ChatSocketProvider activeConversationId={activeConversationId}>
+      <Outlet />
+    </ChatSocketProvider>
+  );
+}

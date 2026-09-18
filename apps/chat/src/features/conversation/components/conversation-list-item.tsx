@@ -5,6 +5,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 import type { Conversation } from "~/features/conversation/types/conversation";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { ROUTES } from "~/constants/routes";
+import { useSocketStore } from "~/stores/use-socket-store";
 import { formatConversationTimestamp } from "~/utils/date";
 
 interface ConversationListItemProps {
@@ -17,6 +18,11 @@ export default function ConversationListItem({
   active,
 }: ConversationListItemProps) {
   const hasUnread = conversation.unreadCount > 0;
+  const isOtherMemberOnline = useSocketStore((state) =>
+    conversation.otherMemberId
+      ? state.onlineUsers.includes(conversation.otherMemberId)
+      : false,
+  );
 
   return (
     <Link
@@ -29,6 +35,7 @@ export default function ConversationListItem({
       <ConversationAvatar
         title={conversation.title}
         avatarUrl={conversation.avatarUrl}
+        online={isOtherMemberOnline}
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between gap-2">

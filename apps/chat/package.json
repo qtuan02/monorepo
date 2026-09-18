@@ -25,6 +25,7 @@
     "@monorepo/hook": "workspace:*",
     "@monorepo/types": "workspace:*",
     "@monorepo/ui": "workspace:*",
+    "@stomp/stompjs": "catalog:",
     "@tanstack/react-query": "catalog:tanstack-query5",
     "@tanstack/react-query-devtools": "catalog:tanstack-query5",
     "lucide-react": "catalog:",

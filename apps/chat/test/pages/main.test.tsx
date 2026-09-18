@@ -62,9 +62,27 @@ vi.mock("~/libs/http-client", () => ({
   chatUserService: { me: chatUserMe },
   chatConversationService: {
     getConversations: chatConversationGetConversations,
+    markAsSeen: vi.fn().mockResolvedValue(undefined),
   },
   chatMessageService: { getMessages: chatMessageGetMessages },
 }));
+
+// A real zustand store backed by a static, disconnected snapshot — not a
+// live socket. #201's own seam (chat-socket-provider.test.tsx) covers what
+// the socket does once connected; this table only has to prove a route
+// still renders when it isn't (socket is not a render condition).
+vi.mock("~/stores/use-socket-store", async () => {
+  const { create } = await import("zustand");
+  return {
+    useSocketStore: create(() => ({
+      client: null,
+      isConnected: false,
+      onlineUsers: [] as string[],
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+    })),
+  };
+});
 
 /**
  * A data router with one splat route around `<AppRoutes />`, rather than a

@@ -1,3 +1,4 @@
+import type { ChatBaseResponse } from "@monorepo/types/chat-base";
 import type {
   ChatConversationListParams,
   ChatConversationListResponse,
@@ -26,5 +27,11 @@ export class ChatConversationService {
       items: response.data.messages,
       nextCursor: response.data.nextCursor,
     };
+  }
+
+  async markAsSeen(conversationId: string): Promise<void> {
+    await this.client.patch<ChatBaseResponse<null>>(
+      `/v1/conversation/${conversationId}/seen`,
+    );
   }
 }

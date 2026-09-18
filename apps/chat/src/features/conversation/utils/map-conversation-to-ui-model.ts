@@ -55,5 +55,6 @@ export function mapConversationToUiModel(
     unreadCount: record.unreadCount,
     avatarUrl: isGroup ? undefined : otherMember?.avatarUrl,
     members,
+    otherMemberId: isGroup ? undefined : otherMember?.userId,
   };
 }

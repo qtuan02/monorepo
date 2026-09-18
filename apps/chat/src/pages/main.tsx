@@ -12,6 +12,7 @@ import { env } from "~/env";
 import HealthGate from "~/features/auth/components/health-gate";
 import GuestRoute from "~/features/auth/provider/guest-route";
 import ProtectedRoute from "~/features/auth/provider/protected-route";
+import { ChatSocketRouteBoundary } from "~/features/chat/provider/chat-socket-provider";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
 import ConversationPage from "./conversation-page";
 import HomePage from "./home-page";
@@ -43,11 +44,13 @@ export function AppRoutes() {
 
         <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
           <Route element={<ProtectedRoute />}>
-            <Route index element={<HomePage />} />
-            <Route
-              path={ROUTES.CONVERSATION_BY_ID}
-              element={<ConversationPage />}
-            />
+            <Route element={<ChatSocketRouteBoundary />}>
+              <Route index element={<HomePage />} />
+              <Route
+                path={ROUTES.CONVERSATION_BY_ID}
+                element={<ConversationPage />}
+              />
+            </Route>
           </Route>
 
           {/* Outside the guard on purpose — a mistyped URL should say so,
