@@ -17,6 +17,7 @@ import {
   useDataTable,
 } from "@monorepo/ui/components/data-table";
 
+import type { TableSort } from "~/components/data-table/use-table-search-params";
 import type { FilterOption } from "~/constants/status";
 import { FacetedFilter } from "~/components/data-table/faceted-filter";
 import { PaginationBar } from "~/components/data-table/pagination-bar";
@@ -128,7 +129,7 @@ interface DataTableProps<TData extends DataTableRowData> {
    * ascending unless `desc`. Applied until a header is clicked; clicking back
    * to it drops the URL's `?sort=` again rather than writing it out.
    */
-  defaultSort?: { columnId: string; desc?: boolean };
+  defaultSort?: Pick<TableSort, "columnId"> & Partial<Pick<TableSort, "desc">>;
 }
 
 /**
