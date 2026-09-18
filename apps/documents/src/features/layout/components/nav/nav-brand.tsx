@@ -19,7 +19,7 @@ export default function NavBrand() {
         aria-hidden="true"
         className="block size-7.5 rounded-[10px] bg-[conic-gradient(from_210deg,var(--aurora-indigo),var(--aurora-violet),var(--aurora-cyan),var(--aurora-pink),var(--aurora-amber),var(--aurora-indigo))] shadow-(--sh-3)"
       />
-      <span className="font-heading text-[15px] leading-none font-bold tracking-tight">
+      <span className="font-heading text-[15px] leading-none font-bold tracking-tight whitespace-nowrap">
         {t("documents.meta.brand")}
       </span>
     </Link>

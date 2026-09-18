@@ -40,8 +40,10 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   ba mục (Bắt đầu / Component / Hook), ô mở palette, bốn nút tròn (ngôn ngữ, theme,
   npm, Storybook). Dưới `md` pill co còn brand + tìm + menu mở `Sheet`, trong đó
   bốn nút tròn trở thành bốn hàng `h-11` icon + nhãn chữ (`NavActions`
-  `layout="sheet"`, nhãn lấy lại từ `aria-label`/`title` sẵn có — không key mới).
-  Vào 68
+  `layout="sheet"`, nhãn lấy lại từ `aria-label`/`title` sẵn có — không key mới). Ô
+  tìm là nút tròn tới hết tablet dọc — chỉ mở rộng thành ô có nhãn + `Ctrl K` từ
+  `lg` — để ba mục và bốn nút vừa một dòng 54px ở 768px, cả tiếng Việt lẫn tiếng
+  Anh (spec #215). Vào 68
   trang còn lại bằng **palette `⌘K` / `Ctrl K`** (`CommandDialog` nhóm Component /
   Hook, đọc thẳng hai Catalogue, mỗi dòng swatch + slug + subpath, Enter mở trang) và
   bằng nút **trước/sau** theo thứ tự Catalogue trên trang chi tiết

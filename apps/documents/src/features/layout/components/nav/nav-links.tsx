@@ -41,7 +41,7 @@ export default function NavLinks({ layout }: NavLinksProps) {
               to={section.path}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "focus-visible:ring-ring/50 block rounded-full px-3.5 py-1.5 text-sm font-medium outline-none focus-visible:ring-[3px] motion-safe:transition-colors",
+                "focus-visible:ring-ring/50 block rounded-full px-3.5 py-1.5 text-sm font-medium whitespace-nowrap outline-none focus-visible:ring-[3px] motion-safe:transition-colors",
                 active
                   ? "bg-foreground text-background"
                   : "text-foreground/75 hover:bg-(--glass-strong) hover:text-foreground",
