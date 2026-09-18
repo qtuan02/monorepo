@@ -11,6 +11,7 @@ import { mockBuildings } from "~/constants/mock/buildings";
 import { mockExpenses } from "~/constants/mock/expenses";
 import ReconciliationTemplate from "~/features/reconciliation/templates/reconciliation.template";
 import { useCreateExpense } from "~/hooks/api/expense";
+import { queryClient } from "~/libs/query-client";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 
@@ -43,14 +44,15 @@ function CreateExpenseButton() {
 
 /**
  * Ticket #165 AC: "Thêm một Chi phí → Đối soát cùng kỳ đổi tổng chi ngay
- * (in-memory)". One `QueryClient` shared by both — the cross-entity
- * invalidation `useCreateExpense` wires to `reconciliationQueryKeys.all` is
+ * (in-memory)". The app's own `queryClient` singleton, shared by both — the
+ * global `MutationCache.onSuccess` (ADR-0015 §3) invalidating everything is
  * exactly what this proves; two separate `renderAt` calls would each start a
  * fresh cache and could never catch a missing invalidation.
  */
 describe("Chi phí → Đối soát cập nhật ngay", () => {
   beforeEach(() => {
     useBuildingStore.setState({ selectedBuildingId: "b1" });
+    queryClient.clear();
   });
 
   afterEach(() => {
@@ -65,7 +67,6 @@ describe("Chi phí → Đối soát cập nhật ngay", () => {
 
   it("reflects a new Chi phí in the same kỳ's Tổng chi with no reload", async () => {
     const user = userEvent.setup();
-    const queryClient = new QueryClient();
     const router = createMemoryRouter(
       [
         {
@@ -96,8 +97,8 @@ describe("Chi phí → Đối soát cập nhật ngay", () => {
     );
 
     // No reload, no second render — the same QueryClient's cache updated in
-    // place once `useCreateExpense`'s `onSuccess` invalidated the query this
-    // screen is already watching.
+    // place once the global `MutationCache.onSuccess` invalidated every
+    // query, including the one this screen is already watching.
     expect(await screen.findAllByText(expected)).not.toHaveLength(0);
   });
 });

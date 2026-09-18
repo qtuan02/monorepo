@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -15,7 +15,6 @@ import type {
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
-import { roomQueryKeys } from "~/hooks/api/room";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { canDeleteBuilding } from "~/utils/building-delete";
 
@@ -38,8 +37,7 @@ export function useGetBuildings(
 ): UseQueryResult<Building[], Error> {
   return useQuery<Building[], Error>({
     queryKey: buildingQueryKeys.getBuildings(),
-    // A copy, so the cache never holds the Mock array itself; the create
-    // mutation below invalidates `lists()` after writing into it.
+    // A copy, so the cache never holds the Mock array itself.
     queryFn: async () => [...mockBuildings],
     ...options,
   });
@@ -60,8 +58,6 @@ export function useGetBuilding(
 export function useCreateBuilding(
   options?: UseMutationOptionsWrapper<CreateBuildingRequest, Building>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Prepends to the Mock exactly as the prototype's repository did: a fresh
     // Toà nhà has no Phòng yet, and its note doubles as the description.
@@ -90,8 +86,6 @@ export function useCreateBuilding(
       mockBuildings.unshift(building);
       return building;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: buildingQueryKeys.lists() }),
     ...options,
   });
 }
@@ -99,8 +93,6 @@ export function useCreateBuilding(
 export function useUpdateBuildingSettings(
   options?: UseMutationOptionsWrapper<UpdateBuildingSettingsRequest, Building>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: UpdateBuildingSettingsRequest) => {
       const building = mockBuildings.find((b) => b.id === request.buildingId);
@@ -115,17 +107,11 @@ export function useUpdateBuildingSettings(
       building.bankAccount = request.bankAccount;
       return building;
     },
-    onSuccess: (building) =>
-      queryClient.invalidateQueries({
-        queryKey: buildingQueryKeys.getBuilding(building.id),
-      }),
     ...options,
   });
 }
 
 export function useDeleteBuilding(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Guarded twice: the template disables the action already, and the
     // mutation re-checks here so a stale button can never bypass it.
@@ -141,10 +127,6 @@ export function useDeleteBuilding(options?: UseMutationOptionsWrapper<string>) {
       for (let i = mockRooms.length - 1; i >= 0; i -= 1) {
         if (mockRooms[i]?.buildingId === buildingId) mockRooms.splice(i, 1);
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: buildingQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
     },
     ...options,
   });

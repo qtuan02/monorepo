@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -15,7 +15,6 @@ import type {
 } from "~/types/expense";
 import { withBuildingName } from "~/constants/mock/buildings";
 import { mockExpenses } from "~/constants/mock/expenses";
-import { reconciliationQueryKeys } from "~/hooks/api/reconciliation";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
@@ -64,19 +63,11 @@ export function useGetExpense(
 export function useCreateExpense(
   options?: UseMutationOptionsWrapper<CreateExpenseRequest, Expense>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateExpenseRequest) => {
       const expense = { id: `exp-${mockExpenses.length + 1}`, ...request };
       mockExpenses.push(expense);
       return withBuildingName(expense);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: expenseQueryKeys.lists() });
-      // Đối soát folds Chi phí into its "Phí dịch vụ" line (spec #153 §10
-      // row 11) — a new one must land there without a reload.
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
     },
     ...options,
   });
@@ -85,8 +76,6 @@ export function useCreateExpense(
 export function useUpdateExpense(
   options?: UseMutationOptionsWrapper<UpdateExpenseRequest, Expense>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ expenseId, ...patch }: UpdateExpenseRequest) => {
       const expense = mockExpenses.find((item) => item.id === expenseId);
@@ -99,30 +88,17 @@ export function useUpdateExpense(
       Object.assign(expense, patch);
       return withBuildingName(expense);
     },
-    onSuccess: (expense) => {
-      queryClient.invalidateQueries({ queryKey: expenseQueryKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: expenseQueryKeys.getExpense(expense.id),
-      });
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
-    },
     ...options,
   });
 }
 
 export function useDeleteExpense(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (expenseId: string) => {
       const index = mockExpenses.findIndex(
         (expense) => expense.id === expenseId,
       );
       if (index !== -1) mockExpenses.splice(index, 1);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: expenseQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
     },
     ...options,
   });

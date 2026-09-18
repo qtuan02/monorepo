@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type {
   UseMutationOptionsWrapper,
@@ -12,7 +12,6 @@ import type {
 import { mockComplianceItems } from "~/constants/mock/compliance";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockTenants } from "~/constants/mock/tenants";
-import { taskQueryKeys } from "~/hooks/api/task";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { buildResidenceDeclarations } from "~/utils/residence-declaration";
 
@@ -59,9 +58,9 @@ interface MarkResidenceNotificationSentRequest {
 /**
  * "Đã gửi" sheet (spec #153 §10 row 8, ticket #188): flips or creates the
  * tenant's own Thông báo lưu trú item to `completed`, with the mã hồ sơ +
- * ngày the landlord entered — never a made-up reference number. Invalidates
- * Việc cần làm too — that is what makes the matching task disappear from
- * Hôm nay (ticket #161 AC).
+ * ngày the landlord entered — never a made-up reference number. The matching
+ * task drops off Hôm nay's Việc cần làm on the next read (ticket #161 AC,
+ * ADR-0015 §3).
  */
 export function useMarkResidenceNotificationSent(
   options?: UseMutationOptionsWrapper<
@@ -69,8 +68,6 @@ export function useMarkResidenceNotificationSent(
     void
   >,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       tenantId,
@@ -103,10 +100,6 @@ export function useMarkResidenceNotificationSent(
         referenceNumber,
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -120,14 +113,11 @@ interface ExtendResidenceRegistrationRequest {
 /**
  * "Đã gia hạn đến …" (ticket #188): the one write Đăng ký tạm trú has — it
  * only ever moves `dueDate` out, since `registrationStatus` itself is never
- * stored (see `~/utils/residence-declaration`). Invalidates Việc cần làm too,
- * so a renewed registration drops its "sắp hết hạn" task immediately.
+ * stored (see `~/utils/residence-declaration`).
  */
 export function useExtendResidenceRegistration(
   options?: UseMutationOptionsWrapper<ExtendResidenceRegistrationRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       tenantId,
@@ -154,10 +144,6 @@ export function useExtendResidenceRegistration(
         status: "pending",
         dueDate: newDueDate,
       });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
     },
     ...options,
   });

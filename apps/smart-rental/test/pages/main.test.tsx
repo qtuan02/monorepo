@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
@@ -13,6 +13,7 @@ import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { ROUTES } from "~/constants/routes";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 import { getReconciliationStats } from "~/features/reconciliation/utils/reconciliation-stats";
+import { queryClient } from "~/libs/query-client";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useBuildingStore } from "~/stores/use-building-store";
@@ -36,15 +37,20 @@ const initialBuildingState = useBuildingStore.getState();
  * `MemoryRouter`: only a data router exposes `state.historyAction`, which is
  * what proves a guard bounced with `replace` and not `push`.
  *
- * A fresh `QueryClient` per render, the provider `MainApp` gives the tree: the
- * shell's Building scope selector reads its Toà nhà through `~/hooks/api`.
+ * The app's own `queryClient` singleton (`~/libs/query-client`), the same one
+ * `MainApp` provides — not a bare `new QueryClient()` — because ADR-0015 §3
+ * moved every mutation's cache invalidation onto that singleton's global
+ * `MutationCache.onSuccess`; a fresh client with no `mutationCache` config
+ * would never invalidate anything. `clear()` keeps each render starting from
+ * an empty cache, the same isolation a fresh client gave before.
  */
 function renderAt(path: string) {
+  queryClient.clear();
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
     initialEntries: [path],
   });
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
@@ -596,8 +602,8 @@ describe("Building scope required — Kỳ điện nước & hoá đơn", () => 
 });
 
 // Spec #153 §10 row 32 (AC: "xoá một Phòng, reset, Phòng trở lại") — each
-// `renderAt` mounts a fresh QueryClient, so this only proves something if the
-// Mock array itself, not a cache, is what came back.
+// `renderAt` clears the cache before rendering, so this only proves something
+// if the Mock array itself, not a stale cache entry, is what came back.
 describe("Khôi phục dữ liệu mẫu — Cài đặt", () => {
   beforeEach(() => {
     useAuthStore.setState(initialAuthState, true);

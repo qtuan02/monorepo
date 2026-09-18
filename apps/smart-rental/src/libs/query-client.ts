@@ -21,6 +21,15 @@ export const queryClient = new QueryClient({
         type: "error",
       });
     },
+    // World read seam (ADR-0015 §3): the Mock is in-memory and ≤100 rows per
+    // entity, and every derived read is O(n) over it — invalidating
+    // everything after every successful write is cheaper than a static
+    // entity→derived-keys table that must be kept in sync by hand every time
+    // a screen adds a new derived read. No mutation hook lists a key of its
+    // own any more. Narrow this once `be-motel` exists, per endpoint.
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+    },
   }),
   defaultOptions: {
     queries: {

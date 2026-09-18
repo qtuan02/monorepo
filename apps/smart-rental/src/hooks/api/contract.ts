@@ -1,5 +1,7 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { HttpError } from "@monorepo/api/client";
 
 import type {
   UseMutationOptionsWrapper,
@@ -15,7 +17,6 @@ import type {
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
 import { mockTenants } from "~/constants/mock/tenants";
-import { roomQueryKeys } from "~/hooks/api/room";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import {
   canDeleteContract,
@@ -78,16 +79,21 @@ export function useGetContract(
 export function useCreateContract(
   options?: UseMutationOptionsWrapper<CreateContractRequest, Contract>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateContractRequest) => {
       const room = mockRooms.find((item) => item.id === request.roomId);
-      if (!room)
-        throw new Error(`Không có phòng nào với mã ${request.roomId}.`);
+      if (!room) {
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không có phòng nào với mã ${request.roomId}.`,
+        });
+      }
       const tenant = mockTenants.find((item) => item.id === request.tenantId);
       if (!tenant) {
-        throw new Error(`Không có người thuê nào với mã ${request.tenantId}.`);
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không có người thuê nào với mã ${request.tenantId}.`,
+        });
       }
       const nextNumber = String(mockContracts.length + 1).padStart(3, "0");
       const contract: Contract = {
@@ -116,10 +122,6 @@ export function useCreateContract(
       room.status = "occupied";
       return contract;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: contractQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -134,7 +136,12 @@ function updateMockContract(
   patch: Partial<Contract>,
 ): Contract {
   const contract = mockContracts.find((item) => item.id === contractId);
-  if (!contract) throw new Error(`Không có hợp đồng nào với mã ${contractId}.`);
+  if (!contract) {
+    throw new HttpError({
+      statusCode: 404,
+      message: `Không có hợp đồng nào với mã ${contractId}.`,
+    });
+  }
   Object.assign(contract, patch, { lastUpdated: formatDate(new Date()) });
   return contract;
 }
@@ -142,23 +149,25 @@ function updateMockContract(
 export function useRenewContract(
   options?: UseMutationOptionsWrapper<RenewContractRequest, Contract>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: RenewContractRequest) => {
       const contract = mockContracts.find(
         (item) => item.id === request.contractId,
       );
       if (!contract) {
-        throw new Error(`Không có hợp đồng nào với mã ${request.contractId}.`);
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không có hợp đồng nào với mã ${request.contractId}.`,
+        });
       }
       // Gia hạn chỉ từ Đang hiệu lực/Sắp hết hạn (spec #153) — an EXPIRED or
       // TERMINATED Hợp đồng may not be revived through this mutation either,
       // even if a stale screen still posts to it.
       if (!isContractLive(contract)) {
-        throw new Error(
-          `Hợp đồng ${contract.contractNumber} đã kết thúc, không thể gia hạn.`,
-        );
+        throw new HttpError({
+          statusCode: 409,
+          message: `Hợp đồng ${contract.contractNumber} đã kết thúc, không thể gia hạn.`,
+        });
       }
       return updateMockContract(request.contractId, {
         renewalHistory: [
@@ -177,8 +186,6 @@ export function useRenewContract(
         status: "ACTIVE",
       });
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: contractQueryKeys.all }),
     ...options,
   });
 }
@@ -186,21 +193,23 @@ export function useRenewContract(
 export function useLiquidateContract(
   options?: UseMutationOptionsWrapper<LiquidateContractRequest, Contract>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: LiquidateContractRequest) => {
       const contract = mockContracts.find(
         (item) => item.id === request.contractId,
       );
       if (!contract) {
-        throw new Error(`Không có hợp đồng nào với mã ${request.contractId}.`);
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không có hợp đồng nào với mã ${request.contractId}.`,
+        });
       }
       // Thanh lý chỉ từ Đang hiệu lực/Sắp hết hạn (spec #153).
       if (!isContractLive(contract)) {
-        throw new Error(
-          `Hợp đồng ${contract.contractNumber} đã kết thúc, không thể thanh lý.`,
-        );
+        throw new HttpError({
+          statusCode: 409,
+          message: `Hợp đồng ${contract.contractNumber} đã kết thúc, không thể thanh lý.`,
+        });
       }
       const room = mockRooms.find((item) => item.id === contract.roomId);
       if (room) room.status = "available";
@@ -213,32 +222,24 @@ export function useLiquidateContract(
         terminatedAt: formatDate(new Date()),
       });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: contractQueryKeys.all });
-      // Phòng về trống — the room list/detail must reflect it too.
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
-    },
     ...options,
   });
 }
 
 export function useDeleteContract(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (contractId: string) => {
       const index = mockContracts.findIndex((item) => item.id === contractId);
       const contract = mockContracts[index];
       // Defended here too, not only by hiding the button — same predicate.
       if (contract && !canDeleteContract(contract)) {
-        throw new Error(
-          `Hợp đồng ${contract.contractNumber} không phải Nháp, không thể xoá.`,
-        );
+        throw new HttpError({
+          statusCode: 409,
+          message: `Hợp đồng ${contract.contractNumber} không phải Nháp, không thể xoá.`,
+        });
       }
       if (index !== -1) mockContracts.splice(index, 1);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: contractQueryKeys.all }),
     ...options,
   });
 }

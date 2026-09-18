@@ -10,6 +10,7 @@ import { mockContracts } from "~/constants/mock/contracts";
 import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
 import { mockUtilities } from "~/constants/mock/utilities";
+import { mockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { buildCycleProgressSummary } from "~/utils/cycle-progress";
 import {
@@ -65,6 +66,7 @@ export function useGetDashboard(
           mockContracts,
           mockUtilities,
           mockInvoices,
+          mockUtilityOldIndexOverrides,
         ),
         monthSummary: buildMonthSummary({ invoices, rooms }),
         recentActivity: buildRecentActivity({ invoices, contracts }),

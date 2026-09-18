@@ -3,7 +3,7 @@ import type { Contract } from "~/types/contract";
 import type { CycleProgressSummary } from "~/types/dashboard";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
-import type { Utility } from "~/types/utility";
+import type { Utility, UtilityOldIndexOverride } from "~/types/utility";
 import { buildCycleRows, isCycleClosingDatePassed } from "~/utils/cycle-rows";
 import { formatMonth } from "~/utils/date";
 
@@ -12,6 +12,8 @@ import { formatMonth } from "~/utils/date";
  * off the SAME `buildCycleRows` the màn Kỳ table reads (ADR-0013), so the
  * two screens can never disagree on how many Phòng còn thiếu chỉ số. A `null`
  * Building scope sums every Toà nhà's own rows; a scope of one just reads it.
+ * `oldIndexOverrides` must be forwarded too — omitting it is what let "Sửa
+ * chỉ số cũ" on màn Kỳ leave this KPI stale (ticket #206).
  */
 export function buildCycleProgressSummary(
   buildings: Pick<Building, "id" | "priceList">[],
@@ -20,6 +22,10 @@ export function buildCycleProgressSummary(
   contracts: Contract[],
   utilities: Utility[],
   invoices: Pick<Invoice, "contractId" | "billingMonth">[],
+  oldIndexOverrides: Pick<
+    UtilityOldIndexOverride,
+    "roomId" | "type" | "month" | "oldIndex"
+  >[] = [],
   today: Date = new Date(),
 ): CycleProgressSummary {
   let entered = 0;
@@ -37,6 +43,7 @@ export function buildCycleProgressSummary(
       invoices,
       building.priceList,
       today,
+      oldIndexOverrides,
     );
     for (const row of rows) {
       if (row.status === "EMPTY") continue;

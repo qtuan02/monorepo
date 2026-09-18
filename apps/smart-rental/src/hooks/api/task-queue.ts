@@ -8,9 +8,9 @@ import { buildTaskQueueEntries } from "~/utils/task-queue";
  * Hôm nay's own hàng đợi (spec #179 §"Hôm nay") — the one seam both the
  * queue card and the header's chuông read through, so they can never gộp
  * differently. Composes three queries (Việc cần làm, Hoá đơn quá hạn của
- * mỗi mục, tên Toà nhà) rather than a fourth Mock of its own. Its own file
- * — not `~/hooks/api/task.ts` — because `~/hooks/api/invoice.ts` already
- * imports `taskQueryKeys` from there, and this hook needs `useGetInvoices`.
+ * mỗi mục, tên Toà nhà) rather than a fourth Mock of its own. Its own file —
+ * not `~/hooks/api/task.ts` — because this hook needs both `useGetTasks` and
+ * `useGetInvoices`.
  */
 export function useGetTaskQueueEntries(buildingId: string | null): {
   entries: TaskQueueEntry[];

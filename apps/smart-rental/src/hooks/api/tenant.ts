@@ -1,5 +1,7 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { HttpError } from "@monorepo/api/client";
 
 import type {
   UseMutationOptionsWrapper,
@@ -68,8 +70,6 @@ export function useGetTenant(
 export function useCreateTenant(
   options?: UseMutationOptionsWrapper<CreateTenantRequest, Tenant>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Prepends to the Mock as the building mutation does. A fresh Người thuê
     // has no Phòng or Hợp đồng yet, so those fields are the "chờ vào" blanks.
@@ -92,8 +92,6 @@ export function useCreateTenant(
       mockTenants.unshift(tenant);
       return tenant;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.lists() }),
     ...options,
   });
 }
@@ -112,13 +110,15 @@ interface UpdateTenantRequest {
 export function useUpdateTenant(
   options?: UseMutationOptionsWrapper<UpdateTenantRequest, Tenant>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ tenantId, payload }: UpdateTenantRequest) => {
       const index = mockTenants.findIndex((tenant) => tenant.id === tenantId);
-      if (index === -1)
-        throw new Error(`Không tìm thấy Người thuê ${tenantId}`);
+      if (index === -1) {
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không tìm thấy Người thuê ${tenantId}`,
+        });
+      }
 
       const updated: Tenant = {
         ...(mockTenants[index] as Tenant),
@@ -130,26 +130,16 @@ export function useUpdateTenant(
       mockTenants[index] = updated;
       return updated;
     },
-    onSuccess: (tenant) => {
-      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: tenantQueryKeys.getTenant(tenant.id),
-      });
-    },
     ...options,
   });
 }
 
 export function useDeleteTenant(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (tenantId: string) => {
       const index = mockTenants.findIndex((tenant) => tenant.id === tenantId);
       if (index !== -1) mockTenants.splice(index, 1);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.all }),
     ...options,
   });
 }

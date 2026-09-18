@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -60,8 +60,6 @@ export function useGetRoom(
 export function useCreateRoom(
   options?: UseMutationOptionsWrapper<CreateRoomRequest, Room>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateRoomRequest) => {
       const room: Room = {
@@ -72,8 +70,6 @@ export function useCreateRoom(
       mockRooms.push(room);
       return room;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.lists() }),
     ...options,
   });
 }
@@ -81,8 +77,6 @@ export function useCreateRoom(
 export function useUpdateRoom(
   options?: UseMutationOptionsWrapper<UpdateRoomRequest, Room>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ roomId, ...patch }: UpdateRoomRequest) => {
       const room = mockRooms.find((item) => item.id === roomId);
@@ -95,19 +89,11 @@ export function useUpdateRoom(
       Object.assign(room, patch, { lastUpdated: formatDate(new Date()) });
       return room;
     },
-    onSuccess: (room) => {
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: roomQueryKeys.getRoom(room.id),
-      });
-    },
     ...options,
   });
 }
 
 export function useDeleteRoom(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Guarded twice: the template disables the action already, and the
     // mutation re-checks here so a stale button can never bypass it.
@@ -121,8 +107,6 @@ export function useDeleteRoom(options?: UseMutationOptionsWrapper<string>) {
       const index = mockRooms.findIndex((room) => room.id === roomId);
       if (index !== -1) mockRooms.splice(index, 1);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all }),
     ...options,
   });
 }

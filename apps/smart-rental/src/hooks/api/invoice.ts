@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -14,7 +14,6 @@ import type {
   InvoicePaymentMethod,
 } from "~/types/invoice";
 import { mockInvoices } from "~/constants/mock/invoices";
-import { taskQueryKeys } from "~/hooks/api/task";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
@@ -84,8 +83,6 @@ export interface RecordInvoicePaymentRequest {
 export function useRecordInvoicePayment(
   options?: UseMutationOptionsWrapper<RecordInvoicePaymentRequest, Invoice>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: RecordInvoicePaymentRequest) => {
       const invoice = mockInvoices.find(
@@ -107,11 +104,6 @@ export function useRecordInvoicePayment(
       invoice.lastUpdated = formatDate(new Date());
       return invoice;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.all });
-      // A fully-paid Hoá đơn drops off Hôm nay's Quá hạn queue immediately.
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -125,8 +117,6 @@ export interface SendInvoiceRemindersRequest {
 export function useSendInvoiceReminders(
   options?: UseMutationOptionsWrapper<SendInvoiceRemindersRequest, Invoice[]>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: SendInvoiceRemindersRequest) => {
       const sentAt = new Date().toISOString();
@@ -139,8 +129,6 @@ export function useSendInvoiceReminders(
       }
       return sent;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.all }),
     ...options,
   });
 }

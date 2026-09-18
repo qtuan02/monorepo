@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type {
   UseMutationOptionsWrapper,
@@ -43,12 +43,11 @@ export function useGetLandlordProfile(
 /**
  * "Khôi phục dữ liệu mẫu" (spec #153 §10 row 32) — every Mock this app reads
  * or writes, back to what its own module first loaded with. Every array is
- * reset in place (`trackMockReset`), so it never invalidates a single query
- * key on its own: the caller clears the whole cache instead.
+ * reset in place (`trackMockReset`); the global `MutationCache.onSuccess`
+ * (ADR-0015 §3) is what clears the whole cache afterwards, same as any other
+ * mutation here.
  */
 export function useResetMockData(options?: UseMutationOptionsWrapper<void>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async () => {
       resetMockBuildings();
@@ -64,7 +63,6 @@ export function useResetMockData(options?: UseMutationOptionsWrapper<void>) {
       resetMockNotificationTemplates();
       resetMockSendLogs();
     },
-    onSuccess: () => queryClient.invalidateQueries(),
     ...options,
   });
 }

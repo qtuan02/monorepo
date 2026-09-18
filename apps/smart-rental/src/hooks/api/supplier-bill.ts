@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -15,7 +15,6 @@ import type {
 } from "~/types/supplier-bill";
 import { withBuildingName } from "~/constants/mock/buildings";
 import { mockSupplierBills } from "~/constants/mock/supplier-bills";
-import { reconciliationQueryKeys } from "~/hooks/api/reconciliation";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
@@ -65,8 +64,6 @@ export function useGetSupplierBill(
 export function useCreateSupplierBill(
   options?: UseMutationOptionsWrapper<CreateSupplierBillRequest, SupplierBill>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateSupplierBillRequest) => {
       const bill = {
@@ -76,14 +73,6 @@ export function useCreateSupplierBill(
       mockSupplierBills.push(bill);
       return withBuildingName(bill);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: supplierBillQueryKeys.lists(),
-      });
-      // Đối soát folds a Hoá đơn nhà cung cấp into its điện/nước/dịch vụ line
-      // (spec #153 §10 row 11) — a new one must land there without a reload.
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -91,8 +80,6 @@ export function useCreateSupplierBill(
 export function useUpdateSupplierBill(
   options?: UseMutationOptionsWrapper<UpdateSupplierBillRequest, SupplierBill>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ billId, ...patch }: UpdateSupplierBillRequest) => {
       const bill = mockSupplierBills.find((item) => item.id === billId);
@@ -105,15 +92,6 @@ export function useUpdateSupplierBill(
       Object.assign(bill, patch);
       return withBuildingName(bill);
     },
-    onSuccess: (bill) => {
-      queryClient.invalidateQueries({
-        queryKey: supplierBillQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: supplierBillQueryKeys.getSupplierBill(bill.id),
-      });
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -121,16 +99,10 @@ export function useUpdateSupplierBill(
 export function useDeleteSupplierBill(
   options?: UseMutationOptionsWrapper<string>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (billId: string) => {
       const index = mockSupplierBills.findIndex((bill) => bill.id === billId);
       if (index !== -1) mockSupplierBills.splice(index, 1);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: supplierBillQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
     },
     ...options,
   });

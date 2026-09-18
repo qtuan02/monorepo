@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -16,10 +16,6 @@ import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
 import { mockUtilities } from "~/constants/mock/utilities";
 import { mockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
-import { invoiceQueryKeys } from "~/hooks/api/invoice";
-import { reconciliationQueryKeys } from "~/hooks/api/reconciliation";
-import { taskQueryKeys } from "~/hooks/api/task";
-import { utilityQueryKeys } from "~/hooks/api/utility";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import {
   buildCycleDueDate,
@@ -84,15 +80,11 @@ export interface SaveCycleReadingsRequest {
 
 /**
  * "Lưu nháp chỉ số" — upserts every entered reading as `DRAFT` (ADR-0013:
- * `FINALIZED` only happens at "Lập n hoá đơn", never here). Invalidates
- * `utility`/`task` too, so a fixed anomaly or a newly-eligible row shows up
- * on the very next read.
+ * `FINALIZED` only happens at "Lập n hoá đơn", never here).
  */
 export function useSaveCycleReadings(
   options?: UseMutationOptionsWrapper<SaveCycleReadingsRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: SaveCycleReadingsRequest) => {
       const updatedAt = new Date().toISOString();
@@ -132,11 +124,6 @@ export function useSaveCycleReadings(
         }
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -158,8 +145,6 @@ export interface CreateCycleInvoicesRequest {
 export function useCreateCycleInvoices(
   options?: UseMutationOptionsWrapper<CreateCycleInvoicesRequest, Invoice[]>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateCycleInvoicesRequest) => {
       const building = mockBuildings.find(
@@ -232,15 +217,6 @@ export function useCreateCycleInvoices(
 
       return created;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
-      // New lineItems change the thu side of Đối soát for this kỳ — mirrors
-      // the invalidation expense.ts/supplier-bill.ts already do on their writes.
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -256,8 +232,6 @@ export interface ApproveCycleReadingRequest {
 export function useApproveCycleReading(
   options?: UseMutationOptionsWrapper<ApproveCycleReadingRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: ApproveCycleReadingRequest) => {
       const reading = mockUtilities.find(
@@ -274,11 +248,6 @@ export function useApproveCycleReading(
       }
       reading.approved = true;
       reading.updatedAt = new Date().toISOString();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
     },
     ...options,
   });
@@ -301,8 +270,6 @@ export interface CorrectCycleOldIndexRequest {
 export function useCorrectCycleOldIndex(
   options?: UseMutationOptionsWrapper<CorrectCycleOldIndexRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CorrectCycleOldIndexRequest) => {
       const existing = mockUtilityOldIndexOverrides.find(
@@ -328,13 +295,6 @@ export function useCorrectCycleOldIndex(
           updatedAt,
         });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      // A corrected chỉ số cũ can turn a MISSING/ANOMALY row eligible, which
-      // can affect Việc cần làm's "chưa lập Đợt" — mirrors the invalidation
-      // useApproveCycleReading already does above.
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
     },
     ...options,
   });
