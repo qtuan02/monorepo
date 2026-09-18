@@ -17,7 +17,7 @@ export const queryClient = new QueryClient({
         title:
           error instanceof HttpError
             ? error.message
-            : "Đã có lỗi xảy ra, vui lòng thử lại.",
+            : "Something went wrong. Please try again.",
         type: "error",
       });
     },

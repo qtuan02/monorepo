@@ -339,7 +339,7 @@ bun run test                     # Vitest 5 across every workspace with a `test`
 bun run test:coverage            # the same, plus a v8 report — no threshold, nothing gates on it
 bun run build                    # build every package and app
 
-bun run e2e                      # Playwright over every app with an `e2e` task — all three Templates, portfolio, documents, mcp, smart-rental; each webServer builds and serves itself
+bun run e2e                      # Playwright over every app with an `e2e` task — all three Templates, portfolio, documents, mcp, smart-rental, chat; each webServer builds and serves itself
 bun run e2e:headed:template-vite # the same specs in one real browser window (the `watch` project)
 bun run e2e:headed:template-next
 bun run e2e:headed:template-reactrouter
@@ -347,6 +347,7 @@ bun run e2e:headed:portfolio
 bun run e2e:headed:documents
 bun run e2e:headed:mcp
 bun run e2e:headed:smart-rental
+bun run e2e:headed:chat
 
 bun run changeset                # write a release note for a change to @fe-monorepo/ui or @fe-monorepo/hook
 bun run publish:smoke            # pack both Publish shells, install them into a throwaway consumer project, build it

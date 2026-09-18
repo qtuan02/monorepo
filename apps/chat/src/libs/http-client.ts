@@ -1,13 +1,20 @@
 import { createHttpClient } from "@monorepo/api/client";
-import { TemplateService } from "@monorepo/api/template/template-service";
 
 import { env } from "~/env";
 import { queryClient } from "~/libs/query-client";
 import { useAuthStore } from "~/stores/use-auth-store";
 
 // `env` is validated at boot, so no fallback is needed here.
-const httpClient = createHttpClient({
-  baseURL: env.PUBLIC_BASE_DOMAIN_API,
+//
+// No service singleton yet: `@monorepo/api` gets its `Chat<Domain>Service`
+// classes in a later ticket, instantiated here against this same client —
+// see architecture-features-modules.md, "no `~/services/` folder inside an
+// app".
+//
+// `PUBLIC_CHAT_API_BASE_URL` is the backend's origin only — this is the one
+// place `/api` is appended, so no service method repeats it.
+export const httpClient = createHttpClient({
+  baseURL: `${env.PUBLIC_CHAT_API_BASE_URL}/api`,
   timeout: 10_000,
 
   // Both callbacks reach the store through `getState()` at call time, never a
@@ -23,5 +30,3 @@ const httpClient = createHttpClient({
     queryClient.clear();
   },
 });
-
-export const templateService = new TemplateService(httpClient);

@@ -15,8 +15,7 @@ import { useAuthStore } from "~/stores/use-auth-store";
  * `replace` is mandatory: without it the blocked URL stays in history and Back
  * walks the user straight into the route they were just bounced out of.
  *
- * Role-based access is not implemented yet (decision D-5 in
- * docs/architecture/structure-design.md). When it lands it becomes a sibling
+ * Role-based access is not implemented yet. If it lands it becomes a sibling
  * wrapper — `<RoleRoute allow={[...]} />` nested inside this one, reading
  * permissions as server state through `~/hooks/api`, not from a store.
  */
