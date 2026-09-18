@@ -44,6 +44,7 @@ const taskTypeIcon: Record<TaskType, LucideIcon> = {
   maintenance: Wrench,
   utility_anomaly: Gauge,
   residence_notification: ShieldAlert,
+  residence_registration_expiring: ShieldAlert,
   batch_pending: Bell,
 };
 
@@ -71,6 +72,7 @@ function actionsFor(task: Task): TaskAction[] {
     case "utility_anomaly":
       return [{ label: "Sửa chỉ số", to: taskRelatedPath(task) }];
     case "residence_notification":
+    case "residence_registration_expiring":
       return [{ label: "Khai báo", to: taskRelatedPath(task) }];
     case "batch_pending":
       return [{ label: "Lập Đợt hoá đơn", to: taskRelatedPath(task) }];

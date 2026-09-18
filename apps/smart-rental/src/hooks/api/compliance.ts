@@ -14,7 +14,6 @@ import { mockContracts } from "~/constants/mock/contracts";
 import { mockTenants } from "~/constants/mock/tenants";
 import { taskQueryKeys } from "~/hooks/api/task";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { formatDate } from "~/utils/date";
 import { buildResidenceDeclarations } from "~/utils/residence-declaration";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn`
@@ -51,12 +50,18 @@ export function useGetResidenceDeclarations(
 
 interface MarkResidenceNotificationSentRequest {
   tenantId: string;
+  /** Mã hồ sơ Cổng DVC — typed by the landlord, never auto-generated (ticket #188). */
+  referenceNumber: string;
+  /** Already display-formatted (`DD/MM/YYYY`). */
+  sentDate: string;
 }
 
 /**
- * "Nút Đã gửi ghi tay" (spec #153 §10 row 8): flips or creates the tenant's
- * own Thông báo lưu trú item to `completed`. Invalidates Việc cần làm too —
- * that is what makes the matching task disappear from Hôm nay (ticket #161 AC).
+ * "Đã gửi" sheet (spec #153 §10 row 8, ticket #188): flips or creates the
+ * tenant's own Thông báo lưu trú item to `completed`, with the mã hồ sơ +
+ * ngày the landlord entered — never a made-up reference number. Invalidates
+ * Việc cần làm too — that is what makes the matching task disappear from
+ * Hôm nay (ticket #161 AC).
  */
 export function useMarkResidenceNotificationSent(
   options?: UseMutationOptionsWrapper<
@@ -67,8 +72,11 @@ export function useMarkResidenceNotificationSent(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ tenantId }: MarkResidenceNotificationSentRequest) => {
-      const today = formatDate(new Date());
+    mutationFn: async ({
+      tenantId,
+      referenceNumber,
+      sentDate,
+    }: MarkResidenceNotificationSentRequest) => {
       const existing = mockComplianceItems.find(
         (item) =>
           item.tenantId === tenantId && item.type === "residence_notification",
@@ -76,8 +84,8 @@ export function useMarkResidenceNotificationSent(
 
       if (existing) {
         existing.status = "completed";
-        existing.completedDate = today;
-        existing.referenceNumber ??= `CT01-${tenantId}`;
+        existing.completedDate = sentDate;
+        existing.referenceNumber = referenceNumber;
         return;
       }
 
@@ -90,9 +98,61 @@ export function useMarkResidenceNotificationSent(
         room: tenant?.room ?? "",
         type: "residence_notification",
         status: "completed",
-        dueDate: today,
-        completedDate: today,
-        referenceNumber: `CT01-${tenantId}`,
+        dueDate: sentDate,
+        completedDate: sentDate,
+        referenceNumber,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: complianceQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
+    },
+    ...options,
+  });
+}
+
+interface ExtendResidenceRegistrationRequest {
+  tenantId: string;
+  /** Already display-formatted (`DD/MM/YYYY`). */
+  newDueDate: string;
+}
+
+/**
+ * "Đã gia hạn đến …" (ticket #188): the one write Đăng ký tạm trú has — it
+ * only ever moves `dueDate` out, since `registrationStatus` itself is never
+ * stored (see `~/utils/residence-declaration`). Invalidates Việc cần làm too,
+ * so a renewed registration drops its "sắp hết hạn" task immediately.
+ */
+export function useExtendResidenceRegistration(
+  options?: UseMutationOptionsWrapper<ExtendResidenceRegistrationRequest, void>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      tenantId,
+      newDueDate,
+    }: ExtendResidenceRegistrationRequest) => {
+      const existing = mockComplianceItems.find(
+        (item) =>
+          item.tenantId === tenantId && item.type === "residence_registration",
+      );
+
+      if (existing) {
+        existing.dueDate = newDueDate;
+        return;
+      }
+
+      const tenant = mockTenants.find((item) => item.id === tenantId);
+      mockComplianceItems.push({
+        id: `RR-${tenantId}`,
+        buildingId: tenant?.buildingId ?? "",
+        tenantId,
+        tenant: tenant?.name ?? "",
+        room: tenant?.room ?? "",
+        type: "residence_registration",
+        status: "pending",
+        dueDate: newDueDate,
       });
     },
     onSuccess: () => {

@@ -50,6 +50,10 @@ export interface ResidenceDeclaration {
   notificationStatus: ResidenceNotificationStatus;
   notificationDate?: string;
   referenceNumber?: string;
+  /**
+   * Derived purely from `registrationDueDate` (ticket #188) — "overdue" once
+   * past it, "pending" otherwise. Never read off a stored `ComplianceItem.status`.
+   */
   registrationStatus: ComplianceStatus;
   /** Already display-formatted (`DD/MM/YYYY`). */
   registrationDueDate: string;

@@ -457,9 +457,11 @@ describe("Hôm nay", () => {
   });
 });
 
-// Ticket #161, spec #153 §10 row 8 — marking Thông báo lưu trú "Đã gửi" is
-// the one write Khai báo lưu trú has, and it is what makes the matching
+// Ticket #161/#188, spec #153 §10 row 8 — marking Thông báo lưu trú "Đã gửi"
+// is the one write Khai báo lưu trú has, and it is what makes the matching
 // residence_notification task drop off Hôm nay (AC: "test qua route tree").
+// #188: "Đã gửi" no longer marks sent in place — it opens a sheet asking the
+// mã hồ sơ + ngày gửi thật, never a mã tự bịa.
 describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
   beforeEach(() => {
     useAuthStore.setState(initialAuthState, true);
@@ -467,7 +469,33 @@ describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
     useAuthStore.setState({ token: "a-token" });
   });
 
-  it("marks Thông báo lưu trú sent and drops the tenant's Việc cần làm", async () => {
+  it("opens the Lưu trú tab (`?tab=residence`) on a detail deep link", async () => {
+    renderAt(`${ROUTES.tenantDetailPath("T005")}?tab=residence`);
+
+    expect(await screen.findByText("Cổng dịch vụ công")).toBeInTheDocument();
+  });
+
+  it("navigates a Khai báo Việc cần làm straight to the tenant's Lưu trú tab", async () => {
+    const user = userEvent.setup();
+    const router = renderAt(ROUTES.HOME);
+
+    const title = await screen.findByText(
+      "Hoàng Văn E chưa có Thông báo lưu trú",
+    );
+    const item = title.closest('[role="listitem"]');
+    expect(item).not.toBeFalsy();
+
+    await user.click(
+      within(item as HTMLElement).getByRole("link", { name: "Khai báo" }),
+    );
+
+    expect(heading("Chi tiết Người thuê")).toBeInTheDocument();
+    expect(router.state.location.search).toBe("?tab=residence");
+  });
+
+  // Mutates the shared mock — keep this test last in the block, or its
+  // "sent" write leaks into the read-only assertions above.
+  it("marks Thông báo lưu trú sent with a typed mã hồ sơ + ngày, and drops the tenant's Việc cần làm", async () => {
     const user = userEvent.setup();
     renderAt(ROUTES.COMPLIANCE);
 
@@ -480,7 +508,19 @@ describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
     await user.click(
       within(row as HTMLElement).getByRole("button", { name: "Đã gửi" }),
     );
-    await within(row as HTMLElement).findAllByText("Đã gửi");
+
+    expect(
+      screen.getByRole("heading", { name: "Đã gửi Thông báo lưu trú" }),
+    ).toBeInTheDocument();
+    await user.type(
+      screen.getByRole("textbox", { name: /Mã hồ sơ/ }),
+      "CT01-9999",
+    );
+    await user.click(screen.getByRole("button", { name: /Ngày gửi/ }));
+    await user.click(await screen.findByText("17"));
+    await user.click(screen.getByRole("button", { name: "Lưu lại" }));
+
+    await within(row as HTMLElement).findByText(/CT01-9999/);
 
     renderAt(ROUTES.HOME);
     await screen.findAllByText(/\d+ Hoá đơn quá hạn/);

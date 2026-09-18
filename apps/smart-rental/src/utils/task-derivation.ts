@@ -12,6 +12,7 @@ import { deriveContractStatus, isContractLive } from "~/utils/contract-status";
 import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
 import { formatMonth } from "~/utils/date";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
+import { buildResidenceDeclarations } from "~/utils/residence-declaration";
 import { findAnomalousUtilities } from "~/utils/utility-anomaly";
 
 function toIsoDate(value: string): string {
@@ -32,11 +33,12 @@ interface TaskDerivationSources {
 }
 
 /**
- * Việc cần làm has no Mock of its own (ADR-0012) — every row is one of five
- * sources, each pointing at exactly one entity by id (spec #153 §10 row 9):
- * Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số bất thường chưa xác nhận,
- * Người thuê có Hợp đồng hiệu lực chưa Thông báo lưu trú, and kỳ hiện tại
- * chưa lập Đợt cho Toà nhà.
+ * Việc cần làm has no Mock of its own (ADR-0012) — every row is one of six
+ * sources, each pointing at exactly one entity by id (spec #153 §10 row 9,
+ * ticket #188): Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số bất thường
+ * chưa xác nhận, Người thuê có Hợp đồng hiệu lực chưa Thông báo lưu trú,
+ * Đăng ký tạm trú sắp hết hạn (30 ngày), and kỳ hiện tại chưa lập Đợt cho
+ * Toà nhà.
  */
 export function deriveTasks(
   sources: TaskDerivationSources,
@@ -136,6 +138,31 @@ export function deriveTasks(
       relatedEntity: "tenant",
       relatedId: tenant.id,
       dueDate: todayIso,
+      createdAt,
+    });
+  }
+
+  // Đăng ký tạm trú sắp hết hạn (ticket #188) — same 30-day window
+  // `buildResidenceDeclarations` already suy ra, so the derivation stays in
+  // one place rather than a second days-to-expiry calc here.
+  for (const declaration of buildResidenceDeclarations(
+    tenants,
+    contracts,
+    complianceItems,
+    today,
+  )) {
+    if (!declaration.registrationExpiringSoon) continue;
+
+    tasks.push({
+      id: `residence_registration_expiring-${declaration.tenantId}`,
+      type: "residence_registration_expiring",
+      title: `Đăng ký tạm trú của ${declaration.tenantName} sắp hết hạn`,
+      description: `${declaration.room} — hết hạn ${declaration.registrationDueDate}.`,
+      status: "open",
+      buildingId: declaration.buildingId,
+      relatedEntity: "tenant",
+      relatedId: declaration.tenantId,
+      dueDate: toIsoDate(declaration.registrationDueDate),
       createdAt,
     });
   }

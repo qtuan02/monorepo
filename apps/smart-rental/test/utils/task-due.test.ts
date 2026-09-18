@@ -21,6 +21,7 @@ describe("taskRelatedPath", () => {
     ["invoice", ROUTES.invoiceDetailPath("x-1")],
     ["contract", ROUTES.contractDetailPath("x-1")],
     ["room", ROUTES.roomDetailPath("x-1")],
+    // Both "tenant" task sources (ticket #188) land on the Lưu trú tab.
     ["tenant", `${ROUTES.tenantDetailPath("x-1")}?tab=residence`],
     ["cycle", ROUTES.cycleDetailPath("x-1")],
     ["building", ROUTES.buildingDetailPath("x-1")],

@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@monorepo/ui/components/card";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { ResidenceDeclarationLines } from "~/components/card/residence-declaration-lines";
@@ -7,10 +6,7 @@ import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
-import {
-  useGetResidenceDeclarations,
-  useMarkResidenceNotificationSent,
-} from "~/hooks/api/compliance";
+import { useGetResidenceDeclarations } from "~/hooks/api/compliance";
 import { useBuildingStore } from "~/stores/use-building-store";
 
 /**
@@ -24,14 +20,13 @@ export default function ComplianceDashboardTemplate() {
   const { data, isLoading, isError, refetch } = useGetResidenceDeclarations({
     buildingId: selectedBuildingId,
   });
-  const markSent = useMarkResidenceNotificationSent();
   const declarations = data ?? [];
 
   return (
     <div className="space-y-6">
       <ListPageHeader
         title="Khai báo lưu trú"
-        description="Thông báo lưu trú và Đăng ký tạm trú của Người thuê đang có Hợp đồng hiệu lực."
+        description="Thông báo lưu trú và Đăng ký tạm trú của Người thuê."
       />
 
       {isLoading ? (
@@ -73,22 +68,7 @@ export default function ComplianceDashboardTemplate() {
             {declarations.map((declaration) => (
               <Card key={declaration.tenantId}>
                 <CardContent>
-                  <ResidenceDeclarationLines
-                    declaration={declaration}
-                    isMarking={markSent.isPending}
-                    onMarkSent={() =>
-                      markSent.mutate(
-                        { tenantId: declaration.tenantId },
-                        {
-                          onSuccess: () =>
-                            toast.add({
-                              title: `Đã đánh dấu gửi Thông báo lưu trú cho ${declaration.tenantName}`,
-                              type: "success",
-                            }),
-                        },
-                      )
-                    }
-                  />
+                  <ResidenceDeclarationLines declaration={declaration} />
                 </CardContent>
               </Card>
             ))}

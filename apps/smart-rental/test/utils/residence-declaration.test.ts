@@ -123,23 +123,6 @@ describe("buildResidenceDeclarations", () => {
     expect(declaration?.registrationExpiringSoon).toBe(true);
   });
 
-  it("does not flag Đăng ký tạm trú as expiring once it is already completed", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [
-        complianceItem({
-          type: "residence_registration",
-          status: "completed",
-          dueDate: "10/10/2026",
-        }),
-      ],
-      today,
-    );
-
-    expect(declaration?.registrationExpiringSoon).toBe(false);
-  });
-
   it("does not flag Đăng ký tạm trú past the 30-day window", () => {
     const [declaration] = buildResidenceDeclarations(
       [tenant({})],
@@ -155,5 +138,44 @@ describe("buildResidenceDeclarations", () => {
     );
 
     expect(declaration?.registrationExpiringSoon).toBe(false);
+    expect(declaration?.registrationStatus).toBe("pending");
+  });
+
+  // Ticket #188 — registrationStatus is suy purely from `dueDate`, never
+  // read off the item's own `status`; a stored "completed" is ignored.
+  it("derives overdue once the due date has already passed, ignoring a stored status", () => {
+    const [declaration] = buildResidenceDeclarations(
+      [tenant({})],
+      [contract({})],
+      [
+        complianceItem({
+          type: "residence_registration",
+          status: "completed",
+          dueDate: "01/09/2026", // 16 days before `today`
+        }),
+      ],
+      today,
+    );
+
+    expect(declaration?.registrationStatus).toBe("overdue");
+    expect(declaration?.registrationExpiringSoon).toBe(false);
+  });
+
+  it("derives pending (not overdue) on the due date itself", () => {
+    const [declaration] = buildResidenceDeclarations(
+      [tenant({})],
+      [contract({})],
+      [
+        complianceItem({
+          type: "residence_registration",
+          status: "pending",
+          dueDate: "17/09/2026", // = `today`
+        }),
+      ],
+      today,
+    );
+
+    expect(declaration?.registrationStatus).toBe("pending");
+    expect(declaration?.registrationExpiringSoon).toBe(true);
   });
 });

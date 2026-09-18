@@ -35,10 +35,10 @@ export const mockComplianceItems: ComplianceItem[] = mockTenants.flatMap(
       tenant: tenant.name,
       room: tenant.room,
       type: "residence_registration",
-      status:
-        index % 3 === 0 ? "overdue" : index % 3 === 1 ? "pending" : "completed",
+      // `status` is unused for this type (ticket #188) — registrationStatus
+      // is suy purely from `dueDate` in `~/utils/residence-declaration`.
+      status: "pending",
       dueDate: tenant.contractEnd,
-      completedDate: index % 3 === 2 ? tenant.moveInDate : undefined,
     });
 
     return items;

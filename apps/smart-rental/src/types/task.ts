@@ -1,9 +1,9 @@
 /**
- * The prototype's `Task`, kept 1:1 plus the three sources ADR-0012 added:
- * `utility_anomaly`, `residence_notification` (its name matches
- * `ComplianceType`'s own value on purpose) and `batch_pending`. Every value
- * is now derived from five sources (`~/utils/task-derivation`), never
- * authored by hand.
+ * The prototype's `Task`, kept 1:1 plus the four sources ADR-0012 and ticket
+ * #188 added: `utility_anomaly`, `residence_notification` (its name matches
+ * `ComplianceType`'s own value on purpose), `batch_pending` and
+ * `residence_registration_expiring`. Every value is now derived from six
+ * sources (`~/utils/task-derivation`), never authored by hand.
  */
 export type TaskType =
   | "invoice_overdue"
@@ -11,6 +11,7 @@ export type TaskType =
   | "maintenance"
   | "utility_anomaly"
   | "residence_notification"
+  | "residence_registration_expiring"
   | "batch_pending";
 export type TaskStatus = "open" | "in_progress" | "done";
 /**

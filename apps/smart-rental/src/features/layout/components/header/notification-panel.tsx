@@ -26,6 +26,7 @@ const taskTypeIcon: Record<TaskType, LucideIcon> = {
   maintenance: Wrench,
   utility_anomaly: Gauge,
   residence_notification: ShieldAlert,
+  residence_registration_expiring: ShieldAlert,
   batch_pending: Bell,
 };
 

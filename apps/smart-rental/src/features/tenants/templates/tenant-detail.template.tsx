@@ -9,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import { toast } from "@monorepo/ui/components/toast";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import { StatusBadge } from "~/components/badge/status-badge";
@@ -28,10 +27,7 @@ import {
 } from "~/constants/status";
 import TenantFormSheet from "~/features/tenants/components/tenant-form-sheet";
 import { useGetBuilding } from "~/hooks/api/building";
-import {
-  useGetResidenceDeclarations,
-  useMarkResidenceNotificationSent,
-} from "~/hooks/api/compliance";
+import { useGetResidenceDeclarations } from "~/hooks/api/compliance";
 import { useGetContracts } from "~/hooks/api/contract";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetTenant } from "~/hooks/api/tenant";
@@ -62,7 +58,6 @@ export default function TenantDetailTemplate({
   const contractsQuery = useGetContracts();
   const invoicesQuery = useGetInvoices();
   const declarationsQuery = useGetResidenceDeclarations();
-  const markSent = useMarkResidenceNotificationSent();
 
   if (tenantQuery.isLoading) {
     return (
@@ -234,20 +229,7 @@ export default function TenantDetailTemplate({
             content: declaration ? (
               <ResidenceDeclarationLines
                 declaration={declaration}
-                isMarking={markSent.isPending}
                 hideTenantHeader
-                onMarkSent={() =>
-                  markSent.mutate(
-                    { tenantId: tenant.id },
-                    {
-                      onSuccess: () =>
-                        toast.add({
-                          title: `Đã đánh dấu gửi Thông báo lưu trú cho ${tenant.name}`,
-                          type: "success",
-                        }),
-                    },
-                  )
-                }
               />
             ) : (
               <EmptyPanel

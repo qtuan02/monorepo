@@ -131,11 +131,11 @@ vụ của cơ sở, không thuộc mục này)
 
 **Việc cần làm** (`Task`):
 Một mục **suy ra từ dữ liệu** — Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số điện nước bất
-thường, Thông báo lưu trú chưa gửi, Kỳ chưa lập Đợt hoá đơn — trỏ về đúng một Hoá đơn / Hợp đồng /
-Phòng / Người thuê và mang hành động làm ngay. Không có việc nhập tay. Các Hoá đơn quá hạn của
-cùng một Toà nhà **gộp thành một mục** (tổng tiền, nhắc tất cả, mở rộng từng Hoá đơn); các loại
-khác một mục một việc. Sắp theo hạn, không theo loại. Sống ở Hôm nay và ở chuông — không có màn
-riêng.
+thường, Thông báo lưu trú chưa gửi, Đăng ký tạm trú sắp hết hạn, kỳ chưa lập Đợt hoá đơn — trỏ về
+đúng một Hoá đơn / Hợp đồng / Phòng / Người thuê và mang hành động làm ngay. Không có việc nhập tay.
+Các Hoá đơn quá hạn của cùng một Toà nhà **gộp thành một mục** (tổng tiền, nhắc tất cả, mở rộng
+từng Hoá đơn); các loại khác một mục một việc. Sắp theo hạn, không theo loại. Sống ở Hôm nay và ở
+chuông — không có màn riêng.
 _Avoid_: todo, reminder, nhắc việc, trung tâm việc, `/tasks` (đã bỏ ở round 3), task bảo trì (không có trong Portal)
 
 **Hôm nay**:

@@ -177,6 +177,49 @@ describe("deriveTasks", () => {
     expect(task).toMatchObject({ relatedEntity: "tenant", relatedId: "T001" });
   });
 
+  it("adds a residence_registration_expiring task within the 30-day window", () => {
+    const tasks = derive({
+      complianceItems: [
+        {
+          id: "RR-T001",
+          buildingId: "b1",
+          tenantId: "T001",
+          tenant: "Nguyễn Văn A",
+          room: "Phòng 101",
+          type: "residence_registration",
+          status: "pending",
+          dueDate: "05/10/2026", // 17 days after `today` (18/09/2026)
+        },
+      ],
+    });
+    const task = tasks.find(
+      (t) => t.type === "residence_registration_expiring",
+    );
+
+    expect(task).toMatchObject({ relatedEntity: "tenant", relatedId: "T001" });
+  });
+
+  it("skips residence_registration_expiring once the due date is far in the future", () => {
+    const tasks = derive({
+      complianceItems: [
+        {
+          id: "RR-T001",
+          buildingId: "b1",
+          tenantId: "T001",
+          tenant: "Nguyễn Văn A",
+          room: "Phòng 101",
+          type: "residence_registration",
+          status: "pending",
+          dueDate: "31/12/2027",
+        },
+      ],
+    });
+
+    expect(
+      tasks.some((t) => t.type === "residence_registration_expiring"),
+    ).toBe(false);
+  });
+
   it("skips residence_notification once the tenant already has one completed", () => {
     const tasks = derive({
       complianceItems: [

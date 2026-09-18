@@ -12,10 +12,10 @@ export function taskRelatedPath(task: Task): string {
       return ROUTES.contractDetailPath(task.relatedId);
     case "room":
       return ROUTES.roomDetailPath(task.relatedId);
+    // Both "tenant" task sources (residence_notification,
+    // residence_registration_expiring) are Khai báo lưu trú (ticket #188) —
+    // land straight on the Lưu trú tab instead of the tenant's Tổng quan.
     case "tenant":
-      // Straight to the Lưu trú tab (spec #179 §"Hôm nay") — the one tenant
-      // task there is today (residence_notification) is about it, not
-      // Tổng quan.
       return `${ROUTES.tenantDetailPath(task.relatedId)}?tab=residence`;
     case "cycle":
       // `relatedId` is the Kỳ's own `YYYY-MM` for this entity (see

@@ -11,9 +11,10 @@ export const RESIDENCE_REGISTRATION_EXPIRING_WINDOW_DAYS = 30;
 
 /**
  * Mỗi Người thuê có Hợp đồng hiệu lực → một dòng, hai nghĩa vụ (spec #153
- * §10 row 8, ticket #161): Thông báo lưu trú (chưa gửi / đã gửi) và Đăng ký
- * tạm trú (nguyên trạng thái + ngày hết hạn). Không lưu — suy từ Hợp đồng +
- * `ComplianceItem` mỗi lần đọc (ADR-0012).
+ * §10 row 8, ticket #161): Thông báo lưu trú (chưa gửi / đã gửi, đọc từ
+ * `ComplianceItem.status`) và Đăng ký tạm trú (trạng thái suy thuần từ hạn,
+ * ticket #188 — chưa từng đọc `status` của item này). Không lưu — suy từ
+ * Hợp đồng + `ComplianceItem` mỗi lần đọc (ADR-0012).
  */
 export function buildResidenceDeclarations(
   tenants: Tenant[],
@@ -39,7 +40,6 @@ export function buildResidenceDeclarations(
           item.tenantId === tenant.id && item.type === "residence_registration",
       );
       const registrationDueDate = registration?.dueDate ?? tenant.contractEnd;
-      const registrationStatus = registration?.status ?? "pending";
       const daysToExpiry = dayjs(registrationDueDate, DATE_FORMAT)
         .startOf("day")
         .diff(dayjs(today).startOf("day"), "day");
@@ -53,10 +53,11 @@ export function buildResidenceDeclarations(
           notification?.status === "completed" ? "sent" : "not_sent",
         notificationDate: notification?.completedDate,
         referenceNumber: notification?.referenceNumber,
-        registrationStatus,
+        // Ticket #188 — never read `registration.status`: it is not saved
+        // for Đăng ký tạm trú at all, purely suy from the due date.
+        registrationStatus: daysToExpiry < 0 ? "overdue" : "pending",
         registrationDueDate,
         registrationExpiringSoon:
-          registrationStatus !== "completed" &&
           daysToExpiry >= 0 &&
           daysToExpiry <= RESIDENCE_REGISTRATION_EXPIRING_WINDOW_DAYS,
       };
