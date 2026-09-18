@@ -4,9 +4,13 @@ import type { Building } from "~/types/building";
 import type { ComplianceItem } from "~/types/compliance";
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
+import type { Task } from "~/types/task";
 import type { Tenant } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
+import type { BuildingScope } from "~/types/world";
+import type { WorldArrays } from "~/utils/world";
 import { deriveTasks } from "~/utils/task-derivation";
+import { buildWorld } from "~/utils/world";
 
 const today = new Date("2026-09-18T00:00:00.000Z");
 // Past the ngày chốt (cuối tháng) of the current Kỳ — the only moment
@@ -110,21 +114,28 @@ const previousUtility: Utility = {
 
 const noComplianceItems: ComplianceItem[] = [];
 
+/** World fixtures for `deriveTasks` — seam 1 of ADR-0015: no `buildingId` field of its own any more, scoped by World. */
 function derive(
-  overrides: Partial<Parameters<typeof deriveTasks>[0]> = {},
+  overrides: Partial<WorldArrays> = {},
+  scope: BuildingScope = null,
   todayOverride: Date = today,
-) {
+): Task[] {
   return deriveTasks(
-    {
-      contracts: [contract],
-      invoices: [overdueInvoice],
-      utilities: [previousUtility, anomalousUtility],
-      tenants: [tenant],
-      complianceItems: noComplianceItems,
-      buildings: [building],
-      ...overrides,
-    },
-    todayOverride,
+    buildWorld(
+      {
+        buildings: [building],
+        rooms: [],
+        contracts: [contract],
+        invoices: [overdueInvoice],
+        utilities: [previousUtility, anomalousUtility],
+        utilityOldIndexOverrides: [],
+        tenants: [tenant],
+        complianceItems: noComplianceItems,
+        ...overrides,
+      },
+      scope,
+      todayOverride,
+    ),
   );
 }
 
@@ -240,7 +251,7 @@ describe("deriveTasks", () => {
   });
 
   it("adds batch_pending once the Kỳ's ngày chốt has passed and no Hoá đơn exists yet", () => {
-    const tasks = derive({ invoices: [] }, pastCycleEnd);
+    const tasks = derive({ invoices: [] }, null, pastCycleEnd);
     const task = tasks.find((t) => t.type === "batch_pending");
 
     expect(task).toMatchObject({
@@ -258,8 +269,8 @@ describe("deriveTasks", () => {
     expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
   });
 
-  it("skips batch_pending once a Hoá đơn of the Kỳ already exists", () => {
-    const tasks = derive({ invoices: [overdueInvoice] }, pastCycleEnd);
+  it("skips batch_pending once a Hoá đơn của Kỳ already exists", () => {
+    const tasks = derive({ invoices: [overdueInvoice] }, null, pastCycleEnd);
 
     expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
   });
@@ -267,11 +278,8 @@ describe("deriveTasks", () => {
   it("scopes batch_pending to one Toà nhà when buildingId is given", () => {
     const otherBuilding = { ...building, id: "b2", name: "Toà nhà khác" };
     const tasks = derive(
-      {
-        invoices: [],
-        buildings: [building, otherBuilding],
-        buildingId: "b1",
-      },
+      { invoices: [], buildings: [building, otherBuilding] },
+      "b1",
       pastCycleEnd,
     );
 
@@ -282,16 +290,13 @@ describe("deriveTasks", () => {
 
   it("scopes to one Toà nhà when buildingId is given", () => {
     const otherBuilding = { ...building, id: "b2", name: "Toà nhà khác" };
-    const tasks = derive({
-      buildings: [building, otherBuilding],
-      buildingId: "b1",
-    });
+    const tasks = derive({ buildings: [building, otherBuilding] }, "b1");
 
     expect(tasks.some((t) => t.relatedEntity === "invoice")).toBe(true);
   });
 
   it("finds nothing outside the given Building scope", () => {
-    const tasks = derive({ buildingId: "b-other" });
+    const tasks = derive({}, "b-other");
 
     expect(tasks).toEqual([]);
   });

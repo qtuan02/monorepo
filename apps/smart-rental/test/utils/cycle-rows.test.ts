@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import type { PriceList } from "~/types/building";
+import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
 import type { Utility } from "~/types/utility";
+import type { BuildingScope, World } from "~/types/world";
+import type { WorldArrays } from "~/utils/world";
 import {
   buildCycleDueDate,
   buildCycleLineItems,
@@ -12,13 +14,22 @@ import {
   isCycleClosingDatePassed,
   isFutureCycle,
 } from "~/utils/cycle-rows";
+import { buildWorld } from "~/utils/world";
 
 const today = new Date("2026-09-18T00:00:00.000Z");
 
-const priceList: PriceList = {
+const priceList = {
   electricityPricePerKwh: 3_500,
   waterPricePerM3: 15_000,
   serviceFee: 100_000,
+};
+
+const building: Building = {
+  id: "b1",
+  name: "Trọ Sinh Viên Xanh",
+  address: "123 Ngũ Hành Sơn",
+  collectionDay: 5,
+  priceList,
 };
 
 function room(overrides: Partial<Room> = {}): Room {
@@ -80,17 +91,34 @@ function utility(overrides: Partial<Utility> = {}): Utility {
   };
 }
 
+/** World fixtures for `buildCycleRows` — seam 1 of ADR-0015: the util reads World, never a positional array. */
+function makeWorld(
+  overrides: Partial<WorldArrays> = {},
+  scope: BuildingScope = "b1",
+): World {
+  return buildWorld(
+    {
+      buildings: [building],
+      rooms: [],
+      contracts: [],
+      invoices: [],
+      utilities: [],
+      utilityOldIndexOverrides: [],
+      tenants: [],
+      complianceItems: [],
+      ...overrides,
+    },
+    scope,
+    today,
+  );
+}
+
 describe("buildCycleRows", () => {
   it("EMPTY — a Phòng with no Hợp đồng hiệu lực is not lập-able", () => {
     const rows = buildCycleRows(
+      makeWorld({ rooms: [room()] }),
       "b1",
       "2026-09",
-      [room()],
-      [],
-      [],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows).toEqual([
@@ -105,14 +133,12 @@ describe("buildCycleRows", () => {
 
   it("EMPTY — a Hợp đồng that is not currently hiệu lực counts the room as vacant", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract({ status: "TERMINATED" })],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract({ status: "TERMINATED" })],
-      [],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]?.status).toBe("EMPTY");
@@ -120,14 +146,9 @@ describe("buildCycleRows", () => {
 
   it("MISSING — an occupied Phòng with no chỉ số of the kỳ yet", () => {
     const rows = buildCycleRows(
+      makeWorld({ rooms: [room()], contracts: [contract()] }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]).toEqual(
@@ -141,14 +162,13 @@ describe("buildCycleRows", () => {
 
   it("MISSING — only one of the two chỉ số of the kỳ has been entered", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract()],
+        utilities: [utility({ type: "electricity" })],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [utility({ type: "electricity" })],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]?.status).toBe("MISSING");
@@ -156,43 +176,42 @@ describe("buildCycleRows", () => {
 
   it("READY — chỉ số cũ from kỳ trước, both readings in, not yet invoiced", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract()],
+        utilities: [
+          utility({
+            id: "u-aug-d",
+            month: "2026-08",
+            type: "electricity",
+            newIndex: 1000,
+            consumption: 100,
+          }),
+          utility({
+            id: "u-aug-n",
+            month: "2026-08",
+            type: "water",
+            newIndex: 800,
+            consumption: 8,
+          }),
+          utility({
+            id: "u-sep-d",
+            type: "electricity",
+            oldIndex: 1000,
+            newIndex: 1120,
+            consumption: 120,
+          }),
+          utility({
+            id: "u-sep-n",
+            type: "water",
+            oldIndex: 800,
+            newIndex: 809,
+            consumption: 9,
+          }),
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [
-        utility({
-          id: "u-aug-d",
-          month: "2026-08",
-          type: "electricity",
-          newIndex: 1000,
-          consumption: 100,
-        }),
-        utility({
-          id: "u-aug-n",
-          month: "2026-08",
-          type: "water",
-          newIndex: 800,
-          consumption: 8,
-        }),
-        utility({
-          id: "u-sep-d",
-          type: "electricity",
-          oldIndex: 1000,
-          newIndex: 1120,
-          consumption: 120,
-        }),
-        utility({
-          id: "u-sep-n",
-          type: "water",
-          oldIndex: 800,
-          newIndex: 809,
-          consumption: 9,
-        }),
-      ],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]).toEqual(
@@ -217,34 +236,33 @@ describe("buildCycleRows", () => {
 
   it("ANOMALY — consumption above 2× kỳ trước is flagged per đồng hồ, with a ratio reason, never READY", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract()],
+        utilities: [
+          // A reading's own `consumption` is trusted as-is when no "Sửa chỉ số
+          // cũ" override applies (unchanged from before ticket #183) — kỳ
+          // trước's is the ratio baseline, kỳ này's is what gets compared.
+          utility({
+            id: "u-aug-d",
+            month: "2026-08",
+            type: "electricity",
+            consumption: 100,
+          }),
+          utility({
+            id: "u-aug-n",
+            month: "2026-08",
+            type: "water",
+            consumption: 8,
+          }),
+          // gấp 2,5 lần 100.
+          utility({ id: "u-sep-d", type: "electricity", consumption: 250 }),
+          // dưới 2×8 = 16 — không bất thường.
+          utility({ id: "u-sep-n", type: "water", consumption: 9 }),
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [
-        // A reading's own `consumption` is trusted as-is when no "Sửa chỉ số
-        // cũ" override applies (unchanged from before ticket #183) — kỳ
-        // trước's is the ratio baseline, kỳ này's is what gets compared.
-        utility({
-          id: "u-aug-d",
-          month: "2026-08",
-          type: "electricity",
-          consumption: 100,
-        }),
-        utility({
-          id: "u-aug-n",
-          month: "2026-08",
-          type: "water",
-          consumption: 8,
-        }),
-        // gấp 2,5 lần 100.
-        utility({ id: "u-sep-d", type: "electricity", consumption: 250 }),
-        // dưới 2×8 = 16 — không bất thường.
-        utility({ id: "u-sep-n", type: "water", consumption: 9 }),
-      ],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]?.status).toBe("ANOMALY");
@@ -256,34 +274,33 @@ describe("buildCycleRows", () => {
 
   it("a duyệt-ed reading no longer blocks the row — approved → READY (ticket #183)", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract()],
+        utilities: [
+          utility({
+            id: "u-aug-d",
+            month: "2026-08",
+            type: "electricity",
+            consumption: 100,
+          }),
+          utility({
+            id: "u-aug-n",
+            month: "2026-08",
+            type: "water",
+            consumption: 8,
+          }),
+          utility({
+            id: "u-sep-d",
+            type: "electricity",
+            consumption: 250,
+            approved: true,
+          }),
+          utility({ id: "u-sep-n", type: "water", consumption: 9 }),
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [
-        utility({
-          id: "u-aug-d",
-          month: "2026-08",
-          type: "electricity",
-          consumption: 100,
-        }),
-        utility({
-          id: "u-aug-n",
-          month: "2026-08",
-          type: "water",
-          consumption: 8,
-        }),
-        utility({
-          id: "u-sep-d",
-          type: "electricity",
-          consumption: 250,
-          approved: true,
-        }),
-        utility({ id: "u-sep-n", type: "water", consumption: 9 }),
-      ],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]?.status).toBe("READY");
@@ -292,49 +309,51 @@ describe("buildCycleRows", () => {
 
   it("a Sửa chỉ số cũ override changes the displayed chỉ số cũ AND the recomputed tiêu thụ, one đồng hồ at a time", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract()],
+        utilities: [
+          utility({
+            id: "u-aug-d",
+            month: "2026-08",
+            type: "electricity",
+            newIndex: 1000,
+          }),
+          utility({
+            id: "u-aug-n",
+            month: "2026-08",
+            type: "water",
+            newIndex: 800,
+          }),
+          // điện's own consumption is IGNORED once corrected — only nước's is trusted as-is.
+          utility({
+            id: "u-sep-d",
+            type: "electricity",
+            newIndex: 1120,
+            consumption: 9999,
+          }),
+          utility({
+            id: "u-sep-n",
+            type: "water",
+            newIndex: 809,
+            consumption: 9,
+          }),
+        ],
+        // Only điện was corrected — nước still falls back to kỳ trước's reading.
+        utilityOldIndexOverrides: [
+          {
+            id: "override-1",
+            roomId: "R-001",
+            type: "electricity",
+            month: "2026-09",
+            oldIndex: 1050,
+            note: "",
+            updatedAt: "2026-09-01T00:00:00.000Z",
+          },
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [
-        utility({
-          id: "u-aug-d",
-          month: "2026-08",
-          type: "electricity",
-          newIndex: 1000,
-        }),
-        utility({
-          id: "u-aug-n",
-          month: "2026-08",
-          type: "water",
-          newIndex: 800,
-        }),
-        // điện's own consumption is IGNORED once corrected — only nước's is trusted as-is.
-        utility({
-          id: "u-sep-d",
-          type: "electricity",
-          newIndex: 1120,
-          consumption: 9999,
-        }),
-        utility({
-          id: "u-sep-n",
-          type: "water",
-          newIndex: 809,
-          consumption: 9,
-        }),
-      ],
-      [],
-      priceList,
-      today,
-      // Only điện was corrected — nước still falls back to kỳ trước's reading.
-      [
-        {
-          roomId: "R-001",
-          type: "electricity",
-          month: "2026-09",
-          oldIndex: 1050,
-        },
-      ],
     );
 
     expect(rows[0]).toEqual(
@@ -349,14 +368,14 @@ describe("buildCycleRows", () => {
 
   it("prorates tiền phòng when Hợp đồng bắt đầu trong Kỳ, and carries the note", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [
+          contract({ rentAmount: 3_000_000, startDate: "21/09/2026" }),
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract({ rentAmount: 3_000_000, startDate: "21/09/2026" })],
-      [],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]).toEqual(
@@ -369,14 +388,14 @@ describe("buildCycleRows", () => {
 
   it("bills the full tháng, no proration, when Hợp đồng started before the Kỳ", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [
+          contract({ rentAmount: 3_000_000, startDate: "01/01/2026" }),
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract({ rentAmount: 3_000_000, startDate: "01/01/2026" })],
-      [],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows[0]).toEqual(
@@ -389,35 +408,43 @@ describe("buildCycleRows", () => {
 
   it("INVOICED — a Hoá đơn already covers this (contract, kỳ), wins over READY", () => {
     const rows = buildCycleRows(
+      makeWorld({
+        rooms: [room()],
+        contracts: [contract()],
+        utilities: [
+          utility({ id: "u-sep-d", type: "electricity" }),
+          utility({ id: "u-sep-n", type: "water" }),
+        ],
+        invoices: [
+          {
+            buildingId: "b1",
+            contractId: "C001",
+            billingMonth: "2026-09",
+          } as Invoice,
+        ],
+      }),
       "b1",
       "2026-09",
-      [room()],
-      [contract()],
-      [
-        utility({ id: "u-sep-d", type: "electricity" }),
-        utility({ id: "u-sep-n", type: "water" }),
-      ],
-      [{ contractId: "C001", billingMonth: "2026-09" } as Invoice],
-      priceList,
-      today,
     );
 
     expect(rows[0]?.status).toBe("INVOICED");
   });
 
   it("only rooms of the scoped Toà nhà come back", () => {
+    // World built at scope `null` so both Toà nhà's rooms are present —
+    // `buildCycleRows` must filter to `buildingId` itself.
     const rows = buildCycleRows(
+      makeWorld(
+        {
+          rooms: [
+            room({ id: "R-001", buildingId: "b1" }),
+            room({ id: "R-002", buildingId: "b2" }),
+          ],
+        },
+        null,
+      ),
       "b1",
       "2026-09",
-      [
-        room({ id: "R-001", buildingId: "b1" }),
-        room({ id: "R-002", buildingId: "b2" }),
-      ],
-      [],
-      [],
-      [],
-      priceList,
-      today,
     );
 
     expect(rows.map((r) => r.roomId)).toEqual(["R-001"]);

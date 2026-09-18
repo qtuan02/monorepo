@@ -13,9 +13,9 @@ import type { UtilityType } from "~/types/utility";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockInvoices } from "~/constants/mock/invoices";
-import { mockRooms } from "~/constants/mock/rooms";
 import { mockUtilities } from "~/constants/mock/utilities";
 import { mockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import {
   buildCycleDueDate,
@@ -28,36 +28,25 @@ const cycleQueryKeyFactory = queryKeysFactory("cycle");
 
 export const cycleQueryKeys = {
   ...cycleQueryKeyFactory,
-  getCycleRows: (buildingId: string, month: string) =>
+  getCycleRows: (buildingId: string | null, month: string) =>
     cycleQueryKeyFactory.list({ buildingId, month }),
 };
 
-/** `buildCycleRows` off the live Mock — the one seam `useGetCycleRows` and `useCreateCycleInvoices` both read through. */
+/** `buildCycleRows` off `readWorld` — the one seam `useGetCycleRows` and `useCreateCycleInvoices` both read through. */
 function resolveCycleRows(buildingId: string, month: string): CycleRow[] {
-  const building = mockBuildings.find((item) => item.id === buildingId);
-  if (!building) return [];
-  return buildCycleRows(
-    buildingId,
-    month,
-    mockRooms,
-    mockContracts,
-    mockUtilities,
-    mockInvoices,
-    building.priceList,
-    undefined,
-    mockUtilityOldIndexOverrides,
-  );
+  return buildCycleRows(readWorld(buildingId), buildingId, month);
 }
 
-/** "Kỳ điện nước & hoá đơn"'s one table — `buildCycleRows` off the live Mock (ADR-0013). */
+/** "Kỳ điện nước & hoá đơn"'s one table — `buildCycleRows` off `readWorld` (ADR-0013, ADR-0015). */
 export function useGetCycleRows(
   buildingId: string | null,
   month: string,
   options?: UseQueryOptionsWrapper<CycleRow[]>,
 ): UseQueryResult<CycleRow[], Error> {
   return useQuery<CycleRow[], Error>({
-    queryKey: cycleQueryKeys.getCycleRows(buildingId ?? "", month),
-    queryFn: async () => resolveCycleRows(buildingId ?? "", month),
+    queryKey: cycleQueryKeys.getCycleRows(buildingId, month),
+    queryFn: async () =>
+      buildingId ? resolveCycleRows(buildingId, month) : [],
     enabled: !!buildingId,
     ...options,
   });

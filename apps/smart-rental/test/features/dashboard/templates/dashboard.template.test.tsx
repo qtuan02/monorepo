@@ -16,6 +16,7 @@ import { resetMockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-
 import DashboardTemplate from "~/features/dashboard/templates/dashboard.template";
 import { useCorrectCycleOldIndex } from "~/hooks/api/cycle";
 import { useRecordInvoicePayment } from "~/hooks/api/invoice";
+import { readWorld } from "~/libs/mock-world";
 import { queryClient } from "~/libs/query-client";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
@@ -54,15 +55,6 @@ function renderDashboard(extra?: ReactNode) {
   );
 }
 
-function scope<T extends { buildingId?: string }>(
-  list: T[],
-  buildingId: string | null,
-): T[] {
-  return buildingId
-    ? list.filter((item) => item.buildingId === buildingId)
-    : list;
-}
-
 // `formatCurrency`'s NBSP-before-"₫" pitfall — see `test/pages/main.test.tsx`'s
 // own comment on the same trap: RTL's default text normalizer normalizes the
 // ELEMENT's own text before comparing (NBSP collapses to a plain space), but
@@ -72,14 +64,12 @@ function withoutNbsp(text: string) {
   return text.split(NBSP).join(" ");
 }
 
-// The expected numbers are computed through the same `buildTodaySummary` the
-// hook calls — never hand-derived here, since re-deriving OVERDUE/PARTIAL by
-// eye is exactly the trap ADR-0012's own tests warn about.
+// The expected numbers are computed through the same `readWorld` +
+// `buildTodaySummary` the hook itself calls (ADR-0015) — never hand-derived
+// here, since re-deriving OVERDUE/PARTIAL by eye is exactly the trap
+// ADR-0012's own tests warn about.
 function expectedSummary(buildingId: string | null) {
-  return buildTodaySummary({
-    invoices: scope(mockInvoices, buildingId),
-    contracts: scope(mockContracts, buildingId),
-  });
+  return buildTodaySummary(readWorld(buildingId));
 }
 
 describe("DashboardTemplate", () => {
@@ -189,10 +179,7 @@ describe("Thu tiền một Hoá đơn quá hạn cập nhật Hôm nay ngay (reg
     const user = userEvent.setup();
     renderDashboard(<PayInvoiceButton invoiceId="I071" amount={owed} />);
 
-    const before = buildTodaySummary({
-      invoices: mockInvoices.filter((item) => item.buildingId === "b1"),
-      contracts: mockContracts.filter((item) => item.buildingId === "b1"),
-    });
+    const before = buildTodaySummary(readWorld("b1"));
     await screen.findAllByText(
       withoutNbsp(formatCurrency(before.outstandingThisMonth.amount)),
     );
@@ -204,10 +191,7 @@ describe("Thu tiền một Hoá đơn quá hạn cập nhật Hôm nay ngay (reg
 
     await user.click(screen.getByRole("button", { name: "Thu tiền kiểm thử" }));
 
-    const after = buildTodaySummary({
-      invoices: mockInvoices.filter((item) => item.buildingId === "b1"),
-      contracts: mockContracts.filter((item) => item.buildingId === "b1"),
-    });
+    const after = buildTodaySummary(readWorld("b1"));
     expect(after.outstandingThisMonth.amount).toBe(
       before.outstandingThisMonth.amount - owed,
     );

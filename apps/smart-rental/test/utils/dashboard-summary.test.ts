@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
+import type { WorldArrays } from "~/utils/world";
 import {
   buildMonthSummary,
   buildTodaySummary,
 } from "~/utils/dashboard-summary";
+import { buildWorld } from "~/utils/world";
 
 const today = new Date("2026-09-17T00:00:00.000Z");
 
@@ -74,14 +76,31 @@ function room(overrides: Partial<Room> = {}): Room {
   };
 }
 
+/** World fixtures for `buildTodaySummary`/`buildMonthSummary` (ADR-0015 seam 1). */
+function makeWorld(overrides: Partial<WorldArrays> = {}) {
+  return buildWorld(
+    {
+      buildings: [],
+      rooms: [],
+      contracts: [],
+      invoices: [],
+      utilities: [],
+      utilityOldIndexOverrides: [],
+      tenants: [],
+      complianceItems: [],
+      ...overrides,
+    },
+    null,
+    today,
+  );
+}
+
 describe("buildTodaySummary", () => {
   it("sums an invoice whose hạn thu falls this month into Còn phải thu tháng này", () => {
     const summary = buildTodaySummary(
-      {
+      makeWorld({
         invoices: [invoice({ dueDate: "05/09/2026", amount: 4_000_000 })],
-        contracts: [],
-      },
-      today,
+      }),
     );
 
     expect(summary.outstandingThisMonth).toEqual({
@@ -92,7 +111,7 @@ describe("buildTodaySummary", () => {
 
   it("excludes a fully paid invoice even when its hạn thu is this month", () => {
     const summary = buildTodaySummary(
-      {
+      makeWorld({
         invoices: [
           invoice({
             dueDate: "05/09/2026",
@@ -100,9 +119,7 @@ describe("buildTodaySummary", () => {
             paidAmount: 4_000_000,
           }),
         ],
-        contracts: [],
-      },
-      today,
+      }),
     );
 
     expect(summary.outstandingThisMonth).toEqual({
@@ -113,8 +130,7 @@ describe("buildTodaySummary", () => {
 
   it("excludes an invoice whose hạn thu is a different month, even if it is quá hạn", () => {
     const summary = buildTodaySummary(
-      { invoices: [invoice({ dueDate: "05/08/2026" })], contracts: [] },
-      today,
+      makeWorld({ invoices: [invoice({ dueDate: "05/08/2026" })] }),
     );
 
     expect(summary.outstandingThisMonth).toEqual({
@@ -125,11 +141,9 @@ describe("buildTodaySummary", () => {
 
   it("counts an on-time invoice due this month without marking it quá hạn", () => {
     const summary = buildTodaySummary(
-      {
+      makeWorld({
         invoices: [invoice({ dueDate: "30/09/2026", amount: 1_000_000 })],
-        contracts: [],
-      },
-      today,
+      }),
     );
 
     expect(summary.outstandingThisMonth).toEqual({
@@ -140,16 +154,14 @@ describe("buildTodaySummary", () => {
 
   it("picks the nearest EXPIRING contract for the KPI's dòng phụ", () => {
     const summary = buildTodaySummary(
-      {
-        invoices: [],
+      makeWorld({
         contracts: [
           contract({ id: "C010", endDate: "10/10/2026" }),
           contract({ id: "C011", endDate: "01/10/2026" }),
           // Outside the 30-day window (see contract-status.test.ts for the boundary itself).
           contract({ id: "C012", endDate: "01/01/2027" }),
         ],
-      },
-      today,
+      }),
     );
 
     expect(summary.expiringContracts).toEqual({
@@ -162,7 +174,7 @@ describe("buildTodaySummary", () => {
 describe("buildMonthSummary", () => {
   it("reads đã lập/đã thu/còn phải thu off the invoices due this month", () => {
     const summary = buildMonthSummary(
-      {
+      makeWorld({
         invoices: [
           invoice({
             dueDate: "05/09/2026",
@@ -181,8 +193,7 @@ describe("buildMonthSummary", () => {
           room({ status: "occupied" }),
           room({ id: "R002", status: "available" }),
         ],
-      },
-      today,
+      }),
     );
 
     expect(summary).toMatchObject({

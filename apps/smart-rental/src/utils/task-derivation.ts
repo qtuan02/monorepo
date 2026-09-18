@@ -1,35 +1,16 @@
 import dayjs from "@monorepo/dayjs";
 import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
-import type { Building } from "~/types/building";
-import type { ComplianceItem } from "~/types/compliance";
-import type { Contract } from "~/types/contract";
-import type { Invoice } from "~/types/invoice";
 import type { Task } from "~/types/task";
-import type { Tenant } from "~/types/tenant";
-import type { Utility } from "~/types/utility";
-import { deriveContractStatus, isContractLive } from "~/utils/contract-status";
+import type { World } from "~/types/world";
+import { isContractLive } from "~/utils/contract-status";
 import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
 import { formatMonth } from "~/utils/date";
-import { deriveInvoiceStatus } from "~/utils/invoice-status";
-import { buildResidenceDeclarations } from "~/utils/residence-declaration";
-import { findAnomalousUtilities } from "~/utils/utility-anomaly";
 
 function toIsoDate(value: string): string {
   // `value` is the app's day-first display format; Task.dueDate is ISO
   // (YYYY-MM-DD) so it sorts and compares like any other ISO date.
   return dayjs(value, DATE_FORMAT).format("YYYY-MM-DD");
-}
-
-interface TaskDerivationSources {
-  contracts: Contract[];
-  invoices: Invoice[];
-  utilities: Utility[];
-  tenants: Tenant[];
-  complianceItems: ComplianceItem[];
-  buildings: Building[];
-  /** The Building scope; `null` or absent means every Toà nhà. */
-  buildingId?: string | null;
 }
 
 /**
@@ -38,24 +19,21 @@ interface TaskDerivationSources {
  * ticket #188): Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số bất thường
  * chưa xác nhận, Người thuê có Hợp đồng hiệu lực chưa Thông báo lưu trú,
  * Đăng ký tạm trú sắp hết hạn (30 ngày), and kỳ hiện tại chưa lập Đợt cho
- * Toà nhà.
+ * Toà nhà. Every source arrives already scoped and, where World suy sẵn,
+ * already đã suy trạng thái (ADR-0015) — this function never ghép tay a
+ * mảng Mock or re-scope by `buildingId` itself.
  */
-export function deriveTasks(
-  sources: TaskDerivationSources,
-  today: Date = new Date(),
-): Task[] {
-  const { buildingId } = sources;
-  const scope = <T extends { buildingId?: string }>(list: T[]): T[] =>
-    buildingId ? list.filter((item) => item.buildingId === buildingId) : list;
-
-  const contracts = scope(sources.contracts);
-  const invoices = scope(sources.invoices);
-  const utilities = scope(sources.utilities);
-  const tenants = scope(sources.tenants);
-  const complianceItems = scope(sources.complianceItems);
-  const buildings = buildingId
-    ? sources.buildings.filter((building) => building.id === buildingId)
-    : sources.buildings;
+export function deriveTasks(world: World): Task[] {
+  const {
+    contracts,
+    invoices,
+    anomalousUtilities,
+    tenants,
+    complianceItems,
+    buildings,
+    residenceDeclarations,
+    today,
+  } = world;
 
   const createdAt = today.toISOString();
   const todayIso = dayjs(today).format("YYYY-MM-DD");
@@ -63,7 +41,7 @@ export function deriveTasks(
   const tasks: Task[] = [];
 
   for (const invoice of invoices) {
-    if (deriveInvoiceStatus(invoice, today) !== "OVERDUE") continue;
+    if (invoice.status !== "OVERDUE") continue;
     tasks.push({
       id: `invoice_overdue-${invoice.id}`,
       type: "invoice_overdue",
@@ -79,7 +57,7 @@ export function deriveTasks(
   }
 
   for (const contract of contracts) {
-    if (deriveContractStatus(contract, today) !== "EXPIRING") continue;
+    if (contract.status !== "EXPIRING") continue;
     tasks.push({
       id: `contract_expiring-${contract.id}`,
       type: "contract_expiring",
@@ -94,7 +72,7 @@ export function deriveTasks(
     });
   }
 
-  for (const utility of findAnomalousUtilities(utilities)) {
+  for (const utility of anomalousUtilities) {
     if (utility.status === "FINALIZED") continue; // "chưa chốt"
     tasks.push({
       id: `utility_anomaly-${utility.id}`,
@@ -142,15 +120,11 @@ export function deriveTasks(
     });
   }
 
-  // Đăng ký tạm trú sắp hết hạn (ticket #188) — same 30-day window
-  // `buildResidenceDeclarations` already suy ra, so the derivation stays in
-  // one place rather than a second days-to-expiry calc here.
-  for (const declaration of buildResidenceDeclarations(
-    tenants,
-    contracts,
-    complianceItems,
-    today,
-  )) {
+  // Đăng ký tạm trú sắp hết hạn (ticket #188) — World's own
+  // `residenceDeclarations` already suy ra the 30-day window, so the
+  // derivation stays in one place rather than a second days-to-expiry calc
+  // here.
+  for (const declaration of residenceDeclarations) {
     if (!declaration.registrationExpiringSoon) continue;
 
     tasks.push({

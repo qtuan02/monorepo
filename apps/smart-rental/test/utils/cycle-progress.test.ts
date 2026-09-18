@@ -2,12 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
+import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
 import type { Utility } from "~/types/utility";
+import type { WorldArrays } from "~/utils/world";
 import {
   buildCycleProgressSummary,
   resolveNextCycleAction,
 } from "~/utils/cycle-progress";
+import { buildWorld } from "~/utils/world";
 
 const priceList = {
   electricityPricePerKwh: 3_500,
@@ -15,10 +18,23 @@ const priceList = {
   serviceFee: 100_000,
 };
 
-const buildings: Pick<Building, "id" | "priceList">[] = [
-  { id: "b1", priceList },
-  { id: "b2", priceList },
-];
+const buildingB1: Building = {
+  id: "b1",
+  name: "Trọ b1",
+  address: "b1",
+  collectionDay: 5,
+  priceList,
+};
+const buildingB2: Building = {
+  id: "b2",
+  name: "Trọ b2",
+  address: "b2",
+  collectionDay: 5,
+  priceList,
+};
+const buildings: Building[] = [buildingB1, buildingB2];
+
+const today = new Date("2026-09-18T00:00:00.000Z");
 
 function room(overrides: Partial<Room> = {}): Room {
   return {
@@ -79,21 +95,45 @@ function utility(overrides: Partial<Utility> = {}): Utility {
   };
 }
 
+/** World at scope `null` — every Toà nhà, the shape `buildCycleProgressSummary` sums across. */
+function makeWorld(overrides: Partial<WorldArrays> = {}) {
+  return buildWorld(
+    {
+      buildings,
+      rooms: [],
+      contracts: [],
+      invoices: [],
+      utilities: [],
+      utilityOldIndexOverrides: [],
+      tenants: [],
+      complianceItems: [],
+      ...overrides,
+    },
+    null,
+    today,
+  );
+}
+
 describe("buildCycleProgressSummary", () => {
   it("counts a fully-entered Phòng as entered, and an unoccupied one out of total", () => {
     const progress = buildCycleProgressSummary(
-      buildings,
+      makeWorld({
+        rooms: [
+          room({ id: "R1", buildingId: "b1" }),
+          room({
+            id: "R2",
+            buildingId: "b1",
+            status: "available",
+            tenant: null,
+          }),
+        ],
+        contracts: [contract({ id: "C1", roomId: "R1" })],
+        utilities: [
+          utility({ roomId: "R1", type: "electricity" }),
+          utility({ id: "u2", roomId: "R1", type: "water" }),
+        ],
+      }),
       "2026-09",
-      [
-        room({ id: "R1", buildingId: "b1" }),
-        room({ id: "R2", buildingId: "b1", status: "available", tenant: null }),
-      ],
-      [contract({ id: "C1", roomId: "R1" })],
-      [
-        utility({ roomId: "R1", type: "electricity" }),
-        utility({ id: "u2", roomId: "R1", type: "water" }),
-      ],
-      [],
     );
 
     expect(progress).toMatchObject({ entered: 1, total: 1, anomalyCount: 0 });
@@ -101,22 +141,22 @@ describe("buildCycleProgressSummary", () => {
 
   it("sums across every Toà nhà when given more than one", () => {
     const progress = buildCycleProgressSummary(
-      buildings,
+      makeWorld({
+        rooms: [
+          room({ id: "R1", buildingId: "b1" }),
+          room({ id: "R2", buildingId: "b2" }),
+        ],
+        contracts: [
+          contract({ id: "C1", buildingId: "b1", roomId: "R1" }),
+          contract({ id: "C2", buildingId: "b2", roomId: "R2" }),
+        ],
+        // Only R1 (b1) has both readings; R2 (b2) has none yet.
+        utilities: [
+          utility({ roomId: "R1", type: "electricity" }),
+          utility({ id: "u2", roomId: "R1", type: "water" }),
+        ],
+      }),
       "2026-09",
-      [
-        room({ id: "R1", buildingId: "b1" }),
-        room({ id: "R2", buildingId: "b2" }),
-      ],
-      [
-        contract({ id: "C1", buildingId: "b1", roomId: "R1" }),
-        contract({ id: "C2", buildingId: "b2", roomId: "R2" }),
-      ],
-      // Only R1 (b1) has both readings; R2 (b2) has none yet.
-      [
-        utility({ roomId: "R1", type: "electricity" }),
-        utility({ id: "u2", roomId: "R1", type: "water" }),
-      ],
-      [],
     );
 
     expect(progress).toEqual({
@@ -130,15 +170,17 @@ describe("buildCycleProgressSummary", () => {
 
   it("is allInvoiced only once every occupied Phòng's Kỳ has a Hoá đơn", () => {
     const progress = buildCycleProgressSummary(
-      [{ id: "b1", priceList }],
+      makeWorld({
+        buildings: [buildingB1],
+        rooms: [room({ id: "R1", buildingId: "b1" })],
+        contracts: [contract({ id: "C1", roomId: "R1" })],
+        utilities: [
+          utility({ roomId: "R1", type: "electricity" }),
+          utility({ id: "u2", roomId: "R1", type: "water" }),
+        ],
+        invoices: [{ contractId: "C1", billingMonth: "2026-09" } as Invoice],
+      }),
       "2026-09",
-      [room({ id: "R1", buildingId: "b1" })],
-      [contract({ id: "C1", roomId: "R1" })],
-      [
-        utility({ roomId: "R1", type: "electricity" }),
-        utility({ id: "u2", roomId: "R1", type: "water" }),
-      ],
-      [{ contractId: "C1", billingMonth: "2026-09" }],
     );
 
     expect(progress.allInvoiced).toBe(true);
@@ -146,7 +188,7 @@ describe("buildCycleProgressSummary", () => {
 });
 
 describe("resolveNextCycleAction", () => {
-  const today = new Date("2026-09-18T00:00:00.000Z");
+  const anchor = new Date("2026-09-18T00:00:00.000Z");
   const pastCycleEnd = new Date("2026-09-30T00:00:00.000Z");
 
   it("returns null when there is nothing occupied to report", () => {
@@ -159,7 +201,7 @@ describe("resolveNextCycleAction", () => {
           anomalyCount: 0,
           allInvoiced: false,
         },
-        today,
+        anchor,
       ),
     ).toBeNull();
   });
@@ -173,7 +215,7 @@ describe("resolveNextCycleAction", () => {
         anomalyCount: 0,
         allInvoiced: false,
       },
-      today,
+      anchor,
     );
 
     expect(action).toEqual({
@@ -207,7 +249,7 @@ describe("resolveNextCycleAction", () => {
           anomalyCount: 0,
           allInvoiced: false,
         },
-        today,
+        anchor,
       ),
     ).toBeNull();
   });
