@@ -66,4 +66,12 @@ export const ROUTES = {
   utilityDetailPath: (utilityId: string) => `/utilities/${utilityId}`,
   supplierBillDetailPath: (billId: string) => `/supplier-bills/${billId}`,
   expenseDetailPath: (expenseId: string) => `/expenses/${expenseId}`,
+  /**
+   * "Thu tiền" (spec #179 §"IA / shell") — the same `/invoices` route,
+   * filtered to còn phải thu và sắp theo hạn. One builder so the bottom
+   * nav's ô 4 and the bell's gộp mục never drift onto two different query
+   * strings for the same "go collect this" destination.
+   */
+  overdueInvoicesPath: () =>
+    "/invoices?status=UNPAID,PARTIAL,OVERDUE&sort=dueDate",
 } as const;

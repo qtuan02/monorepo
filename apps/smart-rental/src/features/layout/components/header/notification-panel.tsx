@@ -15,13 +15,10 @@ import { cn } from "@monorepo/ui/utils/cn";
 import type { TaskType } from "~/types/task";
 import type { TaskQueueEntry } from "~/utils/task-queue";
 import { ROUTES } from "~/constants/routes";
-import { useGetBuildings } from "~/hooks/api/building";
-import { useGetInvoices } from "~/hooks/api/invoice";
-import { useGetTasks } from "~/hooks/api/task";
+import { useGetTaskQueueEntries } from "~/hooks/api/task-queue";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { taskRelatedPath } from "~/utils/task-due";
-import { buildTaskQueueEntries } from "~/utils/task-queue";
 
 const taskTypeIcon: Record<TaskType, LucideIcon> = {
   invoice_overdue: Bell,
@@ -43,13 +40,11 @@ function NotificationEntry({ entry }: { entry: TaskQueueEntry }) {
     entry.kind === "overdue-group"
       ? `${entry.buildingName} · ${formatCurrency(entry.totalOutstanding)}`
       : entry.task.description;
-  const firstInvoiceId =
-    entry.kind === "overdue-group" ? entry.invoices[0]?.invoiceId : undefined;
+  // A group is "n Hoá đơn", not one — the whole filtered list is the
+  // honest destination, never an arbitrary pick off `invoices[0]`.
   const to =
     entry.kind === "overdue-group"
-      ? firstInvoiceId
-        ? ROUTES.invoiceDetailPath(firstInvoiceId)
-        : ROUTES.INVOICES
+      ? ROUTES.overdueInvoicesPath()
       : taskRelatedPath(entry.task);
 
   return (
@@ -81,14 +76,7 @@ function NotificationEntry({ entry }: { entry: TaskQueueEntry }) {
  */
 export default function NotificationPanel() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
-  const tasksQuery = useGetTasks({ buildingId: selectedBuildingId });
-  const invoicesQuery = useGetInvoices({ buildingId: selectedBuildingId });
-  const buildingsQuery = useGetBuildings();
-  const entries = buildTaskQueueEntries(
-    tasksQuery.data ?? [],
-    invoicesQuery.data ?? [],
-    buildingsQuery.data ?? [],
-  );
+  const { entries } = useGetTaskQueueEntries(selectedBuildingId);
 
   return (
     <Popover>

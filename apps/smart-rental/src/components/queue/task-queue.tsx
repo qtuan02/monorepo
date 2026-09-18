@@ -102,11 +102,12 @@ function TaskActionsRow({ task }: { task: Task }) {
 }
 
 /**
- * One dòng con của mục gộp — "Ghi nhận thu" (sheet điền sẵn còn lại) và
- * "VietQR", cùng mutation/dialog Hoá đơn's own chi tiết dùng (spec #179
- * §"Hôm nay" AC).
+ * "Ghi nhận thu" (sheet điền sẵn còn lại) + "VietQR" for one Hoá đơn quá
+ * hạn — the two hành động every mục, single or gộp, offers per Hoá đơn
+ * (spec #179 §"Hôm nay" AC). Its own component so a mục of exactly one
+ * invoice can render them inline, without a Collapsible around one row.
  */
-function OverdueInvoiceRow({
+function OverdueInvoiceActions({
   invoice,
   buildingId,
 }: {
@@ -116,6 +117,46 @@ function OverdueInvoiceRow({
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const buildingQuery = useGetBuilding(buildingId, { enabled: !!buildingId });
 
+  return (
+    <>
+      <Button
+        type="button"
+        size="default"
+        onClick={() => setIsPaymentOpen(true)}
+      >
+        Ghi nhận thu
+      </Button>
+      <VietQrDialog
+        invoiceId={invoice.invoiceId}
+        amount={invoice.outstanding}
+        invoiceNumber={invoice.invoiceNumber}
+        room={invoice.room}
+        bankAccount={buildingQuery.data?.bankAccount}
+        buildingId={buildingId}
+        variant="outline"
+        size="default"
+        className=""
+      />
+
+      <PaymentFormSheet
+        open={isPaymentOpen}
+        onOpenChange={setIsPaymentOpen}
+        invoiceId={invoice.invoiceId}
+        invoiceNumber={invoice.invoiceNumber}
+        defaultAmount={invoice.outstanding}
+      />
+    </>
+  );
+}
+
+/** One dòng con của mục gộp (≥ 2 Hoá đơn), thụt trái nền muted. */
+function OverdueInvoiceRow({
+  invoice,
+  buildingId,
+}: {
+  invoice: OverdueQueueGroup["invoices"][number];
+  buildingId: string;
+}) {
   return (
     <Item variant="muted" className="pl-8">
       <ItemContent>
@@ -127,33 +168,8 @@ function OverdueInvoiceRow({
         </ItemDescription>
       </ItemContent>
       <ItemActions className="w-full flex-wrap md:w-auto">
-        <Button
-          type="button"
-          size="default"
-          onClick={() => setIsPaymentOpen(true)}
-        >
-          Ghi nhận thu
-        </Button>
-        <VietQrDialog
-          invoiceId={invoice.invoiceId}
-          amount={invoice.outstanding}
-          invoiceNumber={invoice.invoiceNumber}
-          room={invoice.room}
-          bankAccount={buildingQuery.data?.bankAccount}
-          buildingId={buildingId}
-          variant="outline"
-          size="default"
-          className=""
-        />
+        <OverdueInvoiceActions invoice={invoice} buildingId={buildingId} />
       </ItemActions>
-
-      <PaymentFormSheet
-        open={isPaymentOpen}
-        onOpenChange={setIsPaymentOpen}
-        invoiceId={invoice.invoiceId}
-        invoiceNumber={invoice.invoiceNumber}
-        defaultAmount={invoice.outstanding}
-      />
     </Item>
   );
 }
@@ -164,10 +180,50 @@ function OverdueInvoiceRow({
  * từng dòng con (spec #179 §"Hôm nay" AC).
  */
 function OverdueGroupItem({ group }: { group: OverdueQueueGroup }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isReminderOpen, setIsReminderOpen] = useState(false);
   const soonest = group.invoices[0];
   const overdueDays = soonest ? daysOverdue(soonest.dueDate) : 0;
+
+  // One Hoá đơn is not a mục to "mở rộng" — show its own hành động inline,
+  // exactly like every other single-invoice Việc, rather than making the
+  // landlord click "Xem 1 hoá đơn" to reach the one row that was already
+  // the whole point (spec #179's own "ít bước" goal).
+  if (group.invoices.length === 1 && soonest) {
+    return (
+      <Item variant="outline" role="listitem">
+        <ItemMedia variant="icon">
+          <Bell />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>
+            {soonest.invoiceNumber} · {soonest.room} · {soonest.tenant}
+          </ItemTitle>
+          <ItemDescription>
+            {formatCurrency(soonest.outstanding)} còn lại · quá {overdueDays}{" "}
+            ngày
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions className="w-full flex-wrap md:w-auto">
+          <OverdueInvoiceActions
+            invoice={soonest}
+            buildingId={group.buildingId}
+          />
+        </ItemActions>
+      </Item>
+    );
+  }
+
+  return <OverdueGroupCollapsible group={group} overdueDays={overdueDays} />;
+}
+
+function OverdueGroupCollapsible({
+  group,
+  overdueDays,
+}: {
+  group: OverdueQueueGroup;
+  overdueDays: number;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
 
   return (
     <>

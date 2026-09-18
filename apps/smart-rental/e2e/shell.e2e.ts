@@ -67,7 +67,7 @@ test.describe("shell", () => {
       page.getByRole("button", { name: "Tất cả Toà nhà" }),
     ).toBeVisible();
 
-    // "Thêm" opens the other nine areas, "Hợp đồng" among them.
+    // "Thêm" opens the other sidebar areas, "Hợp đồng" among them.
     await bottomNav.getByRole("button", { name: "Thêm" }).click();
     await page
       .getByRole("dialog")

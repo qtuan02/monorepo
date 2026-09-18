@@ -1,4 +1,4 @@
-import type { Building, PriceList } from "~/types/building";
+import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
 import type { CycleProgressSummary } from "~/types/dashboard";
 import type { Invoice } from "~/types/invoice";

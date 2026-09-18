@@ -14,15 +14,12 @@ import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { TaskQueue } from "~/components/queue/task-queue";
 import { ROUTES } from "~/constants/routes";
-import { useGetBuildings } from "~/hooks/api/building";
 import { useGetDashboard } from "~/hooks/api/dashboard";
-import { useGetInvoices } from "~/hooks/api/invoice";
-import { useGetTasks } from "~/hooks/api/task";
+import { useGetTaskQueueEntries } from "~/hooks/api/task-queue";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { resolveNextCycleAction } from "~/utils/cycle-progress";
 import { formatFullDate, formatMonth } from "~/utils/date";
-import { buildTaskQueueEntries } from "~/utils/task-queue";
 
 /**
  * "Hôm nay" (spec #179 §"Hôm nay"): a real hàng đợi — three KPIs that never
@@ -34,9 +31,8 @@ import { buildTaskQueueEntries } from "~/utils/task-queue";
 export default function DashboardTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const dashboardQuery = useGetDashboard({ buildingId: selectedBuildingId });
-  const tasksQuery = useGetTasks({ buildingId: selectedBuildingId });
-  const invoicesQuery = useGetInvoices({ buildingId: selectedBuildingId });
-  const buildingsQuery = useGetBuildings();
+  const { entries, isLoading: isQueueLoading } =
+    useGetTaskQueueEntries(selectedBuildingId);
   const data = dashboardQuery.data;
 
   const nextAction = data ? resolveNextCycleAction(data.cycleProgress) : null;
@@ -47,7 +43,7 @@ export default function DashboardTemplate() {
         title={formatFullDate()}
         description={
           data
-            ? `${tasksQuery.data?.length ?? 0} việc cần làm · ${data.monthSummary.totalRooms} Phòng, ${data.monthSummary.occupiedRooms} đang thuê`
+            ? `${entries.length} việc cần làm · ${data.monthSummary.totalRooms} Phòng, ${data.monthSummary.occupiedRooms} đang thuê`
             : "Việc cần làm hôm nay."
         }
         actions={
@@ -110,18 +106,10 @@ export default function DashboardTemplate() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {tasksQuery.isLoading ||
-              invoicesQuery.isLoading ||
-              buildingsQuery.isLoading ? (
+              {isQueueLoading ? (
                 <p className="text-muted-foreground text-sm">Đang tải…</p>
               ) : (
-                <TaskQueue
-                  entries={buildTaskQueueEntries(
-                    tasksQuery.data ?? [],
-                    invoicesQuery.data ?? [],
-                    buildingsQuery.data ?? [],
-                  )}
-                />
+                <TaskQueue entries={entries} />
               )}
             </CardContent>
           </Card>

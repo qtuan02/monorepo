@@ -21,6 +21,7 @@ import {
 import { QuerySection } from "~/components/panel/query-section";
 import BuildingComparisonTable from "~/features/reports/components/building-comparison-table";
 import FloorOccupancyChart from "~/features/reports/components/floor-occupancy-chart";
+import OccupancyDonutChart from "~/features/reports/components/occupancy-donut-chart";
 import { reportColumns } from "~/features/reports/components/report-columns";
 import {
   useGetBuildingComparison,
@@ -28,6 +29,7 @@ import {
   useGetProfitLossSummary,
   useGetReportRows,
 } from "~/hooks/api/report";
+import { useGetRooms } from "~/hooks/api/room";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { downloadCsv } from "~/utils/csv";
 import { formatCurrency } from "~/utils/currency";
@@ -41,6 +43,7 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
   const summaryQuery = useGetProfitLossSummary({ buildingId });
   const rowsQuery = useGetReportRows({ buildingId });
   const floorQuery = useGetFloorOccupancy({ buildingId });
+  const roomsQuery = useGetRooms({ buildingId });
   const rows = rowsQuery.data ?? [];
 
   function exportCsv() {
@@ -86,7 +89,36 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
         )}
       </QuerySection>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuerySection
+              query={roomsQuery}
+              errorText="Không thể tải danh sách Phòng."
+              loading={
+                <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
+              }
+            >
+              {(rooms) => (
+                <OccupancyDonutChart
+                  occupied={
+                    rooms.filter((room) => room.status === "occupied").length
+                  }
+                  vacant={
+                    rooms.filter((room) => room.status === "available").length
+                  }
+                  vacantRoomNames={rooms
+                    .filter((room) => room.status === "available")
+                    .map((room) => room.name)}
+                />
+              )}
+            </QuerySection>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Doanh thu theo tháng</CardTitle>

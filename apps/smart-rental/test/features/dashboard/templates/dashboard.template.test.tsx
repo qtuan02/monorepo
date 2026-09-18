@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -90,5 +90,24 @@ describe("DashboardTemplate", () => {
     renderDashboard();
 
     expect(await screen.findAllByText(/Hoá đơn quá hạn/)).not.toHaveLength(0);
+  });
+
+  // AC: "KPI 3 ô, hai ô đầu không bao giờ cùng số" — the old bug was two
+  // SEPARATE tiles ("Cần thu tháng này" / "Quá hạn") landing on the same
+  // amount; merging them into one tile's own dòng phụ makes that
+  // structurally impossible, but this pins it against the rendered strip.
+  it("renders 3 KPI tiles whose own values never coincide", async () => {
+    useBuildingStore.setState({ selectedBuildingId: "b1" });
+    renderDashboard();
+
+    const strip = await screen
+      .findByText("Còn phải thu tháng này")
+      .then((label) => label.closest('[data-slot="kpi-strip"]') as HTMLElement);
+    const values = within(strip)
+      .getAllByText(/./, { selector: "p.text-xl" })
+      .map((el) => el.textContent);
+
+    expect(values).toHaveLength(3);
+    expect(new Set(values).size).toBe(3);
   });
 });

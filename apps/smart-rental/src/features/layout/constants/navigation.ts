@@ -100,7 +100,7 @@ const invoicesItem: NavigationItem = {
  */
 const collectPaymentItem: NavigationItem = {
   path: ROUTES.INVOICES,
-  to: `${ROUTES.INVOICES}?status=UNPAID,PARTIAL,OVERDUE&sort=dueDate`,
+  to: ROUTES.overdueInvoicesPath(),
   title: "Thu tiền",
   description: "Hoá đơn còn phải thu, sắp theo hạn.",
   icon: HandCoins,
@@ -221,17 +221,16 @@ export const bottomNavItems: NavigationItem[] = [
 
 /**
  * Every sidebar area not already a bottom-nav stop, grouped as the sidebar
- * groups them, empty groups dropped. Thông báo is left out too (spec #179
- * §"IA / shell" — its own row folds into the header's chuông on mobile).
+ * groups them, empty groups dropped — "Hoá đơn" is left out too, since
+ * "Thu tiền" already covers it with a query. Thông báo stays (a real sidebar
+ * row, spec #179 §"IA / shell" §3.1); the bell is a separate thing (Việc cần
+ * làm), not a substitute for this screen.
  */
 export const moreNavSections: NavigationSection[] = navigationSections
   .map((section) => ({
     ...section,
     items: section.items.filter(
-      (item) =>
-        !bottomNavItems.includes(item) &&
-        item !== invoicesItem &&
-        item !== communicationsItem,
+      (item) => !bottomNavItems.includes(item) && item !== invoicesItem,
     ),
   }))
   .filter((section) => section.items.length > 0);
