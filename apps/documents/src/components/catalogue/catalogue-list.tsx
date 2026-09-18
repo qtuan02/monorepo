@@ -24,7 +24,7 @@ interface CatalogueListProps<TEntry extends DocsEntry> {
 
 /**
  * Both list pages (glossary: *Catalogue*): the head with its filter and count,
- * then either the 1/2/4 grid of tiles or the empty state. The input binds to
+ * then either the 1/2/3/4 grid of tiles or the empty state. The input binds to
  * `search` so typing never lags; only the value that drives the filter is
  * debounced (see patterns-debounce-search-input). The tile is a render prop
  * because a shared component may not import a slice's tile itself.
@@ -55,7 +55,7 @@ export function CatalogueList<TEntry extends DocsEntry>({
       {filtered.length === 0 ? (
         <FilterEmpty query={debouncedSearch} onClear={() => setSearch("")} />
       ) : (
-        <ul className="grid grid-cols-1 gap-3.5 pb-10 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="grid grid-cols-1 gap-3.5 pb-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {filtered.map(renderTile)}
         </ul>
       )}

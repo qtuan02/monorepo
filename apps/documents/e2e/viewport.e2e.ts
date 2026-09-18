@@ -130,4 +130,60 @@ test.describe("viewport", () => {
     // (same width as the Hook card) fails this too.
     expect(storybookBox.width).toBeGreaterThan(hookBox.width * 1.5);
   });
+
+  // (c) — #219: below `sm` a Tile is a row, not a column. The first tile on
+  // `/components` stays under 80px tall, and its swatch sits on the same
+  // line as the slug rather than stacked above it.
+  test.describe("a tile is a row at 375px", () => {
+    test("the first tile on /components is short, with the swatch beside the slug", async ({
+      page,
+    }) => {
+      await gotoAndWaitForHeading(page, 375, ROUTES.COMPONENTS, "Component");
+
+      const firstTile = page.getByRole("listitem").first();
+      const swatch = firstTile.locator(".swatch-gradient");
+      const slug = firstTile.locator("span.font-mono.font-semibold").first();
+
+      const [tileBox, swatchBox, slugBox] = await Promise.all([
+        firstTile.boundingBox(),
+        swatch.boundingBox(),
+        slug.boundingBox(),
+      ]);
+      if (!tileBox || !swatchBox || !slugBox) {
+        throw new Error("the first tile, its swatch or its slug has no box");
+      }
+
+      expect(tileBox.height).toBeLessThan(80);
+      expect(Math.abs(swatchBox.y - slugBox.y)).toBeLessThanOrEqual(4);
+    });
+  });
+
+  // (d) — #219: the tablet grid is three columns at 768px on both catalogues.
+  test.describe("the catalogue grid is three columns at 768px", () => {
+    const CATALOGUE_PAGES = [
+      { path: ROUTES.COMPONENTS, heading: "Component" },
+      { path: ROUTES.HOOKS, heading: "Hook" },
+    ] as const;
+
+    for (const { path, heading } of CATALOGUE_PAGES) {
+      test(`on ${path}`, async ({ page }) => {
+        await gotoAndWaitForHeading(page, 768, path, heading);
+
+        const tiles = page.getByRole("listitem");
+        const [firstBox, secondBox, thirdBox, fourthBox] = await Promise.all([
+          tiles.nth(0).boundingBox(),
+          tiles.nth(1).boundingBox(),
+          tiles.nth(2).boundingBox(),
+          tiles.nth(3).boundingBox(),
+        ]);
+        if (!firstBox || !secondBox || !thirdBox || !fourthBox) {
+          throw new Error("one of the first four tiles has no box");
+        }
+
+        expect(Math.abs(secondBox.y - firstBox.y)).toBeLessThanOrEqual(4);
+        expect(Math.abs(thirdBox.y - firstBox.y)).toBeLessThanOrEqual(4);
+        expect(fourthBox.y).toBeGreaterThan(firstBox.y + firstBox.height / 2);
+      });
+    }
+  });
 });

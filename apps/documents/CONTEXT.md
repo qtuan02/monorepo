@@ -38,7 +38,9 @@ _Avoid_: icon, avatar, màu category (không có category nào cả).
 **Tile**:
 Một entry trong lưới danh sách: swatch, slug, một dòng export và số export. Bề mặt trắng đục
 không làm mờ; rộng hai cột khi entry có từ mười export trở lên — quy tắc là dữ liệu, không xếp tay.
-_Avoid_: card, bento box, ô.
+Trên phone tile là **một hàng**, swatch bên trái — cùng bốn thành phần, chỉ khác cách xếp; từ
+tablet trở lên là ô dọc như mọi khi (chốt ở vòng responsive 2026-09-18).
+_Avoid_: card, bento box, ô, row (hàng là cách xếp của tile, không phải một thứ khác).
 
 **Nav pill**:
 Thanh điều hướng duy nhất của site: một panel kính dạng viên thuốc, dính đầu trang, mang brand,
