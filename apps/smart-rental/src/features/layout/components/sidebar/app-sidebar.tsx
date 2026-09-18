@@ -16,7 +16,10 @@ import {
 } from "@monorepo/ui/components/sidebar";
 
 import { ROUTES } from "~/constants/routes";
-import { navigationSections } from "~/features/layout/constants/navigation";
+import {
+  dashboardItem,
+  navigationSections,
+} from "~/features/layout/constants/navigation";
 import { isNavigationItemActive } from "~/features/layout/utils/navigation";
 import NavUser from "./nav-user";
 
@@ -50,6 +53,25 @@ export default function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="py-1">
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={isNavigationItemActive(dashboardItem, pathname)}
+                  tooltip={dashboardItem.title}
+                  render={
+                    <Link to={dashboardItem.path}>
+                      <dashboardItem.icon className="shrink-0" />
+                      <span>{dashboardItem.title}</span>
+                    </Link>
+                  }
+                />
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {navigationSections.map((section) => (
           <SidebarGroup key={section.label}>
             <SidebarGroupLabel className="text-foreground/60 text-xs font-semibold tracking-wider uppercase">

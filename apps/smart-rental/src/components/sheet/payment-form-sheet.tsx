@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
@@ -15,20 +16,20 @@ import { toast } from "@monorepo/ui/components/toast";
 import type {
   InvoicePaymentFormInput,
   InvoicePaymentFormValues,
-} from "~/features/invoices/types/payment-form";
+} from "~/types/invoice-payment-form";
 import { CurrencyField } from "~/components/form/currency-field";
 import { DateField } from "~/components/form/date-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { invoicePaymentMethodConfig } from "~/constants/status";
-import { invoicePaymentFormSchema } from "~/features/invoices/types/payment-form";
 import { useRecordInvoicePayment } from "~/hooks/api/invoice";
+import { invoicePaymentFormSchema } from "~/types/invoice-payment-form";
 
 const FORM_ID = "invoice-payment-form";
 
-function defaultValues(): InvoicePaymentFormInput {
+function defaultValues(defaultAmount?: number): InvoicePaymentFormInput {
   return {
     paidAt: dayjs().format("YYYY-MM-DD"),
-    amount: "",
+    amount: defaultAmount ? String(defaultAmount) : "",
     method: "BANK_TRANSFER",
   };
 }
@@ -38,14 +39,21 @@ interface PaymentFormSheetProps {
   onOpenChange: (open: boolean) => void;
   invoiceId: string;
   invoiceNumber: string;
+  /** Còn lại — prefills "Số tiền" (spec #179 §"Hôm nay"/"Thu tiền và chi tiết Hoá đơn"). */
+  defaultAmount?: number;
 }
 
-/** "Ghi nhận Thanh toán" (spec #153 §10 row 12) — ngày, số tiền, kênh; trạng thái tự đổi ở lần đọc kế tiếp. */
+/**
+ * "Ghi nhận Thanh toán" (spec #153 §10 row 12) — ngày, số tiền, kênh; trạng
+ * thái tự đổi ở lần đọc kế tiếp. Shared by a Hoá đơn's own detail tab and
+ * Hôm nay's grouped Hoá đơn quá hạn mục (see [[architecture-shared-components]]).
+ */
 export default function PaymentFormSheet({
   open,
   onOpenChange,
   invoiceId,
   invoiceNumber,
+  defaultAmount,
 }: PaymentFormSheetProps) {
   const recordPayment = useRecordInvoicePayment();
   const form = useForm<
@@ -54,8 +62,17 @@ export default function PaymentFormSheet({
     InvoicePaymentFormValues
   >({
     resolver: zodResolver(invoicePaymentFormSchema),
-    defaultValues: defaultValues(),
+    defaultValues: defaultValues(defaultAmount),
   });
+
+  // `open` flips from the caller's own "Ghi nhận thu" button — a plain
+  // setState, never through FormSheet's own onOpenChange — so resetting
+  // inside that callback's `next === true` branch never runs. Reset here
+  // instead, or reopening after a payment shows the previous (now stale)
+  // còn lại instead of the freshly recomputed one.
+  useEffect(() => {
+    if (open) form.reset(defaultValues(defaultAmount));
+  }, [open, defaultAmount, form]);
 
   const onSubmit = form.handleSubmit((values) => {
     recordPayment.mutate(
@@ -66,7 +83,7 @@ export default function PaymentFormSheet({
             title: `Đã ghi nhận thanh toán cho ${invoiceNumber}`,
             type: "success",
           });
-          form.reset(defaultValues());
+          form.reset(defaultValues(defaultAmount));
           onOpenChange(false);
         },
       },
@@ -76,10 +93,7 @@ export default function PaymentFormSheet({
   return (
     <FormSheet
       open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(defaultValues());
-        onOpenChange(next);
-      }}
+      onOpenChange={onOpenChange}
       title="Ghi nhận Thanh toán"
       description={`Một khoản thu cho ${invoiceNumber}.`}
       formId={FORM_ID}

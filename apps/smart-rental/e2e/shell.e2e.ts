@@ -67,7 +67,7 @@ test.describe("shell", () => {
       page.getByRole("button", { name: "Tất cả Toà nhà" }),
     ).toBeVisible();
 
-    // "Thêm" opens the other eleven areas, "Hợp đồng" among them.
+    // "Thêm" opens the other nine areas, "Hợp đồng" among them.
     await bottomNav.getByRole("button", { name: "Thêm" }).click();
     await page
       .getByRole("dialog")
@@ -75,6 +75,40 @@ test.describe("shell", () => {
       .click();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.CONTRACTS}$`));
+  });
+
+  test("opens «Thu tiền» from the bottom nav to the còn phải thu Hoá đơn list", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const bottomNav = page.getByRole("navigation", {
+      name: "Điều hướng chính",
+    });
+
+    await bottomNav.getByRole("link", { name: "Thu tiền" }).click();
+
+    await expect(page).toHaveURL(/status=UNPAID,PARTIAL,OVERDUE&sort=dueDate/);
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Hoá đơn" }),
+    ).toBeVisible();
+  });
+
+  test("signs out from the mobile «Thêm» sheet's own account row", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const bottomNav = page.getByRole("navigation", {
+      name: "Điều hướng chính",
+    });
+
+    await bottomNav.getByRole("button", { name: "Thêm" }).click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await page.getByRole("button", { name: "Đăng xuất" }).click();
+
+    await expect(page).toHaveURL(new RegExp(`${ROUTES.AUTH_LOGIN}$`));
+    await expect(
+      page.getByRole("heading", { name: "Đăng nhập" }),
+    ).toBeVisible();
   });
 
   test("hides the bottom nav from `md` up", async ({ page }) => {

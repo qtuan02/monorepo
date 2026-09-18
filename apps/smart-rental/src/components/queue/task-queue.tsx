@@ -1,9 +1,21 @@
 import type { LucideIcon } from "lucide-react";
-import { Bell, FileClock, Gauge, ShieldAlert, Wrench } from "lucide-react";
+import { useState } from "react";
+import {
+  Bell,
+  ChevronDown,
+  FileClock,
+  Gauge,
+  ShieldAlert,
+  Wrench,
+} from "lucide-react";
 import { Link } from "react-router";
 
-import dayjs from "@monorepo/dayjs";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@monorepo/ui/components/collapsible";
 import {
   Item,
   ItemActions,
@@ -13,13 +25,17 @@ import {
   ItemMedia,
   ItemTitle,
 } from "@monorepo/ui/components/item";
-import { toast } from "@monorepo/ui/components/toast";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Task, TaskType } from "~/types/task";
-import { StatusBadge } from "~/components/badge/status-badge";
+import type { OverdueQueueGroup, TaskQueueEntry } from "~/utils/task-queue";
+import SendReminderDialog from "~/components/dialog/send-reminder-dialog";
+import VietQrDialog from "~/components/dialog/vietqr-dialog";
+import PaymentFormSheet from "~/components/sheet/payment-form-sheet";
 import { ROUTES } from "~/constants/routes";
-import { taskPriorityConfig } from "~/constants/status";
+import { useGetBuilding } from "~/hooks/api/building";
+import { formatCurrency } from "~/utils/currency";
+import { daysOverdue } from "~/utils/invoice-status";
 import { taskRelatedPath } from "~/utils/task-due";
 
 const taskTypeIcon: Record<TaskType, LucideIcon> = {
@@ -31,139 +47,234 @@ const taskTypeIcon: Record<TaskType, LucideIcon> = {
   batch_pending: Bell,
 };
 
-type TaskAction =
-  | { kind: "link"; label: string; to: string }
-  | { kind: "reminder"; label: string };
+interface TaskAction {
+  label: string;
+  to: string;
+}
 
 /**
- * The action(s) for one Việc cần làm, keyed by its five sources (spec #153
- * §3.2, §10 row 9). Every `link` resolves to a route `taskRelatedPath` (or a
- * builder from the same `ROUTES` table) already proves exists for the
- * entity — "Gửi nhắc" is the one exception, a reminder log with no route of
- * its own yet (ADR-0012's Gửi nhắc/Thông báo decision), so it stays a
- * toast, exactly like the invoice list's own selection-bar action.
+ * The action(s) for one single Việc (spec #179 §"Hôm nay") — Hoá đơn quá
+ * hạn never reaches here any more, it is always part of an
+ * `OverdueQueueGroup` instead (see `~/utils/task-queue`). Primary is always
+ * the hành động ghi nhận; "Xem" (when present) is the ghost secondary.
  */
 function actionsFor(task: Task): TaskAction[] {
   switch (task.type) {
-    case "invoice_overdue":
-      return [
-        { kind: "reminder", label: "Gửi nhắc" },
-        { kind: "link", label: "Xem", to: taskRelatedPath(task) },
-      ];
     case "contract_expiring":
       return [
+        { label: "Gia hạn", to: ROUTES.contractRenewPath(task.relatedId) },
         {
-          kind: "link",
-          label: "Gia hạn",
-          to: ROUTES.contractRenewPath(task.relatedId),
-        },
-        {
-          kind: "link",
           label: "Thanh lý",
           to: ROUTES.contractLiquidationPath(task.relatedId),
         },
       ];
     case "utility_anomaly":
-      return [{ kind: "link", label: "Xem chỉ số", to: taskRelatedPath(task) }];
+      return [{ label: "Sửa chỉ số", to: taskRelatedPath(task) }];
     case "residence_notification":
-      return [{ kind: "link", label: "Khai báo", to: taskRelatedPath(task) }];
+      return [{ label: "Khai báo", to: taskRelatedPath(task) }];
     case "batch_pending":
-      return [
-        {
-          kind: "link",
-          label: "Lập đợt",
-          to: ROUTES.cycleDetailPath(dayjs().format("YYYY-MM")),
-        },
-      ];
+      return [{ label: "Lập Đợt hoá đơn", to: taskRelatedPath(task) }];
+    case "invoice_overdue":
     case "maintenance":
-      return [{ kind: "link", label: "Xem", to: taskRelatedPath(task) }];
+      return [{ label: "Xem", to: taskRelatedPath(task) }];
   }
 }
 
-function remindTask(task: Task) {
-  toast.add({
-    title: `Đã gửi nhắc — ${task.title}`,
-    description: "Nhật ký nhắc được ghi trên hoá đơn.",
-  });
-}
-
-interface TaskQueueProps {
-  tasks: Task[];
+function TaskActionsRow({ task }: { task: Task }) {
+  return (
+    <ItemActions className="w-full flex-wrap md:w-auto">
+      {actionsFor(task).map((action, index) => (
+        <Link
+          key={action.label}
+          to={action.to}
+          className={cn(
+            buttonVariants({
+              size: "default",
+              variant: index === 0 ? "default" : "outline",
+            }),
+          )}
+        >
+          {action.label}
+        </Link>
+      ))}
+    </ItemActions>
+  );
 }
 
 /**
- * "Cần làm hôm nay" — each Việc cần làm as an Item, its own action(s) beside
- * it. One badge (ưu tiên) per item — the prototype's three (ưu tiên + loại +
- * trạng thái, all on the same card) is research C.1 #8's own defect; loại
- * already reads from the icon, and trạng thái is always "open" now that
- * Việc cần làm has no Mock of its own (spec #153 §10 row 9).
+ * One dòng con của mục gộp — "Ghi nhận thu" (sheet điền sẵn còn lại) và
+ * "VietQR", cùng mutation/dialog Hoá đơn's own chi tiết dùng (spec #179
+ * §"Hôm nay" AC).
  */
-export function TaskQueue({ tasks }: TaskQueueProps) {
-  if (tasks.length === 0) {
+function OverdueInvoiceRow({
+  invoice,
+  buildingId,
+}: {
+  invoice: OverdueQueueGroup["invoices"][number];
+  buildingId: string;
+}) {
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const buildingQuery = useGetBuilding(buildingId, { enabled: !!buildingId });
+
+  return (
+    <Item variant="muted" className="pl-8">
+      <ItemContent>
+        <ItemTitle>
+          {invoice.invoiceNumber} · {invoice.room} · {invoice.tenant}
+        </ItemTitle>
+        <ItemDescription>
+          {formatCurrency(invoice.outstanding)} còn lại
+        </ItemDescription>
+      </ItemContent>
+      <ItemActions className="w-full flex-wrap md:w-auto">
+        <Button
+          type="button"
+          size="default"
+          onClick={() => setIsPaymentOpen(true)}
+        >
+          Ghi nhận thu
+        </Button>
+        <VietQrDialog
+          invoiceId={invoice.invoiceId}
+          amount={invoice.outstanding}
+          invoiceNumber={invoice.invoiceNumber}
+          room={invoice.room}
+          bankAccount={buildingQuery.data?.bankAccount}
+          buildingId={buildingId}
+          variant="outline"
+          size="default"
+          className=""
+        />
+      </ItemActions>
+
+      <PaymentFormSheet
+        open={isPaymentOpen}
+        onOpenChange={setIsPaymentOpen}
+        invoiceId={invoice.invoiceId}
+        invoiceNumber={invoice.invoiceNumber}
+        defaultAmount={invoice.outstanding}
+      />
+    </Item>
+  );
+}
+
+/**
+ * The Hoá đơn quá hạn của một Toà nhà, gộp thành một mục: tổng còn lại,
+ * "Nhắc tất cả" (ghi nhật ký thật cho mọi Hoá đơn của mục), và mở rộng ra
+ * từng dòng con (spec #179 §"Hôm nay" AC).
+ */
+function OverdueGroupItem({ group }: { group: OverdueQueueGroup }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isReminderOpen, setIsReminderOpen] = useState(false);
+  const soonest = group.invoices[0];
+  const overdueDays = soonest ? daysOverdue(soonest.dueDate) : 0;
+
+  return (
+    <>
+      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        <Item variant="outline" role="listitem">
+          <ItemMedia variant="icon">
+            <Bell />
+          </ItemMedia>
+          <ItemContent>
+            <ItemTitle>
+              {group.invoices.length} Hoá đơn quá hạn ·{" "}
+              {formatCurrency(group.totalOutstanding)}
+            </ItemTitle>
+            <ItemDescription>
+              {group.buildingName} · quá {overdueDays} ngày
+            </ItemDescription>
+          </ItemContent>
+          <ItemActions className="w-full flex-wrap md:w-auto">
+            <Button
+              type="button"
+              size="default"
+              onClick={() => setIsReminderOpen(true)}
+            >
+              Nhắc tất cả
+            </Button>
+            <CollapsibleTrigger
+              render={
+                <Button type="button" size="default" variant="outline">
+                  <ChevronDown
+                    className={cn(
+                      "transition-transform",
+                      isExpanded && "rotate-180",
+                    )}
+                  />
+                  {isExpanded
+                    ? "Ẩn bớt"
+                    : `Xem ${group.invoices.length} hoá đơn`}
+                </Button>
+              }
+            />
+          </ItemActions>
+        </Item>
+
+        <CollapsibleContent className="space-y-1 pt-1">
+          {group.invoices.map((invoice) => (
+            <OverdueInvoiceRow
+              key={invoice.invoiceId}
+              invoice={invoice}
+              buildingId={group.buildingId}
+            />
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+
+      <SendReminderDialog
+        open={isReminderOpen}
+        onOpenChange={setIsReminderOpen}
+        invoiceIds={group.invoices.map((invoice) => invoice.invoiceId)}
+      />
+    </>
+  );
+}
+
+function SingleTaskItem({ task }: { task: Task }) {
+  const Icon = taskTypeIcon[task.type];
+  return (
+    <Item variant="outline" role="listitem">
+      <ItemMedia variant="icon">
+        <Icon />
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>{task.title}</ItemTitle>
+        <ItemDescription>{task.description}</ItemDescription>
+      </ItemContent>
+      <TaskActionsRow task={task} />
+    </Item>
+  );
+}
+
+interface TaskQueueProps {
+  entries: TaskQueueEntry[];
+}
+
+/**
+ * Hôm nay's own hàng đợi (spec #179 §"Hôm nay"): Hoá đơn quá hạn cùng Toà
+ * nhà gộp thành một mục, mọi loại khác giữ một mục/một hành động — cả hai
+ * sắp chung theo hạn (`~/utils/task-queue`). No badge ưu tiên any more: the
+ * queue's own order already says what's urgent.
+ */
+export function TaskQueue({ entries }: TaskQueueProps) {
+  if (entries.length === 0) {
     return (
       <p className="text-muted-foreground py-6 text-center text-sm">
-        Hôm nay không có việc cần làm.{" "}
-        <Link
-          to={ROUTES.INVOICES}
-          className="text-primary underline underline-offset-4"
-        >
-          Xem Hoá đơn
-        </Link>
+        Không có việc nào.
       </p>
     );
   }
 
   return (
     <ItemGroup>
-      {tasks.map((task) => {
-        const Icon = taskTypeIcon[task.type];
-        return (
-          <Item key={task.id} variant="outline" role="listitem">
-            <ItemMedia variant="icon">
-              <Icon />
-            </ItemMedia>
-            <ItemContent>
-              <ItemTitle>
-                {task.title}
-                <StatusBadge
-                  config={taskPriorityConfig[task.priority]}
-                  isCompact
-                  className="shrink-0"
-                />
-              </ItemTitle>
-              <ItemDescription>{task.description}</ItemDescription>
-            </ItemContent>
-            {/* Own row on < md (spec #179 §"IA và mobile" #37): squeezed
-                beside ItemContent's flex-1, the action row had no width left
-                and "Xem" truncated to "Xe". `size="default"` (h-9) also
-                clears the 36px touch-target floor the old `sm` (h-8) missed. */}
-            <ItemActions className="w-full flex-wrap md:w-auto">
-              {actionsFor(task).map((action, index) => {
-                const variant = index === 0 ? "default" : "outline";
-                return action.kind === "reminder" ? (
-                  <Button
-                    key={action.label}
-                    type="button"
-                    size="default"
-                    variant={variant}
-                    onClick={() => remindTask(task)}
-                  >
-                    {action.label}
-                  </Button>
-                ) : (
-                  <Link
-                    key={action.label}
-                    to={action.to}
-                    className={cn(buttonVariants({ size: "default", variant }))}
-                  >
-                    {action.label}
-                  </Link>
-                );
-              })}
-            </ItemActions>
-          </Item>
-        );
-      })}
+      {entries.map((entry) =>
+        entry.kind === "overdue-group" ? (
+          <OverdueGroupItem key={entry.key} group={entry} />
+        ) : (
+          <SingleTaskItem key={entry.key} task={entry.task} />
+        ),
+      )}
     </ItemGroup>
   );
 }

@@ -33,9 +33,10 @@ interface SendReminderDialogProps {
 }
 
 /**
- * "Gửi nhắc" — chọn kênh, ghi nhật ký (spec #153 §10 row 12), reached both
- * from một Hoá đơn's own "Nhắc nợ" tab (`invoiceIds` length 1) và từ thanh
- * chọn hàng loạt của danh sách.
+ * "Gửi nhắc" — chọn kênh, ghi nhật ký thật (spec #153 §10 row 12, spec #179
+ * §"Hôm nay" — "Nhắc tất cả" mở đúng dialog này). Shared: a Hoá đơn's own
+ * "Nhắc nợ" tab (`invoiceIds` length 1), the invoice list's selection bar,
+ * and Hôm nay's grouped Hoá đơn quá hạn mục (see [[architecture-shared-components]]).
  */
 export default function SendReminderDialog({
   open,

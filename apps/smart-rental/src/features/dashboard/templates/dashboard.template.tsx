@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 
-import dayjs from "@monorepo/dayjs";
 import { buttonVariants } from "@monorepo/ui/components/button";
 import {
   Card,
@@ -9,31 +8,38 @@ import {
   CardTitle,
 } from "@monorepo/ui/components/card";
 
+import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
-import { RevenueChart } from "~/components/chart/revenue-chart";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { TaskQueue } from "~/components/queue/task-queue";
 import { ROUTES } from "~/constants/routes";
-import OccupancyDonutChart from "~/features/dashboard/components/occupancy-donut-chart";
+import { useGetBuildings } from "~/hooks/api/building";
 import { useGetDashboard } from "~/hooks/api/dashboard";
+import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetTasks } from "~/hooks/api/task";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
-import { formatFullDate } from "~/utils/date";
+import { resolveNextCycleAction } from "~/utils/cycle-progress";
+import { formatFullDate, formatMonth } from "~/utils/date";
+import { buildTaskQueueEntries } from "~/utils/task-queue";
 
 /**
- * "Hôm nay" (ADR-0011, spec #153 §3.2): the landlord's first screen — three
- * KPIs for the Building scope, the Việc cần làm queue with an action per
- * item, then the occupancy donut and the six-month revenue trend. The
- * heading names the day, the way the mockup does — "Hôm nay" itself is the
- * sidebar/header's name for this area, not the page's own `<h1>`.
+ * "Hôm nay" (spec #179 §"Hôm nay"): a real hàng đợi — three KPIs that never
+ * repeat a number, the gộp queue sorted by hạn, then "Tháng này" và "Vừa
+ * xong" as số cards. The donut and 6-tháng chart both moved to Báo cáo; the
+ * heading names the day, "Hôm nay" itself is the sidebar/header's name for
+ * this area, not the page's own `<h1>`.
  */
 export default function DashboardTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const dashboardQuery = useGetDashboard({ buildingId: selectedBuildingId });
   const tasksQuery = useGetTasks({ buildingId: selectedBuildingId });
+  const invoicesQuery = useGetInvoices({ buildingId: selectedBuildingId });
+  const buildingsQuery = useGetBuildings();
   const data = dashboardQuery.data;
+
+  const nextAction = data ? resolveNextCycleAction(data.cycleProgress) : null;
 
   return (
     <div className="space-y-6">
@@ -41,18 +47,20 @@ export default function DashboardTemplate() {
         title={formatFullDate()}
         description={
           data
-            ? `${data.occupancy.occupied + data.occupancy.vacant} Phòng · ${data.occupancy.occupied} đang thuê`
-            : "Tổng quan hoạt động quản lý phòng trọ."
+            ? `${tasksQuery.data?.length ?? 0} việc cần làm · ${data.monthSummary.totalRooms} Phòng, ${data.monthSummary.occupiedRooms} đang thuê`
+            : "Việc cần làm hôm nay."
         }
         actions={
-          // Tạm trỏ sang màn Kỳ hiện tại (ADR-0013) — Hôm nay's own 3-KPI
-          // rework is a later ticket (spec #179).
-          <Link
-            to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
-            className={buttonVariants({ size: "sm" })}
-          >
-            Lập Đợt hoá đơn
-          </Link>
+          // Việc kế tiếp của tháng (spec #179 §"Hôm nay" decision 21) — ẩn
+          // khi scope null, vì màn Kỳ đòi đúng một Toà nhà.
+          selectedBuildingId && nextAction ? (
+            <Link
+              to={ROUTES.cycleDetailPath(nextAction.month)}
+              className={buttonVariants({ size: "sm" })}
+            >
+              {nextAction.label}
+            </Link>
+          ) : undefined
         }
       />
 
@@ -68,68 +76,99 @@ export default function DashboardTemplate() {
           <KpiStrip
             items={[
               {
-                label: "Cần thu tháng này",
-                value: formatCurrency(data.dueThisMonth.amount),
-                description: `${data.dueThisMonth.count} Hoá đơn`,
-              },
-              {
-                label: "Quá hạn",
-                value: `${data.overdue.count} Hoá đơn`,
+                label: "Còn phải thu tháng này",
+                value: formatCurrency(data.outstandingThisMonth.amount),
                 description:
-                  data.overdue.count > 0
-                    ? `${formatCurrency(data.overdue.amount)} · lâu nhất ${data.overdue.maxDaysOverdue} ngày`
+                  data.outstandingThisMonth.overdueCount > 0
+                    ? `${data.outstandingThisMonth.overdueCount} Hoá đơn quá hạn`
                     : undefined,
               },
               {
-                label: "Hợp đồng hết hạn trong 30 ngày",
+                label: "Hợp đồng sắp hết hạn",
                 value: data.expiringContracts.count,
+                description: data.expiringContracts.nearestEndDate
+                  ? `gần nhất ${data.expiringContracts.nearestEndDate}`
+                  : undefined,
+              },
+              {
+                label: `Chỉ số Kỳ ${formatMonth(data.cycleProgress.month)}`,
+                value: `${data.cycleProgress.entered}/${data.cycleProgress.total} phòng`,
                 description:
-                  data.expiringContracts.count > 0
-                    ? `gần nhất ${data.expiringContracts.nearestEndDate} · ${data.expiringContracts.nearestRoom}`
-                    : undefined,
+                  data.cycleProgress.anomalyCount > 0
+                    ? `${data.cycleProgress.anomalyCount} bất thường · chưa lập Đợt`
+                    : !data.cycleProgress.allInvoiced
+                      ? "chưa lập Đợt"
+                      : undefined,
               },
             ]}
           />
 
-          <div className="grid gap-4 lg:grid-cols-7">
-            <Card className="lg:col-span-4">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  Cần làm hôm nay
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {tasksQuery.isLoading ? (
-                  <p className="text-muted-foreground text-sm">Đang tải…</p>
-                ) : (
-                  <TaskQueue tasks={tasksQuery.data ?? []} />
-                )}
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">
+                Cần làm hôm nay
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tasksQuery.isLoading ||
+              invoicesQuery.isLoading ||
+              buildingsQuery.isLoading ? (
+                <p className="text-muted-foreground text-sm">Đang tải…</p>
+              ) : (
+                <TaskQueue
+                  entries={buildTaskQueueEntries(
+                    tasksQuery.data ?? [],
+                    invoicesQuery.data ?? [],
+                    buildingsQuery.data ?? [],
+                  )}
+                />
+              )}
+            </CardContent>
+          </Card>
 
-            <div className="flex flex-col gap-4 lg:col-span-3">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base font-semibold">
-                    Lấp đầy
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <OccupancyDonutChart occupancy={data.occupancy} />
-                </CardContent>
-              </Card>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <InfoCard title={`Tháng này · ${data.monthSummary.month}`}>
+              <InfoRow
+                label="Lấp đầy"
+                value={`${data.monthSummary.occupiedRooms} / ${data.monthSummary.totalRooms} phòng`}
+              />
+              <InfoRow
+                label="Đã lập hoá đơn"
+                value={formatCurrency(data.monthSummary.invoicedAmount)}
+              />
+              <InfoRow
+                label="Đã thu"
+                value={formatCurrency(data.monthSummary.collectedAmount)}
+                isHighlighted
+              />
+              <InfoRow
+                label="Còn phải thu"
+                value={formatCurrency(data.monthSummary.outstandingAmount)}
+                isHighlighted
+              />
+              <Link
+                to={ROUTES.REPORTS}
+                className="text-primary block text-right text-sm underline underline-offset-4"
+              >
+                Xem Báo cáo →
+              </Link>
+            </InfoCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base font-semibold">
-                    Doanh thu 6 tháng
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RevenueChart data={data.revenueByMonth} />
-                </CardContent>
-              </Card>
-            </div>
+            <InfoCard title="Vừa xong">
+              {data.recentActivity.length === 0 ? (
+                <p className="text-muted-foreground text-sm">
+                  Chưa có hoạt động nào.
+                </p>
+              ) : (
+                data.recentActivity.map((entry) => (
+                  <InfoRow
+                    key={`${entry.kind}-${entry.at}-${entry.label}`}
+                    label={entry.label}
+                    value={entry.detail}
+                  />
+                ))
+              )}
+            </InfoCard>
           </div>
         </>
       )}

@@ -44,7 +44,6 @@ export const ROUTES = {
   EXPENSE_DETAIL: "/expenses/:expenseId",
 
   RECONCILIATION: "/reconciliation",
-  TASKS: "/tasks",
   REPORTS: "/reports",
   COMPLIANCE: "/compliance",
   COMMUNICATIONS: "/communications",

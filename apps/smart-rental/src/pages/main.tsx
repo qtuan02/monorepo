@@ -36,7 +36,6 @@ import SettingsPage from "./settings-page";
 import SignInPage from "./sign-in-page";
 import SupplierBillDetailPage from "./supplier-bill-detail-page";
 import SupplierBillListPage from "./supplier-bill-list-page";
-import TaskCenterPage from "./task-center-page";
 import TenantDetailPage from "./tenant-detail-page";
 import TenantListPage from "./tenant-list-page";
 import UtilityDetailPage from "./utility-detail-page";
@@ -127,7 +126,6 @@ export function AppRoutes() {
             path={ROUTES.RECONCILIATION}
             element={<ReconciliationPage />}
           />
-          <Route path={ROUTES.TASKS} element={<TaskCenterPage />} />
           <Route path={ROUTES.REPORTS} element={<ReportsOverviewPage />} />
           <Route
             path={ROUTES.COMPLIANCE}

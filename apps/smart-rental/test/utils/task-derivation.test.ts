@@ -146,13 +146,16 @@ describe("deriveTasks", () => {
     });
   });
 
-  it("adds a utility_anomaly task for an unconfirmed anomalous reading", () => {
+  it("adds a utility_anomaly task pointing at the Kỳ screen's own row", () => {
     const tasks = derive();
     const task = tasks.find((t) => t.type === "utility_anomaly");
 
+    // relatedId is the Kỳ's own YYYY-MM — the màn Kỳ row where a bất thường
+    // is actually duyệt-able, not the read-only /utilities/:id (spec #179
+    // §"Hôm nay").
     expect(task).toMatchObject({
-      relatedEntity: "utility",
-      relatedId: "u-sep",
+      relatedEntity: "cycle",
+      relatedId: "2026-09",
     });
   });
 

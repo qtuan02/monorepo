@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { AlertCircle, QrCode } from "lucide-react";
 import { Link } from "react-router";
 
+import dayjs from "@monorepo/dayjs";
 import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -11,13 +13,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@monorepo/ui/components/dialog";
+import { toast } from "@monorepo/ui/components/toast";
 
 import type { BankAccount } from "~/types/building";
 import { ROUTES } from "~/constants/routes";
+import { useRecordInvoicePayment } from "~/hooks/api/invoice";
 import { formatCurrency } from "~/utils/currency";
 import { buildVietQrQuickLink, toVietQrAddInfo } from "~/utils/vietqr";
 
 interface VietQrDialogProps {
+  invoiceId: string;
   /** Còn phải trả — `invoice.amount - invoice.paidAmount`, not the invoice total. */
   amount: number;
   invoiceNumber: string;
@@ -35,9 +40,16 @@ interface VietQrDialogProps {
 /**
  * "Thanh toán VietQR" (spec #153 §10 row 12): a real `img.vietqr.io` link
  * built from the Toà nhà's Tài khoản nhận tiền, never a fake QR grid — a
- * Toà nhà with none yet gets the warning (with a link to its own Cài đặt) instead.
+ * Toà nhà with none yet gets the warning (with a link to its own Cài đặt)
+ * instead. "Đã nhận" (spec #179 §"Thu tiền và chi tiết Hoá đơn") records the
+ * same amount as a Thanh toán chuyển khoản hôm nay through the same mutation
+ * `~/components/sheet/payment-form-sheet` uses, without leaving the dialog.
+ * The trigger disappears once there is nothing left to collect. Shared by a
+ * Hoá đơn's own detail header and Hôm nay's grouped Hoá đơn quá hạn mục (see
+ * [[architecture-shared-components]]).
  */
 export default function VietQrDialog({
+  invoiceId,
   amount,
   invoiceNumber,
   room,
@@ -47,14 +59,38 @@ export default function VietQrDialog({
   size = "default",
   className = "w-full",
 }: VietQrDialogProps) {
+  const [open, setOpen] = useState(false);
+  const recordPayment = useRecordInvoicePayment();
   const link = buildVietQrQuickLink(
     bankAccount,
     amount,
     `${invoiceNumber} ${room}`,
   );
 
+  if (amount <= 0) return null;
+
+  const handleReceived = () => {
+    recordPayment.mutate(
+      {
+        invoiceId,
+        amount,
+        method: "BANK_TRANSFER",
+        paidAt: dayjs().format("YYYY-MM-DD"),
+      },
+      {
+        onSuccess: () => {
+          toast.add({
+            title: `Đã ghi nhận thanh toán cho ${invoiceNumber}`,
+            type: "success",
+          });
+          setOpen(false);
+        },
+      },
+    );
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
           <Button
@@ -114,6 +150,15 @@ export default function VietQrDialog({
               </p>
             )}
           </div>
+
+          <Button
+            type="button"
+            className="w-full"
+            disabled={recordPayment.isPending}
+            onClick={handleReceived}
+          >
+            Đã nhận {formatCurrency(amount)}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -12,23 +12,33 @@ export type TaskType =
   | "utility_anomaly"
   | "residence_notification"
   | "batch_pending";
-export type TaskPriority = "high" | "medium" | "low";
 export type TaskStatus = "open" | "in_progress" | "done";
+/**
+ * `"cycle"` (not `"utility"`) is what an `utility_anomaly` task points at
+ * (spec #179 §"Hôm nay") — the màn Kỳ row where a bất thường is actually
+ * duyệt-able, not the read-only `/utilities/:id` detail.
+ */
 export type TaskRelatedEntity =
   | "invoice"
   | "contract"
   | "room"
   | "tenant"
-  | "utility"
+  | "cycle"
   | "building";
 
+/**
+ * No `priority` any more (spec #179 §"Hôm nay" decision 4 — "bỏ badge ưu
+ * tiên"): the queue sorts by `dueDate`, not by a priority tier, so the field
+ * carried no reader-visible meaning left to show.
+ */
 export interface Task {
   id: string;
   type: TaskType;
   title: string;
   description: string;
-  priority: TaskPriority;
   status: TaskStatus;
+  /** The Toà nhà this Việc belongs to — what the queue groups Hoá đơn quá hạn by. */
+  buildingId: string;
   /** Which entity `relatedId` names — the one screen a task links to. */
   relatedEntity: TaskRelatedEntity;
   relatedId: string;

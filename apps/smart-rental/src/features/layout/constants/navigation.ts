@@ -7,8 +7,8 @@ import {
   CalendarRange,
   DoorOpen,
   Gauge,
+  HandCoins,
   Home,
-  ListChecks,
   Receipt,
   ReceiptText,
   ScrollText,
@@ -24,6 +24,10 @@ import { ROUTES } from "~/constants/routes";
 
 export interface NavigationItem {
   path: string;
+  /** The `<Link>` target when it differs from `path` — a query string over
+   * the same route ("Thu tiền"). Matching (`isNavigationItemActive`, header
+   * resolution) always reads `path`, never `to`. */
+  to?: string;
   title: string;
   description: string;
   icon: LucideIcon;
@@ -35,20 +39,21 @@ export interface NavigationSection {
 }
 
 /**
- * The prototype's `appRouteManifest`, reduced to what the shell reads: the 15
- * areas in sidebar order, grouped as before, with the title + description the
- * header shows for the area a path falls under. Paths come from `ROUTES` — the
- * manifest never carried a route element here, `~/pages/main.tsx` does. Copy
- * and icons follow the glossary (ADR-0011, brief §4/§7).
+ * The 14 areas in sidebar order (spec #179 §"IA / shell"), grouped by chuỗi
+ * việc rather than by kind: Hôm nay đứng riêng, rồi Tháng này (thứ tự =
+ * thứ tự làm) · Người & phòng · Sổ sách · Hệ thống. Paths come from
+ * `ROUTES` — the manifest never carried a route element here,
+ * `~/pages/main.tsx` does. Copy and icons follow the glossary (ADR-0011,
+ * spec #179 §7).
  *
- * Every item is named so `bottomNavItems` (ADR-0011, spec #153 §10 row 22)
- * can pull four of them out by reference rather than duplicating a path
- * string, and `moreNavSections` can filter the rest out mechanically.
+ * Every item is named so `bottomNavItems` can pull four of them out by
+ * reference rather than duplicating a path string, and `moreNavSections`
+ * can filter the rest out mechanically.
  */
 export const dashboardItem: NavigationItem = {
   path: ROUTES.HOME,
   title: "Hôm nay",
-  description: "Tổng quan hoạt động quản lý phòng trọ.",
+  description: "Việc cần làm hôm nay.",
   icon: Home,
 };
 
@@ -73,13 +78,6 @@ const tenantsItem: NavigationItem = {
   icon: Users,
 };
 
-const tasksItem: NavigationItem = {
-  path: ROUTES.TASKS,
-  title: "Việc cần làm",
-  description: "Xem các việc cần xử lý.",
-  icon: ListChecks,
-};
-
 const contractsItem: NavigationItem = {
   path: ROUTES.CONTRACTS,
   title: "Hợp đồng",
@@ -95,23 +93,31 @@ const invoicesItem: NavigationItem = {
 };
 
 /**
+ * "Thu tiền" — bottom nav's own ô 4 (spec #179 §"IA / shell"), the same
+ * `/invoices` route filtered to còn phải thu + sắp theo hạn, not a route of
+ * its own. `path` stays the bare route so active-state matching still marks
+ * "Hoá đơn" (the sidebar's own row) rather than nothing; `to` carries the query.
+ */
+const collectPaymentItem: NavigationItem = {
+  path: ROUTES.INVOICES,
+  to: `${ROUTES.INVOICES}?status=UNPAID,PARTIAL,OVERDUE&sort=dueDate`,
+  title: "Thu tiền",
+  description: "Hoá đơn còn phải thu, sắp theo hạn.",
+  icon: HandCoins,
+};
+
+/**
  * "Kỳ điện nước & hoá đơn" (ADR-0013) — always points at the CURRENT kỳ,
  * so opening it never asks the landlord to pick a month first. Replaces the
- * old Đợt hoá đơn + Nhập chỉ số entries; `/utilities` keeps its own row as
- * read-only history.
+ * old Đợt hoá đơn + Nhập chỉ số entries; `/utilities` stays reachable (a
+ * Phòng's own Chỉ số tab, and this screen's "Xem các Kỳ trước") but is no
+ * longer a sidebar row of its own.
  */
 const cyclesItem: NavigationItem = {
   path: ROUTES.cycleDetailPath(dayjs().format("YYYY-MM")),
   title: "Kỳ điện nước & hoá đơn",
   description: "Chốt chỉ số điện nước và lập hoá đơn theo kỳ.",
   icon: CalendarRange,
-};
-
-const utilitiesItem: NavigationItem = {
-  path: ROUTES.UTILITIES,
-  title: "Chỉ số điện nước",
-  description: "Quản lý chỉ số điện nước.",
-  icon: Gauge,
 };
 
 const supplierBillsItem: NavigationItem = {
@@ -163,42 +169,69 @@ const settingsItem: NavigationItem = {
   icon: Settings,
 };
 
+/** `/utilities` (list + detail) — reachable, but no longer a sidebar row (ADR-0013). */
+const utilitiesItem: NavigationItem = {
+  path: ROUTES.UTILITIES,
+  title: "Chỉ số điện nước",
+  description: "Lịch sử chỉ số điện nước theo Phòng.",
+  icon: Gauge,
+};
+
+/** Hôm nay is not a labelled group — the sidebar renders it above the four below (see `AppSidebar`). */
 export const navigationSections: NavigationSection[] = [
   {
-    label: "Chính",
-    items: [dashboardItem, buildingsItem, roomsItem, tenantsItem, tasksItem],
+    label: "Tháng này",
+    items: [cyclesItem, invoicesItem, reconciliationItem],
   },
   {
-    label: "Quản lý",
+    label: "Người & phòng",
     items: [
+      buildingsItem,
+      roomsItem,
+      tenantsItem,
       contractsItem,
-      cyclesItem,
-      invoicesItem,
-      utilitiesItem,
-      supplierBillsItem,
-      expensesItem,
-      reconciliationItem,
-      reportsItem,
+      complianceItem,
     ],
   },
   {
+    label: "Sổ sách",
+    items: [supplierBillsItem, expensesItem, reportsItem],
+  },
+  {
     label: "Hệ thống",
-    items: [complianceItem, communicationsItem, settingsItem],
+    items: [communicationsItem, settingsItem],
   },
 ];
 
-/** The bottom nav's four fixed stops (ADR-0011, spec #153 §10 row 22) — "Thêm" is the fifth, a Sheet over `moreNavSections`. */
+/**
+ * A route reachable from the app but with no row of its own in
+ * `navigationSections` — `resolveNavigationItem`'s header-title lookup still
+ * needs it so `/utilities/...` reads "Chỉ số điện nước" rather than falling
+ * back to "Hôm nay".
+ */
+export const hiddenNavigationItems: NavigationItem[] = [utilitiesItem];
+
+/** The bottom nav's four fixed stops (spec #179 §"IA / shell") — "Thêm" is the fifth, a Sheet over `moreNavSections`. */
 export const bottomNavItems: NavigationItem[] = [
   dashboardItem,
   roomsItem,
   tenantsItem,
-  invoicesItem,
+  collectPaymentItem,
 ];
 
-/** Every area not already a bottom-nav stop, grouped as the sidebar groups them, empty groups dropped. */
+/**
+ * Every sidebar area not already a bottom-nav stop, grouped as the sidebar
+ * groups them, empty groups dropped. Thông báo is left out too (spec #179
+ * §"IA / shell" — its own row folds into the header's chuông on mobile).
+ */
 export const moreNavSections: NavigationSection[] = navigationSections
   .map((section) => ({
     ...section,
-    items: section.items.filter((item) => !bottomNavItems.includes(item)),
+    items: section.items.filter(
+      (item) =>
+        !bottomNavItems.includes(item) &&
+        item !== invoicesItem &&
+        item !== communicationsItem,
+    ),
   }))
   .filter((section) => section.items.length > 0);

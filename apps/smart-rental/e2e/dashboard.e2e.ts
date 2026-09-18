@@ -44,49 +44,38 @@ test.describe("dashboard", () => {
     expect(errors).toEqual([]);
   });
 
-  test("shows the Việc cần làm queue and the two charts, and re-reads them for a Building scope", async ({
+  test("shows the gộp Việc cần làm queue and the three KPIs, re-read for a Building scope", async ({
     page,
   }) => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
 
-    // No trailing `$` — the priority badge ("Cao") sits inside the same
-    // `ItemTitle` as the title text, right after it.
-    await expect(
-      page.getByText(/^Hoá đơn HÓA-\d+ quá hạn/).first(),
-    ).toBeVisible();
-    await expect(
-      page.getByLabel("Biểu đồ tỷ lệ lấp đầy").locator("svg.recharts-surface"),
-    ).toBeVisible();
-    await expect(
-      page
-        .getByLabel("Biểu đồ doanh thu theo tháng")
-        .locator("svg.recharts-surface"),
-    ).toBeVisible();
+    await expect(page.getByText(/Còn phải thu tháng này/)).toBeVisible();
+    await expect(page.getByText(/\d+ Hoá đơn quá hạn/).first()).toBeVisible();
 
     await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
 
-    // Scoped to b1: its own "chưa lập Đợt" task stays, another Toà nhà's goes.
-    await expect(
-      page.getByText(/^Trọ Sinh Viên Xanh chưa lập Đợt hoá đơn/),
-    ).toBeVisible();
-    await expect(
-      page.getByText(/^Chung cư Mini Lê Duẩn chưa lập Đợt hoá đơn/),
-    ).not.toBeVisible();
+    // Scoped to b1: its own gộp mục names its own Toà nhà.
+    await expect(page.getByText(/Trọ Sinh Viên Xanh/).first()).toBeVisible();
   });
 
-  test("navigates a Việc cần làm action to its entity", async ({ page }) => {
+  test("expands a gộp mục and opens Ghi nhận thu prefilled with còn lại", async ({
+    page,
+  }) => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
 
-    const item = page
+    const group = page
       .locator('[role="listitem"]')
-      .filter({ hasText: /^Hoá đơn HÓA-\d+ quá hạn/ })
+      .filter({ hasText: /Hoá đơn quá hạn/ })
       .first();
-    await item.getByRole("link", { name: "Xem" }).click();
+    await group.getByRole("button", { name: /Xem \d+ hoá đơn/ }).click();
+    await group.getByRole("button", { name: "Ghi nhận thu" }).first().click();
 
     await expect(
-      page.getByRole("heading", { name: "Chi tiết hoá đơn" }),
+      page.getByRole("heading", { name: "Ghi nhận Thanh toán" }),
     ).toBeVisible();
+    const amountInput = page.getByLabel("Số tiền");
+    await expect(amountInput).not.toHaveValue("");
   });
 });

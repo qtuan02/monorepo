@@ -3,7 +3,7 @@
 Context của app `smart-rental` (Runtime Vite): portal quản lý phòng trọ cho chủ nhà, port từ
 prototype `D:\Personal\smart-rental\frontend` (`fe-motel-rsbuild`). Thuật ngữ dùng chung của repo
 (Runtime, Flavor, Template app, Gate) ở [`CONTEXT.md`](../../CONTEXT.md) gốc; file này chỉ ghi từ
-vựng riêng của app, chốt lần đầu ở vòng grill 2026-09-16, sửa ở vòng grill pha 2 (redesign) 2026-09-17.
+vựng riêng của app, chốt lần đầu ở vòng grill 2026-09-16, sửa ở vòng grill pha 2 (redesign) 2026-09-17 và vòng grill round 3 ("dễ hơn") 2026-09-18.
 
 ## Language
 
@@ -24,7 +24,7 @@ _Avoid_: nhà trọ, dãy trọ, property, cơ sở
 **Building scope**:
 Toà nhà đang được chọn cho toàn Portal, bền qua reload — mọi danh sách, con số và Việc cần làm theo nó;
 hai ngoại lệ có tên là Cài đặt (toàn cục) và Báo cáo (so sánh giữa các Toà nhà). `null` nghĩa là mọi
-Toà nhà; lập Đợt hoá đơn và nhập chỉ số đòi đúng một Toà nhà.
+Toà nhà; màn Kỳ (chốt chỉ số và lập Đợt hoá đơn) đòi đúng một Toà nhà.
 _Avoid_: current building, selected building, bộ lọc toà nhà (nó không phải một filter của bảng)
 
 **Phòng** (`Room`):
@@ -58,20 +58,43 @@ _Avoid_: renew/terminate lẫn với extend/cancel, huỷ (không có huỷ Hợ
 Khoản Portal thu của Người thuê theo kỳ cho một Hợp đồng, gồm các **dòng** theo loại (tiền phòng,
 điện, nước, dịch vụ, khoản khác, giảm trừ). Trạng thái: **Nháp · Chưa thu · Thu một phần · Đã thu
 · Quá hạn · Đã huỷ**; "Quá hạn" và "Thu một phần" được suy từ hạn thu và các Thanh toán, không lưu.
-Một **Đợt hoá đơn** (`BatchInvoice`) lập nhiều Hoá đơn cho một Toà nhà trong một kỳ, và chỉ lập
-được cho Phòng đã có Chỉ số điện nước xác nhận của kỳ đó.
+Một **Đợt hoá đơn** (`BatchInvoice`) lập nhiều Hoá đơn cho một Toà nhà trong một Kỳ, từ màn Kỳ, và
+chỉ lập được cho Phòng đã có đủ Chỉ số điện và nước của Kỳ, không còn bất thường chưa duyệt; lập
+xong, các Chỉ số đó chuyển Đã chốt.
 _Avoid_: bill (dành cho Hoá đơn nhà cung cấp), receipt, phiếu thu, invoice theo Phòng (Hoá đơn thuộc Hợp đồng)
 
 **Thanh toán** (`Payment`):
 Một lần Người thuê trả tiền cho một Hoá đơn — ngày, số tiền, kênh (VietQR, tiền mặt, chuyển
-khoản). Chủ nhà ghi nhận tay; trạng thái Hoá đơn đi theo tổng các Thanh toán.
+khoản). Là **bản ghi**; việc tạo ra nó là Thu tiền. Trạng thái Hoá đơn đi theo tổng các Thanh toán.
 _Avoid_: giao dịch, payment request (khái niệm của backend), sửa tay trạng thái Hoá đơn
 
+**Thu tiền**:
+Việc chủ nhà ghi nhận một Thanh toán cho một Hoá đơn còn phải thu — từ Hôm nay, từ chi tiết Hoá
+đơn, hay ngay sau khi Người thuê quét VietQR ("Đã nhận"). Số tiền mặc định là phần còn lại. Ô
+"Thu tiền" trên thanh điều hướng mobile là danh sách Hoá đơn còn phải thu, sắp theo hạn.
+_Avoid_: thanh toán (đó là bản ghi kết quả), thu nợ, collect
+
 **Chỉ số điện nước** (`Utility`):
-Bản ghi chỉ số công tơ của một Phòng trong một kỳ — chỉ số cũ, chỉ số mới, tiêu thụ — cho một
-`UtilityType` (điện hoặc nước). Trong code giữ tên `Utility` của prototype; **nhập chỉ số**
-(`MeterInput`) là màn hình ghi nhiều bản ghi cùng lúc, và đứng **trước** Đợt hoá đơn trong flow.
-_Avoid_: utility theo nghĩa dịch vụ/tiện ích (đó là `UtilityType`), meter reading, UtilityIndex, tiện ích
+Bản ghi chỉ số công tơ của một Phòng trong một Kỳ — chỉ số cũ, chỉ số mới, tiêu thụ — cho một
+`UtilityType` (điện hoặc nước). Hai trạng thái: **Nháp** (đã gõ, sửa được) → **Đã chốt** (khi Hoá
+đơn của Kỳ được lập từ nó). "Bất thường" là **cờ suy ra** (tiêu thụ lệch lớn so với Kỳ trước), không
+phải trạng thái; chủ nhà duyệt riêng từng đồng hồ. Trong code giữ tên `Utility` của prototype.
+Chỉ số được nhập trên màn Kỳ, không còn màn "nhập chỉ số" riêng.
+_Avoid_: utility theo nghĩa dịch vụ/tiện ích (đó là `UtilityType`), meter reading, UtilityIndex, tiện ích, đã xác minh/đã xác nhận (trạng thái cũ, nay là Đã chốt)
+
+**Kỳ**:
+Một tháng của một Toà nhà — đơn vị của chuỗi việc hằng tháng **chốt chỉ số → lập Đợt hoá đơn → Thu
+tiền**. Màn Kỳ là nơi cả chuỗi diễn ra cho một Toà nhà: chỉ số của từng Phòng (Nháp điền sẵn), tiền
+điện/nước tính tại chỗ theo Bảng giá, và nút lập Hoá đơn cho các Phòng đủ điều kiện. Chốt được từ cuối tháng của Kỳ; hạn thu là Ngày thu của tháng sau. Kỳ viết `MM/YYYY` trên màn
+hình.
+_Avoid_: billing cycle, chu kỳ, tháng hoá đơn, `YYYY-MM` trên màn hình (chỉ trong URL/dữ liệu)
+
+**Ngày thu**:
+Ngày trong tháng, đặt trên Toà nhà, là **hạn thu** của Hoá đơn Kỳ trước — Hoá đơn Kỳ 09 có hạn là
+Ngày thu của tháng 10. Là ngày duy nhất Toà nhà cài; ngày **chốt** chỉ số không cài, luôn là cuối
+tháng của Kỳ (màn Kỳ nhận Nháp sớm hơn, nhưng chỉ lập Hoá đơn từ ngày đó). Hợp đồng không có ngày
+thu riêng.
+_Avoid_: ngày chốt điện nước, chu kỳ thu, ngày thu của Hợp đồng (đã bỏ ở round 3)
 
 **Bảng giá**:
 Đơn giá của một Toà nhà dùng khi lập Hoá đơn: điện (đ/kWh), nước (đ/m³), và các dịch vụ cố định
@@ -108,11 +131,15 @@ vụ của cơ sở, không thuộc mục này)
 
 **Việc cần làm** (`Task`):
 Một mục **suy ra từ dữ liệu** — Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số điện nước bất
-thường, Thông báo lưu trú chưa gửi, kỳ chưa lập Đợt hoá đơn — trỏ về đúng một Hoá đơn / Hợp đồng /
-Phòng / Người thuê và mang hành động làm ngay. Không có việc nhập tay.
-_Avoid_: todo, reminder, nhắc việc, trung tâm việc, task bảo trì (không có trong Portal)
+thường, Thông báo lưu trú chưa gửi, Kỳ chưa lập Đợt hoá đơn — trỏ về đúng một Hoá đơn / Hợp đồng /
+Phòng / Người thuê và mang hành động làm ngay. Không có việc nhập tay. Các Hoá đơn quá hạn của
+cùng một Toà nhà **gộp thành một mục** (tổng tiền, nhắc tất cả, mở rộng từng Hoá đơn); các loại
+khác một mục một việc. Sắp theo hạn, không theo loại. Sống ở Hôm nay và ở chuông — không có màn
+riêng.
+_Avoid_: todo, reminder, nhắc việc, trung tâm việc, `/tasks` (đã bỏ ở round 3), task bảo trì (không có trong Portal)
 
 **Hôm nay**:
-Màn đầu tiên sau đăng nhập — các con số cần nhìn của Building scope và danh sách Việc cần làm của
-ngày. Là hàng đợi việc, không phải bảng thống kê.
+Màn đầu tiên sau đăng nhập — ba con số của Building scope (còn phải thu, Hợp đồng sắp hết hạn,
+Chỉ số của Kỳ) và danh sách Việc cần làm của ngày, rồi hai bảng số "Tháng này" và "Vừa xong". Là
+hàng đợi việc, không phải bảng thống kê; biểu đồ thuộc Báo cáo.
 _Avoid_: dashboard, tổng quan, trang chủ

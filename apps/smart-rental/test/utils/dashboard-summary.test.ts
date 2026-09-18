@@ -3,7 +3,10 @@ import { describe, expect, it } from "vitest";
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
-import { buildTodaySummary } from "~/utils/dashboard-summary";
+import {
+  buildMonthSummary,
+  buildTodaySummary,
+} from "~/utils/dashboard-summary";
 
 const today = new Date("2026-09-17T00:00:00.000Z");
 
@@ -21,8 +24,8 @@ function invoice(overrides: Partial<Invoice> = {}): Invoice {
     payments: [],
     paidAmount: 0,
     reminders: [],
-    billingMonth: "2026-09",
-    month: "09/2026",
+    billingMonth: "2026-08",
+    month: "08/2026",
     dueDate: "05/09/2026",
     status: "UNPAID",
     paymentDate: null,
@@ -72,75 +75,79 @@ function room(overrides: Partial<Room> = {}): Room {
 }
 
 describe("buildTodaySummary", () => {
-  it("sums an invoice past its due date into both Cần thu tháng này and Quá hạn", () => {
+  it("sums an invoice whose hạn thu falls this month into Còn phải thu tháng này", () => {
+    const summary = buildTodaySummary(
+      {
+        invoices: [invoice({ dueDate: "05/09/2026", amount: 4_000_000 })],
+        contracts: [],
+      },
+      today,
+    );
+
+    expect(summary.outstandingThisMonth).toEqual({
+      amount: 4_000_000,
+      overdueCount: 1,
+    });
+  });
+
+  it("excludes a fully paid invoice even when its hạn thu is this month", () => {
     const summary = buildTodaySummary(
       {
         invoices: [
           invoice({
-            billingMonth: "2026-09",
             dueDate: "05/09/2026",
             amount: 4_000_000,
-            paidAmount: 0,
-          }),
-        ],
-        contracts: [],
-        rooms: [],
-      },
-      today,
-    );
-
-    expect(summary.dueThisMonth).toEqual({ amount: 4_000_000, count: 1 });
-    expect(summary.overdue.amount).toBe(4_000_000);
-    expect(summary.overdue.count).toBe(1);
-    expect(summary.overdue.maxDaysOverdue).toBe(12);
-  });
-
-  it("excludes a fully paid invoice from Cần thu tháng này even in the current kỳ", () => {
-    const summary = buildTodaySummary(
-      {
-        invoices: [
-          invoice({
-            billingMonth: "2026-09",
-            amount: 4_000_000,
             paidAmount: 4_000_000,
-            status: "PAID",
           }),
         ],
         contracts: [],
-        rooms: [],
       },
       today,
     );
 
-    expect(summary.dueThisMonth).toEqual({ amount: 0, count: 0 });
-    expect(summary.overdue).toEqual({ amount: 0, count: 0, maxDaysOverdue: 0 });
+    expect(summary.outstandingThisMonth).toEqual({
+      amount: 0,
+      overdueCount: 0,
+    });
   });
 
-  it("excludes an invoice from an earlier kỳ out of Cần thu tháng này, but still counts it as Quá hạn", () => {
+  it("excludes an invoice whose hạn thu is a different month, even if it is quá hạn", () => {
+    const summary = buildTodaySummary(
+      { invoices: [invoice({ dueDate: "05/08/2026" })], contracts: [] },
+      today,
+    );
+
+    expect(summary.outstandingThisMonth).toEqual({
+      amount: 0,
+      overdueCount: 0,
+    });
+  });
+
+  it("counts an on-time invoice due this month without marking it quá hạn", () => {
     const summary = buildTodaySummary(
       {
-        invoices: [invoice({ billingMonth: "2026-08", dueDate: "05/08/2026" })],
+        invoices: [invoice({ dueDate: "30/09/2026", amount: 1_000_000 })],
         contracts: [],
-        rooms: [],
       },
       today,
     );
 
-    expect(summary.dueThisMonth).toEqual({ amount: 0, count: 0 });
-    expect(summary.overdue.count).toBe(1);
+    expect(summary.outstandingThisMonth).toEqual({
+      amount: 1_000_000,
+      overdueCount: 0,
+    });
   });
 
-  it("picks the nearest EXPIRING contract for the KPI's description", () => {
+  it("picks the nearest EXPIRING contract for the KPI's dòng phụ", () => {
     const summary = buildTodaySummary(
       {
         invoices: [],
         contracts: [
-          contract({ id: "C010", room: "Phòng 210", endDate: "10/10/2026" }),
-          contract({ id: "C011", room: "Phòng 211", endDate: "01/10/2026" }),
+          contract({ id: "C010", endDate: "10/10/2026" }),
+          contract({ id: "C011", endDate: "01/10/2026" }),
           // Outside the 30-day window (see contract-status.test.ts for the boundary itself).
-          contract({ id: "C012", room: "Phòng 212", endDate: "01/01/2027" }),
+          contract({ id: "C012", endDate: "01/01/2027" }),
         ],
-        rooms: [],
       },
       today,
     );
@@ -148,48 +155,42 @@ describe("buildTodaySummary", () => {
     expect(summary.expiringContracts).toEqual({
       count: 2,
       nearestEndDate: "01/10/2026",
-      nearestRoom: "Phòng 211",
     });
   });
+});
 
-  it("aggregates revenue by kỳ, sorted, in triệu VND", () => {
-    const summary = buildTodaySummary(
+describe("buildMonthSummary", () => {
+  it("reads đã lập/đã thu/còn phải thu off the invoices due this month", () => {
+    const summary = buildMonthSummary(
       {
         invoices: [
-          invoice({ billingMonth: "2026-09", amount: 3_000_000 }),
-          invoice({ billingMonth: "2026-08", amount: 2_000_000 }),
-          invoice({ billingMonth: "2026-08", amount: 1_000_000 }),
+          invoice({
+            dueDate: "05/09/2026",
+            amount: 4_000_000,
+            paidAmount: 1_000_000,
+          }),
+          invoice({
+            dueDate: "10/09/2026",
+            amount: 2_000_000,
+            paidAmount: 2_000_000,
+          }),
+          // Different month — excluded entirely.
+          invoice({ dueDate: "05/08/2026", amount: 9_000_000, paidAmount: 0 }),
         ],
-        contracts: [],
-        rooms: [],
-      },
-      today,
-    );
-
-    expect(summary.revenueByMonth).toEqual([
-      { month: "Thg 8", value: 3 },
-      { month: "Thg 9", value: 3 },
-    ]);
-  });
-
-  it("splits occupancy and names the trống rooms", () => {
-    const summary = buildTodaySummary(
-      {
-        invoices: [],
-        contracts: [],
         rooms: [
-          room({ id: "R101", name: "Phòng 101", status: "occupied" }),
-          room({ id: "R102", name: "Phòng 102", status: "available" }),
-          room({ id: "R103", name: "Phòng 103", status: "available" }),
+          room({ status: "occupied" }),
+          room({ id: "R002", status: "available" }),
         ],
       },
       today,
     );
 
-    expect(summary.occupancy).toEqual({
-      occupied: 1,
-      vacant: 2,
-      vacantRoomNames: ["Phòng 102", "Phòng 103"],
+    expect(summary).toMatchObject({
+      invoicedAmount: 6_000_000,
+      collectedAmount: 3_000_000,
+      outstandingAmount: 3_000_000,
+      occupiedRooms: 1,
+      totalRooms: 2,
     });
   });
 });

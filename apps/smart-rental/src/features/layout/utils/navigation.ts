@@ -2,10 +2,14 @@ import type { NavigationItem } from "~/features/layout/constants/navigation";
 import { ROUTES } from "~/constants/routes";
 import {
   dashboardItem,
+  hiddenNavigationItems,
   navigationSections,
 } from "~/features/layout/constants/navigation";
 
-const navigationItems = navigationSections.flatMap((section) => section.items);
+const navigationItems = [
+  ...navigationSections.flatMap((section) => section.items),
+  ...hiddenNavigationItems,
+];
 
 /**
  * Whether `pathname` falls under a sidebar area. `/` matches only itself;

@@ -99,7 +99,6 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   ],
   // Ba màn mất Mock ở #154 (ADR-0012) — #155 tính lại từ Hoá đơn/Hợp đồng/Chi phí.
   [ROUTES.RECONCILIATION, "Đối soát", "Tiền điện"],
-  [ROUTES.TASKS, "Việc cần làm", "Gửi nhắc"],
   // Scope null (the default) shows the building comparison table, not a kỳ.
   [ROUTES.REPORTS, "Báo cáo", "Trọ Sinh Viên Xanh"],
   [ROUTES.COMPLIANCE, "Khai báo lưu trú", "Nguyễn Văn A"],
@@ -234,6 +233,19 @@ describe("the route tree", () => {
       expect(await screen.findByText("Lịch sử thanh toán")).toBeInTheDocument();
     });
 
+    // Ticket #187 — I071 is the OVERDUE (AUGUST_STATUS[0]) invoice, nothing
+    // paid yet, so "Ghi nhận thu" is prefilled with the full total.
+    it("shows the overdue invoice's h1 and a prefilled 'Ghi nhận thu … đ' primary button", async () => {
+      renderAt(ROUTES.invoiceDetailPath("I071"));
+
+      expect(
+        await screen.findByRole("heading", { name: "Chi tiết hoá đơn" }),
+      ).toBeInTheDocument();
+      expect(
+        await screen.findByRole("button", { name: /^Ghi nhận thu \d/ }),
+      ).toBeInTheDocument();
+    });
+
     it("shows a derived Sắp hết hạn badge on the contract list", async () => {
       renderAt(ROUTES.CONTRACTS);
 
@@ -268,12 +280,11 @@ describe("the route tree", () => {
       ).toBeInTheDocument();
     });
 
-    it("lists a Việc cần làm item pointing at an existing Hoá đơn", async () => {
-      renderAt(ROUTES.TASKS);
+    it("404s at /tasks — the queue lives only at Hôm nay and the bell now (spec #179 decision 4)", () => {
+      const router = renderAt("/tasks");
 
-      expect(
-        await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/),
-      ).not.toHaveLength(0);
+      expect(router.state.location.pathname).toBe("/tasks");
+      expect(heading("404 Không tìm thấy")).toBeInTheDocument();
     });
 
     it("names the id a detail screen could not find in its Mock", async () => {
@@ -361,10 +372,10 @@ describe("the route tree", () => {
   });
 });
 
-// Ticket #159 — the shell's "Hôm nay" (ADR-0011): the heading is today's
-// date, the queue is Việc cần làm from the same Mock `/tasks` reads, and the
-// Building scope tabs above it are what every screen (this one included)
-// now reads through.
+// Ticket #159/#185 — the shell's "Hôm nay" (spec #179 §"Hôm nay"): the
+// heading is today's date, the queue is Việc cần làm gộp theo Toà nhà (Hoá
+// đơn quá hạn) sắp theo hạn, and the Building scope tabs above it are what
+// every screen (this one included) now reads through.
 describe("Hôm nay", () => {
   beforeEach(() => {
     useAuthStore.setState(initialAuthState, true);
@@ -379,11 +390,14 @@ describe("Hôm nay", () => {
     expect(await screen.findAllByText("Hôm nay")).not.toHaveLength(0);
   });
 
-  it("shows at least five Việc cần làm from the Mock", async () => {
+  it("names the day and shows a merged «n Hoá đơn quá hạn» mục for scope b1", async () => {
+    useBuildingStore.setState({ selectedBuildingId: "b1" });
     renderAt(ROUTES.HOME);
 
-    await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
-    expect(screen.getAllByRole("listitem").length).toBeGreaterThanOrEqual(5);
+    expect(heading(formatFullDate())).toBeInTheDocument();
+    expect(await screen.findAllByText(/\d+ Hoá đơn quá hạn/)).not.toHaveLength(
+      0,
+    );
   });
 
   // ADR-0013 — "Kỳ chưa lập Đợt" only fires once the Kỳ's own ngày chốt
@@ -393,7 +407,7 @@ describe("Hôm nay", () => {
   it("does not show a «chưa lập Đợt» task before the Kỳ's ngày chốt has passed", async () => {
     renderAt(ROUTES.HOME);
 
-    await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
+    await screen.findAllByText(/\d+ Hoá đơn quá hạn/);
     expect(screen.queryByText(/chưa lập Đợt hoá đơn/)).not.toBeInTheDocument();
   });
 
@@ -401,28 +415,45 @@ describe("Hôm nay", () => {
     useBuildingStore.setState({ selectedBuildingId: "b1" });
     renderAt(ROUTES.HOME);
 
-    // C001 (b1, Nguyễn Văn A) is quá hạn — present; C012 (b3, Phan Thị M) is
-    // quá hạn too, but scoped OUT once b1 is selected.
+    // The merged mục names its own Toà nhà — b1's group is present, b3's
+    // (a different building) is scoped OUT once b1 is selected. Scoped to
+    // the queue card itself: "Chung cư Mini Lê Duẩn" is also a Building
+    // scope tab, present regardless of which Toà nhà is selected.
+    await screen.findAllByText(/\d+ Hoá đơn quá hạn/);
+    const queueCard = screen
+      .getByText("Cần làm hôm nay")
+      .closest('[data-slot="card"]');
+    if (!queueCard) throw new Error("expected the Cần làm hôm nay card");
     expect(
-      await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/),
-    ).not.toHaveLength(0);
-    expect(screen.getAllByText(/Nguyễn Văn A/).length).toBeGreaterThan(0);
-    expect(screen.queryByText(/Phan Thị M/)).not.toBeInTheDocument();
+      within(queueCard as HTMLElement).getAllByText(/Trọ Sinh Viên Xanh/)
+        .length,
+    ).toBeGreaterThan(0);
+    expect(
+      within(queueCard as HTMLElement).queryByText(/Chung cư Mini Lê Duẩn/),
+    ).not.toBeInTheDocument();
   });
 
   it("navigates a Việc cần làm action to the entity's own, existing route", async () => {
     const user = userEvent.setup();
     renderAt(ROUTES.HOME);
 
-    const titles = await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
-    const item = titles[0]?.closest('[role="listitem"]');
-    expect(item).not.toBeFalsy();
+    // The sidebar's own menu rows are `<li>`s too, so they already satisfy
+    // `findAllByRole("listitem")` before the queue has even loaded — wait
+    // for the queue's own content first.
+    await screen.findAllByText(/\d+ Hoá đơn quá hạn/);
+    const items = screen.getAllByRole("listitem");
+    const residenceItem = items.find((item) =>
+      within(item).queryByRole("link", { name: "Khai báo" }),
+    );
+    expect(residenceItem).not.toBeUndefined();
 
     await user.click(
-      within(item as HTMLElement).getByRole("link", { name: "Xem" }),
+      within(residenceItem as HTMLElement).getByRole("link", {
+        name: "Khai báo",
+      }),
     );
 
-    expect(heading("Chi tiết hoá đơn")).toBeInTheDocument();
+    expect(heading("Chi tiết Người thuê")).toBeInTheDocument();
   });
 });
 
@@ -451,8 +482,8 @@ describe("Khai báo lưu trú — đánh dấu Đã gửi", () => {
     );
     await within(row as HTMLElement).findAllByText("Đã gửi");
 
-    renderAt(ROUTES.TASKS);
-    await screen.findAllByText(/^Hoá đơn HÓA-\d+ quá hạn$/);
+    renderAt(ROUTES.HOME);
+    await screen.findAllByText(/\d+ Hoá đơn quá hạn/);
     expect(
       screen.queryByText("Hoàng Văn E chưa có Thông báo lưu trú"),
     ).not.toBeInTheDocument();

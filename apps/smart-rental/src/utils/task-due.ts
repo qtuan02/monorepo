@@ -13,9 +13,14 @@ export function taskRelatedPath(task: Task): string {
     case "room":
       return ROUTES.roomDetailPath(task.relatedId);
     case "tenant":
-      return ROUTES.tenantDetailPath(task.relatedId);
-    case "utility":
-      return ROUTES.utilityDetailPath(task.relatedId);
+      // Straight to the Lưu trú tab (spec #179 §"Hôm nay") — the one tenant
+      // task there is today (residence_notification) is about it, not
+      // Tổng quan.
+      return `${ROUTES.tenantDetailPath(task.relatedId)}?tab=residence`;
+    case "cycle":
+      // `relatedId` is the Kỳ's own `YYYY-MM` for this entity (see
+      // `~/utils/task-derivation`'s utility_anomaly source).
+      return ROUTES.cycleDetailPath(task.relatedId);
     case "building":
       return ROUTES.buildingDetailPath(task.relatedId);
   }

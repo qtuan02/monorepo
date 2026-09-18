@@ -36,7 +36,6 @@ import type {
   SupplierBillPaymentStatus,
   SupplierBillType,
 } from "~/types/supplier-bill";
-import type { TaskPriority, TaskStatus, TaskType } from "~/types/task";
 import type { TenantStatus } from "~/types/tenant";
 import type { UtilityStatus, UtilityType } from "~/types/utility";
 
@@ -174,33 +173,6 @@ export const utilityTypeConfig: Record<UtilityType, StatusConfig> = {
 export function toDistinctOptions(values: string[]): FilterOption[] {
   return [...new Set(values)].map((value) => ({ value, label: value }));
 }
-
-export const taskStatusConfig: Record<TaskStatus, StatusConfig> = {
-  open: { label: "Mở", className: statusTone.info },
-  in_progress: { label: "Đang xử lý", className: statusTone.warning },
-  done: { label: "Hoàn thành", className: statusTone.success },
-};
-
-export const taskPriorityConfig: Record<TaskPriority, StatusConfig> = {
-  high: { label: "Cao", className: statusTone.error },
-  medium: { label: "Trung bình", className: statusTone.warning },
-  low: { label: "Thấp", className: statusTone.neutral },
-};
-
-export const taskTypeConfig: Record<TaskType, StatusConfig> = {
-  invoice_overdue: { label: "Hoá đơn quá hạn", className: statusTone.info },
-  contract_expiring: {
-    label: "Hợp đồng sắp hết hạn",
-    className: statusTone.info,
-  },
-  maintenance: { label: "Bảo trì", className: statusTone.info },
-  utility_anomaly: { label: "Chỉ số bất thường", className: statusTone.info },
-  residence_notification: {
-    label: "Thiếu Thông báo lưu trú",
-    className: statusTone.info,
-  },
-  batch_pending: { label: "Chưa lập Đợt hoá đơn", className: statusTone.info },
-};
 
 export const complianceStatusConfig: Record<ComplianceStatus, StatusConfig> = {
   completed: {

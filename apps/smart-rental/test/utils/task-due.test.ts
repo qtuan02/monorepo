@@ -8,8 +8,8 @@ const task = {
   type: "maintenance",
   title: "",
   description: "",
-  priority: "low",
   status: "open",
+  buildingId: "b1",
   relatedEntity: "room",
   relatedId: "R-B1-103",
   dueDate: "2024-05-25",
@@ -21,7 +21,9 @@ describe("taskRelatedPath", () => {
     ["invoice", ROUTES.invoiceDetailPath("x-1")],
     ["contract", ROUTES.contractDetailPath("x-1")],
     ["room", ROUTES.roomDetailPath("x-1")],
-    ["tenant", ROUTES.tenantDetailPath("x-1")],
+    ["tenant", `${ROUTES.tenantDetailPath("x-1")}?tab=residence`],
+    ["cycle", ROUTES.cycleDetailPath("x-1")],
+    ["building", ROUTES.buildingDetailPath("x-1")],
   ] as const)("a %s task links to that entity's detail", (entity, path) => {
     expect(
       taskRelatedPath({ ...task, relatedEntity: entity, relatedId: "x-1" }),

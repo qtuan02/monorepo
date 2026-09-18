@@ -3,75 +3,48 @@ import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Contract } from "~/types/contract";
 import type {
-  DueThisMonthSummary,
   ExpiringContractsSummary,
-  MonthlyPoint,
-  OccupancySummary,
-  OverdueSummary,
+  MonthSummary,
+  OutstandingThisMonthSummary,
   TodaySummary,
 } from "~/types/dashboard";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
 import { deriveContractStatus } from "~/utils/contract-status";
-import { daysOverdue, deriveInvoiceStatus } from "~/utils/invoice-status";
-
-function monthLabel(billingMonth: string): string {
-  return `Thg ${Number(billingMonth.split("-")[1])}`;
-}
+import { formatMonth } from "~/utils/date";
+import { deriveInvoiceStatus } from "~/utils/invoice-status";
 
 /**
- * "Hôm nay"'s three KPIs, the occupancy donut and the six-month revenue bar
- * — every number read off Hoá đơn/Hợp đồng/Phòng at call time (ADR-0012),
- * never a `mockDashboard` literal. The caller scopes the three arrays to a
- * Building before calling this (spec #153 §10 row 4), the same way
- * `~/utils/task-derivation` and every list hook already do.
+ * "Còn phải thu tháng này" + "Hợp đồng sắp hết hạn" — the two KPIs that read
+ * off Hoá đơn/Hợp đồng directly (the third, Chỉ số kỳ, is
+ * `~/utils/cycle-progress`'s own, off a different set of sources). The
+ * caller scopes `invoices`/`contracts` to a Building before calling this,
+ * the same way `~/utils/task-derivation` does (spec #179 §"Hôm nay").
+ *
+ * "Tháng này" reads by hạn thu, not by kỳ — Kỳ 09 has no Hoá đơn yet at
+ * "hôm nay" (ADR-0013), so a Hoá đơn lập ở Kỳ 08 with hạn thu in September
+ * IS what "tháng này" means, never `invoice.billingMonth === currentMonth`.
  */
 export function buildTodaySummary(
-  sources: { invoices: Invoice[]; contracts: Contract[]; rooms: Room[] },
+  sources: { invoices: Invoice[]; contracts: Contract[] },
   today: Date = new Date(),
-): TodaySummary {
+): Pick<TodaySummary, "outstandingThisMonth" | "expiringContracts"> {
   const currentMonth = dayjs(today).format("YYYY-MM");
-  const revenueByBillingMonth = new Map<string, number>();
 
-  let dueAmount = 0;
-  let dueCount = 0;
-  let overdueAmount = 0;
+  let outstandingAmount = 0;
   let overdueCount = 0;
-  let maxDaysOverdue = 0;
-
   for (const invoice of sources.invoices) {
-    revenueByBillingMonth.set(
-      invoice.billingMonth,
-      (revenueByBillingMonth.get(invoice.billingMonth) ?? 0) + invoice.amount,
-    );
-
+    const dueMonth = dayjs(invoice.dueDate, DATE_FORMAT).format("YYYY-MM");
+    if (dueMonth !== currentMonth) continue;
     const outstanding = invoice.amount - invoice.paidAmount;
-    if (invoice.billingMonth === currentMonth && outstanding > 0) {
-      dueAmount += outstanding;
-      dueCount += 1;
-    }
-    if (deriveInvoiceStatus(invoice, today) === "OVERDUE") {
-      overdueAmount += outstanding;
-      overdueCount += 1;
-      maxDaysOverdue = Math.max(
-        maxDaysOverdue,
-        daysOverdue(invoice.dueDate, today),
-      );
-    }
+    if (outstanding <= 0) continue;
+    outstandingAmount += outstanding;
+    if (deriveInvoiceStatus(invoice, today) === "OVERDUE") overdueCount += 1;
   }
-
-  const revenueByMonth: MonthlyPoint[] = [...revenueByBillingMonth.entries()]
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([billingMonth, value]) => ({
-      month: monthLabel(billingMonth),
-      value: Math.round(value / 1_000_000),
-    }));
 
   let expiringCount = 0;
   let nearestEndDate: string | undefined;
-  let nearestRoom: string | undefined;
   let nearestDiff = Number.POSITIVE_INFINITY;
-
   for (const contract of sources.contracts) {
     if (deriveContractStatus(contract, today) !== "EXPIRING") continue;
     expiringCount += 1;
@@ -81,39 +54,47 @@ export function buildTodaySummary(
     if (diff < nearestDiff) {
       nearestDiff = diff;
       nearestEndDate = contract.endDate;
-      nearestRoom = contract.room;
     }
   }
 
-  const dueThisMonth: DueThisMonthSummary = {
-    amount: dueAmount,
-    count: dueCount,
-  };
-  const overdue: OverdueSummary = {
-    amount: overdueAmount,
-    count: overdueCount,
-    maxDaysOverdue,
+  const outstandingThisMonth: OutstandingThisMonthSummary = {
+    amount: outstandingAmount,
+    overdueCount,
   };
   const expiringContracts: ExpiringContractsSummary = {
     count: expiringCount,
     nearestEndDate,
-    nearestRoom,
   };
 
-  const vacantRooms = sources.rooms.filter(
-    (room) => room.status === "available",
-  );
-  const occupancy: OccupancySummary = {
-    occupied: sources.rooms.filter((room) => room.status === "occupied").length,
-    vacant: vacantRooms.length,
-    vacantRoomNames: vacantRooms.map((room) => room.name),
-  };
+  return { outstandingThisMonth, expiringContracts };
+}
+
+/**
+ * "Tháng này" card — lấp đầy, đã lập, đã thu, còn phải thu, cùng nguồn Hoá
+ * đơn `buildTodaySummary` reads (hạn thu trong tháng), cộng Phòng cho lấp đầy.
+ */
+export function buildMonthSummary(
+  sources: { invoices: Invoice[]; rooms: Room[] },
+  today: Date = new Date(),
+): MonthSummary {
+  const currentMonth = dayjs(today).format("YYYY-MM");
+
+  let invoicedAmount = 0;
+  let collectedAmount = 0;
+  for (const invoice of sources.invoices) {
+    const dueMonth = dayjs(invoice.dueDate, DATE_FORMAT).format("YYYY-MM");
+    if (dueMonth !== currentMonth) continue;
+    invoicedAmount += invoice.amount;
+    collectedAmount += invoice.paidAmount;
+  }
 
   return {
-    dueThisMonth,
-    overdue,
-    expiringContracts,
-    occupancy,
-    revenueByMonth,
+    month: formatMonth(currentMonth),
+    occupiedRooms: sources.rooms.filter((room) => room.status === "occupied")
+      .length,
+    totalRooms: sources.rooms.length,
+    invoicedAmount,
+    collectedAmount,
+    outstandingAmount: invoicedAmount - collectedAmount,
   };
 }
