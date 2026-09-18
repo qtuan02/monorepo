@@ -18,22 +18,25 @@ import WorkSection from "~/features/home/components/work-section";
  * client islands left are the expandable work rows, the print button and the
  * hero's `Avatar`.
  *
- * Two columns from `lg`, one below it, and the DOM is the same in both: the
+ * Two columns from `md`, one below it, and the DOM is the same in both: the
  * hero across the top, then everything a reader scans first — About, the work
- * history, the projects — in a 2/3 column, with the reference material —
- * skills, degree, contact, hobbies — in a 1/3 rail that stays in view while
- * the long column scrolls. That is the shape of a two-column CV, and it is also
- * exactly the section order `test/features/home/templates/home.template.test.tsx`
- * pins: the left group *is* sections two to four and the rail *is* five to
- * eight, so nothing is visually reordered and a screen reader, a keyboard and a
- * phone all read the page in the order it is written. The rail is `self-start`
- * so it sticks by its own height rather than stretching to the column's, and
- * `min-w-0` on both tracks lets a long token wrap instead of widening a track.
+ * history, the projects — in the read column, with the reference material —
+ * skills, degree, contact, hobbies — in a rail that stays in view while the
+ * long column scrolls. The ratio itself changes once more, at `lg`: 3/2 on a
+ * tablet (a 768 px well gives a ~424 px read column, still readable, where a
+ * single column ran prose ~100 characters wide) and 2/1 from there, unchanged
+ * from v2. That is also exactly the section order
+ * `test/features/home/templates/home.template.test.tsx` pins: the left group
+ * *is* sections two to four and the rail *is* five to eight, so nothing is
+ * visually reordered and a screen reader, a keyboard and a phone all read the
+ * page in the order it is written. The rail is `self-start` so it sticks by
+ * its own height rather than stretching to the column's, and `min-w-0` on
+ * both tracks lets a long token wrap instead of widening a track.
  */
 export default function HomeTemplate() {
   return (
-    <div className="flex flex-col space-y-6 md:space-y-10 lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-10 lg:gap-y-0 lg:space-y-0">
-      <div className="lg:col-span-2 lg:mb-10">
+    <div className="flex flex-col space-y-6 md:grid md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] md:gap-x-8 md:gap-y-0 md:space-y-0 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] lg:gap-x-10">
+      <div className="md:col-span-2 md:mb-8 lg:mb-10">
         <HeroSection />
       </div>
 
@@ -48,14 +51,15 @@ export default function HomeTemplate() {
           The two arrived from two tickets running in parallel and landed the
           other way round — `test/features/home/templates/home.template.test.tsx`
           is what stops that happening again. */}
-      <aside className="flex min-w-0 flex-col space-y-6 md:space-y-10 lg:sticky lg:top-6 lg:self-start">
+      <aside className="flex min-w-0 flex-col space-y-6 md:space-y-10 md:sticky md:top-6 md:self-start">
         <SkillsSection />
         <EducationSection />
         {/* Stacked on a phone, two columns from `sm` with contact given the
             wider one — side by side at 375 px an email address has nowhere to
-            go but out of the viewport — and stacked again in the rail from
-            `lg`, where the rail itself is the narrow track. */}
-        <div className="grid gap-6 sm:grid-cols-[2fr_1fr] lg:grid-cols-1">
+            go but out of the viewport — and stacked again from `md`, where the
+            rail is narrow enough (264 px at 768) that a two-column row has no
+            room left for either field. */}
+        <div className="grid gap-6 sm:grid-cols-[2fr_1fr] md:grid-cols-1">
           <ContactSection />
           <HobbiesSection />
         </div>

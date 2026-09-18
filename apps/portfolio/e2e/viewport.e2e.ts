@@ -110,8 +110,144 @@ test.describe("viewport", () => {
     expect(Math.abs(skillsPhone.x - aboutPhone.x)).toBeLessThan(2);
   });
 
+  test("keeps the 2/1 desktop ratio exactly from the lg breakpoint (1024)", async ({
+    page,
+  }) => {
+    await openHomeAt(page, 1024, 900);
+
+    const about = page.locator("#about");
+    const aside = page.locator("aside");
+    const [aboutBox, asideBox] = await Promise.all([
+      about.boundingBox(),
+      aside.boundingBox(),
+    ]);
+    if (!aboutBox || !asideBox) throw new Error("a section has no box");
+
+    expect(asideBox.x).toBeGreaterThan(aboutBox.x + aboutBox.width);
+    expect(aboutBox.width / asideBox.width).toBeGreaterThan(1.8);
+    expect(aboutBox.width / asideBox.width).toBeLessThan(2.2);
+  });
+
+  test("splits the tablet into a 3/2 column pair, with a sticky rail, at 768", async ({
+    page,
+  }) => {
+    await openHomeAt(page, TABLET_WIDTH, 900);
+
+    const about = page.locator("#about");
+    const aside = page.locator("aside");
+    const [aboutBox, asideBox] = await Promise.all([
+      about.boundingBox(),
+      aside.boundingBox(),
+    ]);
+    if (!aboutBox || !asideBox) throw new Error("a section has no box");
+
+    // The rail sits beside the read column, not under it — the same shape as
+    // `lg`, just a narrower rail (~264 px of a 768 px well).
+    expect(asideBox.x).toBeGreaterThanOrEqual(aboutBox.x + aboutBox.width);
+    expect(asideBox.width).toBeGreaterThanOrEqual(240);
+    expect(asideBox.width).toBeLessThanOrEqual(290);
+
+    // The rail keeps up with the scroll instead of scrolling off with the
+    // column — `md:sticky`, not just `md:grid-cols-[...]`.
+    await page.mouse.wheel(0, 800);
+    const asideAfterScroll = await aside.boundingBox();
+    if (!asideAfterScroll) throw new Error("the rail lost its box");
+    expect(asideAfterScroll.y).toBeGreaterThanOrEqual(0);
+  });
+
+  test("stacks Skills' label over its list, and Hobbies under Contact, at 768", async ({
+    page,
+  }) => {
+    await openHomeAt(page, TABLET_WIDTH, 900);
+
+    // Rail width at 768 is too narrow for a fixed label gutter beside a list.
+    const firstGroupHeading = page.locator("#skills h3").first();
+    const firstGroupList = page.locator("#skills ul").first();
+    const [headingBox, listBox] = await Promise.all([
+      firstGroupHeading.boundingBox(),
+      firstGroupList.boundingBox(),
+    ]);
+    if (!headingBox || !listBox) throw new Error("a skills row has no box");
+    expect(listBox.y).toBeGreaterThan(headingBox.y);
+
+    const contact = page.locator("#contact");
+    const hobbies = page.locator("#hobbies");
+    const [contactBox, hobbiesBox] = await Promise.all([
+      contact.boundingBox(),
+      hobbies.boundingBox(),
+    ]);
+    if (!contactBox || !hobbiesBox) throw new Error("a section has no box");
+    expect(hobbiesBox.y).toBeGreaterThanOrEqual(
+      contactBox.y + contactBox.height,
+    );
+  });
+
+  test("keeps Contact and Hobbies side by side at 640 px (sm), below md", async ({
+    page,
+  }) => {
+    await openHomeAt(page, 640, 900);
+
+    const contact = page.locator("#contact");
+    const hobbies = page.locator("#hobbies");
+    const [contactBox, hobbiesBox] = await Promise.all([
+      contact.boundingBox(),
+      hobbies.boundingBox(),
+    ]);
+    if (!contactBox || !hobbiesBox) throw new Error("a section has no box");
+
+    expect(Math.abs(hobbiesBox.y - contactBox.y)).toBeLessThan(2);
+    expect(hobbiesBox.x).toBeGreaterThan(contactBox.x + contactBox.width - 2);
+  });
+
+  test("gives landscape phone the base top padding, and 768+ the full 96 px", async ({
+    page,
+  }) => {
+    // 667×375 is below `md`, so `main` keeps its base `py-12` (48 px) rather
+    // than the 96 px `pt-24` reserved for a viewport tall enough to afford it.
+    await page.setViewportSize({ width: 667, height: 375 });
+    await page.goto(ROUTES.HOME);
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Sở thích" }),
+    ).toBeAttached();
+
+    const landscapePaddingTop = await page
+      .getByRole("main")
+      .evaluate((node) => getComputedStyle(node).paddingTop);
+    expect(Number.parseFloat(landscapePaddingTop)).toBe(48);
+
+    await openHomeAt(page, TABLET_WIDTH, 900);
+    const tabletPaddingTop = await page
+      .getByRole("main")
+      .evaluate((node) => getComputedStyle(node).paddingTop);
+    expect(Number.parseFloat(tabletPaddingTop)).toBe(96);
+  });
+
+  test("reserves scroll padding so a focused contact link clears the dock", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 812);
+
+    const scrollPaddingBottom = await page.evaluate(
+      () => getComputedStyle(document.documentElement).scrollPaddingBottom,
+    );
+    expect(Number.parseFloat(scrollPaddingBottom)).toBeCloseTo(96, 0);
+
+    const lastContactLink = page.locator("#contact").getByRole("link").last();
+    await lastContactLink.focus();
+
+    const box = await lastContactLink.boundingBox();
+    if (!box) throw new Error("the last contact link has no box");
+    // The dock is fixed at the bottom; ~68 px is its own reserve (see
+    // `~/globals.css`'s comment on `scroll-padding-bottom`).
+    expect(box.y + box.height).toBeLessThanOrEqual(812 - 68);
+  });
+
+  // 320 and 414 join the set from the 320 px commitment (#210 §8 Q6) — 320 is
+  // the narrowest phone anyone reads this on, 414 the widest common one.
   for (const [label, width] of [
+    ["320 px phone", 320],
     ["375 px phone", PHONE_WIDTH],
+    ["414 px phone", 414],
     ["768 px tablet", TABLET_WIDTH],
   ] as const) {
     test(`never scrolls sideways on a ${label}`, async ({ page }) => {
@@ -123,29 +259,29 @@ test.describe("viewport", () => {
 
       expect(scrollWidth).toBeLessThanOrEqual(width);
     });
-  }
 
-  test("never scrolls sideways on a 375 px phone in English either", async ({
-    page,
-  }) => {
     // The other locale is the one with the longer labels: an English period
     // ("Mar 2025 – Feb 2026") is wider than its Vietnamese counterpart, and it
     // is set in monospace with `whitespace-nowrap`, so if a work row is ever
     // going to push past the viewport, this is where. The literal `/en` is
     // the URL a visitor types — the exception `testing-playwright` names.
-    await page.setViewportSize({ width: PHONE_WIDTH, height: 900 });
-    await page.goto("/en");
+    test(`never scrolls sideways on a ${label} in English`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/en");
 
-    await expect(
-      page.getByRole("heading", { level: 2, name: "Hobbies" }),
-    ).toBeAttached();
+      await expect(
+        page.getByRole("heading", { level: 2, name: "Hobbies" }),
+      ).toBeAttached();
 
-    const scrollWidth = await page.evaluate(
-      () => document.documentElement.scrollWidth,
-    );
+      const scrollWidth = await page.evaluate(
+        () => document.documentElement.scrollWidth,
+      );
 
-    expect(scrollWidth).toBeLessThanOrEqual(PHONE_WIDTH);
-  });
+      expect(scrollWidth).toBeLessThanOrEqual(width);
+    });
+  }
 
   test("sets body copy to at least 15 px on a phone", async ({ page }) => {
     await openHomeAt(page, PHONE_WIDTH, 800);

@@ -27,7 +27,7 @@ interface ShellLayoutProps {
 export default function ShellLayout({ children }: ShellLayoutProps) {
   return (
     <>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12 pb-26 sm:pt-24">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-12 pb-26 md:pt-24">
         {children}
       </main>
       <NavbarTemplate />
