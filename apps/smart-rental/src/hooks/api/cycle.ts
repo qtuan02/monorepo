@@ -331,6 +331,10 @@ export function useCorrectCycleOldIndex(
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
+      // A corrected chỉ số cũ can turn a MISSING/ANOMALY row eligible, which
+      // can affect Việc cần làm's "chưa lập Đợt" — mirrors the invalidation
+      // useApproveCycleReading already does above.
+      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
     },
     ...options,
   });
