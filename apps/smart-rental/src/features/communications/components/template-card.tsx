@@ -57,7 +57,7 @@ export default function TemplateCard({ template }: TemplateCardProps) {
               <CardTitle className="truncate text-sm font-bold">
                 {template.name}
               </CardTitle>
-              <p className="text-muted-foreground mt-1 line-clamp-1 text-[11px]">
+              <p className="text-muted-foreground mt-1 line-clamp-1 text-xs">
                 {template.description}
               </p>
             </div>
@@ -75,7 +75,7 @@ export default function TemplateCard({ template }: TemplateCardProps) {
       }
       content={
         <CardContent className="flex-1">
-          <div className="bg-muted/50 text-muted-foreground ring-border/50 rounded-xl p-3 font-mono text-[11px] leading-relaxed ring-1 ring-inset">
+          <div className="bg-muted/50 text-muted-foreground ring-border/50 rounded-xl p-3 font-mono text-xs leading-relaxed ring-1 ring-inset">
             {template.preview}
           </div>
         </CardContent>

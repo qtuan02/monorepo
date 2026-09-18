@@ -1,7 +1,7 @@
 import { FileText, Plus } from "lucide-react";
 import { Link } from "react-router";
 
-import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import { buttonVariants } from "@monorepo/ui/components/button";
 
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
@@ -26,8 +26,7 @@ import { formatMonth } from "~/utils/date";
 /**
  * "Chỉ số điện nước" (ADR-0011 — the heading now matches the glossary's
  * name). Three KPI tiles over the list composite, cards or table by
- * `?view=`. "Lịch sử chốt" has no flow yet, as in the prototype; "Thêm chỉ
- * số" leads to the meter-input screen.
+ * `?view=`. "Thêm chỉ số" leads to the meter-input screen.
  */
 export default function UtilityListTemplate() {
   const [view, setView] = useListView();
@@ -44,18 +43,13 @@ export default function UtilityListTemplate() {
         title="Chỉ số điện nước"
         description="Quản lý chỉ số điện nước và tiêu thụ hàng tháng."
         actions={
-          <>
-            <Button type="button" variant="outline" size="sm">
-              Lịch sử chốt
-            </Button>
-            <Link
-              to={ROUTES.METER_INPUT}
-              className={buttonVariants({ size: "sm" })}
-            >
-              <Plus />
-              Thêm chỉ số
-            </Link>
-          </>
+          <Link
+            to={ROUTES.METER_INPUT}
+            className={buttonVariants({ size: "sm" })}
+          >
+            <Plus />
+            Thêm chỉ số
+          </Link>
         }
       />
 

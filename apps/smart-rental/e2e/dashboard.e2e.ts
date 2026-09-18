@@ -50,8 +50,10 @@ test.describe("dashboard", () => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
 
+    // No trailing `$` — the priority badge ("Cao") sits inside the same
+    // `ItemTitle` as the title text, right after it.
     await expect(
-      page.getByText(/^Hoá đơn HÓA-\d+ quá hạn$/).first(),
+      page.getByText(/^Hoá đơn HÓA-\d+ quá hạn/).first(),
     ).toBeVisible();
     await expect(
       page.getByLabel("Biểu đồ tỷ lệ lấp đầy").locator("svg.recharts-surface"),
@@ -79,7 +81,7 @@ test.describe("dashboard", () => {
 
     const item = page
       .locator('[role="listitem"]')
-      .filter({ hasText: /^Hoá đơn HÓA-\d+ quá hạn$/ })
+      .filter({ hasText: /^Hoá đơn HÓA-\d+ quá hạn/ })
       .first();
     await item.getByRole("link", { name: "Xem" }).click();
 

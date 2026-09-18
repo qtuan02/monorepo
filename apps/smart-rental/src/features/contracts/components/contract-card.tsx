@@ -32,7 +32,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
                 <h3 className="leading-tight font-bold">
                   {contract.contractNumber}
                 </h3>
-                <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-[10px] font-medium uppercase">
+                <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs font-medium uppercase">
                   <Calendar className="size-2.5" />
                   Ký: {contract.startDate}
                 </p>
@@ -41,7 +41,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
             <StatusBadge
               config={contractStatusConfig[contract.status]}
               isCompact
-              className="text-[10px] font-bold tracking-wider uppercase"
+              className="text-xs font-bold tracking-wider uppercase"
             />
           </div>
         </CardHeader>
@@ -68,7 +68,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
                 <Calendar className="size-3.5" />
                 Thời hạn
               </dt>
-              <dd className="text-muted-foreground text-[11px] font-medium">
+              <dd className="text-muted-foreground text-xs font-medium">
                 {contract.startDate} - {contract.endDate}
               </dd>
             </div>
@@ -76,7 +76,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
 
           <dl className="mt-4 grid grid-cols-2 gap-4 border-t border-dashed pt-3">
             <div className="space-y-1">
-              <dt className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
+              <dt className="text-muted-foreground flex items-center gap-1 text-xs font-semibold tracking-wider uppercase">
                 <Landmark className="text-primary/70 size-2.5" />
                 Tiền thuê
               </dt>
@@ -85,7 +85,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
               </dd>
             </div>
             <div className="space-y-1 border-l pl-4">
-              <dt className="text-muted-foreground flex items-center gap-1 text-[10px] font-semibold tracking-wider uppercase">
+              <dt className="text-muted-foreground flex items-center gap-1 text-xs font-semibold tracking-wider uppercase">
                 <Landmark className="size-2.5 text-success/70" />
                 Tiền cọc
               </dt>

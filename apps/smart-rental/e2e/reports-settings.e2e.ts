@@ -38,7 +38,11 @@ test.describe("Báo cáo và Cài đặt", () => {
     await page.goto(ROUTES.SETTINGS);
 
     await expect(page.getByRole("heading", { name: "Cài đặt" })).toBeVisible();
-    await expect(page.getByText("Hồ sơ chủ nhà")).toBeVisible();
+    // `exact` — the page description also reads "Hồ sơ chủ nhà và các Toà
+    // nhà đang quản lý.", which contains this card's title as a substring.
+    await expect(
+      page.getByText("Hồ sơ chủ nhà", { exact: true }),
+    ).toBeVisible();
     await expect(page.getByText("Cấu hình điện bậc thang")).toHaveCount(0);
     await expect(
       page.getByRole("button", { name: "Khôi phục dữ liệu mẫu" }),

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, FileText, Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
@@ -25,7 +25,6 @@ import { useBuildingStore } from "~/stores/use-building-store";
  * shows the whole scope, never a page — `paginate={false}` only while that
  * view is current, the table keeps normal paging. The view (cards by floor,
  * or the table) rides on the URL beside the filters, so a reload keeps it.
- * "Xuất Excel" has no flow yet, as in every other list screen.
  */
 export default function RoomListTemplate() {
   const [view, setView] = useListView();
@@ -41,16 +40,10 @@ export default function RoomListTemplate() {
         title="Danh sách phòng"
         description="Quản lý toàn bộ phòng trọ, trạng thái và thông tin Người thuê."
         actions={
-          <>
-            <Button type="button" variant="outline" size="sm">
-              <Download />
-              Xuất Excel
-            </Button>
-            <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
-              <Plus />
-              Thêm phòng
-            </Button>
-          </>
+          <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
+            <Plus />
+            Thêm phòng
+          </Button>
         }
       />
 

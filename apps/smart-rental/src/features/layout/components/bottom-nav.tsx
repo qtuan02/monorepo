@@ -38,7 +38,7 @@ export default function BottomNav() {
             to={item.path}
             data-active={active || undefined}
             className={cn(
-              "text-muted-foreground flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium",
+              "text-muted-foreground flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium",
               active && "text-primary",
             )}
           >
@@ -49,7 +49,7 @@ export default function BottomNav() {
       })}
 
       <Sheet>
-        <SheetTrigger className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium">
+        <SheetTrigger className="text-muted-foreground flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium">
           <MoreHorizontal className="size-5" />
           Thêm
         </SheetTrigger>

@@ -1,4 +1,4 @@
-import { AlertCircle, Download, QrCode, Share2 } from "lucide-react";
+import { AlertCircle, QrCode } from "lucide-react";
 
 import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button } from "@monorepo/ui/components/button";
@@ -6,7 +6,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -93,17 +92,6 @@ export default function VietQrDialog({
             )}
           </div>
         </div>
-
-        <DialogFooter>
-          <Button type="button" variant="outline" disabled={!link}>
-            <Share2 />
-            Chia sẻ
-          </Button>
-          <Button type="button" disabled={!link}>
-            <Download />
-            Lưu ảnh QR
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

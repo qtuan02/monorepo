@@ -25,7 +25,10 @@ test.describe("Người thuê và Khai báo lưu trú", () => {
     await page.getByLabel("Họ và tên").fill("Người Thuê E2E");
     await page.getByLabel("Số CCCD").fill("012345678999");
     await page.getByRole("button", { name: "Ngày sinh" }).click();
-    await page.getByRole("button", { name: "15", exact: true }).click();
+    // A day button's accessible name is the full date ("Tuesday, September
+    // 15th, 2026"), not the bare number — match its visible text instead,
+    // scoped to the calendar grid.
+    await page.getByRole("grid").getByText("15", { exact: true }).click();
     await page.getByLabel("Quê quán").fill("Đà Nẵng");
     await page.getByLabel("Số điện thoại").fill("0905999999");
     await page.getByLabel("Email").fill("e2e@example.com");

@@ -1,5 +1,5 @@
-import { ChevronsUpDown, LogOut, Settings, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router";
+import { ChevronsUpDown, LogOut, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router";
 
 import { Avatar, AvatarFallback } from "@monorepo/ui/components/avatar";
 import {
@@ -90,11 +90,7 @@ export default function NavUser() {
             <DropdownMenuGroup>
               <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Sparkles />
-                Nâng cấp
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem render={<Link to={ROUTES.SETTINGS} />}>
                 <Settings />
                 Cài đặt
               </DropdownMenuItem>

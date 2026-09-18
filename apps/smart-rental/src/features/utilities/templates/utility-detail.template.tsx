@@ -1,7 +1,6 @@
-import { Download, Edit, Gauge } from "lucide-react";
+import { Gauge } from "lucide-react";
 
 import { AttachmentGroup } from "@monorepo/ui/components/attachment";
-import { Button } from "@monorepo/ui/components/button";
 import {
   Card,
   CardContent,
@@ -38,8 +37,7 @@ const TITLE = "Chi tiết chỉ số điện nước";
  * prototype hard-coded), the proof images (a broken one falls back rather
  * than showing a broken-image glyph) and two REAL history points — this
  * reading and the one before it for the same Phòng + loại, not a fake
- * "created/updated" pair off one timestamp. "Tải xuống" and "Chỉnh sửa" have
- * no flow yet, as in the prototype.
+ * "created/updated" pair off one timestamp.
  */
 export default function UtilityDetailTemplate({
   utilityId,
@@ -53,26 +51,9 @@ export default function UtilityDetailTemplate({
     { enabled: !!utility },
   );
 
-  const actions = (
-    <>
-      <Button type="button" variant="outline" size="sm">
-        <Download />
-        Tải xuống
-      </Button>
-      <Button type="button" size="sm">
-        <Edit />
-        Chỉnh sửa
-      </Button>
-    </>
-  );
-
   if (isLoading) {
     return (
-      <DetailPageShell
-        title={TITLE}
-        backTo={ROUTES.UTILITIES}
-        actions={actions}
-      >
+      <DetailPageShell title={TITLE} backTo={ROUTES.UTILITIES}>
         <CardGridSkeleton itemCount={2} className="lg:grid-cols-2" />
       </DetailPageShell>
     );
@@ -80,11 +61,7 @@ export default function UtilityDetailTemplate({
 
   if (!utility) {
     return (
-      <DetailPageShell
-        title={TITLE}
-        backTo={ROUTES.UTILITIES}
-        actions={actions}
-      >
+      <DetailPageShell title={TITLE} backTo={ROUTES.UTILITIES}>
         <EmptyPanel
           icon={Gauge}
           title="Chỉ số không tìm thấy."
@@ -120,7 +97,6 @@ export default function UtilityDetailTemplate({
     <DetailPageShell
       title={TITLE}
       backTo={ROUTES.UTILITIES}
-      actions={actions}
       name={utility.roomName}
       badge={<StatusBadge config={utilityStatusConfig[utility.status]} />}
       meta={[type.label, formatMonth(utility.month), building?.name].filter(

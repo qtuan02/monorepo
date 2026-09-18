@@ -94,7 +94,7 @@ export default function NotificationPanel() {
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold">Việc cần làm</h3>
             {tasks.length > 0 && (
-              <Badge className="h-5 px-1.5 text-[11px]">{tasks.length}</Badge>
+              <Badge className="h-5 px-1.5 text-xs">{tasks.length}</Badge>
             )}
           </div>
         </div>

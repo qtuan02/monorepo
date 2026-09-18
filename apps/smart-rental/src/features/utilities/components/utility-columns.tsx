@@ -71,7 +71,7 @@ export const utilityColumns = helper.columns([
         <span className="text-primary font-bold tabular-nums">
           {row.original.consumption.toLocaleString("vi-VN")}
         </span>
-        <span className="text-muted-foreground text-[10px] uppercase">
+        <span className="text-muted-foreground text-xs uppercase">
           {utilityUnit[row.original.type]}
         </span>
         <ArrowUpRight className="size-3 text-success" />

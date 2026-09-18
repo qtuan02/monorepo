@@ -26,8 +26,10 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
   // Ticket #157 — the list-screen foundation, proven on Hoá đơn: the KPI
   // strip, row selection → the sticky action bar, and — at 390 px, where the
-  // table gives way to an Item list — no horizontal overflow.
-  test("shows the KPI strip and the selection bar on desktop; an Item list at 390 px", async ({
+  // table gives way to an Item list — no horizontal overflow. Ticket #167
+  // (spec #153, tổng kiểm) adds the bottom nav and the KPI strip's own
+  // horizontal scroll to the same 390 px assertion, on this same screen.
+  test("shows the KPI strip and the selection bar on desktop; the mobile shell (bottom nav, Item list, scrollable KPI) at 390 px", async ({
     page,
   }) => {
     await page.goto(ROUTES.INVOICES);
@@ -66,6 +68,23 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
       return content ? content.scrollWidth - content.clientWidth : 0;
     });
     expect(contentWidth).toBeLessThanOrEqual(1);
+
+    // The sidebar gives way to the bottom nav on this screen too — the shell
+    // spec proves the swap once for the whole app, this proves it holds here.
+    const bottomNav = page.getByRole("navigation", {
+      name: "Điều hướng chính",
+    });
+    await expect(bottomNav).toBeVisible();
+    await expect(
+      bottomNav.getByRole("link", { name: "Hoá đơn", exact: true }),
+    ).toHaveAttribute("data-active");
+
+    // The KPI strip itself overflows into a horizontal scroll at 390 px
+    // rather than shrinking its three tiles unreadably (spec #153 §10 row 16).
+    const kpiOverflow = await kpiStrip.evaluate(
+      (el) => el.scrollWidth - el.clientWidth,
+    );
+    expect(kpiOverflow).toBeGreaterThan(0);
   });
 
   test("opens the VietQR dialog from a Hoá đơn detail", async ({ page }) => {

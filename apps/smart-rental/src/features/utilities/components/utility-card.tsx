@@ -79,7 +79,7 @@ export default function UtilityCard({ utility }: UtilityCardProps) {
               <Activity className="size-3" />
             </div>
             <div className="flex flex-col">
-              <span className="text-muted-foreground text-[10px] font-medium uppercase">
+              <span className="text-muted-foreground text-xs font-medium uppercase">
                 Tiêu thụ
               </span>
               <span className="text-sm font-bold">

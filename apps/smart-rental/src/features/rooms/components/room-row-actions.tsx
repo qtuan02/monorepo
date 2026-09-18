@@ -1,4 +1,4 @@
-import { Copy, Edit, Eye, Trash2 } from "lucide-react";
+import { Copy, Eye } from "lucide-react";
 
 import { useCopyToClipboard } from "@monorepo/hook/use-copy-to-clipboard";
 
@@ -12,8 +12,9 @@ interface RoomRowActionsProps {
 }
 
 /**
- * The "⋯" of a Phòng row or card. "Chỉnh sửa" and "Xóa phòng" have no handler
- * here, as in the prototype — they render disabled until the flows exist.
+ * The "⋯" of a Phòng row or card. "Chỉnh sửa" and "Xóa phòng" are both real
+ * flows already, on the detail screen — one click away via "Xem chi tiết"
+ * — so the row menu does not duplicate them.
  */
 export default function RoomRowActions({
   room,
@@ -36,13 +37,6 @@ export default function RoomRowActions({
           label: "Xem chi tiết",
           icon: <Eye />,
           link: ROUTES.roomDetailPath(room.id),
-        },
-        { key: "edit", label: "Chỉnh sửa", icon: <Edit /> },
-        {
-          key: "delete",
-          label: "Xóa phòng",
-          icon: <Trash2 />,
-          isDestructive: true,
         },
       ]}
     />

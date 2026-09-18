@@ -84,7 +84,9 @@ test.describe("shell", () => {
   });
 
   test("signs out from the nav-user menu", async ({ page }) => {
-    await page.getByRole("button", { name: "Tài khoản" }).click();
+    // `exact` — the desktop header carries its own account menu too
+    // ("Menu tài khoản"), visible at the same width as this sidebar one.
+    await page.getByRole("button", { name: "Tài khoản", exact: true }).click();
     await page.getByRole("menuitem", { name: "Đăng xuất" }).click();
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.AUTH_LOGIN}$`));

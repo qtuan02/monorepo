@@ -1,6 +1,6 @@
 # Design brief — redesign UI/UX `apps/smart-rental` (pha 2 của spec #127)
 
-> Bản ghi *tại thời điểm quyết* của bước design. Grill 2026-09-17 chốt hướng **C với bề mặt A** — §10; ADR-0011, ADR-0012. Sau khi ticket ship, hình dạng app đọc ở `apps/smart-rental/README.md`, không phải ở đây.
+> **Đã implement, spec #153** (14 ticket #154–#167 merge vào `dev` 2026-09-17 → 2026-09-18; #167 là tổng kiểm + cập nhật tài liệu). Bản ghi *tại thời điểm quyết* của bước design. Grill 2026-09-17 chốt hướng **C với bề mặt A** — §10; ADR-0011, ADR-0012. Tài liệu này giữ nguyên nội dung quyết định, không phải mô tả app hiện tại; hình dạng app sau khi ship đọc ở `apps/smart-rental/README.md` § Hình dạng pha 2 và CLAUDE.md §1, tổng kết 37 quyết định (cái nào ship, cái nào lệch và vì sao) ở comment trên spec [#153](https://github.com/qtuan02/monorepo/issues/153).
 
 - **Ngày:** 2026-09-17
 - **Bước:** design, chạy bằng `ui-ux-pro-max` ở chế độ đọc CSV tĩnh — không Python, không `--design-system`, không `--persist`. Dùng cả `colors.csv`/`typography.csv` vì app **chưa có brand** (theme dùng chung hiện là shadcn neutral mặc định, app chưa override gì — đúng trường hợp §7a `CLAUDE.md`).

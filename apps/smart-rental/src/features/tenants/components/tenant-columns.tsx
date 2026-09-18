@@ -45,7 +45,7 @@ export const tenantColumns = helper.columns([
         <Home className="text-muted-foreground size-4" />
         <div className="flex flex-col">
           <span className="text-sm font-medium">{row.original.room}</span>
-          <span className="text-muted-foreground text-[10px]">
+          <span className="text-muted-foreground text-xs">
             Tầng {row.original.floor}
           </span>
         </div>

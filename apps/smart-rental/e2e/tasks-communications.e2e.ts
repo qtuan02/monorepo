@@ -40,8 +40,10 @@ test.describe("Việc cần làm và Thông báo", () => {
     page,
   }) => {
     await page.goto(ROUTES.COMMUNICATIONS);
+    // `exact` — the "Mẫu thông báo" card heading below it also matches
+    // "Thông báo" as a substring.
     await expect(
-      page.getByRole("heading", { name: "Thông báo" }),
+      page.getByRole("heading", { name: "Thông báo", exact: true }),
     ).toBeVisible();
 
     // No nested tabs — a channel filter, not a second Tabs list.

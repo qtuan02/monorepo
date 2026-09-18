@@ -1,7 +1,7 @@
-import { Download, FileText, Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { Link } from "react-router";
 
-import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import { buttonVariants } from "@monorepo/ui/components/button";
 
 import { DataTable } from "~/components/data-table/data-table";
 import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
@@ -17,7 +17,7 @@ import { useBuildingStore } from "~/stores/use-building-store";
 
 /**
  * "Quản lý hợp đồng": the list composite over the scoped Mock, card/table
- * view on the URL. "Xuất Excel" has no flow yet, as in the prototype.
+ * view on the URL.
  */
 export default function ContractListTemplate() {
   const [view, setView] = useListView();
@@ -32,19 +32,13 @@ export default function ContractListTemplate() {
         title="Quản lý hợp đồng"
         description="Theo dõi toàn bộ hợp đồng thuê trọ, thời hạn và trạng thái."
         actions={
-          <>
-            <Button type="button" variant="outline" size="sm">
-              <Download />
-              Xuất Excel
-            </Button>
-            <Link
-              to={ROUTES.CONTRACT_CREATE}
-              className={buttonVariants({ size: "sm" })}
-            >
-              <Plus />
-              Thêm hợp đồng
-            </Link>
-          </>
+          <Link
+            to={ROUTES.CONTRACT_CREATE}
+            className={buttonVariants({ size: "sm" })}
+          >
+            <Plus />
+            Thêm hợp đồng
+          </Link>
         }
       />
 

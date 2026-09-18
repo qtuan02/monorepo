@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import relativeTime from "dayjs/plugin/relativeTime";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
+import customParseFormat from "dayjs/plugin/customParseFormat.js";
+import relativeTime from "dayjs/plugin/relativeTime.js";
+import timezone from "dayjs/plugin/timezone.js";
+import utc from "dayjs/plugin/utc.js";
 
-import "dayjs/locale/en";
-import "dayjs/locale/vi";
+import "dayjs/locale/en.js";
+import "dayjs/locale/vi.js";
 
 import { defaultLocale } from "./locales";
 

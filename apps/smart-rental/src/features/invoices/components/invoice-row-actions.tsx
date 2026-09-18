@@ -1,4 +1,4 @@
-import { Download, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 
 import type { Invoice } from "~/types/invoice";
 import { EntityActionMenu } from "~/components/menu/entity-action-menu";
@@ -9,7 +9,7 @@ interface InvoiceRowActionsProps {
   side?: "top" | "bottom";
 }
 
-/** The "⋯" of a Hoá đơn row or card. "Tải về PDF" has no flow yet, as in the prototype. */
+/** The "⋯" of a Hoá đơn row or card. */
 export default function InvoiceRowActions({
   invoice,
   side = "bottom",
@@ -24,7 +24,6 @@ export default function InvoiceRowActions({
           icon: <Eye />,
           link: ROUTES.invoiceDetailPath(invoice.id),
         },
-        { key: "pdf", label: "Tải về PDF", icon: <Download /> },
       ]}
     />
   );

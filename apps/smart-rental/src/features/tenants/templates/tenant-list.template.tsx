@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, Plus, Users } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
@@ -34,7 +34,7 @@ function countByStatus(tenants: TenantView[], status?: TenantStatus) {
  * "Quản lý Người thuê": KPI tiles over the scoped list, then the list
  * composite with a card/table view on the URL. "Thêm Người thuê" goes to the
  * create screen — the prototype's second, thinner create dialog is folded
- * into it. "Xuất Excel" has no flow yet, as in the prototype.
+ * into it.
  */
 export default function TenantListTemplate() {
   const [view, setView] = useListView();
@@ -50,20 +50,10 @@ export default function TenantListTemplate() {
         title="Quản lý Người thuê"
         description="Theo dõi thông tin, trạng thái và hợp đồng của tất cả Người thuê."
         actions={
-          <>
-            <Button type="button" variant="outline" size="sm">
-              <Download />
-              Xuất Excel
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setIsCreateOpen(true)}
-            >
-              <Plus />
-              Thêm Người thuê
-            </Button>
-          </>
+          <Button type="button" size="sm" onClick={() => setIsCreateOpen(true)}>
+            <Plus />
+            Thêm Người thuê
+          </Button>
         }
       />
 

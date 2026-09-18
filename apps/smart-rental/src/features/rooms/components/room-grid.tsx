@@ -73,7 +73,7 @@ export default function RoomGrid({ rooms }: RoomGridProps) {
                         <h3 className="text-lg leading-none font-bold">
                           {room.name}
                         </h3>
-                        <p className="text-muted-foreground mt-1 text-[10px] font-medium tracking-wider uppercase">
+                        <p className="text-muted-foreground mt-1 text-xs font-medium tracking-wider uppercase">
                           {roomTypeConfig[room.type].label} • {room.area}m²
                         </p>
                       </div>

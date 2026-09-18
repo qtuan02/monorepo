@@ -36,7 +36,10 @@ test.describe("Toà nhà và Phòng", () => {
     await page.getByRole("button", { name: "Dạng bảng" }).click();
     await expect(page).toHaveURL(/view=table/);
 
-    await page.getByRole("button", { name: "Trạng thái" }).click();
+    // `.first()` — the toolbar's facet trigger, not the table's own
+    // "Trạng thái" sortable column header, which carries the same name and
+    // sits later in the DOM.
+    await page.getByRole("button", { name: "Trạng thái" }).first().click();
     await page.getByRole("checkbox", { name: /Trống/ }).click();
     await page.keyboard.press("Escape");
     await expect(page).toHaveURL(/status=available/);
@@ -125,7 +128,14 @@ test.describe("Toà nhà và Phòng", () => {
     page,
   }) => {
     await page.goto(ROUTES.BUILDINGS);
-    await expect(page.getByText("Trọ Sinh Viên Xanh")).toBeVisible();
+    // The card title, not a bare page-wide getByText — the header's own
+    // Building scope tabs repeat every Toà nhà's name too, and both sit
+    // inside the same `<main>` (`SidebarInset` renders one).
+    await expect(
+      page.locator('[data-slot="card-title"]', {
+        hasText: "Trọ Sinh Viên Xanh",
+      }),
+    ).toBeVisible();
 
     await page.getByRole("button", { name: "Thêm toà nhà" }).click();
     await page.getByRole("button", { name: "Lưu lại" }).click();
@@ -138,7 +148,9 @@ test.describe("Toà nhà và Phòng", () => {
     await page.getByRole("button", { name: "Lưu lại" }).click();
 
     await expect(page.getByText("Đã thêm toà nhà Trọ E2E")).toBeVisible();
-    await expect(page.getByText("Trọ E2E", { exact: true })).toBeVisible();
+    await expect(
+      page.locator('[data-slot="card-title"]', { hasText: "Trọ E2E" }),
+    ).toBeVisible();
   });
 
   test("edits a Toà nhà's Cài đặt through the Sheet and sees it change in place", async ({

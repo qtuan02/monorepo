@@ -42,7 +42,7 @@ export default function AppSidebar() {
             <span className="text-foreground text-sm font-bold tracking-tight">
               Phòng Trọ
             </span>
-            <span className="text-muted-foreground text-[10px] leading-none">
+            <span className="text-muted-foreground text-xs leading-none">
               Quản lý cho thuê
             </span>
           </div>
@@ -52,7 +52,7 @@ export default function AppSidebar() {
       <SidebarContent className="py-1">
         {navigationSections.map((section) => (
           <SidebarGroup key={section.label}>
-            <SidebarGroupLabel className="text-foreground/60 text-[11px] font-semibold tracking-wider uppercase">
+            <SidebarGroupLabel className="text-foreground/60 text-xs font-semibold tracking-wider uppercase">
               {section.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>

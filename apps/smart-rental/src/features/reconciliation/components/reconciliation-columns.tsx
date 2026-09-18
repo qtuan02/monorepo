@@ -90,7 +90,7 @@ export const reconciliationColumns = helper.columns([
           {!!trendRate && (
             <div
               className={cn(
-                "text-[10px] font-medium opacity-70",
+                "text-xs font-medium opacity-70",
                 trendRate > 0 ? "text-success" : "text-destructive",
               )}
             >

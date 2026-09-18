@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, Download, Printer, ReceiptText, Trash2 } from "lucide-react";
+import { Bell, Printer, ReceiptText, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -217,9 +217,9 @@ function RemindersTab({ invoice }: { invoice: Invoice }) {
 /**
  * "Chi tiết hoá đơn": the shared detail anatomy (spec #153 §3.4, §10 row 12)
  * — header entity + tabs (Tổng quan · Thanh toán · Nhắc nợ), a right column
- * carrying VietQR and the Hoá đơn's own fixed facts. "Chỉnh sửa" and "Tải
- * PDF" have no flow yet, as in the prototype; "Xóa" is fake and gated to
- * Nháp, as every other entity in this app.
+ * carrying VietQR and the Hoá đơn's own fixed facts. "Xóa" is fake and gated
+ * to Nháp, as every other entity in this app; "In hoá đơn" is the only
+ * export path (spec #153 §10 row 30 — no real PDF).
  */
 export default function InvoiceDetailTemplate({
   invoiceId,
@@ -315,15 +315,6 @@ export default function InvoiceDetailTemplate({
               room={invoice.room}
               bankAccount={building?.bankAccount}
             />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full"
-            >
-              <Download />
-              Tải PDF
-            </Button>
           </InfoCard>
 
           <InfoCard title="Tóm tắt">
