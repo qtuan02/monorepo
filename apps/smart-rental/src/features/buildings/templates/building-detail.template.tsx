@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AlertTriangle, Building2, Settings, Trash2 } from "lucide-react";
+import { AlertTriangle, Building2, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import {
@@ -96,29 +96,21 @@ export default function BuildingDetailTemplate({
       },
     });
 
+  // "Cài đặt" has exactly one entry point — the tab's own "Chỉnh sửa" — not a
+  // second header button opening the same sheet (spec #179 §"Chi tiết / danh
+  // sách").
   const actions = (
-    <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        onClick={() => setIsSettingsOpen(true)}
-      >
-        <Settings />
-        Cài đặt
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        className="text-destructive hover:text-destructive"
-        disabled={!canDelete}
-        onClick={() => setIsDeleteOpen(true)}
-      >
-        <Trash2 />
-        Xóa
-      </Button>
-    </>
+    <Button
+      type="button"
+      variant="outline"
+      size="sm"
+      className="text-destructive hover:text-destructive"
+      disabled={!canDelete}
+      onClick={() => setIsDeleteOpen(true)}
+    >
+      <Trash2 />
+      Xóa
+    </Button>
   );
 
   return (
@@ -255,13 +247,9 @@ export default function BuildingDetailTemplate({
             <CardHeader>
               <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-muted/50 rounded-lg p-4 text-center">
-                <p className="text-3xl font-bold">{stats.occupancyRate}%</p>
-                <p className="text-muted-foreground mt-1 text-xs">
-                  Tỷ lệ chiếm dụng
-                </p>
-              </div>
+            {/* One "83%" — the OccupancyBar's own figure, not a second big
+                number above it (spec #179 §"Chi tiết / danh sách"). */}
+            <CardContent>
               <OccupancyBar rate={stats.occupancyRate} />
             </CardContent>
           </Card>

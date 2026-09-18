@@ -17,6 +17,7 @@ import { roomColumns } from "~/features/rooms/components/room-columns";
 import RoomFormSheet from "~/features/rooms/components/room-form-sheet";
 import RoomGrid from "~/features/rooms/components/room-grid";
 import RoomMobileRow from "~/features/rooms/components/room-mobile-row";
+import { useGetBuildings } from "~/hooks/api/building";
 import { useGetRooms } from "~/hooks/api/room";
 import { useBuildingStore } from "~/stores/use-building-store";
 
@@ -35,6 +36,14 @@ export default function RoomListTemplate() {
   const { data, isLoading, isError, refetch } = useGetRooms({
     buildingId: selectedBuildingId,
   });
+  // Only fetched at scope null — the grid then groups by Toà nhà above tầng
+  // (spec #179 §"Danh sách và Phòng"), the select-room pattern for a name map.
+  const { data: buildings = [] } = useGetBuildings({
+    enabled: !selectedBuildingId,
+  });
+  const buildingNameById = selectedBuildingId
+    ? undefined
+    : new Map(buildings.map((building) => [building.id, building.name]));
 
   return (
     <div className="space-y-6">
@@ -86,7 +95,11 @@ export default function RoomListTemplate() {
           resultLabel={(count) => `${count} phòng được tìm thấy`}
           viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
           renderRows={
-            view === "grid" ? (rooms) => <RoomGrid rooms={rooms} /> : undefined
+            view === "grid"
+              ? (rooms) => (
+                  <RoomGrid rooms={rooms} buildingNameById={buildingNameById} />
+                )
+              : undefined
           }
           renderMobileRow={(room) => <RoomMobileRow room={room} />}
           paginate={view !== "grid"}

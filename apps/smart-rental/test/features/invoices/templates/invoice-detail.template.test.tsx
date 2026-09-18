@@ -55,9 +55,10 @@ describe("InvoiceDetailTemplate", () => {
 
   it("warns instead of a QR when the Toà nhà has no Tài khoản nhận tiền", async () => {
     const user = userEvent.setup();
-    // I012 = the first b3 (Chung cư Mini Lê Duẩn) contract's kỳ 04 — b3
-    // deliberately has no bankAccount.
-    renderInvoice("I012");
+    // I082 = C012 (the first b3, Chung cư Mini Lê Duẩn, contract)'s kỳ 08,
+    // UNPAID (AUGUST_STATUS[11]) — nothing paid yet, so "còn phải trả" is the
+    // full total and VietQR still renders; b3 deliberately has no bankAccount.
+    renderInvoice("I082");
 
     await user.click(
       await screen.findByRole("button", { name: "Thanh toán VietQR" }),
@@ -117,18 +118,21 @@ describe("InvoiceDetailTemplate", () => {
     lastUpdated: "01/01/2099",
   };
 
-  it("Ghi 2 tr rồi 2,5 tr cho một Hoá đơn 4,5 tr → hai mục Thanh toán, badge Thu một phần rồi Đã thu", async () => {
+  it("Ghi nhận thu n đ điền sẵn còn lại — 2 tr rồi hết còn lại → Thu một phần rồi Đã thu", async () => {
     if (!mockInvoices.some((invoice) => invoice.id === paymentTestInvoice.id)) {
       mockInvoices.push({ ...paymentTestInvoice });
     }
     const user = userEvent.setup();
     renderInvoice("I-test-payment");
 
-    await user.click(await screen.findByRole("tab", { name: /Thanh toán/ }));
+    // First open: prefilled with the full 4.500.000 còn lại.
     await user.click(
-      screen.getByRole("button", { name: "Ghi nhận Thanh toán" }),
+      await screen.findByRole("button", { name: /^Ghi nhận thu 4\.500\.000/ }),
     );
-    await user.type(await screen.findByLabelText(/Số tiền/), "2000000");
+    const firstAmount = await screen.findByLabelText(/Số tiền/);
+    expect(firstAmount).toHaveValue(4_500_000);
+    await user.clear(firstAmount);
+    await user.type(firstAmount, "2000000");
     await user.click(screen.getByRole("button", { name: "Lưu lại" }));
 
     expect(await screen.findByText("Thu một phần")).toBeInTheDocument();
@@ -136,16 +140,83 @@ describe("InvoiceDetailTemplate", () => {
       screen.getByRole("tab", { name: "Thanh toán (1)" }),
     ).toBeInTheDocument();
 
+    // Second open: prefilled with the NEW còn lại (2.500.000) — one click,
+    // no retyping, exactly what "một chạm" means here.
     await user.click(
-      screen.getByRole("button", { name: "Ghi nhận Thanh toán" }),
+      screen.getByRole("button", { name: /^Ghi nhận thu 2\.500\.000/ }),
     );
-    await user.type(await screen.findByLabelText(/Số tiền/), "2500000");
+    expect(await screen.findByLabelText(/Số tiền/)).toHaveValue(2_500_000);
     await user.click(screen.getByRole("button", { name: "Lưu lại" }));
 
     expect(await screen.findByText("Đã thu")).toBeInTheDocument();
     expect(
       screen.getByRole("tab", { name: "Thanh toán (2)" }),
     ).toBeInTheDocument();
+    // Nothing left to collect — the primary button disappears entirely.
+    expect(
+      screen.queryByRole("button", { name: /^Ghi nhận thu/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("has no 'Tóm tắt' sidebar card, and meta reads 'Phòng 102' — never 'Phòng Phòng 102'", async () => {
+    renderInvoice("I071");
+
+    expect(await screen.findByText("Phòng 102")).toBeInTheDocument();
+    expect(screen.queryByText("Tóm tắt")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Phòng Phòng/)).not.toBeInTheDocument();
+  });
+
+  it("shows 'Còn lại' on the Thanh toán tab, and 'Tổng cộng' only once on Tổng quan", async () => {
+    renderInvoice("I071");
+
+    expect(await screen.findByText("Tổng cộng")).toBeInTheDocument();
+
+    await userEvent
+      .setup()
+      .click(screen.getByRole("tab", { name: /Thanh toán/ }));
+    expect(await screen.findByText("Còn lại")).toBeInTheDocument();
+  });
+
+  // A dedicated invoice, never reused by another test — "Đã nhận" mutates
+  // the shared Mock in place (same as the payment test above), and I071's
+  // own unpaid state is other tests' business.
+  const vietQrTestInvoice: Invoice = {
+    ...paymentTestInvoice,
+    id: "I-test-vietqr",
+    invoiceNumber: "HÓA-TEST-QR",
+    amount: 1_500_000,
+    lineItems: [
+      {
+        type: "RENT",
+        description: "Tiền phòng",
+        quantity: 1,
+        unitPrice: 1_500_000,
+        amount: 1_500_000,
+      },
+    ],
+  };
+
+  it("VietQR 'Đã nhận n đ' ghi một Thanh toán chuyển khoản hôm nay và ẩn cả hai nút khi hết còn lại", async () => {
+    if (!mockInvoices.some((invoice) => invoice.id === vietQrTestInvoice.id)) {
+      mockInvoices.push({ ...vietQrTestInvoice });
+    }
+    const user = userEvent.setup();
+    renderInvoice("I-test-vietqr");
+
+    await user.click(
+      await screen.findByRole("button", { name: "Thanh toán VietQR" }),
+    );
+    await user.click(
+      await screen.findByRole("button", { name: /^Đã nhận 1\.500\.000/ }),
+    );
+
+    expect(await screen.findByText("Đã thu")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Thanh toán VietQR" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /^Ghi nhận thu/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("logs a Gửi nhắc — đã nhắc n lần, lần cuối — on the Nhắc nợ tab", async () => {
