@@ -135,7 +135,7 @@ longer searches parent directories for a config — every workspace that runs te
 ## E2E (Playwright)
 
 - `bun run e2e` — every app with an `e2e` task, headless: all three Template apps plus `portfolio`,
-  `documents` and `mcp-weather`. Each `webServer` builds and serves the app itself, so never start a
+  `documents` and `mcp`. Each `webServer` builds and serves the app itself, so never start a
   `dev` server first
 - `bun run e2e:headed:template-vite` / `:template-next` / `:template-reactrouter` — the same specs
   in one real browser window (the `watch` project, which reuses a single context for the whole run)

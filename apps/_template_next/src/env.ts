@@ -13,7 +13,7 @@ import { createEnv } from "@monorepo/env/next/create-env";
 export const env = createEnv({
   // No server-only variable: the template has no backend to authenticate
   // against. A clone adds one here, unprefixed, so Next never inlines it and
-  // t3-env throws if a Client Component reads it (see apps/mcp-weather).
+  // t3-env throws if a Client Component reads it (see apps/mcp).
   server: {},
   client: {
     /**

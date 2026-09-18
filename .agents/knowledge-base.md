@@ -289,7 +289,7 @@ app (`next-data-fetching.md`) and from a route module's `loader` in a React Rout
   Template's `<body>` carries no id, so the isolated stacking context Base UI's portaled popups
   expect is not established there.
 - **Every Next app's `build` is a Turbo task that never caches** — `_template_next`, `portfolio` and
-  `mcp-weather` each say `"cache": false` in their own `turbo.json` so the task stops claiming
+  `mcp` each say `"cache": false` in their own `turbo.json` so the task stops claiming
   otherwise. The React Router app is NOT among them: its `build` caches normally, because nothing in
   `build/**` is a symlink. `next build` emits
   `.next/node_modules/<pkg>-<hash>` as absolute symlinks into `node_modules/.bun/…`

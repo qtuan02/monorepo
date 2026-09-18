@@ -255,7 +255,7 @@
       "theme": "Đổi giao diện sáng tối"
     }
   },
-  "mcpWeather": {
+  "mcp": {
     "meta": {
       "title": "MCP Weather",
       "description": "Máy chủ MCP cung cấp dữ liệu thời tiết OpenWeatherMap cho trợ lý AI."

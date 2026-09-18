@@ -43,7 +43,7 @@ export const env = createEnv({
 });
 ```
 
-**Correct (`apps/mcp-weather/src/env.ts` — three blocks, literal reads, namespace zod):**
+**Correct (`apps/mcp/src/env.ts` — three blocks, literal reads, namespace zod):**
 
 ```ts
 import * as z from "zod";
@@ -53,14 +53,14 @@ import { createEnv } from "@monorepo/env/next/create-env";
 
 export const env = createEnv({
   // ✅ no prefix → never inlined, and t3-env throws if a Client Component reads it
-  server: { MCP_WEATHER_OPENWEATHERMAP_API_KEY: z.string().min(1) },
+  server: { MCP_OPENWEATHERMAP_API_KEY: z.string().min(1) },
   // ✅ prefixed → validated in the browser bundle; the base keys are already merged in
-  client: { NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN: httpUrlSchema.optional() },
+  client: { NEXT_PUBLIC_MCP_SENTRY_DSN: httpUrlSchema.optional() },
   // ✅ literal reads, in code Next compiles, so each is substituted at build time
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
-    NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN: process.env.NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN,
+    NEXT_PUBLIC_MCP_SENTRY_DSN: process.env.NEXT_PUBLIC_MCP_SENTRY_DSN,
   },
 });
 ```
