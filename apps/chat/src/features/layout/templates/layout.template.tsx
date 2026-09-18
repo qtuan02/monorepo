@@ -1,16 +1,24 @@
 import { Outlet } from "react-router";
 
+import SignOutButton from "~/features/auth/components/sign-out-button";
+
 /**
- * The public surface of the `layout` slice, and the element of the route
- * every in-app page nests under. Deliberately empty for now — the real shell
- * (sidebar + bottom nav, per the source app) lands with the Session/layout
- * ticket; this skeleton only needs to give guarded and catch-all routes
- * somewhere to render.
+ * The public surface of the `layout` slice, and the element every in-app
+ * page nests under. The real sidebar/bottom-nav chrome (per the source app)
+ * has nowhere to point yet — every destination it would link to
+ * (conversation, friends, profile) lands in a later ticket — so this stays a
+ * bare frame with a working sign-out until one exists.
  */
 export default function LayoutTemplate() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <Outlet />
+      <header className="border-border flex items-center justify-between border-b px-4 py-3">
+        <span className="text-sm font-semibold">Chat</span>
+        <SignOutButton />
+      </header>
+      <main className="flex flex-1 flex-col">
+        <Outlet />
+      </main>
     </div>
   );
 }

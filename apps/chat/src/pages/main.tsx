@@ -9,10 +9,13 @@ import InternalServerError from "~/components/exception/internal-server-error";
 import NotFound from "~/components/exception/not-found";
 import { ROUTES } from "~/constants/routes";
 import { env } from "~/env";
+import HealthGate from "~/features/auth/components/health-gate";
 import GuestRoute from "~/features/auth/provider/guest-route";
 import ProtectedRoute from "~/features/auth/provider/protected-route";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
+import HomePage from "./home-page";
 import SignInPage from "./sign-in-page";
+import SignUpPage from "./sign-up-page";
 
 import "~/globals.css";
 
@@ -22,6 +25,34 @@ const LazyReactQueryDevtools = React.lazy(async () => {
   const { ReactQueryDevtools } = await import("@tanstack/react-query-devtools");
   return { default: ReactQueryDevtools };
 });
+
+/**
+ * The route tree on its own, wrapped in the Health gate, so
+ * `test/pages/main.test.tsx` can mount it at any path with no real backend
+ * behind it. `MainApp` below only adds the providers and the browser router.
+ */
+export function AppRoutes() {
+  return (
+    <HealthGate>
+      <Routes>
+        <Route element={<GuestRoute />}>
+          <Route path={ROUTES.SIGN_IN} element={<SignInPage />} />
+          <Route path={ROUTES.SIGN_UP} element={<SignUpPage />} />
+        </Route>
+
+        <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
+          <Route element={<ProtectedRoute />}>
+            <Route index element={<HomePage />} />
+          </Route>
+
+          {/* Outside the guard on purpose — a mistyped URL should say so,
+              not bounce an already-signed-in user to sign-in. */}
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </HealthGate>
+  );
+}
 
 const MainApp = () => {
   const [showDevtools, setShowDevtools] = React.useState(
@@ -50,20 +81,7 @@ const MainApp = () => {
           </React.Suspense>
         )}
         <BrowserRouter>
-          <Routes>
-            <Route element={<GuestRoute />}>
-              <Route path={ROUTES.SIGN_IN} element={<SignInPage />} />
-            </Route>
-
-            <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
-              {/* No screen lands here yet — the real routes (conversation,
-                  friends, profile) arrive in later tickets, each nested under
-                  this guard the same way. */}
-              <Route element={<ProtectedRoute />} />
-
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
+          <AppRoutes />
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

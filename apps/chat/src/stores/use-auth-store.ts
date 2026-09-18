@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 interface AuthStore {
   token: string | null;
@@ -8,22 +7,14 @@ interface AuthStore {
 }
 
 /**
- * App-wide client state: the route guards, the HTTP client's token reader, and
- * the header all read it. Read it through a narrow selector
- * (`useAuthStore((s) => s.token)`) so a component re-renders only when the slice
- * it uses changes.
- *
- * `logout` is one function rather than `setToken(null)` at each call site: it is
- * the single place to hang everything that must happen on sign-out, and callers
- * pick that up without changing.
+ * The access-token half of Session (CONTEXT.md): deliberately NOT persisted.
+ * The other half — the `HttpOnly` refresh cookie — is what a reload actually
+ * relies on; `useSessionCheck` trades it for a fresh token at boot. A
+ * `persist` middleware here would keep this app signed in past a token a
+ * server-side sign-out or refresh failure already invalidated.
  */
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set) => ({
-      token: null,
-      setToken: (token) => set({ token }),
-      logout: () => set({ token: null }),
-    }),
-    { name: "auth" },
-  ),
-);
+export const useAuthStore = create<AuthStore>((set) => ({
+  token: null,
+  setToken: (token) => set({ token }),
+  logout: () => set({ token: null }),
+}));

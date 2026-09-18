@@ -1,32 +1,65 @@
+import { ChatAuthService } from "@monorepo/api/chat/auth-service";
+import { ChatHealthService } from "@monorepo/api/chat/health-service";
+import { ChatUserService } from "@monorepo/api/chat/user-service";
 import { createHttpClient } from "@monorepo/api/client";
 
 import { env } from "~/env";
 import { queryClient } from "~/libs/query-client";
 import { useAuthStore } from "~/stores/use-auth-store";
 
-// `env` is validated at boot, so no fallback is needed here.
-//
-// No service singleton yet: `@monorepo/api` gets its `Chat<Domain>Service`
-// classes in a later ticket, instantiated here against this same client —
-// see architecture-features-modules.md, "no `~/services/` folder inside an
-// app".
-//
-// `PUBLIC_CHAT_API_BASE_URL` is the backend's origin only — this is the one
-// place `/api` is appended, so no service method repeats it.
+// The one place `/api` is appended — `PUBLIC_CHAT_API_BASE_URL` is the
+// backend's origin only, so no service method repeats it.
+const BASE_URL = `${env.PUBLIC_CHAT_API_BASE_URL}/api`;
+
+function isAuthPath(url: string): boolean {
+  return url.includes("/auth/");
+}
+
+function clearSession() {
+  useAuthStore.getState().logout();
+  queryClient.clear();
+}
+
+// `chatAuthService` is referenced below before its own declaration — safe
+// because neither callback runs during this module's evaluation, only later
+// on a real request failure, by which point every export here has settled.
 export const httpClient = createHttpClient({
-  baseURL: `${env.PUBLIC_CHAT_API_BASE_URL}/api`,
+  baseURL: BASE_URL,
   timeout: 10_000,
 
-  // Both callbacks reach the store through `getState()` at call time, never a
-  // value captured now. That is what keeps ~/libs below ~/stores in the import
-  // graph: this module asks for a token per request instead of holding one.
+  // `chat-socket`'s refresh cookie is `HttpOnly` and cross-origin — it only
+  // rides along on a request that asks for it (ADR-0014).
+  withCredentials: true,
+
   getAuthToken: () => useAuthStore.getState().token,
 
+  // Fires on a 401/403 from a request that hasn't retried yet (ADR-0014). A
+  // `/auth/*` request opts itself out: a failed sign-in must fail as a
+  // sign-in failure, and a failed refresh must not recursively try to
+  // refresh again.
+  onAuthError: async (error) => {
+    const url = error.response?.config.url ?? "";
+    if (isAuthPath(url)) return null;
+
+    try {
+      const token = await chatAuthService.refresh();
+      useAuthStore.getState().setToken(token);
+      return token;
+    } catch {
+      // The cookie is gone or the backend rejected it — the visitor is
+      // signed out either way, same as the source app's `libs/axios.ts`.
+      clearSession();
+      return null;
+    }
+  },
+
+  // Covers the one case `onAuthError` does not: a retried request that
+  // fails 401 again. Idempotent with the `catch` above.
   onUnauthorized: () => {
-    // Dropping the token is what the guards watch — they redirect to sign-in on
-    // the next render. Clearing the cache stops the previous session's data from
-    // being served to whoever signs in next.
-    useAuthStore.getState().logout();
-    queryClient.clear();
+    clearSession();
   },
 });
+
+export const chatAuthService = new ChatAuthService(httpClient);
+export const chatHealthService = new ChatHealthService(httpClient);
+export const chatUserService = new ChatUserService(httpClient);

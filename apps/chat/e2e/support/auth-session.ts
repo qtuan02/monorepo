@@ -1,33 +1,37 @@
 import type { Page } from "@playwright/test";
 
-const AUTH_TOKEN = "e2e-token";
+const HEALTH_CHECK_PATH = "**/api/health-check";
+const REFRESH_PATH = "**/api/v1/auth/refresh";
 
-// The exact entry `useAuthStore`'s `persist` middleware writes (see
-// ~/stores/use-auth-store.ts), so the app boots already signed in.
-const AUTH_STORAGE_KEY = "auth";
-const AUTH_STORAGE_VALUE = JSON.stringify({
-  state: { token: AUTH_TOKEN },
-  version: 0,
-});
+/** The Health gate blocks every route until this resolves — every spec needs it. */
+export async function mockHealthCheck(page: Page) {
+  await page.route(HEALTH_CHECK_PATH, (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ data: true, message: null, status: 200 }),
+    }),
+  );
+}
 
 /**
- * Seeds an authenticated session, the storage-state way but applied per page —
- * still no clicking through the sign-in form.
- *
- * `test.use({ storageState })` is the more familiar spelling and does the same
- * job, but it is a *context* option: changing it mid-run forces Playwright to
- * build a fresh browser context, which defeats the `watch` project's
- * `reuseContext` and puts the signed-in specs in a second window. An init
- * script rides on the page instead, so every spec shares one context.
- *
- * Call it before the first `page.goto` — init scripts run before any page
- * script, which is what makes the token visible to the store on boot.
+ * Stubs the boot-time `/auth/refresh` call the session guard awaits before it
+ * decides. `token: null` simulates a visitor with no refresh cookie (or an
+ * expired one); a string simulates a still-good one — no clicking through the
+ * sign-in form and no `localStorage` seeding, since Session here is an
+ * in-memory access token with no persisted key to write (see CONTEXT.md —
+ * Session).
  */
-export async function signIn(page: Page) {
-  await page.addInitScript(
-    ([key, value]) => {
-      window.localStorage.setItem(key, value);
-    },
-    [AUTH_STORAGE_KEY, AUTH_STORAGE_VALUE] as const,
+export async function mockSessionRefresh(page: Page, token: string | null) {
+  await page.route(REFRESH_PATH, (route) =>
+    route.fulfill({
+      status: token ? 200 : 401,
+      contentType: "application/json",
+      body: JSON.stringify({
+        data: token ? { accessToken: token } : null,
+        message: token ? null : "Unauthorized",
+        status: token ? 200 : 401,
+      }),
+    }),
   );
 }
