@@ -66,40 +66,40 @@ function complianceItem(overrides: Partial<ComplianceItem>): ComplianceItem {
 
 describe("buildResidenceDeclarations", () => {
   it("drops a tenant with no live contract", () => {
-    const declarations = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({ status: "TERMINATED", endDate: "01/01/2026" })],
-      [],
+    const declarations = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({ status: "TERMINATED", endDate: "01/01/2026" })],
+      complianceItems: [],
       today,
-    );
+    });
 
     expect(declarations).toHaveLength(0);
   });
 
   it("is not_sent when no residence_notification item exists yet", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [],
+    const [declaration] = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({})],
+      complianceItems: [],
       today,
-    );
+    });
 
     expect(declaration?.notificationStatus).toBe("not_sent");
     expect(declaration?.referenceNumber).toBeUndefined();
   });
 
   it("is sent once the residence_notification item is completed", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [
+    const [declaration] = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({})],
+      complianceItems: [
         complianceItem({
           completedDate: "05/01/2026",
           referenceNumber: "CT01-0001",
         }),
       ],
       today,
-    );
+    });
 
     expect(declaration?.notificationStatus).toBe("sent");
     expect(declaration?.notificationDate).toBe("05/01/2026");
@@ -107,10 +107,10 @@ describe("buildResidenceDeclarations", () => {
   });
 
   it("flags Đăng ký tạm trú as expiring within the 30-day window", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [
+    const [declaration] = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({})],
+      complianceItems: [
         complianceItem({
           type: "residence_registration",
           status: "pending",
@@ -118,16 +118,16 @@ describe("buildResidenceDeclarations", () => {
         }),
       ],
       today,
-    );
+    });
 
     expect(declaration?.registrationExpiringSoon).toBe(true);
   });
 
   it("does not flag Đăng ký tạm trú past the 30-day window", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [
+    const [declaration] = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({})],
+      complianceItems: [
         complianceItem({
           type: "residence_registration",
           status: "pending",
@@ -135,7 +135,7 @@ describe("buildResidenceDeclarations", () => {
         }),
       ],
       today,
-    );
+    });
 
     expect(declaration?.registrationExpiringSoon).toBe(false);
     expect(declaration?.registrationStatus).toBe("pending");
@@ -144,10 +144,10 @@ describe("buildResidenceDeclarations", () => {
   // Ticket #188 — registrationStatus is suy purely from `dueDate`, never
   // read off the item's own `status`; a stored "completed" is ignored.
   it("derives overdue once the due date has already passed, ignoring a stored status", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [
+    const [declaration] = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({})],
+      complianceItems: [
         complianceItem({
           type: "residence_registration",
           status: "completed",
@@ -155,17 +155,17 @@ describe("buildResidenceDeclarations", () => {
         }),
       ],
       today,
-    );
+    });
 
     expect(declaration?.registrationStatus).toBe("overdue");
     expect(declaration?.registrationExpiringSoon).toBe(false);
   });
 
   it("derives pending (not overdue) on the due date itself", () => {
-    const [declaration] = buildResidenceDeclarations(
-      [tenant({})],
-      [contract({})],
-      [
+    const [declaration] = buildResidenceDeclarations({
+      tenants: [tenant({})],
+      contracts: [contract({})],
+      complianceItems: [
         complianceItem({
           type: "residence_registration",
           status: "pending",
@@ -173,7 +173,7 @@ describe("buildResidenceDeclarations", () => {
         }),
       ],
       today,
-    );
+    });
 
     expect(declaration?.registrationStatus).toBe("pending");
     expect(declaration?.registrationExpiringSoon).toBe(true);

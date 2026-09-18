@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
 import type { NotificationTemplate } from "~/types/communication";
-import { mockNotificationTemplates } from "~/constants/mock/communications";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 const notificationTemplateQueryKeyFactory = queryKeysFactory(
@@ -20,7 +20,7 @@ export function useGetNotificationTemplates(
 ): UseQueryResult<NotificationTemplate[], Error> {
   return useQuery<NotificationTemplate[], Error>({
     queryKey: notificationTemplateQueryKeys.getNotificationTemplates(),
-    queryFn: async () => [...mockNotificationTemplates],
+    queryFn: async () => readWorld(null).notificationTemplates,
     ...options,
   });
 }

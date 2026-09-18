@@ -15,13 +15,14 @@ import type {
 } from "~/types/room";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
 import { canDeleteRoom } from "~/utils/room-delete";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock. Wiring `be-motel` later is swapping those lines for a
-// service singleton from `~/libs/http-client`.
+// answers through `readWorld` (ADR-0015). Wiring `be-motel` later is swapping
+// that one line for a service singleton from `~/libs/http-client`.
 const roomQueryKeyFactory = queryKeysFactory("room");
 
 export const roomQueryKeys = {
@@ -38,10 +39,7 @@ export function useGetRooms(
     queryKey: roomQueryKeys.getRooms(params),
     // The Building scope is a query param, as it will be on the backend —
     // never a filter applied over an unscoped cache entry.
-    queryFn: async () =>
-      mockRooms.filter(
-        (room) => !params?.buildingId || room.buildingId === params.buildingId,
-      ),
+    queryFn: async () => readWorld(params?.buildingId ?? null).rooms,
     ...options,
   });
 }
@@ -52,7 +50,8 @@ export function useGetRoom(
 ): UseQueryResult<Room | null, Error> {
   return useQuery<Room | null, Error>({
     queryKey: roomQueryKeys.getRoom(roomId),
-    queryFn: async () => mockRooms.find((room) => room.id === roomId) ?? null,
+    queryFn: async () =>
+      readWorld(null).rooms.find((room) => room.id === roomId) ?? null,
     ...options,
   });
 }

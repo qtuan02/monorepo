@@ -32,11 +32,6 @@ export const cycleQueryKeys = {
     cycleQueryKeyFactory.list({ buildingId, month }),
 };
 
-/** `buildCycleRows` off `readWorld` — the one seam `useGetCycleRows` and `useCreateCycleInvoices` both read through. */
-function resolveCycleRows(buildingId: string, month: string): CycleRow[] {
-  return buildCycleRows(readWorld(buildingId), buildingId, month);
-}
-
 /** "Kỳ điện nước & hoá đơn"'s one table — `buildCycleRows` off `readWorld` (ADR-0013, ADR-0015). */
 export function useGetCycleRows(
   buildingId: string | null,
@@ -46,7 +41,9 @@ export function useGetCycleRows(
   return useQuery<CycleRow[], Error>({
     queryKey: cycleQueryKeys.getCycleRows(buildingId, month),
     queryFn: async () =>
-      buildingId ? resolveCycleRows(buildingId, month) : [],
+      buildingId
+        ? buildCycleRows(readWorld(buildingId), buildingId, month)
+        : [],
     enabled: !!buildingId,
     ...options,
   });
@@ -146,7 +143,8 @@ export function useCreateCycleInvoices(
         });
       }
 
-      const readyRows = resolveCycleRows(
+      const readyRows = buildCycleRows(
+        readWorld(request.buildingId),
         request.buildingId,
         request.month,
       ).filter((row) => row.status === "READY");

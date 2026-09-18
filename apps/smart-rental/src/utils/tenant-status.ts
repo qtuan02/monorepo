@@ -1,6 +1,7 @@
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
 import type { Tenant, TenantView } from "~/types/tenant";
+import type { World } from "~/types/world";
 import { isContractLive } from "~/utils/contract-status";
 import { deriveInvoiceStatus } from "~/utils/invoice-status";
 
@@ -43,16 +44,30 @@ export function hasOverdueInvoice(
   );
 }
 
-/** The two hook-computed fields every screen reads off a Người thuê (ADR-0012). */
+/**
+ * The two hook-computed fields every screen reads off a Người thuê
+ * (ADR-0012). Takes a World-shaped bag (ADR-0015 §1) rather than positional
+ * arrays — a real `World` from `readWorld` satisfies it structurally.
+ */
 export function toTenantView(
   tenant: Tenant,
-  contracts: Contract[],
-  invoices: Invoice[],
-  today: Date = new Date(),
+  world: Pick<World, "contracts" | "invoices" | "today">,
 ): TenantView {
   return {
     ...tenant,
-    status: deriveTenantStatus(tenant.id, contracts, today),
-    hasOverdueInvoice: hasOverdueInvoice(tenant.id, contracts, invoices, today),
+    status: deriveTenantStatus(tenant.id, world.contracts, world.today),
+    hasOverdueInvoice: hasOverdueInvoice(
+      tenant.id,
+      world.contracts,
+      world.invoices,
+      world.today,
+    ),
   };
+}
+
+/** Every Người thuê in scope, each with its own computed status (ADR-0015 §1). */
+export function buildTenantViews(
+  world: Pick<World, "tenants" | "contracts" | "invoices" | "today">,
+): TenantView[] {
+  return world.tenants.map((tenant) => toTenantView(tenant, world));
 }

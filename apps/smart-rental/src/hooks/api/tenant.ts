@@ -14,16 +14,15 @@ import type {
   TenantView,
 } from "~/types/tenant";
 import { mockBuildings } from "~/constants/mock/buildings";
-import { mockContracts } from "~/constants/mock/contracts";
-import { mockInvoices } from "~/constants/mock/invoices";
 import { mockTenants } from "~/constants/mock/tenants";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
-import { toTenantView } from "~/utils/tenant-status";
+import { buildTenantViews, toTenantView } from "~/utils/tenant-status";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock. Wiring `be-motel` later is swapping those lines for a
-// service singleton from `~/libs/http-client`.
+// answers through `readWorld` (ADR-0015). Wiring `be-motel` later is swapping
+// that one line for a service singleton from `~/libs/http-client`.
 const tenantQueryKeyFactory = queryKeysFactory("tenant");
 
 export const tenantQueryKeys = {
@@ -32,10 +31,6 @@ export const tenantQueryKeys = {
   getTenant: (tenantId: string) => tenantQueryKeyFactory.detail(tenantId),
 };
 
-function withStatus(tenant: Tenant): TenantView {
-  return toTenantView(tenant, mockContracts, mockInvoices);
-}
-
 export function useGetTenants(
   params?: TenantListParams,
   options?: UseQueryOptionsWrapper<TenantView[]>,
@@ -43,12 +38,7 @@ export function useGetTenants(
   return useQuery<TenantView[], Error>({
     queryKey: tenantQueryKeys.getTenants(params),
     queryFn: async () =>
-      mockTenants
-        .filter(
-          (tenant) =>
-            !params?.buildingId || tenant.buildingId === params.buildingId,
-        )
-        .map(withStatus),
+      buildTenantViews(readWorld(params?.buildingId ?? null)),
     ...options,
   });
 }
@@ -60,8 +50,9 @@ export function useGetTenant(
   return useQuery<TenantView | null, Error>({
     queryKey: tenantQueryKeys.getTenant(tenantId),
     queryFn: async () => {
-      const tenant = mockTenants.find((item) => item.id === tenantId);
-      return tenant ? withStatus(tenant) : null;
+      const world = readWorld(null);
+      const tenant = world.tenants.find((item) => item.id === tenantId);
+      return tenant ? toTenantView(tenant, world) : null;
     },
     ...options,
   });

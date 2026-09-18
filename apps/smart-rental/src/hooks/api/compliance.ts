@@ -10,15 +10,14 @@ import type {
   ResidenceDeclaration,
 } from "~/types/compliance";
 import { mockComplianceItems } from "~/constants/mock/compliance";
-import { mockContracts } from "~/constants/mock/contracts";
 import { mockTenants } from "~/constants/mock/tenants";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { buildResidenceDeclarations } from "~/utils/residence-declaration";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn`
-// that answers with the Mock. `ComplianceItem` is no longer read directly by
-// a screen (ticket #161) — every read goes through the derived
-// `ResidenceDeclaration` (ADR-0012), one per tenant with a live Hợp đồng.
+// that answers through `readWorld` (ADR-0015) — its `residenceDeclarations`
+// is already the derived `ResidenceDeclaration`, one per tenant with a live
+// Hợp đồng (ticket #161, ADR-0012).
 const complianceQueryKeyFactory = queryKeysFactory("compliance");
 
 export const complianceQueryKeys = {
@@ -34,15 +33,7 @@ export function useGetResidenceDeclarations(
   return useQuery<ResidenceDeclaration[], Error>({
     queryKey: complianceQueryKeys.getResidenceDeclarations(params),
     queryFn: async () =>
-      buildResidenceDeclarations(
-        params?.buildingId
-          ? mockTenants.filter(
-              (tenant) => tenant.buildingId === params.buildingId,
-            )
-          : mockTenants,
-        mockContracts,
-        mockComplianceItems,
-      ),
+      readWorld(params?.buildingId ?? null).residenceDeclarations,
     ...options,
   });
 }

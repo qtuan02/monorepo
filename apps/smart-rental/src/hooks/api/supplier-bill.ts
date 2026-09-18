@@ -15,10 +15,12 @@ import type {
 } from "~/types/supplier-bill";
 import { withBuildingName } from "~/constants/mock/buildings";
 import { mockSupplierBills } from "~/constants/mock/supplier-bills";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock, joined to the Toà nhà Mock for its name.
+// answers through `readWorld` (ADR-0015), joined to the Toà nhà Mock for its
+// name (`withBuildingName` reads that Mock directly — not a `hooks/api` file).
 const supplierBillQueryKeyFactory = queryKeysFactory("supplierBill");
 
 export const supplierBillQueryKeys = {
@@ -37,12 +39,7 @@ export function useGetSupplierBills(
     queryKey: supplierBillQueryKeys.getSupplierBills(params),
     // The Building scope is a query param, as it will be on the backend.
     queryFn: async () =>
-      mockSupplierBills
-        .filter(
-          (bill) =>
-            !params?.buildingId || bill.buildingId === params.buildingId,
-        )
-        .map(withBuildingName),
+      readWorld(params?.buildingId ?? null).supplierBills.map(withBuildingName),
     ...options,
   });
 }
@@ -54,7 +51,9 @@ export function useGetSupplierBill(
   return useQuery<SupplierBill | null, Error>({
     queryKey: supplierBillQueryKeys.getSupplierBill(billId),
     queryFn: async () => {
-      const record = mockSupplierBills.find((bill) => bill.id === billId);
+      const record = readWorld(null).supplierBills.find(
+        (bill) => bill.id === billId,
+      );
       return record ? withBuildingName(record) : null;
     },
     ...options,

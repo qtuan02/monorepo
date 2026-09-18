@@ -1,8 +1,12 @@
 import type { Building } from "~/types/building";
+import type { NotificationTemplate, SendLog } from "~/types/communication";
 import type { ComplianceItem } from "~/types/compliance";
 import type { Contract } from "~/types/contract";
+import type { Expense } from "~/types/expense";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
+import type { LandlordProfile } from "~/types/setting";
+import type { SupplierBill } from "~/types/supplier-bill";
 import type { Tenant } from "~/types/tenant";
 import type { Utility, UtilityOldIndexOverride } from "~/types/utility";
 import type {
@@ -24,13 +28,25 @@ export interface WorldArrays {
   utilityOldIndexOverrides: UtilityOldIndexOverride[];
   tenants: Tenant[];
   complianceItems: ComplianceItem[];
+  expenses: Omit<Expense, "buildingName">[];
+  supplierBills: Omit<SupplierBill, "buildingName">[];
+  notificationTemplates: NotificationTemplate[];
+  sendLogs: SendLog[];
+  landlordProfile: LandlordProfile;
 }
 
+// A copy either way — never the Mock's own array reference. A `mutationFn`
+// writes straight into that array (push/splice/Object.assign) in place
+// (ADR-0012 §3); handing the SAME reference back out as `data` means a
+// mutated-in-place array is already "equal" to what TanStack Query cached
+// before the write, so its structural-sharing check sees no change and never
+// re-renders a reader that only watches `data` (see `useGetRooms` — a real
+// regression this shape caused, caught by `buildings-rooms.e2e.ts`).
 function scopeByBuildingId<T extends { buildingId?: string }>(
   list: T[],
   scope: BuildingScope,
 ): T[] {
-  return scope ? list.filter((item) => item.buildingId === scope) : list;
+  return scope ? list.filter((item) => item.buildingId === scope) : [...list];
 }
 
 /**
@@ -47,7 +63,7 @@ export function buildWorld<TScope extends string = string>(
   const scopeValue = scope as BuildingScope;
   const buildings = scopeValue
     ? arrays.buildings.filter((building) => building.id === scopeValue)
-    : arrays.buildings;
+    : [...arrays.buildings];
   const rooms = scopeByBuildingId(arrays.rooms, scopeValue);
   const contracts = scopeByBuildingId(arrays.contracts, scopeValue).map(
     (contract) => ({
@@ -64,6 +80,8 @@ export function buildWorld<TScope extends string = string>(
   const utilities = scopeByBuildingId(arrays.utilities, scopeValue);
   const tenants = scopeByBuildingId(arrays.tenants, scopeValue);
   const complianceItems = scopeByBuildingId(arrays.complianceItems, scopeValue);
+  const expenses = scopeByBuildingId(arrays.expenses, scopeValue);
+  const supplierBills = scopeByBuildingId(arrays.supplierBills, scopeValue);
 
   return {
     scope: scopeValue,
@@ -77,11 +95,16 @@ export function buildWorld<TScope extends string = string>(
     utilityOldIndexOverrides: arrays.utilityOldIndexOverrides,
     tenants,
     complianceItems,
-    residenceDeclarations: buildResidenceDeclarations(
+    residenceDeclarations: buildResidenceDeclarations({
       tenants,
       contracts,
       complianceItems,
       today,
-    ),
+    }),
+    expenses,
+    supplierBills,
+    notificationTemplates: [...arrays.notificationTemplates],
+    sendLogs: [...arrays.sendLogs],
+    landlordProfile: { ...arrays.landlordProfile },
   };
 }

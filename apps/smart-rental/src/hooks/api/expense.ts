@@ -15,10 +15,12 @@ import type {
 } from "~/types/expense";
 import { withBuildingName } from "~/constants/mock/buildings";
 import { mockExpenses } from "~/constants/mock/expenses";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock, joined to the Toà nhà Mock for its name.
+// answers through `readWorld` (ADR-0015), joined to the Toà nhà Mock for its
+// name (`withBuildingName` reads that Mock directly — not a `hooks/api` file).
 const expenseQueryKeyFactory = queryKeysFactory("expense");
 
 export const expenseQueryKeys = {
@@ -36,12 +38,7 @@ export function useGetExpenses(
     queryKey: expenseQueryKeys.getExpenses(params),
     // The Building scope is a query param, as it will be on the backend.
     queryFn: async () =>
-      mockExpenses
-        .filter(
-          (expense) =>
-            !params?.buildingId || expense.buildingId === params.buildingId,
-        )
-        .map(withBuildingName),
+      readWorld(params?.buildingId ?? null).expenses.map(withBuildingName),
     ...options,
   });
 }
@@ -53,7 +50,9 @@ export function useGetExpense(
   return useQuery<Expense | null, Error>({
     queryKey: expenseQueryKeys.getExpense(expenseId),
     queryFn: async () => {
-      const record = mockExpenses.find((expense) => expense.id === expenseId);
+      const record = readWorld(null).expenses.find(
+        (expense) => expense.id === expenseId,
+      );
       return record ? withBuildingName(record) : null;
     },
     ...options,

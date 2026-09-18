@@ -4,10 +4,17 @@ import type {
   World,
 } from "~/types/world";
 import { mockBuildings } from "~/constants/mock/buildings";
+import {
+  mockNotificationTemplates,
+  mockSendLogs,
+} from "~/constants/mock/communications";
 import { mockComplianceItems } from "~/constants/mock/compliance";
 import { mockContracts } from "~/constants/mock/contracts";
+import { mockExpenses } from "~/constants/mock/expenses";
 import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
+import { mockLandlordProfile } from "~/constants/mock/settings";
+import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { mockTenants } from "~/constants/mock/tenants";
 import { mockUtilities } from "~/constants/mock/utilities";
 import { mockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
@@ -33,6 +40,11 @@ export function readWorld<TScope extends string = string>(
       utilityOldIndexOverrides: mockUtilityOldIndexOverrides,
       tenants: mockTenants,
       complianceItems: mockComplianceItems,
+      expenses: mockExpenses,
+      supplierBills: mockSupplierBills,
+      notificationTemplates: mockNotificationTemplates,
+      sendLogs: mockSendLogs,
+      landlordProfile: mockLandlordProfile,
     },
     scope as BuildingScope,
     today,

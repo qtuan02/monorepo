@@ -14,18 +14,14 @@ import type {
   InvoicePaymentMethod,
 } from "~/types/invoice";
 import { mockInvoices } from "~/constants/mock/invoices";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate } from "~/utils/date";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
-import { deriveInvoiceStatus } from "~/utils/invoice-status";
-
-/** `PARTIAL`/`PAID`/`OVERDUE` are never trusted from the Mock (ADR-0012) — recomputed on every read. */
-function withDerivedStatus(invoice: Invoice): Invoice {
-  return { ...invoice, status: deriveInvoiceStatus(invoice) };
-}
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock, the Building scope as a query param.
+// answers through `readWorld` (ADR-0015) — `status` there is already
+// `deriveInvoiceStatus`, never the raw Mock value.
 const invoiceQueryKeyFactory = queryKeysFactory("invoice");
 
 export const invoiceQueryKeys = {
@@ -42,13 +38,10 @@ export function useGetInvoices(
   return useQuery<Invoice[], Error>({
     queryKey: invoiceQueryKeys.getInvoices(params),
     queryFn: async () =>
-      mockInvoices
-        .filter(
-          (invoice) =>
-            (!params?.buildingId || invoice.buildingId === params.buildingId) &&
-            (!params?.contractId || invoice.contractId === params.contractId),
-        )
-        .map(withDerivedStatus),
+      readWorld(params?.buildingId ?? null).invoices.filter(
+        (invoice) =>
+          !params?.contractId || invoice.contractId === params.contractId,
+      ),
     ...options,
   });
 }
@@ -59,10 +52,8 @@ export function useGetInvoice(
 ): UseQueryResult<Invoice | null, Error> {
   return useQuery<Invoice | null, Error>({
     queryKey: invoiceQueryKeys.getInvoice(invoiceId),
-    queryFn: async () => {
-      const invoice = mockInvoices.find((item) => item.id === invoiceId);
-      return invoice ? withDerivedStatus(invoice) : null;
-    },
+    queryFn: async () =>
+      readWorld(null).invoices.find((item) => item.id === invoiceId) ?? null,
     ...options,
   });
 }

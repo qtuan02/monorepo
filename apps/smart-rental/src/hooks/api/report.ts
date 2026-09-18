@@ -8,15 +8,7 @@ import type {
   ProfitLossSummary,
   ReportRow,
 } from "~/types/report";
-import type { TenantView } from "~/types/tenant";
-import { mockBuildings } from "~/constants/mock/buildings";
-import { mockContracts } from "~/constants/mock/contracts";
-import { mockExpenses } from "~/constants/mock/expenses";
-import { mockInvoices } from "~/constants/mock/invoices";
-import { mockRooms } from "~/constants/mock/rooms";
-import { mockSupplierBills } from "~/constants/mock/supplier-bills";
-import { mockTenants } from "~/constants/mock/tenants";
-import { mockUtilities } from "~/constants/mock/utilities";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import {
   buildBuildingComparisonRows,
@@ -24,10 +16,9 @@ import {
   buildProfitLossSummary,
   buildReportRows,
 } from "~/utils/report-rows";
-import { toTenantView } from "~/utils/tenant-status";
 
-// `~/constants/mock/reports` was dropped (ADR-0012) — Báo cáo is computed
-// from Hoá đơn + Hoá đơn NCC + Chi phí + Chỉ số by `~/utils/report-rows`.
+// `~/constants/mock/reports` was dropped (ADR-0012) — Báo cáo is computed off
+// `readWorld` (ADR-0015) by `~/utils/report-rows`.
 const reportQueryKeyFactory = queryKeysFactory("report");
 
 export const reportQueryKeys = {
@@ -42,25 +33,6 @@ export const reportQueryKeys = {
     reportQueryKeyFactory.detail("building-comparison"),
 };
 
-function buildTenantViews(): TenantView[] {
-  return mockTenants.map((tenant) =>
-    toTenantView(tenant, mockContracts, mockInvoices),
-  );
-}
-
-function getRows(buildingId: string | null | undefined): ReportRow[] {
-  return buildReportRows({
-    buildings: mockBuildings,
-    rooms: mockRooms,
-    invoices: mockInvoices,
-    expenses: mockExpenses,
-    supplierBills: mockSupplierBills,
-    utilities: mockUtilities,
-    tenantViews: buildTenantViews(),
-    buildingId,
-  });
-}
-
 interface ReportParams {
   /** The Building scope; `null` or absent means every Toà nhà. */
   buildingId?: string | null;
@@ -72,7 +44,7 @@ export function useGetReportRows(
 ): UseQueryResult<ReportRow[], Error> {
   return useQuery<ReportRow[], Error>({
     queryKey: reportQueryKeys.getReportRows(params?.buildingId),
-    queryFn: async () => getRows(params?.buildingId),
+    queryFn: async () => buildReportRows(readWorld(params?.buildingId ?? null)),
     ...options,
   });
 }
@@ -83,7 +55,10 @@ export function useGetProfitLossSummary(
 ): UseQueryResult<ProfitLossSummary, Error> {
   return useQuery<ProfitLossSummary, Error>({
     queryKey: reportQueryKeys.getProfitLossSummary(params?.buildingId),
-    queryFn: async () => buildProfitLossSummary(getRows(params?.buildingId)),
+    queryFn: async () =>
+      buildProfitLossSummary(
+        buildReportRows(readWorld(params?.buildingId ?? null)),
+      ),
     ...options,
   });
 }
@@ -96,11 +71,9 @@ export function useGetFloorOccupancy(
   return useQuery<FloorOccupancy[], Error>({
     queryKey: reportQueryKeys.getFloorOccupancy(params.buildingId),
     queryFn: async () =>
-      buildFloorOccupancy(
-        params.buildingId
-          ? mockRooms.filter((room) => room.buildingId === params.buildingId)
-          : [],
-      ),
+      params.buildingId
+        ? buildFloorOccupancy(readWorld(params.buildingId).rooms)
+        : [],
     ...options,
   });
 }
@@ -111,7 +84,8 @@ export function useGetBuildingComparison(
 ): UseQueryResult<BuildingComparisonRow[], Error> {
   return useQuery<BuildingComparisonRow[], Error>({
     queryKey: reportQueryKeys.getBuildingComparison(),
-    queryFn: async () => buildBuildingComparisonRows(getRows(null)),
+    queryFn: async () =>
+      buildBuildingComparisonRows(buildReportRows(readWorld(null))),
     ...options,
   });
 }

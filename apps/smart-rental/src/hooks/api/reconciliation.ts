@@ -6,10 +6,7 @@ import type {
   ReconciliationItem,
   ReconciliationListParams,
 } from "~/types/reconciliation";
-import { mockBuildings } from "~/constants/mock/buildings";
-import { mockExpenses } from "~/constants/mock/expenses";
-import { mockInvoices } from "~/constants/mock/invoices";
-import { mockSupplierBills } from "~/constants/mock/supplier-bills";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { buildReconciliationItems } from "~/utils/reconciliation-items";
 
@@ -31,23 +28,13 @@ export function useGetReconciliationItems(
     queryKey: reconciliationQueryKeys.getReconciliationItems(params),
     // No Building scope selected → one Toà nhà worth of items per Toà nhà,
     // never merged into one — spec #153 §10 row 11 ("mỗi Toà nhà một khối").
-    // `buildReconciliationItems` itself only ever scopes to one Toà nhà; the
-    // loop over every Toà nhà belongs here, the one place that already holds
-    // the Toà nhà Mock.
-    queryFn: async () => {
-      const buildingIds = params.buildingId
-        ? [params.buildingId]
-        : mockBuildings.map((building) => building.id);
-      return buildingIds.flatMap((buildingId) =>
-        buildReconciliationItems(
-          mockInvoices,
-          mockSupplierBills,
-          mockExpenses,
-          buildingId,
-          params.period,
-        ),
-      );
-    },
+    // `readWorld`'s own `buildings` is already that exact set (one, or
+    // every); `buildReconciliationItems` owns the per-Toà-nhà loop itself.
+    queryFn: async () =>
+      buildReconciliationItems(
+        readWorld(params.buildingId ?? null),
+        params.period,
+      ),
     ...options,
   });
 }

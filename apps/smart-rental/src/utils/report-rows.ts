@@ -1,6 +1,3 @@
-import type { Building } from "~/types/building";
-import type { Expense } from "~/types/expense";
-import type { Invoice } from "~/types/invoice";
 import type {
   BuildingComparisonRow,
   FloorOccupancy,
@@ -9,26 +6,11 @@ import type {
   ReportRow,
 } from "~/types/report";
 import type { Room } from "~/types/room";
-import type { SupplierBill } from "~/types/supplier-bill";
-import type { TenantView } from "~/types/tenant";
-import type { Utility } from "~/types/utility";
+import type { World } from "~/types/world";
 import type { CsvColumn } from "~/utils/csv";
 import { toCsv } from "~/utils/csv";
 import { formatMonth } from "~/utils/date";
-
-interface ReportRowSources {
-  buildings: Building[];
-  rooms: Room[];
-  invoices: Invoice[];
-  expenses: Pick<Expense, "buildingId" | "amount" | "expenseDate">[];
-  supplierBills: Pick<
-    SupplierBill,
-    "buildingId" | "totalAmount" | "billingPeriod"
-  >[];
-  utilities: Utility[];
-  tenantViews: TenantView[];
-  buildingId?: string | null;
-}
+import { buildTenantViews } from "~/utils/tenant-status";
 
 /**
  * Báo cáo has no Mock of its own (ADR-0012, spec #153 §10 row 11) — one row
@@ -37,32 +19,24 @@ interface ReportRowSources {
  * formula `buildReconciliationItems` uses for Đối soát), never Chi phí
  * alone. Occupancy and công nợ are a live snapshot (the Mock keeps no
  * history of either), so they repeat across every kỳ of the same Toà nhà;
- * revenue/expenses/tiêu thụ vary by kỳ.
+ * revenue/expenses/tiêu thụ vary by kỳ. Takes World (ADR-0015 §1) —
+ * `world.buildings` is already the Building scope (one, or every), so this
+ * needs no `buildingId` of its own any more.
  *
  * ponytail: floor breakdown is skipped — Chi phí carries no floor of its own,
  * so a per-floor split would either double-count or fake a number nothing in
  * the Mock backs. Upgrade to real per-floor rows once `be-motel` returns one.
  */
-export function buildReportRows(sources: ReportRowSources): ReportRow[] {
-  const {
-    buildings,
-    rooms,
-    invoices,
-    expenses,
-    supplierBills,
-    utilities,
-    tenantViews,
-    buildingId,
-  } = sources;
-  const scopedBuildings = buildingId
-    ? buildings.filter((building) => building.id === buildingId)
-    : buildings;
+export function buildReportRows(world: World): ReportRow[] {
+  const { buildings, rooms, invoices, expenses, supplierBills, utilities } =
+    world;
+  const tenantViews = buildTenantViews(world);
   const months = [
     ...new Set(invoices.map((invoice) => invoice.billingMonth)),
   ].sort();
 
   const rows: ReportRow[] = [];
-  for (const building of scopedBuildings) {
+  for (const building of buildings) {
     const buildingRooms = rooms.filter(
       (room) => room.buildingId === building.id,
     );

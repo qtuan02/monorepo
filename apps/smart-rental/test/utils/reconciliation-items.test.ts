@@ -1,6 +1,32 @@
 import { describe, expect, it } from "vitest";
 
+import type { Building } from "~/types/building";
 import { buildReconciliationItems } from "~/utils/reconciliation-items";
+
+const buildings: Building[] = [
+  {
+    id: "b1",
+    name: "b1",
+    address: "",
+    collectionDay: 5,
+    priceList: {
+      electricityPricePerKwh: 3500,
+      waterPricePerM3: 15000,
+      serviceFee: 100000,
+    },
+  },
+  {
+    id: "b2",
+    name: "b2",
+    address: "",
+    collectionDay: 5,
+    priceList: {
+      electricityPricePerKwh: 3500,
+      waterPricePerM3: 15000,
+      serviceFee: 100000,
+    },
+  },
+];
 
 const invoices = [
   {
@@ -64,15 +90,17 @@ const expenses = [
   { buildingId: "b1", amount: 777_777, expenseDate: "2026-08-01" },
 ];
 
+/** World scoped to b1 alone — b2's rows still ride along in the unfiltered pools, so "never mixes" stays a real test. */
+const world = {
+  buildings: [buildings[0] as Building],
+  invoices,
+  supplierBills,
+  expenses,
+};
+
 describe("buildReconciliationItems", () => {
   it("scopes to one Toà nhà and one kỳ", () => {
-    const items = buildReconciliationItems(
-      invoices,
-      supplierBills,
-      expenses,
-      "b1",
-      "2026-09",
-    );
+    const items = buildReconciliationItems(world, "2026-09");
     const electric = items.find((item) => item.lineItemName === "Tiền điện");
 
     expect(electric).toMatchObject({
@@ -82,13 +110,7 @@ describe("buildReconciliationItems", () => {
   });
 
   it("leaves out a kỳ that was not asked for", () => {
-    const items = buildReconciliationItems(
-      invoices,
-      supplierBills,
-      expenses,
-      "b1",
-      "2026-09",
-    );
+    const items = buildReconciliationItems(world, "2026-09");
 
     // The 08/2026 invoice (999,999) and Chi phí (777,777) never leak in.
     const electric = items.find((item) => item.lineItemName === "Tiền điện");
@@ -98,13 +120,7 @@ describe("buildReconciliationItems", () => {
   });
 
   it("never mixes another Toà nhà's lines into this one's block", () => {
-    const items = buildReconciliationItems(
-      invoices,
-      supplierBills,
-      expenses,
-      "b1",
-      "2026-09",
-    );
+    const items = buildReconciliationItems(world, "2026-09");
     const electric = items.find((item) => item.lineItemName === "Tiền điện");
 
     // b2's 500,000/100,000 stay out — a caller building "mỗi Toà nhà một
@@ -116,29 +132,28 @@ describe("buildReconciliationItems", () => {
   });
 
   it("folds Chi phí with no service type into Phí dịch vụ", () => {
-    const items = buildReconciliationItems(
-      invoices,
-      supplierBills,
-      expenses,
-      "b1",
-      "2026-09",
-    );
+    const items = buildReconciliationItems(world, "2026-09");
     const service = items.find((item) => item.lineItemName === "Phí dịch vụ");
 
     expect(service).toMatchObject({ expenseAmount: 50_000, status: "loss" });
   });
 
   it("leaves out a line with neither income nor expense", () => {
-    const items = buildReconciliationItems(
-      invoices,
-      supplierBills,
-      expenses,
-      "b1",
-      "2026-09",
-    );
+    const items = buildReconciliationItems(world, "2026-09");
 
     expect(items.some((item) => item.lineItemName === "Tiền phòng")).toBe(
       false,
+    );
+  });
+
+  it("loops every Toà nhà in world.buildings — one block per Toà nhà (spec #153 §10 row 11)", () => {
+    const items = buildReconciliationItems(
+      { buildings, invoices, supplierBills, expenses },
+      "2026-09",
+    );
+
+    expect(new Set(items.map((item) => item.buildingId))).toEqual(
+      new Set(["b1", "b2"]),
     );
   });
 });

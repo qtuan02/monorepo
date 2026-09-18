@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
 import type { SendLog } from "~/types/communication";
-import { mockSendLogs } from "~/constants/mock/communications";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 const sendLogQueryKeyFactory = queryKeysFactory("sendLog");
@@ -18,7 +18,7 @@ export function useGetSendLogs(
 ): UseQueryResult<SendLog[], Error> {
   return useQuery<SendLog[], Error>({
     queryKey: sendLogQueryKeys.getSendLogs(),
-    queryFn: async () => [...mockSendLogs],
+    queryFn: async () => readWorld(null).sendLogs,
     ...options,
   });
 }

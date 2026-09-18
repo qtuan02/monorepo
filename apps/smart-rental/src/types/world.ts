@@ -1,8 +1,12 @@
 import type { Building } from "~/types/building";
+import type { NotificationTemplate, SendLog } from "~/types/communication";
 import type { ComplianceItem, ResidenceDeclaration } from "~/types/compliance";
 import type { Contract } from "~/types/contract";
+import type { Expense } from "~/types/expense";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
+import type { LandlordProfile } from "~/types/setting";
+import type { SupplierBill } from "~/types/supplier-bill";
 import type { Tenant } from "~/types/tenant";
 import type { Utility, UtilityOldIndexOverride } from "~/types/utility";
 
@@ -51,4 +55,14 @@ export interface World {
   tenants: Tenant[];
   complianceItems: ComplianceItem[];
   residenceDeclarations: ResidenceDeclaration[];
+  /** `buildingName` is never carried — hooks still join it via `withBuildingName`. */
+  expenses: Omit<Expense, "buildingName">[];
+  /** `buildingName` is never carried — hooks still join it via `withBuildingName`. */
+  supplierBills: Omit<SupplierBill, "buildingName">[];
+  /** No `buildingId` field to scope by — unfiltered regardless of scope. */
+  notificationTemplates: NotificationTemplate[];
+  /** No `buildingId` field to scope by — unfiltered regardless of scope. */
+  sendLogs: SendLog[];
+  /** One global record, no Building scope — unfiltered regardless of scope. */
+  landlordProfile: LandlordProfile;
 }

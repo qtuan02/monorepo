@@ -120,6 +120,11 @@ function makeArrays(overrides: Partial<WorldArrays> = {}): WorldArrays {
     utilityOldIndexOverrides: [],
     tenants: [],
     complianceItems: [],
+    expenses: [],
+    supplierBills: [],
+    notificationTemplates: [],
+    sendLogs: [],
+    landlordProfile: { name: "", phone: "", email: "" },
     ...overrides,
   };
 }
@@ -142,6 +147,19 @@ describe("buildWorld — scope", () => {
     expect(world.rooms.map((r) => r.id)).toEqual(["R1", "R2"]);
   });
 
+  it("scope null never hands back the Mock's own array reference — a queryFn's data must not equal a mutationFn's in-place write (buildings-rooms.e2e.ts regression)", () => {
+    const rawBuildings = [building({ id: "b1" })];
+    const rawRooms = [room({ id: "R1" })];
+    const world = buildWorld(
+      makeArrays({ buildings: rawBuildings, rooms: rawRooms }),
+      null,
+      today,
+    );
+
+    expect(world.buildings).not.toBe(rawBuildings);
+    expect(world.rooms).not.toBe(rawRooms);
+  });
+
   it("scope một Toà nhà lọc Toà nhà theo id và mọi entity khác theo buildingId", () => {
     const world = buildWorld(
       makeArrays({
@@ -162,6 +180,40 @@ describe("buildWorld — scope", () => {
           utility({ id: "u1", buildingId: "b1" }),
           utility({ id: "u2", buildingId: "b2" }),
         ],
+        expenses: [
+          {
+            id: "e1",
+            buildingId: "b1",
+            category: "",
+            amount: 0,
+            expenseDate: "",
+          },
+          {
+            id: "e2",
+            buildingId: "b2",
+            category: "",
+            amount: 0,
+            expenseDate: "",
+          },
+        ],
+        supplierBills: [
+          {
+            id: "sb1",
+            buildingId: "b1",
+            type: "electricity",
+            supplierName: "",
+            billingPeriod: "",
+            totalAmount: 0,
+          },
+          {
+            id: "sb2",
+            buildingId: "b2",
+            type: "electricity",
+            supplierName: "",
+            billingPeriod: "",
+            totalAmount: 0,
+          },
+        ],
       }),
       "b1",
       today,
@@ -172,6 +224,42 @@ describe("buildWorld — scope", () => {
     expect(world.contracts.map((c) => c.id)).toEqual(["C1"]);
     expect(world.invoices.map((i) => i.id)).toEqual(["I1"]);
     expect(world.utilities.map((u) => u.id)).toEqual(["u1"]);
+    expect(world.expenses.map((e) => e.id)).toEqual(["e1"]);
+    expect(world.supplierBills.map((b) => b.id)).toEqual(["sb1"]);
+  });
+
+  it("notificationTemplates/sendLogs/landlordProfile pass through unfiltered — no buildingId to scope by", () => {
+    const world = buildWorld(
+      makeArrays({
+        notificationTemplates: [
+          {
+            id: "T1",
+            name: "",
+            channel: "email",
+            description: "",
+            preview: "",
+          },
+        ],
+        sendLogs: [
+          {
+            id: "SL1",
+            tenant: "",
+            template: "",
+            channel: "email",
+            status: "sent",
+            sentDate: "",
+            recipient: "",
+          },
+        ],
+        landlordProfile: { name: "Chủ trọ", phone: "0900000000", email: "" },
+      }),
+      "b1",
+      today,
+    );
+
+    expect(world.notificationTemplates.map((t) => t.id)).toEqual(["T1"]);
+    expect(world.sendLogs.map((l) => l.id)).toEqual(["SL1"]);
+    expect(world.landlordProfile.name).toBe("Chủ trọ");
   });
 
   it('"" is never a scope (typecheck)', () => {

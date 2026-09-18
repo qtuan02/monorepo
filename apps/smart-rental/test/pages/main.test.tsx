@@ -7,12 +7,11 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import dayjs from "@monorepo/dayjs";
 
-import { mockExpenses } from "~/constants/mock/expenses";
 import { mockInvoices } from "~/constants/mock/invoices";
-import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { ROUTES } from "~/constants/routes";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 import { getReconciliationStats } from "~/features/reconciliation/utils/reconciliation-stats";
+import { readWorld } from "~/libs/mock-world";
 import { queryClient } from "~/libs/query-client";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
@@ -204,13 +203,7 @@ describe("the route tree", () => {
       renderAt(ROUTES.RECONCILIATION);
 
       const period = dayjs().format("YYYY-MM");
-      const items = buildReconciliationItems(
-        mockInvoices,
-        mockSupplierBills,
-        mockExpenses,
-        "b1",
-        period,
-      );
+      const items = buildReconciliationItems(readWorld("b1"), period);
       const stats = getReconciliationStats(items);
 
       expect(

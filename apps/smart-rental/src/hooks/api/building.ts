@@ -15,12 +15,13 @@ import type {
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { canDeleteBuilding } from "~/utils/building-delete";
 
 // The shape every slice copies (spec #127): keys from the factory, a `queryFn`
-// that answers with the Mock. Wiring `be-motel` later is swapping that one line
-// for a service singleton from `~/libs/http-client`.
+// that answers through `readWorld` (ADR-0015). Wiring `be-motel` later is
+// swapping that one line for a service singleton from `~/libs/http-client`.
 const buildingQueryKeyFactory = queryKeysFactory("building");
 
 export const buildingQueryKeys = {
@@ -37,8 +38,7 @@ export function useGetBuildings(
 ): UseQueryResult<Building[], Error> {
   return useQuery<Building[], Error>({
     queryKey: buildingQueryKeys.getBuildings(),
-    // A copy, so the cache never holds the Mock array itself.
-    queryFn: async () => [...mockBuildings],
+    queryFn: async () => readWorld(null).buildings,
     ...options,
   });
 }
@@ -49,8 +49,7 @@ export function useGetBuilding(
 ): UseQueryResult<Building | null, Error> {
   return useQuery<Building | null, Error>({
     queryKey: buildingQueryKeys.getBuilding(buildingId),
-    queryFn: async () =>
-      mockBuildings.find((building) => building.id === buildingId) ?? null,
+    queryFn: async () => readWorld(buildingId).buildings[0] ?? null,
     ...options,
   });
 }
