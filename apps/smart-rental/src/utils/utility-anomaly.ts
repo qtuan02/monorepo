@@ -8,13 +8,16 @@ export const UTILITY_ANOMALY_MULTIPLIER = 2;
  * (ADR-0012): a reading that went backwards, or whose consumption is more
  * than `UTILITY_ANOMALY_MULTIPLIER`× the previous period's for the same
  * Phòng + loại. `previous` absent (the reading's first period) can never be
- * anomalous by ratio.
+ * anomalous by ratio. A "duyệt"-ed reading (ticket #183) never counts as
+ * anomalous by ratio either — decrease still blocks regardless, but that
+ * case can no longer reach saved data (chặn hẳn at input time).
  */
 export function isUtilityAnomalous(
-  current: Pick<Utility, "oldIndex" | "newIndex" | "consumption">,
+  current: Pick<Utility, "oldIndex" | "newIndex" | "consumption" | "approved">,
   previous?: Pick<Utility, "consumption">,
 ): boolean {
   if (current.newIndex < current.oldIndex) return true;
+  if (current.approved) return false;
   if (!previous || previous.consumption <= 0) return false;
   return (
     current.consumption > previous.consumption * UTILITY_ANOMALY_MULTIPLIER

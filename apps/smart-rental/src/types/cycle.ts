@@ -37,4 +37,13 @@ export interface CycleRow {
   totalAmount: number;
   status: CycleRowStatus;
   reason: string;
+  /**
+   * "gấp 2,3 lần kỳ trước" per đồng hồ (ticket #183) — `null` once the
+   * reading isn't anomalous, or was duyệt-ed. Drives the row's own "Duyệt
+   * điện"/"Duyệt nước" buttons — one per đồng hồ, not one per row.
+   */
+  electricityAnomalyReason: string | null;
+  waterAnomalyReason: string | null;
+  /** "21/30 ngày" when Hợp đồng bắt đầu trong Kỳ prorates tiền phòng; `null` for a full tháng. */
+  rentProrationNote: string | null;
 }

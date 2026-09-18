@@ -10,6 +10,7 @@ import {
   buildCycleLineItems,
   buildCycleRows,
   isCycleClosingDatePassed,
+  isFutureCycle,
 } from "~/utils/cycle-rows";
 
 const today = new Date("2026-09-18T00:00:00.000Z");
@@ -72,6 +73,7 @@ function utility(overrides: Partial<Utility> = {}): Utility {
     newIndex: 1120,
     consumption: 120,
     status: "DRAFT",
+    approved: false,
     updatedAt: "2026-09-15T00:00:00.000Z",
     proofImages: [],
     ...overrides,
@@ -213,7 +215,46 @@ describe("buildCycleRows", () => {
     );
   });
 
-  it("ANOMALY — consumption above 2× kỳ trước is flagged, never READY", () => {
+  it("ANOMALY — consumption above 2× kỳ trước is flagged per đồng hồ, with a ratio reason, never READY", () => {
+    const rows = buildCycleRows(
+      "b1",
+      "2026-09",
+      [room()],
+      [contract()],
+      [
+        // A reading's own `consumption` is trusted as-is when no "Sửa chỉ số
+        // cũ" override applies (unchanged from before ticket #183) — kỳ
+        // trước's is the ratio baseline, kỳ này's is what gets compared.
+        utility({
+          id: "u-aug-d",
+          month: "2026-08",
+          type: "electricity",
+          consumption: 100,
+        }),
+        utility({
+          id: "u-aug-n",
+          month: "2026-08",
+          type: "water",
+          consumption: 8,
+        }),
+        // gấp 2,5 lần 100.
+        utility({ id: "u-sep-d", type: "electricity", consumption: 250 }),
+        // dưới 2×8 = 16 — không bất thường.
+        utility({ id: "u-sep-n", type: "water", consumption: 9 }),
+      ],
+      [],
+      priceList,
+      today,
+    );
+
+    expect(rows[0]?.status).toBe("ANOMALY");
+    // Only điện went over 2× — nước (9 < 2×8) never gets its own reason.
+    expect(rows[0]?.electricityAnomalyReason).toBe("gấp 2,5 lần kỳ trước");
+    expect(rows[0]?.waterAnomalyReason).toBeNull();
+    expect(rows[0]?.reason).toBe("Điện gấp 2,5 lần kỳ trước");
+  });
+
+  it("a duyệt-ed reading no longer blocks the row — approved → READY (ticket #183)", () => {
     const rows = buildCycleRows(
       "b1",
       "2026-09",
@@ -232,7 +273,12 @@ describe("buildCycleRows", () => {
           type: "water",
           consumption: 8,
         }),
-        utility({ id: "u-sep-d", type: "electricity", consumption: 250 }),
+        utility({
+          id: "u-sep-d",
+          type: "electricity",
+          consumption: 250,
+          approved: true,
+        }),
         utility({ id: "u-sep-n", type: "water", consumption: 9 }),
       ],
       [],
@@ -240,7 +286,105 @@ describe("buildCycleRows", () => {
       today,
     );
 
-    expect(rows[0]?.status).toBe("ANOMALY");
+    expect(rows[0]?.status).toBe("READY");
+    expect(rows[0]?.electricityAnomalyReason).toBeNull();
+  });
+
+  it("a Sửa chỉ số cũ override changes the displayed chỉ số cũ AND the recomputed tiêu thụ, one đồng hồ at a time", () => {
+    const rows = buildCycleRows(
+      "b1",
+      "2026-09",
+      [room()],
+      [contract()],
+      [
+        utility({
+          id: "u-aug-d",
+          month: "2026-08",
+          type: "electricity",
+          newIndex: 1000,
+        }),
+        utility({
+          id: "u-aug-n",
+          month: "2026-08",
+          type: "water",
+          newIndex: 800,
+        }),
+        // điện's own consumption is IGNORED once corrected — only nước's is trusted as-is.
+        utility({
+          id: "u-sep-d",
+          type: "electricity",
+          newIndex: 1120,
+          consumption: 9999,
+        }),
+        utility({
+          id: "u-sep-n",
+          type: "water",
+          newIndex: 809,
+          consumption: 9,
+        }),
+      ],
+      [],
+      priceList,
+      today,
+      // Only điện was corrected — nước still falls back to kỳ trước's reading.
+      [
+        {
+          roomId: "R-001",
+          type: "electricity",
+          month: "2026-09",
+          oldIndex: 1050,
+        },
+      ],
+    );
+
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        oldElectricity: 1050,
+        electricityConsumption: 70,
+        oldWater: 800,
+        waterConsumption: 9,
+      }),
+    );
+  });
+
+  it("prorates tiền phòng when Hợp đồng bắt đầu trong Kỳ, and carries the note", () => {
+    const rows = buildCycleRows(
+      "b1",
+      "2026-09",
+      [room()],
+      [contract({ rentAmount: 3_000_000, startDate: "21/09/2026" })],
+      [],
+      [],
+      priceList,
+      today,
+    );
+
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        rentAmount: 1_000_000,
+        rentProrationNote: "10/30 ngày",
+      }),
+    );
+  });
+
+  it("bills the full tháng, no proration, when Hợp đồng started before the Kỳ", () => {
+    const rows = buildCycleRows(
+      "b1",
+      "2026-09",
+      [room()],
+      [contract({ rentAmount: 3_000_000, startDate: "01/01/2026" })],
+      [],
+      [],
+      priceList,
+      today,
+    );
+
+    expect(rows[0]).toEqual(
+      expect.objectContaining({
+        rentAmount: 3_000_000,
+        rentProrationNote: null,
+      }),
+    );
   });
 
   it("INVOICED — a Hoá đơn already covers this (contract, kỳ), wins over READY", () => {
@@ -283,10 +427,11 @@ describe("buildCycleRows", () => {
 describe("buildCycleLineItems", () => {
   it("bills đủ dòng: tiền phòng + điện/nước theo tiêu thụ × Bảng giá + dịch vụ cố định", () => {
     const lineItems = buildCycleLineItems(
-      { rentAmount: 2_700_000 },
+      { rentAmount: 2_700_000, startDate: "01/01/2026" },
       { priceList },
       120,
       8,
+      "2026-09",
     );
 
     expect(lineItems).toEqual([
@@ -319,6 +464,24 @@ describe("buildCycleLineItems", () => {
         amount: 100_000,
       },
     ]);
+  });
+
+  it("prorates tiền phòng when Hợp đồng bắt đầu trong Kỳ, with the note in the description", () => {
+    const lineItems = buildCycleLineItems(
+      { rentAmount: 3_000_000, startDate: "21/09/2026" },
+      { priceList },
+      0,
+      0,
+      "2026-09",
+    );
+
+    expect(lineItems[0]).toEqual({
+      type: "RENT",
+      description: "Tiền phòng (10/30 ngày)",
+      quantity: 1,
+      unitPrice: 1_000_000,
+      amount: 1_000_000,
+    });
   });
 });
 
@@ -353,5 +516,16 @@ describe("isCycleClosingDatePassed", () => {
     expect(isCycleClosingDatePassed("2026-09", new Date("2026-10-01"))).toBe(
       true,
     );
+  });
+});
+
+describe("isFutureCycle", () => {
+  it("is false for the current month and every past one", () => {
+    expect(isFutureCycle("2026-09", today)).toBe(false);
+    expect(isFutureCycle("2026-08", today)).toBe(false);
+  });
+
+  it("is true for a month after the current one", () => {
+    expect(isFutureCycle("2026-10", today)).toBe(true);
   });
 });

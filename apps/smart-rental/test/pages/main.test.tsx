@@ -489,6 +489,39 @@ describe("Building scope required — Kỳ điện nước & hoá đơn", () => 
     ).toBeInTheDocument();
     expect(await screen.findAllByText("Sẵn sàng")).not.toHaveLength(0);
   });
+
+  // Ticket #183, ADR-0013 — ‹ › switches Kỳ on the same screen; a kỳ that
+  // already has a Hoá đơn (08) reads read-only, and › locks at the current
+  // real month (18/09/2026) so a landlord can never open a kỳ tương lai.
+  it("‹ › moves between Kỳ; 08 (đã lập) reads read-only, › is locked past 09", async () => {
+    const user = userEvent.setup();
+    useBuildingStore.setState({ selectedBuildingId: "b1" });
+    renderAt(ROUTES.cycleDetailPath("2026-09"));
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Kỳ 09/2026 · Trọ Sinh Viên Xanh",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Kỳ sau/ })).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: /Kỳ trước/ }));
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Kỳ 08/2026 · Trọ Sinh Viên Xanh",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText("Kỳ này đã lập hoá đơn — chỉ xem lại."),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Lưu nháp chỉ số/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryAllByRole("spinbutton")).toHaveLength(0);
+  });
 });
 
 // Spec #153 §10 row 32 (AC: "xoá một Phòng, reset, Phòng trở lại") — each

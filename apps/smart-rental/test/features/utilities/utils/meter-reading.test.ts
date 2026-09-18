@@ -25,6 +25,7 @@ function utility(overrides: Partial<Utility>): Utility {
     newIndex: 2,
     consumption: 1,
     status: "DRAFT",
+    approved: false,
     updatedAt: "2026-08-25T10:30:00Z",
     proofImages: [],
     ...overrides,

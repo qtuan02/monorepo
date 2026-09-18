@@ -23,6 +23,13 @@ export interface Utility {
   newIndex: number;
   consumption: number;
   status: UtilityStatus;
+  /**
+   * Set on "Duyệt điện" / "Duyệt nước" (ticket #183) — a landlord's sign-off
+   * that an otherwise-bất-thường reading is correct, so it stops counting as
+   * one (`~/utils/utility-anomaly`). Never suppresses the "chỉ số mới < cũ"
+   * block, which is caught at input time instead.
+   */
+  approved: boolean;
   /** ISO timestamp. */
   updatedAt: string;
   proofImages: string[];
@@ -33,4 +40,22 @@ export interface UtilityListParams {
   buildingId?: string | null;
   /** Scope to one Phòng's own Chỉ số — a Hợp đồng detail screen's "Chỉ số" tab. */
   roomId?: string;
+}
+
+/**
+ * "Sửa chỉ số cũ" (ticket #183, ADR-0013) — a landlord's correction to one
+ * Phòng's chỉ số cũ for one Kỳ + loại, when a công tơ was replaced mid-kỳ.
+ * Kept separate from `Utility` (never edits a past kỳ's own reading) so the
+ * correction only changes what THIS kỳ starts counting from.
+ */
+export interface UtilityOldIndexOverride {
+  id: string;
+  roomId: string;
+  type: UtilityType;
+  /** The Kỳ (`YYYY-MM`) this correction applies to. */
+  month: string;
+  oldIndex: number;
+  note: string;
+  /** ISO timestamp. */
+  updatedAt: string;
 }

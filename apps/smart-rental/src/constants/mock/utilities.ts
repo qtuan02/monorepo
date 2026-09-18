@@ -44,6 +44,7 @@ function buildReading(
     newIndex,
     consumption,
     status: month === DRAFT_MONTH ? "DRAFT" : "FINALIZED",
+    approved: false,
     updatedAt:
       month === DRAFT_MONTH ? "2026-09-15T09:00:00Z" : "2026-08-27T09:00:00Z",
     proofImages: [],

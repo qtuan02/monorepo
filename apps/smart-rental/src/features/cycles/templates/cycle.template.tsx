@@ -1,9 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertTriangle, Receipt, Save } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
+  Receipt,
+  Save,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import dayjs from "@monorepo/dayjs";
+import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 import {
   Alert,
   AlertDescription,
@@ -29,8 +36,12 @@ import { ErrorPanel } from "~/components/panel/error-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
+import { CycleMobileCard } from "~/features/cycles/components/cycle-mobile-card";
 import { CycleTableRow } from "~/features/cycles/components/cycle-table-row";
-import { cycleFormSchema } from "~/features/cycles/types/cycle-form";
+import {
+  buildCycleFormSchema,
+  parseNewIndex,
+} from "~/features/cycles/types/cycle-form";
 import { useGetBuilding } from "~/hooks/api/building";
 import {
   useCreateCycleInvoices,
@@ -39,18 +50,11 @@ import {
 } from "~/hooks/api/cycle";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
-import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
+import { isCycleClosingDatePassed, isFutureCycle } from "~/utils/cycle-rows";
 import { formatDate, formatMonth } from "~/utils/date";
 import { isElectricityPriceOverCap } from "~/utils/tariff";
 
 const FORM_ID = "cycle-form";
-
-/** `null` while the field is empty or not a whole number. */
-function parseNewIndex(input: string): number | null {
-  if (input.trim() === "") return null;
-  const value = Number(input);
-  return Number.isFinite(value) ? value : null;
-}
 
 interface CycleFormProps {
   buildingId: string;
@@ -63,12 +67,17 @@ interface CycleFormProps {
  * whenever either changes — a fresh mount is what gives it fresh
  * `defaultValues` off the just-fetched `rows` (see
  * `meter-input.template.tsx`'s own note on this shape, now folded in here).
+ * A kỳ that already has a Hoá đơn, or hasn't started yet, renders `readOnly`
+ * (ticket #183, ADR-0013) — no input, no Duyệt, no Sửa chỉ số cũ, no action bar.
  */
 function CycleForm({ buildingId, month, rows }: CycleFormProps) {
+  const isMobile = useIsMobile();
   const saveReadings = useSaveCycleReadings();
   const createInvoices = useCreateCycleInvoices();
+  const readOnly =
+    rows.some((row) => row.status === "INVOICED") || isFutureCycle(month);
   const form = useForm<CycleFormValues>({
-    resolver: zodResolver(cycleFormSchema),
+    resolver: zodResolver(buildCycleFormSchema(rows)),
     defaultValues: {
       rows: rows.map((row) => ({
         roomId: row.roomId,
@@ -154,66 +163,93 @@ function CycleForm({ buildingId, month, rows }: CycleFormProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        <Button
-          type="submit"
-          form={FORM_ID}
-          variant="outline"
-          size="sm"
-          disabled={saveReadings.isPending}
-        >
-          <Save />
-          Lưu nháp chỉ số
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          disabled={!!disabledReason || createInvoices.isPending}
-          onClick={onCreateInvoices}
-        >
-          <Receipt />
-          Lập {readyCount} hoá đơn
-        </Button>
-      </div>
-      {disabledReason && (
+      {readOnly ? (
         <p className="text-muted-foreground text-right text-sm">
-          {disabledReason}
+          {isFutureCycle(month)
+            ? "Kỳ tương lai — chưa mở."
+            : "Kỳ này đã lập hoá đơn — chỉ xem lại."}
         </p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Button
+              type="submit"
+              form={FORM_ID}
+              variant="outline"
+              size="sm"
+              disabled={saveReadings.isPending}
+            >
+              <Save />
+              Lưu nháp chỉ số
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              disabled={!!disabledReason || createInvoices.isPending}
+              onClick={onCreateInvoices}
+            >
+              <Receipt />
+              Lập {readyCount} hoá đơn
+            </Button>
+          </div>
+          {disabledReason && (
+            <p className="text-muted-foreground text-right text-sm">
+              {disabledReason}
+            </p>
+          )}
+        </>
       )}
 
       <form id={FORM_ID} onSubmit={onSaveDraft} noValidate>
-        <Card>
-          <CardContent className="overflow-x-auto p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-24">Phòng</TableHead>
-                  <TableHead>Điện cũ</TableHead>
-                  <TableHead>Điện mới</TableHead>
-                  <TableHead>Tiêu thụ điện</TableHead>
-                  <TableHead>Nước cũ</TableHead>
-                  <TableHead>Nước mới</TableHead>
-                  <TableHead>Tiêu thụ nước</TableHead>
-                  <TableHead>Tiền phòng</TableHead>
-                  <TableHead>Tiền điện</TableHead>
-                  <TableHead>Tiền nước</TableHead>
-                  <TableHead className="text-right">Tổng</TableHead>
-                  <TableHead className="text-right">Trạng thái</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {rows.map((row, index) => (
-                  <CycleTableRow
-                    key={row.roomId}
-                    index={index}
-                    row={row}
-                    control={form.control}
-                  />
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {isMobile ? (
+          <div className="grid gap-3">
+            {rows.map((row, index) => (
+              <CycleMobileCard
+                key={row.roomId}
+                index={index}
+                row={row}
+                control={form.control}
+                month={month}
+                readOnly={readOnly}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="overflow-x-auto p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-24">Phòng</TableHead>
+                    <TableHead>Điện cũ</TableHead>
+                    <TableHead>Điện mới</TableHead>
+                    <TableHead>Tiêu thụ điện</TableHead>
+                    <TableHead>Nước cũ</TableHead>
+                    <TableHead>Nước mới</TableHead>
+                    <TableHead>Tiêu thụ nước</TableHead>
+                    <TableHead>Tiền phòng</TableHead>
+                    <TableHead>Tiền điện</TableHead>
+                    <TableHead>Tiền nước</TableHead>
+                    <TableHead className="text-right">Tổng</TableHead>
+                    <TableHead className="text-right">Trạng thái</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row, index) => (
+                    <CycleTableRow
+                      key={row.roomId}
+                      index={index}
+                      row={row}
+                      control={form.control}
+                      month={month}
+                      readOnly={readOnly}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        )}
       </form>
     </div>
   );
@@ -260,11 +296,18 @@ interface CycleTemplateProps {
  * Nhập chỉ số screens (spec #182).
  */
 export default function CycleTemplate({ month }: CycleTemplateProps) {
+  const navigate = useNavigate();
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const buildingQuery = useGetBuilding(selectedBuildingId ?? "", {
     enabled: !!selectedBuildingId,
   });
   const building = buildingQuery.data;
+
+  const previousMonth = dayjs(month, "YYYY-MM")
+    .subtract(1, "month")
+    .format("YYYY-MM");
+  const nextMonth = dayjs(month, "YYYY-MM").add(1, "month").format("YYYY-MM");
+  const nextDisabled = isFutureCycle(nextMonth);
 
   return (
     <div className="space-y-6">
@@ -280,12 +323,38 @@ export default function CycleTemplate({ month }: CycleTemplateProps) {
             : "Chốt chỉ số điện nước và lập hoá đơn cho các Phòng đủ điều kiện của kỳ."
         }
         actions={
-          <Link
-            to={ROUTES.UTILITIES}
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            Xem các Kỳ trước
-          </Link>
+          <>
+            <div className="flex items-center gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                aria-label={`Kỳ trước, ${formatMonth(previousMonth)}`}
+                onClick={() => navigate(ROUTES.cycleDetailPath(previousMonth))}
+              >
+                <ChevronLeft />
+              </Button>
+              <span className="w-20 text-center text-sm font-medium tabular-nums">
+                {formatMonth(month)}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                aria-label={`Kỳ sau, ${formatMonth(nextMonth)}`}
+                disabled={nextDisabled}
+                onClick={() => navigate(ROUTES.cycleDetailPath(nextMonth))}
+              >
+                <ChevronRight />
+              </Button>
+            </div>
+            <Link
+              to={ROUTES.UTILITIES}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              Xem các Kỳ trước
+            </Link>
+          </>
         }
       />
 

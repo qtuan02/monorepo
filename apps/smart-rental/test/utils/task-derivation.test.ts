@@ -94,6 +94,7 @@ const anomalousUtility: Utility = {
   newIndex: 1300,
   consumption: 300,
   status: "DRAFT",
+  approved: false,
   updatedAt: "2026-09-15T00:00:00.000Z",
   proofImages: [],
 };

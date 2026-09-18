@@ -19,6 +19,7 @@ function reading(overrides: Partial<Utility>): Utility {
     newIndex: 1100,
     consumption: 100,
     status: "DRAFT",
+    approved: false,
     updatedAt: "2026-09-15T00:00:00.000Z",
     proofImages: [],
     ...overrides,
@@ -56,6 +57,14 @@ describe("isUtilityAnomalous", () => {
     expect(
       isUtilityAnomalous(reading({ consumption: 201 }), { consumption: 100 }),
     ).toBe(true);
+  });
+
+  it("a duyệt-ed reading never counts as anomalous by ratio (ticket #183)", () => {
+    expect(
+      isUtilityAnomalous(reading({ consumption: 500, approved: true }), {
+        consumption: 100,
+      }),
+    ).toBe(false);
   });
 });
 

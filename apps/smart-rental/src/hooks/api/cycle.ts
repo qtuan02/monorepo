@@ -15,6 +15,7 @@ import { mockContracts } from "~/constants/mock/contracts";
 import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
 import { mockUtilities } from "~/constants/mock/utilities";
+import { mockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
 import { invoiceQueryKeys } from "~/hooks/api/invoice";
 import { reconciliationQueryKeys } from "~/hooks/api/reconciliation";
 import { taskQueryKeys } from "~/hooks/api/task";
@@ -47,6 +48,8 @@ function resolveCycleRows(buildingId: string, month: string): CycleRow[] {
     mockUtilities,
     mockInvoices,
     building.priceList,
+    undefined,
+    mockUtilityOldIndexOverrides,
   );
 }
 
@@ -106,6 +109,9 @@ export function useSaveCycleReadings(
           existing.newIndex = entry.newIndex;
           existing.consumption = entry.consumption;
           existing.status = "DRAFT";
+          // A re-entered reading needs re-approving — the number that was
+          // duyệt-ed no longer is.
+          existing.approved = false;
           existing.updatedAt = updatedAt;
         } else {
           mockUtilities.push({
@@ -119,6 +125,7 @@ export function useSaveCycleReadings(
             newIndex: entry.newIndex,
             consumption: entry.consumption,
             status: "DRAFT",
+            approved: false,
             updatedAt,
             proofImages: [],
           });
@@ -185,6 +192,7 @@ export function useCreateCycleInvoices(
           building,
           row.electricityConsumption ?? 0,
           row.waterConsumption ?? 0,
+          request.month,
         );
         const amount = lineItems.reduce((sum, item) => sum + item.amount, 0);
         const sequence = mockInvoices.length + 1;
@@ -232,6 +240,97 @@ export function useCreateCycleInvoices(
       // New lineItems change the thu side of Đối soát for this kỳ — mirrors
       // the invalidation expense.ts/supplier-bill.ts already do on their writes.
       queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
+    },
+    ...options,
+  });
+}
+
+export interface ApproveCycleReadingRequest {
+  roomId: string;
+  type: UtilityType;
+  /** `YYYY-MM`. */
+  month: string;
+}
+
+/** "Duyệt điện" / "Duyệt nước" — one đồng hồ at a time (ticket #183, ADR-0013). */
+export function useApproveCycleReading(
+  options?: UseMutationOptionsWrapper<ApproveCycleReadingRequest, void>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: ApproveCycleReadingRequest) => {
+      const reading = mockUtilities.find(
+        (utility) =>
+          utility.roomId === request.roomId &&
+          utility.type === request.type &&
+          utility.month === request.month,
+      );
+      if (!reading) {
+        throw new HttpError({
+          statusCode: 404,
+          message: "Không tìm thấy chỉ số cần duyệt.",
+        });
+      }
+      reading.approved = true;
+      reading.updatedAt = new Date().toISOString();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
+    },
+    ...options,
+  });
+}
+
+export interface CorrectCycleOldIndexRequest {
+  roomId: string;
+  type: UtilityType;
+  /** `YYYY-MM`. */
+  month: string;
+  oldIndex: number;
+  note: string;
+}
+
+/**
+ * "Sửa chỉ số cũ" — thay công tơ mid-kỳ (ticket #183, ADR-0013). Upserts a
+ * correction rather than editing a past kỳ's own reading, so only THIS kỳ's
+ * baseline changes.
+ */
+export function useCorrectCycleOldIndex(
+  options?: UseMutationOptionsWrapper<CorrectCycleOldIndexRequest, void>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (request: CorrectCycleOldIndexRequest) => {
+      const existing = mockUtilityOldIndexOverrides.find(
+        (item) =>
+          item.roomId === request.roomId &&
+          item.type === request.type &&
+          item.month === request.month,
+      );
+      const updatedAt = new Date().toISOString();
+
+      if (existing) {
+        existing.oldIndex = request.oldIndex;
+        existing.note = request.note;
+        existing.updatedAt = updatedAt;
+      } else {
+        mockUtilityOldIndexOverrides.push({
+          id: `override-${request.month.replace("-", "")}-${request.roomId}-${request.type === "electricity" ? "d" : "n"}`,
+          roomId: request.roomId,
+          type: request.type,
+          month: request.month,
+          oldIndex: request.oldIndex,
+          note: request.note,
+          updatedAt,
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
     },
     ...options,
   });

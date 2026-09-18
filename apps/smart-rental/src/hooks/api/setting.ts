@@ -20,6 +20,7 @@ import { mockLandlordProfile } from "~/constants/mock/settings";
 import { resetMockSupplierBills } from "~/constants/mock/supplier-bills";
 import { resetMockTenants } from "~/constants/mock/tenants";
 import { resetMockUtilities } from "~/constants/mock/utilities";
+import { resetMockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 const settingQueryKeyFactory = queryKeysFactory("setting");
@@ -56,6 +57,7 @@ export function useResetMockData(options?: UseMutationOptionsWrapper<void>) {
       resetMockContracts();
       resetMockInvoices();
       resetMockUtilities();
+      resetMockUtilityOldIndexOverrides();
       resetMockExpenses();
       resetMockSupplierBills();
       resetMockComplianceItems();
