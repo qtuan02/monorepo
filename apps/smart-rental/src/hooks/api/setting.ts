@@ -14,10 +14,7 @@ import {
 import { resetMockComplianceItems } from "~/constants/mock/compliance";
 import { resetMockContracts } from "~/constants/mock/contracts";
 import { resetMockExpenses } from "~/constants/mock/expenses";
-import {
-  resetMockBatchInvoiceItems,
-  resetMockInvoices,
-} from "~/constants/mock/invoices";
+import { resetMockInvoices } from "~/constants/mock/invoices";
 import { resetMockRooms } from "~/constants/mock/rooms";
 import { mockLandlordProfile } from "~/constants/mock/settings";
 import { resetMockSupplierBills } from "~/constants/mock/supplier-bills";
@@ -58,7 +55,6 @@ export function useResetMockData(options?: UseMutationOptionsWrapper<void>) {
       resetMockTenants();
       resetMockContracts();
       resetMockInvoices();
-      resetMockBatchInvoiceItems();
       resetMockUtilities();
       resetMockExpenses();
       resetMockSupplierBills();
