@@ -1,8 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
+import { VirtuosoMockContext } from "react-virtuoso";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { ChatUserProfile } from "@monorepo/types/chat-user";
+import {
+  ChatConversationType,
+  ChatParticipantRole,
+} from "@monorepo/types/chat-conversation";
+import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import { ROUTES } from "~/constants/routes";
 import { AppRoutes } from "~/pages/main";
@@ -18,13 +26,30 @@ import { useAuthStore } from "~/stores/use-auth-store";
 // throw away the selector behaviour the guards depend on.
 const initialAuthState = useAuthStore.getState();
 
-const { chatHealthCheck, chatAuthRefresh, chatAuthSignIn, chatAuthSignUp } =
-  vi.hoisted(() => ({
-    chatHealthCheck: vi.fn(),
-    chatAuthRefresh: vi.fn(),
-    chatAuthSignIn: vi.fn(),
-    chatAuthSignUp: vi.fn(),
-  }));
+const CURRENT_USER: ChatUserProfile = {
+  id: "u1",
+  username: "tuanhq02",
+  firstName: "Tuan",
+  lastName: "Huynh",
+};
+
+const {
+  chatHealthCheck,
+  chatAuthRefresh,
+  chatAuthSignIn,
+  chatAuthSignUp,
+  chatUserMe,
+  chatConversationGetConversations,
+  chatMessageGetMessages,
+} = vi.hoisted(() => ({
+  chatHealthCheck: vi.fn(),
+  chatAuthRefresh: vi.fn(),
+  chatAuthSignIn: vi.fn(),
+  chatAuthSignUp: vi.fn(),
+  chatUserMe: vi.fn(),
+  chatConversationGetConversations: vi.fn(),
+  chatMessageGetMessages: vi.fn(),
+}));
 
 vi.mock("~/libs/http-client", () => ({
   chatHealthService: { check: chatHealthCheck },
@@ -34,13 +59,20 @@ vi.mock("~/libs/http-client", () => ({
     signUp: chatAuthSignUp,
     signOut: vi.fn().mockResolvedValue(undefined),
   },
-  chatUserService: { me: vi.fn() },
+  chatUserService: { me: chatUserMe },
+  chatConversationService: {
+    getConversations: chatConversationGetConversations,
+  },
+  chatMessageService: { getMessages: chatMessageGetMessages },
 }));
 
 /**
  * A data router with one splat route around `<AppRoutes />`, rather than a
  * `MemoryRouter`: only a data router exposes `state.historyAction`, which is
- * what proves a guard bounced with `replace` and not `push`.
+ * what proves a guard bounced with `replace` and not `push`. Wrapped in
+ * Virtuoso's own test context (virtuoso.dev/testing) so the conversation and
+ * message lists render deterministically with no ResizeObserver-driven
+ * measurement to wait on.
  */
 function renderAt(path: string) {
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
@@ -48,7 +80,11 @@ function renderAt(path: string) {
   });
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <RouterProvider router={router} />
+      <VirtuosoMockContext.Provider
+        value={{ viewportHeight: 800, itemHeight: 60 }}
+      >
+        <RouterProvider router={router} />
+      </VirtuosoMockContext.Provider>
     </QueryClientProvider>,
   );
   return router;
@@ -61,6 +97,13 @@ describe("the route tree", () => {
     useAuthStore.setState(initialAuthState, true);
     chatHealthCheck.mockReset();
     chatAuthRefresh.mockReset();
+    chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+    chatConversationGetConversations
+      .mockReset()
+      .mockResolvedValue({ items: [], nextCursor: null });
+    chatMessageGetMessages
+      .mockReset()
+      .mockResolvedValue({ items: [], nextCursor: null });
   });
 
   it("blocks on the Health gate until the health check resolves", async () => {
@@ -133,6 +176,140 @@ describe("the route tree", () => {
       expect(
         await screen.findByRole("heading", { name: "404 Not Found" }),
       ).toBeInTheDocument();
+    });
+
+    describe("the conversation screens", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+      });
+
+      it("renders the sidebar with one conversation from the list", async () => {
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: {
+                id: "m1",
+                conversationId: "c1",
+                senderId: "u2",
+                content: "See you tomorrow",
+                type: ChatMessageType.TEXT,
+                createdAt: "2026-09-16T00:00:00.000Z",
+                updatedAt: "2026-09-16T00:00:00.000Z",
+              },
+              lastMessageAt: "2026-09-16T00:00:00.000Z",
+              unreadCount: 2,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.HOME);
+
+        expect(await screen.findByText("Lan Nguyen")).toBeInTheDocument();
+        expect(
+          screen.getByText("Lan Nguyen: See you tomorrow"),
+        ).toBeInTheDocument();
+        expect(screen.getByText("2")).toBeInTheDocument();
+      });
+
+      it("shows the empty state when there are no conversations", async () => {
+        renderAt(ROUTES.HOME);
+
+        expect(
+          await screen.findByText("No conversations to show."),
+        ).toBeInTheDocument();
+      });
+
+      it("renders a conversation's message history and the other person's name at /conversation/:id", async () => {
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: {
+                id: "m1",
+                conversationId: "c1",
+                senderId: "u2",
+                content: "Hey, are we still on for tomorrow?",
+                type: ChatMessageType.TEXT,
+                createdAt: "2026-09-16T08:00:00.000Z",
+                updatedAt: "2026-09-16T08:00:00.000Z",
+              },
+              lastMessageAt: "2026-09-16T08:00:00.000Z",
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+        chatMessageGetMessages.mockResolvedValue({
+          items: [
+            {
+              id: "m1",
+              conversationId: "c1",
+              senderId: "u2",
+              content: "Hey, are we still on for tomorrow?",
+              type: ChatMessageType.TEXT,
+              createdAt: "2026-09-16T08:00:00.000Z",
+              updatedAt: "2026-09-16T08:00:00.000Z",
+            },
+          ],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.conversationByIdPath("c1"));
+
+        // The panel header names the other participant.
+        expect(
+          await screen.findByRole("heading", { name: "Lan Nguyen" }),
+        ).toBeInTheDocument();
+        // "No messages yet." only renders on an empty result — its absence is
+        // what proves the mocked page reached the mapped `messages` array.
+        // (The bubble text itself renders inside a virtualized list that
+        // `react-virtuoso`'s own jsdom test harness cannot paint for a
+        // non-zero scroll-to-bottom target — see use-conversation-messages.test.tsx
+        // for the same pipeline asserted directly on the hook's output.)
+        await waitFor(() =>
+          expect(
+            screen.queryByText("No messages yet."),
+          ).not.toBeInTheDocument(),
+        );
+        expect(chatMessageGetMessages).toHaveBeenCalledWith(
+          "c1",
+          expect.objectContaining({ cursor: undefined }),
+        );
+      });
     });
   });
 });

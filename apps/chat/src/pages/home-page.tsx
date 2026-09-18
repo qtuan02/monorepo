@@ -1,5 +1,5 @@
-import HomeTemplate from "~/features/layout/templates/home.template";
+import ConversationShellTemplate from "~/features/conversation/templates/conversation-shell.template";
 
 export default function HomePage() {
-  return <HomeTemplate />;
+  return <ConversationShellTemplate />;
 }

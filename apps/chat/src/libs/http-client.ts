@@ -1,5 +1,7 @@
 import { ChatAuthService } from "@monorepo/api/chat/auth-service";
+import { ChatConversationService } from "@monorepo/api/chat/conversation-service";
 import { ChatHealthService } from "@monorepo/api/chat/health-service";
+import { ChatMessageService } from "@monorepo/api/chat/message-service";
 import { ChatUserService } from "@monorepo/api/chat/user-service";
 import { createHttpClient } from "@monorepo/api/client";
 
@@ -63,3 +65,5 @@ export const httpClient = createHttpClient({
 export const chatAuthService = new ChatAuthService(httpClient);
 export const chatHealthService = new ChatHealthService(httpClient);
 export const chatUserService = new ChatUserService(httpClient);
+export const chatConversationService = new ChatConversationService(httpClient);
+export const chatMessageService = new ChatMessageService(httpClient);

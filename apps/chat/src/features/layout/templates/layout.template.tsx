@@ -4,10 +4,10 @@ import SignOutButton from "~/features/auth/components/sign-out-button";
 
 /**
  * The public surface of the `layout` slice, and the element every in-app
- * page nests under. The real sidebar/bottom-nav chrome (per the source app)
- * has nowhere to point yet — every destination it would link to
- * (conversation, friends, profile) lands in a later ticket — so this stays a
- * bare frame with a working sign-out until one exists.
+ * page nests under. Still a bare top bar: the `conversation` slice now owns
+ * its own sidebar (see conversation-shell.template.tsx), but the source
+ * app's persistent bottom-nav/profile chrome has nowhere to point yet until
+ * friends/profile land in a later ticket.
  */
 export default function LayoutTemplate() {
   return (
@@ -16,7 +16,7 @@ export default function LayoutTemplate() {
         <span className="text-sm font-semibold">Chat</span>
         <SignOutButton />
       </header>
-      <main className="flex flex-1 flex-col">
+      <main className="flex min-h-0 flex-1 flex-col">
         <Outlet />
       </main>
     </div>
