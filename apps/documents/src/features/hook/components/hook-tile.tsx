@@ -20,7 +20,10 @@ export default function HookTile({ entry }: HookTileProps) {
 
   return (
     <Tile to={ROUTES.hookBySlugPath(entry.slug)} slug={entry.slug}>
-      <span className="text-muted-foreground mt-1 line-clamp-2 text-sm">
+      <span
+        data-testid="tile-description"
+        className="text-muted-foreground mt-1 line-clamp-2 text-sm"
+      >
         {t(`documents.hooks.items.${entry.slug}.description`)}
       </span>
     </Tile>

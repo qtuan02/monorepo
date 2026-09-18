@@ -48,7 +48,10 @@ export function Tile({ to, slug, count, wide, children }: TileProps) {
             flex items of it — the same auto-blockify that makes `truncate`
             hold on Link's own flex children at `sm`+ today. */}
         <span className="flex min-w-0 flex-1 flex-col sm:contents">
-          <span className="font-mono text-sm font-semibold max-sm:truncate">
+          <span
+            data-testid="tile-slug"
+            className="font-mono text-sm font-semibold max-sm:truncate"
+          >
             {slug}
           </span>
           {children}

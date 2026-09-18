@@ -141,8 +141,8 @@ test.describe("viewport", () => {
       await gotoAndWaitForHeading(page, 375, ROUTES.COMPONENTS, "Component");
 
       const firstTile = page.getByRole("listitem").first();
-      const swatch = firstTile.locator(".swatch-gradient");
-      const slug = firstTile.locator("span.font-mono.font-semibold").first();
+      const swatch = firstTile.getByTestId("swatch");
+      const slug = firstTile.getByTestId("tile-slug");
 
       const [tileBox, swatchBox, slugBox] = await Promise.all([
         firstTile.boundingBox(),
@@ -155,6 +155,34 @@ test.describe("viewport", () => {
 
       expect(tileBox.height).toBeLessThan(80);
       expect(Math.abs(swatchBox.y - slugBox.y)).toBeLessThanOrEqual(4);
+    });
+
+    // The hook page's longest slug ("use-isomorphic-layout-effect") is the
+    // one the brief measured — it must stay one line, and the sentence under
+    // it clamps to two, so a long description can never blow the row height.
+    test("the use-isomorphic-layout-effect row on /hooks keeps its slug on one line and its description to two", async ({
+      page,
+    }) => {
+      await gotoAndWaitForHeading(page, 375, ROUTES.HOOKS, "Hook");
+
+      const row = page
+        .getByRole("listitem")
+        .filter({ hasText: "use-isomorphic-layout-effect" });
+      const slug = row.getByTestId("tile-slug");
+      const description = row.getByTestId("tile-description");
+
+      const [slugBox, descriptionBox] = await Promise.all([
+        slug.boundingBox(),
+        description.boundingBox(),
+      ]);
+      if (!slugBox || !descriptionBox) {
+        throw new Error("the use-isomorphic-layout-effect row has no box");
+      }
+
+      // One line of 14px mono text is ~20px tall; two lines of the 14px
+      // description sentence is ~40px — three would push past 48.
+      expect(slugBox.height).toBeLessThanOrEqual(24);
+      expect(descriptionBox.height).toBeLessThanOrEqual(48);
     });
   });
 
