@@ -27,6 +27,13 @@ describe("SearchDialog", { timeout: 20_000 }, () => {
     useBuildingStore.setState(initialBuildingState, true);
   });
 
+  it("shows the Windows/Linux shortcut label — jsdom's navigator is not a Mac", () => {
+    renderDialog();
+
+    expect(screen.getByText("Ctrl K")).toBeInTheDocument();
+    expect(screen.queryByText("⌘K")).not.toBeInTheDocument();
+  });
+
   it("opens on Ctrl+K with the quick links, then switches to real Mock results on a query", async () => {
     const user = userEvent.setup();
     renderDialog();

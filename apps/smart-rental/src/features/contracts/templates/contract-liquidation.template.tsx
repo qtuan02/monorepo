@@ -100,9 +100,9 @@ export default function ContractLiquidationTemplate({
     >
       {isLive ? (
         <>
-          <Alert className="border-warning/20 bg-warning/10 text-warning">
+          <Alert className="border-warning/20 bg-warning/10">
             <AlertTriangle className="text-warning" />
-            <AlertDescription className="text-warning">
+            <AlertDescription className="text-warning-foreground-strong">
               Thanh lý hợp đồng là quá trình không thể hoàn tác. Vui lòng kiểm
               tra kỹ thông tin trước khi xác nhận.
             </AlertDescription>

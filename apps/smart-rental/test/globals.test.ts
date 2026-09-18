@@ -2,10 +2,17 @@ import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { contrastRatio, hexToRgb } from "./support/contrast";
+import {
+  blendOverRgb,
+  contrastRatio,
+  hexToRgb,
+  oklchToRgb,
+  parseOklch,
+} from "./support/contrast";
 import {
   atRuleRegions,
   declarationsOf,
+  declared,
   unconditional,
   withoutComments,
 } from "./support/css-tokens";
@@ -39,6 +46,27 @@ const OVERRIDDEN_TOKENS = [
   "accent-foreground",
 ] as const;
 
+/**
+ * The four AA text tokens ticket #181 adds beside the palette override — a
+ * badge/Alert's own tint (`--success` etc.) is tuned as a solid fill's
+ * background, not as small text on its own 10%-alpha wash, so `statusTone`
+ * reads these instead (ADR-0011 Consequences).
+ */
+const STRONG_TEXT_TOKENS = [
+  "success-foreground-strong",
+  "warning-foreground-strong",
+  "info-foreground-strong",
+  "destructive-foreground-strong",
+] as const;
+
+/** Which theme.css tone each strong-text token reads AA against. */
+const STRONG_TEXT_TOKEN_TONE = {
+  "success-foreground-strong": "success",
+  "warning-foreground-strong": "warning",
+  "info-foreground-strong": "info",
+  "destructive-foreground-strong": "destructive",
+} as const;
+
 /** Status colours never move — a status keeps the same meaning in every app. */
 const STATUS_TOKENS = [
   "destructive",
@@ -64,12 +92,14 @@ const themes = {
 describe.each(Object.entries(themes))("%s palette", (_theme, { override }) => {
   const rgb = (token: string) => hexToRgb(override[token] ?? "");
 
-  it("overrides exactly the tokens the brief names, in hex — radius aside, which carries no colour", () => {
+  it("overrides exactly the tokens the brief names plus the four AA text tokens, in hex — radius aside, which carries no colour", () => {
     const colourTokens = Object.keys(override).filter(
       (key) => key !== "radius",
     );
-    expect(colourTokens.sort()).toEqual([...OVERRIDDEN_TOKENS].sort());
-    for (const token of OVERRIDDEN_TOKENS) {
+    expect(colourTokens.sort()).toEqual(
+      [...OVERRIDDEN_TOKENS, ...STRONG_TEXT_TOKENS].sort(),
+    );
+    for (const token of [...OVERRIDDEN_TOKENS, ...STRONG_TEXT_TOKENS]) {
       expect(override[token], token).toMatch(/^#[0-9a-f]{6}$/);
     }
   });
@@ -142,6 +172,38 @@ describe("status/chart tokens stay the theme's", () => {
   });
 });
 
+describe("the four AA text tokens read 4.5:1 on their own /10 tint and on the card", () => {
+  for (const themeName of ["light", "dark"] as const) {
+    describe(`${themeName} theme`, () => {
+      const override = themes[themeName].override;
+      const themeRoot = declarationsOf(
+        themeSource,
+        themeName === "light" ? ":root" : ".dark",
+      );
+      const cardRgb = oklchToRgb(parseOklch(declared(themeRoot, "card")));
+
+      for (const [strongToken, tone] of Object.entries(
+        STRONG_TEXT_TOKEN_TONE,
+      )) {
+        it(`${strongToken} on bg-${tone}/10 and on the card`, () => {
+          const strongRgb = hexToRgb(declared(override, strongToken));
+          const toneRgb = oklchToRgb(parseOklch(declared(themeRoot, tone)));
+          const washRgb = blendOverRgb(toneRgb, 0.1, cardRgb);
+
+          expect(
+            contrastRatio(strongRgb, washRgb),
+            `${strongToken} on the /10 wash`,
+          ).toBeGreaterThanOrEqual(4.5);
+          expect(
+            contrastRatio(strongRgb, cardRgb),
+            `${strongToken} on the card`,
+          ).toBeGreaterThanOrEqual(4.5);
+        });
+      }
+    });
+  }
+});
+
 describe("where the override sits in the cascade", () => {
   /**
    * `@monorepo/tailwind-config/globals` imports `theme.css` with a plain
@@ -152,7 +214,11 @@ describe("where the override sits in the cascade", () => {
    */
   it("keeps every overridden token, and the radius, outside every @layer block", () => {
     for (const region of atRuleRegions(globalsSource, "layer")) {
-      for (const token of [...OVERRIDDEN_TOKENS, "radius"]) {
+      for (const token of [
+        ...OVERRIDDEN_TOKENS,
+        ...STRONG_TEXT_TOKENS,
+        "radius",
+      ]) {
         expect(region, token).not.toMatch(new RegExp(`--${token}:`));
       }
     }

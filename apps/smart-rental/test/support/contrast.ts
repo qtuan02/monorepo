@@ -110,6 +110,19 @@ export function contrastRatio(foreground: Rgb, background: Rgb): number {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
+/**
+ * Alpha-composites `fg` over `bg` in 8-bit sRGB — the "over" operator a
+ * browser applies to paint a translucent colour like `bg-success/10`, so the
+ * result is the background contrast a test can actually check text against.
+ */
+export function blendOverRgb(fg: Rgb, alpha: number, bg: Rgb): Rgb {
+  return {
+    r: Math.round(fg.r * alpha + bg.r * (1 - alpha)),
+    g: Math.round(fg.g * alpha + bg.g * (1 - alpha)),
+    b: Math.round(fg.b * alpha + bg.b * (1 - alpha)),
+  };
+}
+
 export function rgbToHex({ r, g, b }: Rgb): string {
   return `#${[r, g, b].map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
 }

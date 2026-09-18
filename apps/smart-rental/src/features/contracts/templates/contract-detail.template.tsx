@@ -159,9 +159,9 @@ export default function ContractDetailTemplate({
           content: (
             <>
               {contract.status === "EXPIRING" && daysUntilEnd >= 0 && (
-                <Alert variant="destructive">
-                  <AlertCircle />
-                  <AlertDescription>
+                <Alert className="border-warning/20 bg-warning/10">
+                  <AlertCircle className="text-warning" />
+                  <AlertDescription className="text-warning-foreground-strong">
                     Hợp đồng sẽ hết hạn trong {daysUntilEnd} ngày. Vui lòng gia
                     hạn hoặc liên hệ Người thuê.
                   </AlertDescription>

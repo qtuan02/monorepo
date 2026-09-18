@@ -126,14 +126,18 @@ export function TaskQueue({ tasks }: TaskQueueProps) {
               </ItemTitle>
               <ItemDescription>{task.description}</ItemDescription>
             </ItemContent>
-            <ItemActions>
+            {/* Own row on < md (spec #179 §"IA và mobile" #37): squeezed
+                beside ItemContent's flex-1, the action row had no width left
+                and "Xem" truncated to "Xe". `size="default"` (h-9) also
+                clears the 36px touch-target floor the old `sm` (h-8) missed. */}
+            <ItemActions className="w-full flex-wrap md:w-auto">
               {actionsFor(task).map((action, index) => {
                 const variant = index === 0 ? "default" : "outline";
                 return action.kind === "reminder" ? (
                   <Button
                     key={action.label}
                     type="button"
-                    size="sm"
+                    size="default"
                     variant={variant}
                     onClick={() => remindTask(task)}
                   >
@@ -143,7 +147,7 @@ export function TaskQueue({ tasks }: TaskQueueProps) {
                   <Link
                     key={action.label}
                     to={action.to}
-                    className={cn(buttonVariants({ size: "sm", variant }))}
+                    className={cn(buttonVariants({ size: "default", variant }))}
                   >
                     {action.label}
                   </Link>

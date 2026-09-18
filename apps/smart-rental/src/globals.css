@@ -71,6 +71,23 @@
   /* #EFF6FF — the hover wash the navy sits on; the ink is the primary itself. */
   --accent: #eff6ff;
   --accent-foreground: #1e3a5f;
+
+  /*
+   * Four AA text tokens for a status badge's own tint (spec #179 §"Token",
+   * ticket #181). `--success`/`--warning`/`--info`/`--destructive` are tuned
+   * as a solid fill's background (their own `-foreground` pair is white/near-
+   * black for exactly that reason) — as small TEXT on their own 10%-alpha
+   * wash (`bg-success/10`) they read under WCAG 1.4.3's 4.5:1. `statusTone`
+   * reads these instead for a badge's text; the wash, the icon and the
+   * border stay the raw hue. Sits beside this override rather than in
+   * `theme.css` until a second app needs the same fix (ADR-0011
+   * Consequences) — a status colour otherwise never changes meaning between
+   * apps (ADR-0009's condition).
+   */
+  --success-foreground-strong: #016630;
+  --warning-foreground-strong: #973c00;
+  --info-foreground-strong: #193cb8;
+  --destructive-foreground-strong: #9f0712;
 }
 
 .dark {
@@ -90,4 +107,24 @@
   /* #1E293B — slate-800, the dark hover wash; ink is a light blue tint. */
   --accent: #1e293b;
   --accent-foreground: #93c5fd;
+
+  /* Lifted the same way the rest of `.dark` lifts its accent — unused until
+     a toggle ships, same as the block above (see the comment on :root). */
+  --success-foreground-strong: #4ade80;
+  --warning-foreground-strong: #fb923c;
+  --info-foreground-strong: #60a5fa;
+  --destructive-foreground-strong: #f87171;
+}
+
+/**
+ * Named into Tailwind's colour namespace so `text-success-foreground-strong`
+ * etc. are utilities rather than arbitrary values — the same move
+ * `apps/portfolio/src/globals.css` makes for `--highlight-foreground`.
+ * `inline` so the `.dark` swap above still reaches it.
+ */
+@theme inline {
+  --color-success-foreground-strong: var(--success-foreground-strong);
+  --color-warning-foreground-strong: var(--warning-foreground-strong);
+  --color-info-foreground-strong: var(--info-foreground-strong);
+  --color-destructive-foreground-strong: var(--destructive-foreground-strong);
 }

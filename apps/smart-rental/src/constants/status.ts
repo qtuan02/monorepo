@@ -50,10 +50,15 @@ import type {
  * and a config is what `StatusBadge` and a faceted filter both read.
  */
 export const statusTone = {
-  success: "bg-success/10 text-success border-success/20",
-  warning: "bg-warning/10 text-warning border-warning/20",
-  error: "bg-destructive/10 text-destructive border-destructive/20",
-  info: "bg-info/10 text-info border-info/20",
+  // The wash, the border and (per call site) the icon stay the raw theme
+  // hue; the text reads the AA-tuned `-foreground-strong` token instead —
+  // `text-success` etc. fails WCAG 1.4.3 as small text on its own 10%-alpha
+  // wash (ticket #181, spec #179 §"Token").
+  success: "bg-success/10 text-success-foreground-strong border-success/20",
+  warning: "bg-warning/10 text-warning-foreground-strong border-warning/20",
+  error:
+    "bg-destructive/10 text-destructive-foreground-strong border-destructive/20",
+  info: "bg-info/10 text-info-foreground-strong border-info/20",
   neutral: "bg-muted text-muted-foreground border-border",
   muted: "bg-muted text-muted-foreground border-border",
   primary: "bg-primary/10 text-primary border-primary/20",
