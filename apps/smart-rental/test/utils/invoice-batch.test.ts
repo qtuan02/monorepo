@@ -53,7 +53,7 @@ function utility(overrides: Partial<Utility> = {}): Utility {
 }
 
 describe("buildBatchInvoiceRows", () => {
-  it("is eligible once both điện and nước of the kỳ are VERIFIED", () => {
+  it("is eligible once both điện and nước of the kỳ are FINALIZED", () => {
     const rows = buildBatchInvoiceRows(
       "b1",
       "2026-10",
