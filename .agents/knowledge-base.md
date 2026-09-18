@@ -325,8 +325,11 @@ ADR-0004, and none of it is visible from a single file.
   hook, and a dependency would mean matching two independently-versioned shells by hand at every
   release. Mechanically it is *not* a bundle: rslib's `autoExternal` is bundle-mode only, and in
   bundleless mode every non-relative specifier is external, full stop. So `packages/ui/rslib.config.ts`
-  compiles the whole of `packages/hook/src` into `dist/internal/` as a second `lib` and rewrites the
-  import through `output.externals`. `resolve.alias` does not work here — externalization runs first,
+  compiles `use-is-mobile` and the one module it imports (`use-media-query`) into `dist/internal/`
+  as a second `lib` — the same two files `tsconfig.hook.json` includes, since tsgo emits a `.d.ts`
+  for everything included rather than only the entries — and rewrites the import through
+  `output.externals`. `use-media-query` is Derived from hooks-ts, so the shell also ships
+  `LICENSE-hooks-ts` (ADR-0010). `resolve.alias` does not work here — externalization runs first,
   so the alias never gets a turn.
 - **That `../internal/` prefix is only correct because every output file sits exactly one level under
   `dist/`** (`components/`, `utils/`). A new file at `src/*.tsx` importing the hook would silently
@@ -350,18 +353,21 @@ ADR-0004, and none of it is visible from a single file.
   emits preflight and the whole utility layer twice. The script throws if either upstream import line
   it replaces is gone, if a `@custom-variant` went missing, or if a `@monorepo/` string survived into
   a file that will sit on npm.
-- **A consumer must write the `@source` line, and nothing warns when they don't.** Tailwind v4 skips
-  `node_modules`, so these three lines are the contract:
+- **The shipped `globals.css` registers its own `@source`, and nothing warns if that line is lost.**
+  Tailwind v4 skips `node_modules` and resolves `@source` relative to the stylesheet that carries it,
+  so `build.ts` writes `@source "./";` into `dist/globals.css` and the consumer contract is two lines:
 
   ```css
   @import "tailwindcss";
   @import "@fe-monorepo/ui/globals.css";
-  @source "../node_modules/@fe-monorepo/ui/dist";
   ```
 
-  Verified by deleting the third: `vite build` stays green, a stylesheet is still emitted, and every
-  utility the primitives use compiles to nothing. That is why `publish:smoke` asserts on the *built*
-  CSS (`.whitespace-nowrap`, `[data-orientation=vertical]`) rather than on the shipped file.
+  Before 2026-09-17 the consumer wrote a third line, `@source "../node_modules/@fe-monorepo/ui/dist";`,
+  and a misaimed path failed the same silent way a missing one did: `vite build` stays green, a
+  stylesheet is still emitted, and every utility the primitives use compiles to nothing. That is why
+  `publish:smoke`'s consumer writes only the two lines and asserts on the *built* CSS
+  (`.whitespace-nowrap`, `[data-orientation=vertical]`) rather than on the shipped file — it is the one
+  place the self-registration is proven on a real tarball.
 - **`tw-animate-css` and `tailwind-scrollbar` are real `dependencies` of the ui shell, not peers.**
   `dist/globals.css` `@import`s/`@plugin`s them, and Tailwind resolves those specifiers relative to
   that CSS file inside `node_modules`. Miss them and components lose their animations and scrollbars,
@@ -423,4 +429,10 @@ history, never for terminology or "how we do X here".
   `skills-lock.json`; re-sync those with the CLI rather than hand-editing one, or the hash drifts
   and `skills experimental_install` can no longer restore it. The six `gitnexus-*` skills have
   **no** lock entry: `npx gitnexus analyze` writes them, and `skills update` neither knows about nor
-  restores them.
+  restores them. A third owner, also outside the lock: the seven skills `npx ui-ux-pro-max-cli init --ai claude`
+  writes from `nextlevelbuilder/ui-ux-pro-max-skill` (`ui-ux-pro-max` + six siblings). `npx ui-ux-pro-max-cli update`
+  re-renders them, `npx ui-ux-pro-max-cli uninstall --ai claude` removes all seven, and there is no lock file at all.
+  The core's `scripts/search.py` needs Python 3, which this repo deliberately does not install — the
+  skill is used as static data (`Grep` over `data/*.csv`), per `CLAUDE.md` §7a. `biome.json` excludes
+  all seven directories, because they carry ~1.4 MB of JSON and a few `.cjs` files that are not this
+  repo's source.

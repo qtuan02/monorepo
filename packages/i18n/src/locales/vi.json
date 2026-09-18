@@ -108,17 +108,28 @@
   "portfolio": {
     "meta": {
       "title": "Huỳnh Quốc Tuấn",
-      "description": "Frontend Developer với hơn 3 năm kinh nghiệm xây dựng ứng dụng web mở rộng được bằng React.js và Next.js. Chuyển thiết kế Figma thành giao diện responsive, làm việc với SSR/ISR và đặt trọng tâm vào chất lượng sản phẩm."
+      "description": "Frontend Developer 2+ năm kinh nghiệm với React.js và Next.js, đã ship app Expo/React Native và backend .NET, quen monorepo, CI và design system chung."
     },
     "hero": {
-      "greeting": "Xin chào, mình là Tuấn",
-      "subtitle": "Một developer yêu nghề, thích học, thích thử nghiệm và biến công nghệ mới thành sản phẩm dùng được",
-      "avatarAlt": "Ảnh chân dung Huỳnh Quốc Tuấn",
-      "zoomLabel": "Vùng phóng to ảnh đại diện"
+      "commands": {
+        "whoami": "whoami",
+        "role": "cat role.txt",
+        "current": "current --job"
+      },
+      "name": "Huỳnh Quốc Tuấn",
+      "positioning": "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
+      "current": "Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.",
+      "actions": {
+        "email": "Email",
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "print": "In CV"
+      },
+      "avatarAlt": "Ảnh chân dung Huỳnh Quốc Tuấn"
     },
     "about": {
       "title": "Giới thiệu",
-      "experience": "Frontend Developer với hơn 3 năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Quen chuyển thiết kế Figma thành giao diện sạch, responsive, đồng thời dựng component tái sử dụng và giữ codebase dễ bảo trì. Thoải mái làm việc với SSR, ISR và quản lý state để cải thiện hiệu năng cùng trải nghiệm người dùng. Có thể hỗ trợ phần backend khi cần, luôn đặt trọng tâm vào chất lượng sản phẩm, sự ổn định và khả năng phát triển lâu dài.",
+      "experience": "Frontend Developer với 2+ năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Frontend là gốc, và khi dự án cần thì đã ship cả app di động Expo/React Native lẫn backend .NET 8, Spring Boot, PayloadCMS. Quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state để cải thiện hiệu năng và trải nghiệm người dùng.",
       "mindset": "Làm việc nhóm và giao tiếp tốt. Học nhanh, tinh thần thích nghi cao. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng. Có thể làm cả frontend lẫn backend khi dự án cần."
     },
     "work": {
@@ -126,25 +137,30 @@
       "techStack": "Công nghệ:",
       "toggle": "Xem chi tiết công việc",
       "items": {
-        "fptis": {
+        "medviet": {
           "role": "Kỹ sư phần mềm",
-          "period": "02/2026 – Hiện tại",
+          "period": "03/2026 – Hiện tại",
           "bullets": {
-            "system": "Social Protection System — hệ thống quản lý bảo trợ xã hội quy mô lớn của nhà nước, gồm nhiều phân hệ nghiệp vụ và dữ liệu được xử lý tập trung.",
-            "modules": "Phát triển và bảo trì các phân hệ lõi: danh mục, cơ sở trợ giúp xã hội, nhân sự, đối tượng thụ hưởng và quản lý người dùng.",
-            "screens": "Dựng các màn quản trị nặng dữ liệu với danh sách phức tạp, biểu mẫu, đa bộ lọc và phân trang.",
-            "components": "Xây dựng component tái sử dụng cho bảng và ô nhập liệu để giao diện nhất quán và hệ thống mở rộng được.",
-            "logic": "Phối hợp cài đặt nghiệp vụ và đồng bộ API trong kiến trúc microservices và monorepo.",
-            "stability": "Giữ hệ thống ổn định bằng cách xử lý luồng dữ liệu và các vấn đề hiệu năng xuyên suốt full stack."
+            "monorepo": "Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó: đăng nhập người bệnh qua IAM kèm captcha, phiếu khám sinh từ form-server, lưu và ký theo từng nhóm chỉ tiêu.",
+            "mobile": "Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR, hồ sơ trình ký và chữ ký; tách app thành monorepo với một lớp SDK service, và hết ANR sau khi làm phẳng danh sách nhóm theo ngày thành row stream.",
+            "legacy": "Bảo trì web EMR legacy (Next.js 14 + Redux): màn đơn thuốc và gói dịch vụ, biểu đồ chuyển dạ, phân quyền và web-config.",
+            "dotnet": "Viết command/query handler .NET 8 (EF Core, MediatR) phía HIS server cho danh mục dịch vụ y tế và đơn thuốc mẫu."
           }
         },
         "arobid": {
           "role": "Lập trình viên Frontend",
-          "period": "02/2025 – 02/2026",
+          "period": "03/2025 – 02/2026",
+          "awards": {
+            "vda2025": {
+              "label": "VDA 2025",
+              "tooltip": "Sản phẩm, dịch vụ, giải pháp công nghệ số xuất sắc — Vietnam Digital Awards 2025"
+            }
+          },
           "bullets": {
             "tradexpo": "TradeXpo — nền tảng triển lãm số: dựng các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
             "immersive": "Tích hợp hệ thống 3D/VR bằng Shapespark qua iframe và postMessage; phát triển gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
             "tracking": "Tích hợp CleverTap để đo hành vi người dùng; tối ưu trải nghiệm cho trang nhiều media và nội dung động; bám sát Figma và luồng sản phẩm.",
+            "mobile": "Mobile App (React Native): bảo trì và sửa lỗi app trong monorepo Expo, đưa các component dùng chung theo chuẩn Shadcn sang bản mobile.",
             "award": "TradeXpo góp phần giúp nền tảng đạt giải Giải pháp công nghệ số xuất sắc tại Vietnam Digital Awards 2025.",
             "cms": "CMS Platform — Tin tức, FAQ, Tuyển dụng: dựng CMS dùng chung cho nhiều loại nội dung, kèm các trang quản trị bài viết, danh mục và nội dung có cấu trúc.",
             "rendering": "Áp dụng SSR và ISR cho SEO, tốc độ tải trang và khả năng hiển thị trên công cụ tìm kiếm; giữ luồng dữ liệu ổn định giữa frontend và backend."
@@ -160,15 +176,27 @@
             "internal": "Nền tảng quản trị nội bộ: bảng dữ liệu lớn, đa bộ lọc, tìm kiếm, phân trang; báo cáo hoạt động cuộc gọi, nhật ký công việc và quy trình thuế; tích hợp Omicall, ClickUp và GDT.",
             "uiSystem": "Hệ thống UI nội bộ: component dùng chung giữa các dự án, chuẩn hoá cách dùng, tài liệu bằng Storybook, sửa layout và kiểm thử giao diện thủ công."
           }
+        }
+      }
+    },
+    "projects": {
+      "title": "Dự án học và demo",
+      "note": "Làm để học và thử công nghệ, mỗi cái có repo công khai và demo sống — không phải sản phẩm production.",
+      "links": {
+        "source": "Mã nguồn",
+        "sourceFrontend": "Mã nguồn (FE)",
+        "sourceBackend": "Mã nguồn (BE)",
+        "demo": "Xem demo"
+      },
+      "items": {
+        "monorepo": {
+          "description": "Workspace Bun + Turborepo với ba Runtime app sinh từ Template, dùng chung tám package source-only. Chính là site portfolio đang xem."
         },
-        "wisdom": {
-          "role": "Kỹ sư phần mềm",
-          "period": "03/2023 – 09/2023",
-          "bullets": {
-            "project": "Vehicle Maintenance System — tham gia từ giai đoạn đầu, làm việc cùng BA về yêu cầu và quy trình bảo dưỡng.",
-            "backend": "Phát triển dịch vụ backend bằng Java Spring Boot và PostgreSQL; dựng màn hình frontend bằng Next.js.",
-            "modules": "Hỗ trợ các phân hệ xe, lịch bảo dưỡng, phụ tùng và dữ liệu vận hành."
-          }
+        "chat-socket": {
+          "description": "Ứng dụng chat thời gian thực full-stack: React 19 + Rsbuild ở client, Spring Boot ở server, nhắn tin qua STOMP trên WebSocket."
+        },
+        "documents": {
+          "description": "Site tài liệu cho hai gói npm @fe-monorepo/ui và @fe-monorepo/hook: nội dung sinh tự động từ mã nguồn bằng oxc-parser, mỗi primitive có link sang Storybook."
         }
       }
     },
@@ -182,16 +210,32 @@
       }
     },
     "skills": {
-      "title": "Kỹ năng"
+      "title": "Kỹ năng",
+      "groups": {
+        "frontend": "Frontend",
+        "mobile": "Mobile",
+        "backend": "Backend",
+        "devops": "DevOps & CI",
+        "tooling": "Công cụ"
+      }
     },
     "contact": {
       "title": "Liên hệ",
+      "labels": {
+        "birthday": "Sinh nhật",
+        "phone": "Điện thoại",
+        "location": "Địa chỉ",
+        "github": "GitHub",
+        "email": "Email",
+        "linkedin": "LinkedIn"
+      },
       "items": {
         "birthday": "20/07/2002",
         "phone": "(+84) 393 653 862",
         "location": "Quận 7, TP. Hồ Chí Minh, Việt Nam",
         "github": "github.com/qtuan02",
-        "email": "huynhquoctuan200702@gmail.com"
+        "email": "huynhquoctuan200702@gmail.com",
+        "linkedin": "linkedin.com/in/tuan-huynh-916b792b7"
       }
     },
     "hobbies": {
@@ -235,92 +279,124 @@
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",
-      "title": "Tài liệu @fe-monorepo",
-      "description": "Cách cài, import và dùng hai gói @fe-monorepo/ui và @fe-monorepo/hook.",
       "pageTitle": "{page} · Tài liệu @fe-monorepo"
     },
     "nav": {
-      "sections": "Nội dung",
       "gettingStarted": "Bắt đầu",
       "components": "Component",
       "hooks": "Hook",
-      "toggleSidebar": "Ẩn hiện thanh điều hướng",
-      "openMenu": "Mở menu",
+      "menu": "Mở menu",
+      "skipToContent": "Bỏ qua tới nội dung",
       "npm": "Xem trên npm",
-      "storybook": "Mở Storybook"
+      "storybook": "Mở Storybook",
+      "search": {
+        "label": "Tìm component, hook…",
+        "placeholder": "Gõ tên component hoặc hook…",
+        "title": "Tìm trong tài liệu",
+        "description": "Gõ để lọc component và hook; Enter mở trang.",
+        "groupComponents": "Component",
+        "groupHooks": "Hook",
+        "empty": "Không có component hay hook nào khớp."
+      },
+      "theme": {
+        "toLight": "Chuyển sang giao diện sáng",
+        "toDark": "Chuyển sang giao diện tối"
+      }
     },
     "search": {
       "label": "Lọc danh sách",
       "placeholder": "Lọc theo tên…",
       "empty": "Không có kết quả cho “{query}”.",
-      "clear": "Xoá bộ lọc"
+      "clear": "Xoá bộ lọc",
+      "emptyHint": "Thử một từ khoá ngắn hơn, hoặc gõ đúng tên slug — ví dụ “dialog”."
     },
     "home": {
       "title": "Bắt đầu",
-      "description": "Hai gói được publish từ workspace này: 63 primitive Base UI và 5 React hook. Cả hai chỉ có subpath entry, nên bạn import đúng một file mình cần.",
+      "hero": {
+        "tag": "v{version} · ESM · React 19 · Tailwind v4",
+        "title": "Primitive Base UI,",
+        "titleAccent": "mỗi import một file.",
+        "lead": "Hai gói publish từ workspace này — {components, plural, other {# primitive}} và {hooks, plural, other {# hook}}. Không có root entry, không CommonJS: bạn gọi đúng subpath mình cần và mọi thứ khác không đi theo.",
+        "copyCommand": "Sao chép lệnh cài"
+      },
+      "cards": {
+        "components": "{count, plural, other {primitive Base UI}}",
+        "hooks": "{count, plural, other {hook dùng chung}}",
+        "storybook": "Demo & bảng props",
+        "storybookCta": "Mở Storybook"
+      },
+      "guides": {
+        "ui": "Primitive Base UI kiểu shadcn `base-vega`, mỗi component một subpath. Cần Tailwind v4 và một dòng import stylesheet.",
+        "hook": "Hook React dùng chung, mỗi hook một subpath. Không stylesheet, không cấu hình — cài là dùng."
+      },
       "install": {
         "title": "Cài đặt",
-        "description": "Thêm gói vào dự án của bạn.",
-        "note": "Cả hai gói là ESM thuần và không kèm bản CommonJS."
+        "description": "Một gói, một lệnh. Chọn trình quản lý gói bạn dùng rồi sao chép."
       },
       "peers": {
         "title": "Peer dependency",
-        "description": "Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package.",
-        "packageColumn": "Gói",
-        "rangeColumn": "Phạm vi"
+        "description": "Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package."
       },
       "css": {
         "title": "Nối stylesheet",
-        "description": "Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó.",
-        "sourceWarning": "Tailwind v4 không quét node_modules. Thiếu dòng @source, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
+        "description": "Hai dòng trong entry Tailwind v4 của bạn — không có dòng @source nào phải tự viết.",
+        "importWarningTitle": "Dòng import globals.css không phải tuỳ chọn",
+        "importWarning": "Tailwind v4 không quét node_modules, và resolve @source tương đối với stylesheet chứa nó — nên globals.css tự khai @source \"./\" trỏ vào dist của chính package. Bỏ dòng import, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.",
         "fragmentNote": "globals.css là một fragment chứ không phải entry Tailwind đầy đủ: nó cố ý không chứa @import “tailwindcss”, vì tailwindcss là peer dependency thuộc về bạn."
+      },
+      "theme": {
+        "title": "Theme của riêng bạn",
+        "description": "Token là biến CSS trên :root và .dark, được @theme inline map thành utility — nên brand của bạn chỉ là khai lại biến sau dòng import.",
+        "snippetComment": "/* token của riêng bạn → bg-brand, text-brand */",
+        "layerNote": "Viết phần override unlayered như trên. Khối :root / .dark trong package cũng unlayered, nên khối khai sau thắng theo thứ tự nguồn — còn cùng những dòng đó đặt trong @layer base sẽ compile, ship, và thua. Dark mode là class .dark trên phần tử tổ tiên, không phải prefers-color-scheme."
       },
       "example": {
         "title": "Ví dụ đầu tiên",
         "description": "Mỗi primitive nằm ở subpath mang đúng tên file của nó."
+      },
+      "hook": {
+        "title": "Dùng hook",
+        "description": "Không stylesheet, không peer nào ngoài react và react-dom: cài xong là import theo subpath mang tên file.",
+        "snippetComment": "// lọc hoặc fetch theo `debouncedSearch`, bind input vào `search`"
       },
       "noRootEntry": {
         "title": "Không có root entry",
         "description": "Không có import { Button } from “@fe-monorepo/ui”. Root entry không tồn tại, nên luôn gọi tên subpath."
       },
       "next": {
-        "title": "Đi tiếp",
         "components": "Xem danh sách primitive",
         "hooks": "Xem danh sách hook"
       }
     },
     "components": {
       "title": "Component",
-      "description": "Mỗi dòng là một subpath của @fe-monorepo/ui. Mở một dòng để đọc danh sách export và xem demo trên Storybook.",
+      "description": "Mỗi tile là một subpath của @fe-monorepo/ui. Mở tile để đọc export và xem demo trên Storybook.",
       "count": "{count, plural, other {# component}}",
-      "exportCount": "{count, plural, other {# export}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Export"
-      },
+      "exportPreviewMore": "{count, plural, other {+#}}",
       "detail": {
+        "exportSummary": "{count, plural, other {# export}}",
         "import": "Import",
         "exports": "Export",
-        "demo": "Demo",
-        "demoDescription": "Bản demo tương tác và bảng props sống nằm trong Storybook.",
-        "demoLink": "Mở {name} trên Storybook",
-        "back": "Về danh sách component"
+        "storybook": "Mở trên Storybook",
+        "example": "Ví dụ",
+        "exampleFrame": "Ví dụ {slug} trên Storybook"
       }
+    },
+    "detail": {
+      "prev": "Trước: {slug}",
+      "next": "Sau: {slug}"
     },
     "hooks": {
       "title": "Hook",
-      "description": "Năm hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
+      "description": "{count} hook dùng chung, mỗi hook một subpath của @fe-monorepo/hook.",
       "count": "{count, plural, other {# hook}}",
-      "exportCount": "{count, plural, other {# export}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Export"
-      },
       "detail": {
+        "exportSummary": "{count, plural, other {# export}}",
         "import": "Import",
         "exports": "Export",
-        "description": "Mô tả",
-        "back": "Về danh sách hook"
+        "example": "Ví dụ",
+        "exampleFrame": "Ví dụ {slug} trên Storybook",
+        "usage": "Cách dùng"
       },
       "items": {
         "use-debounce": {
@@ -337,11 +413,49 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect ở trình duyệt, useEffect ở phía server."
+        },
+        "use-local-storage": {
+          "description": "[value, setValue] lưu vào localStorage dạng JSON; an toàn khi render phía server, trả initialValue khi không có window."
+        },
+        "use-session-storage": {
+          "description": "[value, setValue, removeValue] lưu vào sessionStorage dạng JSON; an toàn khi render phía server, trả initialValue khi không có window."
+        },
+        "use-boolean": {
+          "description": "Boolean state kèm toggle, setTrue, setFalse cạnh setter thô."
+        },
+        "use-counter": {
+          "description": "Counter số kèm increment, decrement, reset và set."
+        },
+        "use-toggle": {
+          "description": "Boolean toggle: gọi không tham số để đảo, truyền giá trị để ép cứng."
+        },
+        "use-countdown": {
+          "description": "Đếm ngược mỗi giây từ một số giây ban đầu, kèm reset."
+        },
+        "use-timeout": {
+          "description": "Chạy callback một lần sau delay; bỏ qua khi delay là null."
+        },
+        "use-previous": {
+          "description": "Trả về giá trị của lần render trước, undefined ở lần đầu."
+        },
+        "use-hover": {
+          "description": "Theo dõi con trỏ có đang ở trên một phần tử hay không, qua mouseenter/mouseleave."
+        },
+        "use-on-screen": {
+          "description": "Báo một phần tử có đang nằm trong viewport hay không, qua IntersectionObserver."
+        },
+        "use-throttle": {
+          "description": "Throttle value: cập nhật ngay ở lần đổi đầu tiên ngoài cửa sổ delay, và một lần nữa cho giá trị cuối khi cửa sổ đóng."
+        },
+        "use-network-status": {
+          "description": "Theo dõi navigator.onLine qua sự kiện online/offline; an toàn khi render phía server, trả về true."
+        },
+        "use-dark-mode": {
+          "description": "[isDarkMode, toggle] lưu vào localStorage, mặc định theo prefers-color-scheme; tuỳ chỉnh storageKey, className và target."
         }
       }
     },
     "code": {
-      "copy": "Sao chép",
       "copied": "Đã sao chép",
       "copyLabel": "Sao chép đoạn mã"
     },

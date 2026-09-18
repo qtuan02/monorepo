@@ -48,25 +48,22 @@ export const PEER_DEPENDENCIES: Record<
 };
 
 export interface InstallCommand {
+  /** The package manager's name — the tab's value and its label alike. */
   id: string;
-  label: string;
   command: string;
 }
 
-export const INSTALL_COMMANDS: readonly InstallCommand[] = [
-  {
-    id: "bun",
-    label: "bun",
-    command: `bun add ${UI_PACKAGE_NAME} ${HOOK_PACKAGE_NAME}`,
-  },
-  {
-    id: "npm",
-    label: "npm",
-    command: `npm install ${UI_PACKAGE_NAME} ${HOOK_PACKAGE_NAME}`,
-  },
-  {
-    id: "pnpm",
-    label: "pnpm",
-    command: `pnpm add ${UI_PACKAGE_NAME} ${HOOK_PACKAGE_NAME}`,
-  },
-];
+/**
+ * The install line for ONE package, per package manager. One package rather
+ * than both in a single command: the two guides on Getting Started are kept
+ * apart, and a reader who wants only the hooks should not be told to install
+ * the UI package too.
+ */
+export function installCommands(packageName: string): InstallCommand[] {
+  return [
+    { id: "bun", command: `bun add ${packageName}` },
+    { id: "npm", command: `npm install ${packageName}` },
+    { id: "pnpm", command: `pnpm add ${packageName}` },
+    { id: "yarn", command: `yarn add ${packageName}` },
+  ];
+}

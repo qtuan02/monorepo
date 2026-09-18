@@ -7,12 +7,15 @@ Các context còn lại là Turborepo workspace (`apps/*`, `packages/*`), mỗi 
 ## Contexts
 
 - [Root](./CONTEXT.md) — Reference · Target · Skeleton · Template app · Runtime · Flavor · Route module · Gate · Locale message · Publish shell.
+- [`apps/portfolio`](./apps/portfolio/CONTEXT.md) — CV site; từ v2 thêm từ vựng hình dạng (khối tiêu chuẩn, cửa sổ terminal, dòng lệnh, highlight, bóng đặc, đảo cực, neutral override — ADR-0008).
+- [`apps/documents`](./apps/documents/CONTEXT.md) — site tài liệu cho hai Publish shell; từ hướng D "Prism" (2026-09-16): Catalogue · Panel kính · Backdrop · Swatch · Tile · Nav pill (ADR-0009).
+- [`apps/smart-rental`](./apps/smart-rental/CONTEXT.md) — Portal quản lý phòng trọ (Runtime Vite, port từ prototype `fe-motel-rsbuild`): Portal, Mock, Toà nhà, Building scope, Phòng, Người thuê, Hợp đồng (Gia hạn / Thanh lý), Hoá đơn, Chỉ số điện nước, Hoá đơn nhà cung cấp, Chi phí, Đối soát, Khai báo lưu trú, Việc cần làm, Giá điện bậc thang. Spec #127; glossary ghi trước khi `gen:app` chạy (grill 2026-09-16); thư mục chưa có `package.json` cho tới ticket đầu.
 
-Chưa có context nào ở mức workspace. Repo đã có bảy app (ba Template, `portfolio`,
-`documents`, `mcp-weather`, `storybook`), tám package nguồn cộng hai Publish
-shell (ADR-0004) và hai tooling, nhưng chưa workspace nào chốt thuật ngữ **của riêng nó** — từ vựng đang dùng
-(Runtime, Flavor, Template app, Gate) đều là của context gốc. `CONTEXT.md` đầu tiên ở mức
-workspace sẽ được `/domain-modeling` tạo khi có thuật ngữ thật để ghi, không dựng sẵn file
+`apps/portfolio` là workspace **đầu tiên** chốt được một thuật ngữ của riêng nó, ở vòng
+grill 2026-09-06 của spec #103; `apps/documents` là workspace thứ hai và `apps/smart-rental` thứ ba (cùng ngày 2026-09-16). Năm app còn lại (ba Template, `mcp-weather`,
+`storybook`), tám package nguồn cộng hai Publish shell (ADR-0004) và hai tooling vẫn chưa —
+từ vựng chúng dùng (Runtime, Flavor, Template app, Gate) đều là của context gốc. `CONTEXT.md`
+ở mức workspace được `/domain-modeling` tạo khi có thuật ngữ thật để ghi, không dựng sẵn file
 rỗng.
 
 ## Relationships

@@ -8,40 +8,48 @@ import {
   ChartTooltipContent,
 } from "@monorepo/ui/components/chart";
 
+import { atlasProject } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Chart",
+  component: ChartContainer,
+  subcomponents: { ChartTooltip, ChartTooltipContent },
   tags: ["autodocs"],
-} satisfies Meta;
+  parameters: { stage: { width: "lg" } },
+} satisfies Meta<typeof ChartContainer>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
+const revenueByMonth = [
+  { month: "January", atlas: 1860, beacon: 800 },
+  { month: "February", atlas: 3050, beacon: 2000 },
+  { month: "March", atlas: 2370, beacon: 1200 },
+  { month: "April", atlas: 730, beacon: 1900 },
+  { month: "May", atlas: 2090, beacon: 1300 },
+  { month: "June", atlas: 2140, beacon: 1400 },
 ];
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  atlas: {
+    label: atlasProject.name,
     color: "var(--chart-1)",
   },
-  mobile: {
-    label: "Mobile",
+  beacon: {
+    label: "Beacon",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
 export const Default: Story = {
-  args: {},
+  // ChartContainer's `config`/`children` are required props with no sensible
+  // default, so TypeScript needs `args` even though `render` supplies them.
+  args: {} as Story["args"],
+  parameters: { controls: { disable: true } },
   render: () => (
-    <ChartContainer config={chartConfig} className="w-full max-w-lg">
-      <BarChart accessibilityLayer data={chartData}>
+    <ChartContainer config={chartConfig} className="w-full">
+      <BarChart accessibilityLayer data={revenueByMonth}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="month"
@@ -51,8 +59,8 @@ export const Default: Story = {
           tickFormatter={(value: string) => value.slice(0, 3)}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
-        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-        <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+        <Bar dataKey="atlas" fill="var(--color-atlas)" radius={4} />
+        <Bar dataKey="beacon" fill="var(--color-beacon)" radius={4} />
       </BarChart>
     </ChartContainer>
   ),

@@ -7,9 +7,13 @@ import {
   MarkerIcon,
 } from "@monorepo/ui/components/marker";
 
+import { hanaSato } from "~/support/people";
+import { atlasProject } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Marker",
   component: Marker,
+  subcomponents: { MarkerIcon, MarkerContent },
   tags: ["autodocs"],
 } satisfies Meta<typeof Marker>;
 
@@ -18,31 +22,43 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <Marker className="max-w-sm">
+    <Marker>
       <MarkerIcon>
         <InfoIcon />
       </MarkerIcon>
-      <MarkerContent>Read 2 minutes ago</MarkerContent>
+      <MarkerContent>
+        {hanaSato.name} requested a review on {atlasProject.name} — 2 minutes
+        ago
+      </MarkerContent>
     </Marker>
   ),
 };
 
-export const Separator: Story = {
-  args: {},
+export const Variants: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <Marker variant="separator" className="max-w-sm">
-      <MarkerContent>Today</MarkerContent>
-    </Marker>
-  ),
-};
-
-export const Border: Story = {
-  args: {},
-  render: () => (
-    <Marker variant="border" className="max-w-sm">
-      <MarkerContent>New messages</MarkerContent>
-    </Marker>
+    <div className="flex w-full flex-col gap-3">
+      <Marker>
+        <MarkerIcon>
+          <InfoIcon />
+        </MarkerIcon>
+        <MarkerContent>
+          {hanaSato.name} requested a review on {atlasProject.name}
+        </MarkerContent>
+      </Marker>
+      <Marker variant="separator">
+        <MarkerContent>Today</MarkerContent>
+      </Marker>
+      <Marker variant="border">
+        <MarkerContent>3 new notifications</MarkerContent>
+      </Marker>
+    </div>
   ),
 };

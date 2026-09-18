@@ -14,9 +14,14 @@ import {
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
 
+import { northwindInvoices } from "~/support/invoices";
+import { currentPerson, northwindPeople } from "~/support/people";
+import { atlasProject } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Tabs",
   component: Tabs,
+  subcomponents: { TabsList, TabsTrigger, TabsContent },
   tags: ["autodocs"],
 } satisfies Meta<typeof Tabs>;
 
@@ -24,72 +29,119 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+const atlasInvoiceCount = northwindInvoices.filter(
+  (invoice) => invoice.projectId === atlasProject.id,
+).length;
+
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "lg" },
+  },
   render: () => (
-    <Tabs defaultValue="overview" className="w-[400px]">
+    <Tabs defaultValue="overview">
       <TabsList>
         <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        <TabsTrigger value="reports">Reports</TabsTrigger>
-        <TabsTrigger value="settings">Settings</TabsTrigger>
+        <TabsTrigger value="invoices">Invoices</TabsTrigger>
+        <TabsTrigger value="team">Team</TabsTrigger>
       </TabsList>
       <TabsContent value="overview">
         <Card>
           <CardHeader>
-            <CardTitle>Overview</CardTitle>
-            <CardDescription>
-              View your key metrics and recent project activity. Track progress
-              across all your active projects.
-            </CardDescription>
+            <CardTitle>{atlasProject.name}</CardTitle>
+            <CardDescription>{atlasProject.summary}</CardDescription>
           </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
-            You have 12 active projects and 3 pending tasks.
+          <CardContent className="text-sm text-muted-foreground">
+            Owned by {currentPerson.name}. The billing migration is 62%
+            complete.
           </CardContent>
         </Card>
       </TabsContent>
-      <TabsContent value="analytics">
+      <TabsContent value="invoices">
         <Card>
           <CardHeader>
-            <CardTitle>Analytics</CardTitle>
+            <CardTitle>Invoices</CardTitle>
             <CardDescription>
-              Track performance and user engagement metrics. Monitor trends and
-              identify growth opportunities.
+              Every invoice billed against {atlasProject.name}.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
-            Page views are up 25% compared to last month.
+          <CardContent className="text-sm text-muted-foreground">
+            {atlasInvoiceCount} invoice on file, most recently{" "}
+            {northwindInvoices[0]?.id}.
           </CardContent>
         </Card>
       </TabsContent>
-      <TabsContent value="reports">
+      <TabsContent value="team">
         <Card>
           <CardHeader>
-            <CardTitle>Reports</CardTitle>
+            <CardTitle>Team</CardTitle>
             <CardDescription>
-              Generate and download your detailed reports. Export data in
-              multiple formats for analysis.
+              Northwind members with access to {atlasProject.name}.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
-            You have 5 reports ready and available to export.
-          </CardContent>
-        </Card>
-      </TabsContent>
-      <TabsContent value="settings">
-        <Card>
-          <CardHeader>
-            <CardTitle>Settings</CardTitle>
-            <CardDescription>
-              Manage your account preferences and options. Customize your
-              experience to fit your needs.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-muted-foreground text-sm">
-            Configure notifications, security, and themes.
+          <CardContent className="text-sm text-muted-foreground">
+            {northwindPeople.length} members, led by {currentPerson.name}.
           </CardContent>
         </Card>
       </TabsContent>
     </Tabs>
+  ),
+};
+
+export const Orientation: Story = {
+  render: () => (
+    <Tabs defaultValue="overview" orientation="vertical">
+      <TabsList>
+        <TabsTrigger value="overview">Overview</TabsTrigger>
+        <TabsTrigger value="invoices">Invoices</TabsTrigger>
+        <TabsTrigger value="team">Team</TabsTrigger>
+      </TabsList>
+      <TabsContent value="overview">
+        <p className="text-sm text-muted-foreground">
+          {atlasProject.summary}, owned by {currentPerson.name}.
+        </p>
+      </TabsContent>
+      <TabsContent value="invoices">
+        <p className="text-sm text-muted-foreground">
+          {atlasInvoiceCount} invoice billed against {atlasProject.name}.
+        </p>
+      </TabsContent>
+      <TabsContent value="team">
+        <p className="text-sm text-muted-foreground">
+          {northwindPeople.length} Northwind members have access.
+        </p>
+      </TabsContent>
+    </Tabs>
+  ),
+};
+
+export const Variants: Story = {
+  render: () => (
+    <div className="flex flex-col gap-6">
+      {(["default", "line"] as const).map((variant) => (
+        <Tabs key={variant} defaultValue="overview">
+          <TabsList variant={variant}>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="invoices">Invoices</TabsTrigger>
+            <TabsTrigger value="team">Team</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <p className="text-sm text-muted-foreground">
+              {atlasProject.summary}, owned by {currentPerson.name}.
+            </p>
+          </TabsContent>
+          <TabsContent value="invoices">
+            <p className="text-sm text-muted-foreground">
+              {atlasInvoiceCount} invoice billed against {atlasProject.name}.
+            </p>
+          </TabsContent>
+          <TabsContent value="team">
+            <p className="text-sm text-muted-foreground">
+              {northwindPeople.length} Northwind members have access.
+            </p>
+          </TabsContent>
+        </Tabs>
+      ))}
+    </div>
   ),
 };

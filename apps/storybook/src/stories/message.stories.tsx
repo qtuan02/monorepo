@@ -10,9 +10,12 @@ import {
   MessageHeader,
 } from "@monorepo/ui/components/message";
 
+import { conversationOpener, conversationReply } from "~/support/conversation";
+
 const meta = {
   title: "Storybook/Message",
   component: Message,
+  subcomponents: { MessageGroup, MessageAvatar, MessageContent, MessageHeader },
   tags: ["autodocs"],
 } satisfies Meta<typeof Message>;
 
@@ -21,26 +24,29 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <MessageGroup className="max-w-sm">
+    <MessageGroup>
       <Message align="start">
         <MessageAvatar>
           <Avatar>
-            <AvatarFallback>AI</AvatarFallback>
+            <AvatarFallback>NA</AvatarFallback>
           </Avatar>
         </MessageAvatar>
         <MessageContent>
-          <MessageHeader>Assistant</MessageHeader>
+          <MessageHeader>Northwind Assistant</MessageHeader>
           <Bubble variant="muted">
-            <BubbleContent>Hi, how can I help you today?</BubbleContent>
+            <BubbleContent>{conversationOpener.text}</BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>
       <Message align="end">
         <MessageContent>
           <Bubble align="end" variant="default">
-            <BubbleContent>I need help resetting my password.</BubbleContent>
+            <BubbleContent>{conversationReply.text}</BubbleContent>
           </Bubble>
         </MessageContent>
       </Message>

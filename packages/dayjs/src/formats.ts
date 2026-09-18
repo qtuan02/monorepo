@@ -6,6 +6,8 @@
 export const DATE_FORMAT = "DD/MM/YYYY";
 /** The year on its own, where a full date would only add noise. */
 export const YEAR_FORMAT = "YYYY";
+/** A billing period — a month and its year, day-free. */
+export const MONTH_FORMAT = "MM/YYYY";
 export const TIME_FORMAT = "HH:mm";
 export const TIME_WITH_SECONDS_FORMAT = "HH:mm:ss";
 export const DATE_TIME_FORMAT = "DD/MM/YYYY HH:mm";

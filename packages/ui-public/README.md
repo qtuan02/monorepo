@@ -28,28 +28,30 @@ bun add @fe-monorepo/ui
 | `tailwindcss` | `^4` |
 
 The package is ESM-only (`"type": "module"`) and ships no CommonJS build. It does **not**
-depend on `@fe-monorepo/hook`: the one hook it uses internally is compiled into its own
+depend on `@fe-monorepo/hook`: the two hooks it uses internally are compiled into its own
 `dist/`, so installing the UI package pulls in no sibling.
 
 ## Set up the stylesheet
 
-Two lines in your Tailwind v4 entry, and one that matters more than it looks:
+Two lines in your Tailwind v4 entry:
 
 ```css
 /* src/index.css */
 @import "tailwindcss";
 @import "@fe-monorepo/ui/globals.css";
-
-/* Tailwind v4 does not scan node_modules. Without this line every class inside the
-   package compiles to nothing and the components render unstyled. Adjust the path so it
-   points at the installed package from wherever this file lives. */
-@source "../node_modules/@fe-monorepo/ui/dist";
 ```
 
-`@fe-monorepo/ui/globals.css` is a **fragment**, not a full Tailwind entry: it carries the
-theme tokens, the `dark` variant, this package's base layer and the two `data-orientation`
-variants the primitives style against — but not `@import "tailwindcss"` itself, which is
-yours to own since `tailwindcss` is a peer dependency.
+The second line is not optional. Tailwind v4 does not scan `node_modules`, so a package
+built with Tailwind has to be registered with `@source` — and since v4 resolves `@source`
+relative to the stylesheet that carries it, `globals.css` does that itself with
+`@source "./"` pointing at its own `dist/`. You write no path. Drop the import and every
+class inside the package compiles to nothing, with no error, and the components render
+unstyled.
+
+`@fe-monorepo/ui/globals.css` is a **fragment**, not a full Tailwind entry: it carries that
+`@source`, the theme tokens, the `dark` variant, this package's base layer and the two
+`data-orientation` variants the primitives style against — but not `@import "tailwindcss"`
+itself, which is yours to own since `tailwindcss` is a peer dependency.
 
 The base layer is opinionated, so here is all of it: `border-border` and `outline-ring/50`
 on `*`; `background`/`foreground` plus `position: relative` on `body` (iOS 26 Safari needs a
@@ -69,6 +71,41 @@ Base UI states orientation as a *value* attribute (`data-orientation="vertical"`
 the shadcn registry styles against a bare `data-vertical:`. Without the two variants,
 every such utility compiles to no CSS and no error — sliders lose their height, scrollbars
 their width, and a tabs list stretches to full height.
+
+### Your own theme
+
+The tokens are plain CSS variables on `:root` and `.dark` (`--primary`, `--radius`, …),
+and `@theme inline` maps each onto a utility (`--color-primary: var(--primary)` → `bg-primary`).
+So a brand is a redeclaration **after** the import, and nothing else:
+
+```css
+@import "tailwindcss";
+@import "@fe-monorepo/ui/globals.css";
+
+:root {
+  --primary: oklch(0.55 0.2 260);
+  --primary-foreground: oklch(0.98 0 0);
+  --radius: 0.375rem;
+}
+
+.dark {
+  --primary: oklch(0.7 0.18 260);
+}
+
+/* A token of your own: map it once, then `bg-brand` / `text-brand` exist. */
+@theme inline {
+  --color-brand: var(--brand);
+}
+:root {
+  --brand: oklch(0.72 0.19 45);
+}
+```
+
+Write the override **unlayered**, as above. The shipped `:root` / `.dark` blocks are
+unlayered too, so a later unlayered block wins by source order — while the same
+declarations inside `@layer base` would compile, ship and lose to them. Dark mode is the
+`dark` variant on a `.dark` class up the tree (`<html class="dark">`), not
+`prefers-color-scheme`. The full token list is the `:root` block of the shipped file.
 
 ## Usage
 
@@ -204,3 +241,12 @@ picks up types with no `paths` entry and no `@types/*` package.
 ## License
 
 MIT
+
+## Third-party notices
+
+`sidebar` reads the viewport through two hooks compiled into `dist/internal/` from this
+workspace's hook package. One of them, `use-media-query`, is derived from
+[hooks-ts](https://github.com/michal-worwag/hooks-ts) (`hooks-ts@0.12.0`, MIT © 2024 Michał
+Worwąg); the upstream license ships in this package as
+[`LICENSE-hooks-ts`](./LICENSE-hooks-ts). Nothing under `dist/internal/` is part of the
+public `exports`.

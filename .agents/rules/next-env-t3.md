@@ -36,14 +36,14 @@ each key on its own rather than parsing one `z.object`.
 export const env = createEnv({
   // ❌ prefixed but filed as server — absent from the object on the client, so every
   //    browser read is `undefined` and nothing warns
-  server: { NEXT_PUBLIC_SENTRY_DSN: httpUrlSchema.optional() },
+  server: { NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN: httpUrlSchema.optional() },
   client: {},
   // ❌ not literal `process.env.NEXT_PUBLIC_*` reads — Next has nothing to substitute
   clientRuntimeEnv: Object.fromEntries(Object.entries(process.env)),
 });
 ```
 
-**Correct (`apps/_template_next/src/env.ts` — three blocks, literal reads, namespace zod):**
+**Correct (`apps/mcp-weather/src/env.ts` — three blocks, literal reads, namespace zod):**
 
 ```ts
 import * as z from "zod";
@@ -53,17 +53,20 @@ import { createEnv } from "@monorepo/env/next/create-env";
 
 export const env = createEnv({
   // ✅ no prefix → never inlined, and t3-env throws if a Client Component reads it
-  server: { TEMPLATE_API_TOKEN: z.string().min(1).optional() },
+  server: { MCP_WEATHER_OPENWEATHERMAP_API_KEY: z.string().min(1) },
   // ✅ prefixed → validated in the browser bundle; the base keys are already merged in
-  client: { NEXT_PUBLIC_SENTRY_DSN: httpUrlSchema.optional() },
+  client: { NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN: httpUrlSchema.optional() },
   // ✅ literal reads, in code Next compiles, so each is substituted at build time
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN: process.env.NEXT_PUBLIC_MCP_WEATHER_SENTRY_DSN,
   },
 });
 ```
+
+`apps/_template_next/src/env.ts` is the same shape with an empty `server` block — it has no backend
+to authenticate against, so it declares no secret rather than an optional placeholder nobody reads.
 
 ## One root `.env`, loaded by dotenv-cli; the image validates it by import
 
@@ -94,9 +97,10 @@ RUN cd apps/${APP_DIRNAME} && bun --env-file=/app/.env -e "import './src/env.ts'
 
 - `env.ts` holds the schema **and** the `createEnv` call — never a separate `env-schema.ts`, or the
   Dockerfile check stops proving anything.
-- New variable → add `NEXT_PUBLIC_<NAME>` (with a dev value) to the root `.env.example`, declare it in
-  `client`, list it in `clientRuntimeEnv`, update the Docker build ARGs. A secret goes in `server`
-  with no prefix and is **not** listed in `clientRuntimeEnv`.
+- New variable → add `NEXT_PUBLIC_<APP>_<NAME>` (with a dev value) to the root `.env.example` under a
+  comment naming the app, declare it in `client`, list it in `clientRuntimeEnv`. A secret goes in
+  `server` as `<APP>_<NAME>` with no prefix and is **not** listed in `clientRuntimeEnv`. The Template
+  is an app like any other here: its own keys are `NEXT_PUBLIC_TEMPLATE_NEXT_…`.
 - Import zod as `import * as z from "zod"` — the named form breaks on CI's musl build (see
   [[forms-schema-driven]]); URLs use `httpUrlSchema` from `@monorepo/env/http-url` —
   the Runtime-independent piece both Flavors share, and imported by subpath like everything else in

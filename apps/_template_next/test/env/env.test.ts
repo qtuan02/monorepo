@@ -29,7 +29,7 @@ describe("env", () => {
   it("leaves the optional Sentry DSN undefined rather than throwing", async () => {
     const { env } = await importEnv();
 
-    expect(env.NEXT_PUBLIC_SENTRY_DSN).toBeUndefined();
+    expect(env.NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN).toBeUndefined();
   });
 
   it("throws naming the variable when a base URL is missing", async () => {
@@ -49,7 +49,7 @@ describe("env", () => {
   });
 
   it("rejects a Sentry DSN that is not an http(s) URL", async () => {
-    vi.stubEnv("NEXT_PUBLIC_SENTRY_DSN", "not-a-url");
+    vi.stubEnv("NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN", "not-a-url");
 
     await expect(importEnv()).rejects.toThrow(/Invalid environment/);
   });

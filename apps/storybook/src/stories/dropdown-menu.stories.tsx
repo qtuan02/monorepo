@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   CloudIcon,
-  CreditCardIcon,
   KeyboardIcon,
   LogOutIcon,
   MailIcon,
   MessageSquareIcon,
   PlusCircleIcon,
   PlusIcon,
+  ReceiptIcon,
   SettingsIcon,
   UserIcon,
   UserPlusIcon,
@@ -32,9 +32,26 @@ import {
   DropdownMenuTrigger,
 } from "@monorepo/ui/components/dropdown-menu";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/DropdownMenu",
   component: DropdownMenu,
+  subcomponents: {
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuLabel,
+    DropdownMenuItem,
+    DropdownMenuCheckboxItem,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof DropdownMenu>;
 
@@ -43,15 +60,17 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="outline">Open Menu</Button>}
+        render={<Button variant="outline">{currentPerson.name}</Button>}
       />
       <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuLabel>{currentPerson.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <UserIcon />
@@ -59,7 +78,7 @@ export const Default: Story = {
             <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <CreditCardIcon />
+            <ReceiptIcon />
             Billing
             <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
@@ -83,29 +102,29 @@ export const Default: Story = {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger>
               <UserPlusIcon />
-              Invite users
+              Invite teammate
             </DropdownMenuSubTrigger>
             <DropdownMenuSubContent>
               <DropdownMenuItem>
                 <MailIcon />
-                Email
+                Email invite
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <MessageSquareIcon />
-                Message
+                Message invite
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
           <DropdownMenuItem>
             <PlusCircleIcon />
-            New Team
+            New project
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <CloudIcon />
-            API
+            API access
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -119,21 +138,22 @@ export const Default: Story = {
 };
 
 export const Checkboxes: Story = {
-  args: {},
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger render={<Button variant="outline">View</Button>} />
+      <DropdownMenuTrigger
+        render={<Button variant="outline">Columns</Button>}
+      />
       <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
-          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+          <DropdownMenuLabel>Invoice columns</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuCheckboxItem defaultChecked>
-            Status Bar
+            Status
           </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem disabled>
-            Activity Bar
+          <DropdownMenuCheckboxItem defaultChecked>
+            Owner
           </DropdownMenuCheckboxItem>
-          <DropdownMenuCheckboxItem>Panel</DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem>Due date</DropdownMenuCheckboxItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -141,19 +161,20 @@ export const Checkboxes: Story = {
 };
 
 export const RadioGroup: Story = {
-  args: {},
   render: () => (
     <DropdownMenu>
       <DropdownMenuTrigger
-        render={<Button variant="outline">Panel Position</Button>}
+        render={<Button variant="outline">Sort by</Button>}
       />
       <DropdownMenuContent className="w-56">
-        <DropdownMenuRadioGroup defaultValue="bottom">
-          <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
+        <DropdownMenuRadioGroup defaultValue="newest">
+          <DropdownMenuLabel>Sort invoices by</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="bottom">Bottom</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="newest">
+            Newest first
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="amount">Amount</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="status">Status</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -161,19 +182,18 @@ export const RadioGroup: Story = {
 };
 
 export const IconTrigger: Story = {
-  args: {},
   render: () => (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="Create">
             <PlusIcon />
           </Button>
         }
       />
       <DropdownMenuContent align="end">
-        <DropdownMenuItem>New file</DropdownMenuItem>
-        <DropdownMenuItem>New folder</DropdownMenuItem>
+        <DropdownMenuItem>New invoice</DropdownMenuItem>
+        <DropdownMenuItem>New project</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   ),

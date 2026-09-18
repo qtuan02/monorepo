@@ -6,6 +6,7 @@ import {
   DATE_TIME_FORMAT,
   FULL_DATE_FORMAT,
   FULL_DATE_TIME_FORMAT,
+  MONTH_FORMAT,
   TIME_FORMAT,
   TIME_WITH_SECONDS_FORMAT,
   YEAR_FORMAT,
@@ -22,6 +23,7 @@ describe("the format table", () => {
 
     expect(instant.format(DATE_FORMAT)).toBe("05/03/2024");
     expect(instant.format(YEAR_FORMAT)).toBe("2024");
+    expect(instant.format(MONTH_FORMAT)).toBe("03/2024");
     expect(instant.format(TIME_FORMAT)).toBe("08:09");
     expect(instant.format(TIME_WITH_SECONDS_FORMAT)).toBe("08:09:07");
     expect(instant.format(DATE_TIME_FORMAT)).toBe("05/03/2024 08:09");

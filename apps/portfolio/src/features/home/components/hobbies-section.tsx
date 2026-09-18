@@ -1,38 +1,34 @@
 import { useTranslations } from "next-intl";
 
-import BlurFade from "~/features/home/components/blur-fade";
+import SectionHeading from "~/features/home/components/section-heading";
+import StandardBlock from "~/features/home/components/standard-block";
 import { HOBBY_ITEMS } from "~/features/home/constants/resume";
 
-interface HobbiesSectionProps {
-  delay: number;
-}
-
-/** The closing column beside the contact lines — icon plus label, no links. */
-export default function HobbiesSection({ delay }: HobbiesSectionProps) {
+/**
+ * The closing block beside the contact lines — icon plus label, no links. A
+ * hobby's name is prose, not a field name, so it stays in sans.
+ */
+export default function HobbiesSection() {
   const t = useTranslations();
 
   return (
     <section id="hobbies">
-      <div className="flex min-h-0 flex-col gap-y-3">
-        <BlurFade delay={delay}>
-          <h2 className="text-xl font-bold">{t("portfolio.hobbies.title")}</h2>
-        </BlurFade>
-        <div className="flex flex-col gap-y-2">
-          {HOBBY_ITEMS.map((item, index) => {
+      <div className="flex h-full min-h-0 flex-col gap-y-3">
+        <SectionHeading>{t("portfolio.hobbies.title")}</SectionHeading>
+        <StandardBlock className="flex flex-1 flex-col gap-y-2">
+          {HOBBY_ITEMS.map((item) => {
             const Icon = item.icon;
 
             return (
-              <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
-                <div className="flex items-center gap-x-2">
-                  <Icon aria-hidden="true" className="size-4" />
-                  <span className="text-xs text-muted-foreground md:text-sm">
-                    {t(`portfolio.hobbies.items.${item.id}`)}
-                  </span>
-                </div>
-              </BlurFade>
+              <div key={item.id} className="flex items-center gap-x-2">
+                <Icon aria-hidden="true" className="size-4 shrink-0" />
+                <span className="text-sm">
+                  {t(`portfolio.hobbies.items.${item.id}`)}
+                </span>
+              </div>
             );
           })}
-        </div>
+        </StandardBlock>
       </div>
     </section>
   );

@@ -46,7 +46,10 @@
     "e2e:headed:documents": "bun run --filter @monorepo/documents e2e:headed",
     "dev:mcp-weather": "turbo watch dev -F @monorepo/mcp-weather...",
     "build:mcp-weather": "turbo run build -F @monorepo/mcp-weather...",
-    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed"
+    "e2e:headed:mcp-weather": "bun run --filter @monorepo/mcp-weather e2e:headed",
+    "dev:smart-rental": "turbo watch dev -F @monorepo/smart-rental...",
+    "build:smart-rental": "turbo run build -F @monorepo/smart-rental...",
+    "e2e:headed:smart-rental": "bun run --filter @monorepo/smart-rental e2e:headed"
   },
   "workspaces": {
     "packages": [
@@ -56,6 +59,9 @@
     ],
     "catalog": {
       "@base-ui/react": "^1.7.0",
+      "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+      "@fontsource-variable/jetbrains-mono": "^5.3.0",
+      "@fontsource-variable/outfit": "^5.3.0",
       "@hookform/resolvers": "^5.9.1",
       "@rolldown/plugin-babel": "^0.2.3",
       "@rslib/core": "~1.0.0",

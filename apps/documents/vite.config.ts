@@ -63,7 +63,7 @@ export default defineConfig({
   build: {
     // `vendor` below is deliberately one chunk, and trips Vite's 500 kB
     // advisory. Splitting it would silence the warning without moving a byte
-    // off the critical path — React, the router, Query, Base UI and i18n all
+    // off the critical path — React, the router, Base UI and i18n all
     // load at first paint either way — so the threshold moves, not the
     // chunking. Kept low enough that a heavy dependency landing in the app
     // chunk still speaks up.

@@ -3,6 +3,7 @@ import { HomeIcon } from "lucide-react";
 import type { IconComponent } from "~/types/icon";
 import { GithubIcon } from "~/components/icons/github-icon";
 import { LinkedinIcon } from "~/components/icons/linkedin-icon";
+import { PROFILE_LINKS } from "~/constants/profile";
 import { ROUTES } from "~/constants/routes";
 
 export interface NavbarItem {
@@ -23,13 +24,13 @@ export const NAVBAR_ITEMS: readonly NavbarItem[] = [
   { id: "home", href: ROUTES.HOME, external: false, icon: HomeIcon },
   {
     id: "linkedin",
-    href: "https://www.linkedin.com/in/tuan-huynh-916b792b7",
+    href: PROFILE_LINKS.linkedin,
     external: true,
     icon: LinkedinIcon,
   },
   {
     id: "github",
-    href: "https://github.com/qtuan02",
+    href: PROFILE_LINKS.github,
     external: true,
     icon: GithubIcon,
   },

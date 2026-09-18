@@ -5,7 +5,7 @@ import { env } from "~/env";
 // Next loads this file before it hydrates, so the SDK is installed ahead of any
 // app code. With no DSN in `.env` the call is a no-op — see `@monorepo/sentry`.
 initSentryClient({
-  dsn: env.NEXT_PUBLIC_SENTRY_DSN,
+  dsn: env.NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN,
   environment: env.NEXT_PUBLIC_APP_ENV,
 });
 

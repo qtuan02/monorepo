@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup — apps/documents redesign</title>
+<style>
+  :root{
+    --bg:#f8f8f9;--fg:#3d4c63;--card:#fff;--muted:#f3f3f3;--muted-fg:#646464;
+    --primary:#38a696;--accent:#eefffd;--accent-fg:#3e9084;--border:#f0f0f0;--input:#e3e3e3;
+    --warning:#ffb762;--code:#fbfbfb;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box;margin:0}
+  body{font:15px/1.6 var(--sans);color:var(--fg);background:#ddd;padding:24px}
+  h1,h2,h3{font-weight:600;letter-spacing:-.01em}
+  .note{max-width:1180px;margin:0 auto 12px;font-size:13px;color:#333}
+  .frame{max-width:1180px;margin:0 auto 40px;background:var(--bg);border:1px solid #bbb;border-radius:8px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  .frame>figcaption{background:#222;color:#eee;font:12px var(--mono);padding:6px 12px}
+  header.top{height:56px;display:flex;align-items:center;gap:12px;padding:0 24px;background:rgba(248,248,249,.95);border-bottom:1px solid var(--input)}
+  .brand{display:flex;align-items:center;gap:10px;font:600 15px var(--mono)}
+  .tile{width:32px;height:32px;border-radius:8px;background:var(--primary);color:#fff;display:grid;place-items:center;font-size:14px}
+  .ghost{width:36px;height:36px;border-radius:6px;display:grid;place-items:center;color:var(--fg);font-size:13px}
+  .ghost:hover{background:var(--accent)}
+  .sep{width:1px;height:20px;background:var(--input);margin:0 6px}
+  .spacer{flex:1}
+  .shell{display:flex;min-height:520px}
+  aside{width:256px;background:var(--card);border-right:1px solid var(--input);padding:12px 8px;font-size:14px}
+  aside .search{display:flex;align-items:center;gap:8px;height:32px;border:1px solid var(--input);border-radius:6px;padding:0 10px;color:var(--muted-fg);background:var(--bg);margin-bottom:12px;font-size:13px}
+  aside .label{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted-fg);padding:8px 8px 4px}
+  aside a{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;color:inherit;text-decoration:none}
+  aside a.mono{font:13px var(--mono)}
+  aside a.active{background:var(--accent);color:var(--accent-fg);font-weight:600}
+  aside .more{padding:4px 8px;color:var(--muted-fg);font:12px var(--mono)}
+  main{flex:1;padding:0 32px 32px}
+  .page{max-width:900px}
+  .prose{max-width:65ch;color:var(--muted-fg);font-size:16px}
+  .band{padding:32px 0 24px;border-bottom:1px solid var(--input)}
+  .band h1{font-size:30px;margin-bottom:8px}
+  .band h1.mono{font-family:var(--mono)}
+  .band .row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .meta{font:13px var(--mono);color:var(--muted-fg);margin-top:6px}
+  .back{font-size:13px;color:var(--muted-fg);text-decoration:none;display:inline-block;padding-top:20px}
+  .btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:6px;font-size:14px;font-weight:500;text-decoration:none;border:1px solid var(--input);background:var(--card);color:var(--fg)}
+  .btn.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .tabs{display:inline-flex;background:var(--muted);border-radius:6px;padding:3px;margin:16px 0 10px;font-size:13px}
+  .tabs span{padding:4px 12px;border-radius:4px}
+  .tabs span.on{background:var(--card);box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:500}
+  pre{position:relative;background:var(--code);border:1px solid var(--input);border-radius:8px;padding:14px 48px 14px 16px;font:13.5px/1.6 var(--mono);overflow-x:auto;white-space:pre}
+  pre .copy{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:6px;display:grid;place-items:center;color:var(--muted-fg);font-size:12px}
+  section.docs{display:grid;grid-template-columns:40px 1fr;gap:0 16px;padding:28px 0;border-bottom:1px solid var(--input)}
+  section.docs:last-child{border-bottom:0}
+  section.docs .idx{font:600 12px var(--mono);color:var(--primary);padding-top:6px;font-variant-numeric:tabular-nums}
+  section.docs h2{font-size:20px;margin-bottom:4px}
+  section.docs .prose{font-size:15px;margin-bottom:14px}
+  .alert{display:flex;gap:10px;border:1px solid var(--warning);background:rgba(255,183,98,.12);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:12px}
+  .alert b{display:block;margin-bottom:2px}
+  table{border-collapse:collapse;width:100%;font-size:14px;border:1px solid var(--input);border-radius:8px;overflow:hidden}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--input)}
+  th{font-size:12px;color:var(--muted-fg);font-weight:500;background:var(--muted)}
+  td{font-family:var(--mono);font-size:13px}
+  tr:last-child td{border-bottom:0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .filter{display:flex;align-items:center;justify-content:space-between;padding:20px 0;gap:12px}
+  .filter .search{width:340px;height:36px;border:1px solid var(--input);border-radius:6px;background:var(--card);display:flex;align-items:center;padding:0 10px;gap:8px;color:var(--muted-fg);font-size:14px}
+  .count{font-size:13px;color:var(--muted-fg);font-variant-numeric:tabular-nums}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{display:block;background:var(--card);border:1px solid var(--input);border-radius:8px;padding:14px 16px;text-decoration:none;color:inherit}
+  .card:hover{border-color:var(--primary)}
+  .card .slug{font:600 14px var(--mono)}
+  .card .ex{font:12px var(--mono);color:var(--muted-fg);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .empty{text-align:center;padding:48px 0;color:var(--muted-fg)}
+  .empty b{display:block;color:var(--fg);font-size:16px;margin-bottom:4px}
+  footer.bottom{border-top:1px solid var(--input);background:var(--card);font-size:12px;color:var(--muted-fg);display:flex;justify-content:space-between;padding:8px 32px}
+  .skip{position:absolute;left:24px;top:12px;background:var(--primary);color:#fff;padding:6px 10px;border-radius:6px;font-size:13px}
+</style>
+</head>
+<body>
+
+<p class="note"><b>Mockup một hướng</b> — Minimalism &amp; Swiss + Accessible (products#17/#30). Ba frame: Getting Started · trang chi tiết · danh sách. Vật dùng-một-lần cho grill; brief ở <code>docs/design/documents-redesign.md</code>. Frame 1 vẽ thêm skip link đang focus để thấy nó nằm đâu.</p>
+
+<!-- ───────────── Frame 1: Getting Started ───────────── -->
+<figure class="frame">
+<figcaption>/ — Getting Started (skip link đang focus, sidebar có ô tìm, header trung tính, section đánh số)</figcaption>
+<div style="position:relative">
+<span class="skip">Bỏ qua tới nội dung</span>
+<header class="top">
+  <span class="ghost">≡</span>
+  <span class="brand"><span class="tile">▣</span>@fe-monorepo</span>
+  <span class="spacer"></span>
+  <span class="ghost">🇻🇳</span><span class="sep"></span><span class="ghost">npm</span><span class="ghost">SB</span>
+</header>
+<div class="shell">
+  <aside>
+    <div class="search">🔍 Tìm component, hook…</div>
+    <div class="label">Nội dung</div>
+    <a class="active">📖 Bắt đầu</a><a>▦ Component</a><a>⚙ Hook</a>
+    <div class="label">Component</div>
+    <a class="mono">accordion</a><a class="mono">alert</a><a class="mono">alert-dialog</a><a class="mono">aspect-ratio</a><a class="mono">avatar</a><a class="mono">badge</a><a class="mono">breadcrumb</a>
+    <div class="more">… 56 nữa</div>
+    <div class="label">Hook</div>
+    <a class="mono">use-debounce</a><a class="mono">use-media-query</a>
+    <div class="more">… 3 nữa</div>
+  </aside>
+  <main><div class="page">
+    <div class="band">
+      <h1>Bắt đầu</h1>
+      <p class="prose">Hai gói được publish từ workspace này: 63 primitive Base UI và 5 React hook. Cả hai chỉ có subpath entry, nên bạn import đúng một file mình cần.</p>
+      <div class="tabs"><span class="on">bun</span><span>npm</span><span>pnpm</span></div>
+<pre>bun add @fe-monorepo/ui @fe-monorepo/hook<span class="copy">⧉</span></pre>
+    </div>
+    <section class="docs"><div class="idx">01</div><div>
+      <h2>Peer dependency</h2>
+      <p class="prose">Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package.</p>
+      <div class="two">
+        <table><tr><th colspan="2" style="font-family:var(--mono)">@fe-monorepo/ui</th></tr><tr><th>Gói</th><th>Phạm vi</th></tr><tr><td>react</td><td>&gt;=19</td></tr><tr><td>react-dom</td><td>&gt;=19</td></tr><tr><td>tailwindcss</td><td>^4</td></tr></table>
+        <table><tr><th colspan="2" style="font-family:var(--mono)">@fe-monorepo/hook</th></tr><tr><th>Gói</th><th>Phạm vi</th></tr><tr><td>react</td><td>&gt;=19</td></tr><tr><td>react-dom</td><td>&gt;=19</td></tr></table>
+      </div>
+    </div></section>
+    <section class="docs"><div class="idx">02</div><div>
+      <h2>Nối stylesheet</h2>
+      <p class="prose">Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó.</p>
+<pre>/* src/index.css */
+@import "tailwindcss";
+@import "@fe-monorepo/ui/globals.css";
+
+@source "../node_modules/@fe-monorepo/ui/dist";<span class="copy">⧉</span></pre>
+      <div class="alert"><span>⚠</span><div><b>Thiếu dòng @source</b>Tailwind v4 không quét node_modules. Thiếu dòng @source, mọi class bên trong package biên dịch ra rỗng, không lỗi, và component render trơ không style.</div></div>
+    </div></section>
+    <section class="docs"><div class="idx">03</div><div>
+      <h2>Ví dụ đầu tiên</h2>
+      <p class="prose">Mỗi primitive nằm ở subpath mang đúng tên file của nó.</p>
+<pre>import { Button } from "@fe-monorepo/ui/components/button";
+import { cn } from "@fe-monorepo/ui/utils/cn";<span class="copy">⧉</span></pre>
+    </div></section>
+    <section class="docs"><div class="idx">05</div><div>
+      <h2>Đi tiếp</h2>
+      <p style="margin-top:10px"><a class="btn primary">Xem danh sách primitive</a> &nbsp; <a class="btn">Xem danh sách hook</a></p>
+    </div></section>
+  </div></main>
+</div>
+<footer class="bottom"><span>© 2026 @fe-monorepo</span><span>v1.0.0</span></footer>
+</div>
+</figure>
+
+<!-- ───────────── Frame 2: Detail ───────────── -->
+<figure class="frame">
+<figcaption>/components/button — title band mang action, hai section, back link lên đầu</figcaption>
+<header class="top">
+  <span class="ghost">≡</span>
+  <span class="brand"><span class="tile">▣</span>@fe-monorepo</span>
+  <span class="spacer"></span>
+  <span class="ghost">🇻🇳</span><span class="sep"></span><span class="ghost">npm</span><span class="ghost">SB</span>
+</header>
+<div class="shell">
+  <aside>
+    <div class="search">🔍 Tìm component, hook…</div>
+    <div class="label">Nội dung</div>
+    <a>📖 Bắt đầu</a><a>▦ Component</a><a>⚙ Hook</a>
+    <div class="label">Component</div>
+    <a class="mono">badge</a><a class="mono">breadcrumb</a><a class="mono">bubble</a><a class="mono active">button</a><a class="mono">button-group</a><a class="mono">calendar</a><a class="mono">card</a>
+    <div class="more">… 56 nữa</div>
+  </aside>
+  <main><div class="page">
+    <a class="back">← Component</a>
+    <div class="band" style="padding-top:8px">
+      <div class="row">
+        <div><h1 class="mono">button</h1><div class="meta">components/button · 2 export</div></div>
+        <div><a class="btn primary">Mở trên Storybook ↗</a> <a class="btn">npm ↗</a></div>
+      </div>
+    </div>
+    <section class="docs" style="grid-template-columns:1fr"><div>
+      <h2>Import</h2>
+<pre style="margin-top:10px">import { Button, buttonVariants } from "@fe-monorepo/ui/components/button";<span class="copy">⧉</span></pre>
+    </div></section>
+    <section class="docs" style="grid-template-columns:1fr"><div>
+      <h2>Export</h2>
+      <table style="margin-top:10px;max-width:420px"><tr><th>Export</th></tr><tr><td>Button</td></tr><tr><td>buttonVariants</td></tr></table>
+    </div></section>
+  </div></main>
+</div>
+<footer class="bottom"><span>© 2026 @fe-monorepo</span><span>v1.0.0</span></footer>
+</figure>
+
+<!-- ───────────── Frame 3: List ───────────── -->
+<figure class="frame">
+<figcaption>/components — card mang dòng export, không subpath, không badge; bên dưới là empty state khi lọc rỗng</figcaption>
+<header class="top">
+  <span class="ghost">≡</span>
+  <span class="brand"><span class="tile">▣</span>@fe-monorepo</span>
+  <span class="spacer"></span>
+  <span class="ghost">🇻🇳</span><span class="sep"></span><span class="ghost">npm</span><span class="ghost">SB</span>
+</header>
+<div class="shell">
+  <aside>
+    <div class="search">🔍 Tìm component, hook…</div>
+    <div class="label">Nội dung</div>
+    <a>📖 Bắt đầu</a><a class="active">▦ Component</a><a>⚙ Hook</a>
+    <div class="label">Component</div>
+    <a class="mono">accordion</a><a class="mono">alert</a><a class="mono">alert-dialog</a>
+    <div class="more">… 60 nữa</div>
+  </aside>
+  <main><div class="page">
+    <div class="band">
+      <h1>Component</h1>
+      <p class="prose">Mỗi dòng là một subpath của @fe-monorepo/ui. Mở một dòng để đọc danh sách export và xem demo trên Storybook.</p>
+    </div>
+    <div class="filter"><div class="search">🔍 Lọc theo tên…</div><span class="count">63 component</span></div>
+    <div class="grid">
+      <a class="card"><div class="slug">accordion</div><div class="ex">Accordion, AccordionContent, AccordionItem, +1</div></a>
+      <a class="card"><div class="slug">alert</div><div class="ex">Alert, AlertAction, AlertDescription, +1</div></a>
+      <a class="card"><div class="slug">alert-dialog</div><div class="ex">AlertDialog, AlertDialogAction, AlertDialogCancel, +9</div></a>
+      <a class="card"><div class="slug">aspect-ratio</div><div class="ex">AspectRatio</div></a>
+      <a class="card"><div class="slug">avatar</div><div class="ex">Avatar, AvatarFallback, AvatarImage</div></a>
+      <a class="card"><div class="slug">badge</div><div class="ex">Badge, badgeVariants</div></a>
+    </div>
+    <div class="filter" style="margin-top:32px;border-top:1px dashed var(--input)"><div class="search">🔍 zzz <span style="margin-left:auto">✕</span></div><span class="count">0 component</span></div>
+    <div class="empty"><b>Không có kết quả cho “zzz”</b>Thử một tên ngắn hơn, hoặc xoá bộ lọc.<br><br><a class="btn">Xoá bộ lọc</a></div>
+  </div></main>
+</div>
+<footer class="bottom"><span>© 2026 @fe-monorepo</span><span>v1.0.0</span></footer>
+</figure>
+
+</body>
+</html>

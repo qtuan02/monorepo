@@ -10,6 +10,7 @@ import {
 const meta = {
   title: "Storybook/NativeSelect",
   component: NativeSelect,
+  subcomponents: { NativeSelectOptGroup, NativeSelectOption },
   tags: ["autodocs"],
 } satisfies Meta<typeof NativeSelect>;
 
@@ -18,58 +19,69 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <Field className="w-full max-w-xs">
-      <FieldLabel htmlFor="native-select-department">Department</FieldLabel>
-      <NativeSelect id="native-select-department" defaultValue="engineering">
-        <NativeSelectOption value="engineering">Engineering</NativeSelectOption>
-        <NativeSelectOption value="design">Design</NativeSelectOption>
-        <NativeSelectOption value="marketing">Marketing</NativeSelectOption>
-        <NativeSelectOption value="sales">Sales</NativeSelectOption>
+    <Field>
+      <FieldLabel htmlFor="native-select-role">Role</FieldLabel>
+      <NativeSelect id="native-select-role" defaultValue="member">
+        <NativeSelectOption value="owner">Owner</NativeSelectOption>
+        <NativeSelectOption value="admin">Admin</NativeSelectOption>
+        <NativeSelectOption value="member">Member</NativeSelectOption>
+        <NativeSelectOption value="viewer">Viewer</NativeSelectOption>
       </NativeSelect>
     </Field>
   ),
 };
 
 export const OptGroup: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <NativeSelect className="w-full max-w-xs" defaultValue="">
+    <NativeSelect className="w-full" defaultValue="">
       <NativeSelectOption value="" disabled>
-        Choose a fruit
+        Choose a project
       </NativeSelectOption>
-      <NativeSelectOptGroup label="Citrus">
-        <NativeSelectOption value="orange">Orange</NativeSelectOption>
-        <NativeSelectOption value="lemon">Lemon</NativeSelectOption>
+      <NativeSelectOptGroup label="Active">
+        <NativeSelectOption value="atlas">Atlas</NativeSelectOption>
+        <NativeSelectOption value="beacon">Beacon</NativeSelectOption>
       </NativeSelectOptGroup>
-      <NativeSelectOptGroup label="Berries">
-        <NativeSelectOption value="strawberry">Strawberry</NativeSelectOption>
-        <NativeSelectOption value="blueberry">Blueberry</NativeSelectOption>
+      <NativeSelectOptGroup label="Archived">
+        <NativeSelectOption value="comet">Comet</NativeSelectOption>
+        <NativeSelectOption value="delta">Delta</NativeSelectOption>
       </NativeSelectOptGroup>
     </NativeSelect>
   ),
 };
 
 export const Sizes: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <div className="flex flex-col gap-4">
-      <NativeSelect size="default" defaultValue="default">
-        <NativeSelectOption value="default">Default size</NativeSelectOption>
+      <NativeSelect size="default" defaultValue="member">
+        <NativeSelectOption value="member">Default size</NativeSelectOption>
       </NativeSelect>
-      <NativeSelect size="sm" defaultValue="sm">
-        <NativeSelectOption value="sm">Small size</NativeSelectOption>
+      <NativeSelect size="sm" defaultValue="member">
+        <NativeSelectOption value="member">Small size</NativeSelectOption>
       </NativeSelect>
     </div>
   ),
 };
 
-export const Disabled: Story = {
-  args: {},
+export const States: Story = {
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <NativeSelect disabled defaultValue="disabled">
-      <NativeSelectOption value="disabled">Disabled</NativeSelectOption>
+    <NativeSelect disabled defaultValue="owner">
+      <NativeSelectOption value="owner">Owner</NativeSelectOption>
     </NativeSelect>
   ),
 };

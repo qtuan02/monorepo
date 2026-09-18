@@ -1,0 +1,165 @@
+import type { Expense } from "~/types/expense";
+import { trackMockReset } from "~/utils/mock-reset";
+
+/**
+ * The Mock every Chi phí read comes from (ADR-0012, spec #153 §10 row 33):
+ * re-dated onto the same six kỳ Hoá đơn use (04–09/2026) so a period-scoped
+ * Đối soát/Báo cáo has something real to fold in, without `buildingName`: the
+ * hook joins it from the Toà nhà Mock through `resolveBuildingName`.
+ */
+export const mockExpenses: Omit<Expense, "buildingName">[] = [
+  {
+    id: "exp-1",
+    buildingId: "b1",
+    category: "Bảo trì",
+    amount: 1_200_000,
+    description: "Thay bóng đèn hành lang tầng 1-3",
+    expenseDate: "2026-04-10",
+  },
+  {
+    id: "exp-2",
+    buildingId: "b1",
+    category: "Vệ sinh",
+    amount: 800_000,
+    description: "Dọn vệ sinh khu chung tháng 4",
+    expenseDate: "2026-04-12",
+  },
+  {
+    id: "exp-3",
+    buildingId: "b2",
+    category: "An ninh",
+    amount: 3_500_000,
+    description: "Chi phí bảo vệ ca đêm",
+    expenseDate: "2026-04-08",
+  },
+  {
+    id: "exp-4",
+    buildingId: "b3",
+    category: "Thiết bị",
+    amount: 2_200_000,
+    description: "Mua mới 02 bình chữa cháy",
+    expenseDate: "2026-04-15",
+  },
+  {
+    id: "exp-5",
+    buildingId: "b1",
+    category: "Sửa chữa",
+    amount: 1_500_000,
+    description: "Sửa hệ thống bơm nước",
+    expenseDate: "2026-05-06",
+  },
+  {
+    id: "exp-6",
+    buildingId: "b2",
+    category: "Khác",
+    amount: 950_000,
+    description: "Văn phòng phẩm và vật tư quản lý",
+    expenseDate: "2026-05-14",
+  },
+  {
+    id: "exp-7",
+    buildingId: "b3",
+    category: "Bảo trì",
+    amount: 1_100_000,
+    description: "Sơn lại tường hành lang tầng 2",
+    expenseDate: "2026-05-20",
+  },
+  {
+    id: "exp-8",
+    buildingId: "b1",
+    category: "An ninh",
+    amount: 1_200_000,
+    description: "Nạp thẻ từ thang máy bổ sung",
+    expenseDate: "2026-06-05",
+  },
+  {
+    id: "exp-9",
+    buildingId: "b2",
+    category: "Thiết bị",
+    amount: 8_500_000,
+    description: "Lắp đặt 02 camera hành lang tầng 5",
+    expenseDate: "2026-06-18",
+  },
+  {
+    id: "exp-10",
+    buildingId: "b3",
+    category: "Sửa chữa",
+    amount: 500_000,
+    description: "Thay ổ khóa cửa thoát hiểm",
+    expenseDate: "2026-06-29",
+  },
+  {
+    id: "exp-11",
+    buildingId: "b1",
+    category: "Quảng cáo",
+    amount: 2_000_000,
+    description: "Chạy quảng cáo Facebook tìm Người thuê",
+    expenseDate: "2026-07-09",
+  },
+  {
+    id: "exp-12",
+    buildingId: "b2",
+    category: "Vệ sinh",
+    amount: 900_000,
+    description: "Dọn vệ sinh khu chung tháng 7",
+    expenseDate: "2026-07-16",
+  },
+  {
+    id: "exp-13",
+    buildingId: "b3",
+    category: "Nội thất",
+    amount: 3_200_000,
+    description: "Thay 04 bộ rèm cửa phòng trống",
+    expenseDate: "2026-07-24",
+  },
+  {
+    id: "exp-14",
+    buildingId: "b1",
+    category: "Pháp lý",
+    amount: 1_800_000,
+    description: "Phí công chứng hợp đồng thuê mới",
+    expenseDate: "2026-08-04",
+  },
+  {
+    id: "exp-15",
+    buildingId: "b2",
+    category: "Bảo trì",
+    amount: 1_400_000,
+    description: "Bảo trì hệ thống PCCC định kỳ",
+    expenseDate: "2026-08-13",
+  },
+  {
+    id: "exp-16",
+    buildingId: "b3",
+    category: "An ninh",
+    amount: 1_100_000,
+    description: "Nâng cấp camera cổng chính",
+    expenseDate: "2026-08-21",
+  },
+  {
+    id: "exp-17",
+    buildingId: "b1",
+    category: "Sửa chữa",
+    amount: 2_600_000,
+    description: "Sửa mái tôn khu để xe",
+    expenseDate: "2026-09-03",
+  },
+  {
+    id: "exp-18",
+    buildingId: "b2",
+    category: "Vệ sinh",
+    amount: 1_000_000,
+    description: "Dọn vệ sinh khu chung tháng 9",
+    expenseDate: "2026-09-08",
+  },
+  {
+    id: "exp-19",
+    buildingId: "b3",
+    category: "Thiết bị",
+    amount: 3_000_000,
+    description: "Mua máy bơm nước dự phòng",
+    expenseDate: "2026-09-12",
+  },
+];
+
+export const resetMockExpenses = trackMockReset(mockExpenses);

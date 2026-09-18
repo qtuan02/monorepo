@@ -17,6 +17,7 @@ import {
 const meta = {
   title: "Storybook/RadioGroup",
   component: RadioGroup,
+  subcomponents: { RadioGroupItem },
   tags: ["autodocs"],
 } satisfies Meta<typeof RadioGroup>;
 
@@ -25,30 +26,35 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "lg" },
+  },
   render: () => (
-    <RadioGroup defaultValue="plus" className="max-w-sm">
-      <FieldLabel htmlFor="plus-plan">
+    <RadioGroup defaultValue="team" className="w-full">
+      <FieldLabel htmlFor="plan-starter">
         <Field orientation="horizontal">
           <FieldContent>
-            <FieldTitle>Plus</FieldTitle>
+            <FieldTitle>Starter</FieldTitle>
             <FieldDescription>
               For individuals and small teams.
             </FieldDescription>
           </FieldContent>
-          <RadioGroupItem value="plus" id="plus-plan" />
+          <RadioGroupItem value="starter" id="plan-starter" />
         </Field>
       </FieldLabel>
-      <FieldLabel htmlFor="pro-plan">
+      <FieldLabel htmlFor="plan-team">
         <Field orientation="horizontal">
           <FieldContent>
-            <FieldTitle>Pro</FieldTitle>
-            <FieldDescription>For growing businesses.</FieldDescription>
+            <FieldTitle>Team</FieldTitle>
+            <FieldDescription>
+              For growing workspaces like Northwind.
+            </FieldDescription>
           </FieldContent>
-          <RadioGroupItem value="pro" id="pro-plan" />
+          <RadioGroupItem value="team" id="plan-team" />
         </Field>
       </FieldLabel>
-      <FieldLabel htmlFor="enterprise-plan">
+      <FieldLabel htmlFor="plan-enterprise">
         <Field orientation="horizontal">
           <FieldContent>
             <FieldTitle>Enterprise</FieldTitle>
@@ -56,7 +62,7 @@ export const Default: Story = {
               For large teams and enterprises.
             </FieldDescription>
           </FieldContent>
-          <RadioGroupItem value="enterprise" id="enterprise-plan" />
+          <RadioGroupItem value="enterprise" id="plan-enterprise" />
         </Field>
       </FieldLabel>
     </RadioGroup>
@@ -64,30 +70,26 @@ export const Default: Story = {
 };
 
 export const Fieldset: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <FieldSet className="w-full max-w-xs">
-      <FieldLegend variant="label">Subscription Plan</FieldLegend>
+    <FieldSet className="w-full">
+      <FieldLegend variant="label">Billing frequency</FieldLegend>
       <FieldDescription>
-        Yearly and lifetime plans offer significant savings.
+        Yearly billing saves Northwind 15% over monthly.
       </FieldDescription>
       <RadioGroup defaultValue="monthly">
         <Field orientation="horizontal">
-          <RadioGroupItem value="monthly" id="plan-monthly" />
-          <FieldLabel htmlFor="plan-monthly" className="font-normal">
-            Monthly ($9.99/month)
+          <RadioGroupItem value="monthly" id="billing-monthly" />
+          <FieldLabel htmlFor="billing-monthly" className="font-normal">
+            Monthly ($29/month)
           </FieldLabel>
         </Field>
         <Field orientation="horizontal">
-          <RadioGroupItem value="yearly" id="plan-yearly" />
-          <FieldLabel htmlFor="plan-yearly" className="font-normal">
-            Yearly ($99.99/year)
-          </FieldLabel>
-        </Field>
-        <Field orientation="horizontal">
-          <RadioGroupItem value="lifetime" id="plan-lifetime" />
-          <FieldLabel htmlFor="plan-lifetime" className="font-normal">
-            Lifetime ($299.99)
+          <RadioGroupItem value="yearly" id="billing-yearly" />
+          <FieldLabel htmlFor="billing-yearly" className="font-normal">
+            Yearly ($295/year)
           </FieldLabel>
         </Field>
       </RadioGroup>
@@ -96,12 +98,14 @@ export const Fieldset: Story = {
 };
 
 export const Invalid: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <FieldSet className="w-full max-w-xs">
-      <FieldLegend variant="label">Notification Preferences</FieldLegend>
+    <FieldSet className="w-full">
+      <FieldLegend variant="label">Notification channel</FieldLegend>
       <FieldDescription>
-        Choose how you want to receive notifications.
+        Choose how Northwind should notify you about Atlas.
       </FieldDescription>
       <RadioGroup defaultValue="email">
         <Field orientation="horizontal" data-invalid>
@@ -116,46 +120,7 @@ export const Invalid: Story = {
             SMS only
           </FieldLabel>
         </Field>
-        <Field orientation="horizontal" data-invalid>
-          <RadioGroupItem value="both" id="invalid-both" aria-invalid />
-          <FieldLabel htmlFor="invalid-both" className="font-normal">
-            Both Email & SMS
-          </FieldLabel>
-        </Field>
       </RadioGroup>
     </FieldSet>
-  ),
-};
-
-export const Description: Story = {
-  args: {},
-  render: () => (
-    <RadioGroup defaultValue="comfortable" className="w-fit">
-      <Field orientation="horizontal">
-        <RadioGroupItem value="default" id="desc-r1" />
-        <FieldContent>
-          <FieldLabel htmlFor="desc-r1">Default</FieldLabel>
-          <FieldDescription>
-            Standard spacing for most use cases.
-          </FieldDescription>
-        </FieldContent>
-      </Field>
-      <Field orientation="horizontal">
-        <RadioGroupItem value="comfortable" id="desc-r2" />
-        <FieldContent>
-          <FieldLabel htmlFor="desc-r2">Comfortable</FieldLabel>
-          <FieldDescription>More space between elements.</FieldDescription>
-        </FieldContent>
-      </Field>
-      <Field orientation="horizontal">
-        <RadioGroupItem value="compact" id="desc-r3" />
-        <FieldContent>
-          <FieldLabel htmlFor="desc-r3">Compact</FieldLabel>
-          <FieldDescription>
-            Minimal spacing for dense layouts.
-          </FieldDescription>
-        </FieldContent>
-      </Field>
-    </RadioGroup>
   ),
 };

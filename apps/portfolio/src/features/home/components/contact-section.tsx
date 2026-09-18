@@ -1,65 +1,64 @@
 import { useTranslations } from "next-intl";
 
-import BlurFade from "~/features/home/components/blur-fade";
+import SectionHeading from "~/features/home/components/section-heading";
+import StandardBlock from "~/features/home/components/standard-block";
 import { CONTACT_ITEMS } from "~/features/home/constants/resume";
-
-interface ContactSectionProps {
-  delay: number;
-}
+import { isExternalPage } from "~/features/home/utils/is-external-page";
 
 /**
- * Only an http(s) destination is a page a new tab can hold. `tel:` and
- * `mailto:` hand off to another application, so `target="_blank"` there opens a
- * blank tab that is left behind — visible on desktop, and on iOS Safari it is
- * the difference between the dialer opening and nothing happening at all.
+ * The contact lines, in one standard block. Each is an icon, a label and a
+ * value; the value is a link only when there is somewhere to go — a birthday
+ * and a city are facts, and the legacy `href="#"` on both made them look
+ * actionable while doing nothing.
+ *
+ * The label is new in v2 and is what the monospace half of the typography is
+ * for here (`docs/design/portfolio-redesign-v2.md` §7, decision 2): "Email",
+ * "GitHub" are field names, the address after each is the value and stays in
+ * sans. From `sm` the label sits in a fixed gutter so the values line up down
+ * the block; on a 375 px phone the gutter would cost the value a third of the
+ * row, so the label goes back to its own width and the row wraps rather than
+ * truncates — an email address that does not fit beside its label moves under
+ * it whole.
  */
-function isExternalPage(href: string): boolean {
-  return href.startsWith("http://") || href.startsWith("https://");
-}
-
-/**
- * The contact lines. Each is an icon plus one value; the value is a link only
- * when there is somewhere to go — a birthday and a city are facts, and the
- * legacy `href="#"` on both made them look actionable while doing nothing.
- */
-export default function ContactSection({ delay }: ContactSectionProps) {
+export default function ContactSection() {
   const t = useTranslations();
 
   return (
-    <section id="contact" className="flex-1">
-      <div className="flex min-h-0 flex-col gap-y-3">
-        <BlurFade delay={delay}>
-          <h2 className="text-xl font-bold">{t("portfolio.contact.title")}</h2>
-        </BlurFade>
-        <div className="flex flex-col gap-y-2">
-          {CONTACT_ITEMS.map((item, index) => {
+    <section id="contact">
+      <div className="flex h-full min-h-0 flex-col gap-y-3">
+        <SectionHeading>{t("portfolio.contact.title")}</SectionHeading>
+        <StandardBlock className="flex flex-1 flex-col gap-y-2">
+          {CONTACT_ITEMS.map((item) => {
             const Icon = item.icon;
-            const label = t(`portfolio.contact.items.${item.id}`);
+            const label = t(`portfolio.contact.labels.${item.id}`);
+            const value = t(`portfolio.contact.items.${item.id}`);
 
             return (
-              <BlurFade key={item.id} delay={delay + 0.08 + index * 0.05}>
-                <div className="flex items-center gap-x-2">
-                  <Icon aria-hidden="true" className="size-4" />
-                  {item.href ? (
-                    <a
-                      href={item.href}
-                      {...(isExternalPage(item.href)
-                        ? { target: "_blank", rel: "noreferrer" }
-                        : {})}
-                      className="text-xs text-muted-foreground hover:underline md:text-sm"
-                    >
-                      {label}
-                    </a>
-                  ) : (
-                    <span className="text-xs text-muted-foreground md:text-sm">
-                      {label}
-                    </span>
-                  )}
-                </div>
-              </BlurFade>
+              <div
+                key={item.id}
+                className="flex flex-wrap items-center gap-x-2 gap-y-0.5"
+              >
+                <Icon aria-hidden="true" className="size-4 shrink-0" />
+                <span className="font-mono text-sm text-muted-foreground sm:w-24">
+                  {label}
+                </span>
+                {item.href ? (
+                  <a
+                    href={item.href}
+                    {...(isExternalPage(item.href)
+                      ? { target: "_blank", rel: "noreferrer" }
+                      : {})}
+                    className="text-sm hover:underline"
+                  >
+                    {value}
+                  </a>
+                ) : (
+                  <span className="text-sm">{value}</span>
+                )}
+              </div>
             );
           })}
-        </div>
+        </StandardBlock>
       </div>
     </section>
   );

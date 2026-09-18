@@ -31,8 +31,8 @@ import {
 import { toast } from "@monorepo/ui/components/toast";
 
 // There is no <Form>/<FormField> wrapper: shadcn retired that family, and the
-// current convention is Controller + the Field primitives (see ADR-0003 and
-// .agents/rules/forms-field-components.md).
+// current convention is Controller + the Field primitives (see
+// .agents/rules/forms-schema-driven.md and forms-field-components.md).
 //
 // Each story writes its form out inline rather than rendering a wrapper
 // component, so Storybook's "Show code" prints the form itself — a wrapper
@@ -40,6 +40,7 @@ import { toast } from "@monorepo/ui/components/toast";
 const meta = {
   title: "Storybook/Form",
   component: Field,
+  subcomponents: { FieldGroup, FieldLabel, FieldDescription, FieldError },
   tags: ["autodocs"],
   parameters: {
     docs: {
@@ -48,7 +49,7 @@ const meta = {
 A form is a composition, not a component — there is no \`<Form>\` or \`<FormField>\` in
 \`@monorepo/ui\`. shadcn retired that family and its registry item is empty in every base
 style, so the convention is **\`Controller\` + the \`Field\` primitives**, with Zod driving
-validation through \`zodResolver\` (ADR-0003).
+validation through \`zodResolver\` (see the \`forms-*\` rules).
 
 ### Anatomy
 
@@ -109,8 +110,8 @@ const profileFormSchema = z.object({
 });
 
 export const Default: Story = {
-  args: {},
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         story:
@@ -129,7 +130,7 @@ export const Default: Story = {
     });
 
     return (
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Profile settings</CardTitle>
           <CardDescription>
@@ -150,7 +151,7 @@ export const Default: Story = {
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       autoComplete="username"
-                      placeholder="monorepo"
+                      placeholder="mira"
                     />
                     <FieldDescription>
                       This is your public display name.
@@ -173,7 +174,7 @@ export const Default: Story = {
                       type="email"
                       aria-invalid={fieldState.invalid}
                       autoComplete="email"
-                      placeholder="you@example.com"
+                      placeholder="you@northwind.dev"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -219,7 +220,6 @@ const bugReportFormSchema = z.object({
 });
 
 export const WithTextarea: Story = {
-  args: {},
   parameters: {
     docs: {
       description: {
@@ -239,7 +239,7 @@ export const WithTextarea: Story = {
     });
 
     return (
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Bug report</CardTitle>
           <CardDescription>
@@ -260,7 +260,7 @@ export const WithTextarea: Story = {
                       id={field.name}
                       aria-invalid={fieldState.invalid}
                       autoComplete="off"
-                      placeholder="Login button not working on mobile"
+                      placeholder="Invoice totals off by a cent on mobile"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
@@ -319,14 +319,15 @@ export const WithTextarea: Story = {
 
 const inviteFormSchema = z.object({
   email: z.email({ error: "Please enter a valid email address." }),
-  // Not z.boolean(): that accepts `false`, so an unticked box would submit.
+  // `z.literal(true)` is the rule's spelling, but its inferred type is `true`, so a
+  // `false` default would not typecheck — the refine rejects the unticked box the
+  // same way while keeping the field `boolean`.
   acceptTerms: z.boolean().refine((accepted) => accepted, {
     error: "You must accept the terms to continue.",
   }),
 });
 
 export const HorizontalField: Story = {
-  args: {},
   parameters: {
     docs: {
       description: {
@@ -346,7 +347,7 @@ export const HorizontalField: Story = {
     });
 
     return (
-      <Card className="w-full sm:max-w-md">
+      <Card className="w-full">
         <CardHeader>
           <CardTitle>Invite a teammate</CardTitle>
           <CardDescription>
@@ -368,7 +369,7 @@ export const HorizontalField: Story = {
                       id={field.name}
                       type="email"
                       aria-invalid={fieldState.invalid}
-                      placeholder="teammate@example.com"
+                      placeholder="teammate@northwind.dev"
                     />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />

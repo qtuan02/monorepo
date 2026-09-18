@@ -108,17 +108,28 @@
   "portfolio": {
     "meta": {
       "title": "Huynh Quoc Tuan",
-      "description": "Frontend Developer with 3+ years of experience building scalable web applications with React.js and Next.js. Turning Figma designs into responsive interfaces, working with SSR/ISR, and keeping a strong focus on product quality."
+      "description": "Frontend developer with 2+ years of React.js and Next.js, shipping Expo/React Native apps and .NET backends, at home in monorepos, CI and design systems."
     },
     "hero": {
-      "greeting": "Hi, I am Tuan",
-      "subtitle": "A passionate developer who enjoys learning, experimenting, and turning new technologies into practical products",
-      "avatarAlt": "Portrait of Huynh Quoc Tuan",
-      "zoomLabel": "Avatar zoom area"
+      "commands": {
+        "whoami": "whoami",
+        "role": "cat role.txt",
+        "current": "current --job"
+      },
+      "name": "Huynh Quoc Tuan",
+      "positioning": "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
+      "current": "Currently building EMR/HIS products at MedViet — web and mobile for hospitals.",
+      "actions": {
+        "email": "Email",
+        "github": "GitHub",
+        "linkedin": "LinkedIn",
+        "print": "Print CV"
+      },
+      "avatarAlt": "Portrait of Huynh Quoc Tuan"
     },
     "about": {
       "title": "About",
-      "experience": "Frontend Developer with 3+ years of experience building and maintaining scalable web applications using React.js and Next.js. Experienced in turning Figma designs into clean, responsive interfaces, while building reusable components and keeping the codebase easy to maintain. Comfortable working with SSR, ISR, and state management to improve performance and user experience. Also able to support backend work when needed, with a strong focus on product quality, stability, and long-term growth.",
+      "experience": "Frontend Developer with 2+ years of experience building and maintaining scalable web applications using React.js and Next.js. Frontend is home ground, and when a project has needed it I have shipped Expo/React Native apps as well as .NET 8, Spring Boot and PayloadCMS backends. Used to working in a monorepo with shared CI and a shared design system, turning Figma designs into clean, responsive interfaces, and comfortable with SSR, ISR and state management to improve performance and user experience.",
       "mindset": "Good teamwork and communication. Fast learner with a strong adaptation mindset. Interested in performance optimization, source structure, and user experience. Able to work across frontend and backend when the project requires it."
     },
     "work": {
@@ -126,25 +137,30 @@
       "techStack": "Tech Stack:",
       "toggle": "Toggle role details",
       "items": {
-        "fptis": {
+        "medviet": {
           "role": "Software Engineer",
-          "period": "Feb 2026 – Present",
+          "period": "Mar 2026 – Present",
           "bullets": {
-            "system": "Social Protection System — a large-scale government system for social protection management with multiple business modules and centralized data handling.",
-            "modules": "Developed and maintained core modules including category, social facility, staff, beneficiary, and user management.",
-            "screens": "Built data-heavy administrative screens featuring complex lists, forms, multi-filters, and pagination.",
-            "components": "Engineered reusable UI components for tables and inputs to ensure interface consistency and system scalability.",
-            "logic": "Collaborated on business logic implementation and API synchronization within a microservices and monorepo architecture.",
-            "stability": "Ensured system stability by handling data flow and performance issues across the full stack."
+            "monorepo": "Bootstrapped the shared frontend monorepo (Bun + Turborepo, React 19 + Vite, Vitest and Playwright in CI) and built the health-examination module on it: patient sign-in through IAM with captcha, exam sheets generated from a form server, and per-group saving and e-signature.",
+            "mobile": "Built the EMR mobile app with Expo/React Native (NativeWind, TanStack Query, Zustand): in-department patient list, medical records, lab results, QR scanning, sign-off dossiers and e-signature; restructured the app into a monorepo with an SDK service layer, and cleared an ANR by flattening date-grouped lists into a row stream.",
+            "legacy": "Maintained the legacy EMR web app (Next.js 14 + Redux): prescription and service-package screens, the labor chart, permissions and web configuration.",
+            "dotnet": "Implemented .NET 8 command and query handlers (EF Core, MediatR) on the HIS server for the medical service catalogue and prescription templates."
           }
         },
         "arobid": {
           "role": "Frontend Developer",
-          "period": "Feb 2025 – Feb 2026",
+          "period": "Mar 2025 – Feb 2026",
+          "awards": {
+            "vda2025": {
+              "label": "VDA 2025",
+              "tooltip": "Excellent Digital Technology Product, Service and Solution — Vietnam Digital Awards 2025"
+            }
+          },
           "bullets": {
             "tradexpo": "TradeXpo — Digital Exhibition Platform: built core pages (home, event list, event detail, inner pages) and the full user journey from landing to event and booth interactions.",
             "immersive": "Integrated a 3D/VR system using Shapespark through iframe and postMessage; developed gamification including check-in, booth interaction, product viewing, and rewards.",
             "tracking": "Integrated CleverTap for user behavior tracking; optimized UX for media-heavy and dynamic pages; aligned implementation with Figma and product flow.",
+            "mobile": "Mobile App (React Native): maintained and fixed bugs in the app inside an Expo monorepo, porting shared Shadcn-style components to mobile.",
             "award": "TradeXpo contributed to the platform winning Excellent Digital Technology Solution at Vietnam Digital Awards 2025.",
             "cms": "CMS Platform — News, FAQ, Career: built a shared CMS for multiple content types, with management pages for articles, categories, and structured content.",
             "rendering": "Applied SSR and ISR for SEO, page speed, and search visibility; supported stable data flow across frontend and backend."
@@ -160,15 +176,27 @@
             "internal": "Internal management platform: data-heavy tables, multi-filters, search, pagination; reporting for call activities, work logs, and tax workflows; integrations with Omicall, ClickUp, and GDT.",
             "uiSystem": "Internal UI system: reusable components across projects, standardized usage, Storybook documentation, layout fixes, and manual UI testing."
           }
+        }
+      }
+    },
+    "projects": {
+      "title": "Learning and demo projects",
+      "note": "Built to learn and try things out, each with a public repo and a live demo — not production products.",
+      "links": {
+        "source": "Source code",
+        "sourceFrontend": "Source (FE)",
+        "sourceBackend": "Source (BE)",
+        "demo": "Live demo"
+      },
+      "items": {
+        "monorepo": {
+          "description": "A Bun + Turborepo workspace with three app Runtimes cloned from Template apps, sharing eight source-only packages. It is the portfolio you are reading."
         },
-        "wisdom": {
-          "role": "Software Engineer",
-          "period": "Mar 2023 – Sep 2023",
-          "bullets": {
-            "project": "Vehicle Maintenance System — joined from an early stage, working with the BA on requirements and maintenance workflows.",
-            "backend": "Developed backend services with Java Spring Boot and PostgreSQL; built frontend screens with Next.js.",
-            "modules": "Supported modules for vehicles, maintenance schedules, spare parts, and operational data."
-          }
+        "chat-socket": {
+          "description": "A full-stack real-time chat app: React 19 + Rsbuild on the client, Spring Boot on the server, messaging over STOMP on WebSocket."
+        },
+        "documents": {
+          "description": "The docs site for the two npm packages @fe-monorepo/ui and @fe-monorepo/hook: content generated from the source with oxc-parser, every primitive linking to its Storybook story."
         }
       }
     },
@@ -182,16 +210,32 @@
       }
     },
     "skills": {
-      "title": "Skills"
+      "title": "Skills",
+      "groups": {
+        "frontend": "Frontend",
+        "mobile": "Mobile",
+        "backend": "Backend",
+        "devops": "DevOps & CI",
+        "tooling": "Tooling"
+      }
     },
     "contact": {
       "title": "Contact",
+      "labels": {
+        "birthday": "Birthday",
+        "phone": "Phone",
+        "location": "Location",
+        "github": "GitHub",
+        "email": "Email",
+        "linkedin": "LinkedIn"
+      },
       "items": {
         "birthday": "20/07/2002",
         "phone": "(+84) 393 653 862",
         "location": "District 7, Ho Chi Minh City, Vietnam",
         "github": "github.com/qtuan02",
-        "email": "huynhquoctuan200702@gmail.com"
+        "email": "huynhquoctuan200702@gmail.com",
+        "linkedin": "linkedin.com/in/tuan-huynh-916b792b7"
       }
     },
     "hobbies": {
@@ -235,92 +279,124 @@
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",
-      "title": "@fe-monorepo docs",
-      "description": "How to install, import and use the @fe-monorepo/ui and @fe-monorepo/hook packages.",
       "pageTitle": "{page} · @fe-monorepo docs"
     },
     "nav": {
-      "sections": "Contents",
       "gettingStarted": "Getting started",
       "components": "Components",
       "hooks": "Hooks",
-      "toggleSidebar": "Toggle the navigation sidebar",
-      "openMenu": "Open menu",
+      "menu": "Open menu",
+      "skipToContent": "Skip to content",
       "npm": "View on npm",
-      "storybook": "Open Storybook"
+      "storybook": "Open Storybook",
+      "search": {
+        "label": "Search components, hooks…",
+        "placeholder": "Type a component or hook name…",
+        "title": "Search the docs",
+        "description": "Type to filter components and hooks; Enter opens the page.",
+        "groupComponents": "Components",
+        "groupHooks": "Hooks",
+        "empty": "No component or hook matches."
+      },
+      "theme": {
+        "toLight": "Switch to the light theme",
+        "toDark": "Switch to the dark theme"
+      }
     },
     "search": {
       "label": "Filter the list",
       "placeholder": "Filter by name…",
       "empty": "No result for “{query}”.",
-      "clear": "Clear the filter"
+      "clear": "Clear the filter",
+      "emptyHint": "Try a shorter keyword, or the exact slug — “dialog”, say."
     },
     "home": {
       "title": "Getting started",
-      "description": "Two packages published from this workspace: 63 Base UI primitives and 5 React hooks. Both are subpath-only, so you import the one file you need.",
+      "hero": {
+        "tag": "v{version} · ESM · React 19 · Tailwind v4",
+        "title": "Base UI primitives,",
+        "titleAccent": "one file per import.",
+        "lead": "Two packages published from this workspace — {components, plural, one {# primitive} other {# primitives}} and {hooks, plural, one {# hook} other {# hooks}}. No root entry, no CommonJS: you name the one subpath you need and nothing else comes along.",
+        "copyCommand": "Copy the install command"
+      },
+      "cards": {
+        "components": "{count, plural, one {Base UI primitive} other {Base UI primitives}}",
+        "hooks": "{count, plural, one {shared hook} other {shared hooks}}",
+        "storybook": "Demo & props table",
+        "storybookCta": "Open Storybook"
+      },
+      "guides": {
+        "ui": "Base UI primitives in the shadcn `base-vega` style, one subpath per component. Needs Tailwind v4 and one stylesheet import.",
+        "hook": "Shared React hooks, one subpath each. No stylesheet, no configuration — install and import."
+      },
       "install": {
         "title": "Install",
-        "description": "Add the package to your project.",
-        "note": "Both packages are ESM only and ship no CommonJS build."
+        "description": "One package, one command. Pick the package manager you use and copy."
       },
       "peers": {
         "title": "Peer dependencies",
-        "description": "You install these yourself; they are not dependencies of the package.",
-        "packageColumn": "Package",
-        "rangeColumn": "Range"
+        "description": "You install these yourself; they are not dependencies of the package."
       },
       "css": {
         "title": "Set up the stylesheet",
-        "description": "Two lines in your Tailwind v4 entry, and one that matters more than it looks.",
-        "sourceWarning": "Tailwind v4 does not scan node_modules. Without the @source line every class inside the package compiles to nothing, with no error, and the components render unstyled.",
+        "description": "Two lines in your Tailwind v4 entry — and no @source line to write yourself.",
+        "importWarningTitle": "The globals.css import is not optional",
+        "importWarning": "Tailwind v4 does not scan node_modules, and resolves @source relative to the stylesheet that carries it — so globals.css declares @source \"./\" aimed at the package’s own dist. Drop the import and every class inside the package compiles to nothing, with no error, and the components render unstyled.",
         "fragmentNote": "globals.css is a fragment rather than a full Tailwind entry: it deliberately carries no @import “tailwindcss”, which is yours to own since tailwindcss is a peer dependency."
+      },
+      "theme": {
+        "title": "Your own theme",
+        "description": "The tokens are CSS variables on :root and .dark, mapped onto utilities by @theme inline — so a brand is a redeclaration after the import, and nothing else.",
+        "snippetComment": "/* a token of your own → bg-brand, text-brand */",
+        "layerNote": "Write the override unlayered, as above. The package’s own :root / .dark blocks are unlayered too, so a later block wins by source order — while the same lines inside @layer base would compile, ship and lose. Dark mode is a .dark class on an ancestor, not prefers-color-scheme."
       },
       "example": {
         "title": "Your first component",
         "description": "Every primitive lives at its own subpath, named after its file."
+      },
+      "hook": {
+        "title": "Use a hook",
+        "description": "No stylesheet and no peer beyond react and react-dom: once installed, import by the subpath named after the file.",
+        "snippetComment": "// filter or fetch on `debouncedSearch`; bind the input to `search`"
       },
       "noRootEntry": {
         "title": "There is no root entry",
         "description": "There is no import { Button } from “@fe-monorepo/ui”. The root entry does not exist, so always name the subpath."
       },
       "next": {
-        "title": "Keep going",
         "components": "Browse the primitives",
         "hooks": "Browse the hooks"
       }
     },
     "components": {
       "title": "Components",
-      "description": "Every row is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
+      "description": "Every tile is a subpath of @fe-monorepo/ui. Open one to read its exports and to see its Storybook demo.",
       "count": "{count, plural, one {# component} other {# components}}",
-      "exportCount": "{count, plural, one {# export} other {# exports}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Exports"
-      },
+      "exportPreviewMore": "{count, plural, other {+#}}",
       "detail": {
+        "exportSummary": "{count, plural, one {# export} other {# exports}}",
         "import": "Import",
         "exports": "Exports",
-        "demo": "Demo",
-        "demoDescription": "The interactive demo and the live props table live in Storybook.",
-        "demoLink": "Open {name} in Storybook",
-        "back": "Back to components"
+        "storybook": "Open in Storybook",
+        "example": "Example",
+        "exampleFrame": "{slug} example on Storybook"
       }
+    },
+    "detail": {
+      "prev": "Previous: {slug}",
+      "next": "Next: {slug}"
     },
     "hooks": {
       "title": "Hooks",
-      "description": "Five shared hooks, one subpath each on @fe-monorepo/hook.",
+      "description": "{count, plural, one {# shared hook, one subpath on @fe-monorepo/hook.} other {# shared hooks, one subpath each on @fe-monorepo/hook.}}",
       "count": "{count, plural, one {# hook} other {# hooks}}",
-      "exportCount": "{count, plural, one {# export} other {# exports}}",
-      "columns": {
-        "subpath": "Subpath",
-        "exports": "Exports"
-      },
       "detail": {
+        "exportSummary": "{count, plural, one {# export} other {# exports}}",
         "import": "Import",
         "exports": "Exports",
-        "description": "Description",
-        "back": "Back to hooks"
+        "example": "Example",
+        "exampleFrame": "{slug} example on Storybook",
+        "usage": "Usage"
       },
       "items": {
         "use-debounce": {
@@ -337,11 +413,49 @@
         },
         "use-isomorphic-layout-effect": {
           "description": "useLayoutEffect in the browser, useEffect on the server."
+        },
+        "use-local-storage": {
+          "description": "[value, setValue] persisted to localStorage as JSON; SSR-safe, returns initialValue with no window."
+        },
+        "use-session-storage": {
+          "description": "[value, setValue, removeValue] persisted to sessionStorage as JSON; SSR-safe, returns initialValue with no window."
+        },
+        "use-boolean": {
+          "description": "Boolean state with toggle, setTrue and setFalse alongside the raw setter."
+        },
+        "use-counter": {
+          "description": "Numeric counter with increment, decrement, reset and set."
+        },
+        "use-toggle": {
+          "description": "Boolean toggle: call with no argument to flip, or pass a value to force it."
+        },
+        "use-countdown": {
+          "description": "Counts down once a second from an initial number of seconds, with a reset."
+        },
+        "use-timeout": {
+          "description": "Runs a callback once after a delay; skipped entirely when the delay is null."
+        },
+        "use-previous": {
+          "description": "Returns the value from the previous render, undefined on the first one."
+        },
+        "use-hover": {
+          "description": "Tracks whether the pointer is over an element, via mouseenter/mouseleave."
+        },
+        "use-on-screen": {
+          "description": "Reports whether an element is inside the viewport, via IntersectionObserver."
+        },
+        "use-throttle": {
+          "description": "Throttles a value: updates immediately on the first change outside the delay window, and once more for the last value when the window closes."
+        },
+        "use-network-status": {
+          "description": "Tracks navigator.onLine via the online/offline events; SSR-safe, returns true with no window."
+        },
+        "use-dark-mode": {
+          "description": "[isDarkMode, toggle] persisted to localStorage, defaults from prefers-color-scheme; storageKey, className and target are all configurable."
         }
       }
     },
     "code": {
-      "copy": "Copy",
       "copied": "Copied",
       "copyLabel": "Copy the snippet"
     },

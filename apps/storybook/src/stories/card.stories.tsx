@@ -11,13 +11,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
+import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
-import { Label } from "@monorepo/ui/components/label";
+
+import { atlasProject } from "~/support/projects";
 
 const meta = {
   title: "Storybook/Card",
   component: Card,
+  subcomponents: {
+    CardHeader,
+    CardTitle,
+    CardDescription,
+    CardAction,
+    CardContent,
+    CardFooter,
+  },
   tags: ["autodocs"],
+  parameters: { stage: { width: "lg" } },
 } satisfies Meta<typeof Card>;
 
 export default meta;
@@ -25,79 +36,58 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: { controls: { disable: true } },
   render: () => (
-    <Card className="w-full max-w-sm">
+    <Card>
       <CardHeader>
-        <CardTitle>Login to your account</CardTitle>
-        <CardDescription>
-          Enter your email below to login to your account
-        </CardDescription>
+        <CardTitle>Invite a teammate</CardTitle>
+        <CardDescription>Add someone to {atlasProject.name}.</CardDescription>
         <CardAction>
-          <Button variant="link">Sign Up</Button>
+          <Badge>Owner</Badge>
         </CardAction>
       </CardHeader>
       <CardContent>
-        <form>
-          <div className="flex flex-col gap-6">
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                <a
-                  href="#"
-                  className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                >
-                  Forgot your password?
-                </a>
-              </div>
-              <Input id="password" type="password" required />
-            </div>
-          </div>
-        </form>
+        <FieldGroup>
+          <Field>
+            <FieldLabel htmlFor="invite-email">Email</FieldLabel>
+            <Input
+              id="invite-email"
+              type="email"
+              placeholder="teammate@northwind.dev"
+            />
+          </Field>
+        </FieldGroup>
       </CardContent>
-      <CardFooter className="flex-col gap-2">
-        <Button type="submit" className="w-full">
-          Login
+      <CardFooter className="gap-2">
+        <Button type="submit" className="flex-1">
+          Send invite
         </Button>
-        <Button variant="outline" className="w-full">
-          Login with Google
+        <Button type="button" variant="outline" className="flex-1">
+          Cancel
         </Button>
       </CardFooter>
     </Card>
   ),
 };
 
-export const Image: Story = {
-  args: {},
+export const WithCover: Story = {
   render: () => (
-    <Card className="relative mx-auto w-full max-w-sm pt-0">
-      <div className="absolute inset-0 z-30 aspect-video bg-black/35" />
-      <img
-        src="https://avatar.vercel.sh/shadcn1"
-        alt="Event cover"
-        className="relative z-20 aspect-video w-full object-cover brightness-60 grayscale dark:brightness-40"
-      />
+    <Card className="pt-0">
+      <div className="flex aspect-video items-center justify-center bg-muted text-sm text-muted-foreground">
+        {atlasProject.name} retro
+      </div>
       <CardHeader>
         <CardAction>
           <Badge variant="secondary">Featured</Badge>
         </CardAction>
-        <CardTitle>Design systems meetup</CardTitle>
+        <CardTitle>{atlasProject.name} retro</CardTitle>
         <CardDescription>
-          A practical talk on component APIs, accessibility, and shipping
-          faster.
+          A look back at the {atlasProject.summary.toLowerCase()}, hosted by the
+          Northwind team.
         </CardDescription>
       </CardHeader>
       <CardFooter>
-        <Button className="w-full">View Event</Button>
+        <Button className="w-full">View project</Button>
       </CardFooter>
     </Card>
   ),

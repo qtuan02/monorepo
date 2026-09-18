@@ -3,8 +3,9 @@
 import type {
   Column,
   ColumnDef,
+  ReactTable,
   RowData,
-  Table as TanstackTable,
+  TableOptions,
 } from "@tanstack/react-table";
 import * as React from "react";
 import {
@@ -66,8 +67,100 @@ function createDataTableColumnHelper<TData extends RowData>() {
   return createColumnHelper<DataTableFeatures, TData>();
 }
 
+type DataTableRowData = RowData;
+type DataTableColumnDef<TData extends RowData> = ColumnDef<
+  DataTableFeatures,
+  TData
+>;
+type DataTableInstance<TData extends RowData> = ReactTable<
+  DataTableFeatures,
+  TData
+>;
+type UseDataTableOptions<TData extends RowData> = Omit<
+  TableOptions<DataTableFeatures, TData>,
+  "features"
+>;
+
+// The table instance on the shared feature set, for a composite that renders
+// the rows itself — a list whose filters and page live on the URL hands the
+// controlled `state` + `on…Change` pairs here. `DataTable` below is the
+// batteries-included shape over the same hook.
+function useDataTable<TData extends RowData>(
+  options: UseDataTableOptions<TData>,
+) {
+  return useTable<DataTableFeatures, TData>(
+    { features: dataTableFeatures, ...options },
+    // The table owns its state; selecting the whole state subscribes the
+    // caller to every sort/filter/page/selection change.
+    (state) => state,
+  );
+}
+
+type DataTableContentProps<TData extends RowData> = {
+  table: DataTableInstance<TData>;
+  emptyMessage?: React.ReactNode;
+  className?: string;
+};
+
+// The bordered <table> alone: header groups, the visible rows, or one empty row.
+function DataTableContent<TData extends RowData>({
+  table,
+  emptyMessage = "Không có kết quả.",
+  className,
+}: DataTableContentProps<TData>) {
+  const rows = table.getRowModel().rows;
+
+  return (
+    <div
+      data-slot="data-table-content"
+      className={cn("overflow-hidden rounded-md border", className)}
+    >
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead key={header.id} colSpan={header.colSpan}>
+                  {header.isPlaceholder ? null : (
+                    <table.FlexRender header={header} />
+                  )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {rows.length ? (
+            rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    <table.FlexRender cell={cell} />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={table.getAllLeafColumns().length}
+                className="h-24 text-center"
+              >
+                {emptyMessage}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 type DataTableProps<TData extends RowData> = {
-  columns: Array<ColumnDef<DataTableFeatures, TData>>;
+  columns: Array<DataTableColumnDef<TData>>;
   data: Array<TData>;
   // Return the row's own identifier (String(row.id)) whenever the data has
   // one — the default falls back to the index, which breaks row state on
@@ -75,7 +168,7 @@ type DataTableProps<TData extends RowData> = {
   getRowId?: (row: TData, index: number) => string;
   pageSize?: number;
   emptyMessage?: React.ReactNode;
-  toolbar?: (table: TanstackTable<DataTableFeatures, TData>) => React.ReactNode;
+  toolbar?: (table: DataTableInstance<TData>) => React.ReactNode;
   className?: string;
   containerClassName?: string;
 };
@@ -90,18 +183,12 @@ function DataTable<TData extends RowData>({
   className,
   containerClassName,
 }: DataTableProps<TData>) {
-  const table = useTable<DataTableFeatures, TData>(
-    {
-      features: dataTableFeatures,
-      columns,
-      data,
-      getRowId,
-      initialState: { pagination: { pageIndex: 0, pageSize } },
-    },
-    // The table owns its state; selecting the whole state subscribes this
-    // component to every sort/filter/page/selection change.
-    (state) => state,
-  );
+  const table = useDataTable<TData>({
+    columns,
+    data,
+    getRowId,
+    initialState: { pagination: { pageIndex: 0, pageSize } },
+  });
 
   // `initialState` is read once at mount — a later pageSize prop change (a
   // caller resizing its externally-owned page) must be written into the
@@ -110,7 +197,6 @@ function DataTable<TData extends RowData>({
     table.setPageSize(pageSize);
   }, [table, pageSize]);
 
-  const rows = table.getRowModel().rows;
   const pageCount = table.getPageCount();
   const selectedCount = Object.keys(table.state.rowSelection ?? {}).length;
 
@@ -120,50 +206,11 @@ function DataTable<TData extends RowData>({
       className={cn("flex w-full flex-col gap-3", className)}
     >
       {toolbar?.(table)}
-      <div
-        className={cn("overflow-hidden rounded-md border", containerClassName)}
-      >
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder ? null : (
-                      <table.FlexRender header={header} />
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {rows.length ? (
-              rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      <table.FlexRender cell={cell} />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  {emptyMessage}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTableContent
+        table={table}
+        emptyMessage={emptyMessage}
+        className={containerClassName}
+      />
       {(pageCount > 1 || selectedCount > 0) && (
         <div className="flex items-center justify-between gap-2">
           <div className="flex-1 text-sm text-muted-foreground">
@@ -263,7 +310,12 @@ function DataTableColumnHeader<TData extends RowData, TValue>({
 export {
   createDataTableColumnHelper,
   DataTable,
+  type DataTableColumnDef,
   DataTableColumnHeader,
+  DataTableContent,
   type DataTableFeatures,
+  type DataTableInstance,
+  type DataTableRowData,
   dataTableFeatures,
+  useDataTable,
 };

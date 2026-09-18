@@ -7,6 +7,12 @@ const meta = {
   title: "Storybook/Spinner",
   component: Spinner,
   tags: ["autodocs"],
+  argTypes: {
+    className: {
+      control: "select",
+      options: ["size-3", "size-4", "size-6", "size-8"],
+    },
+  },
 } satisfies Meta<typeof Spinner>;
 
 export default meta;
@@ -14,12 +20,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
-  render: () => <Spinner />,
+  args: {
+    className: "size-4",
+  },
 };
 
 export const Sizes: Story = {
-  args: {},
   render: () => (
     <div className="flex items-center gap-4">
       <Spinner className="size-3" />
@@ -31,11 +37,10 @@ export const Sizes: Story = {
 };
 
 export const InsideButton: Story = {
-  args: {},
   render: () => (
     <Button disabled>
       <Spinner />
-      Please wait
+      Saving Atlas…
     </Button>
   ),
 };

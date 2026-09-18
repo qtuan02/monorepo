@@ -9,12 +9,12 @@ const setTheme = vi.fn();
 const useThemeMock = vi.fn(() => ({ resolvedTheme: "light", setTheme }));
 
 /**
- * `next-themes` is the external system this button syncs to — the same kind of
- * seam an HTTP service singleton is, and the only thing worth faking here. The
- * assertions are about what the handler *decides*: which theme comes next, and
- * which direction the CSS wipe runs.
+ * The theme provider is the external system this button syncs to — the same
+ * kind of seam an HTTP service singleton is, and the only thing worth faking
+ * here. The assertions are about what the handler *decides*: which theme comes
+ * next, and which direction the CSS wipe runs.
  */
-vi.mock("next-themes", () => ({
+vi.mock("~/features/layout/provider/theme-provider", () => ({
   useTheme: () => useThemeMock(),
 }));
 

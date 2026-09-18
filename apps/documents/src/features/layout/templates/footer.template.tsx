@@ -1,22 +1,33 @@
-import FooterBuildInfo from "../components/footer/footer-build-info";
-import FooterCopyright from "../components/footer/footer-copyright";
+import { useTranslation } from "react-i18next";
+
+import dayjs from "@monorepo/dayjs";
 
 /**
- * The shell's closing bar. It is deliberately a single slim row rather than the
- * multi-column marketing footer: this is an internal tool, so the only things
- * worth the vertical space are who owns the app and which build is running.
+ * One thin line — who owns the site and which build is running. No glass, no
+ * viewport readout: a docs site's reader is not filing a layout bug.
  */
 export default function FooterTemplate() {
+  const { t } = useTranslation();
+
+  // `.year()` returns a number, so this stays locale-independent — no format
+  // string, nothing for a language switch to leave stale.
+  const year = dayjs().year();
+
   return (
-    // `mt-auto` is what pins it to the bottom on a short page — LayoutTemplate is
-    // the flex column that makes that work.
-    <footer className="border-border bg-card mt-auto border-t">
-      {/* Padding must match HeaderTemplate and BodyTemplate exactly, or the
-          footer's left/right edge drifts from the page content's. */}
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-1 px-4 py-2 text-xs sm:h-9 sm:flex-row sm:justify-between sm:gap-4 sm:px-6 sm:py-0 lg:px-8">
-        <FooterCopyright />
-        <FooterBuildInfo />
-      </div>
+    // `mt-auto` is what pins it to the bottom on a short page — LayoutTemplate
+    // is the flex column that makes that work.
+    <footer className="text-muted-foreground mt-auto px-4 py-4 text-center text-xs">
+      © {year} {t("documents.meta.brand")}
+      <span aria-hidden="true" className="mx-1.5">
+        ·
+      </span>
+      {t("footer.rights")}
+      <span aria-hidden="true" className="mx-1.5">
+        ·
+      </span>
+      <span className="tabular-nums">
+        {t("footer.version", { version: __APP_VERSION__ })}
+      </span>
     </footer>
   );
 }

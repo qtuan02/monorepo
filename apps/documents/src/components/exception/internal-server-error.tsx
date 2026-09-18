@@ -13,7 +13,7 @@ export default function InternalServerError() {
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-4">
-      <h1 className="text-foreground text-3xl font-bold">
+      <h1 className="text-foreground font-heading text-3xl font-bold">
         {t("internalServerError.title")}
       </h1>
       <p className="text-muted-foreground max-w-lg text-center">

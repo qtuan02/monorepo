@@ -3,16 +3,17 @@ import type { Meta, StoryObj } from "@storybook/react";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@monorepo/ui/components/select";
 
+import { northwindProjects } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Select",
   component: Select,
+  subcomponents: { SelectTrigger, SelectContent, SelectItem },
   tags: ["autodocs"],
 } satisfies Meta<typeof Select>;
 
@@ -21,58 +22,44 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "sm" },
+  },
   render: () => (
-    <Select>
-      <SelectTrigger className="w-full max-w-64">
-        <SelectValue placeholder="Select a timezone" />
+    <Select defaultValue={northwindProjects[0]?.id}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select a project" />
       </SelectTrigger>
       <SelectContent>
-        <SelectGroup>
-          <SelectLabel>North America</SelectLabel>
-          <SelectItem value="est">Eastern Standard Time</SelectItem>
-          <SelectItem value="cst">Central Standard Time</SelectItem>
-          <SelectItem value="mst">Mountain Standard Time</SelectItem>
-          <SelectItem value="pst">Pacific Standard Time</SelectItem>
-          <SelectItem value="akst">Alaska Standard Time</SelectItem>
-          <SelectItem value="hst">Hawaii Standard Time</SelectItem>
-        </SelectGroup>
-        <SelectGroup>
-          <SelectLabel>Europe & Africa</SelectLabel>
-          <SelectItem value="gmt">Greenwich Mean Time</SelectItem>
-          <SelectItem value="cet">Central European Time</SelectItem>
-          <SelectItem value="eet">Eastern European Time</SelectItem>
-          <SelectItem value="west">Western European Summer Time</SelectItem>
-          <SelectItem value="cat">Central Africa Time</SelectItem>
-          <SelectItem value="eat">East Africa Time</SelectItem>
-        </SelectGroup>
-        <SelectGroup>
-          <SelectLabel>Asia</SelectLabel>
-          <SelectItem value="msk">Moscow Time</SelectItem>
-          <SelectItem value="ist">India Standard Time</SelectItem>
-          <SelectItem value="cst_china">China Standard Time</SelectItem>
-          <SelectItem value="jst">Japan Standard Time</SelectItem>
-          <SelectItem value="kst">Korea Standard Time</SelectItem>
-          <SelectItem value="ist_indonesia">
-            Indonesia Central Standard Time
+        {northwindProjects.map((project) => (
+          <SelectItem key={project.id} value={project.id}>
+            {project.name}
           </SelectItem>
-        </SelectGroup>
-        <SelectGroup>
-          <SelectLabel>Australia & Pacific</SelectLabel>
-          <SelectItem value="awst">Australian Western Standard Time</SelectItem>
-          <SelectItem value="acst">Australian Central Standard Time</SelectItem>
-          <SelectItem value="aest">Australian Eastern Standard Time</SelectItem>
-          <SelectItem value="nzst">New Zealand Standard Time</SelectItem>
-          <SelectItem value="fjt">Fiji Time</SelectItem>
-        </SelectGroup>
-        <SelectGroup>
-          <SelectLabel>South America</SelectLabel>
-          <SelectItem value="art">Argentina Time</SelectItem>
-          <SelectItem value="bot">Bolivia Time</SelectItem>
-          <SelectItem value="brt">Brasilia Time</SelectItem>
-          <SelectItem value="clt">Chile Standard Time</SelectItem>
-        </SelectGroup>
+        ))}
       </SelectContent>
     </Select>
+  ),
+};
+
+export const Sizes: Story = {
+  parameters: { stage: { width: "sm" } },
+  render: () => (
+    <div className="flex flex-col gap-4">
+      {(["sm", "default"] as const).map((size) => (
+        <Select key={size} defaultValue={northwindProjects[0]?.id}>
+          <SelectTrigger size={size} className="w-full">
+            <SelectValue placeholder="Select a project" />
+          </SelectTrigger>
+          <SelectContent>
+            {northwindProjects.map((project) => (
+              <SelectItem key={project.id} value={project.id}>
+                {project.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ))}
+    </div>
   ),
 };

@@ -28,7 +28,9 @@ export function FilterInput({ value, onValueChange }: FilterInputProps) {
         value={value}
         aria-label={t("documents.search.label")}
         placeholder={t("documents.search.placeholder")}
-        className="pr-9 pl-9"
+        // Chromium paints its own cancel control on `type="search"`; the button
+        // below is the one clear affordance, so the native one is hidden.
+        className="pr-9 pl-9 [&::-webkit-search-cancel-button]:appearance-none"
         onChange={(event) => onValueChange(event.target.value)}
       />
       {value ? (

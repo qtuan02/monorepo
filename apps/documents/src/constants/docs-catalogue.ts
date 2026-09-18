@@ -1,8 +1,4 @@
-import type {
-  ComponentDocsEntry,
-  DocsCatalogue,
-  DocsEntry,
-} from "~/types/docs-catalogue";
+import type { DocsCatalogue, DocsEntry } from "~/types/docs-catalogue";
 import componentsJson from "~/generated/components.json";
 import hooksJson from "~/generated/hooks.json";
 
@@ -18,8 +14,7 @@ import hooksJson from "~/generated/hooks.json";
  * The annotations below are the type check: if the generator's output shape
  * ever stops matching `~/types/docs-catalogue`, this file fails to compile.
  */
-export const componentCatalogue: DocsCatalogue<ComponentDocsEntry> =
-  componentsJson;
+export const componentCatalogue: DocsCatalogue = componentsJson;
 
 export const hookCatalogue: DocsCatalogue<DocsEntry> = hooksJson;
 
@@ -32,9 +27,7 @@ const hookBySlug = new Map(
   hookCatalogue.items.map((item) => [item.slug, item]),
 );
 
-export function findComponent(
-  slug: string | undefined,
-): ComponentDocsEntry | undefined {
+export function findComponent(slug: string | undefined): DocsEntry | undefined {
   return slug ? componentBySlug.get(slug) : undefined;
 }
 

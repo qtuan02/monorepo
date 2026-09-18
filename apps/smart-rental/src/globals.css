@@ -1,0 +1,130 @@
+@import "@monorepo/tailwind-config/globals";
+
+/**
+ * IBM Plex Sans, variable, with the `vietnamese` subset baked in — the font
+ * a diacritic actually needs (`documents` set the precedent, ADR-0009).
+ * Bundled rather than fetched, so `bun run build` reaches no font CDN.
+ */
+@import "@fontsource-variable/ibm-plex-sans";
+
+/**
+ * Tailwind v4: scan classes from workspace UI package.
+ * @see https://github.com/tailwindlabs/tailwindcss/issues/16733
+ */
+@source "../../../packages/ui";
+
+/**
+ * `theme.css` maps every `font-*` utility onto a variable the **app** owns
+ * (`@theme inline { --font-sans: var(--font-sans) }`), so an app that defines
+ * none renders `font-sans` as nothing at all. One face for both roles: the
+ * Portal has no separate display type.
+ */
+@layer base {
+  :root {
+    --font-sans:
+      "IBM Plex Sans Variable", ui-sans-serif, system-ui, -apple-system,
+      "Segoe UI", Roboto, Arial, sans-serif;
+    --font-heading: var(--font-sans);
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+}
+
+/**
+ * The accent this Portal draws action with (ADR-0011) — `colors#105`
+ * (Invoice & Billing), navy over an off-white ground, `--radius: 0.375rem`
+ * for the flat "Ledger" surface (brief §2, hướng A). Unlayered, exactly like
+ * `apps/portfolio` and `apps/documents`: `@monorepo/tailwind-config/globals`
+ * pulls `theme.css` in with a plain `@import`, so its `:root` / `.dark`
+ * declarations sit outside every layer, and an unlayered declaration beats
+ * one in any `@layer` regardless of source order — written inside `@layer
+ * base` this would compile, ship, and lose with nothing logged (ADR-0008's
+ * own phrasing).
+ *
+ * Only what the brief names: `--primary`, `--ring` and `--sidebar-primary`
+ * on the same navy, `--background`, `--foreground`, `--muted-foreground`,
+ * `--accent`/`--accent-foreground`. `--success` / `--warning` / `--info` /
+ * `--destructive`, the `--chart-*` series and every other `--sidebar-*`
+ * token stay the theme's — a status colour keeps the same meaning across
+ * every app (ADR-0009's condition, applied here to ADR-0011).
+ *
+ * `.dark` is written with the same hue, lifted the way a dark palette lifts
+ * its accent — but there is no toggle wired to it yet (brief §10 row 17):
+ * this app has no theme switch, so the block sits ready for the day one
+ * lands rather than proving anything on screen today.
+ */
+:root {
+  --radius: 0.375rem;
+
+  /* #F8FAFC — slate-50, the ground every card and panel sits on. */
+  --background: #f8fafc;
+  /* #0F172A — slate-900, 17.1:1 on the background above. */
+  --foreground: #0f172a;
+  /* #475569 — slate-600, 7.2:1 on the background — meta text, one step back. */
+  --muted-foreground: #475569;
+
+  /* #1E3A5F — colors#105, the one hue this app carries. */
+  --primary: #1e3a5f;
+  --primary-foreground: #ffffff;
+  --ring: #1e3a5f;
+  --sidebar-primary: #1e3a5f;
+
+  /* #EFF6FF — the hover wash the navy sits on; the ink is the primary itself. */
+  --accent: #eff6ff;
+  --accent-foreground: #1e3a5f;
+
+  /*
+   * Four AA text tokens for a status badge's own tint (spec #179 §"Token",
+   * ticket #181). `--success`/`--warning`/`--info`/`--destructive` are tuned
+   * as a solid fill's background (their own `-foreground` pair is white/near-
+   * black for exactly that reason) — as small TEXT on their own 10%-alpha
+   * wash (`bg-success/10`) they read under WCAG 1.4.3's 4.5:1. `statusTone`
+   * reads these instead for a badge's text; the wash, the icon and the
+   * border stay the raw hue. Sits beside this override rather than in
+   * `theme.css` until a second app needs the same fix (ADR-0011
+   * Consequences) — a status colour otherwise never changes meaning between
+   * apps (ADR-0009's condition).
+   */
+  --success-foreground-strong: #016630;
+  --warning-foreground-strong: #973c00;
+  --info-foreground-strong: #193cb8;
+  --destructive-foreground-strong: #9f0712;
+}
+
+.dark {
+  /* #0F172A — the light theme's ink, inverted to ground. */
+  --background: #0f172a;
+  /* #F8FAFC — the light theme's ground, inverted to ink. */
+  --foreground: #f8fafc;
+  /* #94A3B8 — slate-400, 7.0:1 on the dark ground above. */
+  --muted-foreground: #94a3b8;
+
+  /* #60A5FA — blue-400, lifted so the accent still reads on a dark ground. */
+  --primary: #60a5fa;
+  --primary-foreground: #0f172a;
+  --ring: #60a5fa;
+  --sidebar-primary: #60a5fa;
+
+  /* #1E293B — slate-800, the dark hover wash; ink is a light blue tint. */
+  --accent: #1e293b;
+  --accent-foreground: #93c5fd;
+
+  /* Lifted the same way the rest of `.dark` lifts its accent — unused until
+     a toggle ships, same as the block above (see the comment on :root). */
+  --success-foreground-strong: #4ade80;
+  --warning-foreground-strong: #fb923c;
+  --info-foreground-strong: #60a5fa;
+  --destructive-foreground-strong: #f87171;
+}
+
+/**
+ * Named into Tailwind's colour namespace so `text-success-foreground-strong`
+ * etc. are utilities rather than arbitrary values — the same move
+ * `apps/portfolio/src/globals.css` makes for `--highlight-foreground`.
+ * `inline` so the `.dark` swap above still reaches it.
+ */
+@theme inline {
+  --color-success-foreground-strong: var(--success-foreground-strong);
+  --color-warning-foreground-strong: var(--warning-foreground-strong);
+  --color-info-foreground-strong: var(--info-foreground-strong);
+  --color-destructive-foreground-strong: var(--destructive-foreground-strong);
+}

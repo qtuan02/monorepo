@@ -22,9 +22,12 @@ import {
   InputOTPSlot,
 } from "@monorepo/ui/components/input-otp";
 
+import { currentPerson } from "~/support/people";
+
 const meta = {
   title: "Storybook/InputOtp",
   component: InputOTP,
+  subcomponents: { InputOTPGroup, InputOTPSeparator, InputOTPSlot },
   tags: ["autodocs"],
 } satisfies Meta<typeof InputOTP>;
 
@@ -33,14 +36,21 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
+  // The component's own `render` prop is a required part of one branch of its
+  // discriminated union (children XOR render) — this satisfies the type
+  // without feeding it into the story's own render below.
   args: {} as Story["args"],
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "lg" },
+  },
   render: () => (
-    <Card className="mx-auto max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Verify your login</CardTitle>
         <CardDescription>
-          Enter the verification code we sent to your email address:{" "}
-          <span className="font-medium">m@example.com</span>.
+          Enter the verification code we sent to{" "}
+          <span className="font-medium">{currentPerson.email}</span>.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -51,42 +61,31 @@ export const Default: Story = {
             </FieldLabel>
             <Button variant="outline" size="xs">
               <RefreshCwIcon />
-              Resend Code
+              Resend code
             </Button>
           </div>
           <InputOTP maxLength={6} id="otp-verification" required>
-            <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+            <InputOTPGroup>
               <InputOTPSlot index={0} />
               <InputOTPSlot index={1} />
               <InputOTPSlot index={2} />
             </InputOTPGroup>
-            <InputOTPSeparator className="mx-2" />
-            <InputOTPGroup className="*:data-[slot=input-otp-slot]:h-12 *:data-[slot=input-otp-slot]:w-11 *:data-[slot=input-otp-slot]:text-xl">
+            <InputOTPSeparator />
+            <InputOTPGroup>
               <InputOTPSlot index={3} />
               <InputOTPSlot index={4} />
               <InputOTPSlot index={5} />
             </InputOTPGroup>
           </InputOTP>
           <FieldDescription>
-            <a href="#">I no longer have access to this email address.</a>
+            Signed in from a new device on Northwind.
           </FieldDescription>
         </Field>
       </CardContent>
       <CardFooter>
-        <Field>
-          <Button type="submit" className="w-full">
-            Verify
-          </Button>
-          <div className="text-muted-foreground text-sm">
-            Having trouble signing in?{" "}
-            <a
-              href="#"
-              className="hover:text-primary underline underline-offset-4 transition-colors"
-            >
-              Contact support
-            </a>
-          </div>
-        </Field>
+        <Button type="submit" className="w-full">
+          Verify
+        </Button>
       </CardFooter>
     </Card>
   ),

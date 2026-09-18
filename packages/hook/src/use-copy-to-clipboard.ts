@@ -1,29 +1,39 @@
-import { useCallback, useState } from "react";
+// Derived from hooks-ts useCopyToClipboard.ts @ 9bd12431bb24b84d211f0d735c6bef79fe1be85a (hooks-ts@0.12.0), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts
+import { useState } from "react";
 
-type CopiedValue = string | null;
+type CopiedValueType = string | null;
 
-type CopyFn = (text: string) => Promise<boolean>;
+/**
+ * `[copiedText, copy]` — `copiedText` is the text after a successful copy,
+ * `null` after a failed one; `copy` only warns when the Clipboard API is
+ * unavailable.
+ *
+ * @example
+ * const [copiedText, copy] = useCopyToClipboard();
+ *
+ * <Button onClick={() => void copy(snippet)}>
+ *   {copiedText === snippet ? "Copied" : "Copy"}
+ * </Button>;
+ */
+export const useCopyToClipboard = (): [
+  CopiedValueType,
+  (text: string) => Promise<void>,
+] => {
+  const [copiedText, setCopiedText] = useState<CopiedValueType>(null);
 
-export function useCopyToClipboard(): [CopiedValue, CopyFn] {
-  const [copiedText, setCopiedText] = useState<CopiedValue>(null);
-
-  const copy: CopyFn = useCallback(async (text) => {
+  const copy = async (text: string): Promise<void> => {
     if (!navigator?.clipboard) {
       console.warn("Clipboard not supported");
-      return false;
+      return;
     }
 
-    // Try to save to clipboard then save it in the state if worked
     try {
       await navigator.clipboard.writeText(text);
       setCopiedText(text);
-      return true;
-    } catch (error) {
-      console.warn("Copy failed", error);
+    } catch {
       setCopiedText(null);
-      return false;
     }
-  }, []);
+  };
 
   return [copiedText, copy];
-}
+};

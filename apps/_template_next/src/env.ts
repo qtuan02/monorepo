@@ -1,9 +1,3 @@
-// Namespace import, not `import { z }`: a bundler that externalizes zod for SSR
-// on musl/Linux (CI) drops zod's `export { z }` namespace re-export, so `z`
-// resolves to undefined and `z.object` throws at module load — a failure that
-// never reproduces on a Windows dev box.
-import * as z from "zod";
-
 import { httpUrlSchema } from "@monorepo/env/http-url";
 import { createEnv } from "@monorepo/env/next/create-env";
 
@@ -17,26 +11,21 @@ import { createEnv } from "@monorepo/env/next/create-env";
  * on top.
  */
 export const env = createEnv({
-  server: {
-    /**
-     * The example server-side key. It carries no `NEXT_PUBLIC_` prefix, so Next
-     * never inlines it into the browser bundle and t3-env reads it straight from
-     * `process.env` — a read that throws if attempted from a Client Component,
-     * which is the whole point of the `server` block.
-     *
-     * Optional on purpose: the template has no backend to authenticate against,
-     * and a required secret would make `next build` fail on a fresh clone. A
-     * real app drops the `.optional()` the moment the value is genuinely needed.
-     */
-    TEMPLATE_API_TOKEN: z.string().min(1).optional(),
-  },
+  // No server-only variable: the template has no backend to authenticate
+  // against. A clone adds one here, unprefixed, so Next never inlines it and
+  // t3-env throws if a Client Component reads it (see apps/mcp-weather).
+  server: {},
   client: {
     /**
      * Absent means Sentry stays installed but disabled — see
      * `@monorepo/sentry/options`. It is a client variable because the browser
      * SDK needs it inlined; the server SDK reads the same inlined value.
+     *
+     * Named for this app: the repo-root `.env` is one file shared by every Next
+     * app, so a clone renames it (`NEXT_PUBLIC_<APP>_SENTRY_DSN`) rather than
+     * sending its errors to the Template's Sentry project.
      */
-    NEXT_PUBLIC_SENTRY_DSN: httpUrlSchema.optional(),
+    NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN: httpUrlSchema.optional(),
   },
   /**
    * Every prefixed value spelled out as a literal `process.env.NEXT_PUBLIC_*`
@@ -46,6 +35,7 @@ export const env = createEnv({
   clientRuntimeEnv: {
     NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
     NEXT_PUBLIC_BASE_DOMAIN_API: process.env.NEXT_PUBLIC_BASE_DOMAIN_API,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN:
+      process.env.NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN,
   },
 });

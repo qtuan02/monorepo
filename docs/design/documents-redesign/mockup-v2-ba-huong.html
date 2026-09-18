@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mockup v2 — ba hướng cho apps/documents</title>
+<style>
+  *{box-sizing:border-box;margin:0}
+  body{font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#c9c9cc;padding:28px;color:#222}
+  .note{max-width:1240px;margin:0 auto 14px;font-size:13px}
+  .frame{max-width:1240px;margin:0 auto 48px;border-radius:10px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+  .frame>figcaption{background:#111;color:#eee;font:12px ui-monospace,Menlo,Consolas,monospace;padding:7px 14px}
+  .frame>figcaption b{color:#75cdc0}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+
+  /* ══════════ A · MIDNIGHT ══════════ */
+  .a{--bg:#0c0c0d;--card:#141416;--line:rgba(255,255,255,.08);--fg:#f4f4f5;--mute:#9a9aa3;--teal:#75cdc0;--teal-deep:#1f4b46;background:var(--bg);color:var(--fg)}
+  .a header{height:56px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--line);background:rgba(12,12,13,.85);backdrop-filter:blur(8px)}
+  .a .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+  .a .brand i{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#75cdc0,#2f8a7c);box-shadow:0 0 18px rgba(117,205,192,.45);display:grid;place-items:center;font-style:normal;color:#0c0c0d;font-size:13px}
+  .a .kbd{margin-left:auto;display:flex;align-items:center;gap:8px;height:34px;padding:0 10px 0 12px;border:1px solid var(--line);border-radius:8px;color:var(--mute);font-size:13px;width:260px;background:var(--card)}
+  .a .kbd span{margin-left:auto;font-size:11px;border:1px solid var(--line);border-radius:4px;padding:1px 6px}
+  .a .icon{width:34px;height:34px;display:grid;place-items:center;color:var(--mute);border-radius:7px;font-size:13px}
+  .a .shell{display:flex}
+  .a aside{width:250px;border-right:1px solid var(--line);padding:16px 10px;font-size:13.5px}
+  .a aside .lbl{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);padding:10px 10px 6px}
+  .a aside a{display:block;padding:6px 10px;border-radius:6px;color:var(--mute);text-decoration:none}
+  .a aside a.on{color:var(--teal);background:rgba(117,205,192,.08);box-shadow:inset 2px 0 0 var(--teal)}
+  .a main{flex:1;padding:0 40px 40px;position:relative;overflow:hidden}
+  .a .glow{position:absolute;inset:-120px -80px auto auto;width:640px;height:420px;background:radial-gradient(closest-side,rgba(117,205,192,.22),transparent 70%);pointer-events:none}
+  .a .hero{padding:56px 0 32px;position:relative}
+  .a .tag{display:inline-flex;gap:8px;align-items:center;font-size:12px;color:var(--teal);border:1px solid rgba(117,205,192,.35);border-radius:999px;padding:3px 10px;margin-bottom:18px}
+  .a h1{font-size:44px;line-height:1.1;letter-spacing:-.03em;font-weight:700;max-width:640px}
+  .a h1 em{font-style:normal;color:var(--teal)}
+  .a .lead{color:var(--mute);font-size:17px;max-width:560px;margin:16px 0 26px}
+  .a .term{background:var(--card);border:1px solid var(--line);border-radius:12px;max-width:640px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .a .term .bar{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:center}
+  .a .term .bar i{width:10px;height:10px;border-radius:50%;background:#333}
+  .a .term .bar .tabs{margin-left:12px;display:flex;gap:2px;font-size:12px}
+  .a .term .bar .tabs b{padding:3px 10px;border-radius:5px;font-weight:500;color:var(--mute)}
+  .a .term .bar .tabs b.on{background:rgba(255,255,255,.06);color:var(--fg)}
+  .a .term pre{padding:18px 20px;font-size:14px;line-height:1.7;position:relative;white-space:pre;overflow:auto}
+  .a .term pre .p{color:var(--teal)}.a .term pre .k{color:#c792ea}.a .term pre .s{color:#c3e88d}.a .term pre .c{color:#5c5c66}
+  .a .copy{position:absolute;top:12px;right:12px;color:var(--mute);font-size:12px;border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+  .a .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:36px 0}
+  .a .stat{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:linear-gradient(180deg,rgba(255,255,255,.03),transparent)}
+  .a .stat b{display:block;font-size:34px;letter-spacing:-.03em;line-height:1;margin-bottom:6px}
+  .a .stat span{color:var(--mute);font-size:13px}
+  .a .stat.t b{color:var(--teal)}
+  .a .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .a .card{border:1px solid var(--line);border-radius:10px;padding:16px;background:var(--card);position:relative;overflow:hidden}
+  .a .card:before{content:"";position:absolute;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:0}
+  .a .card.hov:before{opacity:1}
+  .a .card.hov{border-color:rgba(117,205,192,.4)}
+  .a .card b{font-weight:600;font-size:14px}
+  .a .card p{color:var(--mute);font-size:12px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .a h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:8px 0 14px}
+
+  /* ══════════ B · JOURNAL ══════════ */
+  .b{--paper:#fbfbfa;--ink:#111318;--ink2:#4b5563;--rule:#111318;--hair:#d9d9d6;--teal:#2f8a7c;background:var(--paper);color:var(--ink)}
+  .b header{display:grid;grid-template-columns:220px 1fr auto;align-items:end;padding:22px 40px 14px;border-bottom:2px solid var(--rule)}
+  .b .masthead{font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+  .b .masthead b{display:block;font-size:22px;letter-spacing:-.02em;text-transform:none}
+  .b header nav{display:flex;gap:28px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;justify-content:center}
+  .b header nav a.on{border-bottom:2px solid var(--teal);padding-bottom:2px}
+  .b header .meta{font-size:12px;color:var(--ink2);text-align:right;line-height:1.5}
+  .b .shell{display:grid;grid-template-columns:220px 1fr;gap:0 40px;padding:0 40px 48px}
+  .b aside{border-right:1px solid var(--hair);padding:28px 20px 0 0;font-size:13px}
+  .b aside .lbl{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--hair);padding-bottom:6px;margin:18px 0 8px}
+  .b aside .lbl:first-child{margin-top:0}
+  .b aside a{display:flex;justify-content:space-between;padding:4px 0;color:var(--ink);text-decoration:none}
+  .b aside a small{color:var(--ink2);font-variant-numeric:tabular-nums}
+  .b aside a.on{color:var(--teal);font-weight:600}
+  .b main{padding-top:28px}
+  .b .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:14px}
+  .b h1{font-size:clamp(48px,6vw,84px);line-height:.95;letter-spacing:-.045em;font-weight:800;max-width:11ch}
+  .b .deck{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin:34px 0 0;padding:22px 0 26px;border-top:1px solid var(--rule);border-bottom:1px solid var(--hair)}
+  .b .deck p{font-size:18px;line-height:1.5;color:var(--ink2);max-width:36ch}
+  .b .deck p:first-letter{font-size:56px;float:left;line-height:.8;padding:6px 8px 0 0;color:var(--ink);font-weight:700}
+  .b .figures{display:flex;gap:40px;align-self:end;justify-content:flex-end}
+  .b .fig b{display:block;font-size:64px;line-height:1;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+  .b .fig span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink2)}
+  .b section{display:grid;grid-template-columns:96px 1fr;gap:0 24px;padding:30px 0;border-bottom:1px solid var(--hair)}
+  .b section .no{font-size:40px;line-height:1;letter-spacing:-.04em;color:var(--teal);font-weight:800;font-variant-numeric:tabular-nums}
+  .b section h2{font-size:26px;letter-spacing:-.025em;margin-bottom:8px}
+  .b section p{color:var(--ink2);max-width:60ch;margin-bottom:16px;font-size:16px}
+  .b pre{border-left:3px solid var(--ink);padding:4px 0 4px 18px;font-size:14px;line-height:1.7;white-space:pre;position:relative;max-width:640px}
+  .b .tabs{display:flex;gap:18px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+  .b .tabs b.on{border-bottom:2px solid var(--ink);font-weight:600}
+  .b .tabs b{color:var(--ink2);font-weight:500}
+  .b .copy{position:absolute;right:0;top:0;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+  .b .cols{columns:2;column-gap:40px;font-size:14px}
+  .b .cols div{break-inside:avoid;display:flex;justify-content:space-between;border-bottom:1px solid var(--hair);padding:6px 0}
+  .b .cols div span{color:var(--ink2)}
+
+  /* ══════════ C · BENTO ══════════ */
+  .c{--bg:#f2f2f4;--tile:#fff;--ink:#1c1c1e;--mute:#6e6e73;--teal:#38a696;--teal-ink:#0f3f38;--dark:#1c1c1e;background:var(--bg);color:var(--ink)}
+  .c header{height:60px;display:flex;align-items:center;gap:12px;padding:0 28px}
+  .c .pill{display:flex;align-items:center;gap:10px;background:#fff;border-radius:999px;padding:6px 14px 6px 6px;box-shadow:0 1px 2px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.06);font-weight:600;font-size:14px}
+  .c .pill i{width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-style:normal;font-size:12px}
+  .c header nav{margin-left:14px;display:flex;gap:4px;background:#fff;border-radius:999px;padding:4px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .c header nav a{padding:6px 14px;border-radius:999px;font-size:13.5px;color:var(--mute)}
+  .c header nav a.on{background:var(--ink);color:#fff}
+  .c header .right{margin-left:auto;display:flex;gap:8px}
+  .c header .right span{width:36px;height:36px;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .c main{padding:8px 28px 36px}
+  .c .bento{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:150px;gap:14px}
+  .c .t{background:var(--tile);border-radius:22px;padding:22px;box-shadow:0 1px 2px rgba(0,0,0,.04),0 10px 30px rgba(0,0,0,.05);position:relative;overflow:hidden}
+  .c .t h3{font-size:13px;color:var(--mute);font-weight:500;letter-spacing:.02em;margin-bottom:8px}
+  .c .hero{grid-column:span 4;grid-row:span 2}
+  .c .hero h1{font-size:40px;line-height:1.05;letter-spacing:-.035em;font-weight:700;max-width:14ch;margin-top:6px}
+  .c .hero p{color:var(--mute);font-size:16px;max-width:46ch;margin:14px 0 18px}
+  .c .hero .cmd{display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:14px;padding:12px 14px;font-size:14px;width:fit-content}
+  .c .hero .cmd .tabs{display:flex;gap:2px;background:#fff;border-radius:9px;padding:3px;font-size:12px}
+  .c .hero .cmd .tabs b{padding:3px 9px;border-radius:6px;color:var(--mute);font-weight:500}
+  .c .hero .cmd .tabs b.on{background:var(--ink);color:#fff}
+  .c .hero .cmd .cp{margin-left:6px;color:var(--mute);font-size:12px}
+  .c .teal{grid-column:span 2;background:var(--teal);color:#fff}
+  .c .teal h3{color:rgba(255,255,255,.75)}
+  .c .num{font-size:72px;line-height:1;letter-spacing:-.05em;font-weight:700;position:absolute;left:22px;bottom:16px}
+  .c .num small{font-size:16px;letter-spacing:0;font-weight:500;margin-left:6px;vertical-align:middle;opacity:.8}
+  .c .ink{grid-column:span 2;background:var(--dark);color:#fff}
+  .c .ink h3{color:#9a9aa3}
+  .c .dark{grid-column:span 3;grid-row:span 2;background:var(--dark);color:#e8e8ea}
+  .c .dark h3{color:#9a9aa3}
+  .c .dark pre{font-size:13.5px;line-height:1.7;white-space:pre;margin-top:8px}
+  .c .dark pre .p{color:#75cdc0}.c .dark pre .k{color:#c792ea}.c .dark pre .s{color:#c3e88d}.c .dark pre .c{color:#6b6b73}
+  .c .peers{grid-column:span 3}
+  .c .peers .row{display:flex;gap:10px;flex-wrap:wrap}
+  .c .peers .row span{background:var(--bg);border-radius:999px;padding:5px 12px;font-size:13px}
+  .c .peers .row span b{font-weight:600;margin-right:6px}
+  .c .sb{grid-column:span 2;display:flex;flex-direction:column;justify-content:space-between}
+  .c .sb .cta{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:#fff;border-radius:999px;padding:10px 16px;font-size:14px;width:fit-content;font-weight:500}
+  .c .lst{grid-column:span 4;padding:0}
+  .c .lst .in{padding:22px}
+  .c .lst .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .c .lst .chips span{border:1px solid #e5e5ea;border-radius:10px;padding:6px 11px;font-size:13px;background:#fff}
+  .c .lst .chips span.on{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .c .arrow{position:absolute;right:18px;top:18px;width:30px;height:30px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-size:13px;color:var(--ink)}
+  .c .teal .arrow,.c .ink .arrow{background:rgba(255,255,255,.18);color:#fff}
+</style>
+</head>
+<body>
+
+<p class="note"><b>Ba hướng, cùng một trang Getting Started</b> — chọn theo cảm giác, chi tiết từng hướng ở <code>docs/design/documents-redesign.md</code> §2b. Cả ba đều giữ sidebar/ROUTES/Storybook-link; khác nhau ở <em>hình dạng</em> và <em>bề mặt</em>.</p>
+
+<!-- ═════════════════════ A ═════════════════════ -->
+<figure class="frame">
+<figcaption><b>A · Midnight</b> — dark-first developer docs · styles#7 + products#81/#163 · theme .dark có sẵn, teal #75cdc0 làm nguồn sáng duy nhất</figcaption>
+<div class="a">
+<header>
+  <span class="brand"><i>▣</i>@fe-monorepo <span style="color:var(--mute);font-weight:400;margin-left:4px">/ docs</span></span>
+  <span class="kbd">🔍 Tìm component, hook… <span>⌘K</span></span>
+  <span class="icon">🇻🇳</span><span class="icon">npm</span><span class="icon">SB</span>
+</header>
+<div class="shell">
+  <aside>
+    <div class="lbl">Bắt đầu</div><a class="on">Giới thiệu</a><a>Cài đặt</a><a>Nối stylesheet</a>
+    <div class="lbl">Component · 63</div><a class="mono">accordion</a><a class="mono">alert</a><a class="mono">alert-dialog</a><a class="mono">avatar</a><a class="mono">badge</a><a class="mono">button</a><a class="mono" style="color:#5c5c66">…</a>
+    <div class="lbl">Hook · 5</div><a class="mono">use-debounce</a><a class="mono">use-media-query</a>
+  </aside>
+  <main>
+    <div class="glow"></div>
+    <div class="hero">
+      <span class="tag">● v1.0.0 · ESM only · React 19</span>
+      <h1>Base UI primitives,<br><em>một import một file.</em></h1>
+      <p class="lead">63 primitive và 5 hook được publish từ workspace này. Không có root entry — bạn gọi thẳng subpath mình cần và tree-shaking là chuyện đã xong.</p>
+      <div class="term">
+        <div class="bar"><i></i><i></i><i></i><span class="tabs"><b class="on">bun</b><b>npm</b><b>pnpm</b></span></div>
+<pre class="mono"><span class="c">$</span> bun add <span class="p">@fe-monorepo/ui</span> <span class="p">@fe-monorepo/hook</span><span class="copy">copy</span></pre>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat t"><b>63</b><span>primitive Base UI, mỗi cái một subpath</span></div>
+      <div class="stat"><b>5</b><span>hook React dùng chung</span></div>
+      <div class="stat"><b>0</b><span>root entry — import đúng file bạn cần</span></div>
+    </div>
+    <h2>Nối stylesheet</h2>
+    <div class="term" style="max-width:none;box-shadow:none">
+<pre class="mono"><span class="c">/* src/index.css */</span>
+<span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+<span class="k">@import</span> <span class="s">"@fe-monorepo/ui/globals.css"</span>;
+
+<span class="k">@source</span> <span class="s">"../node_modules/@fe-monorepo/ui/dist"</span>;   <span class="c">← thiếu dòng này, mọi class compile ra rỗng</span><span class="copy">copy</span></pre>
+    </div>
+    <h2 style="margin-top:32px">Primitive hay dùng</h2>
+    <div class="grid">
+      <div class="card hov"><b class="mono">button</b><p class="mono">Button, buttonVariants</p></div>
+      <div class="card"><b class="mono">dialog</b><p class="mono">Dialog, DialogContent, DialogTrigger, +6</p></div>
+      <div class="card"><b class="mono">field</b><p class="mono">Field, FieldLabel, FieldError, +5</p></div>
+    </div>
+  </main>
+</div>
+</div>
+</figure>
+
+<!-- ═════════════════════ B ═════════════════════ -->
+<figure class="frame">
+<figcaption><b>B · Journal</b> — editorial Swiss · styles#66 + #50 + #47 · giấy trắng, mực đen, số to, hairline; teal chỉ ở số section và gạch chân</figcaption>
+<div class="b">
+<header>
+  <div class="masthead">Tài liệu<b>@fe-monorepo</b></div>
+  <nav><a class="on">Bắt đầu</a><a>Component</a><a>Hook</a><a>Storybook ↗</a><a>npm ↗</a></nav>
+  <div class="meta mono">v1.0.0<br>ESM · React ≥19 · Tailwind ^4</div>
+</header>
+<div class="shell">
+  <aside>
+    <div class="lbl">Trong trang này</div><a class="on">01 Cài đặt</a><a>02 Peer dependency</a><a>03 Nối stylesheet</a><a>04 Ví dụ đầu tiên</a><a>05 Không có root entry</a>
+    <div class="lbl">Component <small>63</small></div><a class="mono">accordion<small>4</small></a><a class="mono">alert<small>4</small></a><a class="mono">alert-dialog<small>12</small></a><a class="mono">avatar<small>3</small></a><a class="mono">badge<small>2</small></a><a class="mono" style="color:#9a9aa3">…</a>
+    <div class="lbl">Hook <small>5</small></div><a class="mono">use-debounce<small>1</small></a><a class="mono">use-media-query<small>1</small></a>
+  </aside>
+  <main>
+    <div class="kicker">Getting started · Phiên bản 1.0</div>
+    <h1>Hai gói, không có root entry.</h1>
+    <div class="deck">
+      <p>Sáu mươi ba primitive Base UI và năm React hook được publish từ workspace này. Cả hai chỉ có subpath entry — bạn import đúng một file mình cần, và không có gì khác đi theo.</p>
+      <div class="figures"><div class="fig"><b>63</b><span>primitive</span></div><div class="fig"><b>05</b><span>hook</span></div><div class="fig"><b>00</b><span>root entry</span></div></div>
+    </div>
+    <section>
+      <div class="no">01</div>
+      <div>
+        <h2>Cài đặt</h2>
+        <p>Thêm gói vào dự án của bạn. Cả hai là ESM thuần và không kèm bản CommonJS.</p>
+        <div class="tabs"><b class="on">bun</b><b>npm</b><b>pnpm</b></div>
+<pre class="mono">bun add @fe-monorepo/ui @fe-monorepo/hook<span class="copy">Sao chép</span></pre>
+      </div>
+    </section>
+    <section>
+      <div class="no">02</div>
+      <div>
+        <h2>Peer dependency</h2>
+        <p>Bạn tự cài những gói dưới đây; chúng không nằm trong dependency của package.</p>
+        <div class="cols mono"><div>react<span>≥19</span></div><div>react-dom<span>≥19</span></div><div>tailwindcss<span>^4 · chỉ ui</span></div></div>
+      </div>
+    </section>
+    <section style="border-bottom:0">
+      <div class="no">03</div>
+      <div>
+        <h2>Nối stylesheet</h2>
+        <p>Hai dòng trong entry Tailwind v4 của bạn, cộng một dòng quan trọng hơn vẻ ngoài của nó — Tailwind v4 không quét <code>node_modules</code>.</p>
+<pre class="mono">@import "tailwindcss";
+@import "@fe-monorepo/ui/globals.css";
+
+@source "../node_modules/@fe-monorepo/ui/dist";<span class="copy">Sao chép</span></pre>
+      </div>
+    </section>
+  </main>
+</div>
+</div>
+</figure>
+
+<!-- ═════════════════════ C ═════════════════════ -->
+<figure class="frame">
+<figcaption><b>C · Bento</b> — showcase theo ô · styles#39 + landing#28 · nền xám sáng, ô trắng bo 22px, một ô teal, một ô tối chứa code</figcaption>
+<div class="c">
+<header>
+  <span class="pill"><i>▣</i>@fe-monorepo</span>
+  <nav><a class="on">Bắt đầu</a><a>Component</a><a>Hook</a></nav>
+  <div class="right"><span>🔍</span><span>🇻🇳</span><span>npm</span><span>SB</span></div>
+</header>
+<main>
+  <div class="bento">
+    <div class="t hero">
+      <h3>Getting started</h3>
+      <h1>Primitive Base UI cho React 19, mỗi import một file.</h1>
+      <p>Hai gói được publish từ workspace này. Không có root entry, không có CommonJS — chỉ subpath và ESM.</p>
+      <div class="cmd"><span class="tabs"><b class="on">bun</b><b>npm</b><b>pnpm</b></span><span class="mono">bun add @fe-monorepo/ui @fe-monorepo/hook</span><span class="cp">⧉</span></div>
+    </div>
+    <div class="t teal"><h3>Component</h3><span class="arrow">↗</span><div class="num">63<small>primitive</small></div></div>
+    <div class="t ink"><h3>Hook</h3><span class="arrow">↗</span><div class="num">5<small>hook</small></div></div>
+    <div class="t dark">
+      <h3>Nối stylesheet · src/index.css</h3>
+<pre class="mono"><span class="k">@import</span> <span class="s">"tailwindcss"</span>;
+<span class="k">@import</span> <span class="s">"@fe-monorepo/ui/globals.css"</span>;
+
+<span class="k">@source</span> <span class="s">"../node_modules/@fe-monorepo/ui/dist"</span>;
+
+<span class="c">/* Tailwind v4 không quét node_modules —
+   thiếu @source, mọi class compile ra rỗng. */</span></pre>
+    </div>
+    <div class="t peers"><h3>Peer dependency · bạn tự cài</h3><div class="row mono"><span><b>react</b>≥19</span><span><b>react-dom</b>≥19</span><span><b>tailwindcss</b>^4</span></div></div>
+    <div class="t sb"><h3>Demo &amp; bảng props</h3><span class="cta">Mở Storybook ↗</span></div>
+    <div class="t lst"><div class="in"><h3>Hay dùng</h3><div class="chips mono"><span class="on">button</span><span>dialog</span><span>field</span><span>input</span><span>select</span><span>table</span><span>tabs</span><span>toast</span><span>sidebar</span><span>+54</span></div></div></div>
+  </div>
+</main>
+</div>
+</figure>
+
+</body>
+</html>

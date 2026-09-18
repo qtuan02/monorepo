@@ -1,0 +1,74 @@
+import { expect, test } from "@playwright/test";
+
+import { ROUTES } from "../src/constants/routes";
+import { signIn } from "./support/auth-session";
+
+// The real bundle proving what a component test cannot: the FormSheet flow
+// end to end (validation → toast), and the tenant's own derived badge.
+test.describe("Người thuê và Khai báo lưu trú", () => {
+  test.beforeEach(async ({ page }) => {
+    await signIn(page);
+  });
+
+  test("adds a Người thuê through the FormSheet, with an error summary first", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.TENANTS);
+    await expect(
+      page.getByRole("heading", { name: "Người thuê", exact: true }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Thêm Người thuê" }).click();
+    await page.getByRole("button", { name: "Lưu lại" }).click();
+    await expect(page.getByText(/Vui lòng kiểm tra lại \d+ lỗi/)).toBeVisible();
+
+    await page.getByLabel("Họ và tên").fill("Người Thuê E2E");
+    await page.getByLabel("Số CCCD").fill("012345678999");
+    await page.getByRole("button", { name: "Ngày sinh" }).click();
+    // A day button's accessible name is the full date ("Tuesday, September
+    // 15th, 2026"), not the bare number — match its visible text instead,
+    // scoped to the calendar grid.
+    await page.getByRole("grid").getByText("15", { exact: true }).click();
+    await page.getByLabel("Quê quán").fill("Đà Nẵng");
+    await page.getByLabel("Số điện thoại").fill("0905999999");
+    await page.getByLabel("Email").fill("e2e@example.com");
+    await page.getByRole("button", { name: "Lưu lại" }).click();
+
+    await expect(
+      page.getByText("Đã thêm Người thuê Người Thuê E2E"),
+    ).toBeVisible();
+    // The list defaults to table now (spec #179 §"Danh sách và Phòng"), but
+    // DataTable also renders the `< md` row markup off-screen in the DOM —
+    // scope to the table so the hidden mobile copy doesn't make this a
+    // strict-mode violation.
+    await expect(
+      page.getByRole("table").getByText("Người Thuê E2E", { exact: true }),
+    ).toBeVisible();
+  });
+
+  test("marks Thông báo lưu trú Đã gửi from Khai báo lưu trú", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.COMPLIANCE);
+    await expect(
+      page.getByRole("heading", { name: "Khai báo lưu trú" }),
+    ).toBeVisible();
+
+    // T005 (Hoàng Văn E) ships with no Thông báo lưu trú record yet.
+    const row = page
+      .locator('[data-slot="residence-declaration-row"]')
+      .filter({ hasText: "Hoàng Văn E" });
+    await expect(row.getByRole("button", { name: "Đã gửi" })).toBeVisible();
+
+    // #188: "Đã gửi" now opens a sheet asking for a real mã hồ sơ + ngày gửi
+    // rather than marking sent immediately with a fabricated code.
+    await row.getByRole("button", { name: "Đã gửi" }).click();
+    await page.getByLabel("Mã hồ sơ").fill("CT01-0999");
+    await page.getByRole("button", { name: "Lưu lại" }).click();
+
+    await expect(
+      page.getByText("Đã đánh dấu gửi Thông báo lưu trú cho Hoàng Văn E"),
+    ).toBeVisible();
+    await expect(row.getByRole("button", { name: "Đã gửi" })).toHaveCount(0);
+  });
+});

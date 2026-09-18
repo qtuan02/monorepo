@@ -2,7 +2,7 @@
 "@fe-monorepo/ui": major
 ---
 
-Base UI, 63 primitive / 5 hook, API mới hoàn toàn.
+Base UI, 63 primitive, API mới hoàn toàn.
 
 `3.0.0` viết lại từ đầu, không phải bản nâng cấp của `1.0.2` — số `2.0.0` bị bỏ
 qua vì nó đã bị publish rồi unpublish hồi 25/11/2025 và npm không cho dùng lại

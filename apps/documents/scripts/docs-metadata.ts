@@ -2,11 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseSync } from "oxc-parser";
 
-import type {
-  ComponentDocsEntry,
-  DocsCatalogue,
-  DocsEntry,
-} from "../src/types/docs-catalogue.ts";
+import type { DocsCatalogue, DocsEntry } from "../src/types/docs-catalogue.ts";
 import {
   HOOK_PACKAGE_NAME,
   HOOK_SUBPATH_PREFIX,
@@ -38,6 +34,16 @@ const STORYBOOK_DOCS_ID_OVERRIDES: Record<string, string> = {
   direction: "storybook-directionprovider",
 };
 
+/**
+ * The story a detail page embeds as its example. Every stories file exports a
+ * `Default` story except the one listed here, whose two stories are named for
+ * the accordion's two modes instead. Same reason as the table above for being
+ * a table: the stories are not on disk where this runs.
+ */
+const STORYBOOK_EXAMPLE_STORY_OVERRIDES: Record<string, string> = {
+  accordion: "single",
+};
+
 export interface DocsSource {
   /** Path of the source directory, relative to the repo root. */
   directory: string;
@@ -47,6 +53,11 @@ export interface DocsSource {
   packageName: string;
   /** Prefix every subpath carries (`components/` for the UI package). */
   subpathPrefix: string;
+  /**
+   * The first segment of every story title in this source — `Storybook/Button`,
+   * `Hooks/useDebounce` — lower-cased, which is how Storybook starts the id.
+   */
+  storybookTitlePrefix: string;
 }
 
 export const COMPONENT_SOURCE: DocsSource = {
@@ -54,6 +65,7 @@ export const COMPONENT_SOURCE: DocsSource = {
   extension: ".tsx",
   packageName: UI_PACKAGE_NAME,
   subpathPrefix: UI_COMPONENT_SUBPATH_PREFIX,
+  storybookTitlePrefix: "storybook",
 };
 
 export const HOOK_SOURCE: DocsSource = {
@@ -61,12 +73,14 @@ export const HOOK_SOURCE: DocsSource = {
   extension: ".ts",
   packageName: HOOK_PACKAGE_NAME,
   subpathPrefix: HOOK_SUBPATH_PREFIX,
+  storybookTitlePrefix: "hooks",
 };
 
-/** The two fields a single source file yields, before it is given a subpath. */
+/** The fields a single source file yields, before it is given a subpath. */
 export interface ParsedModule {
   exports: string[];
   description: string | null;
+  example: string | null;
 }
 
 // oxc-parser types its `program` through `@oxc-project/types`, which Bun does
@@ -93,22 +107,17 @@ function isExportedDeclaration(node: ProgramNode): boolean {
 }
 
 /**
- * A JSDoc block sitting immediately above the first exported declaration, with
+ * The JSDoc block sitting immediately above an exported declaration, with
  * nothing but whitespace between the two. Anything further up documents an
- * import or an internal helper and is not this module's description.
+ * import or an internal helper and is not this module's block.
  */
-function extractDescription(
+function jsDocAbove(
   source: string,
   comments: SourceComment[],
-  body: ProgramNode[],
-): string | null {
-  const declaration = body.find(isExportedDeclaration);
-  if (!declaration) return null;
-
+  declaration: ProgramNode,
+): SourceComment | undefined {
   // Walked from the end so the *closest* block above the declaration wins.
   // `findLast` would say it better, but the app's lib target is ES2022.
-  let jsDoc: SourceComment | undefined;
-
   for (let index = comments.length - 1; index >= 0; index -= 1) {
     const comment = comments[index];
     if (!comment) continue;
@@ -119,27 +128,85 @@ function extractDescription(
       comment.end <= declaration.start &&
       source.slice(comment.end, declaration.start).trim() === ""
     ) {
-      jsDoc = comment;
-      break;
+      return comment;
     }
   }
 
-  if (!jsDoc) return null;
+  return undefined;
+}
 
-  const text = jsDoc.value
+function isTagLine(line: string): boolean {
+  return line.trimStart().startsWith("@");
+}
+
+/** Drops the blank lines the `@example` line and the block's closing line leave around an example. */
+function trimBlankEdges(lines: string[]): string[] {
+  const start = lines.findIndex((line) => line.trim().length > 0);
+  if (start === -1) return [];
+
+  let end = lines.length;
+  while (end > start && lines[end - 1]?.trim().length === 0) end -= 1;
+
+  return lines.slice(start, end);
+}
+
+/**
+ * The description and the `@example` of the first exported declaration that
+ * carries a JSDoc block — the *first with one*, not the first export, because
+ * `use-is-mobile` exports its breakpoint constant ahead of the hook the block
+ * describes.
+ *
+ * The description is every line before the first `@tag`, joined into one
+ * sentence. The example is every line after `@example` (or the rest of that
+ * same line) up to the next tag, kept line for line with its indent, so a
+ * snippet renders exactly as the source wrote it.
+ */
+function extractJsDoc(
+  source: string,
+  comments: SourceComment[],
+  body: ProgramNode[],
+): Omit<ParsedModule, "exports"> {
+  let jsDoc: SourceComment | undefined;
+
+  for (const node of body) {
+    if (!isExportedDeclaration(node)) continue;
+    jsDoc = jsDocAbove(source, comments, node);
+    if (jsDoc) break;
+  }
+
+  if (!jsDoc) return { description: null, example: null };
+
+  // Only the `*` gutter goes, never the indent after it — an example's code
+  // keeps its nesting.
+  const lines = jsDoc.value
     .slice(1)
     .split("\n")
-    .map((line: string) =>
-      line
-        .trim()
-        .replace(/^\*+ ?/, "")
-        .trim(),
-    )
-    .filter((line: string) => line.length > 0)
-    .join(" ")
-    .trim();
+    .map((line: string) => line.replace(/^\s*\*+ ?/, "").trimEnd());
 
-  return text.length > 0 ? text : null;
+  const firstTag = lines.findIndex(isTagLine);
+  const description = (firstTag === -1 ? lines : lines.slice(0, firstTag))
+    .map((line: string) => line.trim())
+    .filter((line: string) => line.length > 0)
+    .join(" ");
+
+  const exampleTag = lines.findIndex((line) =>
+    line.trimStart().startsWith("@example"),
+  );
+  let example: string | null = null;
+
+  if (exampleTag !== -1) {
+    const inline = lines[exampleTag]?.trimStart().slice("@example".length);
+    const rest = lines.slice(exampleTag + 1);
+    const nextTag = rest.findIndex(isTagLine);
+    const exampleLines = trimBlankEdges([
+      inline?.trim() ?? "",
+      ...(nextTag === -1 ? rest : rest.slice(0, nextTag)),
+    ]);
+
+    example = exampleLines.length > 0 ? exampleLines.join("\n") : null;
+  }
+
+  return { description: description.length > 0 ? description : null, example };
 }
 
 /**
@@ -180,25 +247,41 @@ export function parseDocsModule(
   // Turbo hash and every review diff.
   const exports = [...names].sort((left, right) => left.localeCompare(right));
 
-  const description = extractDescription(
+  const { description, example } = extractJsDoc(
     source,
     result.comments as SourceComment[],
     result.program.body as ProgramNode[],
   );
 
-  return { exports, description };
+  return { exports, description, example };
 }
 
 /**
  * Storybook derives a docs id by lower-casing the story title and collapsing
  * every run of non-alphanumeric characters into a dash. Every title in this
- * workspace is `Storybook/<ComponentName>`, so the id is the slug with its
- * dashes removed — except where the override table says otherwise.
+ * workspace is `<Prefix>/<camelName>` — `Storybook/AlertDialog`,
+ * `Hooks/useDebounce` — so the id is the prefix plus the slug with its dashes
+ * removed, except where the override table says otherwise.
  */
-export function toStorybookDocsId(slug: string): string {
+export function toStorybookDocsId(slug: string, prefix = "storybook"): string {
   return (
-    STORYBOOK_DOCS_ID_OVERRIDES[slug] ?? `storybook-${slug.replaceAll("-", "")}`
+    STORYBOOK_DOCS_ID_OVERRIDES[slug] ?? `${prefix}-${slug.replaceAll("-", "")}`
   );
+}
+
+/**
+ * A story id is the docs id plus the story's export name, lower-cased with
+ * dashes between words — `storybook-button--default`. It is what
+ * `iframe.html?id=…&viewMode=story` renders on its own, with no Storybook
+ * chrome around it.
+ */
+export function toStorybookExampleId(
+  slug: string,
+  prefix = "storybook",
+): string {
+  const story = STORYBOOK_EXAMPLE_STORY_OVERRIDES[slug] ?? "default";
+
+  return `${toStorybookDocsId(slug, prefix)}--${story}`;
 }
 
 export function buildDocsEntry(
@@ -208,7 +291,7 @@ export function buildDocsEntry(
 ): DocsEntry {
   const slug = fileName.slice(0, -source.extension.length);
   const subpath = `${source.subpathPrefix}${slug}`;
-  const { exports, description } = parseDocsModule(fileName, contents);
+  const { exports, description, example } = parseDocsModule(fileName, contents);
 
   return {
     slug,
@@ -216,6 +299,9 @@ export function buildDocsEntry(
     importPath: `${source.packageName}/${subpath}`,
     exports,
     description,
+    example,
+    storybookDocsId: toStorybookDocsId(slug, source.storybookTitlePrefix),
+    storybookExampleId: toStorybookExampleId(slug, source.storybookTitlePrefix),
   };
 }
 
@@ -224,9 +310,16 @@ export function buildCatalogue(
   source: DocsSource,
   directoryPath: string,
 ): DocsCatalogue {
+  // Sorted on the slug, not the file name: with the extension on, "alert-dialog.tsx"
+  // lands before "alert.tsx", and the palette and a filtered grid — which both
+  // tie-break on the slug — would then disagree with prev/next about the order.
   const fileNames = readdirSync(directoryPath)
     .filter((fileName) => fileName.endsWith(source.extension))
-    .sort((left, right) => left.localeCompare(right));
+    .sort((left, right) =>
+      left
+        .slice(0, -source.extension.length)
+        .localeCompare(right.slice(0, -source.extension.length)),
+    );
 
   const items = fileNames.map((fileName) =>
     buildDocsEntry(
@@ -243,22 +336,11 @@ export function buildCatalogue(
   };
 }
 
-/** The component catalogue: every entry additionally carries its Storybook id. */
-export function buildComponentCatalogue(
-  repoRoot: string,
-): DocsCatalogue<ComponentDocsEntry> {
-  const catalogue = buildCatalogue(
+export function buildComponentCatalogue(repoRoot: string): DocsCatalogue {
+  return buildCatalogue(
     COMPONENT_SOURCE,
     join(repoRoot, COMPONENT_SOURCE.directory),
   );
-
-  return {
-    ...catalogue,
-    items: catalogue.items.map((item) => ({
-      ...item,
-      storybookDocsId: toStorybookDocsId(item.slug),
-    })),
-  };
 }
 
 export function buildHookCatalogue(repoRoot: string): DocsCatalogue {

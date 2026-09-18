@@ -220,19 +220,24 @@ function SaveBar({ onSave }: { onSave: () => void }) {
 Inside the workspace the theme arrives through `@monorepo/tailwind-config/globals`, and no app does
 anything else. A consumer who installed the published shell (`@fe-monorepo/ui`, see
 [ADR-0004](../../docs/adr/0004-npm-publish-qua-publish-shell.md)) has no workspace to import from, so the
-same CSS ships as an entry of the package — and it takes one line more than it looks, because Tailwind v4
-does not scan `node_modules`:
+same CSS ships as an entry of the package:
 
 ```css
 @import "tailwindcss";
 @import "@fe-monorepo/ui/globals.css";
-@source "../node_modules/@fe-monorepo/ui/dist";
 ```
 
-Drop the `@source` and every utility written inside the primitives compiles to nothing — the same
-silent failure the two `@custom-variant`s cause, one level further out: no CSS, no error, just unstyled
-components. Those two variants ride along in the shipped stylesheet, which is why importing it is not
-optional for a consumer either.
+Tailwind v4 does not scan `node_modules`, and it resolves `@source` relative to the stylesheet that
+carries it — so `packages/ui/scripts/build.ts` writes `@source "./";` into the generated
+`dist/globals.css`, and the consumer aims nothing at `node_modules` by hand. Drop the import and every
+utility written inside the primitives compiles to nothing — the same silent failure the two
+`@custom-variant`s cause, one level further out: no CSS, no error, just unstyled components. Those two
+variants ride along in the same file, which is the second reason importing it is not optional.
+
+A consumer's own brand is a redeclaration of the tokens **after** that import, unlayered — the shipped
+`:root` / `.dark` blocks are unlayered too, so a later block wins by source order, while the same lines
+inside `@layer base` would lose to them. That is the same move `apps/portfolio/src/globals.css` makes
+inside the workspace (ADR-0008).
 
 ## Conventions
 

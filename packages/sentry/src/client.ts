@@ -11,7 +11,7 @@ import { buildSentryInitOptions } from "./options";
  * // apps/<app>/src/instrumentation-client.ts
  * import { initSentryClient } from "@monorepo/sentry/client";
  *
- * initSentryClient({ dsn: env.NEXT_PUBLIC_SENTRY_DSN, environment: env.NEXT_PUBLIC_APP_ENV });
+ * initSentryClient({ dsn: env.NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN, environment: env.NEXT_PUBLIC_APP_ENV });
  * export { captureRouterTransitionStart as onRouterTransitionStart } from "@monorepo/sentry/client";
  * ```
  */
