@@ -3,10 +3,13 @@
 Portal quản lý phòng trọ cho chủ nhà. Phase 1 (spec [#127](https://github.com/qtuan02/monorepo/issues/127))
 port 1:1 prototype `fe-motel-rsbuild` (`D:\Personal\smart-rental\frontend`, Rsbuild + shadcn trên Radix)
 chạy trên dữ liệu mẫu. Phase 2 (spec [#153](https://github.com/qtuan02/monorepo/issues/153)) là bản
-redesign **"Hôm nay"** — đã ship: Building scope là một hàng tabs, mọi con số/danh sách/trạng thái suy
-từ Mock có quan hệ thật, một ngữ pháp màn hình cho cả 15 khu vực. Glossary
-[`CONTEXT.md`](./CONTEXT.md) — dùng đúng từ vựng đó (Portal, Mock, Toà nhà, Building scope, Chỉ số
-điện nước, Đợt hoá đơn, Việc cần làm…).
+redesign **"Hôm nay"**: Building scope là một hàng tabs, mọi con số/danh sách/trạng thái suy
+từ Mock có quan hệ thật, một ngữ pháp màn hình cho cả 15 khu vực. Round 3 (spec
+[#179](https://github.com/qtuan02/monorepo/issues/179)), đã ship — **"dễ hơn"**: chuỗi tháng chốt
+chỉ số → lập Đợt hoá đơn → Thu tiền gộp vào một màn Kỳ (`/cycles/:month`), Hôm nay gộp Hoá đơn quá
+hạn theo Toà nhà và sắp theo hạn, IA sidebar theo chuỗi việc, wizard Hợp đồng còn 2 bước, Thu tiền
+một chạm. Glossary [`CONTEXT.md`](./CONTEXT.md) — dùng đúng từ vựng đó (Portal, Mock, Toà nhà,
+Building scope, Kỳ, Ngày thu, Chỉ số điện nước, Việc cần làm…).
 
 App chạy Runtime **Vite client SPA** (clone từ `apps/_template_vite` bằng `gen:app`):
 mọi màn hình nằm sau đăng nhập, không crawler nào cần đọc, nginx phục vụ một bundle
@@ -24,10 +27,10 @@ bun run dev:smart-rental     # http://localhost:3006
 | Guard | `src/features/auth/provider/` | `ProtectedRoute` bọc mọi route trong shell, `GuestRoute` bọc `/auth/login` ngoài shell. Không còn route đăng ký/onboarding — pha 2 bỏ cả hai (spec #153 §10 hàng 56). Catch-all 404 **trong** shell, ngoài guard. |
 | Session | `src/stores/use-auth-store.ts` | Zustand + `persist` (localStorage) của Template. Đăng nhập là **giả**: form qua được Zod là set một token giả và về `/`. Store giữ thêm `user` (`{ name, email }`) cho nav-user: `signIn(token, user)` / `logout()`. |
 | Building scope | `src/stores/use-building-store.ts` | Zustand + `persist` localStorage, key `building`; `selectedBuildingId: string \| null`, `null` = mọi Toà nhà. Sống ở một hàng tabs dưới header (≤ 6 Toà nhà; từ 7 đổi thành `Select`) chứ không phải bộ lọc bảng — mọi danh sách, KPI và Việc cần làm đọc nó qua selector hẹp. Hai ngoại lệ: Cài đặt (toàn cục) và Báo cáo (`null` = bảng so sánh giữa các Toà nhà thay vì tổng). |
-| Shell "Hôm nay" | `src/features/layout/` | `templates/layout.template.tsx` (`SidebarProvider` + `SidebarInset`) · `components/sidebar/` (`app-sidebar` 15 mục ba nhóm, `nav-user` đăng xuất + Cài đặt) · `components/header/` (`app-header`, hàng tabs Building scope, `notification-panel` đọc Việc cần làm, `search-dialog` ⌘K/Ctrl+K) · `components/bottom-nav.tsx` — mobile (`< md`): 5 ô Hôm nay · Phòng · Người thuê · Hoá đơn · Thêm (Thêm mở Sheet 11 khu vực còn lại), header chỉ còn tiêu đề + tìm + chuông, tabs scope thành pill cuộn ngang · `constants/navigation.ts` là manifest 15 khu vực, `utils/navigation.ts` khớp theo **segment**. Header **không** render `<h1>` — heading là của màn hình, seam test assert nó. |
+| Shell "Hôm nay" | `src/features/layout/` | `templates/layout.template.tsx` (`SidebarProvider` + `SidebarInset`) · `components/sidebar/` (`app-sidebar` 14 mục bốn nhóm theo chuỗi việc — Tháng này · Người & phòng · Sổ sách · Hệ thống, `nav-user` đăng xuất + Cài đặt) · `components/header/` (`app-header`, hàng tabs Building scope, `notification-panel` đọc hàng đợi Việc cần làm đã gộp, `search-dialog` Ctrl K/⌘K theo platform) · `components/bottom-nav.tsx` — mobile (`< md`): 4 ô cố định Hôm nay · Phòng · Người thuê · Thu tiền (cùng route `/invoices`, lọc còn phải thu sắp theo hạn) + "Thêm" mở Sheet (hàng tài khoản + Đăng xuất tách riêng + lưới khu vực còn lại), header chỉ còn tiêu đề + tìm + chuông, tabs scope thành pill cuộn ngang · `constants/navigation.ts` là manifest 14 khu vực, `utils/navigation.ts` khớp theo **segment**. Header **không** render `<h1>` — heading là của màn hình, seam test assert nó. |
 | Dữ liệu | `~/hooks/api` | Mock đứng sau hook TanStack Query, viết theo contract `be-motel` (ADR-0012) — `buildingId` bắt buộc trên mọi entity, một kiểu kỳ `YYYY-MM`, enum khớp `fe-api-integration/*.md`. Mock nằm ở **`~/constants/mock/<entity>.ts`**: `~/hooks/api` phục vụ nó và hook không được import `~/features` (`architecture-circular-dependencies`, CRITICAL). `~/libs/http-client.ts` chỉ export `httpClient`, chưa có service class — khi `be-motel` có contract, việc nối là đổi `queryFn`. Ghi lên Mock in-memory, mất khi reload; Cài đặt có "Khôi phục dữ liệu mẫu" (`useResetMockData`, gọi `resetMock<Entity>` của từng slice qua `trackMockReset`). |
 | Trạng thái dẫn xuất | ADR-0012 | Không trạng thái nào lưu tay: `EXPIRING` (Hợp đồng, ≤ 30 ngày), `PARTIAL`/`OVERDUE` (Hoá đơn, từ `dueDate` + Thanh toán), bất thường (Chỉ số, > 2× kỳ trước hoặc giảm), trạng thái hiển thị Người thuê (từ Hợp đồng + cờ quá hạn), Việc cần làm (năm nguồn), Đối soát/Báo cáo/KPI (từ Hoá đơn + Hoá đơn NCC + Chi phí của scope + kỳ) — mỗi phép suy là một hàm thuần trong `~/utils`, có test, gọi từ `queryFn`. |
-| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133, deepened ở pha 2). `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack, search/facet/page/size trên **URL**, thanh hành động hàng loạt sticky khi chọn dòng, `renderMobileRow` (mỗi hàng một `Item` trên điện thoại), `ToggleGroup` đổi thẻ/bảng. `card/kpi-strip.tsx` — một dải KPI hai cỡ (desktop liền, mobile cuộn ngang), thay `SummaryCard` cũ. `page/detail-page-shell.tsx` — header entity + tabs thật + cột phải chỉ hành động, `Breadcrumb` ở route ≥ 3 cấp thay nút Quay lại. `form/` — `Sheet` cho form ngắn, `DateField`/`MonthField` (+ `month-picker`), `InputGroup` hậu tố "đ", `Combobox` tự tải, `Attachment`. `menu/entity-action-menu.tsx` — mục không có `link` lẫn `onClick` tự disable; đừng ship một mục vĩnh viễn như vậy. Còn `badge/status-badge.tsx`, `panel/` (empty/error/loading theo footprint), `dialog/confirm-action-dialog`, `queue/task-queue.tsx` (Hôm nay và `/tasks` dùng chung), `chart/revenue-chart.tsx`, `navigation/page-back-button`. |
+| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133, deepened ở pha 2). `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack, search/facet/page/size trên **URL**, thanh hành động hàng loạt sticky khi chọn dòng, `renderMobileRow` (mỗi hàng một `Item` trên điện thoại), `ToggleGroup` đổi thẻ/bảng. `card/kpi-strip.tsx` — một dải KPI hai cỡ (desktop liền, mobile cuộn ngang), thay `SummaryCard` cũ. `page/detail-page-shell.tsx` — header entity + tabs thật + cột phải chỉ hành động, `Breadcrumb` ở route ≥ 3 cấp thay nút Quay lại. `form/` — `Sheet` cho form ngắn, `DateField`/`MonthField` (+ `month-picker`), `InputGroup` hậu tố "đ", `Combobox` tự tải, `Attachment`. `menu/entity-action-menu.tsx` — mục không có `link` lẫn `onClick` tự disable; đừng ship một mục vĩnh viễn như vậy. Còn `badge/status-badge.tsx`, `panel/` (empty/error/loading theo footprint), `dialog/confirm-action-dialog`, `queue/task-queue.tsx` (hàng đợi gộp theo loại, sắp theo hạn — Hôm nay và chuông dùng chung, round 3 bỏ `/tasks`), `chart/revenue-chart.tsx` (nay ở slice `reports`), `navigation/page-back-button`. |
 | Status config | `~/constants/status.ts` | **Một** nơi cho mọi config trạng thái/hiển thị: `statusTone`, `StatusConfig`, và một config theo mỗi entity (Phòng, Hợp đồng, Cọc, Hoá đơn, kênh thanh toán, Chỉ số, Hoá đơn NCC, Việc cần làm, kênh liên lạc…), `toFilterOptions()`. |
 | Utils | `~/utils/` | Chỉ hàm thuần, mỗi cái một test: `currency.ts`, `date.ts`, `pagination.ts`, `csv.ts` (`toCsv`, RFC 4180 — dùng cho Xuất CSV Hoá đơn), `vietqr.ts` (link `img.vietqr.io` + cắt `addInfo`), `invoice-payments.ts`, `room-delete.ts`, `task-due.ts`, `report-rows.ts`, `reconciliation-items.ts`, `mock-reset.ts` (`trackMockReset`). |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA (§ Deploy Vercel); image thì builder Bun → `nginx:stable-alpine` như Template, giữ cho job `docker` của CI. |
@@ -44,9 +47,10 @@ drift cần đồng bộ ngược từ `_template_vite` hay từ một app khác
    dưới đây) nhưng không có `ThemeProvider`/toggle nào bật nó — Portal luôn render light.
 3. **Không đăng ký, không onboarding.** Pha 2 bỏ cả hai route: đăng nhập giả là toàn bộ bề mặt auth,
    không có màn "chào mừng" không làm gì.
-4. **Không nhập tay Task bảo trì.** Việc cần làm ở `/tasks` là màn **đọc**, suy hoàn toàn từ năm nguồn
-   dữ liệu (Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số bất thường, Thông báo lưu trú chưa gửi, kỳ
-   chưa lập Đợt) — không có form tạo việc. Một ticket bảo trì nhập tay chờ `maintenance-service` thật.
+4. **Không nhập tay Task bảo trì, không có màn "Việc cần làm" riêng.** Việc cần làm suy hoàn toàn từ
+   năm nguồn dữ liệu (Hoá đơn quá hạn, Hợp đồng sắp hết hạn, Chỉ số bất thường, Thông báo lưu trú
+   chưa gửi, Kỳ chưa lập Đợt) và sống ở Hôm nay + chuông — `/tasks` không còn tồn tại (404) từ round
+   3. Một ticket bảo trì nhập tay chờ `maintenance-service` thật.
 5. **Không nối `be-motel`, không service class.** Toàn bộ Portal chạy trên Mock in-memory (ADR-0012);
    nối backend là đổi `queryFn` trong `~/hooks/api`, không đổi gì ở tầng trên.
 6. **Không gửi thông báo thật, không xuất PDF/Excel thật.** "Gửi nhắc" chỉ ghi nhật ký; "Xuất" là CSV
@@ -76,6 +80,17 @@ này (`bg-success/10 text-success`, …) — không còn class palette Tailwind 
 `test/globals.test.ts`. Chữ là `@fontsource-variable/ibm-plex-sans` (subset
 `vietnamese`), import trong `globals.css`.
 
+Round 3 thêm bốn token **chữ** riêng cho badge trạng thái (spec #179 §"Token") — nền `/10`, icon,
+viền, chart vẫn đọc token gốc ở trên, bốn token này chỉ đổi lớp *chữ* của `statusTone` để đạt
+WCAG AA (≥ 4,5:1) trên nền `/10`, kiểm cùng trong `test/globals.test.ts`:
+
+| Token | Giá trị (light) | Dùng cho |
+| --- | --- | --- |
+| `--success-foreground-strong` | `#016630` | chữ badge "Đã thu" |
+| `--warning-foreground-strong` | `#973c00` | chữ badge "Sắp hết hạn" |
+| `--info-foreground-strong` | `#193cb8` | chữ badge thông tin |
+| `--destructive-foreground-strong` | `#9f0712` | chữ badge "Quá hạn" |
+
 ## Bảng route
 
 `SCREAMING_SNAKE` cho path tĩnh, `camelCase…Path` cho builder. Mọi route dưới đây đã có màn thật —
@@ -89,35 +104,55 @@ không còn placeholder.
 | Phòng | `/rooms` · `/rooms/:roomId` | — |
 | Người thuê | `/tenants` · `/tenants/:tenantId` | — |
 | Hợp đồng | `/contracts` · `/contracts/create` · `/contracts/:contractId` · `…/renew` · `…/liquidation` | — |
-| Hoá đơn | `/invoices` · `/invoices/batch` · `/invoices/:invoiceId` | — |
-| Chỉ số điện nước | `/utilities` · `/utilities/meter-input` · `/utilities/:utilityId` | — |
+| Hoá đơn | `/invoices` · `/invoices/:invoiceId` | — |
+| Kỳ điện nước & hoá đơn (ADR-0013) | `/cycles/:month` | — |
+| Chỉ số điện nước | `/utilities` · `/utilities/:utilityId` — không còn sidebar row, vào từ tab Chỉ số của Phòng và từ màn Kỳ | — |
 | Hoá đơn nhà cung cấp | `/supplier-bills` · `/supplier-bills/:billId` | — |
 | Chi phí | `/expenses` · `/expenses/:expenseId` | — |
-| Đối soát · Việc cần làm · Báo cáo · Khai báo lưu trú · Thông báo · Cài đặt | `/reconciliation` · `/tasks` · `/reports` · `/compliance` · `/communications` · `/settings` | — |
-| 404 | `*` | trong shell, **ngoài** guard |
+| Đối soát · Báo cáo · Khai báo lưu trú · Thông báo · Cài đặt | `/reconciliation` · `/reports` · `/compliance` · `/communications` · `/settings` | — |
+| 404 | `*` — bao gồm `/tasks` (đã bỏ ở round 3) | trong shell, **ngoài** guard |
 
-## Hình dạng pha 2
+## Hình dạng round 3
 
-**"Hôm nay"** (`/`, slice `dashboard`) là màn đầu sau đăng nhập: một KPI strip theo Building scope
-(cần thu tháng này, quá hạn, Hợp đồng sắp hết hạn) và hàng đợi Việc cần làm — mỗi việc mang một nút
-hành động thật (Gửi nhắc, Gia hạn, Thanh lý, Xem chỉ số, Khai báo, Lập đợt) và biến mất khi xử lý
-xong. Hàng đợi này là `~/components/queue/task-queue.tsx`, dùng lại nguyên bởi `/tasks` (bản đọc đầy
-đủ, có lọc).
+**"Hôm nay"** (`/`, slice `dashboard`) vẫn là màn đầu sau đăng nhập, nay là một hàng đợi thật: ba
+KPI theo Building scope (còn phải thu tháng này, Hợp đồng sắp hết hạn, tiến độ Chỉ số của Kỳ hiện
+tại), rồi hàng đợi Việc cần làm — Hoá đơn quá hạn của cùng một Toà nhà **gộp thành một mục** (tổng
+tiền, "Nhắc tất cả" ghi nhật ký thật, mở rộng ra từng Hoá đơn với "Ghi nhận thu"/"VietQR" ngay trên
+dòng), mọi loại việc khác giữ một mục một hành động — cả hai sắp chung theo **hạn**, không theo
+nguồn. Hai card số "Tháng này" (lấp đầy, đã lập, đã thu, còn phải thu) và "Vừa xong" (3 sự kiện gần
+nhất) thay cho donut + biểu đồ cũ, nay chuyển hẳn sang **Báo cáo**. `/tasks` không còn tồn tại
+(404) — chuông đọc đúng hàng đợi đã gộp của Hôm nay, không có màn riêng nào khác.
 
-Mỗi slice domain đứng trên đúng một bố cục: **danh sách** = `ListPageHeader` + toolbar tìm/lọc/đổi
-thẻ-bảng + `DataTable`; **chi tiết** = `DetailPageShell` (header entity + tabs + cột hành động).
-**Hợp đồng** thêm Cọc và vòng đời năm trạng thái, wizard bốn bước tạo mới. **Hoá đơn** có dòng theo
-loại, Thanh toán, VietQR thật, và **Đợt hoá đơn** chỉ lập được cho Phòng đã có Chỉ số xác nhận của
-kỳ. **Chỉ số điện nước** nhập nhiều Phòng một submit, bất thường (> 2× kỳ trước) chặn xác nhận cho
-tới khi duyệt. **Chi phí** + **Hoá đơn nhà cung cấp** + **Đối soát** đứng trên cùng lớp nền, Đối soát
-không có Mock riêng — tính thẳng từ hai loại kia. **Báo cáo** theo Building scope: một Toà nhà thì
-biểu đồ 6 tháng, `null` thì bảng so sánh. **Thông báo** chỉ còn mẫu + nhật ký gửi (không gửi thật).
-**Cài đặt** toàn cục chỉ còn hồ sơ + "Khôi phục dữ liệu mẫu"; cài đặt riêng một Toà nhà (ngày thu,
-Bảng giá, Tài khoản nhận tiền) nằm ở tab Cài đặt của chính Toà nhà đó.
+**Kỳ điện nước & hoá đơn** (`/cycles/:month`, slice `cycles`, ADR-0013) là màn gánh cả chuỗi tháng
+cho một Toà nhà: một hàng/Phòng — chỉ số cũ (đọc), chỉ số mới điền sẵn từ Nháp đã lưu, tiêu thụ, tiền
+phòng (prorate theo ngày ở nếu Hợp đồng bắt đầu giữa Kỳ)/điện/nước/tổng tính tại chỗ theo Bảng giá,
+bất thường đánh dấu từng đồng hồ, rồi "Lưu nháp chỉ số" và "Lập *n* hoá đơn". Lập chỉ mở từ ngày
+chốt (cuối tháng Kỳ); một Kỳ đã lập hoặc một Kỳ tương lai render read-only, không có action bar.
+Thay hẳn hai màn Đợt hoá đơn + Nhập chỉ số cũ — `/utilities` (list + detail) vẫn còn nhưng không
+còn nút nhập, chỉ vào từ tab Chỉ số của Phòng hoặc từ chính màn Kỳ.
 
-Chi tiết từng quyết định — 37 quyết định của vòng grill, cái nào ship đúng, cái nào lệch và vì sao —
-nằm ở comment tổng kết trên spec [#153](https://github.com/qtuan02/monorepo/issues/153), không lặp
-lại ở đây để khỏi có hai nguồn.
+Mỗi slice domain vẫn đứng trên đúng một bố cục: **danh sách** = `ListPageHeader` + toolbar
+tìm/lọc/đổi thẻ-bảng + `DataTable` (mặc định **bảng** trên desktop, dòng gọn `renderMobileRow` dưới
+`md`; Phòng giữ lưới theo tầng, và ở Building scope `null` nhóm thêm một lớp theo Toà nhà); **chi
+tiết** = `DetailPageShell` (header entity + tabs thật, tab lên URL + cột phải chỉ hiện khi có nội
+dung). **Hợp đồng** tạo mới còn **2 bước** (Phòng & Người thuê → Điều khoản & xác nhận, điền sẵn từ
+giá Phòng/Toà nhà, tóm tắt sống cột phải); vòng đời là một dải ngang nhỏ trong header thay cột phải
+520px. **Thu tiền** điền sẵn số tiền = phần còn lại, "Đã nhận" ngay trong dialog VietQR. **Chi phí**
++ **Hoá đơn nhà cung cấp** + **Đối soát** đứng trên cùng lớp nền, Đối soát không có Mock riêng —
+tính thẳng từ hai loại kia. **Báo cáo** theo Building scope: một Toà nhà thì biểu đồ 6 tháng, `null`
+thì bảng so sánh. **Khai báo lưu trú**: "Đã gửi" hỏi mã hồ sơ + ngày gửi thật; Đăng ký tạm trú suy
+từ hạn, có việc "sắp hết hạn" riêng. **Cài đặt** toàn cục chỉ còn hồ sơ + "Khôi phục dữ liệu mẫu";
+cài đặt riêng một Toà nhà (Ngày thu, Bảng giá, Tài khoản nhận tiền) có **một** lối vào — tab Cài đặt
+của Toà nhà đó, nút "Chỉnh sửa".
+
+Bốn token chữ badge mới (`--success-foreground-strong`, `--warning-foreground-strong`,
+`--info-foreground-strong`, `--destructive-foreground-strong`) đạt AA trên nền `/10` — xem §
+Token/accent.
+
+Chi tiết từng quyết định — 24 quyết định của vòng grill round 3, cái nào ship đúng, cái nào lệch và
+vì sao — nằm ở comment tổng kết trên spec [#179](https://github.com/qtuan02/monorepo/issues/179);
+37 quyết định pha 2 vẫn ở comment trên spec [#153](https://github.com/qtuan02/monorepo/issues/153).
+Không lặp lại ở đây để khỏi có hai nguồn.
 
 ## Deploy Vercel
 

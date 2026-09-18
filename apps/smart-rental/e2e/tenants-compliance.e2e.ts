@@ -15,7 +15,7 @@ test.describe("Người thuê và Khai báo lưu trú", () => {
   }) => {
     await page.goto(ROUTES.TENANTS);
     await expect(
-      page.getByRole("heading", { name: "Quản lý Người thuê" }),
+      page.getByRole("heading", { name: "Người thuê", exact: true }),
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Thêm Người thuê" }).click();
@@ -37,8 +37,12 @@ test.describe("Người thuê và Khai báo lưu trú", () => {
     await expect(
       page.getByText("Đã thêm Người thuê Người Thuê E2E"),
     ).toBeVisible();
+    // The list defaults to table now (spec #179 §"Danh sách và Phòng"), but
+    // DataTable also renders the `< md` row markup off-screen in the DOM —
+    // scope to the table so the hidden mobile copy doesn't make this a
+    // strict-mode violation.
     await expect(
-      page.getByText("Người Thuê E2E", { exact: true }),
+      page.getByRole("table").getByText("Người Thuê E2E", { exact: true }),
     ).toBeVisible();
   });
 
@@ -56,7 +60,12 @@ test.describe("Người thuê và Khai báo lưu trú", () => {
       .filter({ hasText: "Hoàng Văn E" });
     await expect(row.getByRole("button", { name: "Đã gửi" })).toBeVisible();
 
+    // #188: "Đã gửi" now opens a sheet asking for a real mã hồ sơ + ngày gửi
+    // rather than marking sent immediately with a fabricated code.
     await row.getByRole("button", { name: "Đã gửi" }).click();
+    await page.getByLabel("Mã hồ sơ").fill("CT01-0999");
+    await page.getByRole("button", { name: "Lưu lại" }).click();
+
     await expect(
       page.getByText("Đã đánh dấu gửi Thông báo lưu trú cho Hoàng Văn E"),
     ).toBeVisible();

@@ -16,7 +16,7 @@ test.describe("Toà nhà và Phòng", () => {
   }) => {
     await page.goto(ROUTES.ROOMS);
     await expect(
-      page.getByRole("heading", { name: "Danh sách phòng" }),
+      page.getByRole("heading", { name: "Phòng", exact: true }),
     ).toBeVisible();
     // 18 Phòng total (6 + 8 + 4) — the resultLabel counts the whole scope
     // even though the grid view never pages it (spec #153 §10 row 43).
@@ -165,7 +165,9 @@ test.describe("Toà nhà và Phòng", () => {
     await page.getByRole("tab", { name: "Cài đặt" }).click();
     await expect(settingsTab.getByText("3.500")).toBeVisible();
 
-    await page.getByRole("button", { name: "Cài đặt" }).click();
+    // #187: "Cài đặt" has exactly one entry point — the tab's own "Chỉnh
+    // sửa" — not a second header button opening the same sheet.
+    await page.getByRole("button", { name: "Chỉnh sửa" }).click();
     const sheet = page.getByRole("dialog", { name: "Cài đặt toà nhà" });
     await sheet.getByLabel("Giá điện / kWh").fill("4200");
     await expect(

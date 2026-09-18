@@ -37,7 +37,7 @@ test.describe("shell", () => {
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.CONTRACTS}$`));
     await expect(
-      page.getByRole("heading", { name: "Quản lý hợp đồng" }),
+      page.getByRole("heading", { name: "Hợp đồng", exact: true }),
     ).toBeVisible();
     // `exact`: the list screen itself carries a "Thêm hợp đồng" link (#137),
     // which the substring match would also resolve.

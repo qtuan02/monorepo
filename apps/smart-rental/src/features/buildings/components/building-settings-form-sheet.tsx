@@ -132,7 +132,7 @@ export default function BuildingSettingsFormSheet({
     >
       <FieldGroup>
         <FieldSet>
-          <FieldLegend variant="label">Chu kỳ thu</FieldLegend>
+          <FieldLegend variant="label">Ngày thu</FieldLegend>
           <TextField
             control={form.control}
             name="collectionDay"

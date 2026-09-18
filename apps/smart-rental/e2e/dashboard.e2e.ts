@@ -65,8 +65,11 @@ test.describe("dashboard", () => {
     await signIn(page);
     await page.goto(ROUTES.HOME);
 
+    // The Collapsible wrapper, not the `[role="listitem"]` header alone —
+    // its expanded sub-rows (the "Ghi nhận thu" buttons) are a sibling of
+    // the listitem, not a descendant of it.
     const group = page
-      .locator('[role="listitem"]')
+      .locator('[data-slot="collapsible"]')
       .filter({ hasText: /Hoá đơn quá hạn/ })
       .first();
     await group.getByRole("button", { name: /Xem \d+ hoá đơn/ }).click();

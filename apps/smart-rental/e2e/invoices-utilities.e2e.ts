@@ -20,8 +20,10 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await page.getByRole("button", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
     await expect(page.getByText("36 hoá đơn được tìm thấy")).toBeVisible();
 
-    await page.getByRole("link", { name: "Chỉ số điện nước" }).click();
-    await expect(page.getByText("24 chỉ số được tìm thấy")).toBeVisible();
+    // "Chỉ số điện nước" is no longer its own sidebar row (ADR-0013) — go
+    // straight there; the Building scope carries over via the store.
+    await page.goto(ROUTES.UTILITIES);
+    await expect(page.getByText("22 chỉ số được tìm thấy")).toBeVisible();
   });
 
   // Ticket #157 — the list-screen foundation, proven on Hoá đơn: the KPI
@@ -36,7 +38,7 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
     const kpiStrip = page.locator('[data-slot="kpi-strip"]');
     await expect(kpiStrip.getByText("Đã thu", { exact: true })).toBeVisible();
-    await expect(kpiStrip.getByText("Chưa thu", { exact: true })).toBeVisible();
+    await expect(kpiStrip.getByText("Quá hạn", { exact: true })).toBeVisible();
     await expect(
       kpiStrip.getByText("Thu một phần", { exact: true }),
     ).toBeVisible();
@@ -75,8 +77,10 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
       name: "Điều hướng chính",
     });
     await expect(bottomNav).toBeVisible();
+    // Bottom nav ô 4 is "Thu tiền" (spec #179 §"IA / shell") — the same
+    // /invoices route, so it still marks active while on this screen.
     await expect(
-      bottomNav.getByRole("link", { name: "Hoá đơn", exact: true }),
+      bottomNav.getByRole("link", { name: "Thu tiền", exact: true }),
     ).toHaveAttribute("data-active");
 
     // The KPI strip itself overflows into a horizontal scroll at 390 px
@@ -103,7 +107,9 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     page,
   }) => {
     await page.goto(ROUTES.INVOICES);
-    await page.getByRole("button", { name: "Trạng thái" }).click();
+    // `.first()` — the toolbar's facet trigger, not the table's own sortable
+    // "Trạng thái" column header, which carries the same accessible name.
+    await page.getByRole("button", { name: "Trạng thái" }).first().click();
     await page.getByRole("checkbox", { name: "Quá hạn" }).click();
     await page.keyboard.press("Escape");
 
@@ -146,11 +152,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     ).toBe(true);
   });
 
-  // Ticket #182, ADR-0013 — "Kỳ điện nước & hoá đơn" replaced Đợt hoá đơn +
-  // Nhập chỉ số. The Mock only carries Chỉ số through 09/2026, so a kỳ after
-  // that has none yet — every occupied Phòng of that kỳ is "Thiếu chỉ số"
-  // and the lập button counts zero.
-  test("Kỳ: a month with no Chỉ số shows Thiếu chỉ số and blocks Lập", async ({
+  // Ticket #182/#183, ADR-0013 — "Kỳ điện nước & hoá đơn" replaced Đợt hoá
+  // đơn + Nhập chỉ số, and a kỳ after the current one "không mở" (read-only,
+  // no action bar at all) rather than only disabling Lập — the Mock has no
+  // Chỉ số for it either, so the row still says Thiếu chỉ số, but there is
+  // no "Lập" button left to be disabled.
+  test("Kỳ: a future month is read-only and shows Thiếu chỉ số", async ({
     page,
   }) => {
     const nextMonth = new Date();
@@ -160,11 +167,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await page.goto(ROUTES.cycleDetailPath(month));
     await page.getByRole("button", { name: "Trọ Sinh Viên Xanh" }).click();
 
+    await expect(page.getByText("Kỳ tương lai — chưa mở.")).toBeVisible();
     const row = page.getByRole("row", { name: "Phòng 102" });
     await expect(row.getByText("Thiếu chỉ số")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Lập 0 hoá đơn" }),
-    ).toBeDisabled();
+      page.getByRole("button", { name: /Lập \d+ hoá đơn/ }),
+    ).toHaveCount(0);
   });
 
   // Kỳ 09/2026 is the Mock's "đang chốt dở" kỳ (ADR-0013): a READY Phòng,
