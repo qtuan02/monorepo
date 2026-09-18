@@ -7,7 +7,7 @@ import { initSentryForRuntime } from "~/sentry-runtime.config";
  */
 export function register() {
   initSentryForRuntime({
-    dsn: env.NEXT_PUBLIC_SENTRY_DSN,
+    dsn: env.NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN,
     environment: env.NEXT_PUBLIC_APP_ENV,
   });
 }

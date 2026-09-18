@@ -115,7 +115,7 @@ cộng `id` trong `src/features/home/constants/resume.ts` nếu là một mục 
 | `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` | Không | `instrumentation.ts`, `instrumentation-client.ts` |
 
 Hai key đều **mang tên app**, và đó là quy ước chứ không phải sở thích: `.env` ở
-root là **một** file dùng chung cho mọi app, nên mượn `NEXT_PUBLIC_SENTRY_DSN`
+root là **một** file dùng chung cho mọi app, nên mượn `NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN`
 sẽ đẩy lỗi của site này sang project Sentry của Template. Giá trị dùng
 chung thì giữ key chung; giá trị của riêng một app thì `NEXT_PUBLIC_<APP>_…`
 (Next), `PUBLIC_<APP>_…` (Vite), `<APP>_…` cho secret server.
