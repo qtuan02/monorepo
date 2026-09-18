@@ -28,6 +28,7 @@ import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
 import { buildingSettingsFormSchema } from "~/features/buildings/types/building-settings-form";
 import { useUpdateBuildingSettings } from "~/hooks/api/building";
 import { formatCurrency } from "~/utils/currency";
+import { isElectricityPriceOverCap } from "~/utils/tariff";
 
 interface BuildingSettingsFormSheetProps {
   building: Building;
@@ -84,7 +85,7 @@ export default function BuildingSettingsFormSheet({
   );
   const isOverCap =
     Number.isFinite(electricityPrice) &&
-    electricityPrice > ELECTRICITY_PRICE_CAP_PER_KWH;
+    isElectricityPriceOverCap(electricityPrice);
 
   const onSubmit = form.handleSubmit((values) => {
     const hasBankAccount = values.bankCode !== "";

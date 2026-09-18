@@ -1,9 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Receipt, Save } from "lucide-react";
+import { AlertTriangle, Receipt, Save } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router";
 
 import dayjs from "@monorepo/dayjs";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@monorepo/ui/components/alert";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import { Card, CardContent } from "@monorepo/ui/components/card";
 import {
@@ -23,6 +28,7 @@ import { BuildingScopeRequiredPanel } from "~/components/panel/building-scope-re
 import { ErrorPanel } from "~/components/panel/error-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
+import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
 import { CycleTableRow } from "~/features/cycles/components/cycle-table-row";
 import { cycleFormSchema } from "~/features/cycles/types/cycle-form";
 import { useGetBuilding } from "~/hooks/api/building";
@@ -35,6 +41,7 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
 import { formatDate, formatMonth } from "~/utils/date";
+import { isElectricityPriceOverCap } from "~/utils/tariff";
 
 const FORM_ID = "cycle-form";
 
@@ -281,6 +288,27 @@ export default function CycleTemplate({ month }: CycleTemplateProps) {
           </Link>
         }
       />
+
+      {building &&
+        isElectricityPriceOverCap(
+          building.priceList.electricityPricePerKwh,
+        ) && (
+          <Alert variant="destructive">
+            <AlertTriangle />
+            <AlertTitle>Vượt trần giá điện cho người thuê</AlertTitle>
+            <AlertDescription>
+              Trần theo quy định hiện hành là{" "}
+              {formatCurrency(ELECTRICITY_PRICE_CAP_PER_KWH)}/kWh.{" "}
+              <Link
+                to={`${ROUTES.buildingDetailPath(building.id)}?tab=settings`}
+                className="underline"
+              >
+                Sửa giá
+              </Link>
+              .
+            </AlertDescription>
+          </Alert>
+        )}
 
       {!selectedBuildingId ? (
         <BuildingScopeRequiredPanel description="Kỳ áp dụng cho đúng một Toà nhà — chọn Toà nhà ở thanh phía trên." />

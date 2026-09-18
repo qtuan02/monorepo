@@ -12,7 +12,7 @@ const building: Building = {
   address: "123 Ngũ Hành Sơn, Đà Nẵng",
   collectionDay: 5,
   priceList: {
-    electricityPricePerKwh: 3500,
+    electricityPricePerKwh: 3000,
     waterPricePerM3: 15000,
     serviceFee: 100000,
   },

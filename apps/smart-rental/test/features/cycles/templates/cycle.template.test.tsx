@@ -61,6 +61,12 @@ describe("CycleTemplate", () => {
         "Không lập",
       ),
     ).toBeInTheDocument();
+
+    // b1's Bảng giá (3.500 đ/kWh) is genuinely over the legal cap — the
+    // Alert has a real Mock case to show, not just the form's live warning.
+    expect(
+      screen.getByText("Vượt trần giá điện cho người thuê"),
+    ).toBeInTheDocument();
   });
 
   it("counts the READY rows and keeps Lập disabled before the kỳ's ngày chốt", async () => {

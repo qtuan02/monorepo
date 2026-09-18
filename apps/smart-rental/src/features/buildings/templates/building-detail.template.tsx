@@ -33,6 +33,7 @@ import { useGetContracts } from "~/hooks/api/contract";
 import { useGetRooms } from "~/hooks/api/room";
 import { canDeleteBuilding } from "~/utils/building-delete";
 import { formatCurrency } from "~/utils/currency";
+import { isElectricityPriceOverCap } from "~/utils/tariff";
 
 interface BuildingDetailTemplateProps {
   buildingId: string;
@@ -82,8 +83,9 @@ export default function BuildingDetailTemplate({
   const stats = getBuildingStats(building);
   const rooms = roomsQuery.data ?? [];
   const canDelete = canDeleteBuilding(building.id, contractsQuery.data ?? []);
-  const isElectricityOverCap =
-    building.priceList.electricityPricePerKwh > ELECTRICITY_PRICE_CAP_PER_KWH;
+  const isElectricityOverCap = isElectricityPriceOverCap(
+    building.priceList.electricityPricePerKwh,
+  );
 
   const handleDelete = () =>
     deleteBuilding.mutate(building.id, {
