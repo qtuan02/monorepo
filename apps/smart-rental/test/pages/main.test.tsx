@@ -62,22 +62,22 @@ function heading(name: string) {
 // "Hôm nay" is its own describe block below — its heading is the day's
 // date, not a literal string, and it needs a Building scope round trip.
 const guardedScreens: [path: string, heading: string, mockText?: string][] = [
-  [ROUTES.BUILDINGS, "Quản lý Toà nhà", "Trọ Sinh Viên Xanh"],
+  [ROUTES.BUILDINGS, "Toà nhà", "Trọ Sinh Viên Xanh"],
   [
     ROUTES.buildingDetailPath("b2"),
     "Chi tiết toà nhà",
     "Căn hộ Dịch Vụ Cao Cấp",
   ],
-  [ROUTES.ROOMS, "Danh sách phòng", "Phòng 101"],
+  [ROUTES.ROOMS, "Phòng", "Phòng 101"],
   [ROUTES.roomDetailPath("R-B1-102"), "Chi tiết phòng", "Phòng 102"],
-  [ROUTES.TENANTS, "Quản lý Người thuê", "Trần Thị B"],
+  [ROUTES.TENANTS, "Người thuê", "Trần Thị B"],
   [ROUTES.tenantDetailPath("T003"), "Chi tiết Người thuê", "Lê Văn C"],
-  [ROUTES.CONTRACTS, "Quản lý hợp đồng", "HĐ-002"],
+  [ROUTES.CONTRACTS, "Hợp đồng", "HĐ-002"],
   [ROUTES.CONTRACT_CREATE, "Tạo hợp đồng mới"],
   [ROUTES.contractDetailPath("C004"), "Chi tiết hợp đồng", "HĐ-004"],
   [ROUTES.contractRenewPath("C004"), "Gia hạn hợp đồng", "HĐ-004"],
   [ROUTES.contractLiquidationPath("C004"), "Thanh lý hợp đồng", "HĐ-004"],
-  [ROUTES.INVOICES, "Quản lý hoá đơn", "HÓA-001"],
+  [ROUTES.INVOICES, "Hoá đơn", "HÓA-001"],
   // Scope null: both now require picking one Toà nhà first (spec #153 §10
   // row 4) — the guard panel's own heading, not the form's mock text; see
   // the dedicated "Building scope required" tests below for the full round
@@ -219,6 +219,25 @@ describe("the route tree", () => {
           withoutNbsp(formatCurrency(stats.totalExpenseAmount)),
         ),
       ).not.toHaveLength(0);
+    });
+
+    // Ticket #184 — the "Thu tiền" entry point (spec #179 §3.3.1's bottom-nav
+    // stop) is this same route with a query, not a route of its own.
+    it("filters + sorts the invoice list from the URL — status=…&sort=dueDate puts an overdue invoice first", async () => {
+      renderAt(`${ROUTES.INVOICES}?status=UNPAID,PARTIAL,OVERDUE&sort=dueDate`);
+
+      const rows = await screen.findAllByRole("row");
+      // rows[0] is the header row — the table default sorts ascending by
+      // dueDate, so the oldest (overdue) due date leads.
+      const firstDataRow = rows[1];
+      if (!firstDataRow) throw new Error("expected at least one data row");
+      expect(within(firstDataRow).getByText("Quá hạn")).toBeInTheDocument();
+    });
+
+    it("opens the tab named by `?tab=` on a detail screen's deep link", async () => {
+      renderAt(`${ROUTES.invoiceDetailPath("I002")}?tab=payments`);
+
+      expect(await screen.findByText("Lịch sử thanh toán")).toBeInTheDocument();
     });
 
     it("shows a derived Sắp hết hạn badge on the contract list", async () => {
@@ -513,7 +532,7 @@ describe("Khôi phục dữ liệu mẫu — Cài đặt", () => {
         name: "Xóa",
       }),
     );
-    await screen.findByRole("heading", { level: 1, name: "Danh sách phòng" });
+    await screen.findByRole("heading", { level: 1, name: "Phòng" });
 
     renderAt(ROUTES.SETTINGS);
     await user.click(

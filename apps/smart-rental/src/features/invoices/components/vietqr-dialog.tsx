@@ -26,6 +26,10 @@ interface VietQrDialogProps {
   bankAccount: BankAccount | undefined;
   /** For the "Toà nhà chưa khai..." warning's own link to Cài đặt Toà nhà (spec #153 §10 row 12). */
   buildingId: string;
+  /** The trigger's own look — defaults to a full-width primary button (a sidebar card's shape). */
+  variant?: "default" | "outline";
+  size?: "default" | "sm";
+  className?: string;
 }
 
 /**
@@ -39,6 +43,9 @@ export default function VietQrDialog({
   room,
   bankAccount,
   buildingId,
+  variant = "default",
+  size = "default",
+  className = "w-full",
 }: VietQrDialogProps) {
   const link = buildVietQrQuickLink(
     bankAccount,
@@ -50,7 +57,12 @@ export default function VietQrDialog({
     <Dialog>
       <DialogTrigger
         render={
-          <Button type="button" className="w-full">
+          <Button
+            type="button"
+            variant={variant}
+            size={size}
+            className={className}
+          >
             <QrCode />
             Thanh toán VietQR
           </Button>

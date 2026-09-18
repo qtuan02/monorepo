@@ -31,6 +31,11 @@ describe("InvoiceDetailTemplate", () => {
     // "còn phải trả" is the full total, and its Toà nhà (b1) has a bank account.
     renderInvoice("I071");
 
+    // VietQR is the screen's ONE right-column action, so DetailPageShell
+    // moves it into the header instead of a lone-button "Hành động" card
+    // (spec #179 §3.5).
+    expect(screen.queryByText("Hành động")).not.toBeInTheDocument();
+
     await user.click(
       await screen.findByRole("button", { name: "Thanh toán VietQR" }),
     );

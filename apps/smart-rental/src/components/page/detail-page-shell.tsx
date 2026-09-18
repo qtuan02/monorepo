@@ -17,7 +17,9 @@ import {
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
 
+import { InfoCard } from "~/components/card/info-card";
 import { PageBackButton } from "~/components/navigation/page-back-button";
+import { useUrlTab } from "~/hooks/use-url-tab";
 
 export interface DetailPageBreadcrumbItem {
   label: string;
@@ -55,6 +57,12 @@ interface DetailPageShellProps {
   actions?: ReactNode;
   /** Real `Tabs` with panels — the relation a detail screen shows (Hoá đơn của Hợp đồng, …). */
   tabs?: DetailPageTab[];
+  /**
+   * A single "Hành động" card, rendered only once at least two items are
+   * given (spec #179 §3.5) — a lone action belongs in `actions` (the header)
+   * instead, so no screen ever shows a card with just one button.
+   */
+  actionsCard?: ReactNode[];
   /** The right column (`lg:` 1/3), visible across every tab — actions and links only. */
   sidebar?: ReactNode;
   children?: ReactNode;
@@ -69,11 +77,19 @@ export function DetailPageShell({
   meta,
   actions,
   tabs,
+  actionsCard,
   sidebar,
   children,
 }: DetailPageShellProps) {
   const hasBreadcrumb = !!breadcrumb && breadcrumb.length > 0;
   const hasTabs = !!tabs && tabs.length > 0;
+  // Called unconditionally (Rules of Hooks) — the URL is only ever touched
+  // once a screen actually has tabs to switch between.
+  const [activeTab, setActiveTab] = useUrlTab(
+    hasTabs ? tabs.map((tab) => tab.value) : [],
+  );
+  const hasActionsCard = !!actionsCard && actionsCard.length >= 2;
+  const hasSidebar = hasActionsCard || !!sidebar;
 
   return (
     <div className="space-y-6">
@@ -138,7 +154,7 @@ export function DetailPageShell({
       )}
 
       {hasTabs ? (
-        <Tabs defaultValue={tabs[0]?.value}>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="print:hidden">
             {tabs.map((tab) => (
               <TabsTrigger key={tab.value} value={tab.value}>
@@ -146,8 +162,12 @@ export function DetailPageShell({
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="grid gap-6 pt-2 lg:grid-cols-3">
-            <div className="space-y-6 lg:col-span-2">
+          <div
+            className={hasSidebar ? "grid gap-6 pt-2 lg:grid-cols-3" : "pt-2"}
+          >
+            <div
+              className={hasSidebar ? "space-y-6 lg:col-span-2" : "space-y-6"}
+            >
               {tabs.map((tab) => (
                 <TabsContent
                   key={tab.value}
@@ -158,8 +178,15 @@ export function DetailPageShell({
                 </TabsContent>
               ))}
             </div>
-            {sidebar && (
-              <div className="space-y-6 lg:col-span-1">{sidebar}</div>
+            {hasSidebar && (
+              <div className="space-y-6 lg:col-span-1">
+                {hasActionsCard && (
+                  <InfoCard title="Hành động" className="print:hidden">
+                    {actionsCard}
+                  </InfoCard>
+                )}
+                {sidebar}
+              </div>
             )}
           </div>
         </Tabs>

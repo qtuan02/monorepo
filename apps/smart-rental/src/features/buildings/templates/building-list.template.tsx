@@ -54,7 +54,7 @@ export default function BuildingListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Quản lý Toà nhà"
+        title="Toà nhà"
         description="Quản lý danh sách các khu trọ, toà nhà của bạn"
         actions={
           <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>

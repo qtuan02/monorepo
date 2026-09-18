@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDate, formatDateTime, formatMonth } from "~/utils/date";
+import {
+  compareDisplayDates,
+  formatDate,
+  formatDateTime,
+  formatMonth,
+} from "~/utils/date";
 
 describe("formatDate", () => {
   it("renders day-first from an ISO string, a Date, or a timestamp", () => {
@@ -19,5 +24,15 @@ describe("formatDateTime", () => {
 describe("formatMonth", () => {
   it("reads a YYYY-MM period as MM/YYYY", () => {
     expect(formatMonth("2024-04")).toBe("04/2024");
+  });
+});
+
+describe("compareDisplayDates", () => {
+  it("orders chronologically, not lexicographically", () => {
+    // A string sort would put "09/01/2026" (Jan) before "17/09/2025" (Sep of
+    // the prior year) — the day digit compares first.
+    expect(compareDisplayDates("09/01/2026", "17/09/2025")).toBeGreaterThan(0);
+    expect(compareDisplayDates("17/09/2025", "09/01/2026")).toBeLessThan(0);
+    expect(compareDisplayDates("20/04/2026", "20/04/2026")).toBe(0);
   });
 });

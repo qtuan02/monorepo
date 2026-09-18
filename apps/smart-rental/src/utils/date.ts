@@ -20,6 +20,15 @@ export function formatMonth(input: string): string {
 }
 
 /**
+ * Chronological compare for two `DD/MM/YYYY` display strings — a table
+ * column's auto-inferred sort would compare the day digit first and put
+ * "09/01/2026" before "17/09/2026".
+ */
+export function compareDisplayDates(a: string, b: string): number {
+  return dayjs(a, DATE_FORMAT).valueOf() - dayjs(b, DATE_FORMAT).valueOf();
+}
+
+/**
  * "Thứ Năm, 17/09/2026" — the "Hôm nay" screen's own heading (spec #153
  * §10). dayjs's `vi` locale spells `dddd` lowercase ("thứ năm"); this app
  * sets that locale once at boot and never switches it (no i18n, ADR-0011),

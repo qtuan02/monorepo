@@ -6,6 +6,13 @@ import { DEFAULT_PAGE_SIZE } from "~/utils/pagination";
 export const SEARCH_PARAM = "q";
 export const PAGE_PARAM = "page";
 export const PAGE_SIZE_PARAM = "size";
+export const SORT_PARAM = "sort";
+
+/** One column's sort, the only entry `TableSort` carries — no multi-sort on the URL. */
+export interface TableSort {
+  columnId: string;
+  desc: boolean;
+}
 
 export interface TableSearchParams {
   search: string;
@@ -14,10 +21,15 @@ export interface TableSearchParams {
   pageSize: number;
   /** Selected values per facet column id; an absent key is an empty selection. */
   facets: Record<string, string[]>;
+  /** `null` once a caller with no `defaultSort` shows the data in its own order. */
+  sort: TableSort | null;
 }
 
 export type TableSearchParamsPatch = Partial<
-  Omit<TableSearchParams, "facets"> & { facets: Record<string, string[]> }
+  Omit<TableSearchParams, "facets" | "sort"> & {
+    facets: Record<string, string[]>;
+    sort: TableSort | null;
+  }
 >;
 
 function parsePositiveInt(value: string | null, fallback: number): number {
@@ -25,13 +37,37 @@ function parsePositiveInt(value: string | null, fallback: number): number {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
 }
 
+/** `dueDate` (asc) / `-dueDate` (desc) — one column, one URL token. */
+function encodeSort(sort: TableSort): string {
+  return sort.desc ? `-${sort.columnId}` : sort.columnId;
+}
+
+function decodeSort(raw: string | null): TableSort | null {
+  if (!raw) return null;
+  return raw.startsWith("-")
+    ? { columnId: raw.slice(1), desc: true }
+    : { columnId: raw, desc: false };
+}
+
+function sortEquals(a: TableSort | null, b: TableSort | null): boolean {
+  if (a === null || b === null) return a === b;
+  return a.columnId === b.columnId && a.desc === b.desc;
+}
+
 /**
- * The list state a reload must keep — search, facets, page, page size — read
- * from and written to the URL through `useSearchParams` (spec #127: no `nuqs`).
- * Writes `replace` history so paging does not pile up Back entries, and drops
- * a key at its default so a plain `/rooms` stays a plain `/rooms`.
+ * The list state a reload must keep — search, facets, page, page size, sort —
+ * read from and written to the URL through `useSearchParams` (spec #127: no
+ * `nuqs`). Writes `replace` history so paging does not pile up Back entries,
+ * and drops a key at its default so a plain `/rooms` stays a plain `/rooms`.
+ *
+ * `defaultSort` is the list's own order (spec #179 §3.6) — a reload with no
+ * `?sort=` still shows it, and sorting back to it drops the param rather than
+ * writing it out.
  */
-export function useTableSearchParams(facetIds: readonly string[]) {
+export function useTableSearchParams(
+  facetIds: readonly string[],
+  defaultSort: TableSort | null = null,
+) {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const facets: Record<string, string[]> = {};
@@ -47,6 +83,7 @@ export function useTableSearchParams(facetIds: readonly string[]) {
       DEFAULT_PAGE_SIZE,
     ),
     facets,
+    sort: decodeSort(searchParams.get(SORT_PARAM)) ?? defaultSort,
   };
 
   const setParams = (patch: TableSearchParamsPatch) => {
@@ -70,6 +107,16 @@ export function useTableSearchParams(facetIds: readonly string[]) {
         }
         for (const [id, values] of Object.entries(patch.facets ?? {})) {
           write(id, values.join(","), "");
+        }
+        if (patch.sort !== undefined) {
+          // Only a sort that DIFFERS from the list's own default is worth a
+          // param — `null` (explicitly cleared) falls back to it too, same
+          // as every other key here dropping to its default.
+          if (sortEquals(patch.sort, defaultSort) || patch.sort === null) {
+            next.delete(SORT_PARAM);
+          } else {
+            next.set(SORT_PARAM, encodeSort(patch.sort));
+          }
         }
         return next;
       },

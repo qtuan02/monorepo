@@ -12,6 +12,7 @@ import { ROUTES } from "~/constants/routes";
 import { contractStatusConfig, toFilterOptions } from "~/constants/status";
 import ContractCard from "~/features/contracts/components/contract-card";
 import { contractColumns } from "~/features/contracts/components/contract-columns";
+import ContractMobileRow from "~/features/contracts/components/contract-mobile-row";
 import { useGetContracts } from "~/hooks/api/contract";
 import { useBuildingStore } from "~/stores/use-building-store";
 
@@ -29,7 +30,7 @@ export default function ContractListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Quản lý hợp đồng"
+        title="Hợp đồng"
         description="Theo dõi toàn bộ hợp đồng thuê trọ, thời hạn và trạng thái."
         actions={
           <Link
@@ -73,6 +74,7 @@ export default function ContractListTemplate() {
           }}
           resultLabel={(count) => `${count} hợp đồng được tìm thấy`}
           viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+          defaultSort={{ columnId: "endDate" }}
           renderRows={
             view === "grid"
               ? (contracts) => (
@@ -84,6 +86,9 @@ export default function ContractListTemplate() {
                 )
               : undefined
           }
+          renderMobileRow={(contract) => (
+            <ContractMobileRow contract={contract} />
+          )}
         />
       )}
     </div>

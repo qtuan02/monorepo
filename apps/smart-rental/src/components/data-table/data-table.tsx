@@ -123,14 +123,20 @@ interface DataTableProps<TData extends DataTableRowData> {
    * (spec #153 §10 row 43). Default `true`.
    */
   paginate?: boolean;
+  /**
+   * The list's own order (spec #179 §3.6) — a column id the columns carry,
+   * ascending unless `desc`. Applied until a header is clicked; clicking back
+   * to it drops the URL's `?sort=` again rather than writing it out.
+   */
+  defaultSort?: { columnId: string; desc?: boolean };
 }
 
 /**
  * The list composite every slice stands on (spec #127): search, faceted
  * filters, sort, page and page size over one TanStack instance from the
- * `data-table` primitive. Search, facets, page and size live on the URL — a
- * reload or a shared link lands on the same view — while sort and row
- * selection stay in the table.
+ * `data-table` primitive. Search, facets, page, size and sort live on the
+ * URL — a reload or a shared link lands on the same view — while row
+ * selection stays in the table.
  */
 export function DataTable<TData extends DataTableRowData>({
   columns,
@@ -145,10 +151,16 @@ export function DataTable<TData extends DataTableRowData>({
   renderRows,
   renderMobileRow,
   selectionActions,
+  defaultSort,
   paginate = true,
 }: DataTableProps<TData>) {
   const facetIds = facets.map((facet) => facet.columnId);
-  const { params, setParams } = useTableSearchParams(facetIds);
+  const { params, setParams } = useTableSearchParams(
+    facetIds,
+    defaultSort
+      ? { columnId: defaultSort.columnId, desc: !!defaultSort.desc }
+      : null,
+  );
 
   const columnFilters = [
     ...(search && params.search
@@ -162,12 +174,15 @@ export function DataTable<TData extends DataTableRowData>({
     pageIndex: params.page - 1,
     pageSize: params.pageSize,
   };
+  const sorting = params.sort
+    ? [{ id: params.sort.columnId, desc: params.sort.desc }]
+    : [];
 
   const table = useDataTable<TData>({
     columns,
     data,
     getRowId,
-    state: { columnFilters, pagination },
+    state: { columnFilters, pagination, sorting },
     // The URL owns the page, so a filter change resets it below rather than
     // through TanStack, whose auto-reset fires on any row-model recompute.
     autoResetPageIndex: false,
@@ -193,6 +208,13 @@ export function DataTable<TData extends DataTableRowData>({
       const next =
         typeof updater === "function" ? updater(pagination) : updater;
       setParams({ page: next.pageIndex + 1, pageSize: next.pageSize });
+    },
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      const first = next[0];
+      setParams({
+        sort: first ? { columnId: first.id, desc: first.desc } : null,
+      });
     },
   });
 

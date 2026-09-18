@@ -59,7 +59,7 @@ export default function InvoiceListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Quản lý hoá đơn"
+        title="Hoá đơn"
         description={`${stats.total} hoá đơn`}
         actions={
           <Link
@@ -122,6 +122,7 @@ export default function InvoiceListTemplate() {
             }}
             resultLabel={(count) => `${count} hoá đơn được tìm thấy`}
             viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+            defaultSort={{ columnId: "dueDate" }}
             toolbarActions={(filteredInvoices) => (
               <Button
                 type="button"

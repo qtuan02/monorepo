@@ -10,6 +10,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { contractStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { compareDisplayDates } from "~/utils/date";
 import ContractRowActions from "./contract-row-actions";
 
 const helper = createDataTableColumnHelper<Contract>();
@@ -95,6 +96,9 @@ export const contractColumns = helper.columns([
     cell: ({ getValue }) => (
       <span className="text-muted-foreground">{getValue()}</span>
     ),
+    // `DD/MM/YYYY` — see the same note on invoiceColumns' `dueDate`.
+    sortFn: (rowA, rowB) =>
+      compareDisplayDates(rowA.original.endDate, rowB.original.endDate),
   }),
   helper.accessor("status", {
     header: ({ column }) => (

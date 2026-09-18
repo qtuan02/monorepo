@@ -4,7 +4,10 @@ import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { describe, expect, it } from "vitest";
 
-import { createDataTableColumnHelper } from "@monorepo/ui/components/data-table";
+import {
+  createDataTableColumnHelper,
+  DataTableColumnHeader,
+} from "@monorepo/ui/components/data-table";
 
 import {
   createSelectionColumn,
@@ -223,5 +226,79 @@ describe("DataTable — mobile rows and row selection", () => {
     await user.click(screen.getByRole("button", { name: "Bỏ chọn" }));
 
     expect(screen.queryByText(/Đã chọn/)).not.toBeInTheDocument();
+  });
+});
+
+const sortableColumns = helper.columns([
+  helper.accessor("name", { header: "Tên", filterFn: "includesString" }),
+  helper.accessor("status", {
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Trạng thái" />
+    ),
+    filterFn: facetFilterFn,
+  }),
+]);
+
+// r1 (a), r2 (b), r3 (a), r4 (b) — small and fixed, so a stable sort's tie
+// order is easy to state.
+const sortRows = rows.slice(0, 4);
+
+function SortSubject({
+  defaultSort,
+}: {
+  defaultSort?: { columnId: string; desc?: boolean };
+}) {
+  return (
+    <DataTable
+      columns={sortableColumns}
+      data={sortRows}
+      getRowId={(row) => row.id}
+      empty={{ title: "Không có gì" }}
+      defaultSort={defaultSort}
+    />
+  );
+}
+
+function renderSort(search: string, defaultSort?: { columnId: string }) {
+  const router = createMemoryRouter(
+    [{ path: "/", element: <SortSubject defaultSort={defaultSort} /> }],
+    { initialEntries: [`/${search}`] },
+  );
+  render(<RouterProvider router={router} />);
+  return router;
+}
+
+const sortCellTexts = () =>
+  screen
+    .getAllByRole("cell")
+    .map((cell) => cell.textContent)
+    .filter((text) => text?.startsWith("Row "));
+
+describe("DataTable — sort on the URL", () => {
+  it("applies `defaultSort` with no `?sort=` in the URL", () => {
+    renderSort("", { columnId: "status" });
+
+    // Stable: the "a" rows (r1, r3) keep their relative order ahead of "b".
+    expect(sortCellTexts()).toEqual(["Row 1", "Row 3", "Row 2", "Row 4"]);
+  });
+
+  it("reads an explicit `?sort=-status` over the default", () => {
+    renderSort("?sort=-status", { columnId: "status" });
+
+    expect(sortCellTexts()).toEqual(["Row 2", "Row 4", "Row 1", "Row 3"]);
+  });
+
+  it("writes a header click to the URL, and drops the param back to the default", async () => {
+    const user = userEvent.setup();
+    const router = renderSort("", { columnId: "status" });
+
+    await user.click(screen.getByRole("button", { name: "Trạng thái" }));
+    await waitFor(() =>
+      expect(router.state.location.search).toContain("sort=-status"),
+    );
+
+    // Cycling back to ascending — the list's own default — drops the param.
+    await user.click(screen.getByRole("button", { name: "Trạng thái" }));
+    await waitFor(() => expect(router.state.location.search).toBe(""));
   });
 });

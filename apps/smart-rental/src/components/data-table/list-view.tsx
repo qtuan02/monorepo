@@ -12,18 +12,22 @@ export type ListView = "grid" | "table";
 
 /**
  * A list screen's cards/table choice, on the URL beside the filters so a
- * reload keeps it. `grid` is the default and is written as no param at all.
+ * reload keeps it. `defaultView` is written as no param at all — every list
+ * defaults to `table` (spec #179 §3.6) except Phòng, the one screen still
+ * passing `"grid"`.
  */
-export function useListView(): [ListView, (next: ListView) => void] {
+export function useListView(
+  defaultView: ListView = "table",
+): [ListView, (next: ListView) => void] {
   const [searchParams, setSearchParams] = useSearchParams();
-  const view: ListView =
-    searchParams.get(VIEW_PARAM) === "table" ? "table" : "grid";
+  const raw = searchParams.get(VIEW_PARAM);
+  const view: ListView = raw === "grid" || raw === "table" ? raw : defaultView;
 
   const setView = (next: ListView) =>
     setSearchParams(
       (previous) => {
         const params = new URLSearchParams(previous);
-        if (next === "grid") params.delete(VIEW_PARAM);
+        if (next === defaultView) params.delete(VIEW_PARAM);
         else params.set(VIEW_PARAM, next);
         return params;
       },

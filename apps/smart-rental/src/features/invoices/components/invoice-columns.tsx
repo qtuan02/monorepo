@@ -13,6 +13,7 @@ import {
 } from "~/components/data-table/data-table";
 import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { compareDisplayDates } from "~/utils/date";
 import InvoiceRowActions from "./invoice-row-actions";
 
 const helper = createDataTableColumnHelper<Invoice>();
@@ -78,6 +79,10 @@ export const invoiceColumns = helper.columns([
         <span>{getValue()}</span>
       </div>
     ),
+    // `DD/MM/YYYY` — the auto-inferred string sort would compare the day
+    // digit first (spec #179 §3.6's "Hoá đơn theo hạn").
+    sortFn: (rowA, rowB) =>
+      compareDisplayDates(rowA.original.dueDate, rowB.original.dueDate),
   }),
   helper.accessor("status", {
     header: ({ column }) => (

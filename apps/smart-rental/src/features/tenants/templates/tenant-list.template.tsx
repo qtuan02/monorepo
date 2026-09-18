@@ -14,6 +14,7 @@ import { tenantStatusConfig, toFilterOptions } from "~/constants/status";
 import TenantCard from "~/features/tenants/components/tenant-card";
 import { tenantColumns } from "~/features/tenants/components/tenant-columns";
 import TenantFormSheet from "~/features/tenants/components/tenant-form-sheet";
+import TenantMobileRow from "~/features/tenants/components/tenant-mobile-row";
 import { useGetTenants } from "~/hooks/api/tenant";
 import { useBuildingStore } from "~/stores/use-building-store";
 
@@ -47,7 +48,7 @@ export default function TenantListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Quản lý Người thuê"
+        title="Người thuê"
         description="Theo dõi thông tin, trạng thái và hợp đồng của tất cả Người thuê."
         actions={
           <Button type="button" size="sm" onClick={() => setIsCreateOpen(true)}>
@@ -99,6 +100,7 @@ export default function TenantListTemplate() {
             }}
             resultLabel={(count) => `${count} Người thuê được tìm thấy`}
             viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
+            defaultSort={{ columnId: "name" }}
             renderRows={
               view === "grid"
                 ? (tenants) => (
@@ -110,6 +112,7 @@ export default function TenantListTemplate() {
                   )
                 : undefined
             }
+            renderMobileRow={(tenant) => <TenantMobileRow tenant={tenant} />}
           />
         </>
       )}

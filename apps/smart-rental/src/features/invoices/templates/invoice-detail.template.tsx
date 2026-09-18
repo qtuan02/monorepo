@@ -217,9 +217,11 @@ function RemindersTab({ invoice }: { invoice: Invoice }) {
 /**
  * "Chi tiết hoá đơn": the shared detail anatomy (spec #153 §3.4, §10 row 12)
  * — header entity + tabs (Tổng quan · Thanh toán · Nhắc nợ), a right column
- * carrying VietQR and the Hoá đơn's own fixed facts. "Xóa" is fake and gated
- * to Nháp, as every other entity in this app; "In hoá đơn" is the only
- * export path (spec #153 §10 row 30 — no real PDF).
+ * carrying the Hoá đơn's own fixed facts. VietQR sits in the header instead
+ * of its own sidebar card — one action does not earn a "Hành động" card
+ * (spec #179 §3.5). "Xóa" is fake and gated to Nháp, as every other entity in
+ * this app; "In hoá đơn" is the only export path (spec #153 §10 row 30 — no
+ * real PDF).
  */
 export default function InvoiceDetailTemplate({
   invoiceId,
@@ -265,6 +267,16 @@ export default function InvoiceDetailTemplate({
       meta={[`Phòng ${invoice.room}`, invoice.tenant, `Kỳ ${invoice.month}`]}
       actions={
         <>
+          <VietQrDialog
+            amount={invoice.amount - invoice.paidAmount}
+            invoiceNumber={invoice.invoiceNumber}
+            room={invoice.room}
+            bankAccount={building?.bankAccount}
+            buildingId={invoice.buildingId ?? ""}
+            variant="outline"
+            size="sm"
+            className="print:hidden"
+          />
           <Button
             type="button"
             variant="outline"
@@ -307,28 +319,16 @@ export default function InvoiceDetailTemplate({
         },
       ]}
       sidebar={
-        <>
-          <InfoCard title="Hành động" className="print:hidden">
-            <VietQrDialog
-              amount={invoice.amount - invoice.paidAmount}
-              invoiceNumber={invoice.invoiceNumber}
-              room={invoice.room}
-              bankAccount={building?.bankAccount}
-              buildingId={invoice.buildingId ?? ""}
-            />
-          </InfoCard>
-
-          <InfoCard title="Tóm tắt">
-            <StatItem
-              label="Mã hoá đơn"
-              value={invoice.invoiceNumber}
-              valueClassName="font-mono text-sm"
-            />
-            <InfoRow label="Kỳ" value={invoice.month} />
-            <InfoRow label="Hạn thu" value={invoice.dueDate} isHighlighted />
-            <InfoRow label="Cập nhật" value={invoice.lastUpdated} />
-          </InfoCard>
-        </>
+        <InfoCard title="Tóm tắt">
+          <StatItem
+            label="Mã hoá đơn"
+            value={invoice.invoiceNumber}
+            valueClassName="font-mono text-sm"
+          />
+          <InfoRow label="Kỳ" value={invoice.month} />
+          <InfoRow label="Hạn thu" value={invoice.dueDate} isHighlighted />
+          <InfoRow label="Cập nhật" value={invoice.lastUpdated} />
+        </InfoCard>
       }
     >
       <ConfirmActionDialog

@@ -27,7 +27,9 @@ import { useBuildingStore } from "~/stores/use-building-store";
  * or the table) rides on the URL beside the filters, so a reload keeps it.
  */
 export default function RoomListTemplate() {
-  const [view, setView] = useListView();
+  // Phòng keeps its floor grid as the default (spec #179 §3.6) — every other
+  // list defaults to `table` instead.
+  const [view, setView] = useListView("grid");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetRooms({
@@ -37,7 +39,7 @@ export default function RoomListTemplate() {
   return (
     <div className="space-y-6">
       <ListPageHeader
-        title="Danh sách phòng"
+        title="Phòng"
         description="Quản lý toàn bộ phòng trọ, trạng thái và thông tin Người thuê."
         actions={
           <Button type="button" size="sm" onClick={() => setIsFormOpen(true)}>
