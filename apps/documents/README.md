@@ -38,7 +38,10 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
 
 - **Điều hướng, không sidebar.** Một **nav pill** kính dính cách đỉnh 1rem: brand,
   ba mục (Bắt đầu / Component / Hook), ô mở palette, bốn nút tròn (ngôn ngữ, theme,
-  npm, Storybook). Dưới `md` pill co còn brand + tìm + menu mở `Sheet`. Vào 68
+  npm, Storybook). Dưới `md` pill co còn brand + tìm + menu mở `Sheet`, trong đó
+  bốn nút tròn trở thành bốn hàng `h-11` icon + nhãn chữ (`NavActions`
+  `layout="sheet"`, nhãn lấy lại từ `aria-label`/`title` sẵn có — không key mới).
+  Vào 68
   trang còn lại bằng **palette `⌘K` / `Ctrl K`** (`CommandDialog` nhóm Component /
   Hook, đọc thẳng hai Catalogue, mỗi dòng swatch + slug + subpath, Enter mở trang) và
   bằng nút **trước/sau** theo thứ tự Catalogue trên trang chi tiết
