@@ -24,16 +24,18 @@ export default function Hero() {
         {t("documents.home.hero.tag", { version: __APP_VERSION__ })}
       </span>
 
-      <h1 className="font-heading mt-5 max-w-[15ch] text-[2.5rem] leading-[1.02] font-extrabold tracking-[-0.04em] text-balance sm:text-6xl">
+      <h1 className="font-heading mt-5 max-w-[15ch] text-[clamp(2rem,10.5vw,2.5rem)] leading-[1.02] font-extrabold tracking-[-0.04em] text-balance sm:text-6xl">
         {/* The space before the break is the accessible name's word gap — a
-            `<br>` alone joins the two lines into one word for a reader. */}
-        {t("documents.home.hero.title")} <br />
+            `<br>` alone joins the two lines into one word for a reader.
+            The break itself only renders from `sm`: below that, `text-balance`
+            divides the whole sentence into its own lines. */}
+        {t("documents.home.hero.title")} <br className="hidden sm:inline" />
         <span className="prism-text">
           {t("documents.home.hero.titleAccent")}
         </span>
       </h1>
 
-      <p className="text-muted-foreground mt-4 max-w-[52ch] text-lg text-pretty">
+      <p className="text-muted-foreground mt-4 max-w-[52ch] text-base text-pretty sm:text-lg">
         {t("documents.home.hero.lead", {
           components: componentCatalogue.items.length,
           hooks: hookCatalogue.items.length,
