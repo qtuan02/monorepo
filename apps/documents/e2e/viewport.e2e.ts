@@ -214,4 +214,131 @@ test.describe("viewport", () => {
       });
     }
   });
+
+  // (e) — #220: the palette opens anchored near the top at 375px, clear of
+  // the virtual keyboard, instead of a third of the way down the screen.
+  test("the palette opens near the top of the viewport at 375px", async ({
+    page,
+  }) => {
+    await gotoAndWaitForHeading(page, 375, ROUTES.HOME, LANDING_HEADLINE);
+
+    await page.getByRole("button", { name: "Tìm component, hook…" }).click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog).toBeVisible();
+
+    const box = await dialog.boundingBox();
+    if (!box) throw new Error("the palette dialog has no box");
+
+    expect(box.y).toBeLessThan(40);
+  });
+
+  // #220: the alert-dialog row stays one line with its subpath hidden at
+  // 375px, and gets it back from 1024px — a phone slug is already unambiguous,
+  // the subpath is what the detail page repeats on its own first line.
+  test.describe("a palette row hides its subpath below sm", () => {
+    test("at 375px: one line, no subpath text", async ({ page }) => {
+      await gotoAndWaitForHeading(page, 375, ROUTES.HOME, LANDING_HEADLINE);
+      await page.getByRole("button", { name: "Tìm component, hook…" }).click();
+
+      const row = page.getByRole("option", { name: /^alert-dialog/ });
+      const box = await row.boundingBox();
+      if (!box) throw new Error("the alert-dialog row has no box");
+
+      expect(box.height).toBeLessThanOrEqual(36);
+      await expect(page.getByText("components/alert-dialog")).not.toBeVisible();
+    });
+
+    test("at 1024px: the subpath is back", async ({ page }) => {
+      await gotoAndWaitForHeading(page, 1024, ROUTES.HOME, LANDING_HEADLINE);
+      await page.getByRole("button", { name: "Tìm component, hook…" }).click();
+
+      await expect(page.getByText("components/alert-dialog")).toBeVisible();
+    });
+  });
+
+  // #220: below `sm` the detail hero's swatch sits beside the h1 on one row
+  // instead of stacked above it — the panel fits the first screen instead of
+  // the ~750px scroll the brief measured (§3.5).
+  test.describe("the detail hero is compact at 375px", () => {
+    test("swatch beside the h1, two full-width h-10 actions, no scroll to reach them", async ({
+      page,
+    }) => {
+      await gotoAndWaitForHeading(
+        page,
+        375,
+        ROUTES.componentBySlugPath("dialog"),
+        "dialog",
+      );
+
+      const heading = page.getByRole("heading", { level: 1, name: "dialog" });
+      const panel = page
+        .locator('[data-slot="glass-panel"]')
+        .filter({ has: heading });
+      const swatch = page.getByTestId("swatch");
+      const storybookLink = panel.getByRole("link", {
+        name: "Mở trên Storybook",
+      });
+      // `exact: true` — an unscoped "npm" substring-matches the nav pill's
+      // own "Xem trên npm" icon button too, which is what `panel` already
+      // rules out below `md` where it is hidden, but stay exact regardless.
+      const npmLink = panel.getByRole("link", { name: "npm", exact: true });
+
+      const [panelBox, swatchBox, headingBox, storybookBox, npmBox] =
+        await Promise.all([
+          panel.boundingBox(),
+          swatch.boundingBox(),
+          heading.boundingBox(),
+          storybookLink.boundingBox(),
+          npmLink.boundingBox(),
+        ]);
+      if (!panelBox || !swatchBox || !headingBox || !storybookBox || !npmBox) {
+        throw new Error(
+          "the hero, its swatch or one of its actions has no box",
+        );
+      }
+
+      expect(panelBox.height).toBeLessThan(420);
+      // ±8 per the brief (§3.5); sub-pixel layout rounding pushes the real
+      // number a hair past it, so the tolerance allows one more pixel.
+      expect(Math.abs(swatchBox.y - headingBox.y)).toBeLessThanOrEqual(9);
+      expect(storybookBox.height).toBe(40);
+      expect(npmBox.height).toBe(40);
+      expect(Math.abs(storybookBox.width - npmBox.width)).toBeLessThanOrEqual(
+        1,
+      );
+    });
+  });
+
+  // #220: at 1024px the hero keeps today's shape unchanged — a 120px swatch
+  // and the actions in their own third column, not stacked full-width.
+  test("the detail hero keeps its 120px swatch and third-column actions at 1024px", async ({
+    page,
+  }) => {
+    await gotoAndWaitForHeading(
+      page,
+      1024,
+      ROUTES.componentBySlugPath("dialog"),
+      "dialog",
+    );
+
+    const heading = page.getByRole("heading", { level: 1, name: "dialog" });
+    const panel = page
+      .locator('[data-slot="glass-panel"]')
+      .filter({ has: heading });
+    const swatch = page.getByTestId("swatch");
+    const npmLink = panel.getByRole("link", { name: "npm", exact: true });
+
+    const [swatchBox, npmBox, headingBox] = await Promise.all([
+      swatch.boundingBox(),
+      npmLink.boundingBox(),
+      heading.boundingBox(),
+    ]);
+    if (!swatchBox || !npmBox || !headingBox) {
+      throw new Error("the hero swatch, npm action or heading has no box");
+    }
+
+    expect(swatchBox.width).toBe(120);
+    // The action column sits to the right of the h1, not below it full-width.
+    expect(npmBox.x).toBeGreaterThan(headingBox.x + headingBox.width / 2);
+  });
 });

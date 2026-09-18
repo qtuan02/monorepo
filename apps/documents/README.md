@@ -47,7 +47,11 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   trang còn lại bằng **palette `⌘K` / `Ctrl K`** (`CommandDialog` nhóm Component /
   Hook, đọc thẳng hai Catalogue, mỗi dòng swatch + slug + subpath, Enter mở trang) và
   bằng nút **trước/sau** theo thứ tự Catalogue trên trang chi tiết
-  (`~/utils/catalogue-neighbours.ts`).
+  (`~/utils/catalogue-neighbours.ts`). Dưới `sm` palette neo sát đỉnh
+  (`max-sm:top-4` trên `className` của `CommandDialog`, không phải 1/3 màn như hôm
+  nay) để bàn phím ảo không che kết quả, danh sách cao tối đa `max-sm:max-h-[60dvh]`,
+  slug `whitespace-nowrap` và subpath `max-sm:hidden` — trên phone slug đã đủ phân
+  biệt, subpath là thứ trang chi tiết in lại ngay dòng đầu (spec #215 §3.4).
 - **Backdrop hai mức.** `Backdrop` là lớp `aria-hidden` tuyệt đối ở đầu document:
   bốn vệt aurora blur + năm khối hình học tĩnh + một dải tan về nền phẳng. `full` ở
   `/`, `soft` (nửa độ đậm, hai khối) ở mọi trang khác — `layout.template.tsx` quyết
@@ -58,16 +62,20 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   section, `@fe-monorepo/hook` ba, mỗi guide mở bằng capsule cài của riêng gói đó) đánh số
   ở Getting Started; thanh công cụ + hero + hai panel Import / Export ở
   trang chi tiết; panel 404 tại chỗ. Bốn tầng bóng `--sh-1..4` cùng một thang.
-- **Tile · swatch · tile rộng.** Danh sách là lưới 1/2/4 cột của `Tile`: swatch 38px,
-  slug mono, một dòng export (ba tên + `+n` qua Locale message
-  `exportPreviewMore`), số export ở góc. Tile nền đục 75% và **không** blur — sáu
-  mươi `backdrop-filter` trên một trang là chi phí GPU. `col-span-2` từ `md` khi
-  `exports.length >= 10`; class nằm trên `<li>` mà `Tile` tự render, vì đó mới là
-  grid item. Hover nhấc 3px + bóng tầng 4; dưới `prefers-reduced-motion` chỉ còn bóng, không nhấc — và
-  `globals.css` tắt luôn animation mở/đóng của Dialog, Sheet, Select (`[data-open]`, `[data-closed]`),
-  vì `tw-animate-css` không tự tôn trọng reduced-motion. Swatch là
-  gradient hue sinh xác định từ slug — cùng màu ở tile, ở palette và ở hero chi tiết.
-  Lọc rỗng → `Empty` với nút xoá bộ lọc.
+- **Tile · swatch · tile rộng.** Danh sách là lưới `grid-cols-1 sm:grid-cols-2
+  md:grid-cols-3 lg:grid-cols-4` của `Tile`: swatch 38px, slug mono, một dòng export
+  (ba tên + `+n` qua Locale message `exportPreviewMore`), số export ở góc. Tile nền
+  đục 75% và **không** blur — sáu mươi `backdrop-filter` trên một trang là chi phí
+  GPU. `col-span-2` từ `md` khi `exports.length >= 10`; class nằm trên `<li>` mà
+  `Tile` tự render, vì đó mới là grid item. Hover nhấc 3px + bóng tầng 4; dưới
+  `prefers-reduced-motion` chỉ còn bóng, không nhấc — và `globals.css` tắt luôn
+  animation mở/đóng của Dialog, Sheet, Select (`[data-open]`, `[data-closed]`), vì
+  `tw-animate-css` không tự tôn trọng reduced-motion. Swatch là gradient hue sinh
+  xác định từ slug — cùng màu ở tile, ở palette và ở hero chi tiết. Lọc rỗng →
+  `Empty` với nút xoá bộ lọc. **Dưới `sm` Tile là một hàng**, không phải một cột:
+  swatch 36px bên trái, slug + nội dung (preview export, hoặc mô tả `line-clamp-2`
+  cho hook) xếp dọc ở giữa (`min-w-0`), số export cuối hàng — bốn thành phần y hệt
+  bản `sm`+, chỉ đổi hướng (`sm:flex-col`), một DOM cho mọi breakpoint (spec #215 §3.3).
 - **Trang chi tiết.** Thanh công cụ hai nửa đẩy về hai mép (`Component / dialog` bên trái,
   hai pill trước/sau sát phải) → hero kính đậm (swatch 120px, h1 slug mono, meta
   `gói/subpath · N export`, action Storybook đen đặc + npm kính) → panel **Ví dụ**
@@ -75,7 +83,12 @@ từ vựng ở [`CONTEXT.md`](./CONTEXT.md), quyết định ở
   `storybookExampleId` từ generator, kèm `globals=theme:dark` trên URL khi người đọc
   đang dark nên iframe đổi theme theo trang) → hai panel `1.25fr | 1fr`: Import (`CodeBlock` nền indigo, dòng import
   copy được) và Export (`<ul>` chip mono). Hook không có nút Storybook lẫn ví dụ, mô tả
-  từ Locale message.
+  từ Locale message. Hero là `grid grid-cols-[auto_minmax(0,1fr)]` ở **mọi**
+  breakpoint (swatch cột 1, khối h1 + meta cột 2, `lg:grid-cols-[auto_1fr_auto]` đưa
+  action về cột 3) — dưới `sm` swatch co còn 64px bo 20px (cùng tỉ lệ 120/32) đứng
+  cạnh h1 thay vì xếp trên, panel hero từ ~750 xuống ~330px; hai action xuống
+  `col-span-2`, xếp dọc full-width `h-10`, giữ nguyên nhãn "Mở trên Storybook" (spec
+  #215 §3.5). Một DOM cho mọi breakpoint, chỉ đổi class.
 - **Palette, font, theme** — mục kế tiếp sau Env.
 
 ## Env

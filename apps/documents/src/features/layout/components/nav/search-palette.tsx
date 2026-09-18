@@ -46,8 +46,10 @@ function CatalogueGroup({
           onSelect={() => onPick(buildPath(entry.slug))}
         >
           <Swatch slug={entry.slug} size="sm" />
-          <span className="font-mono font-semibold">{entry.slug}</span>
-          <span className="text-muted-foreground ml-auto truncate font-mono text-xs">
+          <span className="font-mono font-semibold whitespace-nowrap">
+            {entry.slug}
+          </span>
+          <span className="text-muted-foreground ml-auto truncate font-mono text-xs max-sm:hidden">
             {entry.subpath}
           </span>
         </CommandItem>
@@ -89,11 +91,14 @@ export default function SearchPalette({
       // `shadow-lg`, and only a Tailwind utility of the same family replaces
       // those through `cn`'s merge — a custom utility would sit beside them
       // and lose.
-      className="border-(--glass-edge) bg-(--glass) shadow-[var(--sh-1),var(--sh-2),var(--sh-3),var(--sh-4)] backdrop-blur-[18px] backdrop-saturate-150"
+      // `max-sm:top-4` beats the primitive's `top-1/3` under Tailwind's own
+      // variant ordering — see brief §3.4 — so the palette stays clear of the
+      // virtual keyboard instead of opening a third of the way down the screen.
+      className="border-(--glass-edge) bg-(--glass) shadow-[var(--sh-1),var(--sh-2),var(--sh-3),var(--sh-4)] backdrop-blur-[18px] backdrop-saturate-150 max-sm:top-4"
     >
       <Command className="bg-transparent">
         <CommandInput placeholder={t("documents.nav.search.placeholder")} />
-        <CommandList>
+        <CommandList className="max-sm:max-h-[60dvh]">
           <CommandEmpty>{t("documents.nav.search.empty")}</CommandEmpty>
           <CatalogueGroup
             heading={t("documents.nav.search.groupComponents")}

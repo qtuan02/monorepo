@@ -29,9 +29,9 @@ interface DetailHeroProps {
  * fill of its own).
  */
 const solidActionClassName =
-  "bg-foreground text-background hover:bg-foreground/90 rounded-full px-4 font-semibold shadow-(--sh-3)";
+  "bg-foreground text-background hover:bg-foreground/90 rounded-full px-4 font-semibold shadow-(--sh-3) max-sm:h-10 max-sm:w-full";
 const glassActionClassName =
-  "bg-(--glass-strong) border-(--glass-edge) text-foreground hover:bg-card dark:hover:bg-card rounded-full px-4 font-semibold";
+  "bg-(--glass-strong) border-(--glass-edge) text-foreground hover:bg-card dark:hover:bg-card rounded-full px-4 font-semibold max-sm:h-10 max-sm:w-full";
 
 /**
  * The head of a detail page (mockup frame 3): the entry's swatch at hero size,
@@ -54,9 +54,13 @@ export function DetailHero({
   return (
     <GlassPanel
       deep
-      className="mb-4 flex flex-col gap-6 p-6 sm:grid sm:grid-cols-[auto_1fr] sm:items-center sm:p-7 lg:grid-cols-[auto_1fr_auto]"
+      className="mb-4 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-4 p-6 sm:p-7 lg:grid-cols-[auto_1fr_auto]"
     >
-      <Swatch slug={slug} size="lg" />
+      <Swatch
+        slug={slug}
+        size="lg"
+        className="max-sm:size-16 max-sm:rounded-[20px]"
+      />
 
       <div className="min-w-0">
         <h1 className="font-mono text-3xl font-extrabold leading-none tracking-[-0.04em] break-words sm:text-[2.75rem]">
@@ -73,7 +77,7 @@ export function DetailHero({
         ) : null}
       </div>
 
-      <div className="flex flex-col gap-2 sm:col-span-2 sm:flex-row lg:col-span-1 lg:flex-col">
+      <div className="col-span-2 flex flex-col gap-2 sm:flex-row lg:col-span-1 lg:flex-col">
         {storybookDocsId ? (
           <StorybookLink
             docsId={storybookDocsId}
