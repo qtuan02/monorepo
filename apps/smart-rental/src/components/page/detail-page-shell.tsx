@@ -55,6 +55,11 @@ interface DetailPageShellProps {
   /** At most three short facts — anything shown here must not repeat inside a tab. */
   meta?: ReactNode[];
   actions?: ReactNode;
+  /**
+   * A small horizontal stepper under the name/meta row — a Hợp đồng's own
+   * lifecycle (spec #179 §3.5, §10 row 16), rather than a 520px sidebar card.
+   */
+  headerStepper?: ReactNode;
   /** Real `Tabs` with panels — the relation a detail screen shows (Hoá đơn của Hợp đồng, …). */
   tabs?: DetailPageTab[];
   /**
@@ -76,6 +81,7 @@ export function DetailPageShell({
   badge,
   meta,
   actions,
+  headerStepper,
   tabs,
   actionsCard,
   sidebar,
@@ -152,6 +158,8 @@ export function DetailPageShell({
           {actions && <div className="flex items-center gap-2">{actions}</div>}
         </div>
       )}
+
+      {headerStepper && <div className="print:hidden">{headerStepper}</div>}
 
       {hasTabs ? (
         <Tabs value={activeTab} onValueChange={setActiveTab}>

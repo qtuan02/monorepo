@@ -4,6 +4,12 @@ import { Link, useNavigate } from "react-router";
 
 import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@monorepo/ui/components/card";
 import { toast } from "@monorepo/ui/components/toast";
 import { cn } from "@monorepo/ui/utils/cn";
 
@@ -40,8 +46,9 @@ const TITLE = "Chi tiết hợp đồng";
 
 /**
  * "Chi tiết hợp đồng": the shared detail anatomy (spec #153 §3.4) — header
- * entity + tabs (Tổng quan · Hoá đơn · Chỉ số · Lịch sử), a right column
- * carrying only Cọc, vòng đời and links. Each fact appears once: room/tenant/
+ * entity + tabs (Tổng quan · Hoá đơn · Chỉ số · Lịch sử). Vòng đời is a small
+ * horizontal stepper in the header (spec #179 §10 row 16), so the right
+ * column carries only Cọc and liên kết. Each fact appears once: room/tenant/
  * dates live in the header meta, not repeated inside a tab.
  */
 export default function ContractDetailTemplate({
@@ -118,6 +125,12 @@ export default function ContractDetailTemplate({
         </Link>,
         `${contract.startDate} → ${contract.endDate}`,
       ]}
+      headerStepper={
+        <LifecycleStepper
+          steps={getContractLifecycleSteps(contract.status)}
+          orientation="horizontal"
+        />
+      }
       actions={
         isLive ? (
           <>
@@ -234,11 +247,33 @@ export default function ContractDetailTemplate({
             </p>
           </InfoCard>
 
-          <InfoCard title="Vòng đời">
-            <LifecycleStepper
-              steps={getContractLifecycleSteps(contract.status)}
-            />
-          </InfoCard>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Liên kết</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Link
+                to={ROUTES.roomDetailPath(contract.roomId)}
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className: "w-full",
+                })}
+              >
+                Xem phòng
+              </Link>
+              <Link
+                to={ROUTES.tenantDetailPath(contract.tenantId)}
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                  className: "w-full",
+                })}
+              >
+                Xem người thuê
+              </Link>
+            </CardContent>
+          </Card>
         </>
       }
     >
@@ -291,6 +326,7 @@ function HistoryTab({
             label="Tiền thuê"
             value={`${formatCurrency(entry.previousRentAmount)} → ${formatCurrency(entry.newRentAmount)}`}
           />
+          {entry.notes && <InfoRow label="Ghi chú" value={entry.notes} />}
         </InfoCard>
       ))}
 

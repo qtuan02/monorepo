@@ -7,6 +7,7 @@ import {
   ComboboxList,
 } from "@monorepo/ui/components/combobox";
 
+import { useGetBuildings } from "~/hooks/api/building";
 import { useGetRooms } from "~/hooks/api/room";
 
 interface RoomOption {
@@ -39,11 +40,20 @@ export function SelectRoom({
   placeholder = "Tìm phòng",
 }: SelectRoomProps) {
   const { data: rooms = [], isFetching } = useGetRooms({ buildingId });
+  // Scope null ("Tất cả Toà nhà") — the options span every Toà nhà, so each
+  // one must name which (spec #179): "Phòng 101" alone would be ambiguous.
+  const { data: buildings = [] } = useGetBuildings({ enabled: !buildingId });
+  const buildingNameById = new Map(
+    buildings.map((building) => [building.id, building.name]),
+  );
+
   const options: RoomOption[] = rooms
     .filter((room) => !onlyAvailable || room.status === "available")
     .map((room) => ({
       value: room.id,
-      label: `${room.name} · Tầng ${room.floor}`,
+      label: buildingId
+        ? `${room.name} · Tầng ${room.floor}`
+        : `${room.name} · ${buildingNameById.get(room.buildingId) ?? "?"} · Tầng ${room.floor}`,
     }));
 
   const selected = options.find((option) => option.value === value) ?? null;

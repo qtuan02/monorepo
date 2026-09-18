@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { DoorOpen, Edit, FileText, Gauge, Trash2 } from "lucide-react";
+import {
+  DoorOpen,
+  Edit,
+  FilePlus2,
+  FileText,
+  Gauge,
+  Trash2,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
@@ -116,6 +123,15 @@ export default function RoomDetailTemplate({
 
   const actions = (
     <>
+      {room.status === "available" && (
+        <Link
+          to={`${ROUTES.CONTRACT_CREATE}?room=${room.id}`}
+          className={buttonVariants({ variant: "default", size: "sm" })}
+        >
+          <FilePlus2 />
+          Tạo hợp đồng
+        </Link>
+      )}
       <Button
         type="button"
         variant="outline"

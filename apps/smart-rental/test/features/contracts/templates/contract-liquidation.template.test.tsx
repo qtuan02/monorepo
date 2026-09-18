@@ -52,6 +52,18 @@ describe("ContractLiquidationTemplate — quyết toán Cọc", () => {
     useAuthStore.setState(initialAuthState, true);
   });
 
+  it("hides Số trả lại until a cách quyết toán is chosen (spec #179)", async () => {
+    const contract = mockContracts.find((item) => item.id === "C004");
+    if (!contract) throw new Error("Fixture C004 missing from the Mock");
+
+    renderAt(ROUTES.contractLiquidationPath(contract.id));
+
+    await screen.findByRole("radio", { name: "Giữ toàn bộ (không hoàn)" });
+    expect(
+      screen.getByText("Chọn cách quyết toán để xem số trả lại."),
+    ).toBeInTheDocument();
+  }, 15000);
+
   it("computes Số trả lại for hoàn một phần off the contract's own nợ thật", async () => {
     const contract = mockContracts.find((item) => item.id === "C004");
     if (!contract) throw new Error("Fixture C004 missing from the Mock");

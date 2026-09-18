@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, FileX } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -13,9 +13,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import { Field, FieldError, FieldLabel } from "@monorepo/ui/components/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@monorepo/ui/components/field";
 import { Textarea } from "@monorepo/ui/components/textarea";
 import { toast } from "@monorepo/ui/components/toast";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@monorepo/ui/components/toggle-group";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type {
@@ -31,10 +40,13 @@ import { EmptyPanel } from "~/components/panel/empty-panel";
 import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { renewContractFormSchema } from "~/features/contracts/types/renew-contract-form";
+import { computeRenewedEndDate } from "~/features/contracts/utils/contract-term";
 import { useGetContract, useRenewContract } from "~/hooks/api/contract";
 import { isContractLive } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
+
+type TermMode = "6" | "12" | "custom";
 
 interface ContractRenewTemplateProps {
   contractId: string;
@@ -107,7 +119,7 @@ const FORM_ID = "renew-contract-form";
 /** Mounted only once the Hợp đồng is known, so its rent can seed the form. */
 function RenewForm({ contract }: { contract: Contract }) {
   const navigate = useNavigate();
-  const [isConfirming, setIsConfirming] = useState(false);
+  const [termMode, setTermMode] = useState<TermMode>("6");
   const renewContract = useRenewContract();
   const form = useForm<
     RenewContractFormInput,
@@ -116,14 +128,26 @@ function RenewForm({ contract }: { contract: Contract }) {
   >({
     resolver: zodResolver(renewContractFormSchema),
     defaultValues: {
-      newEndDate: "",
+      newEndDate: computeRenewedEndDate(contract.endDate, 6),
       newRentAmount: String(contract.rentAmount),
       notes: "",
     },
   });
+  const newEndDate = useWatch({ control: form.control, name: "newEndDate" });
 
-  const onSubmit = form.handleSubmit(() => setIsConfirming(true));
+  // Thời hạn thêm 6/12/khác tháng (spec #179) — extends the current end
+  // date, trừ khi chọn "Khác".
+  useEffect(() => {
+    if (termMode === "custom") return;
+    const months = termMode === "6" ? 6 : 12;
+    form.setValue(
+      "newEndDate",
+      computeRenewedEndDate(contract.endDate, months),
+    );
+  }, [termMode, contract.endDate, form]);
 
+  // Card xác nhận có từ đầu (spec #179 §3.4) — "Xác nhận gia hạn" is its own
+  // submit button, wired via `form={FORM_ID}` rather than a two-click flow.
   const confirm = form.handleSubmit((values) => {
     renewContract.mutate(
       { contractId: contract.id, ...values },
@@ -170,16 +194,38 @@ function RenewForm({ contract }: { contract: Contract }) {
           <CardContent>
             <form
               id={FORM_ID}
-              onSubmit={onSubmit}
+              onSubmit={confirm}
               noValidate
               className="space-y-6"
             >
-              <DateField
-                control={form.control}
-                name="newEndDate"
-                label="Ngày kết thúc mới"
-                required
-              />
+              <Field>
+                <FieldLabel>Thời hạn thêm</FieldLabel>
+                <ToggleGroup
+                  value={[termMode]}
+                  onValueChange={(next) => {
+                    const selected = next[0];
+                    if (selected) setTermMode(selected as TermMode);
+                  }}
+                  variant="outline"
+                  size="sm"
+                >
+                  <ToggleGroupItem value="6">6 tháng</ToggleGroupItem>
+                  <ToggleGroupItem value="12">12 tháng</ToggleGroupItem>
+                  <ToggleGroupItem value="custom">Khác</ToggleGroupItem>
+                </ToggleGroup>
+                {termMode === "custom" ? (
+                  <DateField
+                    control={form.control}
+                    name="newEndDate"
+                    label="Ngày kết thúc mới"
+                    required
+                  />
+                ) : (
+                  <FieldDescription>
+                    Kết thúc {newEndDate ? formatDate(newEndDate) : "…"}
+                  </FieldDescription>
+                )}
+              </Field>
               <CurrencyField
                 control={form.control}
                 name="newRentAmount"
@@ -206,34 +252,17 @@ function RenewForm({ contract }: { contract: Contract }) {
                   </Field>
                 )}
               />
-              {!isConfirming && (
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() =>
-                      navigate(ROUTES.contractDetailPath(contract.id))
-                    }
-                  >
-                    Hủy
-                  </Button>
-                  <Button type="submit">Tiếp tục</Button>
-                </div>
-              )}
             </form>
           </CardContent>
         </Card>
       </div>
 
-      {isConfirming && (
-        <RenewConfirmCard
-          form={form}
-          currentRent={contract.rentAmount}
-          isPending={renewContract.isPending}
-          onConfirm={confirm}
-          onEdit={() => setIsConfirming(false)}
-        />
-      )}
+      <RenewConfirmCard
+        form={form}
+        currentRent={contract.rentAmount}
+        isPending={renewContract.isPending}
+        onCancel={() => navigate(ROUTES.contractDetailPath(contract.id))}
+      />
     </div>
   );
 }
@@ -244,17 +273,18 @@ interface RenewConfirmCardProps {
   >;
   currentRent: number;
   isPending: boolean;
-  onConfirm: () => void;
-  onEdit: () => void;
+  onCancel: () => void;
 }
 
-/** The green confirm card, reading the form live so an edit shows through. */
+/**
+ * The green confirm card — visible from the start (spec #179 §3.4), reading
+ * the form live so every edit shows through immediately.
+ */
 function RenewConfirmCard({
   form,
   currentRent,
   isPending,
-  onConfirm,
-  onEdit,
+  onCancel,
 }: RenewConfirmCardProps) {
   const [newEndDate, newRentAmount] = useWatch({
     control: form.control,
@@ -298,10 +328,10 @@ function RenewConfirmCard({
 
         <div className="flex flex-col gap-2">
           <Button
-            type="button"
+            type="submit"
+            form={FORM_ID}
             className="w-full"
             disabled={isPending}
-            onClick={onConfirm}
           >
             {isPending ? "Đang lưu..." : "Xác nhận gia hạn"}
           </Button>
@@ -310,9 +340,9 @@ function RenewConfirmCard({
             variant="outline"
             className="w-full"
             disabled={isPending}
-            onClick={onEdit}
+            onClick={onCancel}
           >
-            Chỉnh sửa
+            Hủy
           </Button>
         </div>
       </CardContent>

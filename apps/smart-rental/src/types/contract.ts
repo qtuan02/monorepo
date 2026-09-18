@@ -24,6 +24,7 @@ export interface ContractRenewalRecord {
   newEndDate: string;
   previousRentAmount: number;
   newRentAmount: number;
+  notes?: string;
 }
 
 /**

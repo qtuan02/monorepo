@@ -569,3 +569,52 @@ describe("Khôi phục dữ liệu mẫu — Cài đặt", () => {
     expect(screen.queryByText("Không tìm thấy phòng.")).not.toBeInTheDocument();
   });
 });
+
+// Ticket #186, spec #179 §3.4 — "Tạo hợp đồng" on a Phòng trống's own detail
+// screen, and the `?room=` prefill it links to.
+describe("Tạo hợp đồng từ Phòng trống — ?room= prefill", () => {
+  beforeEach(() => {
+    useAuthStore.setState(initialAuthState, true);
+    useBuildingStore.setState(initialBuildingState, true);
+    useAuthStore.setState({ token: "a-token" });
+  });
+
+  it("shows «Tạo hợp đồng» on an available Phòng's own detail screen", async () => {
+    renderAt(ROUTES.roomDetailPath("R-B1-101")); // Phòng 101 — trống
+    expect(
+      await screen.findByRole("link", { name: "Tạo hợp đồng" }),
+    ).toHaveAttribute("href", "/contracts/create?room=R-B1-101");
+  });
+
+  it("hides «Tạo hợp đồng» once a Phòng is đang thuê", async () => {
+    renderAt(ROUTES.roomDetailPath("R-B1-102")); // Phòng 102 — đang thuê
+    await screen.findByText("Phòng 102");
+    expect(
+      screen.queryByRole("link", { name: "Tạo hợp đồng" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("pre-selects the Phòng named in ?room=", async () => {
+    renderAt(`${ROUTES.CONTRACT_CREATE}?room=R-B1-101`);
+
+    expect(
+      await screen.findByDisplayValue(/Phòng 101/, {}, { timeout: 5000 }),
+    ).toBeInTheDocument();
+  });
+
+  it("leaves step 1 empty when ?room= names no trống Phòng", async () => {
+    // R-B1-102 exists but is occupied — neither an unknown id nor a trống
+    // one, so it must be rejected exactly like a missing Phòng. "Tiếp
+    // theo" surfacing the schema's own "Vui lòng chọn phòng" is the
+    // observable proof that `roomId` was never set from the query param.
+    const user = userEvent.setup();
+    renderAt(`${ROUTES.CONTRACT_CREATE}?room=R-B1-102`);
+
+    await user.click(await screen.findByRole("button", { name: "Tiếp theo" }));
+
+    expect(
+      await screen.findByText("Vui lòng chọn phòng", {}, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByDisplayValue(/Phòng 102/)).not.toBeInTheDocument();
+  }, 15000);
+});

@@ -169,6 +169,7 @@ export function useRenewContract(
             newEndDate: formatDate(request.newEndDate),
             previousRentAmount: contract.rentAmount,
             newRentAmount: request.newRentAmount,
+            notes: request.notes,
           },
         ],
         endDate: formatDate(request.newEndDate),

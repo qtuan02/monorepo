@@ -5,11 +5,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import { SelectRoom } from "~/components/select/select-room";
 
-function renderSelectRoom(onlyAvailable: boolean) {
+function renderSelectRoom(
+  onlyAvailable: boolean,
+  buildingId: string | null = "b1",
+) {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <SelectRoom
-        buildingId="b1"
+        buildingId={buildingId}
         onlyAvailable={onlyAvailable}
         onValueChange={vi.fn()}
       />
@@ -46,6 +49,21 @@ describe("SelectRoom", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("option", { name: /Phòng 102/ }),
+    ).toBeInTheDocument();
+  });
+
+  // spec #179 §3.4 — scope null spans every Toà nhà, so "Phòng 101" alone is
+  // ambiguous; each option names which one.
+  it("with buildingId null, each option names its own Toà nhà", async () => {
+    const user = userEvent.setup();
+    renderSelectRoom(true, null);
+
+    await user.click(screen.getByRole("combobox"));
+
+    expect(
+      await screen.findByRole("option", {
+        name: /Phòng 101 · Trọ Sinh Viên Xanh/,
+      }),
     ).toBeInTheDocument();
   });
 });

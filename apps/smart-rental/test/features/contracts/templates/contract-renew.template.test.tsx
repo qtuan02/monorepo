@@ -35,7 +35,7 @@ describe("ContractRenewTemplate", () => {
     useAuthStore.setState(initialAuthState, true);
   });
 
-  it("renewing writes a lịch sử entry and returns the badge to Đang hiệu lực", async () => {
+  it("renewing writes a lịch sử entry (kèm ghi chú) and returns the badge to Đang hiệu lực", async () => {
     const contract = mockContracts.find((item) => item.id === "C001");
     if (!contract) throw new Error("Fixture C001 missing from the Mock");
     expect(contract.renewalHistory).toHaveLength(0);
@@ -43,24 +43,29 @@ describe("ContractRenewTemplate", () => {
     const user = userEvent.setup();
     renderAt(ROUTES.contractRenewPath(contract.id));
 
+    // Card xác nhận có từ đầu — không cần bấm "Tiếp tục" trước.
     await user.click(
       await screen.findByRole(
         "button",
-        { name: "Ngày kết thúc mới" },
+        { name: "12 tháng" },
         { timeout: 5000 },
       ),
     );
-    await user.click(await screen.findByText("20", {}, { timeout: 5000 }));
-    await user.click(screen.getByRole("button", { name: "Tiếp tục" }));
+    await user.type(
+      screen.getByRole("textbox", { name: "Ghi chú" }),
+      "Tăng giá theo thị trường",
+    );
     await user.click(screen.getByRole("button", { name: "Xác nhận gia hạn" }));
 
-    // Lands back on the detail screen — badge no longer "Sắp hết hạn".
+    // Lands back on the detail screen — badge no longer "Sắp hết hạn". Shows
+    // both in the badge and, on mobile, in the header stepper's summary line.
     expect(
-      await screen.findByText("Đang hiệu lực", {}, { timeout: 5000 }),
-    ).toBeInTheDocument();
+      await screen.findAllByText("Đang hiệu lực", {}, { timeout: 5000 }),
+    ).not.toHaveLength(0);
 
     await user.click(screen.getByRole("tab", { name: "Lịch sử" }));
     expect(screen.getByText(/^Gia hạn ·/)).toBeInTheDocument();
     expect(contract.renewalHistory).toHaveLength(1);
+    expect(contract.renewalHistory[0]?.notes).toBe("Tăng giá theo thị trường");
   }, 15000);
 });

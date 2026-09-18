@@ -146,14 +146,19 @@ function LiquidationFlow({
     name: ["decision", "returnAmount"],
   });
 
-  const settlement = computeDepositSettlement({
-    depositAmount: contract.depositAmount,
-    outstandingDebt,
-    decision: decision ?? "FORFEITED",
-    partialReturnAmount: returnAmount ? Number(returnAmount) : undefined,
-  });
+  const settlement = decision
+    ? computeDepositSettlement({
+        depositAmount: contract.depositAmount,
+        outstandingDebt,
+        decision,
+        partialReturnAmount: returnAmount ? Number(returnAmount) : undefined,
+      })
+    : null;
 
   const onSubmit = form.handleSubmit((values) => {
+    // The submit button is disabled until `decision` is chosen, so this is
+    // always non-null in practice — guarded here to satisfy the type.
+    if (!settlement) return;
     liquidate.mutate(
       {
         contractId: contract.id,
@@ -267,7 +272,7 @@ function LiquidationFlow({
                   name="returnAmount"
                   label="Số tiền hoàn lại"
                   required
-                  description={`Còn lại sau nợ: ${formatCurrency(settlement.availableAfterDebt)}`}
+                  description={`Còn lại sau nợ: ${formatCurrency(settlement?.availableAfterDebt ?? 0)}`}
                 />
                 <Controller
                   name="reason"
@@ -300,13 +305,21 @@ function LiquidationFlow({
             <CardTitle className="text-base">Số trả lại</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold tabular-nums">
-              {formatCurrency(settlement.returnedAmount)}
-            </p>
-            <p className="text-muted-foreground mt-1 text-xs">
-              Cọc {formatCurrency(contract.depositAmount)} − nợ{" "}
-              {formatCurrency(outstandingDebt)}.
-            </p>
+            {settlement ? (
+              <>
+                <p className="text-2xl font-bold tabular-nums">
+                  {formatCurrency(settlement.returnedAmount)}
+                </p>
+                <p className="text-muted-foreground mt-1 text-xs">
+                  Cọc {formatCurrency(contract.depositAmount)} − nợ{" "}
+                  {formatCurrency(outstandingDebt)}.
+                </p>
+              </>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                Chọn cách quyết toán để xem số trả lại.
+              </p>
+            )}
           </CardContent>
         </Card>
 
