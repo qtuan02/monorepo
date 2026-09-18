@@ -6,10 +6,12 @@ import { facetFilterFn } from "~/components/data-table/data-table";
 const helper = createDataTableColumnHelper<Task>();
 
 /**
- * The Việc cần làm table is never drawn — the screen is a card grid — but the
- * list composite still filters through these columns: `title` carries the
- * search (over the title AND the description, as the prototype searched), the
- * other three carry the facets.
+ * The Việc cần làm table is never drawn — the screen is the same queue "Hôm
+ * nay" renders — but the list composite still filters through these columns:
+ * `title` carries the search (over the title AND the description, as the
+ * prototype searched), `priority`/`type` carry the two URL facets (spec #153
+ * §10 row 9: `status` is always "open" now that Việc cần làm has no Mock of
+ * its own, so a status facet would filter nothing).
  */
 export const taskColumns = helper.columns([
   helper.accessor("title", {
@@ -22,6 +24,5 @@ export const taskColumns = helper.columns([
     },
   }),
   helper.accessor("priority", { filterFn: facetFilterFn }),
-  helper.accessor("status", { filterFn: facetFilterFn }),
   helper.accessor("type", { filterFn: facetFilterFn }),
 ]);

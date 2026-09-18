@@ -2,7 +2,12 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 
 import type { UseQueryOptionsWrapper } from "~/libs/query-key-factory";
-import type { OverdueDebt, ProfitLossSummary, ReportRow } from "~/types/report";
+import type {
+  BuildingComparisonRow,
+  FloorOccupancy,
+  ProfitLossSummary,
+  ReportRow,
+} from "~/types/report";
 import type { TenantView } from "~/types/tenant";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
@@ -13,7 +18,8 @@ import { mockTenants } from "~/constants/mock/tenants";
 import { mockUtilities } from "~/constants/mock/utilities";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import {
-  buildOverdueDebts,
+  buildBuildingComparisonRows,
+  buildFloorOccupancy,
   buildProfitLossSummary,
   buildReportRows,
 } from "~/utils/report-rows";
@@ -29,8 +35,10 @@ export const reportQueryKeys = {
     reportQueryKeyFactory.list({ buildingId }),
   getProfitLossSummary: (buildingId?: string | null) =>
     reportQueryKeyFactory.detail("profit-loss", { buildingId }),
-  getOverdueDebts: (buildingId?: string | null) =>
-    reportQueryKeyFactory.detail("overdue-debts", { buildingId }),
+  getFloorOccupancy: (buildingId?: string | null) =>
+    reportQueryKeyFactory.detail("floor-occupancy", { buildingId }),
+  getBuildingComparison: () =>
+    reportQueryKeyFactory.detail("building-comparison"),
 };
 
 function buildTenantViews(): TenantView[] {
@@ -78,20 +86,30 @@ export function useGetProfitLossSummary(
   });
 }
 
-export function useGetOverdueDebts(
-  params?: ReportParams,
-  options?: UseQueryOptionsWrapper<OverdueDebt[]>,
-): UseQueryResult<OverdueDebt[], Error> {
-  return useQuery<OverdueDebt[], Error>({
-    queryKey: reportQueryKeys.getOverdueDebts(params?.buildingId),
+/** "Lấp đầy theo tầng" — one Toà nhà scope only (spec #153 §10 row 29). */
+export function useGetFloorOccupancy(
+  params: ReportParams,
+  options?: UseQueryOptionsWrapper<FloorOccupancy[]>,
+): UseQueryResult<FloorOccupancy[], Error> {
+  return useQuery<FloorOccupancy[], Error>({
+    queryKey: reportQueryKeys.getFloorOccupancy(params.buildingId),
     queryFn: async () =>
-      buildOverdueDebts(
-        params?.buildingId
-          ? mockInvoices.filter(
-              (invoice) => invoice.buildingId === params.buildingId,
-            )
-          : mockInvoices,
+      buildFloorOccupancy(
+        params.buildingId
+          ? mockRooms.filter((room) => room.buildingId === params.buildingId)
+          : [],
       ),
+    ...options,
+  });
+}
+
+/** "Bảng so sánh giữa các Toà nhà" — scope `null` only (spec #153 §10 row 29). */
+export function useGetBuildingComparison(
+  options?: UseQueryOptionsWrapper<BuildingComparisonRow[]>,
+): UseQueryResult<BuildingComparisonRow[], Error> {
+  return useQuery<BuildingComparisonRow[], Error>({
+    queryKey: reportQueryKeys.getBuildingComparison(),
+    queryFn: async () => buildBuildingComparisonRows(getRows(null)),
     ...options,
   });
 }

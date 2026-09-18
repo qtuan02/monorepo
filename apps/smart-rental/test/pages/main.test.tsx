@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -105,11 +105,12 @@ const guardedScreens: [path: string, heading: string, mockText?: string][] = [
   ],
   // Ba màn mất Mock ở #154 (ADR-0012) — #155 tính lại từ Hoá đơn/Hợp đồng/Chi phí.
   [ROUTES.RECONCILIATION, "Đối soát", "Tiền điện"],
-  [ROUTES.TASKS, "Việc cần làm", "Hoá đơn quá hạn"],
-  [ROUTES.REPORTS, "Báo cáo", "04/2026"],
+  [ROUTES.TASKS, "Việc cần làm", "Gửi nhắc"],
+  // Scope null (the default) shows the building comparison table, not a kỳ.
+  [ROUTES.REPORTS, "Báo cáo", "Trọ Sinh Viên Xanh"],
   [ROUTES.COMPLIANCE, "Khai báo lưu trú", "Nguyễn Văn A"],
   [ROUTES.COMMUNICATIONS, "Thông báo", "ZNS: Nhắc đóng tiền nhà"],
-  [ROUTES.SETTINGS, "Cài đặt hệ thống", "Nhà trọ Quốc Tế"],
+  [ROUTES.SETTINGS, "Cài đặt", "Nguyễn Quốc Tuấn"],
 ];
 
 const guestScreens: [path: string, heading: string][] = [
@@ -485,5 +486,51 @@ describe("Building scope required — Đợt hoá đơn, Nhập chỉ số", () 
     expect(
       screen.getByRole("button", { name: "Lưu 0 chỉ số" }),
     ).toBeInTheDocument();
+  });
+});
+
+// Spec #153 §10 row 32 (AC: "xoá một Phòng, reset, Phòng trở lại") — each
+// `renderAt` mounts a fresh QueryClient, so this only proves something if the
+// Mock array itself, not a cache, is what came back.
+describe("Khôi phục dữ liệu mẫu — Cài đặt", () => {
+  beforeEach(() => {
+    useAuthStore.setState(initialAuthState, true);
+    useBuildingStore.setState(initialBuildingState, true);
+    useAuthStore.setState({ token: "a-token" });
+  });
+
+  it("restores a deleted Phòng once Khôi phục dữ liệu mẫu confirms", async () => {
+    const user = userEvent.setup();
+
+    // R-B3-303 carries no Hợp đồng at all — deletable from the start. A
+    // successful delete navigates away to the Phòng list, so the signal to
+    // wait on is that navigation, not a 404 on this same page.
+    renderAt(ROUTES.roomDetailPath("R-B3-303"));
+    await user.click(await screen.findByRole("button", { name: "Xóa" }));
+    await user.click(
+      within(screen.getByRole("alertdialog")).getByRole("button", {
+        name: "Xóa",
+      }),
+    );
+    await screen.findByRole("heading", { level: 1, name: "Danh sách phòng" });
+
+    renderAt(ROUTES.SETTINGS);
+    await user.click(
+      await screen.findByRole("button", { name: "Khôi phục dữ liệu mẫu" }),
+    );
+    await user.click(
+      within(screen.getByRole("alertdialog")).getByRole("button", {
+        name: "Khôi phục",
+      }),
+    );
+    // The dialog only closes from the mutation's onSuccess — waiting for it
+    // to disappear is waiting for the reset itself to have run.
+    await waitFor(() => {
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+
+    renderAt(ROUTES.roomDetailPath("R-B3-303"));
+    expect(await screen.findAllByText("Phòng 303")).not.toHaveLength(0);
+    expect(screen.queryByText("Không tìm thấy phòng.")).not.toBeInTheDocument();
   });
 });

@@ -2,19 +2,15 @@ import { useState } from "react";
 import { MessageSquare, Send } from "lucide-react";
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
-import { Switch } from "@monorepo/ui/components/switch";
-import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@monorepo/ui/components/toggle-group";
 
 import type { SendLog, SendLogStatus } from "~/types/communication";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
@@ -37,42 +33,28 @@ import { useGetNotificationTemplates } from "~/hooks/api/notification-template";
 import { useGetSendLogs } from "~/hooks/api/send-log";
 import { useUrlTab } from "~/hooks/use-url-tab";
 
-const TABS = ["overview", "logs", "automation"] as const;
+const TABS = ["templates", "logs"] as const;
 
 const ALL_CHANNELS = "all";
-type ChannelTab = typeof ALL_CHANNELS | "zalo" | "sms" | "email";
+type ChannelFilter = typeof ALL_CHANNELS | "zalo" | "sms" | "email";
 
 const LOGS_ERROR = "Không thể tải nhật ký gửi tin.";
-
-/** The two rules the prototype showed; neither is wired to anything yet. */
-const automationRules = [
-  {
-    key: "invoice-reminder",
-    label: "Nhắc nợ hoá đơn",
-    description: "Tự động gửi tin khi có hoá đơn mới (Kênh Zalo)",
-    isOn: true,
-  },
-  {
-    key: "contract-expiry",
-    label: "Hết hạn hợp đồng",
-    description: "Gửi tin trước 30 ngày khi hợp đồng sắp hết hạn",
-    isOn: false,
-  },
-];
 
 function countByStatus(logs: SendLog[], status: SendLogStatus) {
   return logs.filter((log) => log.status === status).length;
 }
 
 /**
- * "Thông báo" (ADR-0011): the tab rides on the URL — "Tổng quan & Mẫu tin"
- * with a count per send status and the templates by channel, "Nhật ký gửi
- * tin" on the list composite, and the two automation switches. Two queries,
- * each section gated on its own.
+ * "Thông báo" (spec #153 §10 row 26): mẫu tin theo cùng anatomy thẻ chung,
+ * mỗi mẫu một nút "Dùng mẫu" — Gửi nhắc tự nó là nhật ký trên Hoá đơn,
+ * slice này chỉ giữ mẫu và đọc nhật ký đã gửi. Tab con (kênh, lồng trong tab
+ * cha) và "Thông báo tự động" (hai công tắc không nối gì) đều gỡ — research
+ * C.1 #24.
  */
 export default function CommunicationsTemplate() {
   const [tab, setTab] = useUrlTab(TABS);
-  const [channelTab, setChannelTab] = useState<ChannelTab>(ALL_CHANNELS);
+  const [channelFilter, setChannelFilter] =
+    useState<ChannelFilter>(ALL_CHANNELS);
 
   const templatesQuery = useGetNotificationTemplates();
   const logsQuery = useGetSendLogs();
@@ -86,12 +68,62 @@ export default function CommunicationsTemplate() {
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-6">
         <TabsList className="bg-muted/50">
-          <TabsTrigger value="overview">Tổng quan & Mẫu tin</TabsTrigger>
+          <TabsTrigger value="templates">Mẫu thông báo</TabsTrigger>
           <TabsTrigger value="logs">Nhật ký gửi tin</TabsTrigger>
-          <TabsTrigger value="automation">Thông báo tự động</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-8">
+        <TabsContent value="templates" className="space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="flex items-center gap-2 text-lg font-semibold">
+              <MessageSquare className="text-primary size-5" />
+              Mẫu thông báo
+            </h2>
+            <ToggleGroup
+              value={[channelFilter]}
+              onValueChange={(next) => {
+                const value = next[0];
+                if (value) setChannelFilter(value as ChannelFilter);
+              }}
+              variant="outline"
+              size="sm"
+              spacing={0}
+            >
+              <ToggleGroupItem value={ALL_CHANNELS}>Tất cả</ToggleGroupItem>
+              <ToggleGroupItem value="zalo">Zalo ZNS</ToggleGroupItem>
+              <ToggleGroupItem value="sms">SMS</ToggleGroupItem>
+              <ToggleGroupItem value="email">Email</ToggleGroupItem>
+            </ToggleGroup>
+          </div>
+
+          <QuerySection
+            query={templatesQuery}
+            errorText="Không thể tải mẫu thông báo."
+            loading={<CardGridSkeleton itemCount={3} />}
+          >
+            {(templates) => {
+              const visible =
+                channelFilter === ALL_CHANNELS
+                  ? templates
+                  : templates.filter((t) => t.channel === channelFilter);
+
+              return visible.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {visible.map((template) => (
+                    <TemplateCard key={template.id} template={template} />
+                  ))}
+                </div>
+              ) : (
+                <EmptyPanel
+                  title="Chưa có mẫu"
+                  description="Chưa có mẫu thông báo nào cho kênh này."
+                  className="border"
+                />
+              );
+            }}
+          </QuerySection>
+        </TabsContent>
+
+        <TabsContent value="logs" className="space-y-6">
           <QuerySection
             query={logsQuery}
             errorText={LOGS_ERROR}
@@ -109,69 +141,6 @@ export default function CommunicationsTemplate() {
             )}
           </QuerySection>
 
-          <section className="space-y-4">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <MessageSquare className="text-primary size-5" />
-              Mẫu thông báo
-            </h2>
-
-            <QuerySection
-              query={templatesQuery}
-              errorText="Không thể tải mẫu thông báo."
-              loading={<CardGridSkeleton itemCount={3} />}
-            >
-              {(templates) => {
-                const visible =
-                  channelTab === ALL_CHANNELS
-                    ? templates
-                    : templates.filter((t) => t.channel === channelTab);
-
-                return templates.length > 0 ? (
-                  <Tabs
-                    value={channelTab}
-                    onValueChange={(value) =>
-                      setChannelTab(value as ChannelTab)
-                    }
-                    className="space-y-6"
-                  >
-                    <TabsList>
-                      <TabsTrigger value={ALL_CHANNELS}>Tất cả</TabsTrigger>
-                      <TabsTrigger value="zalo">Zalo ZNS</TabsTrigger>
-                      <TabsTrigger value="sms">SMS</TabsTrigger>
-                      <TabsTrigger value="email">Email</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value={channelTab}>
-                      {visible.length > 0 ? (
-                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                          {visible.map((template) => (
-                            <TemplateCard
-                              key={template.id}
-                              template={template}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <EmptyPanel
-                          title="Chưa có mẫu"
-                          description="Chưa có mẫu thông báo nào cho kênh này."
-                          className="border"
-                        />
-                      )}
-                    </TabsContent>
-                  </Tabs>
-                ) : (
-                  <EmptyPanel
-                    title="Chưa có mẫu"
-                    description="Thêm mẫu thông báo để gửi nhanh cho Người thuê."
-                    className="border"
-                  />
-                );
-              }}
-            </QuerySection>
-          </section>
-        </TabsContent>
-
-        <TabsContent value="logs">
           <QuerySection
             query={logsQuery}
             errorText={LOGS_ERROR}
@@ -207,33 +176,6 @@ export default function CommunicationsTemplate() {
               />
             )}
           </QuerySection>
-        </TabsContent>
-
-        <TabsContent value="automation">
-          <Card>
-            <CardHeader>
-              <CardTitle>Cấu hình gửi thông báo tự động</CardTitle>
-              <CardDescription>
-                Thiết lập các sự kiện để hệ thống tự động gửi tin cho Người thuê
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {automationRules.map((rule) => (
-                <div
-                  key={rule.key}
-                  className="flex items-center justify-between rounded-lg border p-4"
-                >
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-medium">{rule.label}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {rule.description}
-                    </p>
-                  </div>
-                  <Switch defaultChecked={rule.isOn} aria-label={rule.label} />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

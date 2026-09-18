@@ -5,56 +5,68 @@ import type {
   UseMutationOptionsWrapper,
   UseQueryOptionsWrapper,
 } from "~/libs/query-key-factory";
-import type { ElectricityTierConfig, Setting } from "~/types/setting";
+import type { LandlordProfile } from "~/types/setting";
+import { resetMockBuildings } from "~/constants/mock/buildings";
 import {
-  mockElectricityTierConfig,
-  mockSettings,
-} from "~/constants/mock/settings";
+  resetMockNotificationTemplates,
+  resetMockSendLogs,
+} from "~/constants/mock/communications";
+import { resetMockComplianceItems } from "~/constants/mock/compliance";
+import { resetMockContracts } from "~/constants/mock/contracts";
+import { resetMockExpenses } from "~/constants/mock/expenses";
+import {
+  resetMockBatchInvoiceItems,
+  resetMockInvoices,
+} from "~/constants/mock/invoices";
+import { resetMockRooms } from "~/constants/mock/rooms";
+import { mockLandlordProfile } from "~/constants/mock/settings";
+import { resetMockSupplierBills } from "~/constants/mock/supplier-bills";
+import { resetMockTenants } from "~/constants/mock/tenants";
+import { resetMockUtilities } from "~/constants/mock/utilities";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 const settingQueryKeyFactory = queryKeysFactory("setting");
 
 export const settingQueryKeys = {
   ...settingQueryKeyFactory,
-  getSettings: () => settingQueryKeyFactory.list(),
-  getElectricityTierConfig: () =>
-    settingQueryKeyFactory.detail("electricity-tiers"),
+  getLandlordProfile: () => settingQueryKeyFactory.detail("landlord-profile"),
 };
 
-export function useGetSettings(
-  options?: UseQueryOptionsWrapper<Setting[]>,
-): UseQueryResult<Setting[], Error> {
-  return useQuery<Setting[], Error>({
-    queryKey: settingQueryKeys.getSettings(),
-    queryFn: async () => [...mockSettings],
+export function useGetLandlordProfile(
+  options?: UseQueryOptionsWrapper<LandlordProfile>,
+): UseQueryResult<LandlordProfile, Error> {
+  return useQuery<LandlordProfile, Error>({
+    queryKey: settingQueryKeys.getLandlordProfile(),
+    queryFn: async () => ({ ...mockLandlordProfile }),
     ...options,
   });
 }
 
-export function useGetElectricityTierConfig(
-  options?: UseQueryOptionsWrapper<ElectricityTierConfig>,
-): UseQueryResult<ElectricityTierConfig, Error> {
-  return useQuery<ElectricityTierConfig, Error>({
-    queryKey: settingQueryKeys.getElectricityTierConfig(),
-    // A deep copy, so a form editing the result never edits the Mock in place.
-    queryFn: async () => structuredClone(mockElectricityTierConfig),
-    ...options,
-  });
-}
-
-export function useUpdateElectricityTierConfig(
-  options?: UseMutationOptionsWrapper<ElectricityTierConfig>,
-) {
+/**
+ * "Khôi phục dữ liệu mẫu" (spec #153 §10 row 32) — every Mock this app reads
+ * or writes, back to what its own module first loaded with. Every array is
+ * reset in place (`trackMockReset`), so it never invalidates a single query
+ * key on its own: the caller clears the whole cache instead.
+ */
+export function useResetMockData(options?: UseMutationOptionsWrapper<void>) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (config: ElectricityTierConfig) => {
-      Object.assign(mockElectricityTierConfig, structuredClone(config));
+    mutationFn: async () => {
+      resetMockBuildings();
+      resetMockRooms();
+      resetMockTenants();
+      resetMockContracts();
+      resetMockInvoices();
+      resetMockBatchInvoiceItems();
+      resetMockUtilities();
+      resetMockExpenses();
+      resetMockSupplierBills();
+      resetMockComplianceItems();
+      resetMockNotificationTemplates();
+      resetMockSendLogs();
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: settingQueryKeys.getElectricityTierConfig(),
-      }),
+    onSuccess: () => queryClient.invalidateQueries(),
     ...options,
   });
 }

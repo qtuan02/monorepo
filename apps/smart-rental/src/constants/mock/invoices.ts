@@ -1,4 +1,5 @@
 import type {
+  BatchInvoiceItem,
   Invoice,
   InvoiceLineItem,
   InvoicePayment,
@@ -8,6 +9,7 @@ import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { formatDate, formatMonth } from "~/utils/date";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /** Sáu kỳ 04–09/2026 (spec #153 — one period alone cannot feed a 6-month chart or a history tab). */
 const BILLING_MONTHS = [
@@ -155,3 +157,37 @@ export const mockInvoices: Invoice[] = BILLING_MONTHS.flatMap(
       return buildInvoice(contract, billingMonth, status, sequence);
     }),
 );
+
+/** The Phòng an Đợt hoá đơn would bill, as the prototype previewed them. */
+export const mockBatchInvoiceItems: BatchInvoiceItem[] = [
+  {
+    id: "1",
+    room: "101",
+    tenant: "Nguyễn Văn A",
+    rent: 3000000,
+    electricity: 350000,
+    water: 60000,
+    service: 100000,
+  },
+  {
+    id: "2",
+    room: "102",
+    tenant: "Trần Thị B",
+    rent: 3000000,
+    electricity: 420000,
+    water: 80000,
+    service: 100000,
+  },
+  {
+    id: "3",
+    room: "103",
+    tenant: "Lê Văn C",
+    rent: 2500000,
+    electricity: 210000,
+    water: 40000,
+    service: 100000,
+  },
+];
+
+export const resetMockInvoices = trackMockReset(mockInvoices);
+export const resetMockBatchInvoiceItems = trackMockReset(mockBatchInvoiceItems);

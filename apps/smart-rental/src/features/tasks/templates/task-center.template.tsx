@@ -1,29 +1,24 @@
 import { CheckSquare } from "lucide-react";
 
-import type { TaskType } from "~/types/task";
-import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
+import { TableSkeleton } from "~/components/panel/loading-panel";
+import TaskQueue from "~/components/queue/task-queue";
 import {
   taskPriorityConfig,
-  taskStatusConfig,
   taskTypeConfig,
   toFilterOptions,
 } from "~/constants/status";
-import TaskCard from "~/features/tasks/components/task-card";
 import { taskColumns } from "~/features/tasks/components/task-columns";
 import { useGetTasks } from "~/hooks/api/task";
 import { useBuildingStore } from "~/stores/use-building-store";
 
-const summaryTiles: { type: TaskType }[] = [
-  { type: "invoice_overdue" },
-  { type: "contract_expiring" },
-  { type: "maintenance" },
-];
-
-/** "Việc cần làm" (ADR-0011): a count per kind over the whole list, then the filtered card grid. */
+/**
+ * "Việc cần làm" (spec #153 §10 row 9): a read-only screen — the same queue
+ * "Hôm nay" renders, in full, filtered by loại/ưu tiên on the URL. No create
+ * form: every row is derived, never authored by hand.
+ */
 export default function TaskCenterTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const { data, isLoading, isError, refetch } = useGetTasks({
@@ -35,66 +30,45 @@ export default function TaskCenterTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Việc cần làm"
-        description="Quản lý những nhiệm vụ cần xử lý"
+        description={`${tasks.length} việc`}
       />
 
       {isLoading ? (
-        <div className="space-y-6">
-          <KpiStripSkeleton count={3} />
-          <CardGridSkeleton />
-        </div>
+        <TableSkeleton />
       ) : isError ? (
         <ErrorPanel
-          description="Không tải được danh sách nhiệm vụ."
+          description="Không tải được danh sách việc cần làm."
           action={{ label: "Thử lại", onClick: () => refetch() }}
         />
       ) : (
-        <>
-          <KpiStrip
-            items={summaryTiles.map((tile) => ({
-              label: taskTypeConfig[tile.type].label,
-              value: tasks.filter((task) => task.type === tile.type).length,
-            }))}
-          />
-
-          <DataTable
-            columns={taskColumns}
-            data={tasks}
-            getRowId={(task) => task.id}
-            search={{ columnId: "title", placeholder: "Tìm kiếm nhiệm vụ..." }}
-            facets={[
-              {
-                columnId: "priority",
-                title: "Mức độ ưu tiên",
-                options: toFilterOptions(taskPriorityConfig),
-              },
-              {
-                columnId: "status",
-                title: "Trạng thái",
-                options: toFilterOptions(taskStatusConfig),
-              },
-              {
-                columnId: "type",
-                title: "Loại nhiệm vụ",
-                options: toFilterOptions(taskTypeConfig),
-              },
-            ]}
-            empty={{
-              icon: CheckSquare,
-              title: "Không có nhiệm vụ",
-              description:
-                "Tất cả các nhiệm vụ đã được xử lý hoặc không có nhiệm vụ phù hợp",
-            }}
-            resultLabel={(count) => `${count} nhiệm vụ`}
-            renderRows={(rows) => (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {rows.map((task) => (
-                  <TaskCard key={task.id} task={task} />
-                ))}
-              </div>
-            )}
-          />
-        </>
+        <DataTable
+          columns={taskColumns}
+          data={tasks}
+          getRowId={(task) => task.id}
+          paginate={false}
+          search={{
+            columnId: "title",
+            placeholder: "Tìm kiếm việc cần làm...",
+          }}
+          facets={[
+            {
+              columnId: "type",
+              title: "Loại việc",
+              options: toFilterOptions(taskTypeConfig),
+            },
+            {
+              columnId: "priority",
+              title: "Mức độ ưu tiên",
+              options: toFilterOptions(taskPriorityConfig),
+            },
+          ]}
+          empty={{
+            icon: CheckSquare,
+            title: "Không có việc cần làm",
+            description: "Mọi việc đã được xử lý hoặc không có việc phù hợp.",
+          }}
+          renderRows={(rows) => <TaskQueue tasks={rows} />}
+        />
       )}
     </div>
   );

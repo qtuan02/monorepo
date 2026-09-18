@@ -1,4 +1,5 @@
 import type { Room } from "~/types/room";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Phòng read comes from (ADR-0012, spec #153) — 18 Phòng
@@ -228,3 +229,5 @@ export const mockRooms: Room[] = [
     buildingId: "b3",
   },
 ];
+
+export const resetMockRooms = trackMockReset(mockRooms);

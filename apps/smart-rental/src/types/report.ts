@@ -14,15 +14,6 @@ export interface ReportRow {
   totalTenants: number;
 }
 
-export interface OverdueDebt {
-  id: string;
-  tenant: string;
-  room: string;
-  amount: number;
-  daysOverdue: number;
-  reason: string;
-}
-
 export interface ProfitLossSummary {
   totalRevenue: number;
   totalExpenses: number;
@@ -32,3 +23,18 @@ export interface ProfitLossSummary {
 
 /** The prototype's three occupancy bands: ≥ 90 good, ≥ 70 warning, else critical. */
 export type OccupancyBucket = "good" | "warning" | "critical";
+
+/** "Lấp đầy theo tầng" — one Toà nhà scope's chart (spec #153 §10 row 29). */
+export interface FloorOccupancy {
+  floor: number;
+  occupancyRate: number;
+}
+
+/** One row of "bảng so sánh giữa các Toà nhà" — scope `null` (spec #153 §10 row 29). */
+export interface BuildingComparisonRow {
+  building: string;
+  revenue: number;
+  expenses: number;
+  profit: number;
+  occupancyRate: number;
+}

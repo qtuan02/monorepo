@@ -1,4 +1,5 @@
 import type { SupplierBill, SupplierBillType } from "~/types/supplier-bill";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /** The same six kỳ 04–09/2026 as `mockInvoices` (spec #153 §10 row 33). */
 const BILLING_PERIODS = [
@@ -118,3 +119,5 @@ export const mockSupplierBills: Omit<SupplierBill, "buildingName">[] = [
     totalAmount: 600_000,
   },
 ];
+
+export const resetMockSupplierBills = trackMockReset(mockSupplierBills);

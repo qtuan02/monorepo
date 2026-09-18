@@ -1,5 +1,6 @@
 import type { ComplianceItem } from "~/types/compliance";
 import { mockTenants } from "~/constants/mock/tenants";
+import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Khai báo lưu trú read comes from (ADR-0012, spec #153) —
@@ -43,3 +44,5 @@ export const mockComplianceItems: ComplianceItem[] = mockTenants.flatMap(
     return items;
   },
 );
+
+export const resetMockComplianceItems = trackMockReset(mockComplianceItems);
