@@ -94,10 +94,10 @@ key that app declares itself, it stays in that app's slice under `~/features/<fe
 plain function over `fetch`, not a service class:
 
 ```typescript
-// ✅ apps/mcp-weather/src/features/weather/server/openweathermap.ts — a provider
+// ✅ apps/mcp/src/features/weather/server/openweathermap.ts — a provider
 //    with one consumer, its own origin, and its own key in the querystring
 const url = new URL(`${OPENWEATHERMAP_BASE_URL}/${endpoint}`);
-url.searchParams.set("appid", env.MCP_WEATHER_OPENWEATHERMAP_API_KEY);
+url.searchParams.set("appid", env.MCP_OPENWEATHERMAP_API_KEY);
 ```
 
 All three conditions have to hold. The moment a **second** app needs the same provider, it moves to

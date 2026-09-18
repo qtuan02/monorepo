@@ -255,7 +255,7 @@
       "theme": "Toggle theme"
     }
   },
-  "mcpWeather": {
+  "mcp": {
     "meta": {
       "title": "MCP Weather",
       "description": "An MCP server serving OpenWeatherMap data to AI assistants."

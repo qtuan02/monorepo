@@ -1,7 +1,7 @@
 ARG BUN_VERSION=1.4.0
 ARG NODE_VERSION=24
-ARG APP_DIRNAME=_template_next
-ARG PROJECT=@monorepo/_template_next
+ARG APP_DIRNAME=mcp
+ARG PROJECT=@monorepo/mcp
 ARG NODE_ENV=production
 
 # Step 1: Base Layer

@@ -51,7 +51,7 @@ hữu nó*:
 | --- | --- | --- |
 | Mọi app đều đọc | key trần | `PUBLIC_BASE_DOMAIN_API`, `NEXT_PUBLIC_APP_ENV` |
 | Chỉ **một** app đọc | mang tên app | `PUBLIC_DOCUMENTS_STORYBOOK_URL`, `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` |
-| Secret của **một** app | mang tên app, không tiền tố | `MCP_WEATHER_OPENWEATHERMAP_API_KEY` |
+| Secret của **một** app | mang tên app, không tiền tố | `MCP_OPENWEATHERMAP_API_KEY` |
 
 Ba app Template cũng là app như mọi app khác: key riêng của chúng mang tên
 `TEMPLATE_VITE` / `TEMPLATE_NEXT` / `TEMPLATE_REACTROUTER`
@@ -72,8 +72,8 @@ máy dev bật Sentry cho Template sẽ vô tình bắn lỗi của portfolio sa
 `apps/documents` khai
 `PUBLIC_DOCUMENTS_STORYBOOK_URL`: chỉ site tài liệu mới có khái niệm "URL
 Storybook", nên một key trần `PUBLIC_STORYBOOK_URL` sẽ hứa với người đọc
-`.env.example` một điều không đúng. Và `apps/mcp-weather` khai
-`MCP_WEATHER_OPENWEATHERMAP_API_KEY` chứ không giữ `OPENWEATHERMAP_API_KEY` như
+`.env.example` một điều không đúng. Và `apps/mcp` khai
+`MCP_OPENWEATHERMAP_API_KEY` chứ không giữ `OPENWEATHERMAP_API_KEY` như
 bản cũ: một key trần cho một nhà cung cấp bên thứ ba là chỗ dễ va
 nhất, vì app thứ hai cần cùng loại key sẽ tưởng nó đang dùng chung thay vì đang
 ghi đè.

@@ -36,10 +36,13 @@ const nextConfig: NextConfig = {
   /**
    * Emits `.next/standalone/server.js` with only the traced files an app needs
    * at runtime, so the Docker runner is `node:24-alpine` + `node server.js`
-   * rather than a full workspace install. Vercel ignores it, so the same repo
-   * still deploys zero-config there.
+   * rather than a full workspace install. Vercel's own builder does its own
+   * tracing and expects `.next/next-server.js.nft.json` at the `.next` root —
+   * `standalone` mode never writes that file there, so `onBuildComplete` fails
+   * with ENOENT. `VERCEL` is set automatically by Vercel's build environment
+   * and never locally/in Docker, so this stays standalone everywhere else.
    */
-  output: "standalone",
+  output: process.env.VERCEL ? undefined : "standalone",
 
   /**
    * Next 16's replacement for `experimental.dynamicIO` + `experimental.useCache`.

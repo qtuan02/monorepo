@@ -40,15 +40,15 @@
       }
     },
     {
-      "name": "Next: mcp-weather — server (:3004)",
+      "name": "Next: mcp — server (:3004)",
       "type": "node-terminal",
       "request": "launch",
       "command": "bun run dev",
-      "cwd": "${workspaceFolder}/apps/mcp-weather",
+      "cwd": "${workspaceFolder}/apps/mcp",
       "skipFiles": ["<node_internals>/**"],
       "sourceMaps": true,
       "sourceMapPathOverrides": {
-        "/turbopack/[project]/*": "${workspaceFolder}/apps/mcp-weather/*"
+        "/turbopack/[project]/*": "${workspaceFolder}/apps/mcp/*"
       }
     },
     {
@@ -131,7 +131,7 @@
         "apps/_template_reactrouter",
         "apps/documents",
         "apps/portfolio",
-        "apps/mcp-weather",
+        "apps/mcp",
         "apps/storybook",
         "packages/api",
         "packages/dayjs",
@@ -151,7 +151,7 @@
         "_template_reactrouter",
         "documents",
         "portfolio",
-        "mcp-weather"
+        "mcp"
       ],
       "default": "_template_vite"
     }

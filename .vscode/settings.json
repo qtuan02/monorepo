@@ -56,7 +56,7 @@
     "apps/_template_reactrouter/src/globals.css": "apps/_template_reactrouter/**",
     "apps/documents/src/globals.css": "apps/documents/**",
     "apps/portfolio/src/globals.css": "apps/portfolio/**",
-    "apps/mcp-weather/src/globals.css": "apps/mcp-weather/**",
+    "apps/mcp/src/globals.css": "apps/mcp/**",
     "apps/storybook/src/globals.css": "apps/storybook/**"
   },
   // Class names live inside strings — `className="…"`, `cn("…")`, `cva("…")` —

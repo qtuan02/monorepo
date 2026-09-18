@@ -201,8 +201,8 @@
         "vitest": "catalog:testing",
       },
     },
-    "apps/mcp-weather": {
-      "name": "@monorepo/mcp-weather",
+    "apps/mcp": {
+      "name": "@monorepo/mcp",
       "version": "1.0.0",
       "dependencies": {
         "@modelcontextprotocol/sdk": "catalog:ai-sdk",
@@ -1026,7 +1026,7 @@
 
     "@monorepo/i18n": ["@monorepo/i18n@workspace:packages/i18n"],
 
-    "@monorepo/mcp-weather": ["@monorepo/mcp-weather@workspace:apps/mcp-weather"],
+    "@monorepo/mcp": ["@monorepo/mcp@workspace:apps/mcp"],
 
     "@monorepo/portfolio": ["@monorepo/portfolio@workspace:apps/portfolio"],
 

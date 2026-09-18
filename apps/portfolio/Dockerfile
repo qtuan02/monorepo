@@ -82,8 +82,8 @@ COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/public ./apps/${A
 # standalone server calls `loadEnvConfig` on its own cwd at boot, so this is
 # what makes a **server-only** variable exist at runtime: every `NEXT_PUBLIC_*`
 # was inlined at build time, but an unprefixed secret stays in `process.env`
-# and is in no bundle. Without it `apps/mcp-weather` boots straight into
-# `Invalid environment: MCP_WEATHER_OPENWEATHERMAP_API_KEY` and answers 500 to
+# and is in no bundle. Without it `apps/mcp` boots straight into
+# `Invalid environment: MCP_OPENWEATHERMAP_API_KEY` and answers 500 to
 # every request. dotenv never overwrites a variable that is already set, so
 # `docker run -e KEY=…` still wins over the baked file.
 COPY --from=builder --chown=node:node /app/.env ./apps/${APP_DIRNAME}/.env

@@ -12,7 +12,7 @@ Các context còn lại là Turborepo workspace (`apps/*`, `packages/*`), mỗi 
 - [`apps/smart-rental`](./apps/smart-rental/CONTEXT.md) — Portal quản lý phòng trọ (Runtime Vite, port từ prototype `fe-motel-rsbuild`): Portal, Mock, Toà nhà, Building scope, Phòng, Người thuê, Hợp đồng (Gia hạn / Thanh lý), Hoá đơn, Chỉ số điện nước, Hoá đơn nhà cung cấp, Chi phí, Đối soát, Khai báo lưu trú, Việc cần làm, Giá điện bậc thang. Spec #127; glossary ghi trước khi `gen:app` chạy (grill 2026-09-16); thư mục chưa có `package.json` cho tới ticket đầu.
 
 `apps/portfolio` là workspace **đầu tiên** chốt được một thuật ngữ của riêng nó, ở vòng
-grill 2026-09-06 của spec #103; `apps/documents` là workspace thứ hai và `apps/smart-rental` thứ ba (cùng ngày 2026-09-16). Năm app còn lại (ba Template, `mcp-weather`,
+grill 2026-09-06 của spec #103; `apps/documents` là workspace thứ hai và `apps/smart-rental` thứ ba (cùng ngày 2026-09-16). Năm app còn lại (ba Template, `mcp`,
 `storybook`), tám package nguồn cộng hai Publish shell (ADR-0004) và hai tooling vẫn chưa —
 từ vựng chúng dùng (Runtime, Flavor, Template app, Gate) đều là của context gốc. `CONTEXT.md`
 ở mức workspace được `/domain-modeling` tạo khi có thuật ngữ thật để ghi, không dựng sẵn file
