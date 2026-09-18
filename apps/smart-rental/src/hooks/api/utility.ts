@@ -13,6 +13,7 @@ import type {
 } from "~/types/utility";
 import { mockRooms } from "~/constants/mock/rooms";
 import { mockUtilities } from "~/constants/mock/utilities";
+import { invoiceQueryKeys } from "~/hooks/api/invoice";
 import { taskQueryKeys } from "~/hooks/api/task";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { buildMeterInputRooms } from "~/utils/meter-input-rooms";
@@ -96,7 +97,10 @@ export interface ConfirmMeterReadingsRequest {
  * "Lưu n chỉ số" — the one save action on "Nhập chỉ số" (spec #153 §10 row
  * 27): upserts every entered reading as `VERIFIED` (a blocked, unapproved
  * anomaly never reaches here — the template gates the button). Invalidates
- * `task` too, so a fixed anomaly drops off Hôm nay's queue immediately.
+ * `task` too, so a fixed anomaly drops off Hôm nay's queue immediately, and
+ * `invoice` because Đợt hoá đơn's own eligibility (`buildBatchInvoiceRows`)
+ * reads these very readings — without this a cached "Chưa đủ điều kiện" row
+ * would outlive the reading that just made it eligible.
  */
 export function useConfirmMeterReadings(
   options?: UseMutationOptionsWrapper<ConfirmMeterReadingsRequest, Utility[]>,
@@ -147,6 +151,10 @@ export function useConfirmMeterReadings(
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
       queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
+      // No existing invoice's detail depends on a Chỉ số reading — only the
+      // Đợt hoá đơn preview list does, so `lists()` is enough (see
+      // tanstack-key-factory.md's own "invalidate lists() … not all").
+      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.lists() });
     },
     ...options,
   });

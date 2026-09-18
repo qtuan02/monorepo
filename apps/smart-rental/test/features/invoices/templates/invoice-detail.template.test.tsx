@@ -64,6 +64,9 @@ describe("InvoiceDetailTemplate", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Đi tới Cài đặt Toà nhà" }),
+    ).toHaveAttribute("href", "/buildings/b3");
   });
 
   it("says so when the id matches no Hoá đơn", async () => {

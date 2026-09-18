@@ -36,10 +36,10 @@ export default defineConfig({
     : "list",
   use: {
     baseURL: BASE_URL,
-    // Pinned for the same reason vitest.setup.ts pins it: i18next detects the
-    // browser's navigator.language, and Chromium defaults to en-US — so without
-    // this, assertions on user-visible text would resolve to English here and
-    // Vietnamese in a component test.
+    // This app has no i18n (README §1) — every string is hardcoded Vietnamese,
+    // so the copy itself never depends on the browser's locale. Pinned anyway
+    // against whatever Chromium's own locale-sensitive behaviour (native
+    // dialogs, accessible names) would otherwise default to (en-US) in CI.
     locale: "vi-VN",
     trace: "on-first-retry",
     screenshot: "only-on-failure",

@@ -1,3 +1,5 @@
+import dayjs from "@monorepo/dayjs";
+
 import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
 import type { Invoice, InvoiceLineItem } from "~/types/invoice";
@@ -115,11 +117,21 @@ export function buildBatchInvoiceLineItems(
   ];
 }
 
-/** Hạn thu every Hoá đơn of one Đợt shares — the Toà nhà's ngày thu, that kỳ. */
+/**
+ * Hạn thu every Hoá đơn of one Đợt shares — the Toà nhà's ngày thu, that kỳ.
+ * `collectionDay` is settable up to 31 (`building-settings-form.ts`), so it
+ * is clamped to the kỳ's real length — 31 in a 30-day or February kỳ would
+ * otherwise roll `dayjs` into the NEXT month (e.g. "2026-02-31" → 03/03/2026),
+ * putting the due date outside the billing period it belongs to.
+ */
 export function buildBatchInvoiceDueDate(
   building: Pick<Building, "collectionDay">,
   month: string,
 ): string {
-  const day = String(building.collectionDay).padStart(2, "0");
+  const daysInMonth = dayjs(month, "YYYY-MM").daysInMonth();
+  const day = String(Math.min(building.collectionDay, daysInMonth)).padStart(
+    2,
+    "0",
+  );
   return formatDate(`${month}-${day}`);
 }

@@ -7,6 +7,7 @@ import type {
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { formatDate, formatMonth } from "~/utils/date";
+import { buildBatchInvoiceDueDate } from "~/utils/invoice-batch";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
 import { trackMockReset } from "~/utils/mock-reset";
 
@@ -90,8 +91,10 @@ function buildLineItems(
 
 function buildDueDate(buildingId: string, billingMonth: string): string {
   const building = mockBuildings.find((b) => b.id === buildingId);
-  const day = String(building?.collectionDay ?? 5).padStart(2, "0");
-  return formatDate(`${billingMonth}-${day}`);
+  return buildBatchInvoiceDueDate(
+    { collectionDay: building?.collectionDay ?? 5 },
+    billingMonth,
+  );
 }
 
 function buildPayments(status: InvoiceStatus, total: number): InvoicePayment[] {

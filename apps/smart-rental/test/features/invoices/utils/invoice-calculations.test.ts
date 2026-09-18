@@ -36,7 +36,6 @@ describe("buildInvoiceSummaryStats", () => {
       ]),
     ).toEqual({
       total: 6,
-      totalAmount: 1341,
       paidAmount: 300,
       unpaidAmount: 30,
       overdueAmount: 4,

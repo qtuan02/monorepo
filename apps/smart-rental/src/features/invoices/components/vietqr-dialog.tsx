@@ -1,4 +1,5 @@
 import { AlertCircle, QrCode } from "lucide-react";
+import { Link } from "react-router";
 
 import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button } from "@monorepo/ui/components/button";
@@ -12,6 +13,7 @@ import {
 } from "@monorepo/ui/components/dialog";
 
 import type { BankAccount } from "~/types/building";
+import { ROUTES } from "~/constants/routes";
 import { formatCurrency } from "~/utils/currency";
 import { buildVietQrQuickLink, toVietQrAddInfo } from "~/utils/vietqr";
 
@@ -22,18 +24,21 @@ interface VietQrDialogProps {
   room: string;
   /** Absent when the Toà nhà has no Tài khoản nhận tiền yet — no VietQR without it. */
   bankAccount: BankAccount | undefined;
+  /** For the "Toà nhà chưa khai..." warning's own link to Cài đặt Toà nhà (spec #153 §10 row 12). */
+  buildingId: string;
 }
 
 /**
  * "Thanh toán VietQR" (spec #153 §10 row 12): a real `img.vietqr.io` link
  * built from the Toà nhà's Tài khoản nhận tiền, never a fake QR grid — a
- * Toà nhà with none yet gets the warning instead.
+ * Toà nhà with none yet gets the warning (with a link to its own Cài đặt) instead.
  */
 export default function VietQrDialog({
   amount,
   invoiceNumber,
   room,
   bankAccount,
+  buildingId,
 }: VietQrDialogProps) {
   const link = buildVietQrQuickLink(
     bankAccount,
@@ -70,7 +75,13 @@ export default function VietQrDialog({
             <Alert variant="destructive">
               <AlertCircle />
               <AlertDescription>
-                Toà nhà chưa khai Tài khoản nhận tiền — chưa thể tạo mã VietQR.
+                <p>
+                  Toà nhà chưa khai Tài khoản nhận tiền — chưa thể tạo mã
+                  VietQR.
+                </p>
+                <Link to={ROUTES.buildingDetailPath(buildingId)}>
+                  Đi tới Cài đặt Toà nhà
+                </Link>
               </AlertDescription>
             </Alert>
           )}

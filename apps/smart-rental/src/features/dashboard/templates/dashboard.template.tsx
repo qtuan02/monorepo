@@ -9,10 +9,10 @@ import {
 } from "@monorepo/ui/components/card";
 
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
-import RevenueChart from "~/components/chart/revenue-chart";
+import { RevenueChart } from "~/components/chart/revenue-chart";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { ErrorPanel } from "~/components/panel/error-panel";
-import TaskQueue from "~/components/queue/task-queue";
+import { TaskQueue } from "~/components/queue/task-queue";
 import { ROUTES } from "~/constants/routes";
 import OccupancyDonutChart from "~/features/dashboard/components/occupancy-donut-chart";
 import { useGetDashboard } from "~/hooks/api/dashboard";

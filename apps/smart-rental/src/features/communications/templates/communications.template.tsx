@@ -12,7 +12,11 @@ import {
   ToggleGroupItem,
 } from "@monorepo/ui/components/toggle-group";
 
-import type { SendLog, SendLogStatus } from "~/types/communication";
+import type {
+  CommunicationChannel,
+  SendLog,
+  SendLogStatus,
+} from "~/types/communication";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
@@ -36,7 +40,9 @@ import { useUrlTab } from "~/hooks/use-url-tab";
 const TABS = ["templates", "logs"] as const;
 
 const ALL_CHANNELS = "all";
-type ChannelFilter = typeof ALL_CHANNELS | "zalo" | "sms" | "email";
+// Derived from CommunicationChannel rather than a hand-picked subset, so a
+// channel added to the type (or the Mock) can never drift out of sync here.
+type ChannelFilter = typeof ALL_CHANNELS | CommunicationChannel;
 
 const LOGS_ERROR = "Không thể tải nhật ký gửi tin.";
 

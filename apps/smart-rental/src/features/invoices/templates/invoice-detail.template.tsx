@@ -314,6 +314,7 @@ export default function InvoiceDetailTemplate({
               invoiceNumber={invoice.invoiceNumber}
               room={invoice.room}
               bankAccount={building?.bankAccount}
+              buildingId={invoice.buildingId ?? ""}
             />
           </InfoCard>
 

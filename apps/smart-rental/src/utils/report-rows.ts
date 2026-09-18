@@ -9,6 +9,7 @@ import type {
   ReportRow,
 } from "~/types/report";
 import type { Room } from "~/types/room";
+import type { SupplierBill } from "~/types/supplier-bill";
 import type { TenantView } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
 import type { CsvColumn } from "~/utils/csv";
@@ -20,6 +21,10 @@ interface ReportRowSources {
   rooms: Room[];
   invoices: Invoice[];
   expenses: Pick<Expense, "buildingId" | "amount" | "expenseDate">[];
+  supplierBills: Pick<
+    SupplierBill,
+    "buildingId" | "totalAmount" | "billingPeriod"
+  >[];
   utilities: Utility[];
   tenantViews: TenantView[];
   buildingId?: string | null;
@@ -27,9 +32,12 @@ interface ReportRowSources {
 
 /**
  * Báo cáo has no Mock of its own (ADR-0012, spec #153 §10 row 11) — one row
- * per Toà nhà × kỳ hoá đơn. Occupancy and công nợ are a live snapshot (the
- * Mock keeps no history of either), so they repeat across every kỳ of the
- * same Toà nhà; revenue/expenses/tiêu thụ vary by kỳ.
+ * per Toà nhà × kỳ hoá đơn. "Chi phí" is Hoá đơn nhà cung cấp + Chi phí
+ * together (row 11: "Tính từ Hoá đơn + Hoá đơn NCC + Chi phí" — the same
+ * formula `buildReconciliationItems` uses for Đối soát), never Chi phí
+ * alone. Occupancy and công nợ are a live snapshot (the Mock keeps no
+ * history of either), so they repeat across every kỳ of the same Toà nhà;
+ * revenue/expenses/tiêu thụ vary by kỳ.
  *
  * ponytail: floor breakdown is skipped — Chi phí carries no floor of its own,
  * so a per-floor split would either double-count or fake a number nothing in
@@ -41,6 +49,7 @@ export function buildReportRows(sources: ReportRowSources): ReportRow[] {
     rooms,
     invoices,
     expenses,
+    supplierBills,
     utilities,
     tenantViews,
     buildingId,
@@ -88,6 +97,13 @@ export function buildReportRows(sources: ReportRowSources): ReportRow[] {
             expense.expenseDate.startsWith(month),
         )
         .reduce((sum, expense) => sum + expense.amount, 0);
+      const monthSupplierBills = supplierBills
+        .filter(
+          (bill) =>
+            bill.buildingId === building.id && bill.billingPeriod === month,
+        )
+        .reduce((sum, bill) => sum + bill.totalAmount, 0);
+      const totalExpenses = monthExpenses + monthSupplierBills;
       const monthUtilities = utilities.filter(
         (utility) =>
           utility.buildingId === building.id && utility.month === month,
@@ -104,8 +120,8 @@ export function buildReportRows(sources: ReportRowSources): ReportRow[] {
         building: building.name,
         floor: "Tất cả tầng",
         revenue,
-        expenses: monthExpenses,
-        profit: revenue - monthExpenses,
+        expenses: totalExpenses,
+        profit: revenue - totalExpenses,
         occupancyRate,
         waterUsage,
         electricityUsage,

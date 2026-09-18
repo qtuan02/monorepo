@@ -14,6 +14,7 @@ import { mockContracts } from "~/constants/mock/contracts";
 import { mockExpenses } from "~/constants/mock/expenses";
 import { mockInvoices } from "~/constants/mock/invoices";
 import { mockRooms } from "~/constants/mock/rooms";
+import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { mockTenants } from "~/constants/mock/tenants";
 import { mockUtilities } from "~/constants/mock/utilities";
 import { queryKeysFactory } from "~/libs/query-key-factory";
@@ -26,7 +27,7 @@ import {
 import { toTenantView } from "~/utils/tenant-status";
 
 // `~/constants/mock/reports` was dropped (ADR-0012) — Báo cáo is computed
-// from Hoá đơn + Chi phí + Chỉ số by `~/utils/report-rows`.
+// from Hoá đơn + Hoá đơn NCC + Chi phí + Chỉ số by `~/utils/report-rows`.
 const reportQueryKeyFactory = queryKeysFactory("report");
 
 export const reportQueryKeys = {
@@ -53,6 +54,7 @@ function getRows(buildingId: string | null | undefined): ReportRow[] {
     rooms: mockRooms,
     invoices: mockInvoices,
     expenses: mockExpenses,
+    supplierBills: mockSupplierBills,
     utilities: mockUtilities,
     tenantViews: buildTenantViews(),
     buildingId,

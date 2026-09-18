@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
@@ -75,6 +76,15 @@ export default function RoomFormSheet({
     defaultValues: toDefaultValues(room, defaultBuildingId),
   });
 
+  // `open` flips from a plain parent setState ("Thêm phòng" / "Chỉnh sửa"),
+  // never through FormSheet's own onOpenChange — so resetting inside that
+  // callback's `next === true` branch would never run. Reset here instead, or
+  // cancelling a dirty create/edit (confirmed via "Đóng biểu mẫu") leaves the
+  // sheet showing the discarded input on the next open.
+  useEffect(() => {
+    if (open) form.reset(toDefaultValues(room, defaultBuildingId));
+  }, [open, room, defaultBuildingId, form]);
+
   const onSubmit = form.handleSubmit((values) => {
     if (room) {
       updateRoom.mutate(
@@ -111,10 +121,7 @@ export default function RoomFormSheet({
   return (
     <FormSheet
       open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(toDefaultValues(room, defaultBuildingId));
-        onOpenChange(next);
-      }}
+      onOpenChange={onOpenChange}
       title={isEdit ? `Chỉnh sửa ${room.name}` : "Thêm phòng mới"}
       description={isEdit ? undefined : "Tạo phòng mới trong một toà nhà."}
       formId={FORM_ID}

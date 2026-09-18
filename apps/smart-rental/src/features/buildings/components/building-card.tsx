@@ -13,7 +13,7 @@ import type { Building } from "~/types/building";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatGroup, StatItem } from "~/components/card/stat-item";
 import { EntityActionMenu } from "~/components/menu/entity-action-menu";
-import OccupancyBar from "~/components/progress/occupancy-bar";
+import { OccupancyBar } from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
 import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 

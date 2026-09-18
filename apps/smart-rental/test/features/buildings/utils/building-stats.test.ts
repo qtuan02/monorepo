@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { mockBuildings } from "~/constants/mock/buildings";
 import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 
 const base = {
@@ -45,5 +46,13 @@ describe("getBuildingStats", () => {
       availableRooms: 0,
       occupancyRate: 0,
     });
+  });
+
+  it("carries a real activeContracts for every Mock building, not the totalRooms-as-empty default", () => {
+    // Regression guard: mockBuildings once shipped `totalRooms` alone, so every
+    // card silently read 0% occupied and "Phòng trống" as the whole building.
+    for (const building of mockBuildings) {
+      expect(getBuildingStats(building).occupancyRate).toBeGreaterThan(0);
+    }
   });
 });

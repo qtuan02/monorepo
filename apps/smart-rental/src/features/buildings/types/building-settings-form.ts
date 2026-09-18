@@ -1,12 +1,6 @@
 import * as z from "zod";
 
-// Whole-number money/day fields arrive from <input type="number"> as strings.
-const wholeNumber = (error: string) =>
-  z
-    .string()
-    .trim()
-    .min(1, { error })
-    .pipe(z.coerce.number<string>({ error }).int({ error }));
+import { wholeNumberSchema as wholeNumber } from "~/utils/zod-whole-number";
 
 const optionalText = () => z.string().trim();
 

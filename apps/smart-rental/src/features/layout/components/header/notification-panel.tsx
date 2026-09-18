@@ -80,7 +80,7 @@ export default function NotificationPanel() {
             {tasks.length > 0 && (
               <span
                 className={cn(
-                  "bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full text-[9px] font-bold",
+                  "bg-primary text-primary-foreground absolute -top-0.5 -right-0.5 flex size-3.5 items-center justify-center rounded-full text-xs font-bold",
                 )}
               >
                 {tasks.length > 9 ? "9+" : tasks.length}

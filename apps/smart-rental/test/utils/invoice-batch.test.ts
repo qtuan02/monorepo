@@ -192,4 +192,16 @@ describe("buildBatchInvoiceDueDate", () => {
       "05/10/2026",
     );
   });
+
+  it("clamps a ngày thu past the kỳ's own length instead of rolling into the next month", () => {
+    // February 2026 has 28 days — collectionDay 31 must stay inside February,
+    // never spill into March the way an unclamped `dayjs("2026-02-31")` would.
+    expect(buildBatchInvoiceDueDate({ collectionDay: 31 }, "2026-02")).toBe(
+      "28/02/2026",
+    );
+    // April has 30 days.
+    expect(buildBatchInvoiceDueDate({ collectionDay: 31 }, "2026-04")).toBe(
+      "30/04/2026",
+    );
+  });
 });

@@ -20,3 +20,16 @@ export function toCsv<T>(rows: T[], columns: CsvColumn<T>[]): string {
   }
   return lines.join("\n");
 }
+
+/** The one CSV-file download — a Blob download, no library, a leading BOM so Excel reads Vietnamese diacritics as UTF-8. */
+export function downloadCsv(filename: string, csv: string): void {
+  const blob = new Blob([`﻿${csv}`], {
+    type: "text/csv;charset=utf-8;",
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}

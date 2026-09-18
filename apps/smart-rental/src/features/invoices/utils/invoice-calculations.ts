@@ -2,7 +2,6 @@ import type { Invoice } from "~/types/invoice";
 
 export interface InvoiceSummaryStats {
   total: number;
-  totalAmount: number;
   paidAmount: number;
   unpaidAmount: number;
   overdueAmount: number;
@@ -19,7 +18,6 @@ export function buildInvoiceSummaryStats(
 ): InvoiceSummaryStats {
   const stats: InvoiceSummaryStats = {
     total: invoices.length,
-    totalAmount: 0,
     paidAmount: 0,
     unpaidAmount: 0,
     overdueAmount: 0,
@@ -27,7 +25,6 @@ export function buildInvoiceSummaryStats(
   };
 
   for (const invoice of invoices) {
-    stats.totalAmount += invoice.amount;
     if (invoice.status === "PAID") stats.paidAmount += invoice.amount;
     else if (invoice.status === "UNPAID") stats.unpaidAmount += invoice.amount;
     else if (invoice.status === "OVERDUE")

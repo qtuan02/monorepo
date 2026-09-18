@@ -91,7 +91,7 @@ interface TaskQueueProps {
  * already reads from the icon, and trạng thái is always "open" now that
  * Việc cần làm has no Mock of its own (spec #153 §10 row 9).
  */
-export default function TaskQueue({ tasks }: TaskQueueProps) {
+export function TaskQueue({ tasks }: TaskQueueProps) {
   if (tasks.length === 0) {
     return (
       <p className="text-muted-foreground py-6 text-center text-sm">

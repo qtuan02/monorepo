@@ -1,9 +1,10 @@
 import type { ReconciliationItem } from "~/types/reconciliation";
 
 /**
- * The four figures over the Đối soát lines in scope. Computed from the lines
- * on screen rather than from Hoá đơn and Hoá đơn nhà cung cấp, exactly as the
- * prototype did (spec #127) — the backend will own the real join.
+ * The four figures over the Đối soát lines already in scope. The Hoá đơn +
+ * Hoá đơn nhà cung cấp + Chi phí join itself happened earlier, in
+ * `buildReconciliationItems` (ADR-0012) — this function only sums the
+ * resulting lines, it never reads those Mocks itself.
  */
 export function getReconciliationStats(items: ReconciliationItem[]) {
   let totalIncomeAmount = 0;

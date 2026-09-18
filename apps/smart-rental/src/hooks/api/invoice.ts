@@ -18,6 +18,7 @@ import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockInvoices } from "~/constants/mock/invoices";
 import { mockUtilities } from "~/constants/mock/utilities";
+import { reconciliationQueryKeys } from "~/hooks/api/reconciliation";
 import { taskQueryKeys } from "~/hooks/api/task";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { formatDate, formatMonth } from "~/utils/date";
@@ -181,8 +182,14 @@ export function useCreateBatchInvoices(
       return created;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.all });
+      // A create adds rows to the list (and to the Đợt hoá đơn preview, which
+      // is its own `list()` entry) — it touches no existing invoice's detail,
+      // so `lists()` is the correctly scoped level (see tanstack-key-factory.md).
+      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
+      // New lineItems change the thu side of Đối soát for this kỳ — mirrors
+      // the invalidation expense.ts/supplier-bill.ts already do on their writes.
+      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
     },
     ...options,
   });

@@ -7,10 +7,7 @@ interface OccupancyBarProps {
 }
 
 /** "Lấp đầy … %" over a progress bar — the card and the detail screen share it. */
-export default function OccupancyBar({
-  rate,
-  label = "Lấp đầy",
-}: OccupancyBarProps) {
+export function OccupancyBar({ rate, label = "Lấp đầy" }: OccupancyBarProps) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between text-sm">

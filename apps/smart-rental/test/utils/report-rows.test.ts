@@ -95,6 +95,7 @@ describe("buildReportRows", () => {
       rooms,
       invoices: [invoice({})],
       expenses: [],
+      supplierBills: [],
       utilities: [],
       tenantViews: [],
       buildingId: "b1",
@@ -111,6 +112,7 @@ describe("buildReportRows", () => {
       rooms,
       invoices: [invoice({})],
       expenses: [],
+      supplierBills: [],
       utilities: [],
       tenantViews: [],
       buildingId: null,
@@ -127,12 +129,33 @@ describe("buildReportRows", () => {
       rooms,
       invoices: [invoice({})],
       expenses: [],
+      supplierBills: [],
       utilities: [],
       tenantViews: [],
       buildingId: "b1",
     });
 
     expect(rows[0]?.occupancyRate).toBe(50);
+  });
+
+  it("counts Hoá đơn nhà cung cấp alongside Chi phí in the same kỳ (spec #153 §10 row 11)", () => {
+    const rows = buildReportRows({
+      buildings,
+      rooms,
+      invoices: [invoice({ amount: 1_000_000 })],
+      expenses: [
+        { buildingId: "b1", amount: 100_000, expenseDate: "2026-09-10" },
+      ],
+      supplierBills: [
+        { buildingId: "b1", totalAmount: 200_000, billingPeriod: "2026-09" },
+      ],
+      utilities: [],
+      tenantViews: [],
+      buildingId: "b1",
+    });
+
+    expect(rows[0]?.expenses).toBe(300_000);
+    expect(rows[0]?.profit).toBe(700_000);
   });
 });
 

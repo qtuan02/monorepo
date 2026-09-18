@@ -11,7 +11,7 @@ import { toast } from "@monorepo/ui/components/toast";
 
 import type { MonthlyPoint } from "~/types/dashboard";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
-import RevenueChart from "~/components/chart/revenue-chart";
+import { RevenueChart } from "~/components/chart/revenue-chart";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import {
@@ -29,24 +29,12 @@ import {
   useGetReportRows,
 } from "~/hooks/api/report";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { downloadCsv } from "~/utils/csv";
 import { formatCurrency } from "~/utils/currency";
 import {
   buildBuildingComparisonCsv,
   buildReportRowsCsv,
 } from "~/utils/report-rows";
-
-function downloadCsv(filename: string, csv: string) {
-  // A leading BOM so Excel reads the Vietnamese diacritics as UTF-8.
-  const blob = new Blob([`﻿${csv}`], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
 
 /** One Toà nhà: doanh thu 6 kỳ + lấp đầy theo tầng on chart, kỳ on a `DataTable`. */
 function SingleBuildingReport({ buildingId }: { buildingId: string }) {

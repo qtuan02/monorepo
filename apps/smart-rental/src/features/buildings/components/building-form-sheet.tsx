@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
@@ -38,6 +39,15 @@ export default function BuildingFormSheet({
     },
   });
 
+  // `open` flips from a plain parent setState (the "Thêm toà nhà" button), not
+  // through FormSheet's own onOpenChange — so it never reaches the `if (next)`
+  // branch a naive reset-on-close-callback would rely on. Reset here instead,
+  // or a form abandoned dirty (cancelled via the confirm dialog) reopens still
+  // showing the discarded input.
+  useEffect(() => {
+    if (open) form.reset();
+  }, [open, form]);
+
   const onSubmit = form.handleSubmit((values) => {
     createBuilding.mutate(values, {
       onSuccess: (building) => {
@@ -54,10 +64,7 @@ export default function BuildingFormSheet({
   return (
     <FormSheet
       open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset();
-        onOpenChange(next);
-      }}
+      onOpenChange={onOpenChange}
       title="Thêm toà nhà mới"
       description="Tạo toà nhà hoặc khu trọ mới để quản lý."
       formId={FORM_ID}

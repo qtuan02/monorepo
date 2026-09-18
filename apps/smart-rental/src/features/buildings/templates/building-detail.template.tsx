@@ -22,7 +22,7 @@ import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { DetailSkeleton } from "~/components/panel/loading-panel";
-import OccupancyBar from "~/components/progress/occupancy-bar";
+import { OccupancyBar } from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
 import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
 import BuildingSettingsFormSheet from "~/features/buildings/components/building-settings-form-sheet";

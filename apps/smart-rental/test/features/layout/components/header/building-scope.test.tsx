@@ -1,16 +1,21 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import type { Building } from "~/types/building";
+import { mockBuildings } from "~/constants/mock/buildings";
 import BuildingScope, {
   BUILDING_SCOPE_TABS_MAX,
 } from "~/features/layout/components/header/building-scope";
-import { useGetBuildings } from "~/hooks/api/building";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { trackMockReset } from "~/utils/mock-reset";
 
-vi.mock("~/hooks/api/building", () => ({ useGetBuildings: vi.fn() }));
+// The real Mock, not a hook double — this app's tests render on the same
+// array `~/hooks/api/building` reads (README § Test: "không mock gì ngoài
+// store token vì dữ liệu là Mock hằng số nên render thật").
+const firstBuilding = mockBuildings[0];
+if (!firstBuilding) throw new Error("mockBuildings has no first entry.");
 
 function building(id: string, name: string): Building {
   return {
@@ -25,15 +30,6 @@ function building(id: string, name: string): Building {
     },
   };
 }
-
-const threeBuildings = [
-  building("b1", "Trọ Sinh Viên Xanh"),
-  building("b2", "Căn hộ Dịch Vụ Cao Cấp"),
-];
-const sevenBuildings = Array.from(
-  { length: BUILDING_SCOPE_TABS_MAX + 1 },
-  (_, i) => building(`b${i + 1}`, `Toà nhà ${i + 1}`),
-);
 
 const initialBuildingState = useBuildingStore.getState();
 
@@ -50,43 +46,48 @@ describe("BuildingScope", () => {
     useBuildingStore.setState(initialBuildingState, true);
   });
 
-  it("renders a tabs row for six Toà nhà or fewer (spec #153 §10 row 21)", () => {
-    vi.mocked(useGetBuildings).mockReturnValue({
-      data: threeBuildings,
-    } as ReturnType<typeof useGetBuildings>);
+  it("renders a tabs row for six Toà nhà or fewer (spec #153 §10 row 21)", async () => {
     renderScope();
 
     expect(
-      screen.getByRole("button", { name: "Trọ Sinh Viên Xanh" }),
+      await screen.findByRole("button", { name: firstBuilding.name }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });
 
-  it("switches to a Select once there are more than six Toà nhà", () => {
-    vi.mocked(useGetBuildings).mockReturnValue({
-      data: sevenBuildings,
-    } as ReturnType<typeof useGetBuildings>);
-    renderScope();
+  describe("with more than six Toà nhà", () => {
+    const reset = trackMockReset(mockBuildings);
 
-    expect(
-      screen.getByRole("combobox", { name: "Toà nhà" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Toà nhà 1" }),
-    ).not.toBeInTheDocument();
+    beforeEach(() => {
+      for (let i = mockBuildings.length; i <= BUILDING_SCOPE_TABS_MAX; i += 1) {
+        mockBuildings.push(building(`b-extra-${i}`, `Toà nhà thêm ${i}`));
+      }
+    });
+
+    afterEach(reset);
+
+    it("switches to a Select once there are more than six Toà nhà", async () => {
+      renderScope();
+
+      expect(
+        await screen.findByRole("combobox", { name: "Toà nhà" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: firstBuilding.name }),
+      ).not.toBeInTheDocument();
+    });
   });
 
   it("writes the choice to the app-wide store, `null` for «Tất cả»", async () => {
     const user = userEvent.setup();
-    vi.mocked(useGetBuildings).mockReturnValue({
-      data: threeBuildings,
-    } as ReturnType<typeof useGetBuildings>);
     renderScope();
 
     await user.click(
-      screen.getByRole("button", { name: "Trọ Sinh Viên Xanh" }),
+      await screen.findByRole("button", { name: firstBuilding.name }),
     );
-    expect(useBuildingStore.getState().selectedBuildingId).toBe("b1");
+    expect(useBuildingStore.getState().selectedBuildingId).toBe(
+      firstBuilding.id,
+    );
 
     await user.click(screen.getByRole("button", { name: "Tất cả Toà nhà" }));
     expect(useBuildingStore.getState().selectedBuildingId).toBeNull();

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -161,15 +161,28 @@ describe("where the override sits in the cascade", () => {
 
 describe("no raw Tailwind palette class for status/icon colour", () => {
   it("writes no bg-*/text-*/border-* on a named hue anywhere under src/", () => {
+    // Spec #153 §10 row 4 (ticket #156) asks this of the whole app, not one
+    // file — `~/constants/status.ts` alone would miss a hue class written
+    // straight into a component's className instead of routed through a
+    // config there.
     const hues =
       "red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|zinc|slate|gray|neutral|stone";
     const re = new RegExp(
       `\\b(?:bg|text|border|ring|fill|stroke)-(?:${hues})-\\d{2,3}\\b`,
     );
-    const statusSource = withoutComments(
-      readFileSync(resolve(appRoot, "src/constants/status.ts"), "utf8"),
-    );
 
-    expect(statusSource).not.toMatch(re);
+    const srcDir = resolve(appRoot, "src");
+    const sourceFiles = readdirSync(srcDir, { recursive: true })
+      .filter(
+        (entry): entry is string =>
+          typeof entry === "string" && /\.(ts|tsx)$/.test(entry),
+      )
+      .map((entry) =>
+        withoutComments(readFileSync(resolve(srcDir, entry), "utf8")),
+      );
+
+    for (const source of sourceFiles) {
+      expect(source).not.toMatch(re);
+    }
   });
 });

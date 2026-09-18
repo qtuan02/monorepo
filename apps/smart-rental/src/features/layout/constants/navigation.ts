@@ -129,7 +129,7 @@ const reportsItem: NavigationItem = {
 const complianceItem: NavigationItem = {
   path: ROUTES.COMPLIANCE,
   title: "Khai báo lưu trú",
-  description: "Quản lý khai báo nơi ở và kiểm tra an toàn.",
+  description: "Thông báo lưu trú và Đăng ký tạm trú của Người thuê.",
   icon: ShieldCheck,
 };
 

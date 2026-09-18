@@ -24,7 +24,12 @@ interface ReceiptAttachmentProps {
  * — single-image rather than an indexed list, so it stays its own component.
  */
 export function ReceiptAttachment({ src, label }: ReceiptAttachmentProps) {
-  const [hasError, setHasError] = useState(false);
+  // Tracks WHICH src failed rather than a bare boolean, so correcting the URL
+  // (the form field this backs is editable) clears the fallback on its own —
+  // a plain `useState(false)` would keep showing the broken-image icon for a
+  // brand-new, valid src once one URL had ever failed.
+  const [erroredSrc, setErroredSrc] = useState<string | undefined>(undefined);
+  const hasError = erroredSrc === src;
 
   if (!src) {
     return (
@@ -48,7 +53,7 @@ export function ReceiptAttachment({ src, label }: ReceiptAttachmentProps) {
           <ImageOff />
         ) : (
           // biome-ignore lint/a11y/useAltText: AttachmentTitle below carries the label.
-          <img src={src} onError={() => setHasError(true)} />
+          <img src={src} onError={() => setErroredSrc(src)} />
         )}
       </AttachmentMedia>
       <AttachmentContent>

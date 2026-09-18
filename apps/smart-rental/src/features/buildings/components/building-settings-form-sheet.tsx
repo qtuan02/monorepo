@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertTriangle } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
@@ -69,6 +70,15 @@ export default function BuildingSettingsFormSheet({
     defaultValues: toDefaultValues(building),
   });
 
+  // `open` flips from the parent's "Cài đặt" button — a plain setState, never
+  // through FormSheet's own onOpenChange — so resetting inside that callback's
+  // `next === true` branch would never run. Reset here instead, or cancelling
+  // a dirty edit (confirmed via the "Đóng biểu mẫu" dialog) leaves the sheet
+  // showing the discarded values instead of the Toà nhà's real settings.
+  useEffect(() => {
+    if (open) form.reset(toDefaultValues(building));
+  }, [open, building, form]);
+
   const electricityPrice = Number(
     useWatch({ control: form.control, name: "electricityPricePerKwh" }),
   );
@@ -111,10 +121,7 @@ export default function BuildingSettingsFormSheet({
   return (
     <FormSheet
       open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(toDefaultValues(building));
-        onOpenChange(next);
-      }}
+      onOpenChange={onOpenChange}
       title="Cài đặt toà nhà"
       description={building.name}
       formId={FORM_ID}

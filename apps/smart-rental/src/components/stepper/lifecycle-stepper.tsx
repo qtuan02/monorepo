@@ -45,7 +45,7 @@ export function LifecycleStepper({
                 className={cn(
                   "flex size-10 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
                   step.isCompleted
-                    ? "border-success/20 bg-success/10 text-white"
+                    ? "border-success/20 bg-success/10 text-success"
                     : step.isActive
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-muted text-muted-foreground",
@@ -118,7 +118,7 @@ function HorizontalStepper({ steps }: { steps: LifecycleStep[] }) {
                   className={cn(
                     "flex size-8 shrink-0 items-center justify-center rounded-full border-2 text-xs font-semibold transition-colors",
                     step.isCompleted
-                      ? "border-success/20 bg-success/10 text-white"
+                      ? "border-success/20 bg-success/10 text-success"
                       : step.isActive
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border bg-muted text-muted-foreground",

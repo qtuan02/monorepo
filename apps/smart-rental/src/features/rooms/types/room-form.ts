@@ -1,13 +1,6 @@
 import * as z from "zod";
 
-// Whole-number fields arrive from <input type="number"> as strings, same
-// shape as buildingFormSchema / buildingSettingsFormSchema.
-const wholeNumber = (error: string) =>
-  z
-    .string()
-    .trim()
-    .min(1, { error })
-    .pipe(z.coerce.number<string>({ error }).int({ error }));
+import { wholeNumberSchema as wholeNumber } from "~/utils/zod-whole-number";
 
 /**
  * "Tạo/sửa Phòng" (spec #153 §10 row 15): a short `FormSheet` — Toà nhà

@@ -150,12 +150,12 @@ export const meterEntryStatusConfig: Record<MeterEntryStatus, StatusConfig> = {
 export const utilityTypeConfig: Record<UtilityType, StatusConfig> = {
   electricity: {
     label: "Điện",
-    className: "bg-warning/10 text-warning border-warning/20",
+    className: statusTone.warning,
     icon: Zap,
   },
   water: {
     label: "Nước",
-    className: "bg-info/10 text-info border-info/20",
+    className: statusTone.info,
     icon: Droplets,
   },
 };

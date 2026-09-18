@@ -20,7 +20,7 @@ interface RevenueChartProps {
 }
 
 /** Doanh thu theo tháng — one bar a month, in triệu VND. */
-export default function RevenueChart({ data }: RevenueChartProps) {
+export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <ChartContainer
       config={chartConfig}

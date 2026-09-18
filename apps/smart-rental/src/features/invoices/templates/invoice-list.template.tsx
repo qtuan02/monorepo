@@ -22,9 +22,10 @@ import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calc
 import { buildInvoiceCsv } from "~/features/invoices/utils/invoice-export";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { downloadCsv } from "~/utils/csv";
 import { formatCurrency } from "~/utils/currency";
 
-/** "Xuất CSV các hàng đang lọc" (spec #153 §10 row 12/13) — a Blob download, no library. */
+/** "Xuất CSV các hàng đang lọc" (spec #153 §10 row 12/13). */
 function exportInvoicesCsv(invoices: Invoice[]) {
   if (invoices.length === 0) {
     toast.add({
@@ -33,16 +34,7 @@ function exportInvoicesCsv(invoices: Invoice[]) {
     });
     return;
   }
-  // A leading BOM so Excel reads the Vietnamese diacritics as UTF-8.
-  const blob = new Blob([`﻿${buildInvoiceCsv(invoices)}`], {
-    type: "text/csv;charset=utf-8;",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "hoa-don.csv";
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadCsv("hoa-don.csv", buildInvoiceCsv(invoices));
 }
 
 /**
