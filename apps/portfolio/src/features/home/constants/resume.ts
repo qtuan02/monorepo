@@ -13,15 +13,20 @@ import {
 import type {
   ContactItem,
   EducationItem,
+  HeroActionItem,
   HobbyItem,
+  ProjectItem,
+  ProjectSourceId,
+  SkillGroup,
   WorkItem,
 } from "~/features/home/types/resume";
 import arobidLogo from "~/assets/logos/arobid.png";
 import dcorpLogo from "~/assets/logos/dcorp.png";
-import fptisLogo from "~/assets/logos/fptis.jpg";
+import medvietLogo from "~/assets/logos/medviet.png";
 import stuLogo from "~/assets/logos/stu.png";
-import wisdomLogo from "~/assets/logos/wisdom.jpg";
 import { GithubIcon } from "~/components/icons/github-icon";
+import { LinkedinIcon } from "~/components/icons/linkedin-icon";
+import { PROFILE_LINKS } from "~/constants/profile";
 
 /**
  * The CV's structure. A plain module, deliberately **not** a `"use cache"`
@@ -33,24 +38,25 @@ import { GithubIcon } from "~/components/icons/github-icon";
  */
 export const WORK_ITEMS: readonly WorkItem[] = [
   {
-    id: "fptis",
-    company: "FPT IS",
-    logo: fptisLogo,
+    id: "medviet",
+    company: "MedViet",
+    logo: medvietLogo,
     techStack: [
-      "Microservices",
-      "Monorepo",
-      "React.js",
-      "Java Spring Boot",
-      "PostgreSQL",
+      "Bun",
+      "Turborepo",
+      "React 19",
+      "Vite",
+      "Expo",
+      "React Native",
+      "NativeWind",
+      "TanStack Query",
+      "Zustand",
+      "Next.js",
+      "Redux",
+      ".NET 8",
+      "EF Core",
     ],
-    bulletKeys: [
-      "system",
-      "modules",
-      "screens",
-      "components",
-      "logic",
-      "stability",
-    ],
+    bulletKeys: ["monorepo", "mobile", "legacy", "dotnet"],
   },
   {
     id: "arobid",
@@ -72,10 +78,12 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "tradexpo",
       "immersive",
       "tracking",
+      "mobile",
       "award",
       "cms",
       "rendering",
     ],
+    award: "vda2025",
   },
   {
     id: "dcorp",
@@ -96,21 +104,73 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     ],
     bulletKeys: ["omnichannel", "dataset", "emenu", "internal", "uiSystem"],
   },
+];
+
+/**
+ * The three learning and demo projects a recruiter can open and check: each
+ * has a public repository and a live deployment, and none is a production
+ * product — which is why an item carries a one-line description and its
+ * stack, and no bullets (#125). Order is by how much of the story each tells —
+ * the monorepo is the site being read, so it goes first.
+ */
+export const PROJECT_ITEMS: readonly ProjectItem[] = [
   {
-    id: "wisdom",
-    company: "WISDOM ROBOTICS",
-    logo: wisdomLogo,
+    id: "monorepo",
+    name: "Personal Monorepo",
     techStack: [
-      "Spring Boot",
-      "React.js",
-      "Spring Data JPA",
-      "PostgreSQL",
-      "Tailwind CSS",
-      "Redux",
+      "Bun",
+      "Turborepo",
+      "Next.js",
+      "React Router",
+      "Vite",
+      "GitHub Actions",
     ],
-    bulletKeys: ["project", "backend", "modules"],
+    source: [{ id: "repo", href: "https://github.com/qtuan02/monorepo" }],
+    demo: "https://portfolio-ui-2025.vercel.app",
+  },
+  {
+    id: "chat-socket",
+    name: "Real-time Chat",
+    techStack: [
+      "React",
+      "Rsbuild",
+      "TanStack Query",
+      "Spring Boot",
+      "WebSocket",
+      "Redis",
+    ],
+    source: [
+      { id: "frontend", href: "https://github.com/qtuan02/chat-socket-fe" },
+      { id: "backend", href: "https://github.com/qtuan02/chat-socket-be" },
+    ],
+    demo: "https://chat-socket-fe.vercel.app",
+  },
+  {
+    id: "documents",
+    name: "@fe-monorepo Docs",
+    techStack: ["Vite", "React Router", "oxc-parser", "Storybook", "Vercel"],
+    source: [
+      {
+        id: "repo",
+        href: "https://github.com/qtuan02/monorepo/tree/main/apps/documents",
+      },
+    ],
   },
 ];
+
+/**
+ * The label each kind of source link carries, as a message key. It sits beside
+ * the items rather than in the card because it is the same join the bullet
+ * keys make — structure on this side, the string on the catalogue side — and
+ * the constants test walks it for every locale.
+ */
+export const PROJECT_SOURCE_LABEL_KEYS: Readonly<
+  Record<ProjectSourceId, string>
+> = {
+  repo: "portfolio.projects.links.source",
+  frontend: "portfolio.projects.links.sourceFrontend",
+  backend: "portfolio.projects.links.sourceBackend",
+};
 
 export const EDUCATION_ITEMS: readonly EducationItem[] = [
   {
@@ -121,39 +181,75 @@ export const EDUCATION_ITEMS: readonly EducationItem[] = [
   },
 ];
 
-/** Product and language names — the same in every locale, so not translated. */
-export const SKILLS: readonly string[] = [
-  "JavaScript",
-  "TypeScript",
-  "React.js",
-  "Next.js",
-  "Zustand",
-  "Redux",
-  "TanStack Query",
-  "Spring Boot",
-  "Node.js",
-  "Express.js",
-  "PostgreSQL",
-  "MongoDB",
-  "Git",
-  "Figma",
-  "Docker",
-  "SSR",
-  "ISR",
-  "Monorepo",
-  "Microservices",
+/**
+ * The skill map, in five labelled rows rather than one flat strip.
+ *
+ * The order is the order it is read in, and it is an argument: frontend first
+ * because that is the depth being claimed, mobile and backend next because
+ * those are what "full-stack when the project needs it" has to be backed by,
+ * then the two rows about how the work is shipped. Names are product names and
+ * are not translated; the row labels are, and live under
+ * `portfolio.skills.groups.<id>`.
+ */
+export const SKILL_GROUPS: readonly SkillGroup[] = [
+  {
+    id: "frontend",
+    skills: [
+      "React",
+      "Next.js",
+      "TypeScript",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "TanStack Query",
+      "Zustand",
+      "React Hook Form + Zod",
+      "Storybook",
+      "i18n",
+    ],
+  },
+  {
+    id: "mobile",
+    skills: ["React Native", "Expo", "NativeWind", "Reanimated"],
+  },
+  {
+    id: "backend",
+    skills: [
+      "Spring Boot",
+      ".NET 8",
+      "PayloadCMS",
+      "PostgreSQL",
+      "MongoDB",
+      "Redis",
+    ],
+  },
+  {
+    id: "devops",
+    skills: ["Docker", "GitHub Actions", "Vercel", "Turborepo", "Changesets"],
+  },
+  {
+    id: "tooling",
+    skills: ["Bun", "Biome", "Vitest", "Playwright", "Figma"],
+  },
+];
+
+/**
+ * The hero's link actions, in the order they sit along the row. Email leads,
+ * because for a CV the real call to action is a message — not a "hire me"
+ * button.
+ */
+export const HERO_ACTIONS: readonly HeroActionItem[] = [
+  { id: "email", href: PROFILE_LINKS.email, icon: MailIcon },
+  { id: "github", href: PROFILE_LINKS.github, icon: GithubIcon },
+  { id: "linkedin", href: PROFILE_LINKS.linkedin, icon: LinkedinIcon },
 ];
 
 export const CONTACT_ITEMS: readonly ContactItem[] = [
   { id: "birthday", icon: CalendarIcon },
-  { id: "phone", icon: PhoneIcon, href: "tel:+84393653862" },
+  { id: "phone", icon: PhoneIcon, href: PROFILE_LINKS.phone },
   { id: "location", icon: MapPinIcon },
-  { id: "github", icon: GithubIcon, href: "https://github.com/qtuan02" },
-  {
-    id: "email",
-    icon: MailIcon,
-    href: "mailto:huynhquoctuan200702@gmail.com",
-  },
+  { id: "github", icon: GithubIcon, href: PROFILE_LINKS.github },
+  { id: "email", icon: MailIcon, href: PROFILE_LINKS.email },
+  { id: "linkedin", icon: LinkedinIcon, href: PROFILE_LINKS.linkedin },
 ];
 
 export const HOBBY_ITEMS: readonly HobbyItem[] = [

@@ -1,8 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@monorepo/ui/components/alert-dialog";
 import { Button } from "@monorepo/ui/components/button";
+import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
-import { Label } from "@monorepo/ui/components/label";
 import {
   Sheet,
   SheetClose,
@@ -14,9 +25,21 @@ import {
   SheetTrigger,
 } from "@monorepo/ui/components/sheet";
 
+import { currentPerson } from "~/support/people";
+import { atlasProject as atlas } from "~/support/projects";
+
 const meta = {
   title: "Storybook/Sheet",
   component: Sheet,
+  subcomponents: {
+    SheetTrigger,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+    SheetFooter,
+    SheetClose,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof Sheet>;
 
@@ -25,27 +48,29 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
     <Sheet>
-      <SheetTrigger render={<Button variant="outline">Open</Button>} />
+      <SheetTrigger render={<Button variant="outline">Edit project</Button>} />
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Edit profile</SheetTitle>
+          <SheetTitle>Edit project</SheetTitle>
           <SheetDescription>
-            Make changes to your profile here. Click save when you're done.
+            Update {atlas.name}'s details. Save when you're done.
           </SheetDescription>
         </SheetHeader>
-        <div className="grid flex-1 auto-rows-min gap-6 px-4">
-          <div className="grid gap-3">
-            <Label htmlFor="sheet-demo-name">Name</Label>
-            <Input id="sheet-demo-name" defaultValue="Pedro Duarte" />
-          </div>
-          <div className="grid gap-3">
-            <Label htmlFor="sheet-demo-username">Username</Label>
-            <Input id="sheet-demo-username" defaultValue="@peduarte" />
-          </div>
-        </div>
+        <FieldGroup className="px-4">
+          <Field>
+            <FieldLabel htmlFor="sheet-project-name">Name</FieldLabel>
+            <Input id="sheet-project-name" defaultValue={atlas.name} />
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="sheet-project-owner">Owner</FieldLabel>
+            <Input id="sheet-project-owner" defaultValue={currentPerson.name} />
+          </Field>
+        </FieldGroup>
         <SheetFooter>
           <Button type="submit">Save changes</Button>
           <SheetClose render={<Button variant="outline">Close</Button>} />
@@ -58,7 +83,6 @@ export const Default: Story = {
 const sheetSides = ["top", "right", "bottom", "left"] as const;
 
 export const Side: Story = {
-  args: {},
   render: () => (
     <div className="flex flex-wrap gap-2">
       {sheetSides.map((side) => (
@@ -75,22 +99,19 @@ export const Side: Story = {
             className="data-[side=bottom]:max-h-[50vh] data-[side=top]:max-h-[50vh]"
           >
             <SheetHeader>
-              <SheetTitle>Edit profile</SheetTitle>
+              <SheetTitle>Delivery history</SheetTitle>
               <SheetDescription>
-                Make changes to your profile here. Click save when you're done.
+                Every notification Northwind has sent about {atlas.name}.
               </SheetDescription>
             </SheetHeader>
             <div className="no-scrollbar overflow-y-auto px-4">
               {Array.from({ length: 10 }).map((_, index) => (
-                <p key={`sheet-para-${index}`} className="mb-2 leading-relaxed">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                  irure dolor in reprehenderit in voluptate velit esse cillum
-                  dolore eu fugiat nulla pariatur. Excepteur sint occaecat
-                  cupidatat non proident, sunt in culpa qui officia deserunt
-                  mollit anim id est laborum.
+                <p
+                  key={`sheet-history-${index}`}
+                  className="mb-4 leading-normal"
+                >
+                  Notification #{index + 1}: {currentPerson.name} updated the{" "}
+                  {atlas.name} billing schedule and notified the Northwind team.
                 </p>
               ))}
             </div>
@@ -102,5 +123,45 @@ export const Side: Story = {
         </Sheet>
       ))}
     </div>
+  ),
+};
+
+export const Stacking: Story = {
+  render: () => (
+    <Sheet>
+      <SheetTrigger
+        render={<Button variant="outline">Project settings</Button>}
+      />
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>{atlas.name} settings</SheetTitle>
+          <SheetDescription>
+            Danger zone actions stay at the bottom of this sheet.
+          </SheetDescription>
+        </SheetHeader>
+        <SheetFooter>
+          <AlertDialog>
+            <AlertDialogTrigger
+              render={<Button variant="destructive">Delete project</Button>}
+            />
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete {atlas.name}?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This confirmation opens above the sheet — a stacking
+                  regression would hide it behind the panel instead.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction variant="destructive">
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   ),
 };

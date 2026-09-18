@@ -17,13 +17,14 @@ export interface DocsEntry {
   importPath: string;
   /** Named value exports, sorted, with `export type` entries removed. */
   exports: string[];
-  /** The leading JSDoc block of the first exported declaration, if the file has one. */
+  /** The leading JSDoc block of the first exported declaration carrying one, if the file has one. */
   description: string | null;
-}
-
-/** A component entry always carries the id of its Storybook docs page. */
-export interface ComponentDocsEntry extends DocsEntry {
+  /** That block's `@example` body, line for line — the usage snippet a hook page shows. */
+  example: string | null;
+  /** The Storybook docs page — `storybook-button`, `hooks-usedebounce`. */
   storybookDocsId: string;
+  /** The story the detail page embeds — `storybook-button--default`. */
+  storybookExampleId: string;
 }
 
 export interface DocsCatalogue<TEntry extends DocsEntry = DocsEntry> {

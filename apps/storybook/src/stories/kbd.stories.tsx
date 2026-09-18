@@ -6,6 +6,10 @@ const meta = {
   title: "Storybook/Kbd",
   component: Kbd,
   tags: ["autodocs"],
+  argTypes: {
+    children: { control: "text" },
+  },
+  parameters: { stage: { width: "sm" } },
 } satisfies Meta<typeof Kbd>;
 
 export default meta;
@@ -13,12 +17,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
-  render: () => <Kbd>⌘K</Kbd>,
+  args: {
+    children: "⌘K",
+  },
 };
 
 export const Group: Story = {
-  args: {},
   render: () => (
     <div className="flex flex-col gap-4">
       <KbdGroup>

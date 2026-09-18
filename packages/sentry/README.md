@@ -17,8 +17,8 @@ symbol nằm trong file mang đúng tên nó.
 
 ## Không có DSN thì SDK tắt
 
-`buildSentryInitOptions` đặt `enabled: Boolean(dsn)`. Thiếu
-`NEXT_PUBLIC_SENTRY_DSN` trong `.env` thì SDK vẫn được cài nhưng im lặng: không
+`buildSentryInitOptions` đặt `enabled: Boolean(dsn)`. Thiếu DSN của app
+(`NEXT_PUBLIC_<APP>_SENTRY_DSN`) trong `.env` thì SDK vẫn được cài nhưng im lặng: không
 request, không log, mọi lời gọi `Sentry.*` trong app là no-op. Nhờ vậy ba file
 instrumentation gọi thẳng `initSentry*` mà không cần `if` — và một bản clone
 repo chưa có credential vẫn `next build` được.

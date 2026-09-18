@@ -1,59 +1,32 @@
-import { useState } from "react";
+// Derived from hooks-ts useMediaQuery.ts @ 9bd12431bb24b84d211f0d735c6bef79fe1be85a (hooks-ts@0.12.0), MIT © 2024 Michał Worwąg — see LICENSE-hooks-ts
+import { useEffect, useState } from "react";
 
-import { useIsomorphicLayoutEffect } from "./use-isomorphic-layout-effect";
+/**
+ * Subscribes to a CSS media query. `false` on the first frame, server and
+ * client alike, then the real match from an effect — so it never
+ * hydration-mismatches.
+ *
+ * @example
+ * const isWide = useMediaQuery("(min-width: 1024px)");
+ *
+ * return isWide ? <SidebarLayout /> : <StackedLayout />;
+ */
+export function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState<boolean>(false);
 
-interface UseMediaQueryOptions {
-  defaultValue?: boolean;
-  initializeWithValue?: boolean;
-}
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia(query);
+    const documentChangeHandler = () => setMatches(mediaQueryList.matches);
 
-const IS_SERVER = typeof window === "undefined";
+    // Set the initial state
+    setMatches(mediaQueryList.matches);
 
-export function useMediaQuery(
-  query: string,
-  {
-    defaultValue = false,
-    initializeWithValue = true,
-  }: UseMediaQueryOptions = {},
-): boolean {
-  const getMatches = (query: string): boolean => {
-    if (IS_SERVER) {
-      return defaultValue;
-    }
-    return window.matchMedia(query).matches;
-  };
+    // Listen for changes
+    mediaQueryList.addEventListener("change", documentChangeHandler);
 
-  const [matches, setMatches] = useState<boolean>(() => {
-    if (initializeWithValue) {
-      return getMatches(query);
-    }
-    return defaultValue;
-  });
-
-  // Handles the change event of the media query.
-  function handleChange() {
-    setMatches(getMatches(query));
-  }
-
-  useIsomorphicLayoutEffect(() => {
-    const matchMedia = window.matchMedia(query);
-
-    // Triggered at the first client-side load and if query changes
-    handleChange();
-
-    // Use deprecated `addListener` and `removeListener` to support Safari < 14 (#135)
-    if (matchMedia.addListener) {
-      matchMedia.addListener(handleChange);
-    } else {
-      matchMedia.addEventListener("change", handleChange);
-    }
-
+    // Cleanup listener on unmount
     return () => {
-      if (matchMedia.removeListener) {
-        matchMedia.removeListener(handleChange);
-      } else {
-        matchMedia.removeEventListener("change", handleChange);
-      }
+      mediaQueryList.removeEventListener("change", documentChangeHandler);
     };
   }, [query]);
 

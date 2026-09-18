@@ -18,32 +18,48 @@ import {
 const meta = {
   title: "Storybook/Questionnaire",
   component: Questionnaire,
+  subcomponents: {
+    QuestionnaireProgress,
+    QuestionnaireItem,
+    QuestionnaireTitle,
+    QuestionnaireDescription,
+    QuestionnaireChoices,
+    QuestionnaireChoice,
+    QuestionnaireInput,
+    QuestionnaireActions,
+    QuestionnairePrevious,
+    QuestionnaireNext,
+    QuestionnaireSubmit,
+  },
   tags: ["autodocs"],
+  parameters: { stage: { width: "sm" } },
 } satisfies Meta<typeof Questionnaire>;
 
 export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+// The feedback survey the Northwind Assistant sends once it has resolved
+// Mira's request — see message-scroller.stories.tsx for that conversation.
 export const Default: Story = {
-  args: {},
+  parameters: { controls: { disable: true } },
   render: () => (
-    <Questionnaire className="w-full max-w-sm">
+    <Questionnaire className="w-full">
       <QuestionnaireProgress />
-      <QuestionnaireItem name="role">
-        <QuestionnaireTitle>What is your role?</QuestionnaireTitle>
+      <QuestionnaireItem name="rating">
+        <QuestionnaireTitle>How did Northwind Assistant do?</QuestionnaireTitle>
         <QuestionnaireDescription>
-          Choose the option that best describes you.
+          Pick the option that best fits this chat.
         </QuestionnaireDescription>
         <QuestionnaireChoices>
-          <QuestionnaireChoice value="developer">Developer</QuestionnaireChoice>
-          <QuestionnaireChoice value="designer">Designer</QuestionnaireChoice>
-          <QuestionnaireChoice value="manager">Manager</QuestionnaireChoice>
+          <QuestionnaireChoice value="great">Great</QuestionnaireChoice>
+          <QuestionnaireChoice value="okay">Okay</QuestionnaireChoice>
+          <QuestionnaireChoice value="not-great">Not great</QuestionnaireChoice>
         </QuestionnaireChoices>
       </QuestionnaireItem>
-      <QuestionnaireItem name="feedback" required={false}>
+      <QuestionnaireItem name="notes" required={false}>
         <QuestionnaireTitle>Anything else to share?</QuestionnaireTitle>
-        <QuestionnaireInput placeholder="Optional feedback" />
+        <QuestionnaireInput placeholder="Optional notes for the team" />
       </QuestionnaireItem>
       <QuestionnaireActions>
         <QuestionnairePrevious />

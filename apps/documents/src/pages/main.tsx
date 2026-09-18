@@ -1,11 +1,10 @@
 import { ErrorBoundary } from "react-error-boundary";
 import { BrowserRouter, Route, Routes } from "react-router";
 
-import { Toaster } from "@monorepo/ui/components/toast";
-
 import InternalServerError from "~/components/exception/internal-server-error";
 import { ROUTES } from "~/constants/routes";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
+import { ThemeProvider } from "~/libs/theme-provider";
 import ComponentDetailPage from "./component-detail-page";
 import ComponentsPage from "./components-page";
 import HomePage from "./home-page";
@@ -22,39 +21,41 @@ import "~/libs/dayjs";
  * public documentation site, so the Template's `ProtectedRoute` / `GuestRoute`
  * and the whole `auth` slice were dropped rather than left unused.
  *
- * There is no `QueryClientProvider` either — the site makes no HTTP call. Both
- * catalogues are JSON generated at build time from `packages/ui` and
- * `packages/hook`.
+ * There is no `QueryClientProvider` and no `Toaster` either — the site makes
+ * no HTTP call, so nothing here has a failure to toast. Both catalogues are
+ * JSON generated at build time from `packages/ui` and `packages/hook`.
  */
 const MainApp = () => (
-  <ErrorBoundary
-    fallback={<InternalServerError />}
-    // Logged rather than swallowed: the fallback tells the user something
-    // broke, this is what tells a developer what did.
-    onError={(error, info) => {
-      console.error("Uncaught render error:", error, info.componentStack);
-    }}
-  >
-    <Toaster />
-    <BrowserRouter>
-      <Routes>
-        <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
-          <Route index element={<HomePage />} />
-          <Route path={ROUTES.COMPONENTS} element={<ComponentsPage />} />
-          <Route
-            path={ROUTES.COMPONENT_BY_SLUG}
-            element={<ComponentDetailPage />}
-          />
-          <Route path={ROUTES.HOOKS} element={<HooksPage />} />
-          <Route path={ROUTES.HOOK_BY_SLUG} element={<HookDetailPage />} />
+  // Outermost, so the error fallback keeps the reader's theme too.
+  <ThemeProvider>
+    <ErrorBoundary
+      fallback={<InternalServerError />}
+      // Logged rather than swallowed: the fallback tells the user something
+      // broke, this is what tells a developer what did.
+      onError={(error, info) => {
+        console.error("Uncaught render error:", error, info.componentStack);
+      }}
+    >
+      <BrowserRouter>
+        <Routes>
+          <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
+            <Route index element={<HomePage />} />
+            <Route path={ROUTES.COMPONENTS} element={<ComponentsPage />} />
+            <Route
+              path={ROUTES.COMPONENT_BY_SLUG}
+              element={<ComponentDetailPage />}
+            />
+            <Route path={ROUTES.HOOKS} element={<HooksPage />} />
+            <Route path={ROUTES.HOOK_BY_SLUG} element={<HookDetailPage />} />
 
-          {/* Inside the shell on purpose: a mistyped URL should still show the
+            {/* Inside the shell on purpose: a mistyped URL should still show the
               navigation that gets the reader back to a real page. */}
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
-  </ErrorBoundary>
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
+  </ThemeProvider>
 );
 
 export default MainApp;

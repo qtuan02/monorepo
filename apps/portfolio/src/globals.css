@@ -21,6 +21,165 @@
     --font-heading: var(--font-sans);
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
+
+  /**
+   * `theme.css` declares `--selection` / `--selection-foreground` but nothing
+   * in the workspace globals applies them, so every browser paints its own
+   * highlight and the two tokens overridden below would change nothing.
+   */
+  ::selection {
+    background-color: var(--selection);
+    color: var(--selection-foreground);
+  }
+}
+
+/**
+ * The palette this page draws with — two hues, two neutrals, one shadow, no
+ * radius — and why the block is unlayered.
+ *
+ * `theme.css` is shadcn's neutral default: a near-black primary, a grey
+ * border, and no accent hue at all. A CV wants an accent of its own, and a
+ * hard-edged page wants its text and border pushed to the poles rather than
+ * left a step short of them. So this app overrides exactly twelve colour
+ * tokens, and one length:
+ *
+ * - the seven **accent** tokens of v1, on one indigo hue (277): the badge/button
+ *   pair, the focus ring, the hover wash, and text selection;
+ * - the two **neutrals** the redesign takes over — `--foreground` and
+ *   `--border` — pushed to the poles. `--muted-foreground` stays the theme's:
+ *   it already reads AA, and the second grey is what lets meta text step back;
+ * - the **highlight** pair, on one yellow hue (91–92) — the primary button's
+ *   fill and the award badge, and nothing else. Text on it is near-black in
+ *   both themes, and so is the focus ring a yellow control draws: in the dark
+ *   theme no yellow can clear 3:1 against the lifted indigo `--ring`, so the
+ *   ring on a yellow fill is `--highlight-foreground`, inset;
+ * - `--hard-shadow`, the colour of the solid 4px offset shadow every block
+ *   casts, so light and dark flip it together with the border;
+ * - `--radius: 0px`. `theme.css` derives every `rounded-*` size from it, so
+ *   this one line squares badge, card, button, skeleton and select at once,
+ *   with no edit to `@monorepo/ui`. With a unit: a bare `0` turns each of the
+ *   theme's `calc(var(--radius) * n)` into a `<number>`, which `border-radius`
+ *   rejects and only *then* falls back to zero — right by accident, not by
+ *   derivation. (`Avatar` rounds by class, not by token; the hero ticket
+ *   squares it by className.)
+ *
+ * The dark theme is the light one **inverted**, not dimmed: near-black ground,
+ * near-white text, border and shadow. A black shadow on a black ground is no
+ * shadow at all — which is the whole reason the shadow is a token.
+ *
+ * Status colours (`destructive` … `info`), the charts and the sidebar stay the
+ * theme's, as does every other app.
+ *
+ * Unlayered on purpose. `@monorepo/tailwind-config/globals` pulls `theme.css`
+ * in with a plain `@import`, so its `:root` / `.dark` declarations sit outside
+ * every layer, and an unlayered declaration beats one in any `@layer` whatever
+ * the source order. Written inside `@layer base` these would compile, ship and
+ * lose — the site would stay teal with nothing logged. (`--font-sans` above
+ * survives there only because `theme.css` never sets it on `:root`.)
+ *
+ * It also sits *above* the `@media print` palette at the foot of this file, and
+ * that order is the useful one: print re-declares the neutrals on the same
+ * `:root, .dark` specificity — including `--foreground` and `--border`, which
+ * on paper are a dark grey and a thin grey rule rather than the screen's ink —
+ * so it wins there without `!important`. The highlight needs no print value:
+ * a browser prints no background graphics unless the reader asks for them, so
+ * a yellow fill reaches paper as its near-black text on white. The shadow is
+ * not re-declared either: the block that casts it drops it under `print:`
+ * itself, because its offset is inlined into the utility (see below).
+ * `test/globals.test.ts` pins the token set, the placement, the hues, the poles
+ * and every ratio; `test/support/contrast.ts` holds the colour maths, and
+ * `test/support/contrast.test.ts` checks that maths against WCAG's own
+ * reference pairs. `e2e/accent.e2e.ts` reads what a browser actually paints.
+ */
+:root {
+  --radius: 0px;
+
+  /* #0a0a0a — 19.8:1 on the white background and card. Since the shared
+     theme was reset to shadcn's neutral default (`79c52df`) this equals the
+     theme's own value; it stays declared so the pole is this app's decision
+     and survives the next edit to `theme.css`. */
+  --foreground: oklch(0.145 0 0);
+  /* The same ink. The theme's border is a light grey (`oklch(0.922 0 0)`,
+     1.2:1 on white) — a card whose edge barely exists. */
+  --border: oklch(0.145 0 0);
+  --hard-shadow: oklch(0.145 0 0);
+
+  /* indigo-600 #4f39f6 — white on it reads 6.46:1 */
+  --primary: oklch(0.511 0.262 277);
+  --primary-foreground: oklch(1 0 0);
+  /* #6262fa — 4.3:1 on white, clear of WCAG's 3:1 for a focus indicator,
+     and on the accent hue so the ring reads as the page's own. */
+  --ring: oklch(0.585 0.22 277);
+  /* #eff2fe — the hover wash, `--primary-hover`'s role */
+  --accent: oklch(0.962 0.016 277);
+  /* indigo-700 #432dd7 — 7.24:1 on that wash */
+  --accent-foreground: oklch(0.457 0.24 277);
+  --selection: oklch(0.511 0.262 277);
+  --selection-foreground: oklch(1 0 0);
+
+  /* #ffe14d — the mockup's yellow; the ink reads 15.21:1 on it */
+  --highlight: oklch(0.925 0.165 91);
+  --highlight-foreground: oklch(0.145 0 0);
+}
+
+.dark {
+  /* #fafafa — 18.97:1 on the #0a0a0a background, 15.6:1 on the theme's card.
+     The theme already sits here for text; the border (a 10% white) and the
+     shadow do not, and all three are declared so the inversion is this app's
+     own decision rather than a coincidence of the shared theme. */
+  --foreground: oklch(0.985 0 0);
+  --border: oklch(0.985 0 0);
+  --hard-shadow: oklch(0.985 0 0);
+
+  /* #7e89f9 — lifted for dark, as every dark palette lifts its accent */
+  --primary: oklch(0.673 0.165 277);
+  /* deep indigo #1a1b4d — 5.22:1 on the above */
+  --primary-foreground: oklch(0.257 0.09 277);
+  /* #7e89f9 — 6.44:1 on the #0a0a0a background */
+  --ring: oklch(0.673 0.165 277);
+  /* #2c306a — the dark indigo wash */
+  --accent: oklch(0.34 0.1 277);
+  /* #cad2fb — 8.13:1 on that wash */
+  --accent-foreground: oklch(0.87 0.058 277);
+  --selection: oklch(0.673 0.165 277);
+  --selection-foreground: oklch(0.257 0.09 277);
+
+  /* #eec743 — the same yellow, dulled so a fill does not glare on a dark
+     ground; the ink still reads 12.15:1 on it, and the fill 12.15:1 on the
+     background, which is what draws its edge where a light border cannot. */
+  --highlight: oklch(0.84 0.15 92);
+  --highlight-foreground: oklch(0.145 0 0);
+}
+
+/**
+ * The three tokens `theme.css` does not know about, named into Tailwind's
+ * colour namespace the same way it names its own — so `bg-highlight`,
+ * `text-highlight-foreground` and `shadow-hard-shadow` are utilities rather
+ * than arbitrary values. `inline` so the utility carries the `var()` and the
+ * `.dark` swap still reaches it.
+ *
+ * `--shadow-hard` is the shadow itself, not a colour: the solid 4px offset
+ * every block on the page casts — and the dock — as one `shadow-hard`
+ * utility. The offset is written once, here,
+ * and the colour is the token above — so
+ * `~/features/home/components/standard-block.tsx` names the shape without
+ * spelling `4px 4px 0 0` in a className. `inline` also means the offset is
+ * baked into the utility, so there is no print value to give this variable:
+ * the block drops its shadow with `print:shadow-none`, beside the utility.
+ */
+@theme inline {
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
+  --color-hard-shadow: var(--hard-shadow);
+  --shadow-hard: 4px 4px 0 0 var(--hard-shadow);
+  /* The pressed half: a pressable block sinks 2px toward its shadow and the
+     shadow shortens by the same 2px, so the block reads as pushed into the
+     page. Declared beside its sibling so the two offsets add up in one place. */
+  --shadow-hard-pressed: 2px 2px 0 0 var(--hard-shadow);
+  /* The body floor on a phone (`ux#67`): 15px, one step above the 14px meta
+     floor and below `text-base`. One `text-body` utility, so the five prose
+     call sites agree on the number without each spelling `text-[15px]`. */
+  --text-body: 15px;
 }
 
 /**
@@ -67,3 +226,118 @@
     clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
   }
 }
+
+/**
+ * The dock is `fixed` at the bottom of the viewport, so anything the browser
+ * scrolls to — a Tab landing on the last contact link, a jump to `#contact` —
+ * can come to rest underneath it. The reserve is the dock's own height plus its
+ * margin, its shadow, and a line of breathing room above the frame.
+ */
+@layer base {
+  html {
+    scroll-padding-bottom: 6rem;
+  }
+}
+
+/**
+ * A reader who has asked their operating system for less motion.
+ *
+ * The page arrives at rest — there is no entrance animation, nothing starts at
+ * `opacity: 0`, and the hero no longer waves — so the one motion left for the
+ * preference to switch off is the motion CSS owns and JavaScript never sees:
+ * the theme wipe above. The dock has no motion of its own any more — its
+ * magnification went with the redesign — so there is nothing for it to read.
+ *
+ * Switched off by name rather than by a blanket `* { animation: none }` so
+ * that a future animation has to opt in here deliberately, and so nothing
+ * that merely *transitions* — the chevron, a hover colour — is flattened along
+ * with it.
+ */
+/* biome-ignore-start lint/complexity/noImportantStyles: two different reasons,
+   one region. Here, the wipe's `to-light` variant is selected on
+   `:root[data-theme-transition]` and would out-specify a bare
+   `::view-transition-new(root)`, so the switch-off needs `!important` to beat
+   it. In the print block further down, the override is against an inline
+   style written by `motion` at runtime, which only `!important` beats. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
+/**
+ * Print — this page *is* the CV, so the "download" the hero offers is the
+ * browser's own print dialog rather than a PDF kept in step by hand.
+ *
+ * One thing has to be undone, and it is an inline style written by `motion`,
+ * which is why the rule carries `!important`: a work row nobody clicked open
+ * would print as a heading with no body — on paper there is no one to click.
+ *
+ * What is *not* here: how a block prints. Every block drops its shadow and
+ * thins its edge under `print:` in `standard-block.tsx`, and the hero's title
+ * bar and the dock are `print:hidden` where they are rendered — static style
+ * belongs to the className, and this block keeps only what a utility cannot
+ * express.
+ */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  /* Paper is white, and a browser does not print background graphics unless
+     the reader ticks a box in the dialog. So a visitor who happens to be in
+     the dark theme when they hit "In CV" gets near-white text on white paper —
+     a CV that prints blank. The dark palette is replaced rather than merely
+     inverted, so both themes print the same document. */
+  :root,
+  .dark {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.2 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.2 0 0);
+    --secondary: oklch(0.96 0 0);
+    --secondary-foreground: oklch(0.2 0 0);
+    --muted: oklch(0.96 0 0);
+    --muted-foreground: oklch(0.42 0 0);
+    --border: oklch(0.8 0 0);
+    /* The accent has to come along, or "both themes print the same document"
+       stops being true for the one token that is still coloured on paper. The
+       dark theme's indigo is lightened for a dark ground (#7e89f9) and reads
+       3.07:1 on white — enough for a border, not for text. The project card's
+       source and demo links are `text-primary`, and the rule further down
+       prints each one's href after it in the same colour, so a reader who
+       happened to be in the dark theme would print the URLs at below AA. The
+       light values are the ones measured at 6.46:1. */
+    --primary: oklch(0.511 0.262 277);
+    --primary-foreground: oklch(1 0 0);
+  }
+
+  html,
+  body {
+    background: #fff !important;
+  }
+
+  [data-slot="resume-card-body"] {
+    height: auto !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* A printed link is a dead end unless it says where it goes. The contact
+     lines are exempt because their visible text already *is* the URL, and the
+     dock is `print:hidden` above, so nothing here doubles up. */
+  a[href^="http"]:not(#contact a)::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    word-break: break-all;
+  }
+
+  /* The shell reserves room for a dock that is not on the page. */
+  main {
+    padding-bottom: 0 !important;
+  }
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end of the print and
+   reduced-motion overrides. */

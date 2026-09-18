@@ -34,9 +34,8 @@ function sourceSlugs(directory: string, extension: string): string[] {
 /**
  * Membership, not order: the invariant is that the catalogue still describes
  * the directory. Both sides are sorted the same way here so a failure prints a
- * readable diff — what order the generator emits is its own business (it sorts
- * by file name, so `message-scroller` lands before `message`), and asserting it
- * here would report a rename twice.
+ * readable diff — what order the generator emits is its own business, and
+ * asserting it here would report a rename twice.
  */
 function sorted(slugs: readonly string[]): string[] {
   return [...slugs].sort((left, right) => left.localeCompare(right));
@@ -97,6 +96,18 @@ describe("the hook catalogue", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("carries a usage example for every hook, read from its `@example`", () => {
+    const offenders = hookCatalogue.items
+      .filter((item) => item.example === null)
+      .map((item) => item.slug);
+
+    // The snippet on `/hooks/<slug>` has exactly one source: the `@example` in
+    // the hook's own JSDoc, which is also what a consumer sees on hover. A hook
+    // without one would ship a page with no example and nothing red — this is
+    // the red.
+    expect(offenders).toEqual([]);
+  });
 });
 
 /**
@@ -106,8 +117,10 @@ describe("the hook catalogue", () => {
  * instead (plus a small override table). This is the checkout that does have
  * them, which makes it the only place the derivation can be checked.
  */
-describe("every component's Storybook demo link", () => {
+describe("every entry's Storybook demo link", () => {
   const storiesDirectory = resolve(repoRoot, "apps/storybook/src/stories");
+  // A hook's story sits beside the primitives', under a `Hooks/` title.
+  const entries = [...componentCatalogue.items, ...hookCatalogue.items];
 
   it.runIf(existsSync(storiesDirectory))(
     "points at a docs id a real story produces",
@@ -135,9 +148,37 @@ describe("every component's Storybook demo link", () => {
           }),
       );
 
-      const offenders = componentCatalogue.items
+      const offenders = entries
         .filter((item) => !docsIds.has(item.storybookDocsId))
         .map((item) => `${item.slug} → ${item.storybookDocsId}`);
+
+      expect(offenders).toEqual([]);
+    },
+  );
+
+  it.runIf(existsSync(storiesDirectory))(
+    "embeds a story its stories file actually exports",
+    () => {
+      // A story id is `<docs id>--<export name>`, the name lower-cased with a
+      // dash before each capital: `PopoverStory` → `popover-story`. The stories
+      // file is the slug's own (`button.stories.tsx`), which the first
+      // invariant of this block already relies on.
+      const offenders = entries
+        .filter((item) => {
+          const source = readFileSync(
+            join(storiesDirectory, `${item.slug}.stories.tsx`),
+            "utf8",
+          );
+          const storyIds = [...source.matchAll(/^export const (\w+)/gm)].map(
+            ([, name]) =>
+              `${item.storybookDocsId}--${(name ?? "")
+                .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+                .toLowerCase()}`,
+          );
+
+          return !storyIds.includes(item.storybookExampleId);
+        })
+        .map((item) => `${item.slug} → ${item.storybookExampleId}`);
 
       expect(offenders).toEqual([]);
     },
@@ -147,7 +188,7 @@ describe("every component's Storybook demo link", () => {
 /**
  * The catalogue is generated; the prose that describes each hook is not.
  *
- * `hook-card.tsx` and `hook-detail.template.tsx` both read a hook's description
+ * `hook-tile.tsx` and `hook-detail.template.tsx` both read a hook's description
  * through a key built from its slug, and i18next answers a missing key by
  * returning the key itself — so adding `packages/hook/src/use-foo.ts` (the very
  * move the invariant above *requires* to keep passing) would ship the literal

@@ -1,8 +1,8 @@
-"use client";
-
+import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 
 import { buttonVariants } from "@monorepo/ui/components/button";
+import { Skeleton } from "@monorepo/ui/components/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -11,10 +11,55 @@ import {
 } from "@monorepo/ui/components/tooltip";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import { Dock, DockIcon } from "~/features/layout/components/dock";
+import { SelectLanguage } from "~/components/select/select-language";
+import Dock from "~/features/layout/components/dock";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
 import { NAVBAR_ITEMS } from "~/features/layout/constants/navbar";
 import { Link } from "~/i18n/navigation";
+
+/**
+ * What every control in the dock shares: a 48px square — a tap target with
+ * margin over the 44px floor — a hover that changes the background to the
+ * accent wash, and a press that answers the *click*, not the cursor: the bar
+ * around it sinks on hover (`dock.tsx`), so a control that sank too would
+ * move twice; instead it drops one pixel while the pointer is down. `--accent`
+ * is the token `src/globals.css` declares for exactly this role; the ghost
+ * variant's own `bg-muted` hover is the grey it replaces. The `dark:` entry
+ * is not a repeat: ghost also sets `dark:hover:bg-muted/50`, which the plain
+ * `hover:bg-accent` does not out-merge, so without it the dark theme would
+ * hover grey.
+ */
+const dockPressClassName =
+  "transition-[translate,background-color] duration-100 hover:bg-accent hover:text-accent-foreground active:translate-x-px active:translate-y-px motion-reduce:transition-none dark:hover:bg-accent";
+
+const dockControlClassName = cn("size-12", dockPressClassName);
+
+/**
+ * The language switcher, drawn as a dock control: 48px tall like its
+ * neighbours, no edge or shadow of its own inside a bar that has both, the
+ * same accent hover and one-pixel press, monospace like every label. It
+ * overrides the Select trigger's `data-[size=sm]:h-8`, `border`, `shadow-xs`
+ * and the dark `bg-input` wash by the same variants, which is what lets
+ * `twMerge` replace rather than stack them. The trigger's own focus ring is
+ * kept: with the border gone it is the only thing a keyboard user sees.
+ */
+const dockSelectClassName = cn(
+  "rounded-none border-0 bg-transparent px-3 font-mono text-sm shadow-none data-[size=sm]:h-12 dark:bg-transparent",
+  dockPressClassName,
+);
+
+/**
+ * The switcher's popup, in the page's grammar: a 2px edge, the solid shadow,
+ * no rounding, the card ground with the page's ink, monospace like the
+ * trigger — and no zoom on open, since nothing on this page scales. It opens
+ * *above* the bar as a plain menu rather than over the trigger the macOS way,
+ * which is what a control pinned to the bottom of the viewport wants.
+ */
+const dockSelectContentClassName =
+  "rounded-none border-2 border-border bg-card p-1 font-mono text-sm text-foreground shadow-hard ring-0 data-open:animate-none data-closed:animate-none";
+
+const dockSelectItemClassName =
+  "rounded-none py-2 font-mono text-sm focus:bg-accent";
 
 /**
  * A link inside the dock is styled with `buttonVariants`, never rendered
@@ -24,86 +69,107 @@ import { Link } from "~/i18n/navigation";
  */
 const dockLinkClassName = cn(
   buttonVariants({ variant: "ghost", size: "icon" }),
-  "size-12 rounded-full",
+  dockControlClassName,
 );
 
 /**
- * The floating dock pinned to the bottom of the viewport — this app's entire
- * chrome, since a CV has no header or footer bar.
+ * The dock pinned to the bottom of the viewport — this app's entire chrome,
+ * since a CV has no header or footer bar.
  *
- * `"use client"` covers the **whole file**, which is the deliberate exception to
- * pushing the directive down to a leaf: the dock's magnification reads the
- * pointer, the tooltips open on hover, and the theme button writes to the
- * document. There is no server half left to protect, and `DockIcon` has to sit
- * inside the same client tree as the `Dock` whose context it reads.
+ * A Server Component: the tooltip, the theme button and the language switcher
+ * each carry their own `"use client"`, and what this file hands them — a
+ * rendered link element, a label — serializes. The dock itself is plain
+ * markup now — see `components/dock.tsx` for what it stopped doing.
+ *
+ * The bar is one solid block over the page. The v1 dock floated over a blurred
+ * fade band; a soft edge under a hard-edged page read as the one macOS remnant
+ * left, so the band went with the magnification.
+ *
+ * The language switcher is the fifth control (#124): it used to sit alone in
+ * the top-right corner of the shell, the one piece of chrome not in the bar.
+ * It reads `usePathname()` — URL data, which under `cacheComponents` a Client
+ * Component may only touch inside a `<Suspense>` — so the boundary that was
+ * in the shell moved here with it, fallback the trigger's footprint so the
+ * bar does not resize when it resolves.
  */
 export default function NavbarTemplate() {
   const t = useTranslations();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mx-auto mb-4 flex h-full max-h-14 origin-bottom">
-      {/* The fade the dock floats over: a fixed band masked to transparent at
-          its top edge, so the page scrolls out of view rather than under a
-          hard line. */}
-      <div className="fixed inset-x-0 bottom-0 h-16 w-full bg-white/50 to-transparent backdrop-blur-lg [-webkit-mask-image:linear-gradient(to_top,black,transparent)] dark:bg-background" />
-
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mb-4 flex justify-center print:hidden">
       <TooltipProvider>
-        <Dock className="pointer-events-auto relative z-50 mx-auto flex h-full min-h-full transform-gpu items-center bg-white/50 px-1 backdrop-blur-xs [box-shadow:0_0_0_1px_rgba(0,0,0,.03),0_2px_4px_rgba(0,0,0,.05),0_12px_24px_rgba(0,0,0,.05)] dark:[border:1px_solid_rgba(255,255,255,.1)] dark:[box-shadow:0_-20px_80px_-20px_#ffffff1f_inset]">
+        <Dock className="pointer-events-auto">
           {NAVBAR_ITEMS.map((item) => {
             const label = t(`portfolio.navbar.${item.id}`);
             const Icon = item.icon;
 
             return (
-              <DockIcon key={item.id}>
-                <Tooltip>
-                  {/* `render`, not `asChild`: Base UI dropped Radix's Slot, and
-                      an `asChild` prop here would be silently ignored — the
-                      trigger would then render its own button around the link. */}
-                  <TooltipTrigger
-                    render={
-                      item.external ? (
-                        <a
-                          href={item.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={label}
-                          className={dockLinkClassName}
-                        >
-                          <Icon className="size-4" />
-                        </a>
-                      ) : (
-                        <Link
-                          href={item.href}
-                          aria-label={label}
-                          className={dockLinkClassName}
-                        >
-                          <Icon className="size-4" />
-                        </Link>
-                      )
-                    }
-                  />
-                  <TooltipContent>{label}</TooltipContent>
-                </Tooltip>
-              </DockIcon>
+              <Tooltip key={item.id}>
+                {/* `render`, not `asChild`: Base UI dropped Radix's Slot, and
+                    an `asChild` prop here would be silently ignored — the
+                    trigger would then render its own button around the link. */}
+                <TooltipTrigger
+                  render={
+                    item.external ? (
+                      <a
+                        href={item.href}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={label}
+                        className={dockLinkClassName}
+                      >
+                        <Icon className="size-4" />
+                      </a>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        aria-label={label}
+                        className={dockLinkClassName}
+                      >
+                        <Icon className="size-4" />
+                      </Link>
+                    )
+                  }
+                />
+                <TooltipContent>{label}</TooltipContent>
+              </Tooltip>
             );
           })}
 
-          {/* The separator the legacy dock drew with a literal "|" character. */}
+          {/* The separator the legacy dock drew with a literal "|" character —
+              a hairline of the same ink as the frame. */}
           <div
             aria-hidden="true"
-            className="mx-1 h-8 w-px self-center bg-border"
+            className="mx-1 h-8 w-0.5 self-center bg-border"
           />
 
-          <DockIcon>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <ThemeToggleButton label={t("portfolio.navbar.theme")} />
-                }
-              />
-              <TooltipContent>{t("portfolio.navbar.theme")}</TooltipContent>
-            </Tooltip>
-          </DockIcon>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <ThemeToggleButton
+                  label={t("portfolio.navbar.theme")}
+                  className={dockControlClassName}
+                />
+              }
+            />
+            <TooltipContent>{t("portfolio.navbar.theme")}</TooltipContent>
+          </Tooltip>
+
+          <div
+            aria-hidden="true"
+            className="mx-1 h-8 w-0.5 self-center bg-border"
+          />
+
+          <Suspense fallback={<Skeleton className="h-12 w-28 rounded-none" />}>
+            <SelectLanguage
+              label={t("language.placeholder")}
+              triggerClassName={dockSelectClassName}
+              contentClassName={dockSelectContentClassName}
+              itemClassName={dockSelectItemClassName}
+              side="top"
+              alignItemWithTrigger={false}
+            />
+          </Suspense>
         </Dock>
       </TooltipProvider>
     </div>

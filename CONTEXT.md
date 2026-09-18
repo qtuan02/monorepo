@@ -46,3 +46,7 @@ _Avoid_: translation string, resource, key dịch (đó là khoá, không phải
 **Publish shell**:
 Workspace `packages/<name>-public` chỉ gồm một `package.json` viết tay (tên npm `@fe-monorepo/<name>`, version, deps literal — không `catalog:`, không `workspace:`) và README; nhận `dist/` được build từ package nguồn `packages/<name>` và là thứ duy nhất Changesets nhìn thấy khi publish. Package nguồn vẫn `private`, source-only. Hiện có hai: `ui-public` và `hook-public`.
 _Avoid_: package public, bản publish, package npm (mơ hồ với package nguồn)
+
+**Derived**:
+Một file source được copy từ một dự án ngoài (hiện là hook của `hooks-ts` trong `packages/hook/src/`), mang header ghi tên file gốc, commit/version gốc và license, rồi được vá đúng bằng những gì rule của repo và Gate đòi hỏi — không hơn. Vẫn phân phối kèm notice license gốc (ADR-0010); đồng bộ lại với upstream là diff tay theo header, không phải thay file. Phân biệt với **Vendored** (copy nguyên văn, không vá) và **Own** (viết theo rule, chỉ tham khảo API, không notice).
+_Avoid_: copy, port, fork, "lấy từ", inspired by (mỗi từ nhoè ranh giới notice và re-sync)

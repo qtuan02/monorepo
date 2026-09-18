@@ -20,7 +20,9 @@ test.describe("locale switching", () => {
     const html = await response.text();
 
     expect(html).toContain('lang="vi"');
-    expect(html).toContain("Xin chào, mình là Tuấn");
+    // A line from the hero's body rather than the name: the name is also the
+    // document title, so it would be in these bytes with no hero at all.
+    expect(html).toContain("Hiện mình làm sản phẩm EMR/HIS tại MedViet");
   });
 
   test("serves English at its own prefix", async ({ request }) => {
@@ -36,7 +38,7 @@ test.describe("locale switching", () => {
     const html = await response.text();
 
     expect(html).toContain('lang="en"');
-    expect(html).toContain("Hi, I am Tuan");
+    expect(html).toContain("Currently building EMR/HIS products at MedViet");
     expect(html).toContain("Work Experience");
   });
 
@@ -44,7 +46,7 @@ test.describe("locale switching", () => {
     await page.goto(ROUTES.HOME);
 
     await expect(
-      page.getByRole("heading", { level: 1, name: /Xin chào, mình là Tuấn/ }),
+      page.getByRole("heading", { level: 1, name: "Huỳnh Quốc Tuấn" }),
     ).toBeVisible();
 
     await page.getByRole("combobox").click();
@@ -57,7 +59,24 @@ test.describe("locale switching", () => {
     // into an `aria-live` region on every client navigation, so a bare text
     // match resolves to two elements after the switch.
     await expect(
-      page.getByRole("heading", { level: 1, name: /Hi, I am Tuan/ }),
+      page.getByRole("heading", { level: 1, name: "Huynh Quoc Tuan" }),
     ).toBeVisible();
+  });
+  test("keeps the dark theme across the switch", async ({ page }) => {
+    // The root layout remounts on a language switch and <html> comes back
+    // bare; the provider has to put the stored theme back (#126).
+    await page.addInitScript(() => {
+      window.localStorage.setItem("theme", "dark");
+    });
+    await page.goto(ROUTES.HOME);
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+
+    await page.getByRole("combobox").click();
+    await page.getByRole("option", { name: "Tiếng Anh" }).click();
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Huynh Quoc Tuan" }),
+    ).toBeVisible();
+
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
   });
 });

@@ -160,6 +160,8 @@
       "name": "@monorepo/documents",
       "version": "1.0.0",
       "dependencies": {
+        "@fontsource-variable/jetbrains-mono": "catalog:",
+        "@fontsource-variable/outfit": "catalog:",
         "@monorepo/dayjs": "workspace:*",
         "@monorepo/env": "workspace:*",
         "@monorepo/hook": "workspace:*",
@@ -256,7 +258,6 @@
         "motion": "catalog:",
         "next": "catalog:next16",
         "next-intl": "catalog:next16",
-        "next-themes": "catalog:",
         "react": "catalog:react19",
         "react-dom": "catalog:react19",
         "zod": "catalog:",
@@ -286,11 +287,60 @@
         "vitest": "catalog:testing",
       },
     },
+    "apps/smart-rental": {
+      "name": "@monorepo/smart-rental",
+      "version": "1.0.0",
+      "dependencies": {
+        "@fontsource-variable/ibm-plex-sans": "catalog:",
+        "@hookform/resolvers": "catalog:",
+        "@monorepo/api": "workspace:*",
+        "@monorepo/dayjs": "workspace:*",
+        "@monorepo/env": "workspace:*",
+        "@monorepo/hook": "workspace:*",
+        "@monorepo/ui": "workspace:*",
+        "@tanstack/react-query": "catalog:tanstack-query5",
+        "@tanstack/react-query-devtools": "catalog:tanstack-query5",
+        "lucide-react": "catalog:",
+        "react": "catalog:react19",
+        "react-dom": "catalog:react19",
+        "react-error-boundary": "catalog:",
+        "react-hook-form": "catalog:",
+        "react-router": "catalog:react-router8",
+        "zod": "catalog:",
+        "zustand": "catalog:",
+      },
+      "devDependencies": {
+        "@babel/core": "^7.29.7",
+        "@monorepo/tailwind-config": "workspace:*",
+        "@monorepo/tsconfig": "workspace:*",
+        "@playwright/test": "catalog:testing",
+        "@rolldown/plugin-babel": "catalog:",
+        "@tailwindcss/vite": "catalog:tailwind4",
+        "@testing-library/jest-dom": "catalog:testing",
+        "@testing-library/react": "catalog:testing",
+        "@testing-library/user-event": "catalog:testing",
+        "@types/babel__core": "^7.20.5",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:react19",
+        "@types/react-dom": "catalog:react19",
+        "@vitejs/plugin-react": "catalog:",
+        "@vitest/coverage-v8": "catalog:testing",
+        "babel-plugin-react-compiler": "catalog:",
+        "jsdom": "catalog:testing",
+        "tailwind-scrollbar": "catalog:tailwind4",
+        "tailwindcss": "catalog:tailwind4",
+        "tw-animate-css": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:testing",
+      },
+    },
     "apps/storybook": {
       "name": "@monorepo/storybook",
       "version": "0.0.0",
       "dependencies": {
         "@hookform/resolvers": "catalog:",
+        "@monorepo/hook": "workspace:*",
         "@monorepo/ui": "workspace:*",
         "react": "catalog:react19",
         "react-dom": "catalog:react19",
@@ -367,9 +417,15 @@
       "devDependencies": {
         "@monorepo/tsconfig": "workspace:*",
         "@rslib/core": "catalog:",
+        "@testing-library/react": "catalog:testing",
+        "@types/node": "catalog:",
         "@types/react": "catalog:react19",
+        "@types/react-dom": "catalog:react19",
+        "jsdom": "catalog:testing",
         "react": "catalog:react19",
+        "react-dom": "catalog:react19",
         "typescript": "catalog:",
+        "vitest": "catalog:testing",
       },
       "peerDependencies": {
         "react": "catalog:react19",
@@ -521,6 +577,9 @@
   },
   "catalog": {
     "@base-ui/react": "^1.7.0",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource-variable/outfit": "^5.3.0",
     "@hookform/resolvers": "^5.9.1",
     "@rolldown/plugin-babel": "^0.2.3",
     "@rslib/core": "~1.0.0",
@@ -821,6 +880,12 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.12", "", {}, "sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww=="],
 
+    "@fontsource-variable/ibm-plex-sans": ["@fontsource-variable/ibm-plex-sans@5.3.0", "", {}, "sha512-agG8tXFEo0hD9+J7npa4vbbWult52eMLVaQ6WQRlhs/iCAojrMAoejru85W9HTVXHfyUj96KM7gp/KGAS87XaQ=="],
+
+    "@fontsource-variable/jetbrains-mono": ["@fontsource-variable/jetbrains-mono@5.3.0", "", {}, "sha512-F32xpS2NsGYoQi2ADSkKTgpJj7ozajsGgDJ8woTnqjmIB+dxDIqImjl4pXZVEExu8UFZ2ndhmX18EBS/hdz3Lw=="],
+
+    "@fontsource-variable/outfit": ["@fontsource-variable/outfit@5.3.0", "", {}, "sha512-fPb5XnYK0k7SbR++HEmm4+ZqDszmLKQ+sPRUr8oQ/KNC0vy6r6hazJFe8iYozv4cqlHbvJ/JECkJWrfDodUMVQ=="],
+
     "@formatjs/fast-memoize": ["@formatjs/fast-memoize@3.1.7", "", {}, "sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA=="],
 
     "@formatjs/icu-messageformat-parser": ["@formatjs/icu-messageformat-parser@3.5.17", "", { "dependencies": { "@formatjs/icu-skeleton-parser": "2.1.11" } }, "sha512-cN9jhVqT7u0K9tix43fhjoUwL0nazyW6zsNIXs2QdPADr+nurPfYyssUiMqcSCGlPcCiqnYVxgSn7zBSuI+5Bg=="],
@@ -966,6 +1031,8 @@
     "@monorepo/portfolio": ["@monorepo/portfolio@workspace:apps/portfolio"],
 
     "@monorepo/sentry": ["@monorepo/sentry@workspace:packages/sentry"],
+
+    "@monorepo/smart-rental": ["@monorepo/smart-rental@workspace:apps/smart-rental"],
 
     "@monorepo/storybook": ["@monorepo/storybook@workspace:apps/storybook"],
 
@@ -2106,8 +2173,6 @@
     "next-intl": ["next-intl@4.14.2", "", { "dependencies": { "@eloqnt/config": "^0.1.0", "@eloqnt/format-json": "^0.1.0", "@eloqnt/format-po": "^0.1.0", "@formatjs/intl-localematcher": "^0.8.1", "@parcel/watcher": "^2.4.1", "@swc/core": "~1.16.0", "icu-minify": "^4.14.2", "negotiator": "^1.0.0", "next-intl-swc-plugin-extractor": "4.14.2", "use-intl": "^4.14.2" }, "peerDependencies": { "next": "^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0 || ^16.0.0", "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0 || ^19.0.0" } }, "sha512-rIq8me1uOa2qXnttJ6dUGYnHHL63Rh1FAIIDTJP5av5KSBmUzNBS17QAi07QDrUMY6KxFNeoCTRzSZRPUc97lg=="],
 
     "next-intl-swc-plugin-extractor": ["next-intl-swc-plugin-extractor@4.14.2", "", {}, "sha512-R+i9Xw6XKyn1QVx+I5IDZQNGQBwT79ugGwzbuJudgejob/IYnXXrRKMlLhmMxLdKH8jUWh92nqwNnp+5rtSVJA=="],
-
-    "next-themes": ["next-themes@0.4.6", "", { "peerDependencies": { "react": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc", "react-dom": "^16.8 || ^17 || ^18 || ^19 || ^19.0.0-rc" } }, "sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA=="],
 
     "node-addon-api": ["node-addon-api@7.1.1", "", {}, "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="],
 

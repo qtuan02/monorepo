@@ -49,9 +49,14 @@ hữu nó*:
 
 | Giá trị | Tên key | Ví dụ |
 | --- | --- | --- |
-| Mọi app đều đọc | key trần của Template | `PUBLIC_BASE_DOMAIN_API`, `NEXT_PUBLIC_SENTRY_DSN` |
+| Mọi app đều đọc | key trần | `PUBLIC_BASE_DOMAIN_API`, `NEXT_PUBLIC_APP_ENV` |
 | Chỉ **một** app đọc | mang tên app | `PUBLIC_DOCUMENTS_STORYBOOK_URL`, `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN` |
 | Secret của **một** app | mang tên app, không tiền tố | `MCP_WEATHER_OPENWEATHERMAP_API_KEY` |
+
+Ba app Template cũng là app như mọi app khác: key riêng của chúng mang tên
+`TEMPLATE_VITE` / `TEMPLATE_NEXT` / `TEMPLATE_REACTROUTER`
+(`NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN`, `TEMPLATE_REACTROUTER_SESSION_SECRET`), và một bản
+clone từ `gen:app` đổi phần tên đó thành tên app mới.
 
 Lý do nằm ở chỗ **chỉ có đúng một `.env` ở root cho cả workspace** (ADR-0003):
 mọi app trong `apps/` đọc cùng file đó — app Vite qua `envDir: "../../"`, app
@@ -61,10 +66,10 @@ giá trị của app kia, và người sửa file `.env` không có cách nào b
 đổi cho ai.
 
 Cụ thể: `apps/portfolio` cần một DSN Sentry riêng (project `portfolio_v1`, khác
-project của Template). Nếu nó mượn `NEXT_PUBLIC_SENTRY_DSN` thì một máy dev bật
-Sentry cho Template sẽ vô tình bắn lỗi của portfolio sang đúng project đó — và
-ngược lại. Vì vậy nó khai `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN`, còn key trần ở
-trên vẫn thuộc về Template. Tương tự, `apps/documents` khai
+project của Template). Nếu nó mượn `NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN` thì một
+máy dev bật Sentry cho Template sẽ vô tình bắn lỗi của portfolio sang đúng project
+đó — và ngược lại. Vì vậy nó khai `NEXT_PUBLIC_PORTFOLIO_SENTRY_DSN`. Tương tự,
+`apps/documents` khai
 `PUBLIC_DOCUMENTS_STORYBOOK_URL`: chỉ site tài liệu mới có khái niệm "URL
 Storybook", nên một key trần `PUBLIC_STORYBOOK_URL` sẽ hứa với người đọc
 `.env.example` một điều không đúng. Và `apps/mcp-weather` khai

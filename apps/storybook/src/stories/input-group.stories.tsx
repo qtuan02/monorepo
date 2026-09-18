@@ -1,21 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  CheckIcon,
-  CopyIcon,
-  CreditCardIcon,
-  FileCodeIcon,
-  InfoIcon,
-  MailIcon,
-  SearchIcon,
-  StarIcon,
-} from "lucide-react";
+import { CopyIcon, FileCodeIcon, GlobeIcon, SearchIcon } from "lucide-react";
 
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldLabel,
-} from "@monorepo/ui/components/field";
 import {
   InputGroup,
   InputGroupAddon,
@@ -28,6 +13,13 @@ import {
 const meta = {
   title: "Storybook/InputGroup",
   component: InputGroup,
+  subcomponents: {
+    InputGroupAddon,
+    InputGroupButton,
+    InputGroupInput,
+    InputGroupText,
+    InputGroupTextarea,
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof InputGroup>;
 
@@ -36,153 +28,69 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <FieldGroup className="max-w-sm">
-      <Field>
-        <FieldLabel htmlFor="block-start-input">Input</FieldLabel>
-        <InputGroup className="h-auto">
-          <InputGroupInput
-            id="block-start-input"
-            placeholder="Enter your name"
-          />
-          <InputGroupAddon align="block-start">
-            <InputGroupText>Full Name</InputGroupText>
-          </InputGroupAddon>
-        </InputGroup>
-        <FieldDescription>Header positioned above the input.</FieldDescription>
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="block-start-textarea">Textarea</FieldLabel>
-        <InputGroup>
-          <InputGroupTextarea
-            id="block-start-textarea"
-            placeholder="console.log('Hello, world!');"
-            className="font-mono text-sm"
-          />
-          <InputGroupAddon align="block-start">
-            <FileCodeIcon className="text-muted-foreground" />
-            <InputGroupText className="font-mono">script.js</InputGroupText>
-            <InputGroupButton size="icon-xs" className="ml-auto">
-              <CopyIcon />
-              <span className="sr-only">Copy</span>
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
-        <FieldDescription>
-          Header positioned above the textarea.
-        </FieldDescription>
-      </Field>
-    </FieldGroup>
+    <InputGroup>
+      <InputGroupInput placeholder="Search Northwind…" />
+      <InputGroupAddon>
+        <SearchIcon />
+      </InputGroupAddon>
+    </InputGroup>
   ),
 };
 
-export const BlockEnd: Story = {
-  args: {},
+export const BlockStart: Story = {
+  parameters: {
+    controls: { disable: true },
+    stage: { width: "lg" },
+  },
   render: () => (
-    <FieldGroup className="max-w-sm">
-      <Field>
-        <FieldLabel htmlFor="block-end-input">Input</FieldLabel>
-        <InputGroup className="h-auto">
-          <InputGroupInput id="block-end-input" placeholder="Enter amount" />
-          <InputGroupAddon align="block-end">
-            <InputGroupText>USD</InputGroupText>
-          </InputGroupAddon>
-        </InputGroup>
-        <FieldDescription>Footer positioned below the input.</FieldDescription>
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="block-end-textarea">Textarea</FieldLabel>
-        <InputGroup>
-          <InputGroupTextarea
-            id="block-end-textarea"
-            placeholder="Write a comment..."
-          />
-          <InputGroupAddon align="block-end">
-            <InputGroupText>0/280</InputGroupText>
-            <InputGroupButton variant="default" size="sm" className="ml-auto">
-              Post
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
-        <FieldDescription>
-          Footer positioned below the textarea.
-        </FieldDescription>
-      </Field>
-    </FieldGroup>
-  ),
-};
-
-export const Icon: Story = {
-  args: {},
-  render: () => (
-    <div className="grid w-full max-w-sm gap-6">
-      <InputGroup>
-        <InputGroupInput placeholder="Search..." />
-        <InputGroupAddon>
-          <SearchIcon />
+    <div className="flex w-full flex-col gap-6">
+      <InputGroup className="h-auto">
+        <InputGroupInput placeholder="Atlas" />
+        <InputGroupAddon align="block-start">
+          <InputGroupText>Project name</InputGroupText>
         </InputGroupAddon>
       </InputGroup>
       <InputGroup>
-        <InputGroupInput type="email" placeholder="Enter your email" />
-        <InputGroupAddon>
-          <MailIcon />
-        </InputGroupAddon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroupInput placeholder="Card number" />
-        <InputGroupAddon>
-          <CreditCardIcon />
-        </InputGroupAddon>
-        <InputGroupAddon align="inline-end">
-          <CheckIcon />
-        </InputGroupAddon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroupInput placeholder="Card number" />
-        <InputGroupAddon align="inline-end">
-          <StarIcon />
-          <InfoIcon />
+        <InputGroupTextarea
+          placeholder="console.log('Billing migration complete');"
+          className="font-mono text-sm"
+        />
+        <InputGroupAddon align="block-start">
+          <FileCodeIcon className="text-muted-foreground" />
+          <InputGroupText className="font-mono">migration.js</InputGroupText>
+          <InputGroupButton size="icon-xs" className="ml-auto">
+            <CopyIcon />
+            <span className="sr-only">Copy</span>
+          </InputGroupButton>
         </InputGroupAddon>
       </InputGroup>
     </div>
   ),
 };
 
-export const TextExample: Story = {
-  args: {},
+export const InlineIcon: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => (
-    <div className="grid w-full max-w-sm gap-6">
+    <div className="grid w-full gap-6">
       <InputGroup>
+        <InputGroupInput placeholder="Search projects…" />
         <InputGroupAddon>
-          <InputGroupText>$</InputGroupText>
-        </InputGroupAddon>
-        <InputGroupInput placeholder="0.00" />
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>USD</InputGroupText>
+          <SearchIcon />
         </InputGroupAddon>
       </InputGroup>
       <InputGroup>
         <InputGroupAddon>
-          <InputGroupText>https://</InputGroupText>
+          <InputGroupText>northwind.dev/</InputGroupText>
         </InputGroupAddon>
-        <InputGroupInput placeholder="example.com" className="pl-0.5!" />
+        <InputGroupInput placeholder="atlas" />
         <InputGroupAddon align="inline-end">
-          <InputGroupText>.com</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroupInput placeholder="Enter your username" />
-        <InputGroupAddon align="inline-end">
-          <InputGroupText>@company.com</InputGroupText>
-        </InputGroupAddon>
-      </InputGroup>
-      <InputGroup>
-        <InputGroupTextarea placeholder="Enter your message" />
-        <InputGroupAddon align="block-end">
-          <InputGroupText className="text-muted-foreground text-xs">
-            120 characters left
-          </InputGroupText>
+          <GlobeIcon />
         </InputGroupAddon>
       </InputGroup>
     </div>

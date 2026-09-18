@@ -12,21 +12,32 @@ import { ROUTES } from "../src/constants/routes";
  */
 const PRIMITIVE_SLUG = "button";
 
+/** The two lines of the hero's h1, as one accessible name. */
+const LANDING_HEADLINE = "Primitive Base UI, mỗi import một file.";
+
 test.describe("documents", () => {
-  test("walks from the landing page to a primitive's page through a link", async ({
+  test("walks from the landing page to a primitive's page through the nav and a card", async ({
     page,
   }) => {
     await page.goto(ROUTES.HOME);
 
+    // The landing page's one h1 is the headline; "Bắt đầu" is its nav item
+    // and its document title, not a heading (#134).
     await expect(
-      page.getByRole("heading", { level: 1, name: "Bắt đầu" }),
+      page.getByRole("heading", { level: 1, name: LANDING_HEADLINE }),
     ).toBeVisible();
 
-    // The catalogue in the sidebar is generated from `packages/ui/src/components`,
-    // so this link only exists if the build ran the metadata script.
+    // There is no sidebar: the pill's *Component* item leads to the list, and
+    // the card there is generated from `packages/ui/src/components`, so it
+    // only exists if the build ran the metadata script.
     await page
-      .getByRole("link", { name: PRIMITIVE_SLUG, exact: true })
-      .first()
+      .getByRole("navigation")
+      .getByRole("link", { name: "Component", exact: true })
+      .click();
+    await page
+      .getByRole("link", {
+        name: new RegExp(`^${PRIMITIVE_SLUG} `),
+      })
       .click();
 
     await expect(page).toHaveURL(
@@ -36,18 +47,49 @@ test.describe("documents", () => {
       page.getByRole("heading", { level: 1, name: PRIMITIVE_SLUG }),
     ).toBeVisible();
 
-    // The export table — the thing the page exists to show.
+    // The export chips — the thing the page exists to show. A `listitem` has
+    // no accessible name from its content, so each is found by its text.
+    const chips = page.getByRole("listitem");
+    await expect(chips.filter({ hasText: /^Button$/ })).toBeVisible();
+    await expect(chips.filter({ hasText: /^buttonVariants$/ })).toBeVisible();
+
+    // And the import line a reader copies, spelled with the npm package name —
+    // the `from` narrows it to the snippet, since the hero's meta line names
+    // the same specifier.
     await expect(
-      page.getByRole("cell", { name: "Button", exact: true }),
+      page.getByText(`from "@fe-monorepo/ui/components/${PRIMITIVE_SLUG}"`),
     ).toBeVisible();
+  });
+
+  test("opens the search palette from the keyboard and lands on the picked primitive", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.HOOKS);
+    // `goto` resolves on `load`, which fires before React's first commit — so
+    // the shortcut's `keydown` listener is not attached yet. The page's own h1
+    // is what says the tree has mounted.
     await expect(
-      page.getByRole("cell", { name: "buttonVariants", exact: true }),
+      page.getByRole("heading", { level: 1, name: "Hook" }),
     ).toBeVisible();
 
-    // And the import line a reader copies, spelled with the npm package name.
+    // `Control+K` — the one listener accepts either modifier, and Chromium on
+    // Linux (CI) has no Meta.
+    await page.keyboard.press("Control+K");
+    const palette = page.getByRole("dialog", { name: "Tìm trong tài liệu" });
+    await expect(palette).toBeVisible();
+
+    await palette
+      .getByPlaceholder("Gõ tên component hoặc hook…")
+      .fill("dialog");
+    await page.keyboard.press("Enter");
+
+    await expect(page).toHaveURL(
+      new RegExp(`${ROUTES.componentBySlugPath("dialog")}$`),
+    );
     await expect(
-      page.getByText(`@fe-monorepo/ui/components/${PRIMITIVE_SLUG}`),
+      page.getByRole("heading", { level: 1, name: "dialog" }),
     ).toBeVisible();
+    await expect(palette).toBeHidden();
   });
 
   test("filters the component list down to one card and opens it", async ({
@@ -59,7 +101,9 @@ test.describe("documents", () => {
 
     // The list filters on a debounced value, so this assertion is the one that
     // waits it out — Playwright retries it, no sleep needed.
-    const card = page.getByRole("link", { name: /^avatar components\/avatar/ });
+    // The link's accessible name leads with the slug — a tile has no subpath
+    // line any more, so the slug is the whole anchor.
+    const card = page.getByRole("link", { name: /^avatar/ });
     await expect(card).toBeVisible();
     await card.click();
 
@@ -67,7 +111,47 @@ test.describe("documents", () => {
       page.getByRole("heading", { level: 1, name: "avatar" }),
     ).toBeVisible();
     await expect(
-      page.getByRole("cell", { name: "Avatar", exact: true }),
+      page.getByRole("listitem").filter({ hasText: /^Avatar$/ }),
+    ).toBeVisible();
+  });
+
+  test("steps to the next primitive in catalogue order from a detail page", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.componentBySlugPath("dialog"));
+
+    // The toolbar's neighbours follow the generated catalogue, which the
+    // generator sorts — so after `dialog` comes `direction`, not a hand-picked
+    // sibling.
+    await page.getByRole("link", { name: "Sau: direction" }).click();
+
+    await expect(page).toHaveURL(
+      new RegExp(`${ROUTES.componentBySlugPath("direction")}$`),
+    );
+    await expect(
+      page.getByRole("heading", { level: 1, name: "direction" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Trước: dialog" }),
+    ).toBeVisible();
+  });
+
+  test("switches to the dark theme and keeps it across a reload", async ({
+    page,
+  }) => {
+    // Chromium defaults to a light `prefers-color-scheme`, so the toggle
+    // offers dark first; the inline script in index.html is what restores the
+    // stored choice on reload, before the bundle runs.
+    await page.goto(ROUTES.HOME);
+    await page
+      .getByRole("button", { name: "Chuyển sang giao diện tối" })
+      .click();
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/\bdark\b/);
+    await expect(
+      page.getByRole("button", { name: "Chuyển sang giao diện sáng" }),
     ).toBeVisible();
   });
 
@@ -90,7 +174,7 @@ test.describe("documents", () => {
 
     await page.goto(ROUTES.HOME);
     await expect(
-      page.getByRole("heading", { level: 1, name: "Bắt đầu" }),
+      page.getByRole("heading", { level: 1, name: LANDING_HEADLINE }),
     ).toBeVisible();
 
     // Vite bakes whatever is in the local .env without validating it, so a

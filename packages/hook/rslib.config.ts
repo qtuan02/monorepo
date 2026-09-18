@@ -9,9 +9,9 @@ const SHELL_DIST = "../hook-public/dist";
  * (ADR-0004).
  *
  * `bundle: false` keeps the one-source-file-one-output-file shape the shell's
- * `./*` subpath export depends on, and bundleless ESM is what rewrites the two
- * relative imports (`./use-media-query`, `./use-isomorphic-layout-effect`) to
- * carry the `.js` extension ESM requires.
+ * `./*` subpath export depends on, and bundleless ESM is what rewrites a
+ * relative import (`use-is-mobile`'s `./use-media-query`) to carry the `.js`
+ * extension ESM requires.
  */
 export default defineConfig({
   lib: [

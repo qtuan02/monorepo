@@ -9,14 +9,22 @@
   "scripts": {
     "build": "rslib build",
     "clean": "git clean -xdf .cache .turbo node_modules",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
     "@monorepo/tsconfig": "workspace:*",
     "@rslib/core": "catalog:",
+    "@testing-library/react": "catalog:testing",
+    "@types/node": "catalog:",
     "@types/react": "catalog:react19",
+    "@types/react-dom": "catalog:react19",
+    "jsdom": "catalog:testing",
     "react": "catalog:react19",
-    "typescript": "catalog:"
+    "react-dom": "catalog:react19",
+    "typescript": "catalog:",
+    "vitest": "catalog:testing"
   },
   "peerDependencies": {
     "react": "catalog:react19"

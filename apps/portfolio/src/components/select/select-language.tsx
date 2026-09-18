@@ -16,6 +16,20 @@ import { usePathname, useRouter } from "~/i18n/navigation";
 
 interface SelectLanguageProps {
   triggerClassName?: string;
+  /** The trigger's accessible name; its visible text is the current language. */
+  label?: string;
+  /** Styles the popup, so a host can draw it in its own grammar. */
+  contentClassName?: string;
+  /** Styles each option the same way. */
+  itemClassName?: string;
+  /** Which side of the trigger the popup opens on; Base UI flips it on collision. */
+  side?: "top" | "bottom";
+  /**
+   * Base UI's default lays the popup *over* the trigger with the selected item
+   * on top of it, the macOS way. `false` opens it beside the trigger as a
+   * plain menu, which is what a trigger inside a bar wants.
+   */
+  alignItemWithTrigger?: boolean;
 }
 
 /**
@@ -27,7 +41,14 @@ interface SelectLanguageProps {
  * path *without* the locale prefix, which is what makes `router.replace(pathname,
  * { locale })` the whole implementation.
  */
-export function SelectLanguage({ triggerClassName }: SelectLanguageProps) {
+export function SelectLanguage({
+  triggerClassName,
+  label,
+  contentClassName,
+  itemClassName,
+  side,
+  alignItemWithTrigger,
+}: SelectLanguageProps) {
   const t = useTranslations();
   const locale = useLocale() as LanguageCode;
   const pathname = usePathname();
@@ -43,16 +64,21 @@ export function SelectLanguage({ triggerClassName }: SelectLanguageProps) {
         router.replace(pathname, { locale: value as LanguageCode });
       }}
     >
-      <SelectTrigger className={triggerClassName} size="sm">
+      <SelectTrigger className={triggerClassName} size="sm" aria-label={label}>
         {/* Children rather than `items`: without either, Base UI renders the raw
             value ("vi") instead of the label. */}
         <SelectValue placeholder={t("language.placeholder")}>
           {t(`language.${locale}`)}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent align="start">
+      <SelectContent
+        align="start"
+        side={side}
+        alignItemWithTrigger={alignItemWithTrigger}
+        className={contentClassName}
+      >
         {languages.map((language) => (
-          <SelectItem key={language} value={language}>
+          <SelectItem key={language} value={language} className={itemClassName}>
             {t(`language.${language}`)}
           </SelectItem>
         ))}

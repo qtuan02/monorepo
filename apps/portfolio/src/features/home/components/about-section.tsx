@@ -1,27 +1,30 @@
 import { useTranslations } from "next-intl";
 
-import BlurFade from "~/features/home/components/blur-fade";
+import SectionHeading from "~/features/home/components/section-heading";
+import StandardBlock from "~/features/home/components/standard-block";
 
-interface AboutSectionProps {
-  delay: number;
-}
-
-/** Two paragraphs of prose, each its own message key rather than an array. */
-export default function AboutSection({ delay }: AboutSectionProps) {
+/**
+ * Two paragraphs of prose in one standard block, each its own message key
+ * rather than an array.
+ *
+ * Sans, at the body floor, in the block's own ink: this is the one section
+ * that is nothing but prose, and prose is what the sans half of the two
+ * typefaces is for (`docs/design/portfolio-redesign-v2.md` §7, decision 2).
+ * v1 set it in `text-muted-foreground`; inside a block that paints with
+ * `text-foreground` the grey read as a lighter copy of the work bullets beside
+ * it, so the paragraphs now take the ink the block gives them.
+ */
+export default function AboutSection() {
   const t = useTranslations();
 
   return (
     <section id="about">
       <div className="space-y-3">
-        <BlurFade delay={delay}>
-          <h2 className="text-xl font-bold">{t("portfolio.about.title")}</h2>
-        </BlurFade>
-        <BlurFade delay={delay + 0.08}>
-          <div className="max-w-full space-y-2 text-sm text-muted-foreground">
-            <p>{t("portfolio.about.experience")}</p>
-            <p>{t("portfolio.about.mindset")}</p>
-          </div>
-        </BlurFade>
+        <SectionHeading>{t("portfolio.about.title")}</SectionHeading>
+        <StandardBlock className="space-y-2 text-body leading-relaxed">
+          <p>{t("portfolio.about.experience")}</p>
+          <p>{t("portfolio.about.mindset")}</p>
+        </StandardBlock>
       </div>
     </section>
   );

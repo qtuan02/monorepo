@@ -12,7 +12,7 @@ import { createEnv } from "@monorepo/env/next/create-env";
  *
  * Both additions carry the app's own name. The repo-root `.env` is **one** file
  * shared by every Next app, so a value that belongs to a single app has to say
- * which app — borrowing `NEXT_PUBLIC_SENTRY_DSN` would send this site's errors
+ * which app — borrowing `NEXT_PUBLIC_TEMPLATE_NEXT_SENTRY_DSN` would send this site's errors
  * to the Template's Sentry project.
  */
 export const env = createEnv({

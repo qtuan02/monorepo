@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useState } from "react";
 
-import { Calendar } from "@monorepo/ui/components/calendar";
+import { Calendar, CalendarDayButton } from "@monorepo/ui/components/calendar";
 
 const meta = {
   title: "Storybook/Calendar",
   component: Calendar,
+  subcomponents: { CalendarDayButton },
   tags: ["autodocs"],
 } satisfies Meta<typeof Calendar>;
 
@@ -15,7 +16,9 @@ type Story = StoryObj<typeof meta>;
 // react-day-picker holds no selection of its own — the caller owns it, which is
 // why every story here keeps the value in state rather than passing a literal.
 export const Default: Story = {
-  args: {} as Story["args"],
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => {
     const [selected, setSelected] = useState<Date | undefined>(
       new Date(2026, 7, 14),
@@ -34,7 +37,6 @@ export const Default: Story = {
 };
 
 export const Range: Story = {
-  args: {} as Story["args"],
   parameters: {
     docs: {
       description: {
@@ -60,7 +62,6 @@ export const Range: Story = {
 };
 
 export const WithDropdowns: Story = {
-  args: {} as Story["args"],
   parameters: {
     docs: {
       description: {
@@ -90,7 +91,6 @@ export const WithDropdowns: Story = {
 };
 
 export const Disabled: Story = {
-  args: {} as Story["args"],
   parameters: {
     docs: {
       description: {
