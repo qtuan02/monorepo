@@ -22,9 +22,12 @@ import { isExternalPage } from "~/features/home/utils/is-external-page";
  * neither the block they sit in nor a colour this page overrides.
  */
 // `print:shadow-none`: the outline variant's `shadow-xs` is the one shadow a
-// block's own print half does not cover (#120).
+// block's own print half does not cover (#120). `h-10 sm:h-8`: a bigger
+// target below `sm`, where the actions sit two to a grid cell instead of
+// wrapping a flex row — the primitive's own `sm` size (`h-8`) comes back once
+// there is room to wrap.
 const ACTION_CLASS_NAME =
-  "border-border bg-card font-mono hover:bg-muted dark:border-border dark:bg-card dark:hover:bg-muted print:shadow-none";
+  "h-10 border-border bg-card font-mono hover:bg-muted sm:h-8 dark:border-border dark:bg-card dark:hover:bg-muted print:shadow-none";
 
 /**
  * What the window's title bar says. A path, the way a shell titles its window
@@ -96,62 +99,21 @@ export default function HeroSection() {
           </span>
         </div>
 
-        <div className="flex items-start gap-5 p-5 sm:gap-8 sm:p-6">
+        {/* A grid, not a flex row: below `sm` the avatar spans only this
+            first row (it sits beside the name and nothing else), and
+            positioning/current/actions each run `col-span-2` — the full
+            width neither had to share with a 80px logo. From `sm` the avatar
+            spans all four rows again and the three groups fall back to one
+            column beside it, which is today's layout unchanged. */}
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-5 gap-y-4 p-5 sm:gap-x-8 sm:p-6">
           {/* `min-w-0` is what lets the monospace name wrap instead of pushing
-              the block past a 375px viewport: a flex item's minimum width is
-              its content's, and a long word in mono is a long word. */}
-          <div className="flex min-w-0 flex-1 flex-col gap-4">
-            <div className="space-y-1">
-              <CommandLine>{t("portfolio.hero.commands.whoami")}</CommandLine>
-              <h1 className="font-mono text-2xl font-bold tracking-tight [overflow-wrap:anywhere] sm:text-4xl md:text-5xl">
-                {t("portfolio.hero.name")}
-              </h1>
-            </div>
-
-            <div className="space-y-1">
-              <CommandLine>{t("portfolio.hero.commands.role")}</CommandLine>
-              <p className="text-base leading-relaxed md:text-lg">
-                {t("portfolio.hero.positioning")}
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <CommandLine>{t("portfolio.hero.commands.current")}</CommandLine>
-              <p className="text-body leading-relaxed text-muted-foreground md:text-base">
-                {t("portfolio.hero.current")}
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              {HERO_ACTIONS.map((action) => {
-                const Icon = action.icon;
-
-                return (
-                  <a
-                    key={action.id}
-                    href={action.href}
-                    {...(isExternalPage(action.href)
-                      ? { target: "_blank", rel: "noreferrer" }
-                      : {})}
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "sm" }),
-                      ACTION_CLASS_NAME,
-                      // The one yellow control on the page. The primitive's
-                      // ring is `--ring`, which in the dark theme no yellow can
-                      // clear at 3:1 — so a yellow fill draws its focus ring in
-                      // the pair's own text colour, inset, in both themes.
-                      // `test/globals.test.ts` pins the ratio that forces this.
-                      action.id === "email" &&
-                        "bg-highlight text-highlight-foreground hover:bg-highlight hover:text-highlight-foreground focus-visible:border-highlight-foreground focus-visible:ring-2 focus-visible:ring-highlight-foreground focus-visible:ring-inset dark:bg-highlight dark:hover:bg-highlight",
-                    )}
-                  >
-                    <Icon aria-hidden="true" className="size-4" />
-                    {t(`portfolio.hero.actions.${action.id}`)}
-                  </a>
-                );
-              })}
-              <PrintCvButton className={ACTION_CLASS_NAME} />
-            </div>
+              the block past a 375px viewport: a grid item's default minimum
+              width is its content's, and a long word in mono is a long word. */}
+          <div className="min-w-0 space-y-1">
+            <CommandLine>{t("portfolio.hero.commands.whoami")}</CommandLine>
+            <h1 className="font-mono text-2xl font-bold tracking-tight [overflow-wrap:anywhere] sm:text-4xl md:text-5xl">
+              {t("portfolio.hero.name")}
+            </h1>
           </div>
 
           {/* Square, by className: `Avatar` rounds with a class rather than
@@ -159,7 +121,7 @@ export default function HeroSection() {
               are overridden here rather than in `@monorepo/ui` — this page is
               the one that wants a square portrait. `print:border` thins its
               2px edge the way the block around it thins on paper. */}
-          <Avatar className="size-20 shrink-0 rounded-none border-2 border-border select-none after:rounded-none after:border-0 sm:size-28 md:size-36 lg:size-44 print:border">
+          <Avatar className="row-span-1 size-20 shrink-0 rounded-none border-2 border-border select-none after:rounded-none after:border-0 sm:row-span-4 sm:size-28 md:size-36 lg:size-44 print:border">
             {/* `avatar.src` rather than a `/public` URL string: the import is
                 what the bundler resolves, hashes and checks.
 
@@ -182,6 +144,54 @@ export default function HeroSection() {
               HT
             </AvatarFallback>
           </Avatar>
+
+          <div className="col-span-2 min-w-0 space-y-1 sm:col-span-1">
+            <CommandLine>{t("portfolio.hero.commands.role")}</CommandLine>
+            <p className="text-base leading-relaxed md:text-lg">
+              {t("portfolio.hero.positioning")}
+            </p>
+          </div>
+
+          <div className="col-span-2 min-w-0 space-y-1 sm:col-span-1">
+            <CommandLine>{t("portfolio.hero.commands.current")}</CommandLine>
+            <p className="text-body leading-relaxed text-muted-foreground md:text-base">
+              {t("portfolio.hero.current")}
+            </p>
+          </div>
+
+          {/* 2×2 below `sm`, each action stretched to its grid cell instead
+              of wrapping a flex row into a lopsided third line; from `sm`
+              back to one wrapping row, unchanged. */}
+          <div className="col-span-2 grid grid-cols-2 gap-2 pt-1 sm:col-span-1 sm:flex sm:flex-wrap sm:items-center">
+            {HERO_ACTIONS.map((action) => {
+              const Icon = action.icon;
+
+              return (
+                <a
+                  key={action.id}
+                  href={action.href}
+                  {...(isExternalPage(action.href)
+                    ? { target: "_blank", rel: "noreferrer" }
+                    : {})}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    ACTION_CLASS_NAME,
+                    // The one yellow control on the page. The primitive's
+                    // ring is `--ring`, which in the dark theme no yellow can
+                    // clear at 3:1 — so a yellow fill draws its focus ring in
+                    // the pair's own text colour, inset, in both themes.
+                    // `test/globals.test.ts` pins the ratio that forces this.
+                    action.id === "email" &&
+                      "bg-highlight text-highlight-foreground hover:bg-highlight hover:text-highlight-foreground focus-visible:border-highlight-foreground focus-visible:ring-2 focus-visible:ring-highlight-foreground focus-visible:ring-inset dark:bg-highlight dark:hover:bg-highlight",
+                  )}
+                >
+                  <Icon aria-hidden="true" className="size-4" />
+                  {t(`portfolio.hero.actions.${action.id}`)}
+                </a>
+              );
+            })}
+            <PrintCvButton className={ACTION_CLASS_NAME} />
+          </div>
         </div>
       </StandardBlock>
     </section>

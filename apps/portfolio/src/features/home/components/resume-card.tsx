@@ -167,8 +167,8 @@ export default function ResumeCard({
   );
 
   return (
-    <StandardBlock className="group flex gap-x-4">
-      <div className="flex-none select-none">
+    <StandardBlock className="group grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2">
+      <div className="select-none">
         {/* A static import, so Next reads the file's real dimensions at build
             time and a rename is a build error rather than a silent 404.
 
@@ -185,10 +185,15 @@ export default function ResumeCard({
         />
       </div>
 
-      {/* `min-w-0`: a flex child defaults to `min-width: auto`, which is the
+      {/* `min-w-0`: a grid child defaults to `min-width: auto`, which is the
           width of its longest unbreakable content — a monospace period — and
-          would push the column, and the page, past a 375 px viewport. */}
-      <div className="flex min-w-0 flex-1 flex-col">
+          would push the column, and the page, past a 375 px viewport.
+
+          `col-span-2 sm:col-start-2 sm:col-span-1`: below `sm` the body runs
+          the full row under the logo, instead of squeezing into the 291 px
+          left after a 48 px logo on every wrapped bullet line; from `sm` it
+          sits back in the second column, beside the logo, as today. */}
+      <div className="col-span-2 flex min-w-0 flex-col sm:col-span-1 sm:col-start-2">
         <h3 className="w-full">
           {hasBody ? (
             <button

@@ -27,7 +27,7 @@ export default function ContactSection() {
     <section id="contact">
       <div className="flex h-full min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.contact.title")}</SectionHeading>
-        <StandardBlock className="flex flex-1 flex-col gap-y-2">
+        <StandardBlock className="flex flex-1 flex-col gap-y-3">
           {CONTACT_ITEMS.map((item) => {
             const Icon = item.icon;
             const label = t(`portfolio.contact.labels.${item.id}`);
@@ -48,7 +48,10 @@ export default function ContactSection() {
                     {...(isExternalPage(item.href)
                       ? { target: "_blank", rel: "noreferrer" }
                       : {})}
-                    className="text-sm hover:underline"
+                    // `py-1 -my-1`: the same 32→28 px hit-area trick as the
+                    // project links, sized down since this row already gets
+                    // `gap-y-3` from its own parent.
+                    className="py-1 -my-1 text-sm hover:underline"
                   >
                     {value}
                   </a>

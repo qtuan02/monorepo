@@ -411,4 +411,218 @@ test.describe("viewport", () => {
       META_MIN_PX,
     );
   });
+
+  // The 320 px commitment (#210 §8 Q6): the dock's `position: fixed` never
+  // contributed to `scrollWidth`, so the "never scrolls sideways" specs above
+  // stayed green while the bar itself sat 14 px off each edge at 375 px
+  // (#211). This measures the bar's own box against the viewport instead.
+  for (const width of [320, PHONE_WIDTH, 414]) {
+    test(`keeps the dock inside the viewport at ${width} px`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 800);
+
+      const nav = page.getByRole("navigation");
+      const box = await nav.boundingBox();
+      if (!box) throw new Error("the dock has no box");
+
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+      // Below `sm` the dock is a full-width bar (Thanh chạm đáy) rather than
+      // a centred pill, so at 375 it spans the viewport exactly.
+      if (width === PHONE_WIDTH) expect(box.width).toBe(width);
+    });
+  }
+
+  // #212: the hero's own grid, the MedViet row's grid, and the two inline
+  // link hit-areas — the three points that used to be a `flex` row ceding a
+  // third of a 375 px viewport to the avatar or a work-row logo.
+
+  test("gives the hero's positioning line the full column on a phone, with the avatar only beside the name", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    const heading = page.locator("#hero").getByRole("heading", { level: 1 });
+    // The name row: `$ whoami` and the `h1` stacked in one grid cell — the
+    // element the avatar's own row actually aligns against (`align-self:
+    // start` on the avatar, per the mockup), not the `h1` alone.
+    const nameGroup = heading.locator("xpath=..");
+    // `getByRole("paragraph")` skips the two decorative `$ whoami`/`$ cat
+    // role.txt` command lines on its own — `aria-hidden` removes them from
+    // the accessibility tree, so a role query never sees them.
+    const positioning = page.locator("#hero").getByRole("paragraph").first();
+    const avatar = page.locator('#hero [data-slot="avatar"]');
+
+    const [headingBox, nameGroupBox, positioningBox, avatarBox] =
+      await Promise.all([
+        heading.boundingBox(),
+        nameGroup.boundingBox(),
+        positioning.boundingBox(),
+        avatar.boundingBox(),
+      ]);
+    if (!headingBox || !nameGroupBox || !positioningBox || !avatarBox) {
+      throw new Error("the hero is missing a box");
+    }
+
+    // Positioning runs the full column now that it isn't sharing a row with
+    // the avatar (`col-span-2` from this row down) — well past the 183 px
+    // it was squeezed to before, and close to the block's ~283 px content
+    // width at this viewport.
+    expect(positioningBox.width).toBeGreaterThanOrEqual(250);
+    expect(avatarBox.width).toBeCloseTo(80, 0);
+    // Still on the name row rather than dropped below the whole card.
+    expect(Math.abs(avatarBox.y - nameGroupBox.y)).toBeLessThanOrEqual(8);
+    // The name's own row stays narrower than positioning's, because the
+    // avatar shares it — that row is the one exception, by design
+    // (`docs/design/portfolio-responsive/mockup-phone.html`, `.top`).
+    expect(headingBox.width).toBeLessThan(positioningBox.width);
+  });
+
+  test("lays the hero's four actions out as a 2×2 grid on a phone, and one row from sm", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    // The three `<a>` actions (email, GitHub, LinkedIn) plus the print
+    // `<button>` — nothing else under `#hero` carries either role.
+    const actions = page
+      .locator("#hero")
+      .getByRole("link")
+      .or(page.locator("#hero").getByRole("button"));
+    await expect(actions).toHaveCount(4);
+    const email = actions.nth(0);
+    const github = actions.nth(1);
+    const linkedin = actions.nth(2);
+    const print = actions.nth(3);
+
+    const [emailBox, githubBox, linkedinBox, printBox] = await Promise.all([
+      email.boundingBox(),
+      github.boundingBox(),
+      linkedin.boundingBox(),
+      print.boundingBox(),
+    ]);
+    if (!emailBox || !githubBox || !linkedinBox || !printBox) {
+      throw new Error("a hero action has no box");
+    }
+
+    const phoneBoxes = [emailBox, githubBox, linkedinBox, printBox];
+    for (const box of phoneBoxes) {
+      expect(box.height).toBeGreaterThanOrEqual(40);
+    }
+    // Two rows of two: the first pair shares a `y`, the second a lower one.
+    expect(Math.abs(emailBox.y - githubBox.y)).toBeLessThan(2);
+    expect(Math.abs(linkedinBox.y - printBox.y)).toBeLessThan(2);
+    expect(linkedinBox.y).toBeGreaterThan(emailBox.y);
+    // All four share the same two equal-width grid columns.
+    const widths = phoneBoxes.map((box) => box.width);
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(2);
+
+    await openHomeAt(page, TABLET_WIDTH, 900);
+    const [tabletEmailBox, , , tabletPrintBox] = await Promise.all([
+      email.boundingBox(),
+      github.boundingBox(),
+      linkedin.boundingBox(),
+      print.boundingBox(),
+    ]);
+    if (!tabletEmailBox || !tabletPrintBox) {
+      throw new Error("a hero action has no box");
+    }
+
+    expect(tabletEmailBox.height).toBeCloseTo(32, 0);
+    expect(tabletPrintBox.height).toBeCloseTo(32, 0);
+    // One row: the first and the last action share a `y`.
+    expect(Math.abs(tabletPrintBox.y - tabletEmailBox.y)).toBeLessThan(2);
+  });
+
+  test("runs the MedViet row's body under its logo on a phone, and beside it from sm", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    // MedViet is `WORK_ITEMS[0]`, the only row expanded at rest.
+    const logo = page
+      .locator('#work [data-slot="standard-block"]')
+      .first()
+      .locator("img");
+    const body = page
+      .locator('#work [data-slot="resume-card-body"]')
+      .first()
+      .locator("ul");
+
+    const [logoBoxPhone, bodyBoxPhone] = await Promise.all([
+      logo.boundingBox(),
+      body.boundingBox(),
+    ]);
+    if (!logoBoxPhone || !bodyBoxPhone) throw new Error("the row has no box");
+    // The body runs the full row under the logo, not squeezed beside it.
+    expect(Math.abs(bodyBoxPhone.x - logoBoxPhone.x)).toBeLessThanOrEqual(2);
+
+    await openHomeAt(page, TABLET_WIDTH, 900);
+    const [logoBoxTablet, bodyBoxTablet] = await Promise.all([
+      logo.boundingBox(),
+      body.boundingBox(),
+    ]);
+    if (!logoBoxTablet || !bodyBoxTablet) {
+      throw new Error("the row has no box");
+    }
+    // Back beside the logo, as it was before this ticket.
+    expect(bodyBoxTablet.x).toBeGreaterThan(
+      logoBoxTablet.x + logoBoxTablet.width,
+    );
+  });
+
+  test("gives the first project link and the contact email a 24 px tap target on a phone", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    const projectLink = page.locator("#projects").getByRole("link").first();
+    const contactEmailLink = page
+      .locator("#contact")
+      .getByRole("link")
+      .filter({ hasText: "@" });
+
+    const [projectBox, contactBox] = await Promise.all([
+      projectLink.boundingBox(),
+      contactEmailLink.boundingBox(),
+    ]);
+    if (!projectBox || !contactBox) throw new Error("a link has no box");
+
+    expect(projectBox.height).toBeGreaterThanOrEqual(24);
+    expect(contactBox.height).toBeGreaterThanOrEqual(24);
+  });
+
+  test("keeps at least 8 px between the project links when they wrap to a second line", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    // "Real-time Chat" carries three links (two repos + a live demo) — the
+    // row most likely to wrap its link line on a 375 px phone.
+    const links = page
+      .locator("#projects li", { hasText: "Real-time Chat" })
+      .getByRole("link");
+    const count = await links.count();
+    const boxes = await Promise.all(
+      Array.from({ length: count }, (_, i) => links.nth(i).boundingBox()),
+    );
+
+    const rowYs = [
+      ...new Set(
+        boxes.map((box) => {
+          if (!box) throw new Error("a project link has no box");
+          return Math.round(box.y);
+        }),
+      ),
+    ].sort((a, b) => a - b);
+
+    // Only meaningful once the row actually wraps onto more than one line.
+    for (let i = 1; i < rowYs.length; i++) {
+      const current = rowYs[i];
+      const previous = rowYs[i - 1];
+      if (current === undefined || previous === undefined) continue;
+      expect(current - previous).toBeGreaterThanOrEqual(8);
+    }
+  });
 });
