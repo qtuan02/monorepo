@@ -1,5 +1,5 @@
-import EmptyState from "~/features/layout/components/empty-state";
+import HomeTemplate from "~/features/layout/templates/home.template";
 
 export default function HomePage() {
-  return <EmptyState />;
+  return <HomeTemplate />;
 }

@@ -8,6 +8,6 @@ export class ChatHealthService {
   constructor(private client: HttpClient) {}
 
   async check(): Promise<void> {
-    await this.client.get<unknown>("/health-check");
+    await this.client.get<void>("/health-check");
   }
 }

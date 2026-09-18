@@ -20,4 +20,5 @@ export interface ChatAuthToken {
 export type ChatSignInResponse = ChatBaseResponse<ChatAuthToken>;
 export type ChatSignUpResponse = ChatBaseResponse<null>;
 export type ChatSignOutResponse = ChatBaseResponse<null>;
-export type ChatRefreshResponse = ChatBaseResponse<ChatAuthToken>;
+// `refresh` reuses ChatSignInResponse — same envelope, same token shape — the
+// same way the source app's own `authService.refreshToken` reuses `SignInResponse`.

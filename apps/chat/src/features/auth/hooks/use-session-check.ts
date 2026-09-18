@@ -3,17 +3,17 @@ import * as React from "react";
 import { chatAuthService } from "~/libs/http-client";
 import { useAuthStore } from "~/stores/use-auth-store";
 
-// Module-scoped so ProtectedRoute and GuestRoute mounting at the same time
+// Module-scoped so ProtectedRoute and GuestRoute checking at the same time
 // (they never do, but a fast double-navigation could) share one in-flight
 // call instead of each firing its own `/auth/refresh`.
-let refreshOnBoot: Promise<string> | null = null;
+let pendingRefresh: Promise<string> | null = null;
 
 function refreshSessionOnce(): Promise<string> {
-  refreshOnBoot ??= chatAuthService.refresh().finally(() => {
-    refreshOnBoot = null;
+  pendingRefresh ??= chatAuthService.refresh().finally(() => {
+    pendingRefresh = null;
   });
 
-  return refreshOnBoot;
+  return pendingRefresh;
 }
 
 /**
