@@ -26,10 +26,6 @@ export const mockBuildings: Building[] = [
       accountNumber: "0071000123456",
       accountName: "NGUYEN VAN CHU",
     },
-    totalRooms: 6,
-    // 5/6 Phòng occupied (R-B1-102…106) — kept in step with mock/rooms.ts by
-    // hand, same as `tenant` (see that file's own note).
-    activeContracts: 5,
     description: "Khu trọ cao cấp cho sinh viên",
   },
   {
@@ -49,9 +45,6 @@ export const mockBuildings: Building[] = [
       accountNumber: "19035551234567",
       accountName: "NGUYEN VAN CHU",
     },
-    totalRooms: 8,
-    // 6/8 Phòng occupied (203 trống, 204 bảo trì — the other 6 occupied).
-    activeContracts: 6,
     description: "Căn hộ dịch vụ đầy đủ tiện nghi",
   },
   {
@@ -65,9 +58,6 @@ export const mockBuildings: Building[] = [
       waterPricePerM3: 15000,
       serviceFee: 80000,
     },
-    totalRooms: 4,
-    // 3/4 Phòng occupied (303 trống).
-    activeContracts: 3,
     description: "Vị trí trung tâm, thuận tiện đi lại",
   },
 ];

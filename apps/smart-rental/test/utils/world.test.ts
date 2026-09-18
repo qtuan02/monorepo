@@ -4,6 +4,7 @@ import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
 import type { Room } from "~/types/room";
+import type { Tenant } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
 import type { WorldArrays } from "~/utils/world";
 import { buildWorld } from "~/utils/world";
@@ -37,7 +38,6 @@ function room(overrides: Partial<Room> = {}): Room {
     price: 2_000_000,
     status: "occupied",
     type: "single",
-    tenant: "Nguyễn Văn A",
     lastUpdated: "01/09/2026",
     ...overrides,
   };
@@ -63,6 +63,19 @@ function contract(overrides: Partial<Contract> = {}): Contract {
     status: "ACTIVE",
     renewalHistory: [],
     lastUpdated: "01/09/2026",
+    ...overrides,
+  };
+}
+
+function tenant(overrides: Partial<Tenant> = {}): Tenant {
+  return {
+    id: "T1",
+    buildingId: "b1",
+    name: "Nguyễn Văn A",
+    phone: "0900000001",
+    email: "a@example.com",
+    idNumber: "079000000001",
+    gender: "male",
     ...overrides,
   };
 }
@@ -331,5 +344,119 @@ describe("buildWorld — derived status", () => {
     );
 
     expect(world.anomalousUtilities.map((u) => u.id)).toEqual(["u-sep"]);
+  });
+});
+
+describe("buildWorld — joined views (ADR-0015 §2)", () => {
+  it("RoomView.tenant is the name off the Phòng's live Hợp đồng", () => {
+    const world = buildWorld(
+      makeArrays({
+        rooms: [room({ id: "R1" })],
+        contracts: [contract({ roomId: "R1", status: "ACTIVE" })],
+      }),
+      "b1",
+      today,
+    );
+
+    expect(world.rooms[0]?.tenant).toBe("Nguyễn Văn A");
+  });
+
+  it("RoomView.tenant is null once its Hợp đồng is no longer live (Thanh lý)", () => {
+    const world = buildWorld(
+      makeArrays({
+        rooms: [room({ id: "R1" })],
+        contracts: [
+          contract({
+            roomId: "R1",
+            status: "TERMINATED",
+            terminatedAt: "01/09/2026",
+          }),
+        ],
+      }),
+      "b1",
+      today,
+    );
+
+    expect(world.rooms[0]?.tenant).toBeNull();
+  });
+
+  it("TenantView.contractEnd is the newest live Hợp đồng's endDate", () => {
+    const world = buildWorld(
+      makeArrays({
+        tenants: [tenant({ id: "T1" })],
+        contracts: [
+          contract({ id: "C1", tenantId: "T1", endDate: "31/10/2026" }),
+        ],
+      }),
+      "b1",
+      today,
+    );
+
+    expect(world.tenants[0]?.contractEnd).toBe("31/10/2026");
+    expect(world.tenants[0]?.room).toBe("Phòng 101");
+  });
+
+  it("TenantView falls back to the most recently ended Hợp đồng once none is live", () => {
+    const world = buildWorld(
+      makeArrays({
+        tenants: [tenant({ id: "T1" })],
+        contracts: [
+          contract({
+            id: "C1",
+            tenantId: "T1",
+            status: "TERMINATED",
+            endDate: "01/06/2026",
+          }),
+        ],
+      }),
+      "b1",
+      today,
+    );
+
+    expect(world.tenants[0]?.contractEnd).toBe("01/06/2026");
+  });
+
+  it("TenantView is the placeholder blanks for a Người thuê with no Hợp đồng at all", () => {
+    const world = buildWorld(
+      makeArrays({ tenants: [tenant({ id: "T1" })] }),
+      "b1",
+      today,
+    );
+
+    expect(world.tenants[0]).toMatchObject({
+      room: "—",
+      floor: 0,
+      rentAmount: 0,
+      depositAmount: 0,
+      moveInDate: "—",
+      contractEnd: "—",
+    });
+  });
+
+  it("BuildingView's four figures are counted off its own Phòng and Hợp đồng hiệu lực", () => {
+    const world = buildWorld(
+      makeArrays({
+        buildings: [building({ id: "b1" })],
+        rooms: [
+          room({ id: "R1" }),
+          room({ id: "R2" }),
+          room({ id: "R3" }),
+          room({ id: "R4" }),
+        ],
+        contracts: [
+          contract({ id: "C1", roomId: "R1", status: "ACTIVE" }),
+          contract({ id: "C2", roomId: "R2", status: "EXPIRING" }),
+        ],
+      }),
+      "b1",
+      today,
+    );
+
+    expect(world.buildings[0]).toMatchObject({
+      totalRooms: 4,
+      activeContracts: 2,
+      availableRooms: 2,
+      occupancyRate: 50,
+    });
   });
 });

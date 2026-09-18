@@ -5,14 +5,14 @@ import {
   DataTableColumnHeader,
 } from "@monorepo/ui/components/data-table";
 
-import type { Room } from "~/types/room";
+import type { RoomView } from "~/types/room";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { roomStatusConfig, roomTypeConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
 import RoomRowActions from "./room-row-actions";
 
-const helper = createDataTableColumnHelper<Room>();
+const helper = createDataTableColumnHelper<RoomView>();
 
 /**
  * The Phòng table, minus the prototype's drag handle (row reorder is not

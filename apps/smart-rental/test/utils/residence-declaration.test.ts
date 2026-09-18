@@ -2,26 +2,28 @@ import { describe, expect, it } from "vitest";
 
 import type { ComplianceItem } from "~/types/compliance";
 import type { Contract } from "~/types/contract";
-import type { Tenant } from "~/types/tenant";
+import type { TenantView } from "~/types/tenant";
 import { buildResidenceDeclarations } from "~/utils/residence-declaration";
 
 const today = new Date("2026-09-17T00:00:00.000Z");
 
-function tenant(overrides: Partial<Tenant>): Tenant {
+function tenant(overrides: Partial<TenantView>): TenantView {
   return {
     id: "T001",
     buildingId: "b1",
     name: "Nguyễn Văn A",
     phone: "0905000001",
     email: "a@gmail.com",
+    idNumber: "079000000001",
+    gender: "male",
     room: "Phòng 101",
     floor: 1,
     rentAmount: 2_000_000,
     depositAmount: 2_000_000,
     moveInDate: "01/01/2026",
     contractEnd: "31/12/2027",
-    idNumber: "079000000001",
-    gender: "male",
+    status: "active",
+    hasOverdueInvoice: false,
     ...overrides,
   };
 }

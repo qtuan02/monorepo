@@ -159,4 +159,21 @@ describe("Mock referential integrity (ADR-0012)", () => {
       tenantIds,
     );
   });
+
+  it("no Phòng or Người thuê has two live Hợp đồng at once (ADR-0015 §2)", () => {
+    // World's RoomView/TenantView join picks a live (ACTIVE/EXPIRING)
+    // contract off `roomId`/`tenantId` alone — two live at once would make
+    // that join ambiguous and silently pick whichever sorts first.
+    const liveContracts = mockContracts.filter(
+      (c) => c.status === "ACTIVE" || c.status === "EXPIRING",
+    );
+    assertNoDuplicateIds(
+      "contracts.roomId (live)",
+      liveContracts.map((c) => c.roomId),
+    );
+    assertNoDuplicateIds(
+      "contracts.tenantId (live)",
+      liveContracts.map((c) => c.tenantId),
+    );
+  });
 });

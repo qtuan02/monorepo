@@ -9,6 +9,7 @@ import type {
 } from "~/libs/query-key-factory";
 import type {
   Building,
+  BuildingView,
   CreateBuildingRequest,
   UpdateBuildingSettingsRequest,
 } from "~/types/building";
@@ -34,9 +35,9 @@ export const buildingQueryKeys = {
 // The explicit return type is load-bearing: without it Biome cannot see through
 // `useQuery` and reads `isLoading` as always false at every call site.
 export function useGetBuildings(
-  options?: UseQueryOptionsWrapper<Building[]>,
-): UseQueryResult<Building[], Error> {
-  return useQuery<Building[], Error>({
+  options?: UseQueryOptionsWrapper<BuildingView[]>,
+): UseQueryResult<BuildingView[], Error> {
+  return useQuery<BuildingView[], Error>({
     queryKey: buildingQueryKeys.getBuildings(),
     queryFn: async () => readWorld(null).buildings,
     ...options,
@@ -45,9 +46,9 @@ export function useGetBuildings(
 
 export function useGetBuilding(
   buildingId: string,
-  options?: UseQueryOptionsWrapper<Building | null>,
-): UseQueryResult<Building | null, Error> {
-  return useQuery<Building | null, Error>({
+  options?: UseQueryOptionsWrapper<BuildingView | null>,
+): UseQueryResult<BuildingView | null, Error> {
+  return useQuery<BuildingView | null, Error>({
     queryKey: buildingQueryKeys.getBuilding(buildingId),
     queryFn: async () => readWorld(buildingId).buildings[0] ?? null,
     ...options,
@@ -77,10 +78,6 @@ export function useCreateBuilding(
         },
         note: request.note,
         description: request.note,
-        totalRooms: 0,
-        activeContracts: 0,
-        availableRooms: 0,
-        occupancyRate: 0,
       };
       mockBuildings.unshift(building);
       return building;

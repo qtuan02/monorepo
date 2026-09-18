@@ -1,13 +1,13 @@
-import type { Building } from "~/types/building";
+import type { BuildingView } from "~/types/building";
 import type { NotificationTemplate, SendLog } from "~/types/communication";
 import type { ComplianceItem, ResidenceDeclaration } from "~/types/compliance";
 import type { Contract } from "~/types/contract";
 import type { Expense } from "~/types/expense";
 import type { Invoice } from "~/types/invoice";
-import type { Room } from "~/types/room";
+import type { RoomView } from "~/types/room";
 import type { LandlordProfile } from "~/types/setting";
 import type { SupplierBill } from "~/types/supplier-bill";
-import type { Tenant } from "~/types/tenant";
+import type { TenantView } from "~/types/tenant";
 import type { Utility, UtilityOldIndexOverride } from "~/types/utility";
 
 /**
@@ -38,8 +38,10 @@ export type NonEmptyBuildingScope<T extends string> = T extends "" ? never : T;
 export interface World {
   scope: BuildingScope;
   today: Date;
-  buildings: Building[];
-  rooms: Room[];
+  /** `totalRooms`/`activeContracts`/`availableRooms`/`occupancyRate` off Phòng and Hợp đồng live (ADR-0015 §2). */
+  buildings: BuildingView[];
+  /** `tenant` is the name off the Phòng's live Hợp đồng, `null` once none exists (ADR-0015 §2). */
+  rooms: RoomView[];
   /** `status` is `deriveContractStatus(contract, today)` — never the raw Mock value. */
   contracts: Contract[];
   /** `status` is `deriveInvoiceStatus(invoice, today)` — never the raw Mock value. */
@@ -52,7 +54,8 @@ export interface World {
    * (roomId, type, month), so an unscoped list is never wrong, only unfiltered.
    */
   utilityOldIndexOverrides: UtilityOldIndexOverride[];
-  tenants: Tenant[];
+  /** `room`/`floor`/`rentAmount`/`depositAmount`/`moveInDate`/`contractEnd`/`status`/`hasOverdueInvoice` off Hợp đồng live (ADR-0015 §2). */
+  tenants: TenantView[];
   complianceItems: ComplianceItem[];
   residenceDeclarations: ResidenceDeclaration[];
   /** `buildingName` is never carried — hooks still join it via `withBuildingName`. */

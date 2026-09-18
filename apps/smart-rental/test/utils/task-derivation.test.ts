@@ -35,12 +35,6 @@ const tenant: Tenant = {
   name: "Nguyễn Văn A",
   phone: "0900000000",
   email: "a@example.com",
-  room: "Phòng 101",
-  floor: 1,
-  rentAmount: 2_000_000,
-  depositAmount: 2_000_000,
-  moveInDate: "01/01/2026",
-  contractEnd: "31/12/2027",
   idNumber: "012345678",
   gender: "male",
 };

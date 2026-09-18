@@ -46,7 +46,6 @@ function room(overrides: Partial<Room> = {}): Room {
     price: 3_000_000,
     status: "occupied",
     type: "single",
-    tenant: "Nguyễn Văn A",
     lastUpdated: "18/09/2026",
     ...overrides,
   };
@@ -129,7 +128,6 @@ describe("buildCycleProgressSummary", () => {
             id: "R2",
             buildingId: "b1",
             status: "available",
-            tenant: null,
           }),
         ],
         contracts: [contract({ id: "C1", roomId: "R1" })],

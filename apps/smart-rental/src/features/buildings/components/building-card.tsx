@@ -9,16 +9,15 @@ import {
   CardTitle,
 } from "@monorepo/ui/components/card";
 
-import type { Building } from "~/types/building";
+import type { BuildingView } from "~/types/building";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatGroup, StatItem } from "~/components/card/stat-item";
 import { EntityActionMenu } from "~/components/menu/entity-action-menu";
 import { OccupancyBar } from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
-import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 
 interface BuildingCardProps {
-  building: Building;
+  building: BuildingView;
   onDelete?: () => void;
   canDelete?: boolean;
 }
@@ -35,7 +34,6 @@ export default function BuildingCard({
   onDelete,
   canDelete = true,
 }: BuildingCardProps) {
-  const stats = getBuildingStats(building);
   const detailPath = ROUTES.buildingDetailPath(building.id);
 
   return (
@@ -62,14 +60,14 @@ export default function BuildingCard({
           </CardHeader>
           <CardContent className="space-y-4">
             <StatGroup className="sm:grid-cols-2 gap-3 text-sm">
-              <StatItem label="Tổng phòng" value={stats.totalRooms} />
+              <StatItem label="Tổng phòng" value={building.totalRooms} />
               <StatItem
                 label="Phòng trống"
-                value={stats.availableRooms}
+                value={building.availableRooms}
                 valueClassName="text-success"
               />
             </StatGroup>
-            <OccupancyBar rate={stats.occupancyRate} />
+            <OccupancyBar rate={building.occupancyRate} />
           </CardContent>
         </>
       }

@@ -30,12 +30,20 @@ export interface Building {
   bankAccount?: BankAccount;
   note?: string;
   imageUrl?: string;
-  totalRooms?: number;
-  activeContracts?: number;
-  availableRooms?: number;
-  occupancyRate?: number;
   description?: string;
 }
+
+/**
+ * What `~/hooks/api/building` actually returns: the Mock entity plus World's
+ * computed occupancy figures (ADR-0015 §2) — counted off the Toà nhà's own
+ * Phòng and live (`ACTIVE`/`EXPIRING`) Hợp đồng, never a stale stored number.
+ */
+export type BuildingView = Building & {
+  totalRooms: number;
+  activeContracts: number;
+  availableRooms: number;
+  occupancyRate: number;
+};
 
 export interface CreateBuildingRequest {
   name: string;

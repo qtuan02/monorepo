@@ -115,12 +115,6 @@ describe("ContractCreateTemplate — điều khoản điền sẵn, tóm tắt s
       name: "Kiểm Thử Wizard",
       phone: "0900000186",
       email: "kiemthu186@example.com",
-      room: "",
-      floor: 0,
-      rentAmount: 0,
-      depositAmount: 0,
-      moveInDate: "18/09/2026",
-      contractEnd: "",
       idNumber: "000000186",
       gender: "male",
     };

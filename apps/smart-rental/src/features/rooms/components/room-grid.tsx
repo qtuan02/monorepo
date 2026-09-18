@@ -1,4 +1,4 @@
-import { User } from "lucide-react";
+﻿import { User } from "lucide-react";
 import { Link } from "react-router";
 
 import {
@@ -7,7 +7,7 @@ import {
   CardHeader,
 } from "@monorepo/ui/components/card";
 
-import type { Room } from "~/types/room";
+import type { RoomView } from "~/types/room";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { ROUTES } from "~/constants/routes";
@@ -16,7 +16,7 @@ import { formatCurrency } from "~/utils/currency";
 import RoomRowActions from "./room-row-actions";
 
 interface RoomGridProps {
-  rooms: Room[];
+  rooms: RoomView[];
   /**
    * Present only at Building scope null ("Tất cả Toà nhà") — one more
    * grouping layer above tầng, a title per Toà nhà (spec #179 §"Danh sách và
@@ -27,8 +27,8 @@ interface RoomGridProps {
 }
 
 /** Groups by floor, highest first; each floor's Phòng by name. */
-function groupByFloor(rooms: Room[]) {
-  const byFloor = new Map<number, Room[]>();
+function groupByFloor(rooms: RoomView[]) {
+  const byFloor = new Map<number, RoomView[]>();
   for (const room of rooms) {
     const floor = room.floor || 1;
     byFloor.set(floor, [...(byFloor.get(floor) ?? []), room]);
@@ -42,8 +42,11 @@ function groupByFloor(rooms: Room[]) {
 }
 
 /** Groups by Toà nhà, by name; each Toà nhà's Phòng grouped by floor in turn. */
-function groupByBuilding(rooms: Room[], buildingNameById: Map<string, string>) {
-  const byBuilding = new Map<string, Room[]>();
+function groupByBuilding(
+  rooms: RoomView[],
+  buildingNameById: Map<string, string>,
+) {
+  const byBuilding = new Map<string, RoomView[]>();
   for (const room of rooms) {
     byBuilding.set(room.buildingId, [
       ...(byBuilding.get(room.buildingId) ?? []),
@@ -59,7 +62,7 @@ function groupByBuilding(rooms: Room[], buildingNameById: Map<string, string>) {
     .sort((a, b) => a.buildingName.localeCompare(b.buildingName));
 }
 
-function FloorSection({ floor, rooms }: { floor: number; rooms: Room[] }) {
+function FloorSection({ floor, rooms }: { floor: number; rooms: RoomView[] }) {
   return (
     <section className="space-y-4">
       <div className="bg-background sticky top-0 z-10 flex items-center gap-4 py-1">

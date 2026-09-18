@@ -17,8 +17,6 @@ import { mockBuildings } from "~/constants/mock/buildings";
 import { mockTenants } from "~/constants/mock/tenants";
 import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { formatDate } from "~/utils/date";
-import { buildTenantViews, toTenantView } from "~/utils/tenant-status";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
 // answers through `readWorld` (ADR-0015). Wiring `be-motel` later is swapping
@@ -37,8 +35,7 @@ export function useGetTenants(
 ): UseQueryResult<TenantView[], Error> {
   return useQuery<TenantView[], Error>({
     queryKey: tenantQueryKeys.getTenants(params),
-    queryFn: async () =>
-      buildTenantViews(readWorld(params?.buildingId ?? null)),
+    queryFn: async () => readWorld(params?.buildingId ?? null).tenants,
     ...options,
   });
 }
@@ -49,11 +46,8 @@ export function useGetTenant(
 ): UseQueryResult<TenantView | null, Error> {
   return useQuery<TenantView | null, Error>({
     queryKey: tenantQueryKeys.getTenant(tenantId),
-    queryFn: async () => {
-      const world = readWorld(null);
-      const tenant = world.tenants.find((item) => item.id === tenantId);
-      return tenant ? toTenantView(tenant, world) : null;
-    },
+    queryFn: async () =>
+      readWorld(null).tenants.find((item) => item.id === tenantId) ?? null,
     ...options,
   });
 }
@@ -63,7 +57,8 @@ export function useCreateTenant(
 ) {
   return useMutation({
     // Prepends to the Mock as the building mutation does. A fresh Người thuê
-    // has no Phòng or Hợp đồng yet, so those fields are the "chờ vào" blanks.
+    // has no Phòng or Hợp đồng yet — World's `room`/`floor`/… fall back to
+    // their own "chờ vào" blanks until one exists (ADR-0015 §2).
     mutationFn: async (request: CreateTenantRequest) => {
       const tenant: Tenant = {
         id: `T${String(mockTenants.length + 1).padStart(3, "0")}`,
@@ -71,12 +66,6 @@ export function useCreateTenant(
         name: request.fullName,
         phone: request.phone,
         email: request.email,
-        room: "—",
-        floor: 0,
-        rentAmount: 0,
-        depositAmount: 0,
-        moveInDate: formatDate(new Date()),
-        contractEnd: "—",
         idNumber: request.idCard,
         gender: "male",
       };

@@ -26,7 +26,6 @@ import { OccupancyBar } from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
 import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
 import BuildingSettingsFormSheet from "~/features/buildings/components/building-settings-form-sheet";
-import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 import RoomGrid from "~/features/rooms/components/room-grid";
 import { useDeleteBuilding, useGetBuilding } from "~/hooks/api/building";
 import { useGetContracts } from "~/hooks/api/contract";
@@ -80,7 +79,6 @@ export default function BuildingDetailTemplate({
     );
   }
 
-  const stats = getBuildingStats(building);
   const rooms = roomsQuery.data ?? [];
   const canDelete = canDeleteBuilding(building.id, contractsQuery.data ?? []);
   const isElectricityOverCap = isElectricityPriceOverCap(
@@ -137,15 +135,18 @@ export default function BuildingDetailTemplate({
                   </CardHeader>
                   <CardContent>
                     <StatGroup>
-                      <StatItem label="Tổng phòng" value={stats.totalRooms} />
+                      <StatItem
+                        label="Tổng phòng"
+                        value={building.totalRooms}
+                      />
                       <StatItem
                         label="Phòng trống"
-                        value={stats.availableRooms}
+                        value={building.availableRooms}
                         valueClassName="text-success"
                       />
                       <StatItem
                         label="Đang hoạt động"
-                        value={stats.activeContracts}
+                        value={building.activeContracts}
                       />
                     </StatGroup>
                   </CardContent>
@@ -250,7 +251,7 @@ export default function BuildingDetailTemplate({
             {/* One "83%" — the OccupancyBar's own figure, not a second big
                 number above it (spec #179 §"Chi tiết / danh sách"). */}
             <CardContent>
-              <OccupancyBar rate={stats.occupancyRate} />
+              <OccupancyBar rate={building.occupancyRate} />
             </CardContent>
           </Card>
         }

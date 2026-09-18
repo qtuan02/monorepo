@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 
-import type { Building } from "~/types/building";
+import type { BuildingView } from "~/types/building";
 import type { Invoice } from "~/types/invoice";
 import type { ReportRow } from "~/types/report";
-import type { Room } from "~/types/room";
+import type { Room, RoomView } from "~/types/room";
 import type { World } from "~/types/world";
 import {
   buildBuildingComparisonRows,
@@ -13,7 +13,7 @@ import {
   occupancyBucket,
 } from "~/utils/report-rows";
 
-const buildings: Building[] = [
+const buildings: BuildingView[] = [
   {
     id: "b1",
     name: "Trọ Sinh Viên Xanh",
@@ -24,6 +24,10 @@ const buildings: Building[] = [
       waterPricePerM3: 15000,
       serviceFee: 100000,
     },
+    totalRooms: 0,
+    activeContracts: 0,
+    availableRooms: 0,
+    occupancyRate: 0,
   },
   {
     id: "b2",
@@ -35,10 +39,14 @@ const buildings: Building[] = [
       waterPricePerM3: 15000,
       serviceFee: 100000,
     },
+    totalRooms: 0,
+    activeContracts: 0,
+    availableRooms: 0,
+    occupancyRate: 0,
   },
 ];
 
-const rooms: Room[] = [
+const rooms: RoomView[] = [
   {
     id: "r1",
     buildingId: "b1",
@@ -117,7 +125,7 @@ describe("buildReportRows", () => {
   it("scopes to one Toà nhà when world.buildings only carries that one", () => {
     const rows = buildReportRows(
       makeWorld({
-        buildings: [buildings[0] as Building],
+        buildings: [buildings[0] as BuildingView],
         rooms,
         invoices: [invoice({})],
       }),
@@ -141,7 +149,7 @@ describe("buildReportRows", () => {
   it("computes occupancyRate from the Toà nhà's own Phòng", () => {
     const rows = buildReportRows(
       makeWorld({
-        buildings: [buildings[0] as Building],
+        buildings: [buildings[0] as BuildingView],
         rooms,
         invoices: [invoice({})],
       }),
@@ -153,7 +161,7 @@ describe("buildReportRows", () => {
   it("counts Hoá đơn nhà cung cấp alongside Chi phí in the same kỳ (spec #153 §10 row 11)", () => {
     const rows = buildReportRows(
       makeWorld({
-        buildings: [buildings[0] as Building],
+        buildings: [buildings[0] as BuildingView],
         rooms,
         invoices: [invoice({ amount: 1_000_000 })],
         expenses: [
@@ -228,7 +236,6 @@ describe("buildFloorOccupancy", () => {
     price: 0,
     status: "occupied",
     type: "single",
-    tenant: null,
     lastUpdated: "",
     floor: 1,
     ...patch,

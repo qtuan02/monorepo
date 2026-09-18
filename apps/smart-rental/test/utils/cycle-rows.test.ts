@@ -42,7 +42,6 @@ function room(overrides: Partial<Room> = {}): Room {
     price: 2_000_000,
     status: "occupied",
     type: "single",
-    tenant: "Nguyễn Văn A",
     lastUpdated: "01/09/2026",
     ...overrides,
   };

@@ -1,4 +1,4 @@
-import type { UseQueryResult } from "@tanstack/react-query";
+﻿import type { UseQueryResult } from "@tanstack/react-query";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 import type {
@@ -10,6 +10,7 @@ import type {
   ResidenceDeclaration,
 } from "~/types/compliance";
 import { mockComplianceItems } from "~/constants/mock/compliance";
+import { mockContracts } from "~/constants/mock/contracts";
 import { mockTenants } from "~/constants/mock/tenants";
 import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
@@ -83,7 +84,7 @@ export function useMarkResidenceNotificationSent(
         buildingId: tenant?.buildingId ?? "",
         tenantId,
         tenant: tenant?.name ?? "",
-        room: tenant?.room ?? "",
+        room: mockContracts.find((c) => c.tenantId === tenantId)?.room ?? "",
         type: "residence_notification",
         status: "completed",
         dueDate: sentDate,
@@ -130,7 +131,7 @@ export function useExtendResidenceRegistration(
         buildingId: tenant?.buildingId ?? "",
         tenantId,
         tenant: tenant?.name ?? "",
-        room: tenant?.room ?? "",
+        room: mockContracts.find((c) => c.tenantId === tenantId)?.room ?? "",
         type: "residence_registration",
         status: "pending",
         dueDate: newDueDate,

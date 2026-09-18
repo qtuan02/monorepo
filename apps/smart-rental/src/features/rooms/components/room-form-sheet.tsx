@@ -88,8 +88,7 @@ export default function RoomFormSheet({
   const onSubmit = form.handleSubmit((values) => {
     if (room) {
       updateRoom.mutate(
-        // `tenant` is untouched by this form — carried over as-is.
-        { roomId: room.id, ...values, tenant: room.tenant },
+        { roomId: room.id, ...values },
         {
           onSuccess: (updated) => {
             toast.add({
@@ -103,19 +102,16 @@ export default function RoomFormSheet({
       return;
     }
 
-    createRoom.mutate(
-      { ...values, tenant: null },
-      {
-        onSuccess: (created) => {
-          toast.add({
-            title: `Đã thêm phòng ${created.name}`,
-            type: "success",
-          });
-          form.reset(toDefaultValues(undefined, defaultBuildingId));
-          onOpenChange(false);
-        },
+    createRoom.mutate(values, {
+      onSuccess: (created) => {
+        toast.add({
+          title: `Đã thêm phòng ${created.name}`,
+          type: "success",
+        });
+        form.reset(toDefaultValues(undefined, defaultBuildingId));
+        onOpenChange(false);
       },
-    );
+    });
   });
 
   return (

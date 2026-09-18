@@ -229,7 +229,6 @@ function pushCycleProgressFixture() {
     price: 3_000_000,
     status: "occupied",
     type: "single",
-    tenant: "Người thuê kiểm thử",
     lastUpdated: "18/09/2026",
   });
   mockContracts.push({

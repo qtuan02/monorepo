@@ -1,12 +1,11 @@
-import type { Room } from "~/types/room";
+﻿import type { Room } from "~/types/room";
 import { trackMockReset } from "~/utils/mock-reset";
 
 /**
  * The Mock every Phòng read comes from (ADR-0012, spec #153) — 18 Phòng
- * across the three Toà nhà (6/8/4), down from the prototype's 45. `tenant` is
- * still the denormalized name the room-detail screen reads; it is kept in
- * step with `mock/tenants.ts` and `mock/contracts.ts` by hand, since all
- * three are authored together here.
+ * across the three Toà nhà (6/8/4), down from the prototype's 45. No
+ * `tenant` field (ADR-0015 §2) — the room-detail screen's occupant name is
+ * World's own join onto `mock/contracts.ts`'s live Hợp đồng.
  */
 export const mockRooms: Room[] = [
   // b1 — Trọ Sinh Viên Xanh (6 Phòng, 1 trống)
@@ -18,7 +17,6 @@ export const mockRooms: Room[] = [
     price: 2500000,
     status: "available",
     type: "single",
-    tenant: null,
     lastUpdated: "01/09/2026",
     buildingId: "b1",
   },
@@ -30,7 +28,6 @@ export const mockRooms: Room[] = [
     price: 2700000,
     status: "occupied",
     type: "single",
-    tenant: "Nguyễn Văn A",
     lastUpdated: "01/09/2026",
     buildingId: "b1",
   },
@@ -42,7 +39,6 @@ export const mockRooms: Room[] = [
     price: 2900000,
     status: "occupied",
     type: "double",
-    tenant: "Trần Thị B",
     lastUpdated: "01/09/2026",
     buildingId: "b1",
   },
@@ -54,7 +50,6 @@ export const mockRooms: Room[] = [
     price: 2500000,
     status: "occupied",
     type: "single",
-    tenant: "Lê Văn C",
     lastUpdated: "01/09/2026",
     buildingId: "b1",
   },
@@ -66,7 +61,6 @@ export const mockRooms: Room[] = [
     price: 2700000,
     status: "occupied",
     type: "single",
-    tenant: "Phạm Thị D",
     lastUpdated: "01/09/2026",
     buildingId: "b1",
   },
@@ -78,7 +72,6 @@ export const mockRooms: Room[] = [
     price: 2900000,
     status: "occupied",
     type: "double",
-    tenant: "Hoàng Văn E",
     lastUpdated: "01/09/2026",
     buildingId: "b1",
   },
@@ -91,7 +84,6 @@ export const mockRooms: Room[] = [
     price: 5000000,
     status: "occupied",
     type: "studio",
-    tenant: "Đỗ Thị F",
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -103,7 +95,6 @@ export const mockRooms: Room[] = [
     price: 5500000,
     status: "occupied",
     type: "studio",
-    tenant: "Vũ Văn G",
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -115,7 +106,6 @@ export const mockRooms: Room[] = [
     price: 5000000,
     status: "available",
     type: "studio",
-    tenant: null,
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -127,7 +117,6 @@ export const mockRooms: Room[] = [
     price: 5500000,
     status: "maintenance",
     type: "studio",
-    tenant: null,
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -139,7 +128,6 @@ export const mockRooms: Room[] = [
     price: 5000000,
     status: "occupied",
     type: "studio",
-    tenant: "Bùi Thị H",
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -151,7 +139,6 @@ export const mockRooms: Room[] = [
     price: 5500000,
     status: "occupied",
     type: "studio",
-    tenant: "Ngô Văn I",
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -163,7 +150,6 @@ export const mockRooms: Room[] = [
     price: 6000000,
     status: "occupied",
     type: "studio",
-    tenant: "Dương Thị K",
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -175,7 +161,6 @@ export const mockRooms: Room[] = [
     price: 6000000,
     status: "occupied",
     type: "studio",
-    tenant: "Lý Văn L",
     lastUpdated: "01/09/2026",
     buildingId: "b2",
   },
@@ -188,7 +173,6 @@ export const mockRooms: Room[] = [
     price: 3500000,
     status: "occupied",
     type: "double",
-    tenant: "Phan Thị M",
     lastUpdated: "01/09/2026",
     buildingId: "b3",
   },
@@ -200,7 +184,6 @@ export const mockRooms: Room[] = [
     price: 3500000,
     status: "occupied",
     type: "double",
-    tenant: "Trịnh Văn N",
     lastUpdated: "01/09/2026",
     buildingId: "b3",
   },
@@ -212,7 +195,6 @@ export const mockRooms: Room[] = [
     price: 3500000,
     status: "available",
     type: "double",
-    tenant: null,
     lastUpdated: "01/09/2026",
     buildingId: "b3",
   },
@@ -224,7 +206,6 @@ export const mockRooms: Room[] = [
     price: 3700000,
     status: "occupied",
     type: "double",
-    tenant: "Đặng Thị O",
     lastUpdated: "01/09/2026",
     buildingId: "b3",
   },

@@ -11,6 +11,7 @@ import type {
   CreateRoomRequest,
   Room,
   RoomListParams,
+  RoomView,
   UpdateRoomRequest,
 } from "~/types/room";
 import { mockContracts } from "~/constants/mock/contracts";
@@ -33,9 +34,9 @@ export const roomQueryKeys = {
 
 export function useGetRooms(
   params?: RoomListParams,
-  options?: UseQueryOptionsWrapper<Room[]>,
-): UseQueryResult<Room[], Error> {
-  return useQuery<Room[], Error>({
+  options?: UseQueryOptionsWrapper<RoomView[]>,
+): UseQueryResult<RoomView[], Error> {
+  return useQuery<RoomView[], Error>({
     queryKey: roomQueryKeys.getRooms(params),
     // The Building scope is a query param, as it will be on the backend —
     // never a filter applied over an unscoped cache entry.
@@ -46,9 +47,9 @@ export function useGetRooms(
 
 export function useGetRoom(
   roomId: string,
-  options?: UseQueryOptionsWrapper<Room | null>,
-): UseQueryResult<Room | null, Error> {
-  return useQuery<Room | null, Error>({
+  options?: UseQueryOptionsWrapper<RoomView | null>,
+): UseQueryResult<RoomView | null, Error> {
+  return useQuery<RoomView | null, Error>({
     queryKey: roomQueryKeys.getRoom(roomId),
     queryFn: async () =>
       readWorld(null).rooms.find((room) => room.id === roomId) ?? null,

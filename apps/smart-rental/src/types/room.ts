@@ -12,10 +12,17 @@ export interface Room {
   price: number;
   status: RoomStatus;
   type: RoomType;
-  tenant: string | null;
   /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
   lastUpdated: string;
 }
+
+/**
+ * What `~/hooks/api/room` actually returns: the Mock entity plus the one
+ * World-computed field (ADR-0015 §2) — the name off the Phòng's live
+ * (`ACTIVE`/`EXPIRING`) Hợp đồng, `null` once none exists (Thanh lý, or a
+ * Phòng that was never occupied).
+ */
+export type RoomView = Room & { tenant: string | null };
 
 export interface RoomListParams {
   /** The Building scope; `null` or absent means every Toà nhà. */
@@ -30,7 +37,6 @@ export interface CreateRoomRequest {
   type: RoomType;
   status: RoomStatus;
   price: number;
-  tenant: string | null;
 }
 
 export interface UpdateRoomRequest extends CreateRoomRequest {
