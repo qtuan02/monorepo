@@ -44,6 +44,7 @@ export function mapConversationToUiModel(
 
   return {
     id: record.id,
+    type: record.type,
     title: isGroup
       ? record.groupName || "Group conversation"
       : otherMember?.displayName || "Direct message",

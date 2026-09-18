@@ -2,6 +2,9 @@ import type {
   ChatMessageListParams,
   ChatMessageListResponse,
   ChatMessageRecord,
+  ChatMessageResponse,
+  ChatSendDirectMessageParams,
+  ChatSendGroupMessageParams,
 } from "@monorepo/types/chat-message";
 
 import type { HttpClient } from "../client";
@@ -27,5 +30,27 @@ export class ChatMessageService {
       items: response.data.messages,
       nextCursor: response.data.nextCursor,
     };
+  }
+
+  async sendDirect(
+    params: ChatSendDirectMessageParams,
+  ): Promise<ChatMessageRecord> {
+    const response = await this.client.post<ChatMessageResponse>(
+      "/v1/message/direct",
+      params,
+    );
+
+    return response.data;
+  }
+
+  async sendGroup(
+    params: ChatSendGroupMessageParams,
+  ): Promise<ChatMessageRecord> {
+    const response = await this.client.post<ChatMessageResponse>(
+      "/v1/message/group",
+      params,
+    );
+
+    return response.data;
   }
 }

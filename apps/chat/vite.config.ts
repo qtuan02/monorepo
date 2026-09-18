@@ -70,8 +70,21 @@ export default defineConfig({
     chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        // Keep deps out of the app chunk so an app edit doesn't bust their cache.
-        codeSplitting: { groups: [{ name: "vendor", test: /node_modules/ }] },
+        // Keep deps out of the app chunk so an app edit doesn't bust their
+        // cache. Every `emoji-mart`/`@emoji-mart/*` package is excluded on
+        // purpose: they're only reached through a dynamic import() in the
+        // emoji picker (ticket #200), and grouping any of them into `vendor`
+        // would merge it into the one chunk every page preloads eagerly,
+        // undoing the lazy load entirely. Bun nests every package under a
+        // `.bun/<name>@<version>/node_modules/…` folder, so the lookahead
+        // has to rule out `emoji-mart` anywhere in the id — not just right
+        // after the first `node_modules/` segment, which is the `.bun`
+        // cache folder itself.
+        codeSplitting: {
+          groups: [
+            { name: "vendor", test: /^(?!.*emoji-mart).*node_modules\// },
+          ],
+        },
       },
     },
   },

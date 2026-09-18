@@ -1,10 +1,22 @@
 import type { UseInfiniteQueryResult } from "@tanstack/react-query";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import type { ChatMessagePage } from "@monorepo/api/chat/message-service";
-import type { ChatMessageRecord } from "@monorepo/types/chat-message";
+import type {
+  ChatMessageRecord,
+  ChatSendDirectMessageParams,
+  ChatSendGroupMessageParams,
+} from "@monorepo/types/chat-message";
 
-import type { UseInfiniteQueryOptionsWrapper } from "~/libs/query-key-factory";
+import type {
+  UseInfiniteQueryOptionsWrapper,
+  UseMutationOptionsWrapper,
+} from "~/libs/query-key-factory";
+import { conversationQueryKeys } from "~/hooks/api/conversation";
 import { chatMessageService } from "~/libs/http-client";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
@@ -67,6 +79,53 @@ export function useMessagesInfiniteQuery(
           .slice(1)
           .reduce((count, page) => count + page.items.length, 0),
       };
+    },
+    ...options,
+  });
+}
+
+// No `onError` toast in either hook — the global `MutationCache.onError` in
+// ~/libs/query-client.ts already surfaces every failed mutation once, and
+// there's no socket to patch the cache directly yet, so a sent message
+// shows up through invalidation alone (spec #195, ticket #200).
+
+export function useSendDirectMessageMutation(
+  options?: UseMutationOptionsWrapper<
+    ChatSendDirectMessageParams,
+    ChatMessageRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChatSendDirectMessageParams) =>
+      chatMessageService.sendDirect(params),
+    onSuccess: (message) => {
+      queryClient.invalidateQueries({
+        queryKey: messageQueryKeys.byConversation(message.conversationId),
+      });
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
+    },
+    ...options,
+  });
+}
+
+export function useSendGroupMessageMutation(
+  options?: UseMutationOptionsWrapper<
+    ChatSendGroupMessageParams,
+    ChatMessageRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChatSendGroupMessageParams) =>
+      chatMessageService.sendGroup(params),
+    onSuccess: (message) => {
+      queryClient.invalidateQueries({
+        queryKey: messageQueryKeys.byConversation(message.conversationId),
+      });
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
     },
     ...options,
   });

@@ -6,6 +6,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { ROUTES } from "~/constants/routes";
+import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
 
@@ -53,6 +54,9 @@ export default function ConversationPanel({
       <div className="min-h-0 flex-1">
         <MessageList conversationId={conversationId} />
       </div>
+      {conversation && (
+        <MessageComposer key={conversation.id} conversation={conversation} />
+      )}
     </div>
   );
 }

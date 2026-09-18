@@ -16,6 +16,8 @@
     "e2e:headed": "playwright test --project=watch --headed --workers=1"
   },
   "dependencies": {
+    "@emoji-mart/data": "catalog:",
+    "@emoji-mart/react": "catalog:",
     "@hookform/resolvers": "catalog:",
     "@monorepo/api": "workspace:*",
     "@monorepo/dayjs": "workspace:*",

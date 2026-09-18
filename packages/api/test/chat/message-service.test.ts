@@ -6,11 +6,20 @@ import { ChatMessageType } from "@monorepo/types/chat-message";
 import type { HttpClient } from "../../src/client";
 import { ChatMessageService } from "../../src/chat/message-service";
 
-function clientWith(get: HttpClient["get"]): HttpClient {
+function clientWith(
+  overrides: Partial<Pick<HttpClient, "get" | "post">>,
+): HttpClient {
   const unused = () =>
     Promise.reject(new Error("This method is not part of the test."));
 
-  return { get, post: unused, put: unused, patch: unused, delete: unused };
+  return {
+    get: unused,
+    post: unused,
+    put: unused,
+    patch: unused,
+    delete: unused,
+    ...overrides,
+  };
 }
 
 const MESSAGE: ChatMessageRecord = {
@@ -30,7 +39,7 @@ describe("ChatMessageService.getMessages", () => {
       message: null,
       status: 200,
     });
-    const service = new ChatMessageService(clientWith(get));
+    const service = new ChatMessageService(clientWith({ get }));
 
     await expect(
       service.getMessages("c1", { limit: 30, cursor: "cursor-1" }),
@@ -46,7 +55,7 @@ describe("ChatMessageService.getMessages", () => {
       message: null,
       status: 200,
     });
-    const service = new ChatMessageService(clientWith(get));
+    const service = new ChatMessageService(clientWith({ get }));
 
     await expect(service.getMessages("c1", { limit: 30 })).resolves.toEqual({
       items: [],
@@ -57,10 +66,92 @@ describe("ChatMessageService.getMessages", () => {
   it("lets a failure through rather than translating it", async () => {
     const failure = new Error("boom");
     const get = vi.fn().mockRejectedValue(failure);
-    const service = new ChatMessageService(clientWith(get));
+    const service = new ChatMessageService(clientWith({ get }));
 
     await expect(service.getMessages("c1", { limit: 30 })).rejects.toBe(
       failure,
     );
+  });
+});
+
+describe("ChatMessageService.sendDirect", () => {
+  it("POSTs to /v1/message/direct with the payload and unwraps the record", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: MESSAGE,
+      message: null,
+      status: 200,
+    });
+    const service = new ChatMessageService(clientWith({ post }));
+
+    await expect(
+      service.sendDirect({
+        recipientId: "u2",
+        content: "Hello",
+        type: ChatMessageType.TEXT,
+        attachmentUrl: null,
+      }),
+    ).resolves.toEqual(MESSAGE);
+    expect(post).toHaveBeenCalledWith("/v1/message/direct", {
+      recipientId: "u2",
+      content: "Hello",
+      type: ChatMessageType.TEXT,
+      attachmentUrl: null,
+    });
+  });
+
+  it("lets a failure through rather than translating it", async () => {
+    const failure = new Error("boom");
+    const post = vi.fn().mockRejectedValue(failure);
+    const service = new ChatMessageService(clientWith({ post }));
+
+    await expect(
+      service.sendDirect({
+        recipientId: "u2",
+        content: "Hello",
+        type: ChatMessageType.TEXT,
+        attachmentUrl: null,
+      }),
+    ).rejects.toBe(failure);
+  });
+});
+
+describe("ChatMessageService.sendGroup", () => {
+  it("POSTs to /v1/message/group with the payload and unwraps the record", async () => {
+    const post = vi.fn().mockResolvedValue({
+      data: MESSAGE,
+      message: null,
+      status: 200,
+    });
+    const service = new ChatMessageService(clientWith({ post }));
+
+    await expect(
+      service.sendGroup({
+        conversationId: "c1",
+        content: "Hello",
+        type: ChatMessageType.TEXT,
+        attachmentUrl: null,
+      }),
+    ).resolves.toEqual(MESSAGE);
+    expect(post).toHaveBeenCalledWith("/v1/message/group", {
+      conversationId: "c1",
+      content: "Hello",
+      type: ChatMessageType.TEXT,
+      attachmentUrl: null,
+    });
+  });
+
+  it("lets a failure through rather than translating it", async () => {
+    const failure = new Error("boom");
+    const post = vi.fn().mockRejectedValue(failure);
+    const service = new ChatMessageService(clientWith({ post }));
+
+    await expect(
+      service.sendGroup({
+        conversationId: "c1",
+        content: "Hello",
+        type: ChatMessageType.TEXT,
+        attachmentUrl: null,
+      }),
+    ).rejects.toBe(failure);
   });
 });

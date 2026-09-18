@@ -1,4 +1,7 @@
-import type { ChatParticipantRole } from "@monorepo/types/chat-conversation";
+import type {
+  ChatConversationType,
+  ChatParticipantRole,
+} from "@monorepo/types/chat-conversation";
 
 /** The UI's read of a `ChatConversationParticipant` — see map-conversation-to-ui-model.ts. */
 export interface ConversationMember {
@@ -11,6 +14,7 @@ export interface ConversationMember {
 /** The UI's read of a `ChatConversationRecord` — see map-conversation-to-ui-model.ts. */
 export interface Conversation {
   id: string;
+  type: ChatConversationType;
   title: string;
   lastMessage: string;
   lastMessageAt: string | null;

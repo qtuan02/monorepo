@@ -31,3 +31,19 @@ export interface ChatMessageListPayload {
 }
 
 export type ChatMessageListResponse = ChatBaseResponse<ChatMessageListPayload>;
+
+export interface ChatSendDirectMessageParams {
+  recipientId: string;
+  content: string;
+  type: ChatMessageType.TEXT;
+  attachmentUrl: null;
+}
+
+export interface ChatSendGroupMessageParams {
+  conversationId: string;
+  content: string;
+  type: ChatMessageType.TEXT;
+  attachmentUrl: null;
+}
+
+export type ChatMessageResponse = ChatBaseResponse<ChatMessageRecord>;
