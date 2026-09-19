@@ -8,10 +8,12 @@ import {
   InputGroupTextarea,
 } from "@monorepo/ui/components/input-group";
 import { Spinner } from "@monorepo/ui/components/spinner";
+import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposerEmojiPicker from "~/features/conversation/components/message-composer-emoji-picker";
 import { useMessageComposer } from "~/features/conversation/hooks/use-message-composer";
+import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
 
 interface MessageComposerProps {
   conversation: Conversation;
@@ -61,7 +63,10 @@ export default function MessageComposer({
               size="icon-sm"
               disabled={isPending || !content.trim()}
               aria-label={isPending ? "Sending..." : "Send"}
-              className="bg-gradient-to-br from-primary to-[oklch(from_var(--primary)_calc(l+0.14)_c_h)] text-primary-foreground shadow-md shadow-primary/25"
+              className={cn(
+                PRIMARY_GRADIENT_CLASSNAME,
+                "text-primary-foreground shadow-md shadow-primary/25",
+              )}
             >
               {isPending ? (
                 <Spinner className="size-4" />

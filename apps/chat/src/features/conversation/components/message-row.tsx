@@ -10,10 +10,13 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import type { MessagePosition } from "~/features/conversation/utils/group-messages";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
 import { formatMessageDateLabel, formatMessageTime } from "~/utils/date";
 
-const OWN_BUBBLE_CLASSNAME =
-  "border-transparent bg-gradient-to-br from-primary to-[oklch(from_var(--primary)_calc(l+0.14)_c_h)] text-primary-foreground shadow-lg shadow-primary/25";
+const OWN_BUBBLE_CLASSNAME = cn(
+  PRIMARY_GRADIENT_CLASSNAME,
+  "border-transparent text-primary-foreground shadow-lg shadow-primary/25",
+);
 
 interface MessageRowProps {
   position: MessagePosition;
