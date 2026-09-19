@@ -942,7 +942,10 @@ describe("the route tree", () => {
           ],
           nextCursor: null,
         });
-        useSocketStore.setState({ isConnected: true, onlineUsers: ["u1", "u3"] });
+        useSocketStore.setState({
+          isConnected: true,
+          onlineUsers: ["u1", "u3"],
+        });
 
         renderAt(ROUTES.conversationByIdPath("g1"));
 

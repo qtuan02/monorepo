@@ -32,7 +32,9 @@ const { chatUserMe, chatConversationGetConversations, chatMessageGetMessages } =
 
 vi.mock("~/libs/http-client", () => ({
   chatUserService: { me: chatUserMe },
-  chatConversationService: { getConversations: chatConversationGetConversations },
+  chatConversationService: {
+    getConversations: chatConversationGetConversations,
+  },
   chatMessageService: { getMessages: chatMessageGetMessages },
 }));
 
@@ -88,7 +90,10 @@ function messageRecord(
 }
 
 /** The exact helper the socket provider calls on a live arrival — see chat-socket-provider.tsx. */
-async function appendLiveMessage(queryClient: QueryClient, message: ChatMessageRecord) {
+async function appendLiveMessage(
+  queryClient: QueryClient,
+  message: ChatMessageRecord,
+) {
   await act(async () => {
     appendConversationMessageToCache(queryClient, message);
   });
@@ -121,8 +126,18 @@ describe("MessageList — new messages button", () => {
           lastMessageAt: null,
           unreadCount: 0,
           participants: [
-            { userId: "u1", firstName: "Tuan", lastName: "Huynh", role: ChatParticipantRole.MEMBER },
-            { userId: "u2", firstName: "Lan", lastName: "Nguyen", role: ChatParticipantRole.MEMBER },
+            {
+              userId: "u1",
+              firstName: "Tuan",
+              lastName: "Huynh",
+              role: ChatParticipantRole.MEMBER,
+            },
+            {
+              userId: "u2",
+              firstName: "Lan",
+              lastName: "Nguyen",
+              role: ChatParticipantRole.MEMBER,
+            },
           ],
         },
       ],
@@ -138,8 +153,13 @@ describe("MessageList — new messages button", () => {
     const queryClient = new QueryClient();
     renderMessageList(queryClient);
 
-    await waitFor(() => expect(latestVirtuoso.atBottomStateChange).toBeDefined());
-    await appendLiveMessage(queryClient, messageRecord("m2", "2026-09-19T08:01:00.000Z"));
+    await waitFor(() =>
+      expect(latestVirtuoso.atBottomStateChange).toBeDefined(),
+    );
+    await appendLiveMessage(
+      queryClient,
+      messageRecord("m2", "2026-09-19T08:01:00.000Z"),
+    );
 
     expect(screen.queryByText(/new message/)).not.toBeInTheDocument();
   });
@@ -149,16 +169,24 @@ describe("MessageList — new messages button", () => {
     const queryClient = new QueryClient();
     renderMessageList(queryClient);
 
-    await waitFor(() => expect(latestVirtuoso.atBottomStateChange).toBeDefined());
+    await waitFor(() =>
+      expect(latestVirtuoso.atBottomStateChange).toBeDefined(),
+    );
     act(() => latestVirtuoso.atBottomStateChange?.(false));
 
-    await appendLiveMessage(queryClient, messageRecord("m2", "2026-09-19T08:01:00.000Z"));
+    await appendLiveMessage(
+      queryClient,
+      messageRecord("m2", "2026-09-19T08:01:00.000Z"),
+    );
     const button = await screen.findByRole("button", { name: "1 new message" });
     expect(button).toBeInTheDocument();
     // The count announces without stealing focus — the region is `polite`.
     expect(button.closest('[aria-live="polite"]')).not.toBeNull();
 
-    await appendLiveMessage(queryClient, messageRecord("m3", "2026-09-19T08:02:00.000Z"));
+    await appendLiveMessage(
+      queryClient,
+      messageRecord("m3", "2026-09-19T08:02:00.000Z"),
+    );
     expect(
       await screen.findByRole("button", { name: "2 new messages" }),
     ).toBeInTheDocument();
@@ -175,11 +203,18 @@ describe("MessageList — new messages button", () => {
     const queryClient = new QueryClient();
     renderMessageList(queryClient);
 
-    await waitFor(() => expect(latestVirtuoso.atBottomStateChange).toBeDefined());
+    await waitFor(() =>
+      expect(latestVirtuoso.atBottomStateChange).toBeDefined(),
+    );
     act(() => latestVirtuoso.atBottomStateChange?.(false));
 
-    await appendLiveMessage(queryClient, messageRecord("m2", "2026-09-19T08:01:00.000Z"));
-    expect(await screen.findByRole("button", { name: "1 new message" })).toBeInTheDocument();
+    await appendLiveMessage(
+      queryClient,
+      messageRecord("m2", "2026-09-19T08:01:00.000Z"),
+    );
+    expect(
+      await screen.findByRole("button", { name: "1 new message" }),
+    ).toBeInTheDocument();
 
     act(() => latestVirtuoso.atBottomStateChange?.(true));
 
@@ -206,7 +241,12 @@ describe("MessageList — 'Seen' placement", () => {
           lastMessageAt: null,
           unreadCount: 0,
           participants: [
-            { userId: "u1", firstName: "Tuan", lastName: "Huynh", role: ChatParticipantRole.MEMBER },
+            {
+              userId: "u1",
+              firstName: "Tuan",
+              lastName: "Huynh",
+              role: ChatParticipantRole.MEMBER,
+            },
             {
               userId: "u2",
               firstName: "Lan",

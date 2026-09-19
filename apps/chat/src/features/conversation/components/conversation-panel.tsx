@@ -201,7 +201,10 @@ export default function ConversationPanel({
             </Empty>
           ) : (
             conversationId && (
-              <MessageList key={conversationId} conversationId={conversationId} />
+              <MessageList
+                key={conversationId}
+                conversationId={conversationId}
+              />
             )
           )}
         </div>

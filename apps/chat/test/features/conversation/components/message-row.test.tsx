@@ -1,13 +1,14 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { ChatMessageType } from "@monorepo/types/chat-message";
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
+import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import type { ConversationMember } from "~/features/conversation/types/conversation";
 import type { Message } from "~/features/conversation/types/message";
+import type { MessagePosition } from "~/features/conversation/utils/group-messages";
 import MessageRow from "~/features/conversation/components/message-row";
-import { groupMessages, type MessagePosition } from "~/features/conversation/utils/group-messages";
+import { groupMessages } from "~/features/conversation/utils/group-messages";
 
 const CURRENT_USER_ID = "u1";
 
@@ -23,7 +24,9 @@ function message(overrides: Partial<Message> & Pick<Message, "id">): Message {
   };
 }
 
-function reader(overrides: Partial<ConversationMember> & Pick<ConversationMember, "userId">): ConversationMember {
+function reader(
+  overrides: Partial<ConversationMember> & Pick<ConversationMember, "userId">,
+): ConversationMember {
   return {
     displayName: "Someone",
     role: ChatParticipantRole.MEMBER,
@@ -45,7 +48,9 @@ function renderThread(messages: Message[]) {
 
 function renderPosition(
   position: MessagePosition,
-  props: Partial<Pick<Parameters<typeof MessageRow>[0], "readers" | "seenByOther">> = {},
+  props: Partial<
+    Pick<Parameters<typeof MessageRow>[0], "readers" | "seenByOther">
+  > = {},
 ) {
   render(
     <div data-testid="row">
@@ -122,20 +127,26 @@ describe("MessageRow", () => {
 
   describe("read receipt", () => {
     function ownLastMessagePosition(): MessagePosition {
-      return groupMessages(
+      const [position] = groupMessages(
         [message({ id: "m1", senderId: CURRENT_USER_ID })],
         CURRENT_USER_ID,
-      )[0]!;
+      );
+      if (!position) throw new Error("expected one grouped message");
+      return position;
     }
 
     it("shows 'Seen' on the visitor's own last message once the other has read it", () => {
-      const row = renderPosition(ownLastMessagePosition(), { seenByOther: true });
+      const row = renderPosition(ownLastMessagePosition(), {
+        seenByOther: true,
+      });
 
       expect(row.getByText("Seen")).toBeInTheDocument();
     });
 
     it("shows no 'Seen' text while the other hasn't read it yet", () => {
-      const row = renderPosition(ownLastMessagePosition(), { seenByOther: false });
+      const row = renderPosition(ownLastMessagePosition(), {
+        seenByOther: false,
+      });
 
       expect(row.queryByText("Seen")).not.toBeInTheDocument();
     });

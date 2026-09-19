@@ -1,6 +1,7 @@
+import type { VirtuosoHandle } from "react-virtuoso";
 import { useMemo, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
-import { Virtuoso, type VirtuosoHandle } from "react-virtuoso";
+import { Virtuoso } from "react-virtuoso";
 
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
 import { Button } from "@monorepo/ui/components/button";
@@ -11,7 +12,10 @@ import MessageRow from "~/features/conversation/components/message-row";
 import { useConversationMessages } from "~/features/conversation/hooks/use-conversation-messages";
 import { useNewMessageIndicator } from "~/features/conversation/hooks/use-new-message-indicator";
 import { groupMessages } from "~/features/conversation/utils/group-messages";
-import { isSeenByOther, readersOf } from "~/features/conversation/utils/readers-of";
+import {
+  isSeenByOther,
+  readersOf,
+} from "~/features/conversation/utils/readers-of";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 
 interface MessageListProps {
@@ -53,7 +57,10 @@ export default function MessageList({ conversationId }: MessageListProps) {
   // never every earlier own group `isLastInGroup` also true for — so a
   // reply the other person read past doesn't light up every older run too.
   const lastOwnMessageId = useMemo(
-    () => [...messages].reverse().find((message) => message.senderId === currentUserId)?.id,
+    () =>
+      [...messages]
+        .reverse()
+        .find((message) => message.senderId === currentUserId)?.id,
     [messages, currentUserId],
   );
 

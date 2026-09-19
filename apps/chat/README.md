@@ -3,8 +3,10 @@
 App nhắn tin real-time kiểu Messenger, port 1:1 từ `chat-socket-fe` (`D:\Personal\chat\chat-socket-fe`,
 Rsbuild + shadcn trên Radix + `@stomp/stompjs`) vào monorepo. Nối backend `chat-socket` (Spring Boot,
 REST + STOMP trên cùng port). Spec [#195](https://github.com/qtuan02/monorepo/issues/195) — pha 1,
-chạy được, không redesign. Glossary [`CONTEXT.md`](./CONTEXT.md) — dùng đúng từ vựng đó (Session,
-Health gate, Presence, Conversation direct/group, Draft conversation, Friend request).
+chạy được, không redesign; spec [#232](https://github.com/qtuan02/monorepo/issues/232) sau đó đưa app
+sang hình dạng **"Islands"** — xem [§ Hình dạng Islands](#hình-dạng-islands) bên dưới. Glossary
+[`CONTEXT.md`](./CONTEXT.md) — dùng đúng từ vựng đó (Islands, Island, Rail, Bottom nav + từ pha 1:
+Session, Health gate, Presence, Conversation direct/group, Draft conversation, Friend request).
 
 Ticket khung ([#196](https://github.com/qtuan02/monorepo/issues/196)) dựng app bằng `gen:app` và cắm
 các quyết định nền. Ticket Session ([#198](https://github.com/qtuan02/monorepo/issues/198)) là tracer
@@ -16,6 +18,18 @@ gửi tin + emoji ([#200](https://github.com/qtuan02/monorepo/issues/200)), sock
 ([#203](https://github.com/qtuan02/monorepo/issues/203)). Ticket tổng kiểm
 ([#204](https://github.com/qtuan02/monorepo/issues/204)) đóng pha 1: Gate + E2E + docker xanh, deploy
 Vercel, archive repo nguồn. Xem comment tổng kết trên spec #195 cho thứ tự đầy đủ.
+
+Spec #232 (redesign Islands, brief [`docs/design/chat-redesign.md`](../../docs/design/chat-redesign.md),
+ADR-0016) chạy 8 ticket theo thứ tự token/shell → list → pane → Friends/Details → auth/empty state →
+`.dark` → tổng kiểm: T1 shell + theme + boot Island ([#233](https://github.com/qtuan02/monorepo/issues/233)),
+T2 danh sách ([#234](https://github.com/qtuan02/monorepo/issues/234)), T3 pane + composer
+([#235](https://github.com/qtuan02/monorepo/issues/235)), T4 read receipt + "N new messages" +
+Reconnecting ([#236](https://github.com/qtuan02/monorepo/issues/236)), T5 Friends Tabs + Details
+([#237](https://github.com/qtuan02/monorepo/issues/237)), T6 Auth Island + trang Me
+([#238](https://github.com/qtuan02/monorepo/issues/238)), T7 `.dark` Islands
+([#239](https://github.com/qtuan02/monorepo/issues/239)), T8 tổng kiểm
+([#240](https://github.com/qtuan02/monorepo/issues/240)). Xem comment tổng kết trên spec #232 cho lệnh
+verify + kết quả.
 
 App chạy Runtime **Vite client SPA** (clone từ `apps/_template_vite` bằng `gen:app`): mọi màn hình nằm
 sau đăng nhập, không crawler nào cần đọc, nginx phục vụ một bundle tĩnh.
@@ -33,7 +47,7 @@ bun run dev:chat     # http://localhost:3007
 | Guard | `src/features/auth/provider/` | `ProtectedRoute` / `GuestRoute`, cả hai chạy `useSessionCheck` (`~/features/auth/hooks/use-session-check.ts`) — gọi `/auth/refresh` bằng cookie trước khi quyết, hiện `RouteGuardLoading` ("Checking session...") lúc chờ. Catch-all `*` → `NotFound` vẫn là **sibling** của `ProtectedRoute`, không cần Session. |
 | Session | `src/stores/use-auth-store.ts` | Access token chỉ sống trong store — **không** `persist`. Nửa còn lại của Session là refresh cookie `HttpOnly` do backend giữ; `useSessionCheck` là cầu nối giữa hai nửa lúc boot/reload. |
 | Data layer | `packages/api/src/chat/*.ts` | Sáu service class — `ChatAuthService`, `ChatHealthService`, `ChatUserService`, `ChatFriendService`, `ChatConversationService`, `ChatMessageService` — unwrap `ChatBaseResponse.data` (`@monorepo/types/chat-base`), singleton ở `~/libs/http-client.ts` (`withCredentials`, `onAuthError` → refresh + cất token, `onUnauthorized` → xoá cache + đăng xuất — ADR-0014). |
-| Shell | `src/features/layout/templates/layout.template.tsx` | Sidebar (desktop) + bottom nav (mobile) + `<Outlet/>`, như nguồn. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown Edit profile/View profile/Sign out. |
+| Shell | `src/features/layout/templates/layout.template.tsx` | `NavRail` (`≥md`) hoặc `BottomNav` (`<md`, ẩn trong màn chat) quanh một `Island` bọc `<Outlet/>` — xem § Hình dạng Islands. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown Edit profile/View profile/Sign out. |
 | Conversation | `src/features/conversation/` | Sidebar danh sách (direct + group, cuộn vô hạn, Presence) qua `react-virtuoso`; màn chat cuộn ngược vô hạn, composer + emoji picker lazy-load, Draft conversation từ Friends. |
 | Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`), patch cache tại chỗ khi tin đến, Presence online/offline, `seen`. |
 | Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ. |
@@ -50,8 +64,10 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
    `@monorepo/dayjs` set locale `en` một lần ở `src/index.tsx`.
 2. **Không `~/services/`.** Không có, và sẽ không có: mọi gọi backend đi qua service class trong
    `@monorepo/api` (`packages/api/src/chat/`) — quy ước chung của cả monorepo, không phải riêng app này.
-3. **Không redesign.** Giao diện port 1:1 từ nguồn (bố cục, palette, primitive `@monorepo/ui` thay
-   Radix). Một redesign — nếu có — là spec riêng, đi qua bước design trước grill.
+3. **Không optimistic send, không typing indicator, không render `IMAGE`/`FILE`, không tìm hội thoại
+   phía server.** Cố ý ngoài scope spec #232 (đủ cả bốn ở "Out of Scope" của spec) — gửi lỗi khôi phục
+   chữ vào composer nhưng không có "Failed · Retry" tại chỗ; backend không phát event typing; client chỉ
+   gửi `TEXT`; tìm hội thoại lọc client trên trang đã tải, không gọi server.
 4. **Không CI job E2E, không throttle callback riêng.** `useThrottle` của nguồn bỏ hẳn — double-submit
    chặn bằng `isPending` của mutation; `use-debounce` của nguồn đổi sang `@monorepo/hook/use-debounce`.
 
@@ -67,6 +83,39 @@ Backend `chat-socket` phải đặt `chat-socket.client-url` = **origin của ap
 lúc dev, domain Vercel lúc prod) — dùng cho cả CORS lẫn STOMP allowed origin. Ở prod, cookie refresh là
 `SameSite=None; Secure` nên cần HTTPS. Việc đổi cấu hình backend nằm ngoài spec #195, do chủ repo làm.
 
+## Hình dạng Islands
+
+Spec #232 (brief [`docs/design/chat-redesign.md`](../../docs/design/chat-redesign.md) §10, ADR-0016)
+chuyển app sang hình dạng **Islands**: mọi vùng — Rail, danh sách hội thoại, khung tin nhắn, chi tiết,
+Bottom nav — là một `Island` (`~/components/island/island.tsx`, `bg-card/75`, bo 22px, không
+`backdrop-filter`) nổi trên một nền gradient tĩnh ba màu (teal · tím · cam, nhạt hơn ở light, tối hơn ở
+`.dark`) app vẽ ở `body`. Hai vai màu: teal (`--primary`) nói *làm gì* (nút New, Send, tin của mình
+gradient teal có bóng màu); mực gần đen (`--foreground`) nói *đang ở đâu* (mục Rail active, chip đang
+chọn, nút "N new messages"). Không thêm token cho hai vai này.
+
+**Shell:** `≥md` hiện `NavRail` (`<nav>` thuần + `Tooltip`, không phải `Sidebar` primitive) với ba mục
+Chats · Friends · Profile, badge đếm hội thoại chưa đọc/lời mời đến, theme toggle và avatar ở đáy.
+`<md` hiện `BottomNav` 3 mục Chats · Friends · Me, ẩn khi đang trong một Conversation (composer chiếm
+đáy màn). `LayoutTemplate` vẫn là nơi socket connect, bọc toàn bộ `<Outlet/>` trong một `Island`.
+
+**Theme:** context + một key `localStorage` + class `.dark` trên `<html>` (`~/features/layout/provider/
+theme-provider.tsx`, shape `apps/documents`), không store; ba trạng thái Light/Dark/System qua
+`ThemeToggleButton`, mặc định System. `.dark` là Islands tối thật — đảo tối hơn trên gradient tối hơn —
+không phải một palette dở dang: ship cùng lúc với ticket cuối spec (#239), không khoá lựa chọn Dark.
+
+**Danh sách/pane/Friends/Details:** giữ đúng cấu trúc §3 của brief — `Item` cho mọi hàng (hội thoại,
+bạn bè, thành viên), chip `All · Unread · Groups` trên URL `?filter=`, nhóm tin theo người gửi (< 5
+phút) qua `MessageGroup`/`Bubble`, read receipt ("Seen" / chồng avatar), nút "N new messages", pill
+`Reconnecting…`/`SYSTEM`, `Tabs` Friends · Requests · Find people trên URL `?tab=`. Đọc `~/features/
+conversation`, `~/features/friends` để biết chi tiết từng component — bảng phía trên là điểm vào.
+
+**Điều đã biết còn thiếu, cố ý chưa đóng ở #232:** decision hàng 19 của brief (`md`–`lg`: Rail + list
+Island 280 + pane Island riêng, Details là Sheet; từ `lg`: thêm Island Details 292) chưa lên code —
+`layout.template.tsx` vẫn bọc list + pane trong **một** Island dùng chung (`conversation-shell.template.tsx`
+chia cột bằng `border-r` thay vì một Island riêng mỗi cột). Ticket T1 (#233) đã tự ghi nhận việc này là
+"mỗi màn tự quyết ở ticket của nó", nhưng không ticket nào của #232 nhận lại — xem comment tổng kết trên
+#232 để biết trạng thái ticket theo dõi.
+
 ## Token/accent
 
 Override ở **tầng app**, cùng hình dạng `apps/portfolio` (ADR-0008), `apps/documents` (ADR-0009) và
@@ -80,10 +129,12 @@ ngoài mọi `@layer` nên thắng `theme.css` mà không cần `!important`. Kh
 | `--accent`, sidebar (`--sidebar*`) | Tinted teal nhạt, theo đúng nguồn |
 | `--online` | Token **mới** — chấm Presence kiểu Messenger; ánh xạ Tailwind qua `@theme inline` (`--color-online`) |
 | `--radius` | **Không override** — `0.625rem` của nguồn trùng mặc định `theme.css` |
+| `--islands-gradient-{teal,violet,amber}` | Ba điểm dừng gradient của Islands, khai trong `@layer base` (không unlayered — `theme.css` không có giá trị literal nào cho hai biến này để "thắng"), đổi giữa `:root`/`.dark` cho gradient sáng/tối (ADR-0016 §4) |
+| `--card`, `--popover`, `--border` | **Chỉ** `.dark` override — dark Islands trên gradient tối; light dùng thẳng `--card` trắng của `theme.css`, vốn đã đọc được là `bg-card/75` trên gradient sáng |
 
 `--success`/`--warning`/`--info`/`--destructive`, `--chart-*` và mọi token khác giữ nguyên của theme
 dùng chung — một trạng thái không đổi nghĩa giữa các app. `test/globals.test.ts` kiểm token parity
-`:root`/`.dark`, đúng danh sách override, và contrast AA cho `--primary`/`--online`.
+`:root`/`.dark`, đúng danh sách override, và contrast AA cho chữ trên `bg-card/75` đặt trên gradient.
 
 ## Test
 

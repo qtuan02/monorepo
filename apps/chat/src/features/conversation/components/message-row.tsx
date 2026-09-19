@@ -112,10 +112,7 @@ export default function MessageRow({
             )}
             {visibleReaders.length > 0 && (
               <div
-                className={cn(
-                  "flex",
-                  isOwn ? "justify-end" : "justify-start",
-                )}
+                className={cn("flex", isOwn ? "justify-end" : "justify-start")}
               >
                 <AvatarGroup>
                   {visibleReaders.map((reader) => (
