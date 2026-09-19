@@ -9,8 +9,13 @@ Health gate, Presence, Conversation direct/group, Draft conversation, Friend req
 Ticket khung ([#196](https://github.com/qtuan02/monorepo/issues/196)) dựng app bằng `gen:app` và cắm
 các quyết định nền. Ticket Session ([#198](https://github.com/qtuan02/monorepo/issues/198)) là tracer
 bullet đầu tiên chạm backend thật: Health gate, sign-in/sign-up, guard async qua `/auth/refresh`, và
-sign-out — tất cả những gì spec cần trước khi Conversation/Friends/socket (các ticket sau) có gì để
-hiển thị. Xem comment tổng kết trên spec #195 cho thứ tự đầy đủ.
+sign-out. Các ticket sau đó dựng đủ 6 route của nguồn: Conversation + lịch sử ([#199](https://github.com/qtuan02/monorepo/issues/199)),
+gửi tin + emoji ([#200](https://github.com/qtuan02/monorepo/issues/200)), socket STOMP + Presence
+([#201](https://github.com/qtuan02/monorepo/issues/201)), Friends + Draft conversation
+([#202](https://github.com/qtuan02/monorepo/issues/202)), Group + Profile
+([#203](https://github.com/qtuan02/monorepo/issues/203)). Ticket tổng kiểm
+([#204](https://github.com/qtuan02/monorepo/issues/204)) đóng pha 1: Gate + E2E + docker xanh, deploy
+Vercel, archive repo nguồn. Xem comment tổng kết trên spec #195 cho thứ tự đầy đủ.
 
 App chạy Runtime **Vite client SPA** (clone từ `apps/_template_vite` bằng `gen:app`): mọi màn hình nằm
 sau đăng nhập, không crawler nào cần đọc, nginx phục vụ một bundle tĩnh.
@@ -27,8 +32,11 @@ bun run dev:chat     # http://localhost:3007
 | Health gate | `src/features/auth/components/health-gate.tsx` | Bọc ngoài `<Routes>`: chặn cả app cho tới khi `GET /health-check` trả 200, thử lại mỗi 2s (`~/hooks/api/health.ts`). |
 | Guard | `src/features/auth/provider/` | `ProtectedRoute` / `GuestRoute`, cả hai chạy `useSessionCheck` (`~/features/auth/hooks/use-session-check.ts`) — gọi `/auth/refresh` bằng cookie trước khi quyết, hiện `RouteGuardLoading` ("Checking session...") lúc chờ. Catch-all `*` → `NotFound` vẫn là **sibling** của `ProtectedRoute`, không cần Session. |
 | Session | `src/stores/use-auth-store.ts` | Access token chỉ sống trong store — **không** `persist`. Nửa còn lại của Session là refresh cookie `HttpOnly` do backend giữ; `useSessionCheck` là cầu nối giữa hai nửa lúc boot/reload. |
-| Data layer | `packages/api/src/chat/{auth,health,user}-service.ts` | `ChatAuthService` (signIn/signUp/signOut/refresh), `ChatHealthService`, `ChatUserService` (`me`) — unwrap `ChatBaseResponse.data` (`@monorepo/types/chat-base`), singleton ở `~/libs/http-client.ts` (`withCredentials`, `onAuthError` → refresh + cất token, `onUnauthorized` → xoá cache + đăng xuất — ADR-0014). |
-| Shell | `src/features/layout/templates/layout.template.tsx` | Một header tối giản (tên app + nút Sign out) + `<Outlet/>`. Sidebar desktop / bottom nav mobile thật của nguồn chưa có gì để trỏ tới (Conversation/Friends/Profile chưa tồn tại) nên đến cùng các ticket đó. |
+| Data layer | `packages/api/src/chat/*.ts` | Sáu service class — `ChatAuthService`, `ChatHealthService`, `ChatUserService`, `ChatFriendService`, `ChatConversationService`, `ChatMessageService` — unwrap `ChatBaseResponse.data` (`@monorepo/types/chat-base`), singleton ở `~/libs/http-client.ts` (`withCredentials`, `onAuthError` → refresh + cất token, `onUnauthorized` → xoá cache + đăng xuất — ADR-0014). |
+| Shell | `src/features/layout/templates/layout.template.tsx` | Sidebar (desktop) + bottom nav (mobile) + `<Outlet/>`, như nguồn. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown Edit profile/View profile/Sign out. |
+| Conversation | `src/features/conversation/` | Sidebar danh sách (direct + group, cuộn vô hạn, Presence) qua `react-virtuoso`; màn chat cuộn ngược vô hạn, composer + emoji picker lazy-load, Draft conversation từ Friends. |
+| Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`), patch cache tại chỗ khi tin đến, Presence online/offline, `seen`. |
+| Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ. |
 | Palette | `src/globals.css` | Teal của nguồn, override ở tầng app (xem § Token/accent) — cùng hình dạng ADR-0008/0009/0011. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Như `apps/smart-rental`: build/install từ root qua `npx --yes bun@1.4.0`, SPA rewrite `/(.*)` → `/index.html`. Dockerfile/nginx của Template giữ nguyên cho job `docker`. |
 
@@ -44,11 +52,14 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
    `@monorepo/api` (`packages/api/src/chat/`) — quy ước chung của cả monorepo, không phải riêng app này.
 3. **Không redesign.** Giao diện port 1:1 từ nguồn (bố cục, palette, primitive `@monorepo/ui` thay
    Radix). Một redesign — nếu có — là spec riêng, đi qua bước design trước grill.
-4. **Chưa có Conversation/Friends/Profile.** Sidebar desktop / bottom nav mobile thật của nguồn cần
-   những màn này để có gì trỏ tới — đến ở #199–#203; `LayoutTemplate` ở ticket Session chỉ là một
-   header tối giản mang nút sign-out.
-5. **Chưa có socket layer.** `@stomp/stompjs` nằm trong catalog root nhưng chưa import ở đâu — đến ở
-   #201 cùng `~/libs/socket.ts` + `use-socket-store`.
+4. **Không CI job E2E, không throttle callback riêng.** `useThrottle` của nguồn bỏ hẳn — double-submit
+   chặn bằng `isPending` của mutation; `use-debounce` của nguồn đổi sang `@monorepo/hook/use-debounce`.
+
+## Gotcha
+
+`@emoji-mart/react` chưa khai `peerDependencies` cho React 19 (peer báo React 16–18) — cài và chạy vẫn
+tốt, chỉ là một dòng warning lúc `bun install`. `Picker` được `lazy(() => import(...))` từ composer nên
+không nằm trong bundle ban đầu.
 
 ## Precondition backend
 

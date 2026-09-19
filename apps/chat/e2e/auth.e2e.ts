@@ -64,14 +64,16 @@ test.describe("session guard — signed out", () => {
     ).toBeVisible();
   });
 
-  test("boots without a console error", async ({ page }) => {
+  test("boots without an uncaught exception", async ({ page }) => {
     await mockHealthCheck(page);
     await mockSessionRefresh(page, null);
 
+    // A mocked 401 always makes Chrome itself log a "Failed to load
+    // resource" console entry — that is the browser's network stack, not
+    // application code, so a real regression is an uncaught exception
+    // (`pageerror`), never a console message.
     const errors: string[] = [];
-    page.on("console", (message) => {
-      if (message.type() === "error") errors.push(message.text());
-    });
+    page.on("pageerror", (error) => errors.push(error.message));
 
     await page.goto(ROUTES.HOME);
     await expect(
@@ -92,7 +94,7 @@ test.describe("session guard — signed in", () => {
     await page.goto(ROUTES.HOME);
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Chats" })).toBeVisible();
   });
 
   test("bounces sign-in to / once a session already exists", async ({
@@ -104,6 +106,6 @@ test.describe("session guard — signed in", () => {
     await page.goto(ROUTES.SIGN_IN);
 
     await expect(page).toHaveURL(new RegExp(`${ROUTES.HOME}$`));
-    await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Chats" })).toBeVisible();
   });
 });

@@ -4,7 +4,10 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChatConversationRecord } from "@monorepo/types/chat-conversation";
-import { ChatConversationType, ChatParticipantRole } from "@monorepo/types/chat-conversation";
+import {
+  ChatConversationType,
+  ChatParticipantRole,
+} from "@monorepo/types/chat-conversation";
 
 import { CreateGroupDialog } from "~/features/group/components/create-group-dialog";
 
@@ -26,8 +29,18 @@ const GROUP: ChatConversationRecord = {
   lastMessageAt: null,
   unreadCount: 0,
   participants: [
-    { userId: "u1", firstName: "Tuan", lastName: "Huynh", role: ChatParticipantRole.ADMIN },
-    { userId: "u2", firstName: "Lan", lastName: "Nguyen", role: ChatParticipantRole.MEMBER },
+    {
+      userId: "u1",
+      firstName: "Tuan",
+      lastName: "Huynh",
+      role: ChatParticipantRole.ADMIN,
+    },
+    {
+      userId: "u2",
+      firstName: "Lan",
+      lastName: "Nguyen",
+      role: ChatParticipantRole.MEMBER,
+    },
   ],
 };
 
@@ -63,7 +76,9 @@ describe("CreateGroupDialog", () => {
     await user.type(screen.getByLabelText("Group name"), "Team Alpha");
     expect(screen.getByRole("button", { name: "Create" })).toBeDisabled();
 
-    await user.click(await screen.findByRole("button", { name: "Add Lan Nguyen" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Add Lan Nguyen" }),
+    );
 
     expect(
       await screen.findByRole("button", { name: "Create (1)" }),
@@ -76,7 +91,9 @@ describe("CreateGroupDialog", () => {
     renderDialog(onCreated);
 
     await user.type(screen.getByLabelText("Group name"), "Team Alpha");
-    await user.click(await screen.findByRole("button", { name: "Add Lan Nguyen" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Add Lan Nguyen" }),
+    );
     await user.click(await screen.findByRole("button", { name: "Create (1)" }));
 
     await waitFor(() =>
