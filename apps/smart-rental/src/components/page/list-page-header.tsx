@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { cn } from "@monorepo/ui/utils/cn";
+
 import { HeaderActionPortal } from "./header-action-slot";
 
 interface ListPageHeaderProps {
@@ -34,7 +36,18 @@ export function ListPageHeader({
         <p className="text-muted-foreground mt-1 text-sm">{description}</p>
       </div>
       {actions && (
-        <div className="hidden items-center gap-2 md:flex">{actions}</div>
+        // Below `md`, only a screen with a `mobileAction` loses this row —
+        // it has the header's icon as a substitute. A screen with no
+        // substitute (a month picker, "Khôi phục dữ liệu mẫu", …) keeps its
+        // actions visible at every width, same as before this round.
+        <div
+          className={cn(
+            "flex flex-wrap items-center gap-2",
+            mobileAction && "hidden md:flex",
+          )}
+        >
+          {actions}
+        </div>
       )}
       {mobileAction && <HeaderActionPortal>{mobileAction}</HeaderActionPortal>}
     </div>
