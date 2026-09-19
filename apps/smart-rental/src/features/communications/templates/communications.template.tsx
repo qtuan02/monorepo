@@ -21,11 +21,8 @@ import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import {
-  CardGridSkeleton,
-  TableSkeleton,
-} from "~/components/panel/loading-panel";
-import { QuerySection } from "~/components/panel/query-section";
+import { ErrorPanel } from "~/components/panel/error-panel";
+import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import {
   channelConfig,
   sendLogStatusConfig,
@@ -64,6 +61,12 @@ export default function CommunicationsTemplate() {
 
   const templatesQuery = useGetNotificationTemplates();
   const logsQuery = useGetSendLogs();
+  const templates = templatesQuery.data;
+  const visibleTemplates = templates
+    ? channelFilter === ALL_CHANNELS
+      ? templates
+      : templates.filter((t) => t.channel === channelFilter)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -101,87 +104,85 @@ export default function CommunicationsTemplate() {
             </ToggleGroup>
           </div>
 
-          <QuerySection
-            query={templatesQuery}
-            errorText="Không thể tải mẫu thông báo."
-            loading={<CardGridSkeleton itemCount={3} />}
-          >
-            {(templates) => {
-              const visible =
-                channelFilter === ALL_CHANNELS
-                  ? templates
-                  : templates.filter((t) => t.channel === channelFilter);
-
-              return visible.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {visible.map((template) => (
-                    <TemplateCard key={template.id} template={template} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyPanel
-                  title="Chưa có mẫu"
-                  description="Chưa có mẫu thông báo nào cho kênh này."
-                  className="border"
-                />
-              );
-            }}
-          </QuerySection>
+          {templatesQuery.isLoading ? (
+            <CardGridSkeleton itemCount={3} />
+          ) : templatesQuery.isError || !templates ? (
+            <ErrorPanel
+              description="Không thể tải mẫu thông báo."
+              action={{
+                label: "Thử lại",
+                onClick: () => void templatesQuery.refetch(),
+              }}
+            />
+          ) : visibleTemplates.length > 0 ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {visibleTemplates.map((template) => (
+                <TemplateCard key={template.id} template={template} />
+              ))}
+            </div>
+          ) : (
+            <EmptyPanel
+              title="Chưa có mẫu"
+              description="Chưa có mẫu thông báo nào cho kênh này."
+              className="border"
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-6">
-          <QuerySection
-            query={logsQuery}
-            errorText={LOGS_ERROR}
-            loading={<KpiStripSkeleton />}
-          >
-            {(logs) => (
-              <KpiStrip
-                items={[
-                  { label: "Tổng tin nhắn", value: logs.length },
-                  { label: "Đã gửi", value: countByStatus(logs, "sent") },
-                  { label: "Chờ gửi", value: countByStatus(logs, "pending") },
-                  { label: "Thất bại", value: countByStatus(logs, "failed") },
-                ]}
-              />
-            )}
-          </QuerySection>
+          {logsQuery.isLoading ? (
+            <KpiStripSkeleton />
+          ) : logsQuery.isError || !logsQuery.data ? (
+            <ErrorPanel
+              description={LOGS_ERROR}
+              action={{
+                label: "Thử lại",
+                onClick: () => void logsQuery.refetch(),
+              }}
+            />
+          ) : (
+            <KpiStrip
+              items={[
+                { label: "Tổng tin nhắn", value: logsQuery.data.length },
+                {
+                  label: "Đã gửi",
+                  value: countByStatus(logsQuery.data, "sent"),
+                },
+                {
+                  label: "Chờ gửi",
+                  value: countByStatus(logsQuery.data, "pending"),
+                },
+                {
+                  label: "Thất bại",
+                  value: countByStatus(logsQuery.data, "failed"),
+                },
+              ]}
+            />
+          )}
 
-          <QuerySection
+          <DataTable
+            columns={sendLogColumns}
             query={logsQuery}
-            errorText={LOGS_ERROR}
-            loading={<TableSkeleton />}
-          >
-            {(logs) => (
-              <DataTable
-                columns={sendLogColumns}
-                data={logs}
-                getRowId={(log) => log.id}
-                search={{
-                  columnId: "tenant",
-                  placeholder: "Tìm kiếm Người thuê...",
-                }}
-                facets={[
-                  {
-                    columnId: "channel",
-                    title: "Kênh",
-                    options: toFilterOptions(channelConfig),
-                  },
-                  {
-                    columnId: "status",
-                    title: "Trạng thái",
-                    options: toFilterOptions(sendLogStatusConfig),
-                  },
-                ]}
-                empty={{
-                  icon: Send,
-                  title: "Không có nhật ký phù hợp",
-                  description: "Thử đổi bộ lọc hoặc từ khóa tìm kiếm.",
-                }}
-                resultLabel={(count) => `${count} tin đã gửi`}
-              />
-            )}
-          </QuerySection>
+            getRowId={(log) => log.id}
+            search={{
+              columnId: "tenant",
+              placeholder: "Tìm kiếm Người thuê...",
+            }}
+            facets={[
+              {
+                columnId: "channel",
+                title: "Kênh",
+                options: toFilterOptions(channelConfig),
+              },
+              {
+                columnId: "status",
+                title: "Trạng thái",
+                options: toFilterOptions(sendLogStatusConfig),
+              },
+            ]}
+            empty={{ icon: Send, title: "Không có nhật ký phù hợp" }}
+            entityLabel="tin nhắn"
+          />
         </TabsContent>
       </Tabs>
     </div>

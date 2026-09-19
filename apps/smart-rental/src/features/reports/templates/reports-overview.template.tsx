@@ -14,11 +14,11 @@ import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { RevenueChart } from "~/components/chart/revenue-chart";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
+import { ErrorPanel } from "~/components/panel/error-panel";
 import {
   CardGridSkeleton,
   TableSkeleton,
 } from "~/components/panel/loading-panel";
-import { QuerySection } from "~/components/panel/query-section";
 import BuildingComparisonTable from "~/features/reports/components/building-comparison-table";
 import FloorOccupancyChart from "~/features/reports/components/floor-occupancy-chart";
 import OccupancyDonutChart from "~/features/reports/components/occupancy-donut-chart";
@@ -63,31 +63,38 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
         </Button>
       </div>
 
-      <QuerySection
-        query={summaryQuery}
-        errorText="Không thể tải tóm tắt lãi lỗ."
-        loading={<KpiStripSkeleton />}
-      >
-        {(summary) => (
-          <KpiStrip
-            items={[
-              {
-                label: "Tổng doanh thu",
-                value: formatCurrency(summary.totalRevenue),
-              },
-              {
-                label: "Chi phí",
-                value: formatCurrency(summary.totalExpenses),
-              },
-              {
-                label: "Lợi nhuận",
-                value: formatCurrency(summary.totalProfit),
-              },
-              { label: "Lấp đầy phòng", value: `${summary.avgOccupancy}%` },
-            ]}
-          />
-        )}
-      </QuerySection>
+      {summaryQuery.isLoading ? (
+        <KpiStripSkeleton />
+      ) : summaryQuery.isError || !summaryQuery.data ? (
+        <ErrorPanel
+          description="Không thể tải tóm tắt lãi lỗ."
+          action={{
+            label: "Thử lại",
+            onClick: () => void summaryQuery.refetch(),
+          }}
+        />
+      ) : (
+        <KpiStrip
+          items={[
+            {
+              label: "Tổng doanh thu",
+              value: formatCurrency(summaryQuery.data.totalRevenue),
+            },
+            {
+              label: "Chi phí",
+              value: formatCurrency(summaryQuery.data.totalExpenses),
+            },
+            {
+              label: "Lợi nhuận",
+              value: formatCurrency(summaryQuery.data.totalProfit),
+            },
+            {
+              label: "Lấp đầy phòng",
+              value: `${summaryQuery.data.avgOccupancy}%`,
+            },
+          ]}
+        />
+      )}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card>
@@ -95,27 +102,31 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
             <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
           </CardHeader>
           <CardContent>
-            <QuerySection
-              query={roomsQuery}
-              errorText="Không thể tải danh sách Phòng."
-              loading={
-                <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
-              }
-            >
-              {(rooms) => (
-                <OccupancyDonutChart
-                  occupied={
-                    rooms.filter((room) => room.status === "occupied").length
-                  }
-                  vacant={
-                    rooms.filter((room) => room.status === "available").length
-                  }
-                  vacantRoomNames={rooms
-                    .filter((room) => room.status === "available")
-                    .map((room) => room.name)}
-                />
-              )}
-            </QuerySection>
+            {roomsQuery.isLoading ? (
+              <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
+            ) : roomsQuery.isError || !roomsQuery.data ? (
+              <ErrorPanel
+                description="Không thể tải danh sách Phòng."
+                action={{
+                  label: "Thử lại",
+                  onClick: () => void roomsQuery.refetch(),
+                }}
+              />
+            ) : (
+              <OccupancyDonutChart
+                occupied={
+                  roomsQuery.data.filter((room) => room.status === "occupied")
+                    .length
+                }
+                vacant={
+                  roomsQuery.data.filter((room) => room.status === "available")
+                    .length
+                }
+                vacantRoomNames={roomsQuery.data
+                  .filter((room) => room.status === "available")
+                  .map((room) => room.name)}
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -124,23 +135,26 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
             <CardTitle className="text-base">Doanh thu theo tháng</CardTitle>
           </CardHeader>
           <CardContent>
-            <QuerySection
-              query={rowsQuery}
-              errorText="Không thể tải doanh thu."
-              loading={
-                <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
-              }
-            >
-              {(reportRows) => {
-                const revenueByMonth: MonthlyPoint[] = reportRows.map(
-                  (row) => ({
+            {rowsQuery.isLoading ? (
+              <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
+            ) : rowsQuery.isError || !rowsQuery.data ? (
+              <ErrorPanel
+                description="Không thể tải doanh thu."
+                action={{
+                  label: "Thử lại",
+                  onClick: () => void rowsQuery.refetch(),
+                }}
+              />
+            ) : (
+              <RevenueChart
+                data={rowsQuery.data.map(
+                  (row): MonthlyPoint => ({
                     month: row.month,
                     value: Math.round(row.revenue / 1_000_000),
                   }),
-                );
-                return <RevenueChart data={revenueByMonth} />;
-              }}
-            </QuerySection>
+                )}
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -149,48 +163,40 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
             <CardTitle className="text-base">Lấp đầy theo tầng</CardTitle>
           </CardHeader>
           <CardContent>
-            <QuerySection
-              query={floorQuery}
-              errorText="Không thể tải lấp đầy theo tầng."
-              loading={
-                <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
-              }
-            >
-              {(floors) => <FloorOccupancyChart data={floors} />}
-            </QuerySection>
+            {floorQuery.isLoading ? (
+              <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
+            ) : floorQuery.isError || !floorQuery.data ? (
+              <ErrorPanel
+                description="Không thể tải lấp đầy theo tầng."
+                action={{
+                  label: "Thử lại",
+                  onClick: () => void floorQuery.refetch(),
+                }}
+              />
+            ) : (
+              <FloorOccupancyChart data={floorQuery.data} />
+            )}
           </CardContent>
         </Card>
       </div>
 
-      <QuerySection
+      <DataTable
+        columns={reportColumns}
         query={rowsQuery}
-        errorText="Không thể tải dữ liệu báo cáo."
-        loading={<TableSkeleton />}
-      >
-        {(reportRows) => (
-          <DataTable
-            columns={reportColumns}
-            data={reportRows}
-            getRowId={(row) => row.month}
-            paginate={false}
-            facets={[
-              {
-                columnId: "month",
-                title: "Kỳ",
-                options: reportRows.map((row) => ({
-                  value: row.month,
-                  label: row.month,
-                })),
-              },
-            ]}
-            empty={{
-              icon: FileBarChart,
-              title: "Không có dòng báo cáo",
-              description: "Toà nhà này chưa có Hoá đơn nào.",
-            }}
-          />
-        )}
-      </QuerySection>
+        getRowId={(row) => row.month}
+        paginate={false}
+        facets={[
+          {
+            columnId: "month",
+            title: "Kỳ",
+            options: rows.map((row) => ({
+              value: row.month,
+              label: row.month,
+            })),
+          },
+        ]}
+        empty={{ icon: FileBarChart, title: "Không có dòng báo cáo" }}
+      />
     </>
   );
 }
@@ -217,13 +223,19 @@ function BuildingComparisonReport() {
         </Button>
       </div>
 
-      <QuerySection
-        query={comparisonQuery}
-        errorText="Không thể tải bảng so sánh."
-        loading={<TableSkeleton />}
-      >
-        {(comparisonRows) => <BuildingComparisonTable rows={comparisonRows} />}
-      </QuerySection>
+      {comparisonQuery.isLoading ? (
+        <TableSkeleton />
+      ) : comparisonQuery.isError || !comparisonQuery.data ? (
+        <ErrorPanel
+          description="Không thể tải bảng so sánh."
+          action={{
+            label: "Thử lại",
+            onClick: () => void comparisonQuery.refetch(),
+          }}
+        />
+      ) : (
+        <BuildingComparisonTable rows={comparisonQuery.data} />
+      )}
     </>
   );
 }

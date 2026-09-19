@@ -6,8 +6,6 @@ import { Button } from "@monorepo/ui/components/button";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
-import { ErrorPanel } from "~/components/panel/error-panel";
-import { TableSkeleton } from "~/components/panel/loading-panel";
 import {
   supplierBillPaymentConfig,
   supplierBillTypeConfig,
@@ -28,10 +26,10 @@ import { formatCurrency } from "~/utils/currency";
 export default function SupplierBillListTemplate() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
-  const { data, isLoading, isError, refetch } = useGetSupplierBills({
+  const supplierBillsQuery = useGetSupplierBills({
     buildingId: selectedBuildingId,
   });
-  const bills = data ?? [];
+  const bills = supplierBillsQuery.data ?? [];
   const totals = getSupplierBillTotals(bills);
 
   return (
@@ -47,18 +45,10 @@ export default function SupplierBillListTemplate() {
         }
       />
 
-      {isLoading ? (
-        <div className="space-y-6">
-          <KpiStripSkeleton count={3} />
-          <TableSkeleton />
-        </div>
-      ) : isError ? (
-        <ErrorPanel
-          description="Không tải được danh sách hoá đơn nhà cung cấp."
-          action={{ label: "Thử lại", onClick: () => refetch() }}
-        />
+      {supplierBillsQuery.isLoading ? (
+        <KpiStripSkeleton count={3} />
       ) : (
-        <>
+        !supplierBillsQuery.isError && (
           <KpiStrip
             items={[
               { label: "Tổng chi", value: formatCurrency(totals.totalAmount) },
@@ -69,48 +59,43 @@ export default function SupplierBillListTemplate() {
               { label: "Số hoá đơn", value: totals.count },
             ]}
           />
-
-          <DataTable
-            columns={supplierBillColumns}
-            data={bills}
-            getRowId={(bill) => bill.id}
-            search={{
-              columnId: "supplierName",
-              placeholder: "Tìm nhà cung cấp...",
-            }}
-            facets={[
-              {
-                columnId: "type",
-                title: "Loại dịch vụ",
-                options: toFilterOptions(supplierBillTypeConfig),
-              },
-              {
-                columnId: "billingPeriod",
-                title: "Kỳ hoá đơn",
-                // Latest period first — `YYYY-MM` sorts as text.
-                options: toDistinctOptions(
-                  bills
-                    .map((bill) => bill.billingPeriod)
-                    .sort()
-                    .reverse(),
-                ),
-              },
-              {
-                columnId: "paymentStatus",
-                title: "Trạng thái",
-                options: toFilterOptions(supplierBillPaymentConfig),
-              },
-            ]}
-            empty={{
-              icon: Receipt,
-              title: "Không tìm thấy hoá đơn nhà cung cấp",
-              description:
-                "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
-            }}
-            resultLabel={(count) => `${count} hoá đơn được tìm thấy`}
-          />
-        </>
+        )
       )}
+
+      <DataTable
+        columns={supplierBillColumns}
+        query={supplierBillsQuery}
+        getRowId={(bill) => bill.id}
+        search={{
+          columnId: "supplierName",
+          placeholder: "Tìm nhà cung cấp...",
+        }}
+        facets={[
+          {
+            columnId: "type",
+            title: "Loại dịch vụ",
+            options: toFilterOptions(supplierBillTypeConfig),
+          },
+          {
+            columnId: "billingPeriod",
+            title: "Kỳ hoá đơn",
+            // Latest period first — `YYYY-MM` sorts as text.
+            options: toDistinctOptions(
+              bills
+                .map((bill) => bill.billingPeriod)
+                .sort()
+                .reverse(),
+            ),
+          },
+          {
+            columnId: "paymentStatus",
+            title: "Trạng thái",
+            options: toFilterOptions(supplierBillPaymentConfig),
+          },
+        ]}
+        empty={{ icon: Receipt, title: "Không tìm thấy hoá đơn nhà cung cấp" }}
+        entityLabel="hoá đơn nhà cung cấp"
+      />
 
       <SupplierBillFormSheet
         open={isFormOpen}

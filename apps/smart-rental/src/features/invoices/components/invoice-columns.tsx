@@ -7,10 +7,7 @@ import {
 
 import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
-import {
-  createSelectionColumn,
-  facetFilterFn,
-} from "~/components/data-table/data-table";
+import { facetFilterFn } from "~/components/data-table/data-table";
 import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
 import { compareDisplayDates } from "~/utils/date";
@@ -20,10 +17,11 @@ const helper = createDataTableColumnHelper<Invoice>();
 
 /**
  * The Hoá đơn table. `invoiceNumber` carries the search, `status` the facet —
- * the prototype also searched `tenant`, but the composite searches one column.
+ * the prototype also searched `tenant`, but the composite searches one
+ * column. No selection column here either: `DataTable` prepends its own
+ * because `invoice-list.template.tsx` passes `selectionActions` (Gửi nhắc).
  */
 export const invoiceColumns = helper.columns([
-  createSelectionColumn<Invoice>(),
   helper.accessor("invoiceNumber", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Số hoá đơn" />

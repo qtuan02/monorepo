@@ -1,19 +1,17 @@
+import type { ReactElement } from "react";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
 } from "@monorepo/ui/components/data-table";
 
-import {
-  createSelectionColumn,
-  DataTable,
-  facetFilterFn,
-} from "~/components/data-table/data-table";
+import type { DataTableQuery } from "~/components/data-table/data-table";
+import { DataTable, facetFilterFn } from "~/components/data-table/data-table";
 
 type Row = { id: string; name: string; status: "a" | "b" };
 
@@ -30,11 +28,28 @@ const columns = helper.columns([
   helper.accessor("status", { header: "Trạng thái", filterFn: facetFilterFn }),
 ]);
 
+function successQuery<T>(data: T[]): DataTableQuery<T> {
+  return { data, isLoading: false, isError: false, refetch: () => {} };
+}
+
+function loadingQuery<T>(): DataTableQuery<T> {
+  return {
+    data: undefined,
+    isLoading: true,
+    isError: false,
+    refetch: () => {},
+  };
+}
+
+function errorQuery<T>(refetch: () => void): DataTableQuery<T> {
+  return { data: undefined, isLoading: false, isError: true, refetch };
+}
+
 function Subject() {
   return (
     <DataTable
       columns={columns}
-      data={rows}
+      query={successQuery(rows)}
       getRowId={(row) => row.id}
       search={{ columnId: "name", placeholder: "Tìm tên..." }}
       facets={[
@@ -48,7 +63,7 @@ function Subject() {
         },
       ]}
       empty={{ title: "Không có gì" }}
-      resultLabel={(count) => `${count} dòng`}
+      entityLabel="dòng"
     />
   );
 }
@@ -86,7 +101,7 @@ describe("DataTable — URL-owned list state", () => {
 
     // "Row 3" matches Row 3 (a) and Row 30 (b); the facet keeps only status a.
     expect(cellTexts()).toEqual(["Row 3"]);
-    expect(screen.getByText("1 dòng")).toBeInTheDocument();
+    expect(screen.getByText("1 dòng được tìm thấy")).toBeInTheDocument();
     expect(screen.getByText("Đang lọc")).toBeInTheDocument();
   });
 
@@ -124,7 +139,9 @@ describe("DataTable — URL-owned list state", () => {
     });
     // Row 1, Row 10–19 → 11 rows. The router commits a navigation in a
     // transition, so the URL leads the DOM by a tick — hence `findBy`.
-    expect(await screen.findByText("11 dòng")).toBeInTheDocument();
+    expect(
+      await screen.findByText("11 dòng được tìm thấy"),
+    ).toBeInTheDocument();
   });
 
   it("toggles a facet through the URL and clears every filter at once", async () => {
@@ -138,7 +155,9 @@ describe("DataTable — URL-owned list state", () => {
       () => expect(router.state.location.search).toBe("?q=Row&status=b"),
       { timeout: 3000 },
     );
-    expect(await screen.findByText("15 dòng")).toBeInTheDocument();
+    expect(
+      await screen.findByText("15 dòng được tìm thấy"),
+    ).toBeInTheDocument();
 
     // The popover carries its own "Xóa bộ lọc"; the toolbar one clears everything.
     await user.keyboard("{Escape}");
@@ -147,7 +166,9 @@ describe("DataTable — URL-owned list state", () => {
     await waitFor(() => expect(router.state.location.search).toBe(""), {
       timeout: 3000,
     });
-    expect(await screen.findByText("30 dòng")).toBeInTheDocument();
+    expect(
+      await screen.findByText("30 dòng được tìm thấy"),
+    ).toBeInTheDocument();
     expect(screen.getByRole("searchbox")).toHaveValue("");
   });
 
@@ -161,19 +182,115 @@ describe("DataTable — URL-owned list state", () => {
         name: "Xóa toàn bộ bộ lọc",
       }),
     ).toBeInTheDocument();
+    expect(
+      within(empty as HTMLElement).getByText(
+        "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
+      ),
+    ).toBeInTheDocument();
   });
 });
 
-const selectableColumns = helper.columns([
-  createSelectionColumn<Row>(),
-  ...columns,
-]);
+function renderPlain(element: ReactElement) {
+  const router = createMemoryRouter([{ path: "/", element }], {
+    initialEntries: ["/"],
+  });
+  render(<RouterProvider router={router} />);
+  return router;
+}
+
+describe("DataTable — query states", () => {
+  it("shows a table skeleton with one cell per column while loading", () => {
+    renderPlain(
+      <DataTable
+        columns={columns}
+        query={loadingQuery<Row>()}
+        getRowId={(row) => row.id}
+        empty={{ title: "Không có gì" }}
+      />,
+    );
+
+    const skeletonRows = document.querySelectorAll(
+      '[data-slot="table-skeleton-row"]',
+    );
+    expect(skeletonRows.length).toBeGreaterThan(0);
+    for (const row of skeletonRows) {
+      expect(row.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(
+        columns.length,
+      );
+    }
+  });
+
+  it("shows an error panel whose Thử lại calls refetch", async () => {
+    const user = userEvent.setup();
+    const refetch = vi.fn();
+    renderPlain(
+      <DataTable
+        columns={columns}
+        query={errorQuery<Row>(refetch)}
+        getRowId={(row) => row.id}
+        empty={{ title: "Không có gì" }}
+        entityLabel="dòng"
+      />,
+    );
+
+    expect(
+      screen.getByText("Không tải được danh sách dòng."),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Thử lại" }));
+    expect(refetch).toHaveBeenCalledOnce();
+  });
+});
+
+describe("DataTable — card view", () => {
+  it("shows the view switch and renders one card per row once switched to Dạng thẻ", async () => {
+    const user = userEvent.setup();
+    renderPlain(
+      <DataTable
+        columns={columns}
+        query={successQuery(rows.slice(0, 3))}
+        getRowId={(row) => row.id}
+        empty={{ title: "Không có gì" }}
+        card={(row) => <div data-testid={`card-${row.id}`}>{row.name}</div>}
+      />,
+    );
+
+    expect(screen.queryByTestId("card-r1")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Dạng thẻ" }));
+
+    expect(screen.getByTestId("card-r1")).toBeInTheDocument();
+    expect(screen.getByTestId("card-r2")).toBeInTheDocument();
+    expect(screen.getByTestId("card-r3")).toBeInTheDocument();
+    expect(screen.queryByRole("cell")).not.toBeInTheDocument();
+  });
+
+  it("shows the whole filtered set with no pagination bar while renderRows is the view", () => {
+    renderPlain(
+      <DataTable
+        columns={columns}
+        query={successQuery(rows)}
+        getRowId={(row) => row.id}
+        empty={{ title: "Không có gì" }}
+        defaultView="grid"
+        renderRows={(gridRows) => (
+          <div data-testid="grid-count">{gridRows.length}</div>
+        )}
+      />,
+    );
+
+    expect(screen.getByTestId("grid-count")).toHaveTextContent("30");
+    expect(
+      screen.queryByRole("button", { name: "Trang sau" }),
+    ).not.toBeInTheDocument();
+  });
+});
+
+const selectableColumns = columns;
 
 function SelectableSubject() {
   return (
     <DataTable
       columns={selectableColumns}
-      data={rows.slice(0, 3)}
+      query={successQuery(rows.slice(0, 3))}
       getRowId={(row) => row.id}
       empty={{ title: "Không có gì" }}
       renderMobileRow={(row) => <span>Mobile: {row.name}</span>}
@@ -204,6 +321,17 @@ describe("DataTable — mobile rows and row selection", () => {
     );
     expect(mobileRows).toHaveLength(3);
     expect(screen.getByText("Mobile: Row 1")).toBeInTheDocument();
+  });
+
+  it("adds no selection column when selectionActions is not given", () => {
+    renderAt("");
+
+    expect(
+      screen.queryByRole("checkbox", { name: "Chọn dòng" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("checkbox", { name: "Chọn tất cả" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows the selection bar only once a row is checked, and clears on demand", async () => {
@@ -251,7 +379,7 @@ function SortSubject({
   return (
     <DataTable
       columns={sortableColumns}
-      data={sortRows}
+      query={successQuery(sortRows)}
       getRowId={(row) => row.id}
       empty={{ title: "Không có gì" }}
       defaultSort={defaultSort}

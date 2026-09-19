@@ -1,5 +1,4 @@
 import { Badge } from "@monorepo/ui/components/badge";
-import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -17,29 +16,11 @@ const helper = createDataTableColumnHelper<Contract>();
 
 /**
  * The Hợp đồng table, minus the prototype's drag handle (row reorder is not
- * ported — spec #127). `contractNumber` carries the search, `status` the facet.
+ * ported — spec #127). `contractNumber` carries the search, `status` the
+ * facet. No selection column: nothing on this screen acts on a selection
+ * (spec #221 T2 — `DataTable` only prepends one when given `selectionActions`).
  */
 export const contractColumns = helper.columns([
-  helper.display({
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Chọn tất cả"
-        checked={table.getIsAllPageRowsSelected()}
-        indeterminate={
-          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label="Chọn dòng"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-  }),
   helper.accessor("contractNumber", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Số HĐ" />

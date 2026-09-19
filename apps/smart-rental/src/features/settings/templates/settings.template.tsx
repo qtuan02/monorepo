@@ -10,8 +10,8 @@ import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { EmptyPanel } from "~/components/panel/empty-panel";
+import { ErrorPanel } from "~/components/panel/error-panel";
 import { CardGridSkeleton } from "~/components/panel/loading-panel";
-import { QuerySection } from "~/components/panel/query-section";
 import { ROUTES } from "~/constants/routes";
 import { useGetBuildings } from "~/hooks/api/building";
 import { useGetLandlordProfile, useResetMockData } from "~/hooks/api/setting";
@@ -55,54 +55,60 @@ export default function SettingsTemplate() {
         }
       />
 
-      <QuerySection
-        query={profileQuery}
-        errorText="Không thể tải hồ sơ chủ nhà."
-        loading={<CardGridSkeleton className="lg:grid-cols-1" itemCount={1} />}
-      >
-        {(profile) => (
-          <InfoCard title="Hồ sơ chủ nhà">
-            <InfoRow label="Họ tên" value={profile.name} />
-            <InfoRow label="Số điện thoại" value={profile.phone} />
-            <InfoRow label="Email" value={profile.email} />
-          </InfoCard>
-        )}
-      </QuerySection>
+      {profileQuery.isLoading ? (
+        <CardGridSkeleton className="lg:grid-cols-1" itemCount={1} />
+      ) : profileQuery.isError || !profileQuery.data ? (
+        <ErrorPanel
+          description="Không thể tải hồ sơ chủ nhà."
+          action={{
+            label: "Thử lại",
+            onClick: () => void profileQuery.refetch(),
+          }}
+        />
+      ) : (
+        <InfoCard title="Hồ sơ chủ nhà">
+          <InfoRow label="Họ tên" value={profileQuery.data.name} />
+          <InfoRow label="Số điện thoại" value={profileQuery.data.phone} />
+          <InfoRow label="Email" value={profileQuery.data.email} />
+        </InfoCard>
+      )}
 
-      <QuerySection
-        query={buildingsQuery}
-        errorText="Không thể tải danh sách Toà nhà."
-        loading={<CardGridSkeleton itemCount={3} />}
-      >
-        {(buildings) =>
-          buildings.length > 0 ? (
-            <Card>
-              <CardContent className="flex flex-wrap gap-2">
-                {buildings.map((building) => (
-                  <Link
-                    key={building.id}
-                    to={ROUTES.buildingDetailPath(building.id)}
-                    className={buttonVariants({
-                      variant: "outline",
-                      size: "sm",
-                    })}
-                  >
-                    <SettingsIcon />
-                    Cài đặt {building.name}
-                  </Link>
-                ))}
-              </CardContent>
-            </Card>
-          ) : (
-            <EmptyPanel
-              icon={Building2}
-              title="Chưa có Toà nhà."
-              description="Thêm một Toà nhà để cấu hình Bảng giá và Tài khoản nhận tiền."
-              className="border"
-            />
-          )
-        }
-      </QuerySection>
+      {buildingsQuery.isLoading ? (
+        <CardGridSkeleton itemCount={3} />
+      ) : buildingsQuery.isError || !buildingsQuery.data ? (
+        <ErrorPanel
+          description="Không thể tải danh sách Toà nhà."
+          action={{
+            label: "Thử lại",
+            onClick: () => void buildingsQuery.refetch(),
+          }}
+        />
+      ) : buildingsQuery.data.length > 0 ? (
+        <Card>
+          <CardContent className="flex flex-wrap gap-2">
+            {buildingsQuery.data.map((building) => (
+              <Link
+                key={building.id}
+                to={ROUTES.buildingDetailPath(building.id)}
+                className={buttonVariants({
+                  variant: "outline",
+                  size: "sm",
+                })}
+              >
+                <SettingsIcon />
+                Cài đặt {building.name}
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      ) : (
+        <EmptyPanel
+          icon={Building2}
+          title="Chưa có Toà nhà."
+          description="Thêm một Toà nhà để cấu hình Bảng giá và Tài khoản nhận tiền."
+          className="border"
+        />
+      )}
 
       <ConfirmActionDialog
         open={isResetOpen}

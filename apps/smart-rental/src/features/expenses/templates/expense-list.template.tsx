@@ -6,8 +6,6 @@ import { Button } from "@monorepo/ui/components/button";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
-import { ErrorPanel } from "~/components/panel/error-panel";
-import { TableSkeleton } from "~/components/panel/loading-panel";
 import { toDistinctOptions } from "~/constants/status";
 import { expenseColumns } from "~/features/expenses/components/expense-columns";
 import ExpenseFormSheet from "~/features/expenses/components/expense-form-sheet";
@@ -22,10 +20,8 @@ import { formatCurrency } from "~/utils/currency";
 export default function ExpenseListTemplate() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
-  const { data, isLoading, isError, refetch } = useGetExpenses({
-    buildingId: selectedBuildingId,
-  });
-  const expenses = data ?? [];
+  const expensesQuery = useGetExpenses({ buildingId: selectedBuildingId });
+  const expenses = expensesQuery.data ?? [];
   const stats = getExpenseStats(expenses);
 
   return (
@@ -41,18 +37,10 @@ export default function ExpenseListTemplate() {
         }
       />
 
-      {isLoading ? (
-        <div className="space-y-6">
-          <KpiStripSkeleton count={3} />
-          <TableSkeleton />
-        </div>
-      ) : isError ? (
-        <ErrorPanel
-          description="Không tải được danh sách chi phí."
-          action={{ label: "Thử lại", onClick: () => refetch() }}
-        />
+      {expensesQuery.isLoading ? (
+        <KpiStripSkeleton count={3} />
       ) : (
-        <>
+        !expensesQuery.isError && (
           <KpiStrip
             items={[
               {
@@ -66,31 +54,26 @@ export default function ExpenseListTemplate() {
               },
             ]}
           />
-
-          <DataTable
-            columns={expenseColumns}
-            data={expenses}
-            getRowId={(expense) => expense.id}
-            search={{ columnId: "description", placeholder: "Tìm mô tả..." }}
-            facets={[
-              {
-                columnId: "category",
-                title: "Danh mục",
-                options: toDistinctOptions(
-                  expenses.map((expense) => expense.category),
-                ),
-              },
-            ]}
-            empty={{
-              icon: FileText,
-              title: "Không tìm thấy phiếu chi",
-              description:
-                "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
-            }}
-            resultLabel={(count) => `${count} phiếu chi được tìm thấy`}
-          />
-        </>
+        )
       )}
+
+      <DataTable
+        columns={expenseColumns}
+        query={expensesQuery}
+        getRowId={(expense) => expense.id}
+        search={{ columnId: "description", placeholder: "Tìm mô tả..." }}
+        facets={[
+          {
+            columnId: "category",
+            title: "Danh mục",
+            options: toDistinctOptions(
+              expenses.map((expense) => expense.category),
+            ),
+          },
+        ]}
+        empty={{ icon: FileText, title: "Không tìm thấy phiếu chi" }}
+        entityLabel="phiếu chi"
+      />
 
       <ExpenseFormSheet
         open={isFormOpen}

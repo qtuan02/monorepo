@@ -185,13 +185,9 @@ export default function ContractDetailTemplate({
           content: (
             <DataTable
               columns={invoiceColumns}
-              data={invoicesQuery.data ?? []}
+              query={invoicesQuery}
               getRowId={(invoice) => invoice.id}
-              empty={{
-                icon: FileX,
-                title: "Chưa có hoá đơn",
-                description: "Hợp đồng này chưa có hoá đơn nào được lập.",
-              }}
+              empty={{ icon: FileX, title: "Chưa có hoá đơn" }}
             />
           ),
         },
@@ -201,12 +197,9 @@ export default function ContractDetailTemplate({
           content: (
             <DataTable
               columns={utilityColumns}
-              data={utilitiesQuery.data ?? []}
+              query={utilitiesQuery}
               getRowId={(utility) => utility.id}
-              empty={{
-                title: "Chưa có chỉ số",
-                description: "Phòng này chưa có chỉ số điện nước nào.",
-              }}
+              empty={{ title: "Chưa có chỉ số" }}
             />
           ),
         },

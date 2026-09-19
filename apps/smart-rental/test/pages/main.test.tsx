@@ -257,6 +257,36 @@ describe("the route tree", () => {
       expect(await screen.findAllByText("Đang thuê")).not.toHaveLength(0);
     });
 
+    // Ticket #223 (spec #221 T2) — `DataTable` only prepends a selection
+    // column when given `selectionActions`; Phòng and Hợp đồng pass none, so
+    // their old hand-copied checkbox (dead — nothing ever read the selection)
+    // is gone, while Hoá đơn keeps its (Gửi nhắc reads it).
+    it("renders no selection checkbox on the room list", async () => {
+      renderAt(ROUTES.ROOMS);
+      // The desktop table and the mobile row substitute both sit in the DOM
+      // at once (only CSS decides which one shows), so a row's text is
+      // findAllBy, not findBy — see [[testing-coverage]].
+      expect(await screen.findAllByText("Phòng 101")).not.toHaveLength(0);
+      expect(
+        screen.queryByRole("checkbox", { name: "Chọn dòng" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("renders no selection checkbox on the contract list", async () => {
+      renderAt(ROUTES.CONTRACTS);
+      expect(await screen.findAllByText("HĐ-002")).not.toHaveLength(0);
+      expect(
+        screen.queryByRole("checkbox", { name: "Chọn dòng" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the selection checkbox on the invoice list", async () => {
+      renderAt(ROUTES.INVOICES);
+      expect(
+        await screen.findAllByRole("checkbox", { name: "Chọn dòng" }),
+      ).not.toHaveLength(0);
+    });
+
     // Ticket #161 — "tạo/sửa trong FormSheet", never a separate page (there is
     // no ROUTES.TENANT_CREATE any more); a form with ≥ 2 errors gets a
     // focusable summary on top of each field's own inline FieldError.
