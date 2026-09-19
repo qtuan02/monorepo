@@ -20,7 +20,7 @@ test.describe("Toà nhà và Phòng", () => {
     ).toBeVisible();
     // 18 Phòng total (6 + 8 + 4) — the resultLabel counts the whole scope
     // even though the grid view never pages it (spec #153 §10 row 43).
-    await expect(page.getByText("18 phòng được tìm thấy")).toBeVisible();
+    await expect(page.getByText("18 phòng")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Tầng 5" })).toBeVisible();
     // The last floor's last card is on screen with no "Trang sau" to click.
     await expect(page.getByText("Phòng 208")).toBeVisible();
@@ -43,16 +43,16 @@ test.describe("Toà nhà và Phòng", () => {
     await page.getByRole("checkbox", { name: /Trống/ }).click();
     await page.keyboard.press("Escape");
     await expect(page).toHaveURL(/status=available/);
-    // Trống: R-B1-101, R-B2-203, R-B3-303.
-    await expect(page.getByText("3 phòng được tìm thấy")).toBeVisible();
+    // Trống: R-B1-101, R-B2-203, R-B3-303 — filtered, so "M / N".
+    await expect(page.getByText("3 / 18 phòng")).toBeVisible();
 
     await page.getByRole("searchbox").fill("Phòng 3");
     await expect(page).toHaveURL(/q=Ph/);
     // Only R-B3-303 is both "Phòng 3…" and Trống.
-    await expect(page.getByText("1 phòng được tìm thấy")).toBeVisible();
+    await expect(page.getByText("1 / 18 phòng")).toBeVisible();
 
     await page.reload();
-    await expect(page.getByText("1 phòng được tìm thấy")).toBeVisible();
+    await expect(page.getByText("1 / 18 phòng")).toBeVisible();
     await expect(page.getByRole("searchbox")).toHaveValue("Phòng 3");
 
     await page.getByRole("button", { name: "Xóa bộ lọc" }).click();
@@ -195,7 +195,7 @@ test.describe("Toà nhà và Phòng", () => {
 
     await page.getByRole("button", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
     await page.getByRole("button", { name: "Quay lại" }).click();
-    // b2 (Căn hộ Dịch Vụ Cao Cấp) has 8 Phòng.
-    await expect(page.getByText("8 phòng được tìm thấy")).toBeVisible();
+    // b2 (Căn hộ Dịch Vụ Cao Cấp) has 8 Phòng — scoped, not table-filtered.
+    await expect(page.getByText("8 phòng")).toBeVisible();
   });
 });

@@ -42,7 +42,7 @@ export function SearchInput({
   }, [debouncedText]);
 
   return (
-    <div className="relative w-full sm:w-auto">
+    <div className="relative">
       <Search className="text-muted-foreground/60 pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2" />
       <Input
         type="search"
@@ -50,7 +50,7 @@ export function SearchInput({
         placeholder={placeholder}
         aria-label={placeholder}
         onChange={(event) => setText(event.target.value)}
-        className="h-8 w-full pl-7 sm:w-40 lg:w-64"
+        className="h-8 w-28 pl-7 sm:w-40 lg:w-64"
       />
       {text && (
         <Button

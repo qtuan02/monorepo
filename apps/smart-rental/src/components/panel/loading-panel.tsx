@@ -76,7 +76,11 @@ interface TableSkeletonProps {
   className?: string;
 }
 
-/** The bordered-table footprint — a list screen whose default view is a table. */
+/**
+ * The bordered-table footprint — a list screen whose default view is a
+ * table. Row heights (`h-9` header / `h-11` body) match the real table's own
+ * `[&_thead_th]:h-9 [&_tbody_td]:h-11` (round 4 Q3/Q4, 44 px rows).
+ */
 export function TableSkeleton({
   rows = 5,
   columnCount = 3,
@@ -88,7 +92,7 @@ export function TableSkeleton({
     <div className={cn("overflow-hidden rounded-md border", className)}>
       <div
         data-slot="table-skeleton-row"
-        className="bg-muted/40 flex items-center gap-4 border-b px-4 py-3"
+        className="bg-muted/40 flex h-9 items-center gap-4 border-b px-4"
       >
         {cells.map((cell) => (
           <Skeleton
@@ -101,7 +105,7 @@ export function TableSkeleton({
         <div
           key={`loading-row-${tile}`}
           data-slot="table-skeleton-row"
-          className="flex items-center gap-4 border-b px-4 py-3 last:border-0"
+          className="flex h-11 items-center gap-4 border-b px-4 last:border-0"
         >
           {cells.map((cell) => (
             <Skeleton key={`loading-cell-${cell}`} className="h-4 flex-1" />

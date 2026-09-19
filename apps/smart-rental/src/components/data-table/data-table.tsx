@@ -1,14 +1,13 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { Fragment, useEffect } from "react";
-import { X } from "lucide-react";
+import { LayoutGrid, List, MoreHorizontal, X } from "lucide-react";
 
 import type {
   DataTableColumnDef,
   DataTableInstance,
   DataTableRowData,
 } from "@monorepo/ui/components/data-table";
-import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
 import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
@@ -16,6 +15,14 @@ import {
   DataTableContent,
   useDataTable,
 } from "@monorepo/ui/components/data-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@monorepo/ui/components/dropdown-menu";
+import { cn } from "@monorepo/ui/utils/cn";
 
 import type { ListView } from "~/components/data-table/list-view";
 import type { TableSort } from "~/components/data-table/use-table-search-params";
@@ -33,6 +40,9 @@ import {
   TableSkeleton,
 } from "~/components/panel/loading-panel";
 import { clampPage } from "~/utils/pagination";
+
+/** `h-9`/`h-11` beat the primitive's own `h-10` header / padding-driven body height on specificity (round 4 "Bớt", 44 px rows). */
+const ROW_HEIGHT_CLASSNAME = "[&_thead_th]:h-9 [&_tbody_td]:h-11";
 
 const FILTER_EMPTY_DESCRIPTION =
   "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.";
@@ -117,7 +127,11 @@ interface DataTableProps<TData extends DataTableRowData> {
   search?: { columnId: string; placeholder: string };
   facets?: DataTableFacet[];
   empty: { icon?: LucideIcon; title: string };
-  /** "phòng" → "45 phòng được tìm thấy", built from the filtered count. Omit for no result line. */
+  /**
+   * "phòng" → the toolbar's own count: "45 phòng" unfiltered, "12 / 45 phòng"
+   * once a search/facet narrows it (round 4 Q3 — `DataTable` is the one owner
+   * of this number). Omit for no count line at all.
+   */
   entityLabel?: string;
   /**
    * Controls at the right end of the filter toolbar. A function is handed
@@ -287,6 +301,9 @@ export function DataTable<TData extends DataTableRowData>({
     : table.getSortedRowModel().rows;
   const selectedCount = Object.keys(table.state.rowSelection ?? {}).length;
   const isFiltering = columnFilters.length > 0;
+  // Round 4 Q4: a list that already fits one page has nothing for either
+  // control to do — hides both together, facets stay.
+  const hideSearchAndPagination = data.length <= pagination.pageSize;
 
   // A `?page=` past the last page (a stale link, a shorter list after a
   // filter) is corrected in the URL, the external system that owns it —
@@ -336,23 +353,35 @@ export function DataTable<TData extends DataTableRowData>({
 
   return (
     <div className="space-y-4">
-      {(entityLabel || hasAltView) && (
+      {(entityLabel || hasAltView || isFiltering) && (
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             {entityLabel && (
               <span className="text-muted-foreground text-sm font-medium">
-                {filteredCount} {entityLabel} được tìm thấy
+                {isFiltering
+                  ? `${filteredCount} / ${data.length} ${entityLabel}`
+                  : `${data.length} ${entityLabel}`}
               </span>
             )}
-            {isFiltering && <Badge variant="secondary">Đang lọc</Badge>}
+            {isFiltering && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => table.resetColumnFilters()}
+              >
+                Xóa bộ lọc
+                <X />
+              </Button>
+            )}
           </div>
           {hasAltView && <ListViewSwitch view={view} onViewChange={setView} />}
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          {search && (
+      <div className="flex items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 overflow-x-auto">
+          {search && !hideSearchAndPagination && (
             <SearchInput
               value={params.search}
               placeholder={search.placeholder}
@@ -377,19 +406,43 @@ export function DataTable<TData extends DataTableRowData>({
               }
             />
           ))}
-          {isFiltering && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => table.resetColumnFilters()}
-            >
-              Xóa bộ lọc
-              <X />
-            </Button>
-          )}
         </div>
-        {toolbar && <div className="flex items-center gap-2">{toolbar}</div>}
+        {toolbar && (
+          <div className="hidden items-center gap-2 md:flex">{toolbar}</div>
+        )}
+        {(toolbar || hasAltView) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-sm"
+                  aria-label="Thao tác khác"
+                  className="md:hidden"
+                >
+                  <MoreHorizontal />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end">
+              {hasAltView && (
+                <>
+                  <DropdownMenuItem onClick={() => setView("grid")}>
+                    <LayoutGrid />
+                    Dạng thẻ
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setView("table")}>
+                    <List />
+                    Dạng bảng
+                  </DropdownMenuItem>
+                  {toolbar && <DropdownMenuSeparator />}
+                </>
+              )}
+              {toolbar}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {filteredCount === 0 ? (
@@ -425,7 +478,10 @@ export function DataTable<TData extends DataTableRowData>({
       ) : renderMobileRow ? (
         <>
           <div className="hidden md:block">
-            <DataTableContent table={table} className="bg-card shadow-sm" />
+            <DataTableContent
+              table={table}
+              className={cn("bg-card shadow-sm", ROW_HEIGHT_CLASSNAME)}
+            />
           </div>
           <div className="grid gap-2 md:hidden">
             {rows.map((row) => (
@@ -436,7 +492,10 @@ export function DataTable<TData extends DataTableRowData>({
           </div>
         </>
       ) : (
-        <DataTableContent table={table} className="bg-card shadow-sm" />
+        <DataTableContent
+          table={table}
+          className={cn("bg-card shadow-sm", ROW_HEIGHT_CLASSNAME)}
+        />
       )}
 
       {selectionActions && selectedCount > 0 && (
@@ -450,7 +509,7 @@ export function DataTable<TData extends DataTableRowData>({
         />
       )}
 
-      {filteredCount > 0 && effectivePaginate && (
+      {filteredCount > 0 && effectivePaginate && !hideSearchAndPagination && (
         <PaginationBar
           totalItems={filteredCount}
           currentPage={params.page}

@@ -15,15 +15,15 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
   test("scopes both lists to the selected Toà nhà", async ({ page }) => {
     await page.goto(ROUTES.INVOICES);
     // 6 kỳ Hoá đơn (04–09/2026) × 14 hợp đồng — spec #153 §10 row 33.
-    await expect(page.getByText("84 hoá đơn được tìm thấy")).toBeVisible();
+    await expect(page.getByText("84 hoá đơn")).toBeVisible();
 
     await page.getByRole("button", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
-    await expect(page.getByText("36 hoá đơn được tìm thấy")).toBeVisible();
+    await expect(page.getByText("36 hoá đơn")).toBeVisible();
 
     // "Chỉ số điện nước" is no longer its own sidebar row (ADR-0013) — go
     // straight there; the Building scope carries over via the store.
     await page.goto(ROUTES.UTILITIES);
-    await expect(page.getByText("22 chỉ số được tìm thấy")).toBeVisible();
+    await expect(page.getByText("22 chỉ số")).toBeVisible();
   });
 
   // Ticket #157 — the list-screen foundation, proven on Hoá đơn: the KPI
@@ -113,11 +113,11 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await page.getByRole("checkbox", { name: "Quá hạn" }).click();
     await page.keyboard.press("Escape");
 
-    const resultLabel = page.getByText(/hoá đơn được tìm thấy$/);
-    // Wait for the filtered (smaller) count, not the unfiltered "84 …" still on screen.
-    await expect(resultLabel).not.toHaveText("84 hoá đơn được tìm thấy");
+    // Filtering: the toolbar switches to "M / 84 hoá đơn" (round 4 Q3).
+    const resultLabel = page.getByText(/^\d+ \/ 84 hoá đơn$/);
+    await expect(resultLabel).toBeVisible();
     const filteredCount = Number(
-      (await resultLabel.textContent())?.match(/\d+/)?.[0],
+      (await resultLabel.textContent())?.match(/^\d+/)?.[0],
     );
     expect(filteredCount).toBeGreaterThan(0);
     expect(filteredCount).toBeLessThan(84);

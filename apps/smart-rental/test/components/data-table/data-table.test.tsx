@@ -101,8 +101,10 @@ describe("DataTable — URL-owned list state", () => {
 
     // "Row 3" matches Row 3 (a) and Row 30 (b); the facet keeps only status a.
     expect(cellTexts()).toEqual(["Row 3"]);
-    expect(screen.getByText("1 dòng được tìm thấy")).toBeInTheDocument();
-    expect(screen.getByText("Đang lọc")).toBeInTheDocument();
+    expect(screen.getByText("1 / 30 dòng")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Xóa bộ lọc/ }),
+    ).toBeInTheDocument();
   });
 
   it("corrects a page past the end back into range", async () => {
@@ -139,9 +141,7 @@ describe("DataTable — URL-owned list state", () => {
     });
     // Row 1, Row 10–19 → 11 rows. The router commits a navigation in a
     // transition, so the URL leads the DOM by a tick — hence `findBy`.
-    expect(
-      await screen.findByText("11 dòng được tìm thấy"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("11 / 30 dòng")).toBeInTheDocument();
   });
 
   it("toggles a facet through the URL and clears every filter at once", async () => {
@@ -155,9 +155,7 @@ describe("DataTable — URL-owned list state", () => {
       () => expect(router.state.location.search).toBe("?q=Row&status=b"),
       { timeout: 3000 },
     );
-    expect(
-      await screen.findByText("15 dòng được tìm thấy"),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("15 / 30 dòng")).toBeInTheDocument();
 
     // The popover carries its own "Xóa bộ lọc"; the toolbar one clears everything.
     await user.keyboard("{Escape}");
@@ -166,9 +164,8 @@ describe("DataTable — URL-owned list state", () => {
     await waitFor(() => expect(router.state.location.search).toBe(""), {
       timeout: 3000,
     });
-    expect(
-      await screen.findByText("30 dòng được tìm thấy"),
-    ).toBeInTheDocument();
+    // Not filtering any more: the plain total, no "M / N" split.
+    expect(await screen.findByText("30 dòng")).toBeInTheDocument();
     expect(screen.getByRole("searchbox")).toHaveValue("");
   });
 
@@ -238,6 +235,41 @@ describe("DataTable — query states", () => {
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Thử lại" }));
     expect(refetch).toHaveBeenCalledOnce();
+  });
+});
+
+describe("DataTable — search and pagination hide once the list fits one page", () => {
+  function SubjectWithCount({ count }: { count: number }) {
+    return (
+      <DataTable
+        columns={columns}
+        query={successQuery(rows.slice(0, count))}
+        getRowId={(row) => row.id}
+        search={{ columnId: "name", placeholder: "Tìm tên..." }}
+        empty={{ title: "Không có gì" }}
+        entityLabel="dòng"
+      />
+    );
+  }
+
+  it("hides both once total ≤ pageSize (12)", () => {
+    renderPlain(<SubjectWithCount count={12} />);
+
+    expect(screen.getByText("12 dòng")).toBeInTheDocument();
+    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Trang sau" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows both again once a second page is needed (13)", () => {
+    renderPlain(<SubjectWithCount count={13} />);
+
+    expect(screen.getByText("13 dòng")).toBeInTheDocument();
+    expect(screen.getByRole("searchbox")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Trang sau" }),
+    ).toBeInTheDocument();
   });
 });
 
