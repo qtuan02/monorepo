@@ -221,12 +221,8 @@ function CycleForm({ buildingId, month, rows }: CycleFormProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-24">Phòng</TableHead>
-                    <TableHead>Điện cũ</TableHead>
-                    <TableHead>Điện mới</TableHead>
-                    <TableHead>Tiêu thụ điện</TableHead>
-                    <TableHead>Nước cũ</TableHead>
-                    <TableHead>Nước mới</TableHead>
-                    <TableHead>Tiêu thụ nước</TableHead>
+                    <TableHead>Điện</TableHead>
+                    <TableHead>Nước</TableHead>
                     <TableHead>Tiền phòng</TableHead>
                     <TableHead>Tiền điện</TableHead>
                     <TableHead>Tiền nước</TableHead>
