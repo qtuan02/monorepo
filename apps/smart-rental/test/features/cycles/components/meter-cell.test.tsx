@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
-import { useForm } from "react-hook-form";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import type { CycleFormValues } from "~/features/cycles/types/cycle-form";
@@ -94,8 +94,7 @@ function MeterCellHarness({
             cycleRow.newElectricity != null
               ? String(cycleRow.newElectricity)
               : "",
-          newWater:
-            cycleRow.newWater != null ? String(cycleRow.newWater) : "",
+          newWater: cycleRow.newWater != null ? String(cycleRow.newWater) : "",
         },
       ],
     },
@@ -118,7 +117,9 @@ function MeterCellHarness({
 describe("MeterCell", () => {
   it("renders the chỉ số mới input when editable", () => {
     queryClient.clear();
-    render(<MeterCellHarness row={row({ status: "READY" })} type="electricity" />);
+    render(
+      <MeterCellHarness row={row({ status: "READY" })} type="electricity" />,
+    );
 
     expect(
       screen.getByRole("spinbutton", {
@@ -128,7 +129,9 @@ describe("MeterCell", () => {
   });
 
   it("khoá ô nhập — Phòng trống", () => {
-    render(<MeterCellHarness row={row({ status: "EMPTY" })} type="electricity" />);
+    render(
+      <MeterCellHarness row={row({ status: "EMPTY" })} type="electricity" />,
+    );
 
     expect(
       screen.queryByRole("spinbutton", {
@@ -216,7 +219,9 @@ describe("MeterCell", () => {
   });
 
   it("shows the Sửa chỉ số cũ trigger only when correctable", () => {
-    render(<MeterCellHarness row={row({ status: "READY" })} type="electricity" />);
+    render(
+      <MeterCellHarness row={row({ status: "READY" })} type="electricity" />,
+    );
 
     expect(
       screen.getByRole("button", {
@@ -226,7 +231,9 @@ describe("MeterCell", () => {
   });
 
   it("hides the Sửa chỉ số cũ trigger for a Phòng trống", () => {
-    render(<MeterCellHarness row={row({ status: "EMPTY" })} type="electricity" />);
+    render(
+      <MeterCellHarness row={row({ status: "EMPTY" })} type="electricity" />,
+    );
 
     expect(
       screen.queryByRole("button", {
@@ -237,7 +244,9 @@ describe("MeterCell", () => {
 
   it("opens Sửa chỉ số cũ on click", async () => {
     const user = userEvent.setup();
-    render(<MeterCellHarness row={row({ status: "READY" })} type="electricity" />);
+    render(
+      <MeterCellHarness row={row({ status: "READY" })} type="electricity" />,
+    );
 
     await user.click(
       screen.getByRole("button", {

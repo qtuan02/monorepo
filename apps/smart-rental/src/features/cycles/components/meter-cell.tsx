@@ -73,18 +73,12 @@ export function MeterCell({
 }: MeterCellProps) {
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const approveReading = useApproveCycleReading();
-  const { editable, correctable, approvable } = meterGates(
-    row,
-    type,
-    readOnly,
-  );
+  const { editable, correctable, approvable } = meterGates(row, type, readOnly);
   const typeLabel = utilityTypeConfig[type].label;
   const oldValue = type === "electricity" ? row.oldElectricity : row.oldWater;
   const newValue = type === "electricity" ? row.newElectricity : row.newWater;
   const consumption =
-    type === "electricity"
-      ? row.electricityConsumption
-      : row.waterConsumption;
+    type === "electricity" ? row.electricityConsumption : row.waterConsumption;
   const anomalyReason =
     type === "electricity"
       ? row.electricityAnomalyReason
@@ -139,9 +133,7 @@ export function MeterCell({
             )}
           />
         ) : (
-          <span className="flex-1 tabular-nums text-sm">
-            {newValue ?? "—"}
-          </span>
+          <span className="flex-1 tabular-nums text-sm">{newValue ?? "—"}</span>
         )}
         <span className="text-muted-foreground w-16 shrink-0 text-right text-sm tabular-nums">
           {consumption ?? "—"}
