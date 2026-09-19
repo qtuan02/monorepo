@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { AlertTriangle, Building2, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
 
 import {
   Alert,
@@ -14,14 +13,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { StatGroup, StatItem } from "~/components/card/stat-item";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { OccupancyBar } from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
 import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
@@ -30,6 +27,7 @@ import RoomGrid from "~/features/rooms/components/room-grid";
 import { useDeleteBuilding, useGetBuilding } from "~/hooks/api/building";
 import { useGetContracts } from "~/hooks/api/contract";
 import { useGetRooms } from "~/hooks/api/room";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { canDeleteBuilding } from "~/utils/building-delete";
 import { formatCurrency } from "~/utils/currency";
 import { isElectricityPriceOverCap } from "~/utils/tariff";
@@ -48,34 +46,35 @@ const TITLE = "Chi tiết toà nhà";
 export default function BuildingDetailTemplate({
   buildingId,
 }: BuildingDetailTemplateProps) {
-  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const buildingQuery = useGetBuilding(buildingId);
+  const building = buildingQuery.data;
   const roomsQuery = useGetRooms({ buildingId });
   const contractsQuery = useGetContracts({ buildingId });
-  const deleteBuilding = useDeleteBuilding();
 
-  if (buildingQuery.isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.BUILDINGS}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
+  const deleteBuilding = useDeleteEntity({
+    mutation: useDeleteBuilding(),
+    id: building?.id ?? "",
+    label: "toà nhà",
+    entity: building?.name,
+    successMessage: `Đã xóa ${building?.name}`,
+    redirectTo: ROUTES.BUILDINGS,
+  });
 
-  const building = buildingQuery.data;
   if (!building) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.BUILDINGS}>
-        <EmptyPanel
-          icon={Building2}
-          title="Không tìm thấy toà nhà."
-          description={`Không có toà nhà nào với mã ${buildingId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.BUILDINGS}
+        query={buildingQuery}
+        id={buildingId}
+        notFound={(id) => ({
+          icon: Building2,
+          title: "Không tìm thấy toà nhà.",
+          description: `Không có toà nhà nào với mã ${id}.`,
+        })}
+      />
     );
   }
 
@@ -84,15 +83,6 @@ export default function BuildingDetailTemplate({
   const isElectricityOverCap = isElectricityPriceOverCap(
     building.priceList.electricityPricePerKwh,
   );
-
-  const handleDelete = () =>
-    deleteBuilding.mutate(building.id, {
-      onSuccess: () => {
-        toast.add({ title: `Đã xóa ${building.name}`, type: "success" });
-        setIsDeleteOpen(false);
-        navigate(ROUTES.BUILDINGS, { replace: true });
-      },
-    });
 
   // "Cài đặt" has exactly one entry point — the tab's own "Chỉnh sửa" — not a
   // second header button opening the same sheet (spec #179 §"Chi tiết / danh
@@ -104,7 +94,7 @@ export default function BuildingDetailTemplate({
       size="sm"
       className="text-destructive hover:text-destructive"
       disabled={!canDelete}
-      onClick={() => setIsDeleteOpen(true)}
+      onClick={deleteBuilding.onOpen}
     >
       <Trash2 />
       Xóa
@@ -263,16 +253,7 @@ export default function BuildingDetailTemplate({
         onOpenChange={setIsSettingsOpen}
       />
 
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa toà nhà"
-        description={`Bạn có chắc chắn muốn xóa toà nhà "${building.name}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        isPending={deleteBuilding.isPending}
-        onConfirm={handleDelete}
-      />
+      <ConfirmActionDialog {...deleteBuilding.dialogProps} />
     </>
   );
 }

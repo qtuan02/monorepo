@@ -123,3 +123,17 @@ export function useSendInvoiceReminders(
     ...options,
   });
 }
+
+/**
+ * "Xóa" is fake — gated to Nháp, and no such state exists for a Hoá đơn today
+ * (spec #179 §"Thu tiền và chi tiết Hoá đơn"), so there is nothing to remove
+ * from the Mock. Kept as a real (no-op) mutation so `invoice-detail.template`
+ * still goes through `useDeleteEntity` like the other five delete screens,
+ * rather than a hand-built fake `{ mutate, isPending }` object.
+ */
+export function useDeleteInvoice(options?: UseMutationOptionsWrapper<string>) {
+  return useMutation({
+    mutationFn: async () => {},
+    ...options,
+  });
+}

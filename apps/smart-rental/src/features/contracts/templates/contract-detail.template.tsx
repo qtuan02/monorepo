@@ -1,16 +1,8 @@
-import { useState } from "react";
 import { AlertCircle, Calendar, FileX, Trash2 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 
 import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
-import { toast } from "@monorepo/ui/components/toast";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import { StatusBadge } from "~/components/badge/status-badge";
@@ -20,7 +12,6 @@ import { DataTable } from "~/components/data-table/data-table";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { LifecycleStepper } from "~/components/stepper/lifecycle-stepper";
 import { ROUTES } from "~/constants/routes";
 import { contractStatusConfig, depositStatusConfig } from "~/constants/status";
@@ -30,6 +21,7 @@ import { utilityColumns } from "~/features/utilities/components/utility-columns"
 import { useDeleteContract, useGetContract } from "~/hooks/api/contract";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetUtilities } from "~/hooks/api/utility";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import {
   canDeleteContract,
   daysUntilContractEnd,
@@ -54,34 +46,39 @@ const TITLE = "Chi tiết hợp đồng";
 export default function ContractDetailTemplate({
   contractId,
 }: ContractDetailTemplateProps) {
-  const navigate = useNavigate();
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { data: contract, isLoading } = useGetContract(contractId);
-  const deleteContract = useDeleteContract();
-  const invoicesQuery = useGetInvoices({ contractId }, { enabled: !!contract });
+  const contractQuery = useGetContract(contractId);
+  const contract = contractQuery.data;
+  const invoicesQuery = useGetInvoices(
+    { contractId },
+    { enabled: !!contract },
+  );
   const utilitiesQuery = useGetUtilities(
     { roomId: contract?.roomId },
     { enabled: !!contract },
   );
 
-  if (isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.CONTRACTS}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
+  const deleteContract = useDeleteEntity({
+    mutation: useDeleteContract(),
+    id: contract?.id ?? "",
+    label: "hợp đồng",
+    entity: contract?.contractNumber,
+    successMessage: `Đã xóa hợp đồng ${contract?.contractNumber}`,
+    redirectTo: ROUTES.CONTRACTS,
+  });
 
   if (!contract) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.CONTRACTS}>
-        <EmptyPanel
-          icon={FileX}
-          title="Không tìm thấy hợp đồng"
-          description={`Không có hợp đồng nào với mã ${contractId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.CONTRACTS}
+        query={contractQuery}
+        id={contractId}
+        notFound={(id) => ({
+          icon: FileX,
+          title: "Không tìm thấy hợp đồng",
+          description: `Không có hợp đồng nào với mã ${id}.`,
+        })}
+      />
     );
   }
 
@@ -89,18 +86,6 @@ export default function ContractDetailTemplate({
   const deposit = depositStatusConfig[contract.depositStatus];
   const isLive = isContractLive(contract);
   const daysUntilEnd = daysUntilContractEnd(contract.endDate);
-
-  const handleDelete = () =>
-    deleteContract.mutate(contract.id, {
-      onSuccess: () => {
-        toast.add({
-          title: `Đã xóa hợp đồng ${contract.contractNumber}`,
-          type: "success",
-        });
-        setIsDeleteOpen(false);
-        navigate(ROUTES.CONTRACTS, { replace: true });
-      },
-    });
 
   return (
     <DetailPageShell
@@ -158,7 +143,7 @@ export default function ContractDetailTemplate({
             variant="outline"
             size="sm"
             className="text-destructive hover:text-destructive"
-            onClick={() => setIsDeleteOpen(true)}
+            onClick={deleteContract.onOpen}
           >
             <Trash2 />
             Xóa
@@ -247,46 +232,32 @@ export default function ContractDetailTemplate({
             </p>
           </InfoCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Liên kết</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Link
-                to={ROUTES.roomDetailPath(contract.roomId)}
-                className={buttonVariants({
-                  variant: "outline",
-                  size: "sm",
-                  className: "w-full",
-                })}
-              >
-                Xem phòng
-              </Link>
-              <Link
-                to={ROUTES.tenantDetailPath(contract.tenantId)}
-                className={buttonVariants({
-                  variant: "outline",
-                  size: "sm",
-                  className: "w-full",
-                })}
-              >
-                Xem người thuê
-              </Link>
-            </CardContent>
-          </Card>
+          <InfoCard title="Liên kết">
+            <Link
+              to={ROUTES.roomDetailPath(contract.roomId)}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: "w-full",
+              })}
+            >
+              Xem phòng
+            </Link>
+            <Link
+              to={ROUTES.tenantDetailPath(contract.tenantId)}
+              className={buttonVariants({
+                variant: "outline",
+                size: "sm",
+                className: "w-full",
+              })}
+            >
+              Xem người thuê
+            </Link>
+          </InfoCard>
         </>
       }
     >
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa hợp đồng"
-        description={`Bạn có chắc chắn muốn xóa hợp đồng "${contract.contractNumber}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        isPending={deleteContract.isPending}
-        onConfirm={handleDelete}
-      />
+      <ConfirmActionDialog {...deleteContract.dialogProps} />
     </DetailPageShell>
   );
 }

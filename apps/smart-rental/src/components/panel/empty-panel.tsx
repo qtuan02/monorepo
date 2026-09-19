@@ -10,7 +10,7 @@ import {
   EmptyTitle,
 } from "@monorepo/ui/components/empty";
 
-interface EmptyPanelProps {
+export interface EmptyPanelProps {
   icon?: LucideIcon;
   title: string;
   description?: string;

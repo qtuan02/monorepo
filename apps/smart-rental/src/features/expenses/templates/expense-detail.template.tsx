@@ -1,19 +1,16 @@
 import { useState } from "react";
 import { Edit, FileText, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { ReceiptAttachment } from "~/components/attachment/receipt-attachment";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
-import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import ExpenseFormSheet from "~/features/expenses/components/expense-form-sheet";
 import { useDeleteExpense, useGetExpense } from "~/hooks/api/expense";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
 
@@ -31,41 +28,34 @@ const TITLE = "Chi tiết chi phí";
 export default function ExpenseDetailTemplate({
   expenseId,
 }: ExpenseDetailTemplateProps) {
-  const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { data: expense, isLoading } = useGetExpense(expenseId);
-  const deleteExpense = useDeleteExpense();
+  const expenseQuery = useGetExpense(expenseId);
+  const expense = expenseQuery.data;
 
-  if (isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.EXPENSES}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
+  const deleteExpense = useDeleteEntity({
+    mutation: useDeleteExpense(),
+    id: expense?.id ?? "",
+    label: "khoản chi",
+    entity: expense?.category,
+    successMessage: "Đã xóa khoản chi",
+    redirectTo: ROUTES.EXPENSES,
+  });
 
   if (!expense) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.EXPENSES}>
-        <EmptyPanel
-          icon={FileText}
-          title="Không tìm thấy khoản chi phí."
-          description={`Không có khoản chi nào với mã ${expenseId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.EXPENSES}
+        query={expenseQuery}
+        id={expenseId}
+        notFound={(id) => ({
+          icon: FileText,
+          title: "Không tìm thấy khoản chi phí.",
+          description: `Không có khoản chi nào với mã ${id}.`,
+        })}
+      />
     );
   }
-
-  const handleDelete = () =>
-    deleteExpense.mutate(expense.id, {
-      onSuccess: () => {
-        toast.add({ title: "Đã xóa khoản chi", type: "success" });
-        setIsDeleteOpen(false);
-        navigate(ROUTES.EXPENSES, { replace: true });
-      },
-    });
 
   return (
     <>
@@ -90,7 +80,7 @@ export default function ExpenseDetailTemplate({
               variant="outline"
               size="sm"
               className="text-destructive hover:text-destructive"
-              onClick={() => setIsDeleteOpen(true)}
+              onClick={deleteExpense.onOpen}
             >
               <Trash2 />
               Xóa
@@ -124,16 +114,7 @@ export default function ExpenseDetailTemplate({
         onOpenChange={setIsEditOpen}
       />
 
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa khoản chi"
-        description={`Bạn có chắc chắn muốn xóa khoản chi "${expense.category}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        isPending={deleteExpense.isPending}
-        onConfirm={handleDelete}
-      />
+      <ConfirmActionDialog {...deleteExpense.dialogProps} />
     </>
   );
 }

@@ -12,12 +12,13 @@ import {
 import { cn } from "@monorepo/ui/utils/cn";
 
 import { StatusBadge } from "~/components/badge/status-badge";
+import { EntityListCard } from "~/components/card/entity-list-card";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { ResidenceDeclarationLines } from "~/components/card/residence-declaration-lines";
 import { StatGroup, StatItem } from "~/components/card/stat-item";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
+import { RelationTab } from "~/components/page/relation-tab";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import {
   contractStatusConfig,
@@ -59,24 +60,19 @@ export default function TenantDetailTemplate({
   const invoicesQuery = useGetInvoices();
   const declarationsQuery = useGetResidenceDeclarations();
 
-  if (tenantQuery.isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.TENANTS}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
-
   if (!tenant) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.TENANTS}>
-        <EmptyPanel
-          icon={UserX}
-          title="Không tìm thấy Người thuê"
-          description={`Không có Người thuê nào với mã ${tenantId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.TENANTS}
+        query={tenantQuery}
+        id={tenantId}
+        notFound={(id) => ({
+          icon: UserX,
+          title: "Không tìm thấy Người thuê",
+          description: `Không có Người thuê nào với mã ${id}.`,
+        })}
+      />
     );
   }
 
@@ -161,67 +157,86 @@ export default function TenantDetailTemplate({
           {
             value: "contracts",
             label: "Hợp đồng",
-            content:
-              tenantContracts.length > 0 ? (
-                <div className="space-y-3">
-                  {tenantContracts.map((contract) => (
-                    <Link
-                      key={contract.id}
-                      to={ROUTES.contractDetailPath(contract.id)}
-                      className="hover:bg-muted/50 flex items-center justify-between gap-4 rounded-lg border p-4 text-sm"
-                    >
-                      <div>
-                        <p className="font-medium">{contract.contractNumber}</p>
-                        <p className="text-muted-foreground text-xs">
-                          {contract.startDate} → {contract.endDate}
-                        </p>
-                      </div>
-                      <StatusBadge
-                        config={contractStatusConfig[contract.status]}
+            content: (
+              <RelationTab
+                items={tenantContracts}
+                className="space-y-3"
+                empty={{
+                  icon: ScrollText,
+                  title: "Chưa có hợp đồng",
+                  description: "Người thuê này chưa có hợp đồng nào.",
+                }}
+              >
+                {(contract) => (
+                  <EntityListCard
+                    overlay={
+                      <Link
+                        to={ROUTES.contractDetailPath(contract.id)}
+                        className="absolute inset-0 z-0"
                       />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <EmptyPanel
-                  icon={ScrollText}
-                  title="Chưa có hợp đồng"
-                  description="Người thuê này chưa có hợp đồng nào."
-                  className="border"
-                />
-              ),
+                    }
+                    header={
+                      <CardHeader className="flex-row items-center justify-between gap-4 py-4">
+                        <div>
+                          <p className="font-medium">
+                            {contract.contractNumber}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            {contract.startDate} → {contract.endDate}
+                          </p>
+                        </div>
+                        <StatusBadge
+                          config={contractStatusConfig[contract.status]}
+                        />
+                      </CardHeader>
+                    }
+                    content={null}
+                  />
+                )}
+              </RelationTab>
+            ),
           },
           {
             value: "invoices",
             label: "Hoá đơn",
-            content:
-              tenantInvoices.length > 0 ? (
-                <div className="space-y-3">
-                  {tenantInvoices.map((invoice) => (
-                    <Link
-                      key={invoice.id}
-                      to={ROUTES.invoiceDetailPath(invoice.id)}
-                      className="hover:bg-muted/50 flex items-center justify-between gap-4 rounded-lg border p-4 text-sm"
-                    >
-                      <div>
-                        <p className="font-medium">{invoice.invoiceNumber}</p>
-                        <p className="text-muted-foreground text-xs">
-                          Kỳ {invoice.month} · {formatCurrency(invoice.amount)}
-                        </p>
-                      </div>
-                      <StatusBadge
-                        config={invoiceStatusConfig[invoice.status]}
+            content: (
+              <RelationTab
+                items={tenantInvoices}
+                className="space-y-3"
+                empty={{
+                  title: "Chưa có hoá đơn",
+                  description: "Người thuê này chưa có hoá đơn nào.",
+                }}
+              >
+                {(invoice) => (
+                  <EntityListCard
+                    overlay={
+                      <Link
+                        to={ROUTES.invoiceDetailPath(invoice.id)}
+                        className="absolute inset-0 z-0"
                       />
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <EmptyPanel
-                  title="Chưa có hoá đơn"
-                  description="Người thuê này chưa có hoá đơn nào."
-                  className="border"
-                />
-              ),
+                    }
+                    header={
+                      <CardHeader className="flex-row items-center justify-between gap-4 py-4">
+                        <div>
+                          <p className="font-medium">
+                            {invoice.invoiceNumber}
+                          </p>
+                          <p className="text-muted-foreground text-xs">
+                            Kỳ {invoice.month} ·{" "}
+                            {formatCurrency(invoice.amount)}
+                          </p>
+                        </div>
+                        <StatusBadge
+                          config={invoiceStatusConfig[invoice.status]}
+                        />
+                      </CardHeader>
+                    }
+                    content={null}
+                  />
+                )}
+              </RelationTab>
+            ),
           },
           {
             value: "residence",
