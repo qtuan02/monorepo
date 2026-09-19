@@ -89,6 +89,7 @@ export default function ConversationPanel({
       : undefined;
   const activeConversation = conversation ?? draftConversation;
 
+  const isConnected = useSocketStore((state) => state.isConnected);
   const isOtherMemberOnline = useSocketStore((state) => {
     const otherMemberId = conversation?.otherMemberId ?? draftUser?.id;
     return otherMemberId ? state.onlineUsers.includes(otherMemberId) : false;
@@ -126,11 +127,16 @@ export default function ConversationPanel({
   const title = activeConversation?.title ?? "Conversation";
   const isGroup = activeConversation?.type === ChatConversationType.GROUP;
   const memberCount = activeConversation?.members.length ?? 0;
-  const subtitle = isGroup
-    ? `${memberCount} members · ${onlineMemberCount} online`
-    : isOtherMemberOnline
-      ? "Active now"
-      : undefined;
+  // Presence is only meaningful while the socket is actually connected — a
+  // stale `onlineUsers` snapshot from before a drop would otherwise read as
+  // "everyone's offline" instead of "we don't know right now" (T4, brief §10 row 13).
+  const subtitle = !isConnected
+    ? undefined
+    : isGroup
+      ? `${memberCount} members · ${onlineMemberCount} online`
+      : isOtherMemberOnline
+        ? "Active now"
+        : undefined;
 
   return (
     <div className="flex h-full min-h-0 flex-1">
@@ -150,17 +156,23 @@ export default function ConversationPanel({
           <ConversationAvatar
             title={title}
             avatarUrl={activeConversation?.avatarUrl}
-            online={!isGroup && isOtherMemberOnline}
+            online={isConnected && !isGroup && isOtherMemberOnline}
           />
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-[15px] font-semibold">{title}</h1>
-            {subtitle && (
-              <p className="text-muted-foreground flex items-center gap-1.5 truncate text-xs">
-                {!isGroup && (
-                  <span className="bg-online inline-block size-1.5 shrink-0 rounded-full" />
-                )}
-                {subtitle}
-              </p>
+            {!isConnected ? (
+              <span className="bg-muted text-muted-foreground inline-block rounded-full px-2 py-0.5 text-xs">
+                Reconnecting…
+              </span>
+            ) : (
+              subtitle && (
+                <p className="text-muted-foreground flex items-center gap-1.5 truncate text-xs">
+                  {!isGroup && (
+                    <span className="bg-online inline-block size-1.5 shrink-0 rounded-full" />
+                  )}
+                  {subtitle}
+                </p>
+              )
             )}
           </div>
           {activeConversation && (
@@ -188,7 +200,9 @@ export default function ConversationPanel({
               </EmptyHeader>
             </Empty>
           ) : (
-            conversationId && <MessageList conversationId={conversationId} />
+            conversationId && (
+              <MessageList key={conversationId} conversationId={conversationId} />
+            )
           )}
         </div>
         {activeConversation && (

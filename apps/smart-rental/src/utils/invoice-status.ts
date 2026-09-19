@@ -1,6 +1,8 @@
 import dayjs from "@monorepo/dayjs";
 
+import type { StatusConfig } from "~/constants/status";
 import type { Invoice, InvoiceStatus } from "~/types/invoice";
+import { invoiceStatusConfig } from "~/constants/status";
 
 /**
  * `PARTIAL`/`PAID`/`OVERDUE` are never persisted (ADR-0012) — they are read
@@ -32,6 +34,23 @@ export function daysOverdue(dueDate: string, today: Date = new Date()): number {
     .startOf("day")
     .diff(dayjs(dueDate).startOf("day"), "day");
   return Math.max(0, days);
+}
+
+/**
+ * The status badge for a Hoá đơn row/card: OVERDUE carries its own day
+ * count ("Quá hạn 14 ngày") so the table can drop a separate Hạn badge —
+ * every other status keeps its plain config label (round 4 §10 Q11).
+ */
+export function invoiceStatusBadgeConfig(
+  invoice: Pick<Invoice, "status" | "dueDate">,
+  today: Date = new Date(),
+): StatusConfig {
+  const config = invoiceStatusConfig[invoice.status];
+  if (invoice.status !== "OVERDUE") return config;
+  return {
+    ...config,
+    label: `Quá hạn ${daysOverdue(invoice.dueDate, today)} ngày`,
+  };
 }
 
 /** Xoá chỉ Nháp (spec #153) — a pure predicate, so the button and the hook's own guard read one rule. */

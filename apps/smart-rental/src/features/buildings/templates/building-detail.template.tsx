@@ -40,8 +40,8 @@ const TITLE = "Chi tiết toà nhà";
 
 /**
  * "Chi tiết toà nhà" (spec #153 §3.4): header entity + tabs Tổng quan · Phòng
- * · Cài đặt, cột phải chỉ tỷ lệ lấp đầy. The reference the other nine detail
- * screens migrate to next, one ticket at a time (#160–#166).
+ * · Cài đặt, no right column (round 4 Q8) — "Tỷ lệ lấp đầy" sits inside Tổng
+ * quan instead, since it carries no action of its own.
  */
 export default function BuildingDetailTemplate({
   buildingId,
@@ -149,6 +149,17 @@ export default function BuildingDetailTemplate({
                     value={building.description ?? "---"}
                   />
                 </InfoCard>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
+                  </CardHeader>
+                  {/* One "83%" — the OccupancyBar's own figure, not a second
+                      big number above it (spec #179 §"Chi tiết / danh sách"). */}
+                  <CardContent>
+                    <OccupancyBar rate={building.occupancyRate} />
+                  </CardContent>
+                </Card>
               </>
             ),
           },
@@ -233,18 +244,6 @@ export default function BuildingDetailTemplate({
             ),
           },
         ]}
-        sidebar={
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
-            </CardHeader>
-            {/* One "83%" — the OccupancyBar's own figure, not a second big
-                number above it (spec #179 §"Chi tiết / danh sách"). */}
-            <CardContent>
-              <OccupancyBar rate={building.occupancyRate} />
-            </CardContent>
-          </Card>
-        }
       />
 
       <BuildingSettingsFormSheet

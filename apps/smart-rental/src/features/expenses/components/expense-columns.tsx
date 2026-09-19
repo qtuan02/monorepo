@@ -1,7 +1,3 @@
-import { Eye } from "lucide-react";
-import { Link } from "react-router";
-
-import { buttonVariants } from "@monorepo/ui/components/button";
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -9,9 +5,9 @@ import {
 
 import type { Expense } from "~/types/expense";
 import { facetFilterFn } from "~/components/data-table/data-table";
-import { ROUTES } from "~/constants/routes";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
+import ExpenseRowActions from "./expense-row-actions";
 
 const helper = createDataTableColumnHelper<Expense>();
 
@@ -63,14 +59,6 @@ export const expenseColumns = helper.columns([
   }),
   helper.display({
     id: "actions",
-    cell: ({ row }) => (
-      <Link
-        to={ROUTES.expenseDetailPath(row.original.id)}
-        aria-label="Xem chi tiết"
-        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-      >
-        <Eye />
-      </Link>
-    ),
+    cell: ({ row }) => <ExpenseRowActions expense={row.original} />,
   }),
 ]);

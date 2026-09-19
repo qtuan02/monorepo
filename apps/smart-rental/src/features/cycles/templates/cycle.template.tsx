@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  MoreHorizontal,
   Receipt,
   Save,
 } from "lucide-react";
@@ -89,14 +90,19 @@ function CycleForm({ buildingId, month, rows }: CycleFormProps) {
   });
 
   const readyCount = rows.filter((row) => row.status === "READY").length;
+  const anomalyCount = rows.filter((row) => row.status === "ANOMALY").length;
+  const emptyCount = rows.filter((row) => row.status === "EMPTY").length;
   const closingDate = dayjs(month, "YYYY-MM").endOf("month").toDate();
   const closingPassed = isCycleClosingDatePassed(month);
-  const disabledReason =
-    readyCount === 0
-      ? "Chưa có Phòng nào đủ điều kiện lập hoá đơn."
-      : !closingPassed
-        ? `Chỉ lập được từ sau ngày chốt của kỳ, ${formatDate(closingDate)}.`
-        : null;
+  const createDisabled = readyCount === 0 || !closingPassed;
+  const helperText = [
+    `Chỉ lập được từ ${formatDate(closingDate)}`,
+    `${readyCount}/${rows.length} sẵn sàng`,
+    anomalyCount > 0 && `${anomalyCount} bất thường`,
+    emptyCount > 0 && `${emptyCount} trống`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   const onSaveDraft = form.handleSubmit((values) => {
     const entries: {
@@ -170,8 +176,9 @@ function CycleForm({ buildingId, month, rows }: CycleFormProps) {
             : "Kỳ này đã lập hoá đơn — chỉ xem lại."}
         </p>
       ) : (
-        <>
-          <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="text-muted-foreground text-sm">{helperText}</p>
+          <div className="flex items-center gap-2">
             <Button
               type="submit"
               form={FORM_ID}
@@ -185,19 +192,14 @@ function CycleForm({ buildingId, month, rows }: CycleFormProps) {
             <Button
               type="button"
               size="sm"
-              disabled={!!disabledReason || createInvoices.isPending}
+              disabled={createDisabled || createInvoices.isPending}
               onClick={onCreateInvoices}
             >
               <Receipt />
               Lập {readyCount} hoá đơn
             </Button>
           </div>
-          {disabledReason && (
-            <p className="text-muted-foreground text-right text-sm">
-              {disabledReason}
-            </p>
-          )}
-        </>
+        </div>
       )}
 
       <form id={FORM_ID} onSubmit={onSaveDraft} noValidate>
@@ -220,14 +222,51 @@ function CycleForm({ buildingId, month, rows }: CycleFormProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-24">Phòng</TableHead>
-                    <TableHead>Điện</TableHead>
-                    <TableHead>Nước</TableHead>
-                    <TableHead>Tiền phòng</TableHead>
-                    <TableHead>Tiền điện</TableHead>
-                    <TableHead>Tiền nước</TableHead>
-                    <TableHead className="text-right">Tổng</TableHead>
-                    <TableHead className="text-right">Trạng thái</TableHead>
+                    <TableHead rowSpan={2} className="w-24 align-bottom">
+                      Phòng
+                    </TableHead>
+                    <TableHead colSpan={3} className="text-center">
+                      Điện (kWh)
+                    </TableHead>
+                    <TableHead colSpan={3} className="text-center">
+                      Nước (m³)
+                    </TableHead>
+                    <TableHead
+                      rowSpan={2}
+                      aria-label="Tiền phòng"
+                      className="text-right align-bottom"
+                    >
+                      Phòng
+                    </TableHead>
+                    <TableHead
+                      rowSpan={2}
+                      aria-label="Tiền điện"
+                      className="text-right align-bottom"
+                    >
+                      Điện
+                    </TableHead>
+                    <TableHead
+                      rowSpan={2}
+                      aria-label="Tiền nước"
+                      className="text-right align-bottom"
+                    >
+                      Nước
+                    </TableHead>
+                    <TableHead rowSpan={2} className="text-right align-bottom">
+                      Tổng
+                    </TableHead>
+                    <TableHead rowSpan={2} className="text-right align-bottom">
+                      Trạng thái
+                    </TableHead>
+                    <TableHead rowSpan={2} className="w-9 align-bottom" />
+                  </TableRow>
+                  <TableRow>
+                    <TableHead className="text-right">Cũ</TableHead>
+                    <TableHead className="text-right">Mới</TableHead>
+                    <TableHead className="text-right">Dùng</TableHead>
+                    <TableHead className="text-right">Cũ</TableHead>
+                    <TableHead className="text-right">Mới</TableHead>
+                    <TableHead className="text-right">Dùng</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -346,9 +385,13 @@ export default function CycleTemplate({ month }: CycleTemplateProps) {
             </div>
             <Link
               to={ROUTES.UTILITIES}
-              className={buttonVariants({ variant: "outline", size: "sm" })}
+              aria-label="Xem các Kỳ trước"
+              className={buttonVariants({
+                variant: "outline",
+                size: "icon-sm",
+              })}
             >
-              Xem các Kỳ trước
+              <MoreHorizontal />
             </Link>
           </>
         }

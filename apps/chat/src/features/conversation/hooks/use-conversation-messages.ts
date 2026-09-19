@@ -33,6 +33,7 @@ export function useConversationMessages(conversationId: string) {
   return {
     messages,
     members: conversation?.members ?? [],
+    type: conversation?.type,
     firstItemIndex: FIRST_ITEM_INDEX - olderMessageCount,
     isLoading: messagesQuery.isLoading,
     isError: messagesQuery.isError,

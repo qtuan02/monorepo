@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { Badge } from "@monorepo/ui/components/badge";
 import { cn } from "@monorepo/ui/utils/cn";
 
@@ -9,6 +11,8 @@ interface StatusBadgeProps {
   /** Label only, no icon — for a dense cell. */
   isCompact?: boolean;
   className?: string;
+  /** Appended after the label — e.g. "· 11 ngày" for a Hợp đồng sắp hết hạn (round 4 Q7), instead of a separate alert saying the same thing. */
+  suffix?: ReactNode;
 }
 
 /**
@@ -19,6 +23,7 @@ export function StatusBadge({
   config,
   isCompact,
   className,
+  suffix,
 }: StatusBadgeProps) {
   const Icon = config.icon;
 
@@ -26,6 +31,7 @@ export function StatusBadge({
     <Badge variant="outline" className={cn(config.className, className)}>
       {Icon && !isCompact && <Icon />}
       {config.label}
+      {suffix}
     </Badge>
   );
 }

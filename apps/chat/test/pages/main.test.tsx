@@ -942,7 +942,7 @@ describe("the route tree", () => {
           ],
           nextCursor: null,
         });
-        useSocketStore.setState({ onlineUsers: ["u1", "u3"] });
+        useSocketStore.setState({ isConnected: true, onlineUsers: ["u1", "u3"] });
 
         renderAt(ROUTES.conversationByIdPath("g1"));
 
@@ -950,6 +950,51 @@ describe("the route tree", () => {
         // u1 is the signed-in visitor and must not count toward "online".
         expect(screen.getByText("3 members · 1 online")).toBeInTheDocument();
       });
+
+      it("shows a 'Reconnecting…' pill in the pane header instead of presence while the socket is disconnected", async () => {
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+        // A stale online snapshot from before the drop — must not leak through.
+        useSocketStore.setState({ isConnected: false, onlineUsers: ["u2"] });
+
+        renderAt(ROUTES.conversationByIdPath("c1"));
+
+        await screen.findByRole("heading", { name: "Lan Nguyen" });
+        expect(screen.getByText("Reconnecting…")).toBeInTheDocument();
+        expect(screen.queryByText("Active now")).not.toBeInTheDocument();
+      });
+
+      // The "Seen" text / reader avatar stack render inside MessageRow, which
+      // sits inside a Virtuoso list this route tree's jsdom harness cannot
+      // paint at a non-zero scroll-to-bottom target (see the note on the
+      // "renders a conversation's message history" test above) — that
+      // behaviour is instead covered directly: readers-of.test.ts (the pure
+      // derivation) and message-row.test.tsx (the rendered row).
     });
 
     describe("the /friends screen", () => {

@@ -193,7 +193,7 @@ export function DetailPageShell<TEntity = unknown>({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1.5">
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-2xl font-semibold">{name}</h2>
+              <h2 className="text-xl font-semibold">{name}</h2>
               {badge}
             </div>
             {meta && meta.length > 0 && (
@@ -234,7 +234,9 @@ export function DetailPageShell<TEntity = unknown>({
             className={hasSidebar ? "grid gap-6 pt-2 lg:grid-cols-3" : "pt-2"}
           >
             <div
-              className={hasSidebar ? "space-y-6 lg:col-span-2" : "space-y-6"}
+              className={
+                hasSidebar ? "space-y-6 lg:col-span-2" : "max-w-3xl space-y-6"
+              }
             >
               {tabs.map((tab) => (
                 <TabsContent

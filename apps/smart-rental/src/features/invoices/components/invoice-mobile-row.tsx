@@ -11,8 +11,8 @@ import {
 
 import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
-import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { invoiceStatusBadgeConfig } from "~/utils/invoice-status";
 import InvoiceRowActions from "./invoice-row-actions";
 
 /** A Hoá đơn table row's mobile substitute — `renderMobileRow` on `DataTable`. */
@@ -29,7 +29,7 @@ export default function InvoiceMobileRow({ invoice }: { invoice: Invoice }) {
         </ItemDescription>
       </ItemContent>
       <ItemActions>
-        <StatusBadge config={invoiceStatusConfig[invoice.status]} isCompact />
+        <StatusBadge config={invoiceStatusBadgeConfig(invoice)} isCompact />
         <InvoiceRowActions invoice={invoice} />
       </ItemActions>
     </Item>

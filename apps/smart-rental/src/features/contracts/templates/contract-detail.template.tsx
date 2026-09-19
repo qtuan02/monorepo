@@ -1,7 +1,6 @@
-import { AlertCircle, Calendar, FileX, Trash2 } from "lucide-react";
+import { Calendar, FileX, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 
-import { Alert, AlertDescription } from "@monorepo/ui/components/alert";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
 
@@ -35,9 +34,11 @@ const TITLE = "Chi tiết hợp đồng";
 /**
  * "Chi tiết hợp đồng": the shared detail anatomy (spec #153 §3.4) — header
  * entity + tabs (Tổng quan · Hoá đơn · Chỉ số · Lịch sử). Vòng đời is a small
- * horizontal stepper in the header (spec #179 §10 row 16), so the right
- * column carries only Cọc and liên kết. Each fact appears once: room/tenant/
- * dates live in the header meta, not repeated inside a tab.
+ * horizontal stepper in the header (spec #179 §10 row 16). No right column
+ * (round 4 Q8): "Cọc" sits beside "Điều khoản" inside Tổng quan, and the
+ * room/tenant links live in the header meta instead of a "Liên kết" card.
+ * Each fact appears once: room/tenant/dates live in the header meta, not
+ * repeated inside a tab.
  */
 export default function ContractDetailTemplate({
   contractId,
@@ -81,170 +82,146 @@ export default function ContractDetailTemplate({
   const daysUntilEnd = daysUntilContractEnd(contract.endDate);
 
   return (
-    <DetailPageShell
-      title={TITLE}
-      backTo={ROUTES.CONTRACTS}
-      name={contract.contractNumber}
-      badge={<StatusBadge config={status} />}
-      meta={[
-        <Link
-          key="room"
-          to={ROUTES.roomDetailPath(contract.roomId)}
-          className="hover:text-foreground underline-offset-2 hover:underline"
-        >
-          {contract.room}
-        </Link>,
-        <Link
-          key="tenant"
-          to={ROUTES.tenantDetailPath(contract.tenantId)}
-          className="hover:text-foreground underline-offset-2 hover:underline"
-        >
-          {contract.tenant}
-        </Link>,
-        `${formatDate(contract.startDate)} → ${formatDate(contract.endDate)}`,
-      ]}
-      headerStepper={
-        <LifecycleStepper
-          steps={getContractLifecycleSteps(contract.status)}
-          orientation="horizontal"
-        />
-      }
-      actions={
-        actions.canRenew ? (
-          <>
-            <Link
-              to={ROUTES.contractRenewPath(contract.id)}
-              className={buttonVariants({ variant: "outline", size: "sm" })}
-            >
-              <Calendar />
-              Gia hạn
-            </Link>
-            <Link
-              to={ROUTES.contractLiquidationPath(contract.id)}
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "text-destructive hover:text-destructive",
-              )}
-            >
-              <FileX />
-              Thanh lý
-            </Link>
-          </>
-        ) : actions.canDelete ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:text-destructive"
-            onClick={deleteContract.onOpen}
+    <>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.CONTRACTS}
+        name={contract.contractNumber}
+        badge={
+          <StatusBadge
+            config={status}
+            suffix={
+              contract.status === "EXPIRING" && daysUntilEnd >= 0
+                ? ` · ${daysUntilEnd} ngày`
+                : undefined
+            }
+          />
+        }
+        meta={[
+          <Link
+            key="room"
+            to={ROUTES.roomDetailPath(contract.roomId)}
+            className="hover:text-foreground underline-offset-2 hover:underline"
           >
-            <Trash2 />
-            Xóa
-          </Button>
-        ) : undefined
-      }
-      tabs={[
-        {
-          value: "overview",
-          label: "Tổng quan",
-          content: (
+            {contract.room}
+          </Link>,
+          <Link
+            key="tenant"
+            to={ROUTES.tenantDetailPath(contract.tenantId)}
+            className="hover:text-foreground underline-offset-2 hover:underline"
+          >
+            {contract.tenant}
+          </Link>,
+          `${formatDate(contract.startDate)} → ${formatDate(contract.endDate)}`,
+        ]}
+        headerStepper={
+          <LifecycleStepper
+            steps={getContractLifecycleSteps(contract.status)}
+            orientation="horizontal"
+          />
+        }
+        actions={
+          actions.canRenew ? (
             <>
-              {contract.status === "EXPIRING" && daysUntilEnd >= 0 && (
-                <Alert className="border-warning/20 bg-warning/10">
-                  <AlertCircle className="text-warning" />
-                  <AlertDescription className="text-warning-foreground-strong">
-                    Hợp đồng sẽ hết hạn trong {daysUntilEnd} ngày. Vui lòng gia
-                    hạn hoặc liên hệ Người thuê.
-                  </AlertDescription>
-                </Alert>
-              )}
-              <InfoCard title="Điều khoản">
-                <InfoRow
-                  label="Tiền thuê"
-                  value={`${formatCurrency(contract.rentAmount)} / tháng`}
-                  isHighlighted
-                />
-                <InfoRow
-                  label="Báo trước"
-                  value={`${contract.noticeDays} ngày`}
-                />
-              </InfoCard>
+              <Link
+                to={ROUTES.contractRenewPath(contract.id)}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                <Calendar />
+                Gia hạn
+              </Link>
+              <Link
+                to={ROUTES.contractLiquidationPath(contract.id)}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "text-destructive hover:text-destructive",
+                )}
+              >
+                <FileX />
+                Thanh lý
+              </Link>
             </>
-          ),
-        },
-        {
-          value: "invoices",
-          label: `Hoá đơn (${invoicesQuery.data?.length ?? 0})`,
-          content: (
-            <DataTable
-              columns={invoiceColumns}
-              query={invoicesQuery}
-              getRowId={(invoice) => invoice.id}
-              empty={{ icon: FileX, title: "Chưa có hoá đơn" }}
-            />
-          ),
-        },
-        {
-          value: "utilities",
-          label: "Chỉ số",
-          content: (
-            <DataTable
-              columns={utilityColumns}
-              query={utilitiesQuery}
-              getRowId={(utility) => utility.id}
-              empty={{ title: "Chưa có chỉ số" }}
-            />
-          ),
-        },
-        {
-          value: "history",
-          label: "Lịch sử",
-          content: <HistoryTab contract={contract} />,
-        },
-      ]}
-      sidebar={
-        <>
-          <InfoCard title="Cọc">
-            <StatItem
-              label="Số tiền"
-              value={formatCurrency(contract.depositAmount)}
-              valueClassName="text-lg font-bold"
-            />
-            <StatusBadge config={deposit} />
-            <p className="text-muted-foreground text-xs">
-              {contract.depositStatus === "HELD"
-                ? "Hoàn khi thanh lý."
-                : `Đã hoàn ${formatCurrency(contract.depositReturnedAmount)}.`}
-            </p>
-          </InfoCard>
+          ) : actions.canDelete ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:text-destructive"
+              onClick={deleteContract.onOpen}
+            >
+              <Trash2 />
+              Xóa
+            </Button>
+          ) : undefined
+        }
+        tabs={[
+          {
+            value: "overview",
+            label: "Tổng quan",
+            content: (
+              <div className="grid gap-6 lg:grid-cols-3">
+                <InfoCard title="Điều khoản" className="lg:col-span-2">
+                  <InfoRow
+                    label="Tiền thuê"
+                    value={`${formatCurrency(contract.rentAmount)} / tháng`}
+                    isHighlighted
+                  />
+                  <InfoRow
+                    label="Báo trước"
+                    value={`${contract.noticeDays} ngày`}
+                  />
+                </InfoCard>
 
-          <InfoCard title="Liên kết">
-            <Link
-              to={ROUTES.roomDetailPath(contract.roomId)}
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-                className: "w-full",
-              })}
-            >
-              Xem phòng
-            </Link>
-            <Link
-              to={ROUTES.tenantDetailPath(contract.tenantId)}
-              className={buttonVariants({
-                variant: "outline",
-                size: "sm",
-                className: "w-full",
-              })}
-            >
-              Xem người thuê
-            </Link>
-          </InfoCard>
-        </>
-      }
-    >
+                <InfoCard title="Cọc">
+                  <StatItem
+                    label="Số tiền"
+                    value={formatCurrency(contract.depositAmount)}
+                    valueClassName="text-lg font-bold"
+                  />
+                  <StatusBadge config={deposit} />
+                  <p className="text-muted-foreground text-xs">
+                    {contract.depositStatus === "HELD"
+                      ? "Hoàn khi thanh lý."
+                      : `Đã hoàn ${formatCurrency(contract.depositReturnedAmount)}.`}
+                  </p>
+                </InfoCard>
+              </div>
+            ),
+          },
+          {
+            value: "invoices",
+            label: `Hoá đơn (${invoicesQuery.data?.length ?? 0})`,
+            content: (
+              <DataTable
+                columns={invoiceColumns}
+                query={invoicesQuery}
+                getRowId={(invoice) => invoice.id}
+                empty={{ icon: FileX, title: "Chưa có hoá đơn" }}
+              />
+            ),
+          },
+          {
+            value: "utilities",
+            label: "Chỉ số",
+            content: (
+              <DataTable
+                columns={utilityColumns}
+                query={utilitiesQuery}
+                getRowId={(utility) => utility.id}
+                empty={{ title: "Chưa có chỉ số" }}
+              />
+            ),
+          },
+          {
+            value: "history",
+            label: "Lịch sử",
+            content: <HistoryTab contract={contract} />,
+          },
+        ]}
+      />
+
       <ConfirmActionDialog {...deleteContract.dialogProps} />
-    </DetailPageShell>
+    </>
   );
 }
 

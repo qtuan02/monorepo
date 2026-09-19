@@ -1,5 +1,3 @@
-import { Calendar, Home, ReceiptText, User } from "lucide-react";
-
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -8,9 +6,9 @@ import {
 import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
-import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
+import { invoiceStatusBadgeConfig } from "~/utils/invoice-status";
 import InvoiceRowActions from "./invoice-row-actions";
 
 const helper = createDataTableColumnHelper<Invoice>();
@@ -27,12 +25,7 @@ export const invoiceColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Số hoá đơn" />
     ),
     cell: ({ getValue }) => (
-      <div className="flex items-center gap-3">
-        <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-lg">
-          <ReceiptText className="size-4" />
-        </div>
-        <span className="font-mono font-medium">{getValue()}</span>
-      </div>
+      <span className="font-mono font-medium">{getValue()}</span>
     ),
     filterFn: "includesString",
   }),
@@ -41,16 +34,9 @@ export const invoiceColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Người thuê" />
     ),
     cell: ({ row }) => (
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <User className="text-muted-foreground size-3.5" />
-          <span className="font-medium">{row.original.tenant}</span>
-        </div>
-        <div className="text-muted-foreground flex items-center gap-2 text-xs">
-          <Home className="size-3" />
-          <span>{row.original.room}</span>
-        </div>
-      </div>
+      <span className="font-medium">
+        {row.original.tenant} · {row.original.room}
+      </span>
     ),
   }),
   helper.accessor("amount", {
@@ -62,7 +48,7 @@ export const invoiceColumns = helper.columns([
       />
     ),
     cell: ({ getValue }) => (
-      <div className="text-primary text-right font-bold tabular-nums">
+      <div className="text-foreground text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </div>
     ),
@@ -72,18 +58,17 @@ export const invoiceColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Hạn thanh toán" />
     ),
     cell: ({ getValue }) => (
-      <div className="text-muted-foreground flex items-center gap-2 text-sm">
-        <Calendar className="size-4" />
-        <span>{formatDate(getValue())}</span>
-      </div>
+      <span className="text-muted-foreground text-sm">
+        {formatDate(getValue())}
+      </span>
     ),
   }),
   helper.accessor("status", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Trạng thái" />
     ),
-    cell: ({ getValue }) => (
-      <StatusBadge config={invoiceStatusConfig[getValue()]} />
+    cell: ({ row }) => (
+      <StatusBadge config={invoiceStatusBadgeConfig(row.original)} />
     ),
     filterFn: facetFilterFn,
   }),

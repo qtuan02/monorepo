@@ -1,5 +1,3 @@
-import { Calendar, Home, Phone } from "lucide-react";
-
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -29,8 +27,8 @@ export const tenantColumns = helper.columns([
         <TenantAvatar tenant={row.original} className="size-8 text-xs" />
         <div className="flex flex-col">
           <span className="font-medium">{row.original.name}</span>
-          <span className="text-muted-foreground flex items-center gap-1 text-xs">
-            <Phone className="size-3" /> {row.original.phone}
+          <span className="text-muted-foreground text-xs">
+            {row.original.phone}
           </span>
         </div>
       </div>
@@ -42,15 +40,9 @@ export const tenantColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Phòng" />
     ),
     cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <Home className="text-muted-foreground size-4" />
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">{row.original.room}</span>
-          <span className="text-muted-foreground text-xs">
-            Tầng {row.original.floor}
-          </span>
-        </div>
-      </div>
+      <span className="text-sm font-medium">
+        {row.original.room} · Tầng {row.original.floor}
+      </span>
     ),
   }),
   helper.accessor("moveInDate", {
@@ -58,8 +50,7 @@ export const tenantColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Ngày vào" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground flex items-center gap-2 text-sm">
-        <Calendar className="size-4" />
+      <span className="text-muted-foreground text-sm">
         {formatOptionalDate(getValue())}
       </span>
     ),

@@ -10,6 +10,9 @@ export interface ConversationMember {
   username?: string;
   avatarUrl?: string;
   role: ChatParticipantRole;
+  /** The read receipt (T4, brief §10 row 8) — the id/time of their last read message. */
+  lastReadMessageId?: string;
+  lastReadAt?: string;
 }
 
 /** The UI's read of a `ChatConversationRecord` — see map-conversation-to-ui-model.ts. */
