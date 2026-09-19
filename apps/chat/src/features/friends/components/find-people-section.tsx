@@ -1,9 +1,16 @@
 import * as React from "react";
-import { Search } from "lucide-react";
+import { Search, UserSearch } from "lucide-react";
 
 import { useDebounce } from "@monorepo/hook/use-debounce";
 import { Button } from "@monorepo/ui/components/button";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@monorepo/ui/components/empty";
 import { Input } from "@monorepo/ui/components/input";
+import { ItemGroup } from "@monorepo/ui/components/item";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
 import { UserItem } from "~/components/user-item";
@@ -16,6 +23,7 @@ import { useUserSearchInfiniteQuery } from "~/hooks/api/user";
 
 const SEARCH_DEBOUNCE_MS = 500;
 
+/** The `Find people` tab body — see friends.template.tsx. */
 export function FindPeopleSection() {
   const searchInputId = React.useId();
   const [search, setSearch] = React.useState("");
@@ -66,30 +74,24 @@ export function FindPeopleSection() {
   const isLoading = isDebouncing || searchQuery.isLoading;
 
   return (
-    <section className="border-border rounded-xl border">
-      <div className="border-border border-b px-4 py-3">
-        <h2 className="text-base font-semibold">Find people</h2>
-        <p className="text-muted-foreground text-xs">
-          Search by name or username to add a friend or start a chat.
-        </p>
-        <label
-          className="relative mt-3 block text-muted-foreground"
-          htmlFor={searchInputId}
-        >
-          <span className="sr-only">Search users</span>
-          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
-          <Input
-            id={searchInputId}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by name or username"
-            type="search"
-            className="h-10 pl-9"
-          />
-        </label>
-      </div>
+    <div className="grid gap-4">
+      <label
+        className="text-muted-foreground relative block"
+        htmlFor={searchInputId}
+      >
+        <span className="sr-only">Search users</span>
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+        <Input
+          id={searchInputId}
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search by name or username"
+          type="search"
+          className="h-10 pl-9"
+        />
+      </label>
 
-      <div className="grid gap-3 p-4">
+      <div className="grid gap-3">
         {trimmedSearch.length === 0 ? (
           <p className="text-muted-foreground text-sm">
             Type a name or username to search.
@@ -112,11 +114,16 @@ export function FindPeopleSection() {
             </Button>
           </div>
         ) : results.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            No users match this search.
-          </p>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <UserSearch />
+              </EmptyMedia>
+              <EmptyTitle>No one found</EmptyTitle>
+            </EmptyHeader>
+          </Empty>
         ) : (
-          <ul className="grid gap-2">
+          <ItemGroup>
             {results.map((result) => (
               <UserItem
                 key={result.id}
@@ -133,7 +140,7 @@ export function FindPeopleSection() {
                 }
               />
             ))}
-          </ul>
+          </ItemGroup>
         )}
 
         {searchQuery.hasNextPage && (
@@ -152,6 +159,6 @@ export function FindPeopleSection() {
           </Button>
         )}
       </div>
-    </section>
+    </div>
   );
 }

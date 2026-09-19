@@ -92,4 +92,26 @@ describe("UserItem", () => {
     await user.click(screen.getByRole("button", { name: "Remove" }));
     expect(onUnfriend).toHaveBeenCalledWith("u2");
   });
+
+  describe("on a mobile viewport (story 51)", () => {
+    it("keeps every action at a 44px touch target, back to the primitive default from md", () => {
+      render(
+        <UserItem
+          user={USER}
+          friendStatus={FriendStatus.FRIEND}
+          onMessage={vi.fn()}
+          onUnfriend={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByRole("button", { name: "Message" })).toHaveClass(
+        "h-11",
+        "md:h-9",
+      );
+      expect(screen.getByRole("button", { name: "Unfriend" })).toHaveClass(
+        "h-11",
+        "md:h-9",
+      );
+    });
+  });
 });

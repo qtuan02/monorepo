@@ -2,6 +2,14 @@ import { Check, Loader2, X } from "lucide-react";
 
 import type { ChatFriendRequestUser } from "@monorepo/types/chat-friend";
 import { Button } from "@monorepo/ui/components/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@monorepo/ui/components/item";
 
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { getDisplayName } from "~/utils/display";
@@ -17,9 +25,13 @@ interface FriendRequestRowProps {
 }
 
 /**
- * Deliberately lighter than `UserItem` — a request row never opens a detail
- * dialog and its action is a single yes/no/cancel, not the four-status
- * branch `UserItem` handles for the friend list and the find-people search.
+ * Built on the same `Item` anatomy as `UserItem` (brief §10 row 21, story
+ * 54) — deliberately lighter than it otherwise: a request row never opens a
+ * detail dialog and its action is a single yes/no/cancel. Decline is an
+ * `outline` button, never `destructive` — declining isn't the irreversible
+ * action Unfriend/Leave keep their red confirm dialog for (story 52). Every
+ * action is a 44px mobile touch target, back to the primitive default from
+ * `md` (story 51).
  */
 export function FriendRequestRow({
   requestId,
@@ -33,41 +45,43 @@ export function FriendRequestRow({
   const displayName = getDisplayName(requestUser);
 
   return (
-    <li className="border-border flex items-center justify-between gap-3 rounded-xl border p-3">
-      <div className="flex min-w-0 items-center gap-2.5">
+    <Item variant="outline">
+      <ItemMedia>
         <ConversationAvatar
           title={displayName}
           avatarUrl={requestUser.avatarUrl ?? undefined}
         />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{displayName}</p>
-          <p className="text-muted-foreground truncate text-xs">
-            @{requestUser.username}
-          </p>
-        </div>
-      </div>
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>{displayName}</ItemTitle>
+        <ItemDescription>@{requestUser.username}</ItemDescription>
+      </ItemContent>
 
       {variant === "sent" ? (
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="ghost"
-          disabled={isProcessing}
-          aria-label="Cancel friend request"
-          onClick={() => onCancel?.(requestId)}
-        >
-          {isProcessing ? (
-            <Loader2 className="size-3.5 animate-spin" />
-          ) : (
-            <X className="size-3.5" />
-          )}
-        </Button>
-      ) : (
-        <div className="flex shrink-0 items-center gap-1.5">
+        <ItemActions className="gap-2">
           <Button
             type="button"
-            size="icon-sm"
-            variant="destructive"
+            variant="ghost"
+            size="icon"
+            className="size-11 md:size-8"
+            disabled={isProcessing}
+            aria-label="Cancel friend request"
+            onClick={() => onCancel?.(requestId)}
+          >
+            {isProcessing ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              <X className="size-3.5" />
+            )}
+          </Button>
+        </ItemActions>
+      ) : (
+        <ItemActions className="gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-11 md:size-8"
             disabled={isProcessing}
             aria-label="Decline friend request"
             onClick={() => onDecline?.(requestId)}
@@ -76,7 +90,8 @@ export function FriendRequestRow({
           </Button>
           <Button
             type="button"
-            size="icon-sm"
+            size="icon"
+            className="size-11 md:size-8"
             disabled={isProcessing}
             aria-label="Accept friend request"
             onClick={() => onAccept?.(requestId)}
@@ -87,8 +102,8 @@ export function FriendRequestRow({
               <Check className="size-3.5" />
             )}
           </Button>
-        </div>
+        </ItemActions>
       )}
-    </li>
+    </Item>
   );
 }
