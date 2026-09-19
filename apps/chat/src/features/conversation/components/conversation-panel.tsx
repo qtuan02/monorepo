@@ -1,4 +1,3 @@
-import * as React from "react";
 import { ArrowLeft, Info, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
@@ -35,6 +34,9 @@ interface ConversationPanelProps {
   /** A Draft conversation (CONTEXT.md) — mutually exclusive with `conversationId`. */
   draftUser?: DirectMessageUser;
   showBackButton?: boolean;
+  /** Owned by `ConversationShellTemplate` so it survives a conversationId switch. */
+  detailsOpen: boolean;
+  onDetailsOpenChange: (open: boolean) => void;
 }
 
 function buildDraftConversation(
@@ -71,9 +73,10 @@ export default function ConversationPanel({
   conversationId,
   draftUser,
   showBackButton,
+  detailsOpen,
+  onDetailsOpenChange,
 }: ConversationPanelProps) {
   const navigate = useNavigate();
-  const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
   const { conversations } = useConversationList();
   const currentUserQuery = useCurrentUserQuery();
   const conversation = conversationId
@@ -166,7 +169,7 @@ export default function ConversationPanel({
               size="icon"
               variant="ghost"
               className="size-11 md:size-9"
-              onClick={() => setIsDetailsOpen(true)}
+              onClick={() => onDetailsOpenChange(true)}
               aria-label="Conversation details"
             >
               <Info className="size-4" />
@@ -208,10 +211,10 @@ export default function ConversationPanel({
       {activeConversation && (
         <ConversationDetailsPanel
           conversation={activeConversation}
-          open={isDetailsOpen}
-          onClose={() => setIsDetailsOpen(false)}
+          open={detailsOpen}
+          onClose={() => onDetailsOpenChange(false)}
           onLeftGroup={() => {
-            setIsDetailsOpen(false);
+            onDetailsOpenChange(false);
             navigate(ROUTES.HOME);
           }}
         />

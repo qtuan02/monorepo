@@ -12,15 +12,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@monorepo/ui/components/alert-dialog";
+import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemGroup,
+  ItemMedia,
+  ItemTitle,
+} from "@monorepo/ui/components/item";
 
 import type { ConversationMember } from "~/features/conversation/types/conversation";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
-
-const ROLE_LABEL: Record<ChatParticipantRole, string> = {
-  [ChatParticipantRole.ADMIN]: "Admin",
-  [ChatParticipantRole.MEMBER]: "Member",
-};
 
 interface GroupMembersSectionProps {
   members: ConversationMember[];
@@ -30,6 +34,9 @@ interface GroupMembersSectionProps {
   onRemoveMember?: (memberId: string) => void;
 }
 
+/** Same `Item` anatomy as `UserItem`/`FriendRequestRow` (story 54); only the
+ * group's owner carries a `Badge` — a member wears no label at all (brief
+ * §10 row 12: "Owner" is the only tag the mockup ever shows). */
 export function GroupMembersSection({
   members,
   currentUserId,
@@ -49,56 +56,55 @@ export function GroupMembersSection({
       <p className="text-muted-foreground px-1 text-xs font-semibold uppercase tracking-wide">
         Members · {members.length}
       </p>
-      <ul className="bg-muted/40 grid gap-0.5 rounded-xl p-1">
+      <ItemGroup>
         {members.map((member) => {
           const isSelf = member.userId === currentUserId;
-          const isRemovable =
-            isCurrentUserAdmin &&
-            !isSelf &&
-            member.role !== ChatParticipantRole.ADMIN;
+          const isOwner = member.role === ChatParticipantRole.ADMIN;
+          const isRemovable = isCurrentUserAdmin && !isSelf && !isOwner;
           const isRemoving = removingMemberId === member.userId;
 
           return (
-            <li
-              key={member.userId}
-              className="flex items-center gap-2.5 rounded-lg px-2 py-1.5"
-            >
-              <ConversationAvatar
-                title={member.displayName}
-                avatarUrl={member.avatarUrl}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium leading-5">
+            <Item key={member.userId} size="sm">
+              <ItemMedia>
+                <ConversationAvatar
+                  title={member.displayName}
+                  avatarUrl={member.avatarUrl}
+                />
+              </ItemMedia>
+              <ItemContent>
+                <ItemTitle>
                   {member.displayName}
                   {isSelf && (
-                    <span className="text-muted-foreground"> (You)</span>
+                    <span className="text-muted-foreground font-normal">
+                      (You)
+                    </span>
                   )}
-                </p>
-                <p className="text-muted-foreground truncate text-xs leading-4">
-                  {ROLE_LABEL[member.role]}
-                </p>
-              </div>
+                  {isOwner && <Badge variant="secondary">Owner</Badge>}
+                </ItemTitle>
+              </ItemContent>
               {isRemovable && (
-                <Button
-                  type="button"
-                  size="icon-sm"
-                  variant="ghost"
-                  className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full"
-                  onClick={() => setConfirmingMemberId(member.userId)}
-                  disabled={isRemoving}
-                  aria-label={`Remove ${member.displayName} from group`}
-                >
-                  {isRemoving ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <UserMinus className="size-4" />
-                  )}
-                </Button>
+                <ItemActions>
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="ghost"
+                    className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full"
+                    onClick={() => setConfirmingMemberId(member.userId)}
+                    disabled={isRemoving}
+                    aria-label={`Remove ${member.displayName} from group`}
+                  >
+                    {isRemoving ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <UserMinus className="size-4" />
+                    )}
+                  </Button>
+                </ItemActions>
               )}
-            </li>
+            </Item>
           );
         })}
-      </ul>
+      </ItemGroup>
 
       <AlertDialog
         open={!!confirmingMember}

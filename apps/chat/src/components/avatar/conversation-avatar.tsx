@@ -19,6 +19,8 @@ interface ConversationAvatarProps {
   avatarUrl?: string;
   /** Presence: the Messenger-style dot, omitted entirely when not online. */
   online?: boolean;
+  /** Size/ring overrides — the Details panel's 88px header avatar. */
+  className?: string;
 }
 
 /** Shared by the conversation list row and the panel header. */
@@ -26,9 +28,10 @@ export function ConversationAvatar({
   title,
   avatarUrl,
   online,
+  className,
 }: ConversationAvatarProps) {
   return (
-    <Avatar>
+    <Avatar className={className}>
       {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
       <AvatarFallback>{getInitials(title)}</AvatarFallback>
       {online && <AvatarBadge aria-label="Online" className="bg-online" />}

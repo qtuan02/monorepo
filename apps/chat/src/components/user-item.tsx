@@ -13,6 +13,14 @@ import {
   AlertDialogTitle,
 } from "@monorepo/ui/components/alert-dialog";
 import { Button } from "@monorepo/ui/components/button";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemMedia,
+  ItemTitle,
+} from "@monorepo/ui/components/item";
 
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
@@ -35,7 +43,10 @@ interface UserItemProps {
  * The shared row for "someone who isn't me" — the friend list and the find-
  * people search both render it, self-fetching nothing (their query already
  * carries `friendStatus`) but owning its own confirm step for Unfriend (see
- * .agents/rules/architecture-shared-components.md).
+ * .agents/rules/architecture-shared-components.md). Built on `Item` so this
+ * row, `FriendRequestRow` and a group's member row share one anatomy (brief
+ * §10 row 12/21, story 54); the action row keeps every button at a 44px
+ * mobile touch target, back to the primitive default from `md` (story 51).
  */
 export function UserItem({
   user,
@@ -52,26 +63,24 @@ export function UserItem({
   const displayName = getDisplayName(user);
 
   return (
-    <li className="border-border flex items-center justify-between gap-3 rounded-xl border p-3">
-      <div className="flex min-w-0 items-center gap-2.5">
+    <Item variant="outline">
+      <ItemMedia>
         <ConversationAvatar
           title={displayName}
           avatarUrl={user.avatarUrl ?? undefined}
           online={online}
         />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium">{displayName}</p>
-          <p className="text-muted-foreground truncate text-xs">
-            @{user.username}
-          </p>
-        </div>
-      </div>
+      </ItemMedia>
+      <ItemContent>
+        <ItemTitle>{displayName}</ItemTitle>
+        <ItemDescription>@{user.username}</ItemDescription>
+      </ItemContent>
 
-      <div className="flex shrink-0 items-center gap-1.5">
+      <ItemActions className="gap-2">
         {friendStatus === FriendStatus.NONE && onSendRequest && (
           <Button
             type="button"
-            size="sm"
+            className="h-11 md:h-9"
             disabled={isActionPending}
             onClick={() => onSendRequest(user.id)}
           >
@@ -83,8 +92,8 @@ export function UserItem({
         {friendStatus === FriendStatus.SENT && onCancelRequest && requestId && (
           <Button
             type="button"
-            size="sm"
             variant="ghost"
+            className="h-11 md:h-9"
             disabled={isActionPending}
             onClick={() => onCancelRequest(requestId)}
           >
@@ -94,7 +103,12 @@ export function UserItem({
         )}
 
         {friendStatus === FriendStatus.RECEIVED && (
-          <Button type="button" size="sm" variant="ghost" disabled>
+          <Button
+            type="button"
+            variant="ghost"
+            className="h-11 md:h-9"
+            disabled
+          >
             Request received
           </Button>
         )}
@@ -106,15 +120,19 @@ export function UserItem({
         {friendStatus === FriendStatus.FRIEND && (
           <>
             {onMessage && (
-              <Button type="button" size="sm" onClick={() => onMessage(user)}>
+              <Button
+                type="button"
+                className="h-11 md:h-9"
+                onClick={() => onMessage(user)}
+              >
                 Message
               </Button>
             )}
             {onUnfriend && (
               <Button
                 type="button"
-                size="sm"
                 variant="ghost"
+                className="h-11 md:h-9"
                 disabled={isActionPending}
                 onClick={() => setIsConfirmOpen(true)}
               >
@@ -123,7 +141,7 @@ export function UserItem({
             )}
           </>
         )}
-      </div>
+      </ItemActions>
 
       {onUnfriend && (
         <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -151,6 +169,6 @@ export function UserItem({
           </AlertDialogContent>
         </AlertDialog>
       )}
-    </li>
+    </Item>
   );
 }

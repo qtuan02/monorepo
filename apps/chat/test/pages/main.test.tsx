@@ -140,8 +140,11 @@ vi.mock("~/stores/use-socket-store", async () => {
  * measurement to wait on.
  */
 function renderAt(path: string, state?: unknown) {
+  const [pathname, search] = path.split("?");
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
-    initialEntries: [{ pathname: path, state }],
+    initialEntries: [
+      { pathname, search: search ? `?${search}` : undefined, state },
+    ],
   });
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -705,7 +708,7 @@ describe("the route tree", () => {
         useAuthStore.setState({ token: "a-token" });
       });
 
-      it("renders one friend and one received request from the mock, with the action matching its FriendStatus", async () => {
+      it("opens on the Friends tab by default, listing a friend with Message + Unfriend", async () => {
         chatFriendList.mockResolvedValue({
           items: [
             {
@@ -718,8 +721,36 @@ describe("the route tree", () => {
           ],
           nextOffset: null,
         });
+
+        renderAt(ROUTES.FRIENDS);
+
+        expect(
+          await screen.findByRole("tab", { name: "Friends", selected: true }),
+        ).toBeInTheDocument();
+        expect(await screen.findByText("Lan Nguyen")).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Message" }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Unfriend" }),
+        ).toBeInTheDocument();
+      });
+
+      it("opens Requests from ?tab=requests, badged and split Received/Sent", async () => {
+        const user = userEvent.setup();
         chatFriendRequests.mockResolvedValue({
-          sentRequests: [],
+          sentRequests: [
+            {
+              id: "r2",
+              toUser: {
+                id: "u4",
+                username: "hoa",
+                firstName: "Hoa",
+                lastName: "Pham",
+              },
+              createdAt: "2026-09-19T00:00:00.000Z",
+            },
+          ],
           receivedRequests: [
             {
               id: "r1",
@@ -734,25 +765,46 @@ describe("the route tree", () => {
           ],
         });
 
-        renderAt(ROUTES.FRIENDS);
+        renderAt(`${ROUTES.FRIENDS}?tab=requests`);
 
-        // The friend row: FRIEND status renders "Message" + "Unfriend".
-        expect(await screen.findByText("Lan Nguyen")).toBeInTheDocument();
-        expect(
-          screen.getByRole("button", { name: "Message" }),
-        ).toBeInTheDocument();
-        expect(
-          screen.getByRole("button", { name: "Unfriend" }),
-        ).toBeInTheDocument();
+        const requestsTab = await screen.findByRole("tab", {
+          name: /Requests/,
+          selected: true,
+        });
+        // The badge counts received requests only (1), not both queues.
+        expect(await within(requestsTab).findByText("1")).toBeInTheDocument();
 
-        // The received request row: Accept/Decline, not the friend row's actions.
-        expect(screen.getByText("Minh Tran")).toBeInTheDocument();
+        expect(await screen.findByText("Minh Tran")).toBeInTheDocument();
         expect(
           screen.getByRole("button", { name: "Accept friend request" }),
         ).toBeInTheDocument();
         expect(
           screen.getByRole("button", { name: "Decline friend request" }),
         ).toBeInTheDocument();
+        expect(screen.getByText("Hoa Pham")).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Cancel friend request" }),
+        ).toBeInTheDocument();
+
+        // Switching to Friends leaves Requests' content unmounted.
+        await user.click(screen.getByRole("tab", { name: /Friends/ }));
+        expect(screen.queryByText("Minh Tran")).not.toBeInTheDocument();
+      });
+
+      it("shows 'No one found' on an empty Find people search, opened straight from ?tab=find", async () => {
+        chatUserSearch.mockResolvedValue({ items: [], nextOffset: null });
+
+        renderAt(`${ROUTES.FRIENDS}?tab=find`);
+
+        await screen.findByRole("tab", { name: "Find people", selected: true });
+        await userEvent
+          .setup()
+          .type(
+            screen.getByPlaceholderText("Search by name or username"),
+            "nobody",
+          );
+
+        expect(await screen.findByText("No one found")).toBeInTheDocument();
       });
 
       it("shows the empty states when there are no friends or requests", async () => {
@@ -761,7 +813,13 @@ describe("the route tree", () => {
         expect(
           await screen.findByText("No friends added yet."),
         ).toBeInTheDocument();
-        expect(screen.getByText("No received requests.")).toBeInTheDocument();
+
+        await userEvent
+          .setup()
+          .click(screen.getByRole("tab", { name: /Requests/ }));
+        expect(
+          await screen.findByText("No received requests."),
+        ).toBeInTheDocument();
         expect(screen.getByText("No sent requests.")).toBeInTheDocument();
       });
     });
@@ -786,7 +844,7 @@ describe("the route tree", () => {
         useAuthStore.setState({ token: "a-token" });
       });
 
-      it("lists every member with their role once opened", async () => {
+      it("lists every member, badges only the owner, and lets the owner Add members / rename", async () => {
         const user = userEvent.setup();
         chatConversationGetConversations.mockResolvedValue({
           items: [
@@ -826,9 +884,185 @@ describe("the route tree", () => {
         const memberList = within(membersHeading.parentElement as HTMLElement);
 
         expect(memberList.getByText("Tuan Huynh")).toBeInTheDocument();
-        expect(memberList.getByText("Admin")).toBeInTheDocument();
+        expect(memberList.getByText("Owner")).toBeInTheDocument();
         expect(memberList.getByText("Lan Nguyen")).toBeInTheDocument();
-        expect(memberList.getByText("Member")).toBeInTheDocument();
+        expect(memberList.queryByText("Member")).not.toBeInTheDocument();
+
+        // The signed-in visitor is the ADMIN here, so both owner-only
+        // controls render (story 46).
+        expect(
+          screen.getByRole("button", { name: "Add members" }),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Rename group" }),
+        ).toBeInTheDocument();
+      });
+
+      it("hides Add members and rename from a regular member (story 47)", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "g1",
+              type: ChatConversationType.GROUP,
+              groupName: "Team Alpha",
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.ADMIN,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.conversationByIdPath("g1"));
+
+        await user.click(
+          await screen.findByRole("button", { name: "Conversation details" }),
+        );
+
+        await screen.findByText("Members · 2");
+
+        expect(
+          screen.queryByRole("button", { name: "Add members" }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole("button", { name: "Rename group" }),
+        ).not.toBeInTheDocument();
+        // Leaving stays open to every member.
+        expect(
+          screen.getByRole("button", { name: "Leave group" }),
+        ).toBeInTheDocument();
+      });
+    });
+
+    describe("a direct conversation's details panel", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+      });
+
+      const TWO_DIRECT_CONVERSATIONS = {
+        items: [
+          {
+            id: "c1",
+            type: ChatConversationType.DIRECT,
+            groupName: null,
+            lastMessage: null,
+            lastMessageAt: null,
+            unreadCount: 0,
+            participants: [
+              {
+                userId: "u1",
+                firstName: "Tuan",
+                lastName: "Huynh",
+                role: ChatParticipantRole.MEMBER,
+              },
+              {
+                userId: "u2",
+                username: "lan",
+                firstName: "Lan",
+                lastName: "Nguyen",
+                role: ChatParticipantRole.MEMBER,
+              },
+            ],
+          },
+          {
+            id: "c2",
+            type: ChatConversationType.DIRECT,
+            groupName: null,
+            lastMessage: null,
+            lastMessageAt: null,
+            unreadCount: 0,
+            participants: [
+              {
+                userId: "u1",
+                firstName: "Tuan",
+                lastName: "Huynh",
+                role: ChatParticipantRole.MEMBER,
+              },
+              {
+                userId: "u3",
+                username: "minh",
+                firstName: "Minh",
+                lastName: "Tran",
+                role: ChatParticipantRole.MEMBER,
+              },
+            ],
+          },
+        ],
+        nextCursor: null,
+      };
+
+      it("shows the other person's avatar, name, username and an Unfriend action", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue(
+          TWO_DIRECT_CONVERSATIONS,
+        );
+
+        renderAt(ROUTES.conversationByIdPath("c1"));
+
+        await user.click(
+          await screen.findByRole("button", { name: "Conversation details" }),
+        );
+
+        const panelHeading = await screen.findByRole("heading", {
+          name: "Profile",
+        });
+        const panel = within(
+          panelHeading.parentElement?.parentElement as HTMLElement,
+        );
+
+        expect(panel.getByText("Lan Nguyen")).toBeInTheDocument();
+        expect(panel.getByText("@lan")).toBeInTheDocument();
+        expect(
+          panel.getByRole("button", { name: "View profile" }),
+        ).toBeDisabled();
+
+        await user.click(panel.getByRole("button", { name: "Unfriend" }));
+        await user.click(await screen.findByRole("button", { name: "Remove" }));
+
+        expect(chatFriendRemove).toHaveBeenCalledWith("u2");
+      });
+
+      it("keeps Details open when navigating from one conversation to another in the same session", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue(
+          TWO_DIRECT_CONVERSATIONS,
+        );
+
+        renderAt(ROUTES.conversationByIdPath("c1"));
+
+        await user.click(
+          await screen.findByRole("button", { name: "Conversation details" }),
+        );
+        expect(
+          await screen.findByRole("heading", { name: "Profile" }),
+        ).toBeInTheDocument();
+
+        await user.click(screen.getByRole("link", { name: /Minh Tran/ }));
+
+        // Still open — over the newly active conversation's own person.
+        const closeButton = await screen.findByRole("button", {
+          name: "Close details",
+        });
+        const panel = within(
+          closeButton.parentElement?.parentElement as HTMLElement,
+        );
+        expect(await panel.findByText("Minh Tran")).toBeInTheDocument();
+        expect(panel.getByText("@minh")).toBeInTheDocument();
       });
     });
   });

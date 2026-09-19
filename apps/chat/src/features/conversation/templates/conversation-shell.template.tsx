@@ -1,3 +1,5 @@
+import * as React from "react";
+
 import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 
 import ConversationList from "~/features/conversation/components/conversation-list";
@@ -16,6 +18,11 @@ interface ConversationShellTemplateProps {
  *
  * A Draft conversation (CONTEXT.md) only ever shows on Home — a real
  * `conversationId` always wins, so it never overrides an actual screen.
+ *
+ * The Details open/close flag lives here, not in `ConversationPanel` — this
+ * is the one ancestor that stays mounted across a conversationId switch, so
+ * opening Details on A and navigating to B keeps it open (brief §10 row 12,
+ * story 44). It is session-scoped local state on purpose, not a store.
  */
 export default function ConversationShellTemplate({
   conversationId,
@@ -23,15 +30,28 @@ export default function ConversationShellTemplate({
   const isMobile = useIsMobile();
   const draftUser = useDirectMessageDraft();
   const showDraft = !conversationId && draftUser;
+  const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
 
   if (isMobile) {
     if (conversationId) {
       return (
-        <ConversationPanel conversationId={conversationId} showBackButton />
+        <ConversationPanel
+          conversationId={conversationId}
+          showBackButton
+          detailsOpen={isDetailsOpen}
+          onDetailsOpenChange={setIsDetailsOpen}
+        />
       );
     }
     if (showDraft) {
-      return <ConversationPanel draftUser={showDraft} showBackButton />;
+      return (
+        <ConversationPanel
+          draftUser={showDraft}
+          showBackButton
+          detailsOpen={isDetailsOpen}
+          onDetailsOpenChange={setIsDetailsOpen}
+        />
+      );
     }
     return <ConversationList activeConversationId={conversationId} />;
   }
@@ -42,9 +62,17 @@ export default function ConversationShellTemplate({
         <ConversationList activeConversationId={conversationId} />
       </div>
       {showDraft ? (
-        <ConversationPanel draftUser={showDraft} />
+        <ConversationPanel
+          draftUser={showDraft}
+          detailsOpen={isDetailsOpen}
+          onDetailsOpenChange={setIsDetailsOpen}
+        />
       ) : (
-        <ConversationPanel conversationId={conversationId} />
+        <ConversationPanel
+          conversationId={conversationId}
+          detailsOpen={isDetailsOpen}
+          onDetailsOpenChange={setIsDetailsOpen}
+        />
       )}
     </div>
   );
