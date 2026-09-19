@@ -1,3 +1,10 @@
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarGroup,
+  AvatarGroupCount,
+  AvatarImage,
+} from "@monorepo/ui/components/avatar";
 import { Bubble, BubbleContent } from "@monorepo/ui/components/bubble";
 import {
   Message,
@@ -8,10 +15,16 @@ import {
 } from "@monorepo/ui/components/message";
 import { cn } from "@monorepo/ui/utils/cn";
 
+import type { ConversationMember } from "~/features/conversation/types/conversation";
 import type { MessagePosition } from "~/features/conversation/utils/group-messages";
-import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import {
+  ConversationAvatar,
+  getInitials,
+} from "~/components/avatar/conversation-avatar";
 import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
 import { formatMessageDateLabel, formatMessageTime } from "~/utils/date";
+
+const MAX_VISIBLE_READERS = 3;
 
 const OWN_BUBBLE_CLASSNAME = cn(
   PRIMARY_GRADIENT_CLASSNAME,
@@ -21,11 +34,17 @@ const OWN_BUBBLE_CLASSNAME = cn(
 interface MessageRowProps {
   position: MessagePosition;
   senderAvatarUrl?: string;
+  /** Group only (T4, brief §10 row 8) — who has read exactly up to this message. */
+  readers?: ConversationMember[];
+  /** Direct only — the other participant has read at or past this own message. */
+  seenByOther?: boolean;
 }
 
 export default function MessageRow({
   position,
   senderAvatarUrl,
+  readers = [],
+  seenByOther = false,
 }: MessageRowProps) {
   const {
     message,
@@ -35,6 +54,8 @@ export default function MessageRow({
     isLastInGroup,
     showDateDivider,
   } = position;
+  const visibleReaders = readers.slice(0, MAX_VISIBLE_READERS);
+  const hiddenReaderCount = readers.length - visibleReaders.length;
 
   return (
     <div
@@ -85,8 +106,35 @@ export default function MessageRow({
             </Bubble>
             {isLastInGroup && (
               <MessageFooter>
-                {formatMessageTime(message.createdAt)}
+                <span>{formatMessageTime(message.createdAt)}</span>
+                {seenByOther && <span>Seen</span>}
               </MessageFooter>
+            )}
+            {visibleReaders.length > 0 && (
+              <div
+                className={cn(
+                  "flex",
+                  isOwn ? "justify-end" : "justify-start",
+                )}
+              >
+                <AvatarGroup>
+                  {visibleReaders.map((reader) => (
+                    <Avatar key={reader.userId} size="sm">
+                      {reader.avatarUrl && (
+                        <AvatarImage src={reader.avatarUrl} alt="" />
+                      )}
+                      <AvatarFallback>
+                        {getInitials(reader.displayName)}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {hiddenReaderCount > 0 && (
+                    <AvatarGroupCount className="size-6 text-[10px]">
+                      +{hiddenReaderCount}
+                    </AvatarGroupCount>
+                  )}
+                </AvatarGroup>
+              </div>
             )}
           </MessageContent>
         </Message>

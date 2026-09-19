@@ -29,6 +29,8 @@ export function mapConversationToUiModel(
       username: participant.username ?? undefined,
       avatarUrl: participant.avatarUrl ?? undefined,
       role: participant.role,
+      lastReadMessageId: participant.lastReadMessageId ?? undefined,
+      lastReadAt: participant.lastReadAt ?? undefined,
     }),
   );
 

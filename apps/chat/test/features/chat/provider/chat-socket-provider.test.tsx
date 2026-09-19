@@ -1,3 +1,4 @@
+import type { Client } from "@stomp/stompjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -28,13 +29,16 @@ vi.mock("~/libs/socket", () => ({
   subscribeToConversationMessages: vi.fn(() => vi.fn()),
 }));
 
-// A connected fake client — the provider only branches on `client`/`isConnected`,
-// never calls into it directly (that's `~/libs/socket`'s job, mocked above).
-vi.mock("~/stores/use-socket-store", () => ({
-  useSocketStore: (
-    selector: (state: { client: object; isConnected: boolean }) => unknown,
-  ) => selector({ client: {}, isConnected: true }),
-}));
+// A real store, connected by default — the provider only branches on
+// `client`/`isConnected`, never calls into it directly (that's
+// `~/libs/socket`'s job, mocked above). A real store (rather than a fixed
+// selector result) lets a test flip `isConnected` with `.setState(...)`.
+vi.mock("~/stores/use-socket-store", async () => {
+  const { create } = await import("zustand");
+  return {
+    useSocketStore: create(() => ({ client: {} as Client, isConnected: true })),
+  };
+});
 
 import { ChatSocketProvider } from "~/features/chat/provider/chat-socket-provider";
 // Imported AFTER the mocks above so it picks up the mocked implementations.
@@ -43,6 +47,7 @@ import {
   subscribeToConversationUpdates,
 } from "~/libs/socket";
 import { useAuthStore } from "~/stores/use-auth-store";
+import { useSocketStore } from "~/stores/use-socket-store";
 
 const CURRENT_USER_ID = "u1";
 const OTHER_USER_ID = "u2";
@@ -121,6 +126,7 @@ describe("ChatSocketProvider", () => {
     vi.mocked(subscribeToConversationMessages).mockClear();
     // `useCurrentUserQuery()` gates on a token — see hooks/api/user.ts.
     useAuthStore.setState({ token: "a-token" });
+    useSocketStore.setState({ client: {} as Client, isConnected: true });
   });
 
   it("appends an incoming message to the conversation's message history", async () => {
@@ -213,5 +219,18 @@ describe("ChatSocketProvider", () => {
     );
     expect(otherParticipant?.lastReadMessageId).toBe("m1");
     expect(otherParticipant?.lastReadAt).toBe("2026-09-19T00:02:00.000Z");
+  });
+
+  it("subscribes to neither topic while the store reports disconnected", async () => {
+    useSocketStore.setState({ isConnected: false });
+
+    renderProvider(queryClient);
+
+    // Give the effects a turn to run, then prove they took the early-return
+    // branch — `!client || !isConnected` — rather than merely not having
+    // fired yet.
+    await waitFor(() => expect(chatUserMe).toHaveBeenCalled());
+    expect(subscribeToConversationUpdates).not.toHaveBeenCalled();
+    expect(subscribeToConversationMessages).not.toHaveBeenCalled();
   });
 });

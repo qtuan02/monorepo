@@ -2,10 +2,12 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { ChatMessageType } from "@monorepo/types/chat-message";
+import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
 
+import type { ConversationMember } from "~/features/conversation/types/conversation";
 import type { Message } from "~/features/conversation/types/message";
 import MessageRow from "~/features/conversation/components/message-row";
-import { groupMessages } from "~/features/conversation/utils/group-messages";
+import { groupMessages, type MessagePosition } from "~/features/conversation/utils/group-messages";
 
 const CURRENT_USER_ID = "u1";
 
@@ -21,6 +23,14 @@ function message(overrides: Partial<Message> & Pick<Message, "id">): Message {
   };
 }
 
+function reader(overrides: Partial<ConversationMember> & Pick<ConversationMember, "userId">): ConversationMember {
+  return {
+    displayName: "Someone",
+    role: ChatParticipantRole.MEMBER,
+    ...overrides,
+  };
+}
+
 function renderThread(messages: Message[]) {
   const positions = groupMessages(messages, CURRENT_USER_ID);
   render(
@@ -31,6 +41,18 @@ function renderThread(messages: Message[]) {
     </div>,
   );
   return within(screen.getByTestId("thread"));
+}
+
+function renderPosition(
+  position: MessagePosition,
+  props: Partial<Pick<Parameters<typeof MessageRow>[0], "readers" | "seenByOther">> = {},
+) {
+  render(
+    <div data-testid="row">
+      <MessageRow position={position} {...props} />
+    </div>,
+  );
+  return within(screen.getByTestId("row"));
 }
 
 describe("MessageRow", () => {
@@ -96,5 +118,56 @@ describe("MessageRow", () => {
     // A SYSTEM entry starts and ends its own run: the sender name renders
     // again right after it, proving the bubble run before it did not swallow it.
     expect(thread.getAllByText("Lan Nguyen")).toHaveLength(2);
+  });
+
+  describe("read receipt", () => {
+    function ownLastMessagePosition(): MessagePosition {
+      return groupMessages(
+        [message({ id: "m1", senderId: CURRENT_USER_ID })],
+        CURRENT_USER_ID,
+      )[0]!;
+    }
+
+    it("shows 'Seen' on the visitor's own last message once the other has read it", () => {
+      const row = renderPosition(ownLastMessagePosition(), { seenByOther: true });
+
+      expect(row.getByText("Seen")).toBeInTheDocument();
+    });
+
+    it("shows no 'Seen' text while the other hasn't read it yet", () => {
+      const row = renderPosition(ownLastMessagePosition(), { seenByOther: false });
+
+      expect(row.queryByText("Seen")).not.toBeInTheDocument();
+    });
+
+    it("renders a reader's avatar under the message their read receipt names", () => {
+      const row = renderPosition(ownLastMessagePosition(), {
+        readers: [reader({ userId: "u2", displayName: "Lan Nguyen" })],
+      });
+
+      expect(row.getByText("LN")).toBeInTheDocument();
+    });
+
+    it("renders no reader avatars when nobody's frontier is this message", () => {
+      const row = renderPosition(ownLastMessagePosition(), { readers: [] });
+
+      expect(row.queryByText("LN")).not.toBeInTheDocument();
+    });
+
+    it("caps the visible stack at 3 avatars and folds the rest into '+n'", () => {
+      const readers = [
+        reader({ userId: "u2", displayName: "Lan Nguyen" }),
+        reader({ userId: "u3", displayName: "Minh Tran" }),
+        reader({ userId: "u4", displayName: "An Le" }),
+        reader({ userId: "u5", displayName: "Bao Vo" }),
+      ];
+      const row = renderPosition(ownLastMessagePosition(), { readers });
+
+      expect(row.getByText("LN")).toBeInTheDocument();
+      expect(row.getByText("MT")).toBeInTheDocument();
+      expect(row.getByText("AL")).toBeInTheDocument();
+      expect(row.queryByText("BV")).not.toBeInTheDocument();
+      expect(row.getByText("+1")).toBeInTheDocument();
+    });
   });
 });

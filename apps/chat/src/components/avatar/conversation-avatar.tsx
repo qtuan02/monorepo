@@ -5,7 +5,7 @@ import {
   AvatarImage,
 } from "@monorepo/ui/components/avatar";
 
-function getInitials(title: string): string {
+export function getInitials(title: string): string {
   const words = title.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return "?";
 
