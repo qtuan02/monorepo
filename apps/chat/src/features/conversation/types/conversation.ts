@@ -27,3 +27,18 @@ export interface Conversation {
   /** The signed-in visitor's own id — the details panel's own/admin checks. */
   currentUserId: string;
 }
+
+/**
+ * The list's `?filter=` chip (T2, brief §10 rows 14–18). "groups" is its own
+ * server query (`type: "GROUP"`); "unread" filters client-side over whatever
+ * "all" already loaded — see `filter-conversations.ts`.
+ */
+export const CONVERSATION_LIST_FILTERS = ["all", "unread", "groups"] as const;
+
+export type ConversationListFilter = (typeof CONVERSATION_LIST_FILTERS)[number];
+
+export function isConversationListFilter(
+  value: string | null | undefined,
+): value is ConversationListFilter {
+  return (CONVERSATION_LIST_FILTERS as readonly string[]).includes(value ?? "");
+}

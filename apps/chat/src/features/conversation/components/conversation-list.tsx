@@ -1,17 +1,37 @@
 import * as React from "react";
-import { Users } from "lucide-react";
-import { useNavigate } from "react-router";
+import { MessageCircle, Search } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Virtuoso } from "react-virtuoso";
 
-import { Button } from "@monorepo/ui/components/button";
+import { useDebounce } from "@monorepo/hook/use-debounce";
+import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@monorepo/ui/components/empty";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
+import { cn } from "@monorepo/ui/utils/cn";
 
-import type { Conversation } from "~/features/conversation/types/conversation";
+import type {
+  Conversation,
+  ConversationListFilter,
+} from "~/features/conversation/types/conversation";
 import { ROUTES } from "~/constants/routes";
 import { ConversationListSkeleton } from "~/features/conversation/components/conversation-list.skeleton";
+import { ConversationListHeader } from "~/features/conversation/components/conversation-list-header";
 import ConversationListItem from "~/features/conversation/components/conversation-list-item";
+import { NewMessageDialog } from "~/features/conversation/components/new-message-dialog";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
+import { isConversationListFilter } from "~/features/conversation/types/conversation";
+import { filterConversations } from "~/features/conversation/utils/filter-conversations";
 import { CreateGroupDialog } from "~/features/group/components/create-group-dialog";
+
+const FILTER_PARAM = "filter";
+const SEARCH_DEBOUNCE_MS = 300;
 
 interface FooterContext {
   isFetchingNextPage: boolean;
@@ -29,6 +49,29 @@ function ConversationListFooter({ context }: { context?: FooterContext }) {
   );
 }
 
+/** The list's `?filter=` chip — `all` is the default and stays off the URL. */
+function useConversationListFilterParam(): [
+  ConversationListFilter,
+  (next: ConversationListFilter) => void,
+] {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const raw = searchParams.get(FILTER_PARAM);
+  const filter = isConversationListFilter(raw) ? raw : "all";
+
+  const setFilter = (next: ConversationListFilter) =>
+    setSearchParams(
+      (previous) => {
+        const params = new URLSearchParams(previous);
+        if (next === "all") params.delete(FILTER_PARAM);
+        else params.set(FILTER_PARAM, next);
+        return params;
+      },
+      { replace: true },
+    );
+
+  return [filter, setFilter];
+}
+
 interface ConversationListProps {
   activeConversationId?: string;
 }
@@ -38,32 +81,59 @@ export default function ConversationList({
 }: ConversationListProps) {
   const navigate = useNavigate();
   const [isCreateGroupOpen, setIsCreateGroupOpen] = React.useState(false);
+  const [isNewMessageOpen, setIsNewMessageOpen] = React.useState(false);
+  const [filter, setFilter] = useConversationListFilterParam();
+  const [search, setSearch] = React.useState("");
+  const debouncedSearch = useDebounce(search.trim(), SEARCH_DEBOUNCE_MS);
+
   const {
     conversations,
     isLoading,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-  } = useConversationList();
+  } = useConversationList(filter);
 
-  const header = (
-    <div className="border-border flex items-center justify-between border-b px-3 py-2">
-      <h2 className="text-sm font-semibold">Chats</h2>
-      <Button
-        type="button"
-        size="icon-sm"
-        variant="ghost"
-        onClick={() => setIsCreateGroupOpen(true)}
-        aria-label="New group"
-      >
-        <Users className="size-4" />
-      </Button>
-    </div>
+  // Snapshots which rows counted as unread the moment the visitor enters the
+  // Unread chip, adjusting state during render rather than in an effect (see
+  // .agents/rules/react-effects-sync-only.md) — React re-renders once more
+  // before anything commits, so no extra fetch or flash of stale content.
+  const [committedFilter, setCommittedFilter] =
+    React.useState<ConversationListFilter>(filter);
+  const [keptUnreadIds, setKeptUnreadIds] = React.useState<ReadonlySet<string>>(
+    new Set(),
   );
+  if (filter !== committedFilter) {
+    setCommittedFilter(filter);
+    if (filter === "unread") {
+      setKeptUnreadIds(
+        new Set(
+          conversations
+            .filter((conversation) => conversation.unreadCount > 0)
+            .map((conversation) => conversation.id),
+        ),
+      );
+    }
+  }
+
+  const visibleConversations = filterConversations(conversations, {
+    search: debouncedSearch,
+    filter,
+    keptUnreadIds,
+  });
+  const hasNoSearchResults =
+    conversations.length > 0 && visibleConversations.length === 0;
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
-      {header}
+      <ConversationListHeader
+        filter={filter}
+        onFilterChange={setFilter}
+        search={search}
+        onSearchChange={setSearch}
+        onNewMessage={() => setIsNewMessageOpen(true)}
+        onNewGroup={() => setIsCreateGroupOpen(true)}
+      />
 
       {isLoading ? (
         <div className="min-h-0 flex-1 overflow-hidden">
@@ -71,14 +141,62 @@ export default function ConversationList({
         </div>
       ) : conversations.length === 0 ? (
         <div className="flex min-h-0 flex-1 items-center justify-center p-6">
-          <p className="text-muted-foreground text-sm">
-            No conversations to show.
-          </p>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <MessageCircle />
+              </EmptyMedia>
+              <EmptyTitle>No conversations yet</EmptyTitle>
+              <EmptyDescription>
+                Start a direct message with a friend to see it here.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button type="button" onClick={() => setIsNewMessageOpen(true)}>
+                New message
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </div>
+      ) : hasNoSearchResults ? (
+        <div className="flex min-h-0 flex-1 items-center justify-center p-6">
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Search />
+              </EmptyMedia>
+              <EmptyTitle>
+                {debouncedSearch
+                  ? `No results for '${debouncedSearch}'`
+                  : "No conversations match this filter"}
+              </EmptyTitle>
+            </EmptyHeader>
+            {debouncedSearch && (
+              <EmptyContent>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSearch("")}
+                >
+                  Clear search
+                </Button>
+                {/* A styled Link, not `Button render={<Link/>}` — Base UI's
+                    Button assumes a native `<button>` (see
+                    .agents/rules/architecture-ui-primitives.md). */}
+                <Link
+                  to={`${ROUTES.FRIENDS}?tab=find`}
+                  className={cn(buttonVariants({ variant: "link" }))}
+                >
+                  Search people instead →
+                </Link>
+              </EmptyContent>
+            )}
+          </Empty>
         </div>
       ) : (
         <div className="min-h-0 flex-1">
           <Virtuoso<Conversation, FooterContext>
-            data={conversations}
+            data={visibleConversations}
             context={{ isFetchingNextPage }}
             endReached={() => {
               if (hasNextPage && !isFetchingNextPage) fetchNextPage();
@@ -101,6 +219,10 @@ export default function ConversationList({
         onCreated={(conversationId) =>
           navigate(ROUTES.conversationByIdPath(conversationId))
         }
+      />
+      <NewMessageDialog
+        open={isNewMessageOpen}
+        onOpenChange={setIsNewMessageOpen}
       />
     </div>
   );

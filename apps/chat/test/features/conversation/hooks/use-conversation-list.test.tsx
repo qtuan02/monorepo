@@ -96,4 +96,44 @@ describe("useConversationList", () => {
       "no-activity",
     ]);
   });
+
+  it("keys the Groups chip's query separately from the default list", async () => {
+    const queryClient = new QueryClient();
+    function sharedWrapper({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      );
+    }
+
+    chatConversationGetConversations.mockResolvedValue({
+      items: [directConversation("c1", null)],
+      nextCursor: null,
+    });
+
+    const all = renderHook(() => useConversationList("all"), {
+      wrapper: sharedWrapper,
+    });
+    await waitFor(() => expect(all.result.current.isLoading).toBe(false));
+
+    const groups = renderHook(() => useConversationList("groups"), {
+      wrapper: sharedWrapper,
+    });
+    await waitFor(() => expect(groups.result.current.isLoading).toBe(false));
+
+    // Two distinct cache entries prove the keys never collided — a shared
+    // key would leave only one "conversation" > "list" entry behind.
+    const conversationListEntries = queryClient
+      .getQueryCache()
+      .findAll({ queryKey: ["conversation", "list"] });
+    expect(conversationListEntries).toHaveLength(2);
+
+    expect(chatConversationGetConversations).toHaveBeenCalledWith(
+      expect.objectContaining({ type: undefined }),
+    );
+    expect(chatConversationGetConversations).toHaveBeenCalledWith(
+      expect.objectContaining({ type: "GROUP" }),
+    );
+  });
 });

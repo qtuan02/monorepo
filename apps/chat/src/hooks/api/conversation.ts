@@ -149,7 +149,16 @@ export function useMarkConversationAsSeenMutation(
   });
 }
 
+/**
+ * `type` is undefined for the default (all-conversations) list and `GROUP`
+ * for the list's "Groups" chip — passed to the key factory's own `query`
+ * slot so the two live under distinct cache entries (T2, brief §10 row 15):
+ * a group's row loaded only through the Groups chip must not be mistaken
+ * for a page of the default list, and invalidating one must not silently
+ * refetch the other under a shared key.
+ */
 export function useConversationsInfiniteQuery(
+  type?: ChatConversationType,
   options?: UseInfiniteQueryOptionsWrapper<
     ChatConversationPage,
     Error,
@@ -165,11 +174,12 @@ export function useConversationsInfiniteQuery(
     readonly unknown[],
     string | undefined
   >({
-    queryKey: conversationQueryKeys.list(),
+    queryKey: conversationQueryKeys.list(type ? { type } : undefined),
     queryFn: ({ pageParam }) =>
       chatConversationService.getConversations({
         limit: CONVERSATIONS_PAGE_LIMIT,
         cursor: pageParam,
+        type,
       }),
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
     initialPageParam: undefined,

@@ -14,6 +14,7 @@ import {
 import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import { ROUTES } from "~/constants/routes";
+import { conversationQueryKeys } from "~/hooks/api/conversation";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useSocketStore } from "~/stores/use-socket-store";
@@ -139,7 +140,11 @@ vi.mock("~/stores/use-socket-store", async () => {
  * message lists render deterministically with no ResizeObserver-driven
  * measurement to wait on.
  */
-function renderAt(path: string, state?: unknown) {
+function renderAt(
+  path: string,
+  state?: unknown,
+  queryClient: QueryClient = new QueryClient(),
+) {
   const [pathname, search] = path.split("?");
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
     initialEntries: [
@@ -147,7 +152,7 @@ function renderAt(path: string, state?: unknown) {
     ],
   });
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <VirtuosoMockContext.Provider
         value={{ viewportHeight: 800, itemHeight: 60 }}
       >
@@ -577,11 +582,255 @@ describe("the route tree", () => {
         expect(screen.getByText("2")).toBeInTheDocument();
       });
 
-      it("shows the empty state when there are no conversations", async () => {
+      it("previews the visitor's own last message as 'You: …'", async () => {
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: {
+                id: "m1",
+                conversationId: "c1",
+                senderId: "u1",
+                content: "See you tomorrow",
+                type: ChatMessageType.TEXT,
+                createdAt: "2026-09-16T00:00:00.000Z",
+                updatedAt: "2026-09-16T00:00:00.000Z",
+              },
+              lastMessageAt: "2026-09-16T00:00:00.000Z",
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+
         renderAt(ROUTES.HOME);
 
         expect(
-          await screen.findByText("No conversations to show."),
+          await screen.findByText("You: See you tomorrow"),
+        ).toBeInTheDocument();
+      });
+
+      it("asks the service for GROUP conversations under the Groups chip, keyed apart from the default list", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockImplementation((params) =>
+          Promise.resolve({
+            items:
+              params.type === ChatConversationType.GROUP
+                ? [
+                    {
+                      id: "g1",
+                      type: ChatConversationType.GROUP,
+                      groupName: "Team Alpha",
+                      lastMessage: null,
+                      lastMessageAt: null,
+                      unreadCount: 0,
+                      participants: [],
+                    },
+                  ]
+                : [
+                    {
+                      id: "c1",
+                      type: ChatConversationType.DIRECT,
+                      groupName: null,
+                      lastMessage: null,
+                      lastMessageAt: null,
+                      unreadCount: 0,
+                      participants: [
+                        {
+                          userId: "u1",
+                          firstName: "Tuan",
+                          lastName: "Huynh",
+                          role: ChatParticipantRole.MEMBER,
+                        },
+                        {
+                          userId: "u2",
+                          firstName: "Lan",
+                          lastName: "Nguyen",
+                          role: ChatParticipantRole.MEMBER,
+                        },
+                      ],
+                    },
+                  ],
+            nextCursor: null,
+          }),
+        );
+
+        const router = renderAt(ROUTES.HOME);
+
+        expect(await screen.findByText("Lan Nguyen")).toBeInTheDocument();
+
+        await user.click(screen.getByRole("button", { name: "Groups" }));
+
+        expect(await screen.findByText("Team Alpha")).toBeInTheDocument();
+        expect(screen.queryByText("Lan Nguyen")).not.toBeInTheDocument();
+        expect(chatConversationGetConversations).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "GROUP" }),
+        );
+        expect(router.state.location.search).toBe("?filter=groups");
+      });
+
+      it("keeps a conversation under Unread after its unreadCount returns to 0", async () => {
+        const user = userEvent.setup();
+        const queryClient = new QueryClient();
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 2,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.HOME, undefined, queryClient);
+
+        await screen.findByText("Lan Nguyen");
+        await user.click(screen.getByRole("button", { name: "Unread" }));
+        expect(screen.getByText("Lan Nguyen")).toBeInTheDocument();
+
+        // The visitor opened it — a live `conversation.seen` patches the
+        // cache exactly this way (applyConversationSeenToCache).
+        queryClient.setQueriesData(
+          { queryKey: conversationQueryKeys.list() },
+          (data: unknown) => {
+            const infinite = data as {
+              pages: { items: { id: string; unreadCount: number }[] }[];
+            };
+            return {
+              ...infinite,
+              pages: infinite.pages.map((page) => ({
+                ...page,
+                items: page.items.map((item) =>
+                  item.id === "c1" ? { ...item, unreadCount: 0 } : item,
+                ),
+              })),
+            };
+          },
+        );
+
+        // Still on screen — the kept set survives the drop to zero.
+        expect(screen.getByText("Lan Nguyen")).toBeInTheDocument();
+      });
+
+      it("offers Find people when a search matches no conversation", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.HOME);
+
+        await screen.findByText("Lan Nguyen");
+        await user.type(screen.getByPlaceholderText("Search"), "zzz");
+
+        expect(
+          await screen.findByText("No results for 'zzz'"),
+        ).toBeInTheDocument();
+        const findPeopleLink = screen.getByRole("link", {
+          name: "Search people instead →",
+        });
+        expect(findPeopleLink).toHaveAttribute("href", "/friends?tab=find");
+      });
+
+      it("opens a Draft conversation with a friend picked from New message", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue({
+          items: [],
+          nextCursor: null,
+        });
+        chatFriendList.mockResolvedValue({
+          items: [
+            {
+              id: "u3",
+              username: "an.pham",
+              firstName: "An",
+              lastName: "Pham",
+              joinedAt: "2026-09-01T00:00:00.000Z",
+            },
+          ],
+          nextOffset: null,
+        });
+
+        renderAt(ROUTES.HOME);
+
+        await screen.findByRole("button", { name: "New message" });
+        await user.click(screen.getByRole("button", { name: "New" }));
+        await user.click(
+          await screen.findByRole("menuitem", { name: "New message" }),
+        );
+        await user.click(await screen.findByText("An Pham"));
+
+        expect(
+          await screen.findByRole("heading", { name: "An Pham" }),
+        ).toBeInTheDocument();
+      });
+
+      it("shows the empty state with a New message action when there are no conversations", async () => {
+        renderAt(ROUTES.HOME);
+
+        expect(
+          await screen.findByText("No conversations yet"),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "New message" }),
         ).toBeInTheDocument();
       });
 
