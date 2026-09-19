@@ -41,6 +41,7 @@ import { SelectRoom } from "~/components/select/select-room";
 import { SelectTenant } from "~/components/select/select-tenant";
 import { LifecycleStepper } from "~/components/stepper/lifecycle-stepper";
 import { ROUTES } from "~/constants/routes";
+import TermPicker from "~/features/contracts/components/term-picker";
 import { contractFormSchema } from "~/features/contracts/types/contract-form";
 import { computeContractEndDate } from "~/features/contracts/utils/contract-term";
 import TenantFormSheet from "~/features/tenants/components/tenant-form-sheet";
@@ -64,17 +65,11 @@ type ContractForm = ReturnType<
   typeof useForm<ContractFormInput, unknown, ContractFormValues>
 >;
 type DepositMode = "1" | "2" | "custom";
-type TermMode = "6" | "12" | "custom";
 
 /** 1/2 tháng tiền thuê, hoặc `null` for "Khác" (the caller keeps whatever was typed). */
 function depositMultiplier(mode: DepositMode): number | null {
   if (mode === "custom") return null;
   return mode === "1" ? 1 : 2;
-}
-
-function termMonths(mode: TermMode): number | null {
-  if (mode === "custom") return null;
-  return mode === "6" ? 6 : 12;
 }
 
 /**
@@ -90,7 +85,6 @@ export default function ContractCreateTemplate() {
   const prefillRoomId = searchParams.get("room");
   const [step, setStep] = useState(0);
   const [depositMode, setDepositMode] = useState<DepositMode>("1");
-  const [termMode, setTermMode] = useState<TermMode>("12");
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const createContract = useCreateContract();
 
@@ -154,21 +148,9 @@ export default function ContractCreateTemplate() {
     const rent = Number(form.getValues("rentAmount")) || 0;
     form.setValue("depositAmount", String(rent * multiplier));
   };
-  const recomputeEndDate = (mode: TermMode) => {
-    const months = termMonths(mode);
-    if (months === null) return; // "Khác" — the landlord picks the date directly.
-    form.setValue(
-      "endDate",
-      computeContractEndDate(form.getValues("startDate"), months),
-    );
-  };
   const onDepositModeChange = (mode: DepositMode) => {
     recomputeDeposit(mode);
     setDepositMode(mode);
-  };
-  const onTermModeChange = (mode: TermMode) => {
-    recomputeEndDate(mode);
-    setTermMode(mode);
   };
 
   const steps = wizardSteps.map((wizardStep, index) => ({
@@ -182,10 +164,9 @@ export default function ContractCreateTemplate() {
     const fields = wizardSteps[step]?.fields ?? [];
     if (!(await form.trigger(fields))) return;
     if (step === 0) {
-      // Tiền thuê only just arrived (step 1 doesn't need it) — seed cọc/
-      // ngày kết thúc from it now that step 2 is about to show them.
+      // Tiền thuê only just arrived (step 1 doesn't need it) — seed cọc
+      // from it now that step 2 is about to show it.
       recomputeDeposit(depositMode);
-      recomputeEndDate(termMode);
     }
     setStep((s) => Math.min(s + 1, LAST_STEP));
   };
@@ -245,8 +226,6 @@ export default function ContractCreateTemplate() {
             building={building}
             depositMode={depositMode}
             onDepositModeChange={onDepositModeChange}
-            termMode={termMode}
-            onTermModeChange={onTermModeChange}
             onBack={prevStep}
             isPending={createContract.isPending}
           />
@@ -338,8 +317,6 @@ interface TermsStepProps {
   building: Building | null | undefined;
   depositMode: DepositMode;
   onDepositModeChange: (mode: DepositMode) => void;
-  termMode: TermMode;
-  onTermModeChange: (mode: TermMode) => void;
   onBack: () => void;
   isPending: boolean;
 }
@@ -354,8 +331,6 @@ function TermsStep({
   building,
   depositMode,
   onDepositModeChange,
-  termMode,
-  onTermModeChange,
   onBack,
   isPending,
 }: TermsStepProps) {
@@ -428,37 +403,20 @@ function TermsStep({
               label="Ngày bắt đầu"
               required
             />
-            <Field>
-              <FieldLabel>Thời hạn</FieldLabel>
-              <ToggleGroup
-                value={[termMode]}
-                onValueChange={(next) => {
-                  const selected = next[0];
-                  if (selected) onTermModeChange(selected as TermMode);
-                }}
-                variant="outline"
-                size="sm"
-              >
-                <ToggleGroupItem value="6">6 tháng</ToggleGroupItem>
-                <ToggleGroupItem value="12">12 tháng</ToggleGroupItem>
-                <ToggleGroupItem value="custom">Khác</ToggleGroupItem>
-              </ToggleGroup>
-              {termMode === "custom" ? (
-                <DateField
-                  control={form.control}
-                  name="endDate"
-                  label="Ngày kết thúc"
-                  required
-                />
-              ) : (
-                <FieldDescription>
-                  Kết thúc {endDate ? formatDate(endDate) : "…"}
-                  {noticeStartDate
-                    ? ` · nhắc gia hạn từ ${noticeStartDate}`
-                    : ""}
-                </FieldDescription>
-              )}
-            </Field>
+            <TermPicker
+              control={form.control}
+              name="endDate"
+              anchorDate={startDate}
+              mode="fresh"
+              defaultMonths={12}
+              label="Thời hạn"
+              dateFieldLabel="Ngày kết thúc"
+              hint={
+                noticeStartDate
+                  ? `nhắc gia hạn từ ${noticeStartDate}`
+                  : undefined
+              }
+            />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

@@ -40,7 +40,7 @@ import {
   computeContractDebt,
   computeDepositSettlement,
 } from "~/utils/contract-liquidation";
-import { isContractLive } from "~/utils/contract-status";
+import { contractActions } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
 
 interface ContractLiquidationTemplateProps {
@@ -83,7 +83,7 @@ export default function ContractLiquidationTemplate({
     );
   }
 
-  const isLive = isContractLive(contract);
+  const actions = contractActions(contract);
   const outstandingDebt = computeContractDebt(invoicesQuery.data ?? []);
 
   return (
@@ -98,7 +98,7 @@ export default function ContractLiquidationTemplate({
         { label: "Thanh lý" },
       ]}
     >
-      {isLive ? (
+      {actions.canLiquidate ? (
         <>
           <Alert className="border-warning/20 bg-warning/10">
             <AlertTriangle className="text-warning" />
@@ -117,7 +117,7 @@ export default function ContractLiquidationTemplate({
         <EmptyPanel
           icon={FileX}
           title="Không thể thanh lý"
-          description={`Hợp đồng ${contract.contractNumber} đã kết thúc — chỉ Hợp đồng Đang hiệu lực hoặc Sắp hết hạn mới thanh lý được.`}
+          description={actions.blockedReason}
           className="border"
         />
       )}

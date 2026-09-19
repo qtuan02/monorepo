@@ -51,3 +51,41 @@ export function daysUntilContractEnd(
 export function canDeleteContract(contract: Pick<Contract, "status">): boolean {
   return contract.status === "DRAFT";
 }
+
+export interface ContractActions {
+  canRenew: boolean;
+  canLiquidate: boolean;
+  canDelete: boolean;
+  /** Set only when neither action is allowed — the one sentence every consumer prints as-is. */
+  blockedReason?: string;
+}
+
+const BLOCKED_REASON: Record<"DRAFT" | "EXPIRED" | "TERMINATED", string> = {
+  DRAFT: "Hợp đồng còn nháp — chưa thể gia hạn hoặc thanh lý.",
+  EXPIRED:
+    "Hợp đồng đã hết hạn — chỉ Hợp đồng Đang hiệu lực hoặc Sắp hết hạn mới gia hạn hoặc thanh lý được.",
+  TERMINATED: "Hợp đồng đã thanh lý — không thể gia hạn hoặc thanh lý thêm.",
+};
+
+/**
+ * Gia hạn/Thanh lý/Xoá đúng vòng đời, một lý do duy nhất khi bị chặn (spec
+ * #227 C2) — mọi consumer (row-actions, chi tiết, hai màn con) đọc object
+ * này thay vì tự suy ra từ `isContractLive`/`canDeleteContract`.
+ */
+export function contractActions(
+  contract: Pick<Contract, "status" | "endDate">,
+  today: Date = new Date(),
+): ContractActions {
+  const status = deriveContractStatus(contract, today);
+
+  if (status === "ACTIVE" || status === "EXPIRING") {
+    return { canRenew: true, canLiquidate: true, canDelete: false };
+  }
+
+  return {
+    canRenew: false,
+    canLiquidate: false,
+    canDelete: status === "DRAFT",
+    blockedReason: BLOCKED_REASON[status],
+  };
+}

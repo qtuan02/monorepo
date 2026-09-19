@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, FileX } from "lucide-react";
 import { Controller, useForm, useWatch } from "react-hook-form";
@@ -13,18 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-} from "@monorepo/ui/components/field";
+import { Field, FieldError, FieldLabel } from "@monorepo/ui/components/field";
 import { Textarea } from "@monorepo/ui/components/textarea";
 import { toast } from "@monorepo/ui/components/toast";
-import {
-  ToggleGroup,
-  ToggleGroupItem,
-} from "@monorepo/ui/components/toggle-group";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type {
@@ -34,19 +24,17 @@ import type {
 import type { Contract } from "~/types/contract";
 import { InfoRow } from "~/components/card/info-card";
 import { CurrencyField } from "~/components/form/currency-field";
-import { DateField } from "~/components/form/date-field";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
 import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
+import TermPicker from "~/features/contracts/components/term-picker";
 import { renewContractFormSchema } from "~/features/contracts/types/renew-contract-form";
 import { computeRenewedEndDate } from "~/features/contracts/utils/contract-term";
 import { useGetContract, useRenewContract } from "~/hooks/api/contract";
-import { isContractLive } from "~/utils/contract-status";
+import { contractActions } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
-
-type TermMode = "6" | "12" | "custom";
 
 interface ContractRenewTemplateProps {
   contractId: string;
@@ -86,7 +74,7 @@ export default function ContractRenewTemplate({
     );
   }
 
-  const isLive = isContractLive(contract);
+  const actions = contractActions(contract);
 
   return (
     <DetailPageShell
@@ -100,13 +88,13 @@ export default function ContractRenewTemplate({
         { label: "Gia hạn" },
       ]}
     >
-      {isLive ? (
+      {actions.canRenew ? (
         <RenewForm key={contract.id} contract={contract} />
       ) : (
         <EmptyPanel
           icon={FileX}
           title="Không thể gia hạn"
-          description={`Hợp đồng ${contract.contractNumber} đã kết thúc — chỉ Hợp đồng Đang hiệu lực hoặc Sắp hết hạn mới gia hạn được.`}
+          description={actions.blockedReason}
           className="border"
         />
       )}
@@ -119,7 +107,6 @@ const FORM_ID = "renew-contract-form";
 /** Mounted only once the Hợp đồng is known, so its rent can seed the form. */
 function RenewForm({ contract }: { contract: Contract }) {
   const navigate = useNavigate();
-  const [termMode, setTermMode] = useState<TermMode>("6");
   const renewContract = useRenewContract();
   const form = useForm<
     RenewContractFormInput,
@@ -133,20 +120,6 @@ function RenewForm({ contract }: { contract: Contract }) {
       notes: "",
     },
   });
-  const newEndDate = useWatch({ control: form.control, name: "newEndDate" });
-
-  // Thời hạn thêm 6/12/khác tháng (spec #179) — derived from `termMode`, a
-  // plain computation, so the toggle's own handler writes it directly
-  // rather than a watching effect (react-effects-sync-only.md).
-  const onTermModeChange = (mode: TermMode) => {
-    if (mode !== "custom") {
-      form.setValue(
-        "newEndDate",
-        computeRenewedEndDate(contract.endDate, mode === "6" ? 6 : 12),
-      );
-    }
-    setTermMode(mode);
-  };
 
   // Card xác nhận có từ đầu (spec #179 §3.4) — "Xác nhận gia hạn" is its own
   // submit button, wired via `form={FORM_ID}` rather than a two-click flow.
@@ -200,34 +173,15 @@ function RenewForm({ contract }: { contract: Contract }) {
               noValidate
               className="space-y-6"
             >
-              <Field>
-                <FieldLabel>Thời hạn thêm</FieldLabel>
-                <ToggleGroup
-                  value={[termMode]}
-                  onValueChange={(next) => {
-                    const selected = next[0];
-                    if (selected) onTermModeChange(selected as TermMode);
-                  }}
-                  variant="outline"
-                  size="sm"
-                >
-                  <ToggleGroupItem value="6">6 tháng</ToggleGroupItem>
-                  <ToggleGroupItem value="12">12 tháng</ToggleGroupItem>
-                  <ToggleGroupItem value="custom">Khác</ToggleGroupItem>
-                </ToggleGroup>
-                {termMode === "custom" ? (
-                  <DateField
-                    control={form.control}
-                    name="newEndDate"
-                    label="Ngày kết thúc mới"
-                    required
-                  />
-                ) : (
-                  <FieldDescription>
-                    Kết thúc {newEndDate ? formatDate(newEndDate) : "…"}
-                  </FieldDescription>
-                )}
-              </Field>
+              <TermPicker
+                control={form.control}
+                name="newEndDate"
+                anchorDate={contract.endDate}
+                mode="extend"
+                defaultMonths={6}
+                label="Thời hạn thêm"
+                dateFieldLabel="Ngày kết thúc mới"
+              />
               <CurrencyField
                 control={form.control}
                 name="newRentAmount"

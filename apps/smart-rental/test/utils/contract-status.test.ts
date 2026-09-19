@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   CONTRACT_EXPIRING_WINDOW_DAYS,
   canDeleteContract,
+  contractActions,
   daysUntilContractEnd,
   deriveContractStatus,
   isContractLive,
@@ -67,5 +68,54 @@ describe("canDeleteContract", () => {
     expect(canDeleteContract({ status: "EXPIRING" })).toBe(false);
     expect(canDeleteContract({ status: "EXPIRED" })).toBe(false);
     expect(canDeleteContract({ status: "TERMINATED" })).toBe(false);
+  });
+});
+
+describe("contractActions", () => {
+  it("DRAFT: chỉ Xoá, lý do là 'còn nháp'", () => {
+    expect(
+      contractActions({ status: "DRAFT", endDate: "17/10/2026" }, today),
+    ).toEqual({
+      canRenew: false,
+      canLiquidate: false,
+      canDelete: true,
+      blockedReason: "Hợp đồng còn nháp — chưa thể gia hạn hoặc thanh lý.",
+    });
+  });
+
+  it("ACTIVE: Gia hạn/Thanh lý, không có blockedReason", () => {
+    expect(
+      contractActions({ status: "ACTIVE", endDate: "18/10/2026" }, today),
+    ).toEqual({ canRenew: true, canLiquidate: true, canDelete: false });
+  });
+
+  it("EXPIRING: Gia hạn/Thanh lý, không có blockedReason", () => {
+    expect(
+      contractActions({ status: "ACTIVE", endDate: "17/10/2026" }, today),
+    ).toEqual({ canRenew: true, canLiquidate: true, canDelete: false });
+  });
+
+  it("EXPIRED: không Gia hạn/Thanh lý/Xoá, lý do là 'đã hết hạn'", () => {
+    expect(
+      contractActions({ status: "ACTIVE", endDate: "16/09/2026" }, today),
+    ).toEqual({
+      canRenew: false,
+      canLiquidate: false,
+      canDelete: false,
+      blockedReason:
+        "Hợp đồng đã hết hạn — chỉ Hợp đồng Đang hiệu lực hoặc Sắp hết hạn mới gia hạn hoặc thanh lý được.",
+    });
+  });
+
+  it("TERMINATED: không Gia hạn/Thanh lý/Xoá, lý do là 'đã thanh lý'", () => {
+    expect(
+      contractActions({ status: "TERMINATED", endDate: "01/01/2020" }, today),
+    ).toEqual({
+      canRenew: false,
+      canLiquidate: false,
+      canDelete: false,
+      blockedReason:
+        "Hợp đồng đã thanh lý — không thể gia hạn hoặc thanh lý thêm.",
+    });
   });
 });

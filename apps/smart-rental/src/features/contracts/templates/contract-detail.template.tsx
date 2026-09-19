@@ -22,11 +22,7 @@ import { useDeleteContract, useGetContract } from "~/hooks/api/contract";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetUtilities } from "~/hooks/api/utility";
 import { useDeleteEntity } from "~/hooks/use-delete-entity";
-import {
-  canDeleteContract,
-  daysUntilContractEnd,
-  isContractLive,
-} from "~/utils/contract-status";
+import { contractActions, daysUntilContractEnd } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
 import { formatDateTime } from "~/utils/date";
 
@@ -81,7 +77,7 @@ export default function ContractDetailTemplate({
 
   const status = contractStatusConfig[contract.status];
   const deposit = depositStatusConfig[contract.depositStatus];
-  const isLive = isContractLive(contract);
+  const actions = contractActions(contract);
   const daysUntilEnd = daysUntilContractEnd(contract.endDate);
 
   return (
@@ -114,7 +110,7 @@ export default function ContractDetailTemplate({
         />
       }
       actions={
-        isLive ? (
+        actions.canRenew ? (
           <>
             <Link
               to={ROUTES.contractRenewPath(contract.id)}
@@ -134,7 +130,7 @@ export default function ContractDetailTemplate({
               Thanh lý
             </Link>
           </>
-        ) : canDeleteContract(contract) ? (
+        ) : actions.canDelete ? (
           <Button
             type="button"
             variant="outline"
