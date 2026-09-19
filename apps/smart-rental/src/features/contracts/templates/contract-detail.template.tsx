@@ -48,10 +48,7 @@ export default function ContractDetailTemplate({
 }: ContractDetailTemplateProps) {
   const contractQuery = useGetContract(contractId);
   const contract = contractQuery.data;
-  const invoicesQuery = useGetInvoices(
-    { contractId },
-    { enabled: !!contract },
-  );
+  const invoicesQuery = useGetInvoices({ contractId }, { enabled: !!contract });
   const utilitiesQuery = useGetUtilities(
     { roomId: contract?.roomId },
     { enabled: !!contract },

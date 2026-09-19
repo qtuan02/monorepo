@@ -16,11 +16,7 @@ function fakeMutation() {
   return { isPending: false, mutate };
 }
 
-function Harness({
-  mutation,
-}: {
-  mutation: ReturnType<typeof fakeMutation>;
-}) {
+function Harness({ mutation }: { mutation: ReturnType<typeof fakeMutation> }) {
   const deleteRoom = useDeleteEntity({
     mutation,
     id: "R-1",

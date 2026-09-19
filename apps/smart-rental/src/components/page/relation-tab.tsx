@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Fragment } from "react";
 
-import { EmptyPanel, type EmptyPanelProps } from "~/components/panel/empty-panel";
+import type { EmptyPanelProps } from "~/components/panel/empty-panel";
+import { EmptyPanel } from "~/components/panel/empty-panel";
 
 interface RelationTabProps<T extends { id: string }> {
   items: T[];

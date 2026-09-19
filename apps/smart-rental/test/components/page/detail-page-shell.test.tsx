@@ -217,9 +217,7 @@ describe("DetailPageShell", () => {
         }),
       });
 
-      expect(
-        screen.getByText("Không tìm thấy phòng."),
-      ).toBeInTheDocument();
+      expect(screen.getByText("Không tìm thấy phòng.")).toBeInTheDocument();
       expect(
         screen.getByText("Không có phòng nào với mã khong-co."),
       ).toBeInTheDocument();

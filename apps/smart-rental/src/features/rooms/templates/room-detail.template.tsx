@@ -10,7 +10,6 @@ import {
 import { Link } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import { toast } from "@monorepo/ui/components/toast";
 import {
   Tooltip,
   TooltipContent,

@@ -219,9 +219,7 @@ export default function TenantDetailTemplate({
                     header={
                       <CardHeader className="flex-row items-center justify-between gap-4 py-4">
                         <div>
-                          <p className="font-medium">
-                            {invoice.invoiceNumber}
-                          </p>
+                          <p className="font-medium">{invoice.invoiceNumber}</p>
                           <p className="text-muted-foreground text-xs">
                             Kỳ {invoice.month} ·{" "}
                             {formatCurrency(invoice.amount)}
