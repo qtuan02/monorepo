@@ -20,7 +20,7 @@ export function InfoCard({ title, icon, children, className }: InfoCardProps) {
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-base">
+        <CardTitle className="flex items-center gap-2 text-[15px]">
           {icon}
           {title}
         </CardTitle>
@@ -36,18 +36,18 @@ interface InfoRowProps {
   isHighlighted?: boolean;
 }
 
+/**
+ * A `dt`/`dd` pair on a fixed 140px label column (round 4 Q8/mockup A4) — the
+ * label sits right next to its value instead of the eye travelling flex-between
+ * across the card's full width.
+ */
 export function InfoRow({ label, value, isHighlighted }: InfoRowProps) {
   return (
-    <div className="flex items-center justify-between gap-4">
-      <span className="text-muted-foreground text-sm">{label}</span>
-      <span
-        className={cn(
-          "text-right text-sm font-medium",
-          isHighlighted && "font-semibold",
-        )}
-      >
+    <dl className="grid grid-cols-[140px_1fr] gap-x-4 text-sm">
+      <dt className="text-muted-foreground">{label}</dt>
+      <dd className={cn("font-medium", isHighlighted && "font-semibold")}>
         {value}
-      </span>
-    </div>
+      </dd>
+    </dl>
   );
 }

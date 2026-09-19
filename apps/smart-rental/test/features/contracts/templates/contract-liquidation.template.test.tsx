@@ -160,11 +160,7 @@ describe("ContractLiquidationTemplate — quyết toán Cọc", () => {
     await router.navigate(ROUTES.roomDetailPath(roomId));
 
     expect(
-      await screen.findByText(
-        "Phòng này hiện chưa có Người thuê",
-        {},
-        { timeout: 5000 },
-      ),
+      await screen.findByText("— (trống)", {}, { timeout: 5000 }),
     ).toBeInTheDocument();
     expect(screen.queryByText(tenantName)).not.toBeInTheDocument();
   }, 15000);
