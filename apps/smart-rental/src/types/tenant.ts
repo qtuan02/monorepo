@@ -32,8 +32,9 @@ export type TenantView = Tenant & {
   floor: number;
   rentAmount: number;
   depositAmount: number;
-  /** Already display-formatted (`DD/MM/YYYY`). */
+  /** ISO `YYYY-MM-DD`, or `"—"` while the tenant has never had a Hợp đồng. */
   moveInDate: string;
+  /** Same shape as `moveInDate`. */
   contractEnd: string;
   status: TenantStatus;
   hasOverdueInvoice: boolean;

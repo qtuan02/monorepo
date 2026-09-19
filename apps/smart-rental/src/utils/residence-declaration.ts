@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { ResidenceDeclaration } from "~/types/compliance";
 import type { World } from "~/types/world";
@@ -46,7 +45,7 @@ export function buildResidenceDeclarations({
           item.tenantId === tenant.id && item.type === "residence_registration",
       );
       const registrationDueDate = registration?.dueDate ?? tenant.contractEnd;
-      const daysToExpiry = dayjs(registrationDueDate, DATE_FORMAT)
+      const daysToExpiry = dayjs(registrationDueDate)
         .startOf("day")
         .diff(dayjs(today).startOf("day"), "day");
 

@@ -8,7 +8,6 @@ import { TextField } from "~/components/form/text-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { useMarkResidenceNotificationSent } from "~/hooks/api/compliance";
 import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
-import { formatDate } from "~/utils/date";
 
 const residenceNotificationSentFormSchema = z.object({
   referenceNumber: z
@@ -56,7 +55,7 @@ export function ResidenceNotificationSentSheet({
     toPayload: (values) => ({
       tenantId,
       referenceNumber: values.referenceNumber,
-      sentDate: formatDate(values.sentDate),
+      sentDate: values.sentDate,
     }),
     successMessage: () => `Đã đánh dấu gửi Thông báo lưu trú cho ${tenantName}`,
   });

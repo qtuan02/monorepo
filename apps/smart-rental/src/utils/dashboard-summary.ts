@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type {
   ExpiringContractsSummary,
@@ -30,7 +29,7 @@ export function buildTodaySummary(
   let outstandingAmount = 0;
   let overdueCount = 0;
   for (const invoice of world.invoices) {
-    const dueMonth = dayjs(invoice.dueDate, DATE_FORMAT).format("YYYY-MM");
+    const dueMonth = dayjs(invoice.dueDate).format("YYYY-MM");
     if (dueMonth !== currentMonth) continue;
     const outstanding = invoice.amount - invoice.paidAmount;
     if (outstanding <= 0) continue;
@@ -44,7 +43,7 @@ export function buildTodaySummary(
   for (const contract of world.contracts) {
     if (contract.status !== "EXPIRING") continue;
     expiringCount += 1;
-    const diff = dayjs(contract.endDate, DATE_FORMAT)
+    const diff = dayjs(contract.endDate)
       .startOf("day")
       .diff(dayjs(today).startOf("day"), "day");
     if (diff < nearestDiff) {
@@ -75,7 +74,7 @@ export function buildMonthSummary(world: World): MonthSummary {
   let invoicedAmount = 0;
   let collectedAmount = 0;
   for (const invoice of world.invoices) {
-    const dueMonth = dayjs(invoice.dueDate, DATE_FORMAT).format("YYYY-MM");
+    const dueMonth = dayjs(invoice.dueDate).format("YYYY-MM");
     if (dueMonth !== currentMonth) continue;
     invoicedAmount += invoice.amount;
     collectedAmount += invoice.paidAmount;

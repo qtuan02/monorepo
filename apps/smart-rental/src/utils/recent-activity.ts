@@ -4,6 +4,7 @@ import type { RecentActivityEntry } from "~/types/dashboard";
 import type { Invoice } from "~/types/invoice";
 import { channelConfig, invoicePaymentMethodConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate } from "~/utils/date";
 
 /**
  * "Vừa xong" (spec #179 §"Hôm nay") — the `limit` most recent events across
@@ -64,8 +65,7 @@ export function buildRecentActivity(
         kind: "renewal",
         at: renewal.renewedAt,
         label: `Gia hạn ${contract.contractNumber} · ${contract.room}`,
-        // Already display-formatted (see `useRenewContract`'s own `formatDate` call).
-        detail: `đến ${renewal.newEndDate}`,
+        detail: `đến ${formatDate(renewal.newEndDate)}`,
       });
     }
   }

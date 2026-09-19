@@ -18,7 +18,7 @@ import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
 import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { formatDate } from "~/utils/date";
+import { todayIsoDate } from "~/utils/date";
 import { canDeleteRoom } from "~/utils/room-delete";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
@@ -65,7 +65,7 @@ export function useCreateRoom(
       const room: Room = {
         id: `R-${request.buildingId}-${String(mockRooms.length + 1).padStart(3, "0")}`,
         ...request,
-        lastUpdated: formatDate(new Date()),
+        lastUpdated: todayIsoDate(),
       };
       mockRooms.push(room);
       return room;
@@ -86,7 +86,9 @@ export function useUpdateRoom(
           message: `Không tìm thấy phòng ${roomId}.`,
         });
       }
-      Object.assign(room, patch, { lastUpdated: formatDate(new Date()) });
+      Object.assign(room, patch, {
+        lastUpdated: todayIsoDate(),
+      });
       return room;
     },
     ...options,

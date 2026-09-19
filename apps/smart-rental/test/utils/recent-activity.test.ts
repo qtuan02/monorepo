@@ -20,11 +20,10 @@ function invoice(overrides: Partial<Invoice> = {}): Invoice {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2026-08",
-    month: "08/2026",
-    dueDate: "05/09/2026",
+    dueDate: "2026-09-05",
     status: "PAID",
     paymentDate: null,
-    lastUpdated: "18/09/2026",
+    lastUpdated: "2026-09-18",
     ...overrides,
   };
 }
@@ -44,11 +43,11 @@ function contract(overrides: Partial<Contract> = {}): Contract {
     depositStatus: "HELD",
     depositReturnedAmount: 0,
     noticeDays: 30,
-    startDate: "01/01/2026",
-    endDate: "01/01/2027",
+    startDate: "2026-01-01",
+    endDate: "2027-01-01",
     status: "ACTIVE",
     renewalHistory: [],
-    lastUpdated: "18/09/2026",
+    lastUpdated: "2026-09-18",
     ...overrides,
   };
 }
@@ -114,8 +113,8 @@ describe("buildRecentActivity", () => {
           renewalHistory: [
             {
               renewedAt: "2026-09-15T00:00:00.000Z",
-              previousEndDate: "15/09/2026",
-              newEndDate: "15/09/2027",
+              previousEndDate: "2026-09-15",
+              newEndDate: "2027-09-15",
               previousRentAmount: 3_000_000,
               newRentAmount: 3_000_000,
             },
@@ -152,8 +151,8 @@ describe("buildRecentActivity", () => {
             renewalHistory: [
               {
                 renewedAt: "2026-09-05T00:00:00.000Z",
-                previousEndDate: "01/09/2026",
-                newEndDate: "01/09/2027",
+                previousEndDate: "2026-09-01",
+                newEndDate: "2027-09-01",
                 previousRentAmount: 1,
                 newRentAmount: 1,
               },

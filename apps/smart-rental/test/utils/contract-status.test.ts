@@ -14,11 +14,11 @@ const today = new Date("2026-09-17T00:00:00.000Z");
 describe("deriveContractStatus", () => {
   it("passes DRAFT and TERMINATED through unchanged, never date-derived", () => {
     expect(
-      deriveContractStatus({ status: "DRAFT", endDate: "01/01/2020" }, today),
+      deriveContractStatus({ status: "DRAFT", endDate: "2020-01-01" }, today),
     ).toBe("DRAFT");
     expect(
       deriveContractStatus(
-        { status: "TERMINATED", endDate: "31/12/2099" },
+        { status: "TERMINATED", endDate: "2099-12-31" },
         today,
       ),
     ).toBe("TERMINATED");
@@ -26,19 +26,19 @@ describe("deriveContractStatus", () => {
 
   it(`is EXPIRING exactly at the ${CONTRACT_EXPIRING_WINDOW_DAYS}-day boundary`, () => {
     expect(
-      deriveContractStatus({ status: "ACTIVE", endDate: "17/10/2026" }, today),
+      deriveContractStatus({ status: "ACTIVE", endDate: "2026-10-17" }, today),
     ).toBe("EXPIRING");
   });
 
   it("is ACTIVE one day past the boundary", () => {
     expect(
-      deriveContractStatus({ status: "ACTIVE", endDate: "18/10/2026" }, today),
+      deriveContractStatus({ status: "ACTIVE", endDate: "2026-10-18" }, today),
     ).toBe("ACTIVE");
   });
 
   it("is EXPIRED once the end date has passed", () => {
     expect(
-      deriveContractStatus({ status: "ACTIVE", endDate: "16/09/2026" }, today),
+      deriveContractStatus({ status: "ACTIVE", endDate: "2026-09-16" }, today),
     ).toBe("EXPIRED");
   });
 });
@@ -46,18 +46,18 @@ describe("deriveContractStatus", () => {
 describe("isContractLive", () => {
   it("is true for EXPIRING, false for EXPIRED", () => {
     expect(
-      isContractLive({ status: "ACTIVE", endDate: "17/10/2026" }, today),
+      isContractLive({ status: "ACTIVE", endDate: "2026-10-17" }, today),
     ).toBe(true);
     expect(
-      isContractLive({ status: "ACTIVE", endDate: "16/09/2026" }, today),
+      isContractLive({ status: "ACTIVE", endDate: "2026-09-16" }, today),
     ).toBe(false);
   });
 });
 
 describe("daysUntilContractEnd", () => {
   it("counts forward to a future end date, negative once past", () => {
-    expect(daysUntilContractEnd("17/10/2026", today)).toBe(30);
-    expect(daysUntilContractEnd("16/09/2026", today)).toBe(-1);
+    expect(daysUntilContractEnd("2026-10-17", today)).toBe(30);
+    expect(daysUntilContractEnd("2026-09-16", today)).toBe(-1);
   });
 });
 
@@ -74,7 +74,7 @@ describe("canDeleteContract", () => {
 describe("contractActions", () => {
   it("DRAFT: chỉ Xoá, lý do là 'còn nháp'", () => {
     expect(
-      contractActions({ status: "DRAFT", endDate: "17/10/2026" }, today),
+      contractActions({ status: "DRAFT", endDate: "2026-10-17" }, today),
     ).toEqual({
       canRenew: false,
       canLiquidate: false,
@@ -85,19 +85,19 @@ describe("contractActions", () => {
 
   it("ACTIVE: Gia hạn/Thanh lý, không có blockedReason", () => {
     expect(
-      contractActions({ status: "ACTIVE", endDate: "18/10/2026" }, today),
+      contractActions({ status: "ACTIVE", endDate: "2026-10-18" }, today),
     ).toEqual({ canRenew: true, canLiquidate: true, canDelete: false });
   });
 
   it("EXPIRING: Gia hạn/Thanh lý, không có blockedReason", () => {
     expect(
-      contractActions({ status: "ACTIVE", endDate: "17/10/2026" }, today),
+      contractActions({ status: "ACTIVE", endDate: "2026-10-17" }, today),
     ).toEqual({ canRenew: true, canLiquidate: true, canDelete: false });
   });
 
   it("EXPIRED: không Gia hạn/Thanh lý/Xoá, lý do là 'đã hết hạn'", () => {
     expect(
-      contractActions({ status: "ACTIVE", endDate: "16/09/2026" }, today),
+      contractActions({ status: "ACTIVE", endDate: "2026-09-16" }, today),
     ).toEqual({
       canRenew: false,
       canLiquidate: false,
@@ -109,7 +109,7 @@ describe("contractActions", () => {
 
   it("TERMINATED: không Gia hạn/Thanh lý/Xoá, lý do là 'đã thanh lý'", () => {
     expect(
-      contractActions({ status: "TERMINATED", endDate: "01/01/2020" }, today),
+      contractActions({ status: "TERMINATED", endDate: "2020-01-01" }, today),
     ).toEqual({
       canRenew: false,
       canLiquidate: false,

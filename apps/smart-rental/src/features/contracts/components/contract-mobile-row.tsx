@@ -12,6 +12,7 @@ import {
 import type { Contract } from "~/types/contract";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { contractStatusConfig } from "~/constants/status";
+import { formatDate } from "~/utils/date";
 import ContractRowActions from "./contract-row-actions";
 
 /** A Hợp đồng table row's mobile substitute — `renderMobileRow` on `DataTable`. */
@@ -28,7 +29,7 @@ export default function ContractMobileRow({
       <ItemContent>
         <ItemTitle>{contract.contractNumber}</ItemTitle>
         <ItemDescription>
-          {contract.tenant} · {contract.room} · {contract.endDate}
+          {contract.tenant} · {contract.room} · {formatDate(contract.endDate)}
         </ItemDescription>
       </ItemContent>
       <ItemActions>

@@ -38,7 +38,7 @@ function room(overrides: Partial<Room> = {}): Room {
     price: 2_000_000,
     status: "occupied",
     type: "single",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     ...overrides,
   };
 }
@@ -58,11 +58,11 @@ function contract(overrides: Partial<Contract> = {}): Contract {
     depositStatus: "HELD",
     depositReturnedAmount: 0,
     noticeDays: 30,
-    startDate: "01/01/2026",
-    endDate: "31/12/2026",
+    startDate: "2026-01-01",
+    endDate: "2026-12-31",
     status: "ACTIVE",
     renewalHistory: [],
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     ...overrides,
   };
 }
@@ -95,11 +95,10 @@ function invoice(overrides: Partial<Invoice> = {}): Invoice {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2026-09",
-    month: "09/2026",
-    dueDate: "05/09/2026",
+    dueDate: "2026-09-05",
     status: "UNPAID",
     paymentDate: null,
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     ...overrides,
   };
 }
@@ -285,7 +284,7 @@ describe("buildWorld — derived status", () => {
   it("suy Hoá đơn OVERDUE khi quá hạn thu, dù trạng thái Mock ghi UNPAID", () => {
     const world = buildWorld(
       makeArrays({
-        invoices: [invoice({ dueDate: "05/09/2026", status: "UNPAID" })],
+        invoices: [invoice({ dueDate: "2026-09-05", status: "UNPAID" })],
       }),
       "b1",
       today,
@@ -299,7 +298,7 @@ describe("buildWorld — derived status", () => {
       makeArrays({
         invoices: [
           invoice({
-            dueDate: "30/09/2026",
+            dueDate: "2026-09-30",
             amount: 1_000_000,
             paidAmount: 400_000,
             status: "UNPAID",
@@ -316,7 +315,7 @@ describe("buildWorld — derived status", () => {
   it("suy Hợp đồng EXPIRING trong cửa sổ 30 ngày trước ngày kết thúc", () => {
     const world = buildWorld(
       makeArrays({
-        contracts: [contract({ endDate: "01/10/2026", status: "ACTIVE" })],
+        contracts: [contract({ endDate: "2026-10-01", status: "ACTIVE" })],
       }),
       "b1",
       today,
@@ -369,7 +368,7 @@ describe("buildWorld — joined views (ADR-0015 §2)", () => {
           contract({
             roomId: "R1",
             status: "TERMINATED",
-            terminatedAt: "01/09/2026",
+            terminatedAt: "2026-09-01",
           }),
         ],
       }),
@@ -385,14 +384,14 @@ describe("buildWorld — joined views (ADR-0015 §2)", () => {
       makeArrays({
         tenants: [tenant({ id: "T1" })],
         contracts: [
-          contract({ id: "C1", tenantId: "T1", endDate: "31/10/2026" }),
+          contract({ id: "C1", tenantId: "T1", endDate: "2026-10-31" }),
         ],
       }),
       "b1",
       today,
     );
 
-    expect(world.tenants[0]?.contractEnd).toBe("31/10/2026");
+    expect(world.tenants[0]?.contractEnd).toBe("2026-10-31");
     expect(world.tenants[0]?.room).toBe("Phòng 101");
   });
 
@@ -405,7 +404,7 @@ describe("buildWorld — joined views (ADR-0015 §2)", () => {
             id: "C1",
             tenantId: "T1",
             status: "TERMINATED",
-            endDate: "01/06/2026",
+            endDate: "2026-06-01",
           }),
         ],
       }),
@@ -413,7 +412,7 @@ describe("buildWorld — joined views (ADR-0015 §2)", () => {
       today,
     );
 
-    expect(world.tenants[0]?.contractEnd).toBe("01/06/2026");
+    expect(world.tenants[0]?.contractEnd).toBe("2026-06-01");
   });
 
   it("TenantView is the placeholder blanks for a Người thuê with no Hợp đồng at all", () => {

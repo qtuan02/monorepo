@@ -22,7 +22,7 @@ import {
   buildCycleLineItems,
   buildCycleRows,
 } from "~/utils/cycle-rows";
-import { formatDate, formatMonth } from "~/utils/date";
+import { todayIsoDate } from "~/utils/date";
 
 const cycleQueryKeyFactory = queryKeysFactory("cycle");
 
@@ -182,11 +182,10 @@ export function useCreateCycleInvoices(
           paidAmount: 0,
           reminders: [],
           billingMonth: request.month,
-          month: formatMonth(request.month),
           dueDate: buildCycleDueDate(building, request.month),
           status: "UNPAID",
           paymentDate: null,
-          lastUpdated: formatDate(new Date()),
+          lastUpdated: todayIsoDate(),
         };
         mockInvoices.push(invoice);
         created.push(invoice);

@@ -88,11 +88,10 @@ function invoice(overrides: Partial<Invoice>): Invoice {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2026-09",
-    month: "09/2026",
-    dueDate: "05/09/2026",
+    dueDate: "2026-09-05",
     status: "UNPAID",
     paymentDate: null,
-    lastUpdated: "17/09/2026",
+    lastUpdated: "2026-09-17",
     ...overrides,
   };
 }

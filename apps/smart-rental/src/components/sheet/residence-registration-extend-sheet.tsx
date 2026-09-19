@@ -6,7 +6,6 @@ import { DateField } from "~/components/form/date-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { useExtendResidenceRegistration } from "~/hooks/api/compliance";
 import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
-import { formatDate } from "~/utils/date";
 
 const residenceRegistrationExtendFormSchema = z.object({
   newDueDate: z
@@ -48,7 +47,7 @@ export function ResidenceRegistrationExtendSheet({
     mutations: { create: extend },
     toPayload: (values) => ({
       tenantId,
-      newDueDate: formatDate(values.newDueDate),
+      newDueDate: values.newDueDate,
     }),
     successMessage: () => `Đã gia hạn Đăng ký tạm trú cho ${tenantName}`,
   });

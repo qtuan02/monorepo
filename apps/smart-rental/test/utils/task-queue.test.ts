@@ -37,11 +37,10 @@ function invoice(overrides: Partial<Invoice> = {}): Invoice {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2026-08",
-    month: "08/2026",
-    dueDate: "05/09/2026",
+    dueDate: "2026-09-05",
     status: "OVERDUE",
     paymentDate: null,
-    lastUpdated: "18/09/2026",
+    lastUpdated: "2026-09-18",
     ...overrides,
   };
 }
@@ -86,8 +85,8 @@ describe("buildTaskQueueEntries", () => {
         overdueTask({ id: "t2", relatedId: "I002" }),
       ],
       [
-        invoice({ id: "I001", dueDate: "05/09/2026", amount: 3_000_000 }),
-        invoice({ id: "I002", dueDate: "05/09/2026", amount: 2_000_000 }),
+        invoice({ id: "I001", dueDate: "2026-09-05", amount: 3_000_000 }),
+        invoice({ id: "I002", dueDate: "2026-09-05", amount: 2_000_000 }),
       ],
       buildings,
     );
@@ -131,7 +130,7 @@ describe("buildTaskQueueEntries", () => {
         overdueTask({ id: "t1", relatedId: "I001" }),
         contractTask({ dueDate: "2026-09-01" }),
       ],
-      [invoice({ id: "I001", dueDate: "10/09/2026" })],
+      [invoice({ id: "I001", dueDate: "2026-09-10" })],
       buildings,
     );
 
@@ -149,8 +148,8 @@ describe("buildTaskQueueEntries", () => {
         contractTask({ dueDate: "2026-09-08" }),
       ],
       [
-        invoice({ id: "I001", dueDate: "15/09/2026" }),
-        invoice({ id: "I002", dueDate: "05/09/2026" }),
+        invoice({ id: "I001", dueDate: "2026-09-15" }),
+        invoice({ id: "I002", dueDate: "2026-09-05" }),
       ],
       buildings,
     );

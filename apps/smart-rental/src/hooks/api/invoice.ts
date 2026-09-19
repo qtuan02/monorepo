@@ -16,7 +16,7 @@ import type {
 import { mockInvoices } from "~/constants/mock/invoices";
 import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { formatDate } from "~/utils/date";
+import { todayIsoDate } from "~/utils/date";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
@@ -91,8 +91,8 @@ export function useRecordInvoicePayment(
         paidAt: request.paidAt,
       });
       invoice.paidAmount = sumInvoicePayments(invoice.payments);
-      invoice.paymentDate = formatDate(request.paidAt);
-      invoice.lastUpdated = formatDate(new Date());
+      invoice.paymentDate = request.paidAt;
+      invoice.lastUpdated = todayIsoDate();
       return invoice;
     },
     ...options,

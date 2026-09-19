@@ -22,7 +22,7 @@ export interface ComplianceItem {
   room: string;
   type: ComplianceType;
   status: ComplianceStatus;
-  /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
+  /** ISO `YYYY-MM-DD`. */
   dueDate: string;
   completedDate?: string;
   /** Mã hồ sơ Cổng DVC — set once a Thông báo lưu trú has been sent. */
@@ -55,7 +55,7 @@ export interface ResidenceDeclaration {
    * past it, "pending" otherwise. Never read off a stored `ComplianceItem.status`.
    */
   registrationStatus: ComplianceStatus;
-  /** Already display-formatted (`DD/MM/YYYY`). */
+  /** ISO `YYYY-MM-DD`. */
   registrationDueDate: string;
   registrationExpiringSoon: boolean;
 }

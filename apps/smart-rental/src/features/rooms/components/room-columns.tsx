@@ -9,6 +9,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { roomStatusConfig, roomTypeConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate } from "~/utils/date";
 import RoomRowActions from "./room-row-actions";
 
 const helper = createDataTableColumnHelper<RoomView>();
@@ -92,7 +93,7 @@ export const roomColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Cập nhật" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{getValue()}</span>
+      <span className="text-muted-foreground">{formatDate(getValue())}</span>
     ),
   }),
   helper.display({

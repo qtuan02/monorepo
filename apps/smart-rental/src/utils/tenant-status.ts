@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
@@ -72,7 +71,7 @@ export function findTenantContract(
   const candidates = liveContracts.length > 0 ? liveContracts : tenantContracts;
 
   return [...candidates].sort((a, b) =>
-    dayjs(b.endDate, DATE_FORMAT).diff(dayjs(a.endDate, DATE_FORMAT)),
+    dayjs(b.endDate).diff(dayjs(a.endDate)),
   )[0];
 }
 

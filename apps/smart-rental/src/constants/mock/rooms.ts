@@ -17,7 +17,7 @@ export const mockRooms: Room[] = [
     price: 2500000,
     status: "available",
     type: "single",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b1",
   },
   {
@@ -28,7 +28,7 @@ export const mockRooms: Room[] = [
     price: 2700000,
     status: "occupied",
     type: "single",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b1",
   },
   {
@@ -39,7 +39,7 @@ export const mockRooms: Room[] = [
     price: 2900000,
     status: "occupied",
     type: "double",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b1",
   },
   {
@@ -50,7 +50,7 @@ export const mockRooms: Room[] = [
     price: 2500000,
     status: "occupied",
     type: "single",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b1",
   },
   {
@@ -61,7 +61,7 @@ export const mockRooms: Room[] = [
     price: 2700000,
     status: "occupied",
     type: "single",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b1",
   },
   {
@@ -72,7 +72,7 @@ export const mockRooms: Room[] = [
     price: 2900000,
     status: "occupied",
     type: "double",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b1",
   },
   // b2 — Căn hộ Dịch Vụ Cao Cấp (8 Phòng, 1 trống, 1 bảo trì)
@@ -84,7 +84,7 @@ export const mockRooms: Room[] = [
     price: 5000000,
     status: "occupied",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -95,7 +95,7 @@ export const mockRooms: Room[] = [
     price: 5500000,
     status: "occupied",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -106,7 +106,7 @@ export const mockRooms: Room[] = [
     price: 5000000,
     status: "available",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -117,7 +117,7 @@ export const mockRooms: Room[] = [
     price: 5500000,
     status: "maintenance",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -128,7 +128,7 @@ export const mockRooms: Room[] = [
     price: 5000000,
     status: "occupied",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -139,7 +139,7 @@ export const mockRooms: Room[] = [
     price: 5500000,
     status: "occupied",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -150,7 +150,7 @@ export const mockRooms: Room[] = [
     price: 6000000,
     status: "occupied",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   {
@@ -161,7 +161,7 @@ export const mockRooms: Room[] = [
     price: 6000000,
     status: "occupied",
     type: "studio",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b2",
   },
   // b3 — Chung cư Mini Lê Duẩn (4 Phòng, 1 trống)
@@ -173,7 +173,7 @@ export const mockRooms: Room[] = [
     price: 3500000,
     status: "occupied",
     type: "double",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b3",
   },
   {
@@ -184,7 +184,7 @@ export const mockRooms: Room[] = [
     price: 3500000,
     status: "occupied",
     type: "double",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b3",
   },
   {
@@ -195,7 +195,7 @@ export const mockRooms: Room[] = [
     price: 3500000,
     status: "available",
     type: "double",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b3",
   },
   {
@@ -206,7 +206,7 @@ export const mockRooms: Room[] = [
     price: 3700000,
     status: "occupied",
     type: "double",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     buildingId: "b3",
   },
 ];

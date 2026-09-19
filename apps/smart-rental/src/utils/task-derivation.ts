@@ -1,17 +1,10 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Task } from "~/types/task";
 import type { World } from "~/types/world";
 import { isContractLive } from "~/utils/contract-status";
 import { isCycleClosingDatePassed } from "~/utils/cycle-rows";
-import { formatMonth } from "~/utils/date";
-
-function toIsoDate(value: string): string {
-  // `value` is the app's day-first display format; Task.dueDate is ISO
-  // (YYYY-MM-DD) so it sorts and compares like any other ISO date.
-  return dayjs(value, DATE_FORMAT).format("YYYY-MM-DD");
-}
+import { formatDate, formatMonth } from "~/utils/date";
 
 /**
  * Việc cần làm has no Mock of its own (ADR-0012) — every row is one of six
@@ -46,12 +39,12 @@ export function deriveTasks(world: World): Task[] {
       id: `invoice_overdue-${invoice.id}`,
       type: "invoice_overdue",
       title: `Hoá đơn ${invoice.invoiceNumber} quá hạn`,
-      description: `${invoice.tenant} — ${invoice.room}, kỳ ${invoice.month}.`,
+      description: `${invoice.tenant} — ${invoice.room}, kỳ ${formatMonth(invoice.billingMonth)}.`,
       status: "open",
       buildingId: invoice.buildingId ?? "",
       relatedEntity: "invoice",
       relatedId: invoice.id,
-      dueDate: toIsoDate(invoice.dueDate),
+      dueDate: invoice.dueDate,
       createdAt,
     });
   }
@@ -62,12 +55,12 @@ export function deriveTasks(world: World): Task[] {
       id: `contract_expiring-${contract.id}`,
       type: "contract_expiring",
       title: `Hợp đồng ${contract.contractNumber} sắp hết hạn`,
-      description: `${contract.tenant} — ${contract.room}, hết hạn ${contract.endDate}.`,
+      description: `${contract.tenant} — ${contract.room}, hết hạn ${formatDate(contract.endDate)}.`,
       status: "open",
       buildingId: contract.buildingId,
       relatedEntity: "contract",
       relatedId: contract.id,
-      dueDate: toIsoDate(contract.endDate),
+      dueDate: contract.endDate,
       createdAt,
     });
   }
@@ -131,12 +124,12 @@ export function deriveTasks(world: World): Task[] {
       id: `residence_registration_expiring-${declaration.tenantId}`,
       type: "residence_registration_expiring",
       title: `Đăng ký tạm trú của ${declaration.tenantName} sắp hết hạn`,
-      description: `${declaration.room} — hết hạn ${declaration.registrationDueDate}.`,
+      description: `${declaration.room} — hết hạn ${formatDate(declaration.registrationDueDate)}.`,
       status: "open",
       buildingId: declaration.buildingId,
       relatedEntity: "tenant",
       relatedId: declaration.tenantId,
-      dueDate: toIsoDate(declaration.registrationDueDate),
+      dueDate: declaration.registrationDueDate,
       createdAt,
     });
   }

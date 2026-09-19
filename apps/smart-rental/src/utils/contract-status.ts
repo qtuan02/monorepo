@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Contract, ContractStatus } from "~/types/contract";
 
@@ -19,7 +18,7 @@ export function deriveContractStatus(
     return contract.status;
   }
 
-  const daysUntilEnd = dayjs(contract.endDate, DATE_FORMAT)
+  const daysUntilEnd = dayjs(contract.endDate)
     .startOf("day")
     .diff(dayjs(today).startOf("day"), "day");
 
@@ -42,9 +41,7 @@ export function daysUntilContractEnd(
   endDate: string,
   today: Date = new Date(),
 ): number {
-  return dayjs(endDate, DATE_FORMAT)
-    .startOf("day")
-    .diff(dayjs(today).startOf("day"), "day");
+  return dayjs(endDate).startOf("day").diff(dayjs(today).startOf("day"), "day");
 }
 
 /** Xoá chỉ Nháp (spec #153) — a pure predicate, so the button and the hook's own guard read one rule. */

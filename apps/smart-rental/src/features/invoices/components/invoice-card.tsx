@@ -12,6 +12,7 @@ import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatItem } from "~/components/card/stat-item";
 import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate, formatMonth } from "~/utils/date";
 import InvoiceRowActions from "./invoice-row-actions";
 
 interface InvoiceCardProps {
@@ -26,7 +27,9 @@ export default function InvoiceCard({ invoice }: InvoiceCardProps) {
           <h3 className="truncate text-sm font-semibold">
             {invoice.invoiceNumber}
           </h3>
-          <p className="text-muted-foreground text-xs">{invoice.month}</p>
+          <p className="text-muted-foreground text-xs">
+            {formatMonth(invoice.billingMonth)}
+          </p>
         </CardHeader>
       }
       content={
@@ -58,7 +61,7 @@ export default function InvoiceCard({ invoice }: InvoiceCardProps) {
             />
             <StatItem
               label="Hạn thanh toán"
-              value={invoice.dueDate}
+              value={formatDate(invoice.dueDate)}
               valueClassName="text-muted-foreground text-sm tabular-nums"
             />
           </dl>
@@ -68,7 +71,7 @@ export default function InvoiceCard({ invoice }: InvoiceCardProps) {
         <CardFooter className="text-muted-foreground justify-between text-xs">
           <span className="flex items-center gap-1.5">
             <Calendar className="size-3" />
-            Cập nhật: {invoice.lastUpdated}
+            Cập nhật: {formatDate(invoice.lastUpdated)}
           </span>
           <InvoiceRowActions invoice={invoice} side="top" />
         </CardFooter>

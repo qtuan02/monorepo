@@ -20,6 +20,7 @@ export type LiquidationDecision = Exclude<DepositStatus, "HELD">;
 export interface ContractRenewalRecord {
   /** ISO timestamp. */
   renewedAt: string;
+  /** ISO `YYYY-MM-DD`. */
   previousEndDate: string;
   newEndDate: string;
   previousRentAmount: number;
@@ -50,15 +51,16 @@ export interface Contract {
   depositReturnedAmount: number;
   /** "Thời hạn báo trước" trước khi hết hạn, ngày — mặc định 30, không enforce phạt (spec #153). */
   noticeDays: number;
-  /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
+  /** ISO `YYYY-MM-DD`. */
   startDate: string;
   endDate: string;
   status: ContractStatus;
   renewalHistory: ContractRenewalRecord[];
-  /** Set only once Thanh lý has run. */
+  /** ISO `YYYY-MM-DD`; set only once Thanh lý has run. */
   terminatedAt?: string;
   /** The Thanh lý's lý do — required only when `depositStatus` is `PARTIAL_RETURNED`. */
   terminationReason?: string;
+  /** ISO `YYYY-MM-DD`. */
   lastUpdated: string;
 }
 

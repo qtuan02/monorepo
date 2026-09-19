@@ -10,7 +10,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
-import { compareDisplayDates } from "~/utils/date";
+import { formatDate } from "~/utils/date";
 import InvoiceRowActions from "./invoice-row-actions";
 
 const helper = createDataTableColumnHelper<Invoice>();
@@ -74,13 +74,9 @@ export const invoiceColumns = helper.columns([
     cell: ({ getValue }) => (
       <div className="text-muted-foreground flex items-center gap-2 text-sm">
         <Calendar className="size-4" />
-        <span>{getValue()}</span>
+        <span>{formatDate(getValue())}</span>
       </div>
     ),
-    // `DD/MM/YYYY` — the auto-inferred string sort would compare the day
-    // digit first (spec #179 §3.6's "Hoá đơn theo hạn").
-    sortFn: (rowA, rowB) =>
-      compareDisplayDates(rowA.original.dueDate, rowB.original.dueDate),
   }),
   helper.accessor("status", {
     header: ({ column }) => (

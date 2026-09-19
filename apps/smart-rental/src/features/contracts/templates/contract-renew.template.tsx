@@ -154,8 +154,14 @@ function RenewForm({ contract }: { contract: Contract }) {
               label="Tiền thuê"
               value={formatCurrency(contract.rentAmount)}
             />
-            <InfoRow label="Ngày bắt đầu" value={contract.startDate} />
-            <InfoRow label="Ngày kết thúc" value={contract.endDate} />
+            <InfoRow
+              label="Ngày bắt đầu"
+              value={formatDate(contract.startDate)}
+            />
+            <InfoRow
+              label="Ngày kết thúc"
+              value={formatDate(contract.endDate)}
+            />
           </CardContent>
         </Card>
 

@@ -12,7 +12,7 @@ export interface Room {
   price: number;
   status: RoomStatus;
   type: RoomType;
-  /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
+  /** ISO `YYYY-MM-DD`. */
   lastUpdated: string;
 }
 

@@ -20,7 +20,7 @@ import { mockTenants } from "~/constants/mock/tenants";
 import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { canDeleteContract, isContractLive } from "~/utils/contract-status";
-import { formatDate } from "~/utils/date";
+import { todayIsoDate } from "~/utils/date";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
 // answers through `readWorld` (ADR-0015) — `status` there is already
@@ -92,11 +92,11 @@ export function useCreateContract(
         depositStatus: "HELD",
         depositReturnedAmount: 0,
         noticeDays: request.noticeDays,
-        startDate: formatDate(request.startDate),
-        endDate: formatDate(request.endDate),
+        startDate: request.startDate,
+        endDate: request.endDate,
         status: "ACTIVE",
         renewalHistory: [],
-        lastUpdated: formatDate(new Date()),
+        lastUpdated: todayIsoDate(),
       };
       mockContracts.unshift(contract);
       // The Phòng this Hợp đồng covers is no longer trống — the wizard's own
@@ -124,7 +124,9 @@ function updateMockContract(
       message: `Không có hợp đồng nào với mã ${contractId}.`,
     });
   }
-  Object.assign(contract, patch, { lastUpdated: formatDate(new Date()) });
+  Object.assign(contract, patch, {
+    lastUpdated: todayIsoDate(),
+  });
   return contract;
 }
 
@@ -157,13 +159,13 @@ export function useRenewContract(
           {
             renewedAt: new Date().toISOString(),
             previousEndDate: contract.endDate,
-            newEndDate: formatDate(request.newEndDate),
+            newEndDate: request.newEndDate,
             previousRentAmount: contract.rentAmount,
             newRentAmount: request.newRentAmount,
             notes: request.notes,
           },
         ],
-        endDate: formatDate(request.newEndDate),
+        endDate: request.newEndDate,
         rentAmount: request.newRentAmount,
         status: "ACTIVE",
       });
@@ -201,7 +203,7 @@ export function useLiquidateContract(
         depositStatus: request.decision,
         depositReturnedAmount: request.returnedAmount,
         terminationReason: request.reason,
-        terminatedAt: formatDate(new Date()),
+        terminatedAt: todayIsoDate(),
       });
     },
     ...options,

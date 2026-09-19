@@ -32,6 +32,7 @@ import { useDeleteRoom, useGetRoom } from "~/hooks/api/room";
 import { useGetUtilities } from "~/hooks/api/utility";
 import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate } from "~/utils/date";
 import { canDeleteRoom } from "~/utils/room-delete";
 
 interface RoomDetailTemplateProps {
@@ -165,7 +166,10 @@ export default function RoomDetailTemplate({
                   <InfoRow label="Mã phòng" value={room.id} />
                   <InfoRow label="Loại phòng" value={typeLabel} />
                   <InfoRow label="Diện tích" value={`${room.area}m²`} />
-                  <InfoRow label="Cập nhật lần cuối" value={room.lastUpdated} />
+                  <InfoRow
+                    label="Cập nhật lần cuối"
+                    value={formatDate(room.lastUpdated)}
+                  />
                 </InfoCard>
 
                 <InfoCard title="Người thuê hiện tại">

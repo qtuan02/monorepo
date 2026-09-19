@@ -2,6 +2,7 @@ import type { Invoice } from "~/types/invoice";
 import type { CsvColumn } from "~/utils/csv";
 import { invoiceStatusConfig } from "~/constants/status";
 import { toCsv } from "~/utils/csv";
+import { formatDate, formatMonth } from "~/utils/date";
 
 interface InvoiceCsvRow {
   invoiceNumber: string;
@@ -33,11 +34,11 @@ export function buildInvoiceCsv(invoices: Invoice[]): string {
     invoiceNumber: invoice.invoiceNumber,
     tenant: invoice.tenant,
     room: invoice.room,
-    month: invoice.month,
+    month: formatMonth(invoice.billingMonth),
     amount: invoice.amount,
     paidAmount: invoice.paidAmount,
     remaining: invoice.amount - invoice.paidAmount,
-    dueDate: invoice.dueDate,
+    dueDate: formatDate(invoice.dueDate),
     status: invoiceStatusConfig[invoice.status].label,
   }));
   return toCsv(rows, INVOICE_CSV_COLUMNS);

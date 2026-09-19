@@ -28,6 +28,7 @@ import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetRooms } from "~/hooks/api/room";
 import { useGetTenants } from "~/hooks/api/tenant";
 import { useBuildingStore } from "~/stores/use-building-store";
+import { formatMonth } from "~/utils/date";
 import { isMacPlatform } from "~/utils/platform";
 
 interface SearchResult {
@@ -130,7 +131,7 @@ function SearchResults({ query, onSelect }: SearchResultsProps) {
       .map((invoice) => ({
         id: invoice.id,
         title: `Hoá đơn ${invoice.invoiceNumber}`,
-        subtitle: `${invoice.tenant} · ${invoice.room} · kỳ ${invoice.month}`,
+        subtitle: `${invoice.tenant} · ${invoice.room} · kỳ ${formatMonth(invoice.billingMonth)}`,
         category: invoicesItem.title,
         icon: invoicesItem.icon,
         to: ROUTES.invoiceDetailPath(invoice.id),

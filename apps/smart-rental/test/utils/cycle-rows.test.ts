@@ -42,7 +42,7 @@ function room(overrides: Partial<Room> = {}): Room {
     price: 2_000_000,
     status: "occupied",
     type: "single",
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     ...overrides,
   };
 }
@@ -62,11 +62,11 @@ function contract(overrides: Partial<Contract> = {}): Contract {
     depositStatus: "HELD",
     depositReturnedAmount: 0,
     noticeDays: 30,
-    startDate: "01/01/2026",
-    endDate: "31/12/2026",
+    startDate: "2026-01-01",
+    endDate: "2026-12-31",
     status: "ACTIVE",
     renewalHistory: [],
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     ...overrides,
   };
 }
@@ -375,7 +375,7 @@ describe("buildCycleRows", () => {
       makeWorld({
         rooms: [room()],
         contracts: [
-          contract({ rentAmount: 3_000_000, startDate: "21/09/2026" }),
+          contract({ rentAmount: 3_000_000, startDate: "2026-09-21" }),
         ],
       }),
       "b1",
@@ -395,7 +395,7 @@ describe("buildCycleRows", () => {
       makeWorld({
         rooms: [room()],
         contracts: [
-          contract({ rentAmount: 3_000_000, startDate: "01/01/2026" }),
+          contract({ rentAmount: 3_000_000, startDate: "2026-01-01" }),
         ],
       }),
       "b1",
@@ -458,7 +458,7 @@ describe("buildCycleRows", () => {
 describe("buildCycleLineItems", () => {
   it("bills đủ dòng: tiền phòng + điện/nước theo tiêu thụ × Bảng giá + dịch vụ cố định", () => {
     const lineItems = buildCycleLineItems(
-      { rentAmount: 2_700_000, startDate: "01/01/2026" },
+      { rentAmount: 2_700_000, startDate: "2026-01-01" },
       { priceList },
       120,
       8,
@@ -499,7 +499,7 @@ describe("buildCycleLineItems", () => {
 
   it("prorates tiền phòng when Hợp đồng bắt đầu trong Kỳ, with the note in the description", () => {
     const lineItems = buildCycleLineItems(
-      { rentAmount: 3_000_000, startDate: "21/09/2026" },
+      { rentAmount: 3_000_000, startDate: "2026-09-21" },
       { priceList },
       0,
       0,
@@ -519,16 +519,16 @@ describe("buildCycleLineItems", () => {
 describe("buildCycleDueDate", () => {
   it("hạn là Ngày thu của THÁNG KẾ TIẾP kỳ, không phải cùng tháng (ADR-0013)", () => {
     expect(buildCycleDueDate({ collectionDay: 5 }, "2026-09")).toBe(
-      "05/10/2026",
+      "2026-10-05",
     );
   });
 
   it("clamps a ngày thu past the month AFTER the kỳ's length instead of rolling further", () => {
     expect(buildCycleDueDate({ collectionDay: 31 }, "2026-01")).toBe(
-      "28/02/2026",
+      "2026-02-28",
     );
     expect(buildCycleDueDate({ collectionDay: 31 }, "2026-03")).toBe(
-      "30/04/2026",
+      "2026-04-30",
     );
   });
 });

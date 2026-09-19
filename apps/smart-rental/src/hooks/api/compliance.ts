@@ -43,7 +43,7 @@ interface MarkResidenceNotificationSentRequest {
   tenantId: string;
   /** Mã hồ sơ Cổng DVC — typed by the landlord, never auto-generated (ticket #188). */
   referenceNumber: string;
-  /** Already display-formatted (`DD/MM/YYYY`). */
+  /** ISO `YYYY-MM-DD`. */
   sentDate: string;
 }
 
@@ -98,7 +98,7 @@ export function useMarkResidenceNotificationSent(
 
 interface ExtendResidenceRegistrationRequest {
   tenantId: string;
-  /** Already display-formatted (`DD/MM/YYYY`). */
+  /** ISO `YYYY-MM-DD`. */
   newDueDate: string;
 }
 

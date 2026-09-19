@@ -7,7 +7,6 @@ import type {
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { buildCycleDueDate } from "~/utils/cycle-rows";
-import { formatDate, formatMonth } from "~/utils/date";
 import { sumInvoicePayments } from "~/utils/invoice-payments";
 import { trackMockReset } from "~/utils/mock-reset";
 
@@ -142,11 +141,10 @@ function buildInvoice(
     paidAmount,
     reminders: [],
     billingMonth,
-    month: formatMonth(billingMonth),
     dueDate: buildDueDate(contract.buildingId, billingMonth),
     status,
-    paymentDate: lastPayment ? formatDate(lastPayment.paidAt) : null,
-    lastUpdated: "18/09/2026",
+    paymentDate: lastPayment ? lastPayment.paidAt : null,
+    lastUpdated: "2026-09-18",
   };
 }
 

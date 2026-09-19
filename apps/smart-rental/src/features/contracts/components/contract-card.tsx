@@ -11,6 +11,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { contractStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate } from "~/utils/date";
 import ContractRowActions from "./contract-row-actions";
 
 interface ContractCardProps {
@@ -34,7 +35,7 @@ export default function ContractCard({ contract }: ContractCardProps) {
                 </h3>
                 <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs font-medium uppercase">
                   <Calendar className="size-2.5" />
-                  Ký: {contract.startDate}
+                  Ký: {formatDate(contract.startDate)}
                 </p>
               </div>
             </div>
@@ -69,7 +70,8 @@ export default function ContractCard({ contract }: ContractCardProps) {
                 Thời hạn
               </dt>
               <dd className="text-muted-foreground text-xs font-medium">
-                {contract.startDate} - {contract.endDate}
+                {formatDate(contract.startDate)} -{" "}
+                {formatDate(contract.endDate)}
               </dd>
             </div>
           </dl>

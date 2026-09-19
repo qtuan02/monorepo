@@ -16,8 +16,8 @@ describe("computeContractEndDate", () => {
 });
 
 describe("computeRenewedEndDate", () => {
-  it("extends the existing (display-formatted) end date with no day adjustment", () => {
-    expect(computeRenewedEndDate("30/09/2026", 6)).toBe("2027-03-30");
-    expect(computeRenewedEndDate("30/09/2026", 12)).toBe("2027-09-30");
+  it("extends the existing (ISO) end date with no day adjustment", () => {
+    expect(computeRenewedEndDate("2026-09-30", 6)).toBe("2027-03-30");
+    expect(computeRenewedEndDate("2026-09-30", 12)).toBe("2027-09-30");
   });
 });

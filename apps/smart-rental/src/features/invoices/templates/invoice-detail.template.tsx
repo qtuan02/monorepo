@@ -31,7 +31,7 @@ import { useGetBuilding } from "~/hooks/api/building";
 import { useDeleteInvoice, useGetInvoice } from "~/hooks/api/invoice";
 import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { formatCurrency } from "~/utils/currency";
-import { formatDateTime } from "~/utils/date";
+import { formatDate, formatDateTime, formatMonth } from "~/utils/date";
 import { canDeleteInvoice, daysOverdue } from "~/utils/invoice-status";
 
 interface InvoiceDetailTemplateProps {
@@ -111,7 +111,7 @@ function PaymentsTab({ invoice }: { invoice: Invoice }) {
             <InfoRow
               // biome-ignore lint/suspicious/noArrayIndexKey: payments is append-only and carries no id of its own.
               key={`payment-${index}`}
-              label={`${payment.paidAt} · ${invoicePaymentMethodConfig[payment.method].label}`}
+              label={`${formatDate(payment.paidAt)} · ${invoicePaymentMethodConfig[payment.method].label}`}
               value={formatCurrency(payment.amount)}
               isHighlighted
             />
@@ -248,7 +248,7 @@ export default function InvoiceDetailTemplate({
         meta={[
           invoice.room,
           invoice.tenant,
-          `Kỳ ${invoice.month} · Hạn thu ${invoice.dueDate}`,
+          `Kỳ ${formatMonth(invoice.billingMonth)} · Hạn thu ${formatDate(invoice.dueDate)}`,
         ]}
         actions={
           <>

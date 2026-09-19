@@ -16,6 +16,7 @@ import {
   tenantStatusConfig,
 } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatOptionalDate } from "~/utils/date";
 import TenantRowActions from "./tenant-row-actions";
 
 interface TenantCardProps {
@@ -81,11 +82,11 @@ export default function TenantCard({ tenant }: TenantCardProps) {
           <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="flex items-center gap-1.5">
               <Calendar className="size-3" />
-              Vào: {tenant.moveInDate}
+              Vào: {formatOptionalDate(tenant.moveInDate)}
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="size-3" />
-              HĐ: {tenant.contractEnd}
+              HĐ: {formatOptionalDate(tenant.contractEnd)}
             </span>
           </div>
           <TenantRowActions tenant={tenant} side="top" />

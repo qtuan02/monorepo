@@ -53,11 +53,11 @@ const contract: Contract = {
   depositStatus: "HELD",
   depositReturnedAmount: 0,
   noticeDays: 30,
-  startDate: "01/01/2026",
-  endDate: "05/10/2026", // within the 30-day EXPIRING window of "today"
+  startDate: "2026-01-01",
+  endDate: "2026-10-05", // within the 30-day EXPIRING window of "today"
   status: "ACTIVE",
   renewalHistory: [],
-  lastUpdated: "01/09/2026",
+  lastUpdated: "2026-09-01",
 };
 
 const overdueInvoice: Invoice = {
@@ -74,11 +74,10 @@ const overdueInvoice: Invoice = {
   paidAmount: 0,
   reminders: [],
   billingMonth: "2026-09",
-  month: "09/2026",
-  dueDate: "05/09/2026",
+  dueDate: "2026-09-05",
   status: "UNPAID",
   paymentDate: null,
-  lastUpdated: "17/09/2026",
+  lastUpdated: "2026-09-17",
 };
 
 const anomalousUtility: Utility = {
@@ -198,7 +197,7 @@ describe("deriveTasks", () => {
           room: "Phòng 101",
           type: "residence_registration",
           status: "pending",
-          dueDate: "05/10/2026", // 17 days after `today` (18/09/2026)
+          dueDate: "2026-10-05", // 17 days after `today` (18/09/2026)
         },
       ],
     });
@@ -220,7 +219,7 @@ describe("deriveTasks", () => {
           room: "Phòng 101",
           type: "residence_registration",
           status: "pending",
-          dueDate: "31/12/2027",
+          dueDate: "2027-12-31",
         },
       ],
     });
@@ -241,7 +240,7 @@ describe("deriveTasks", () => {
           room: "Phòng 101",
           type: "residence_notification",
           status: "completed",
-          dueDate: "01/01/2026",
+          dueDate: "2026-01-01",
         },
       ],
     });

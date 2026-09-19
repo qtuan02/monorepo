@@ -24,7 +24,7 @@ import { useGetUtilities } from "~/hooks/api/utility";
 import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { contractActions, daysUntilContractEnd } from "~/utils/contract-status";
 import { formatCurrency } from "~/utils/currency";
-import { formatDateTime } from "~/utils/date";
+import { formatDate, formatDateTime } from "~/utils/date";
 
 interface ContractDetailTemplateProps {
   contractId: string;
@@ -101,7 +101,7 @@ export default function ContractDetailTemplate({
         >
           {contract.tenant}
         </Link>,
-        `${contract.startDate} → ${contract.endDate}`,
+        `${formatDate(contract.startDate)} → ${formatDate(contract.endDate)}`,
       ]}
       headerStepper={
         <LifecycleStepper
@@ -277,7 +277,7 @@ function HistoryTab({
         >
           <InfoRow
             label="Ngày kết thúc"
-            value={`${entry.previousEndDate} → ${entry.newEndDate}`}
+            value={`${formatDate(entry.previousEndDate)} → ${formatDate(entry.newEndDate)}`}
           />
           <InfoRow
             label="Tiền thuê"
@@ -288,7 +288,7 @@ function HistoryTab({
       ))}
 
       {contract.status === "TERMINATED" && contract.terminatedAt && (
-        <InfoCard title={`Thanh lý · ${contract.terminatedAt}`}>
+        <InfoCard title={`Thanh lý · ${formatDate(contract.terminatedAt)}`}>
           <InfoRow
             label="Quyết toán Cọc"
             value={depositStatusConfig[contract.depositStatus].label}

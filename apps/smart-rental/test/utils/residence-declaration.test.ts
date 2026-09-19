@@ -20,8 +20,8 @@ function tenant(overrides: Partial<TenantView>): TenantView {
     floor: 1,
     rentAmount: 2_000_000,
     depositAmount: 2_000_000,
-    moveInDate: "01/01/2026",
-    contractEnd: "31/12/2027",
+    moveInDate: "2026-01-01",
+    contractEnd: "2027-12-31",
     status: "active",
     hasOverdueInvoice: false,
     ...overrides,
@@ -43,11 +43,11 @@ function contract(overrides: Partial<Contract>): Contract {
     depositStatus: "HELD",
     depositReturnedAmount: 0,
     noticeDays: 30,
-    startDate: "01/01/2026",
-    endDate: "31/12/2027",
+    startDate: "2026-01-01",
+    endDate: "2027-12-31",
     status: "ACTIVE",
     renewalHistory: [],
-    lastUpdated: "01/09/2026",
+    lastUpdated: "2026-09-01",
     ...overrides,
   };
 }
@@ -61,7 +61,7 @@ function complianceItem(overrides: Partial<ComplianceItem>): ComplianceItem {
     room: "Phòng 101",
     type: "residence_notification",
     status: "completed",
-    dueDate: "01/01/2026",
+    dueDate: "2026-01-01",
     ...overrides,
   };
 }
@@ -70,7 +70,7 @@ describe("buildResidenceDeclarations", () => {
   it("drops a tenant with no live contract", () => {
     const declarations = buildResidenceDeclarations({
       tenants: [tenant({})],
-      contracts: [contract({ status: "TERMINATED", endDate: "01/01/2026" })],
+      contracts: [contract({ status: "TERMINATED", endDate: "2026-01-01" })],
       complianceItems: [],
       today,
     });
@@ -96,7 +96,7 @@ describe("buildResidenceDeclarations", () => {
       contracts: [contract({})],
       complianceItems: [
         complianceItem({
-          completedDate: "05/01/2026",
+          completedDate: "2026-01-05",
           referenceNumber: "CT01-0001",
         }),
       ],
@@ -104,7 +104,7 @@ describe("buildResidenceDeclarations", () => {
     });
 
     expect(declaration?.notificationStatus).toBe("sent");
-    expect(declaration?.notificationDate).toBe("05/01/2026");
+    expect(declaration?.notificationDate).toBe("2026-01-05");
     expect(declaration?.referenceNumber).toBe("CT01-0001");
   });
 
@@ -116,7 +116,7 @@ describe("buildResidenceDeclarations", () => {
         complianceItem({
           type: "residence_registration",
           status: "pending",
-          dueDate: "10/10/2026", // 23 days after `today`
+          dueDate: "2026-10-10", // 23 days after `today`
         }),
       ],
       today,
@@ -133,7 +133,7 @@ describe("buildResidenceDeclarations", () => {
         complianceItem({
           type: "residence_registration",
           status: "pending",
-          dueDate: "31/12/2026",
+          dueDate: "2026-12-31",
         }),
       ],
       today,
@@ -153,7 +153,7 @@ describe("buildResidenceDeclarations", () => {
         complianceItem({
           type: "residence_registration",
           status: "completed",
-          dueDate: "01/09/2026", // 16 days before `today`
+          dueDate: "2026-09-01", // 16 days before `today`
         }),
       ],
       today,
@@ -171,7 +171,7 @@ describe("buildResidenceDeclarations", () => {
         complianceItem({
           type: "residence_registration",
           status: "pending",
-          dueDate: "17/09/2026", // = `today`
+          dueDate: "2026-09-17", // = `today`
         }),
       ],
       today,

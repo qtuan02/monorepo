@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
@@ -12,7 +11,6 @@ import type {
 } from "~/types/utility";
 import type { World } from "~/types/world";
 import { isContractLive } from "~/utils/contract-status";
-import { formatDate } from "~/utils/date";
 import { isUtilityAnomalous } from "~/utils/utility-anomaly";
 
 const REASON_BY_STATUS: Record<CycleRowStatus, string> = {
@@ -111,7 +109,7 @@ export function computeProratedRent(
 ): { amount: number; note: string | null } {
   const monthStart = dayjs(month, "YYYY-MM").startOf("month");
   const daysInMonth = monthStart.daysInMonth();
-  const startDate = dayjs(contract.startDate, DATE_FORMAT);
+  const startDate = dayjs(contract.startDate);
 
   if (!startDate.isAfter(monthStart, "day")) {
     return { amount: contract.rentAmount, note: null };
@@ -401,7 +399,7 @@ export function buildCycleDueDate(
     2,
     "0",
   );
-  return formatDate(`${dueMonth.format("YYYY-MM")}-${day}`);
+  return `${dueMonth.format("YYYY-MM")}-${day}`;
 }
 
 /**

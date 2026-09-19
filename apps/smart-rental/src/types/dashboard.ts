@@ -18,7 +18,7 @@ export interface OutstandingThisMonthSummary {
 /** "Hợp đồng sắp hết hạn" — the soonest one named for the KPI's dòng phụ. */
 export interface ExpiringContractsSummary {
   count: number;
-  /** Already display-formatted (`DD/MM/YYYY`); unset when `count` is 0. */
+  /** ISO `YYYY-MM-DD`; unset when `count` is 0. */
   nearestEndDate?: string;
 }
 

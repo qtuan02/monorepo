@@ -33,6 +33,7 @@ import { useGetContracts } from "~/hooks/api/contract";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetTenant } from "~/hooks/api/tenant";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate, formatMonth } from "~/utils/date";
 
 interface TenantDetailTemplateProps {
   tenantId: string;
@@ -182,7 +183,8 @@ export default function TenantDetailTemplate({
                             {contract.contractNumber}
                           </p>
                           <p className="text-muted-foreground text-xs">
-                            {contract.startDate} → {contract.endDate}
+                            {formatDate(contract.startDate)} →{" "}
+                            {formatDate(contract.endDate)}
                           </p>
                         </div>
                         <StatusBadge
@@ -221,7 +223,7 @@ export default function TenantDetailTemplate({
                         <div>
                           <p className="font-medium">{invoice.invoiceNumber}</p>
                           <p className="text-muted-foreground text-xs">
-                            Kỳ {invoice.month} ·{" "}
+                            Kỳ {formatMonth(invoice.billingMonth)} ·{" "}
                             {formatCurrency(invoice.amount)}
                           </p>
                         </div>

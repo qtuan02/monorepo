@@ -17,7 +17,7 @@ export interface SendLog {
   template: string;
   channel: CommunicationChannel;
   status: SendLogStatus;
-  /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
+  /** ISO `YYYY-MM-DD`. */
   sentDate: string;
   recipient: string;
 }

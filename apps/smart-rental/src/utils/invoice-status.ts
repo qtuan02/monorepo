@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Invoice, InvoiceStatus } from "~/types/invoice";
 
@@ -24,16 +23,14 @@ export function deriveInvoiceStatus(
 }
 
 function isPastDueDate(dueDate: string, today: Date): boolean {
-  return dayjs(dueDate, DATE_FORMAT)
-    .startOf("day")
-    .isBefore(dayjs(today).startOf("day"));
+  return dayjs(dueDate).startOf("day").isBefore(dayjs(today).startOf("day"));
 }
 
 /** "Quá hạn n ngày" — 0 while the due date has not passed yet. */
 export function daysOverdue(dueDate: string, today: Date = new Date()): number {
   const days = dayjs(today)
     .startOf("day")
-    .diff(dayjs(dueDate, DATE_FORMAT).startOf("day"), "day");
+    .diff(dayjs(dueDate).startOf("day"), "day");
   return Math.max(0, days);
 }
 

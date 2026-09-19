@@ -116,11 +116,10 @@ describe("InvoiceDetailTemplate", () => {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2099-01",
-    month: "01/2099",
-    dueDate: "31/01/2099",
+    dueDate: "2099-01-31",
     status: "UNPAID",
     paymentDate: null,
-    lastUpdated: "01/01/2099",
+    lastUpdated: "2099-01-01",
   };
 
   it("Ghi nhận thu n đ điền sẵn còn lại — 2 tr rồi hết còn lại → Thu một phần rồi Đã thu", async () => {

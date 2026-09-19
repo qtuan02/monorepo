@@ -154,6 +154,40 @@ vì sao — nằm ở comment tổng kết trên spec [#179](https://github.com/
 37 quyết định pha 2 vẫn ở comment trên spec [#153](https://github.com/qtuan02/monorepo/issues/153).
 Không lặp lại ở đây để khỏi có hai nguồn.
 
+## Hình dạng spec #227 — deepening trong slice
+
+Bốn ticket độc lập, chạm sâu vào một slice mỗi cái thay vì thêm màn mới:
+
+- **C1 — MeterCell** (`~/features/cycles/components/meter-cell.tsx`, #228): `meterGates(row, type,
+  readOnly)` là hàm thuần chung cho bảng **và** thẻ mobile — trước đây hai nơi tự suy gate riêng và
+  lệch nhau (thẻ mobile chỉ đòi có `anomalyReason`, bảng đòi cả `anomalyReason` lẫn `status ===
+  "ANOMALY"`). `MeterCell` gộp ô chỉ số cũ + input chỉ số mới + nút Duyệt + gate hiển thị thành một
+  component, `CycleTableRow`/`CycleMobileCard` chỉ còn đặt hai `MeterCell` (điện, nước) cạnh các ô tiền.
+- **C2 — `contractActions` + `TermPicker`** (#229): `contractActions(contract)` trong
+  `~/utils/contract-status.ts` thay `isContractLive`/`canDeleteContract` rải rác ở bốn consumer
+  (row-actions, chi tiết, Gia hạn, Thanh lý) bằng một object — `canRenew`/`canLiquidate`/`canDelete` +
+  một `blockedReason` duy nhất, in nguyên văn ở nơi bị chặn. `TermPicker`
+  (`~/features/contracts/components/term-picker.tsx`) dùng chung cho "Tạo hợp đồng" (`mode="fresh"`,
+  mặc định 12 tháng) và "Gia hạn" (`mode="extend"`, mặc định 6 tháng), thay hai bản
+  preset/`recompute*` từng viết trùng trong hai template.
+- **C3 — bảng Task trong `status.ts`** (#230): `taskTypeConfig` (icon + `actionLabel`) chuyển vào
+  `~/constants/status.ts` thay cho hai bản cục bộ ở `TaskQueue` và `notification-panel`; bấm một Việc
+  "contract_expiring" ở chuông giờ đi thẳng tới Gia hạn (`contractRenewPath`), đúng nơi bấm ở Hôm nay
+  đi — trước đây chuông đưa tới chi tiết Hợp đồng, một nơi khác. "bảo trì" bị bỏ khỏi `TaskType` —
+  glossary chưa từng có task này.
+- **C4 — một encoding ngày: ISO** (#231): Mock chỉ còn lưu ngày `YYYY-MM-DD`/mốc thời gian ISO
+  timestamp/kỳ `YYYY-MM` — không còn `DD/MM/YYYY` hay `MM/YYYY` sống trong Mock, `mutationFn`, hay một
+  type comment nào. Mọi màn hình hiển thị vẫn `DD/MM/YYYY`/`MM/YYYY` như cũ, nhưng đọc qua
+  `formatDate`/`formatMonth`/`formatOptionalDate` (ba hàm còn lại của `~/utils/date.ts`) đúng lúc
+  render — không còn `compareDisplayDates` hay `toIsoDate` (hai hàm đảo encoding qua lại đã xoá cùng
+  các "already display-formatted" trên type). `Invoice.month` (bản MM/YYYY viết sẵn) cũng xoá —
+  màn hình tự `formatMonth(billingMonth)`. `test/constants/mock-integrity.test.tsx` quét mọi field tên
+  `*Date`/`*At`/`*Updated`/`month`/`period` trên mọi entity Mock và đỏ ngay khi ai seed một ngày hiển
+  thị.
+
+Chi tiết đầy đủ (kể cả những chỗ lệch khỏi kế hoạch ban đầu) nằm ở comment tổng kết trên spec
+[#227](https://github.com/qtuan02/monorepo/issues/227); không lặp lại ở đây.
+
 ## Deploy Vercel
 
 `vercel.json` chép nguyên mẫu của `apps/documents`, chỉ đổi filter: install/build trỏ về

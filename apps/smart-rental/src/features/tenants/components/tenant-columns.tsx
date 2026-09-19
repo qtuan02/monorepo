@@ -13,6 +13,7 @@ import {
   tenantOverdueInvoiceConfig,
   tenantStatusConfig,
 } from "~/constants/status";
+import { formatOptionalDate } from "~/utils/date";
 import TenantRowActions from "./tenant-row-actions";
 
 const helper = createDataTableColumnHelper<TenantView>();
@@ -59,7 +60,7 @@ export const tenantColumns = helper.columns([
     cell: ({ getValue }) => (
       <span className="text-muted-foreground flex items-center gap-2 text-sm">
         <Calendar className="size-4" />
-        {getValue()}
+        {formatOptionalDate(getValue())}
       </span>
     ),
   }),

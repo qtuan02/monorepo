@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Contract } from "~/types/contract";
 import { canDeleteRoom } from "~/utils/room-delete";
@@ -17,7 +16,7 @@ function contract(
   };
 }
 
-const inDays = (days: number) => dayjs().add(days, "day").format(DATE_FORMAT);
+const inDays = (days: number) => dayjs().add(days, "day").format("YYYY-MM-DD");
 
 describe("canDeleteRoom", () => {
   it("allows deletion when the room has no contracts at all", () => {

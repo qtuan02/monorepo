@@ -12,7 +12,7 @@ describe("deriveInvoiceStatus", () => {
   it("passes DRAFT and CANCELLED through unchanged", () => {
     expect(
       deriveInvoiceStatus(
-        { status: "DRAFT", amount: 1000, paidAmount: 0, dueDate: "01/01/2020" },
+        { status: "DRAFT", amount: 1000, paidAmount: 0, dueDate: "2020-01-01" },
         today,
       ),
     ).toBe("DRAFT");
@@ -22,7 +22,7 @@ describe("deriveInvoiceStatus", () => {
           status: "CANCELLED",
           amount: 1000,
           paidAmount: 0,
-          dueDate: "01/01/2020",
+          dueDate: "2020-01-01",
         },
         today,
       ),
@@ -36,7 +36,7 @@ describe("deriveInvoiceStatus", () => {
           status: "UNPAID",
           amount: 1000,
           paidAmount: 1000,
-          dueDate: "05/09/2026",
+          dueDate: "2026-09-05",
         },
         today,
       ),
@@ -50,7 +50,7 @@ describe("deriveInvoiceStatus", () => {
           status: "UNPAID",
           amount: 1000,
           paidAmount: 400,
-          dueDate: "20/09/2026",
+          dueDate: "2026-09-20",
         },
         today,
       ),
@@ -64,7 +64,7 @@ describe("deriveInvoiceStatus", () => {
           status: "UNPAID",
           amount: 1000,
           paidAmount: 400,
-          dueDate: "05/09/2026",
+          dueDate: "2026-09-05",
         },
         today,
       ),
@@ -78,7 +78,7 @@ describe("deriveInvoiceStatus", () => {
           status: "UNPAID",
           amount: 1000,
           paidAmount: 0,
-          dueDate: "16/09/2026",
+          dueDate: "2026-09-16",
         },
         today,
       ),
@@ -92,7 +92,7 @@ describe("deriveInvoiceStatus", () => {
           status: "UNPAID",
           amount: 1000,
           paidAmount: 0,
-          dueDate: "17/09/2026",
+          dueDate: "2026-09-17",
         },
         today,
       ),
@@ -110,11 +110,11 @@ describe("canDeleteInvoice", () => {
 
 describe("daysOverdue", () => {
   it("is 0 on and before the due date", () => {
-    expect(daysOverdue("17/09/2026", today)).toBe(0);
-    expect(daysOverdue("20/09/2026", today)).toBe(0);
+    expect(daysOverdue("2026-09-17", today)).toBe(0);
+    expect(daysOverdue("2026-09-20", today)).toBe(0);
   });
 
   it("counts whole days past the due date", () => {
-    expect(daysOverdue("12/09/2026", today)).toBe(5);
+    expect(daysOverdue("2026-09-12", today)).toBe(5);
   });
 });
