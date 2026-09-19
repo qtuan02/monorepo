@@ -1,4 +1,5 @@
 import type {
+  ChatUpdateUserParams,
   ChatUserInfo,
   ChatUserInfoResponse,
   ChatUserProfile,
@@ -40,6 +41,15 @@ export class ChatUserService {
     const response = await this.client.get<ChatUserInfoResponse>(
       "/v1/user/info",
       { params: { userId } },
+    );
+
+    return response.data;
+  }
+
+  async updateMe(payload: ChatUpdateUserParams): Promise<ChatUserProfile> {
+    const response = await this.client.patch<ChatUserProfileResponse>(
+      "/v1/user/me",
+      payload,
     );
 
     return response.data;

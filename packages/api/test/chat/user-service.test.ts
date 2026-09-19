@@ -6,11 +6,18 @@ import { FriendStatus } from "@monorepo/types/chat-friend";
 import type { HttpClient } from "../../src/client";
 import { ChatUserService } from "../../src/chat/user-service";
 
-function clientWith(get: HttpClient["get"]): HttpClient {
+function clientWith(overrides: Partial<HttpClient>): HttpClient {
   const unused = () =>
     Promise.reject(new Error("This method is not part of the test."));
 
-  return { get, post: unused, put: unused, patch: unused, delete: unused };
+  return {
+    get: unused,
+    post: unused,
+    put: unused,
+    patch: unused,
+    delete: unused,
+    ...overrides,
+  };
 }
 
 const PROFILE: ChatUserProfile = {
@@ -25,7 +32,7 @@ describe("ChatUserService.me", () => {
     const get = vi
       .fn()
       .mockResolvedValue({ data: PROFILE, message: null, status: 200 });
-    const service = new ChatUserService(clientWith(get));
+    const service = new ChatUserService(clientWith({ get }));
 
     await expect(service.me()).resolves.toBe(PROFILE);
     expect(get).toHaveBeenCalledWith("/v1/user/me");
@@ -34,7 +41,7 @@ describe("ChatUserService.me", () => {
   it("lets a failure through rather than translating it", async () => {
     const failure = new Error("boom");
     const get = vi.fn().mockRejectedValue(failure);
-    const service = new ChatUserService(clientWith(get));
+    const service = new ChatUserService(clientWith({ get }));
 
     await expect(service.me()).rejects.toBe(failure);
   });
@@ -55,7 +62,7 @@ describe("ChatUserService.search", () => {
       message: null,
       status: 200,
     });
-    const service = new ChatUserService(clientWith(get));
+    const service = new ChatUserService(clientWith({ get }));
 
     await expect(service.search({ search: "lan", limit: 20 })).resolves.toEqual(
       { items: [record], nextOffset: null },
@@ -78,11 +85,34 @@ describe("ChatUserService.info", () => {
     const get = vi
       .fn()
       .mockResolvedValue({ data: info, message: null, status: 200 });
-    const service = new ChatUserService(clientWith(get));
+    const service = new ChatUserService(clientWith({ get }));
 
     await expect(service.info("u2")).resolves.toBe(info);
     expect(get).toHaveBeenCalledWith("/v1/user/info", {
       params: { userId: "u2" },
     });
+  });
+});
+
+describe("ChatUserService.updateMe", () => {
+  it("PATCHes its own path and unwraps the envelope down to the profile", async () => {
+    const updated: ChatUserProfile = { ...PROFILE, bio: "Hello there" };
+    const patch = vi
+      .fn()
+      .mockResolvedValue({ data: updated, message: null, status: 200 });
+    const service = new ChatUserService(clientWith({ patch }));
+
+    await expect(service.updateMe({ bio: "Hello there" })).resolves.toBe(
+      updated,
+    );
+    expect(patch).toHaveBeenCalledWith("/v1/user/me", { bio: "Hello there" });
+  });
+
+  it("lets a failure through rather than translating it", async () => {
+    const failure = new Error("boom");
+    const patch = vi.fn().mockRejectedValue(failure);
+    const service = new ChatUserService(clientWith({ patch }));
+
+    await expect(service.updateMe({ bio: "x" })).rejects.toBe(failure);
   });
 });

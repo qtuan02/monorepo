@@ -1,11 +1,17 @@
+import * as React from "react";
+import { Users } from "lucide-react";
+import { useNavigate } from "react-router";
 import { Virtuoso } from "react-virtuoso";
 
+import { Button } from "@monorepo/ui/components/button";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import { ROUTES } from "~/constants/routes";
 import { ConversationListSkeleton } from "~/features/conversation/components/conversation-list.skeleton";
 import ConversationListItem from "~/features/conversation/components/conversation-list-item";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
+import { CreateGroupDialog } from "~/features/group/components/create-group-dialog";
 
 interface FooterContext {
   isFetchingNextPage: boolean;
@@ -30,6 +36,8 @@ interface ConversationListProps {
 export default function ConversationList({
   activeConversationId,
 }: ConversationListProps) {
+  const navigate = useNavigate();
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = React.useState(false);
   const {
     conversations,
     isLoading,
@@ -38,40 +46,61 @@ export default function ConversationList({
     fetchNextPage,
   } = useConversationList();
 
-  if (isLoading) {
-    return (
-      <div className="h-full min-h-0 flex-1 overflow-hidden">
-        <ConversationListSkeleton />
-      </div>
-    );
-  }
-
-  if (conversations.length === 0) {
-    return (
-      <div className="flex h-full flex-1 items-center justify-center p-6">
-        <p className="text-muted-foreground text-sm">
-          No conversations to show.
-        </p>
-      </div>
-    );
-  }
+  const header = (
+    <div className="border-border flex items-center justify-between border-b px-3 py-2">
+      <h2 className="text-sm font-semibold">Chats</h2>
+      <Button
+        type="button"
+        size="icon-sm"
+        variant="ghost"
+        onClick={() => setIsCreateGroupOpen(true)}
+        aria-label="New group"
+      >
+        <Users className="size-4" />
+      </Button>
+    </div>
+  );
 
   return (
-    <div className="h-full min-h-0 flex-1">
-      <Virtuoso<Conversation, FooterContext>
-        data={conversations}
-        context={{ isFetchingNextPage }}
-        endReached={() => {
-          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-        }}
-        computeItemKey={(_, conversation) => conversation.id}
-        itemContent={(_, conversation) => (
-          <ConversationListItem
-            conversation={conversation}
-            active={conversation.id === activeConversationId}
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      {header}
+
+      {isLoading ? (
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <ConversationListSkeleton />
+        </div>
+      ) : conversations.length === 0 ? (
+        <div className="flex min-h-0 flex-1 items-center justify-center p-6">
+          <p className="text-muted-foreground text-sm">
+            No conversations to show.
+          </p>
+        </div>
+      ) : (
+        <div className="min-h-0 flex-1">
+          <Virtuoso<Conversation, FooterContext>
+            data={conversations}
+            context={{ isFetchingNextPage }}
+            endReached={() => {
+              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            }}
+            computeItemKey={(_, conversation) => conversation.id}
+            itemContent={(_, conversation) => (
+              <ConversationListItem
+                conversation={conversation}
+                active={conversation.id === activeConversationId}
+              />
+            )}
+            components={{ Footer: ConversationListFooter }}
           />
-        )}
-        components={{ Footer: ConversationListFooter }}
+        </div>
+      )}
+
+      <CreateGroupDialog
+        open={isCreateGroupOpen}
+        onOpenChange={setIsCreateGroupOpen}
+        onCreated={(conversationId) =>
+          navigate(ROUTES.conversationByIdPath(conversationId))
+        }
       />
     </div>
   );

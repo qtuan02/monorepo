@@ -7,6 +7,7 @@ import type {
 export interface ConversationMember {
   userId: string;
   displayName: string;
+  username?: string;
   avatarUrl?: string;
   role: ChatParticipantRole;
 }
@@ -23,4 +24,6 @@ export interface Conversation {
   members: ConversationMember[];
   /** The other DIRECT participant's id — Presence has no group reading yet. */
   otherMemberId?: string;
+  /** The signed-in visitor's own id — the details panel's own/admin checks. */
+  currentUserId: string;
 }

@@ -14,6 +14,16 @@ export interface ChatUserProfile {
 
 export type ChatUserProfileResponse = ChatBaseResponse<ChatUserProfile>;
 
+export interface ChatUpdateUserParams {
+  username?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  avatarUrl?: string;
+  bio?: string;
+  phone?: string;
+}
+
 export interface ChatUserSearchRecord {
   id: string;
   username: string;

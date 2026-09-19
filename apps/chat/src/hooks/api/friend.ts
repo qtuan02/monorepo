@@ -36,6 +36,7 @@ const friendRequestQueryKeyFactory = queryKeysFactory("friend-request");
 
 export const friendQueryKeys = {
   ...friendQueryKeyFactory,
+  search: (search?: string) => friendQueryKeyFactory.list({ search }),
 };
 
 export const friendRequestQueryKeys = {
@@ -54,6 +55,7 @@ function invalidateFriendData(queryClient: QueryClient) {
 }
 
 export function useFriendsInfiniteQuery(
+  search?: string,
   options?: UseInfiniteQueryOptionsWrapper<
     ChatFriendPage,
     Error,
@@ -69,9 +71,13 @@ export function useFriendsInfiniteQuery(
     readonly unknown[],
     number | undefined
   >({
-    queryKey: friendQueryKeys.list(),
+    queryKey: friendQueryKeys.search(search),
     queryFn: ({ pageParam }) =>
-      chatFriendService.list({ limit: FRIEND_LIST_LIMIT, offset: pageParam }),
+      chatFriendService.list({
+        search: search || undefined,
+        limit: FRIEND_LIST_LIMIT,
+        offset: pageParam,
+      }),
     getNextPageParam: (lastPage) => lastPage.nextOffset ?? undefined,
     initialPageParam: undefined,
     // Flattened here, not by the caller — see .agents/rules/tanstack-consume-infinite.md.

@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { VirtuosoMockContext } from "react-virtuoso";
@@ -40,7 +41,13 @@ const {
   chatAuthSignUp,
   chatUserMe,
   chatUserSearch,
+  chatUserUpdateMe,
   chatConversationGetConversations,
+  chatConversationCreateGroup,
+  chatConversationUpdateGroup,
+  chatConversationAddMembers,
+  chatConversationRemoveMember,
+  chatConversationLeave,
   chatMessageGetMessages,
   chatFriendList,
   chatFriendRequests,
@@ -55,7 +62,13 @@ const {
   chatAuthSignUp: vi.fn(),
   chatUserMe: vi.fn(),
   chatUserSearch: vi.fn(),
+  chatUserUpdateMe: vi.fn(),
   chatConversationGetConversations: vi.fn(),
+  chatConversationCreateGroup: vi.fn(),
+  chatConversationUpdateGroup: vi.fn(),
+  chatConversationAddMembers: vi.fn(),
+  chatConversationRemoveMember: vi.fn(),
+  chatConversationLeave: vi.fn(),
   chatMessageGetMessages: vi.fn(),
   chatFriendList: vi.fn(),
   chatFriendRequests: vi.fn(),
@@ -73,10 +86,20 @@ vi.mock("~/libs/http-client", () => ({
     signUp: chatAuthSignUp,
     signOut: vi.fn().mockResolvedValue(undefined),
   },
-  chatUserService: { me: chatUserMe, search: chatUserSearch },
+  chatUserService: {
+    me: chatUserMe,
+    search: chatUserSearch,
+    updateMe: chatUserUpdateMe,
+    info: vi.fn().mockResolvedValue(null),
+  },
   chatConversationService: {
     getConversations: chatConversationGetConversations,
     markAsSeen: vi.fn().mockResolvedValue(undefined),
+    createGroup: chatConversationCreateGroup,
+    updateGroup: chatConversationUpdateGroup,
+    addMembers: chatConversationAddMembers,
+    removeMember: chatConversationRemoveMember,
+    leave: chatConversationLeave,
   },
   chatMessageService: { getMessages: chatMessageGetMessages },
   chatFriendService: {
@@ -158,6 +181,12 @@ describe("the route tree", () => {
     chatFriendDecline.mockReset();
     chatFriendCancel.mockReset();
     chatFriendRemove.mockReset();
+    chatUserUpdateMe.mockReset();
+    chatConversationCreateGroup.mockReset();
+    chatConversationUpdateGroup.mockReset();
+    chatConversationAddMembers.mockReset();
+    chatConversationRemoveMember.mockReset();
+    chatConversationLeave.mockReset();
   });
 
   it("blocks on the Health gate until the health check resolves", async () => {
@@ -206,8 +235,10 @@ describe("the route tree", () => {
 
       renderAt(ROUTES.HOME);
 
+      // The current-user menu trigger is the shell's own evidence it
+      // rendered post-guard — "Sign out" now lives inside its menu.
       expect(
-        await screen.findByRole("button", { name: "Sign out" }),
+        await screen.findByRole("button", { name: /Tuan Huynh/ }),
       ).toBeInTheDocument();
       expect(useAuthStore.getState().token).toBe("fresh-token");
     });
@@ -217,7 +248,7 @@ describe("the route tree", () => {
 
       const router = renderAt(ROUTES.SIGN_IN);
 
-      await screen.findByRole("button", { name: "Sign out" });
+      await screen.findByRole("button", { name: /Tuan Huynh/ });
       expect(router.state.location.pathname).toBe(ROUTES.HOME);
       expect(router.state.historyAction).toBe("REPLACE");
     });
@@ -429,6 +460,72 @@ describe("the route tree", () => {
         ).toBeInTheDocument();
         expect(screen.getByText("No received requests.")).toBeInTheDocument();
         expect(screen.getByText("No sent requests.")).toBeInTheDocument();
+      });
+    });
+
+    describe("the /profile screen", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+      });
+
+      it("renders the current user's name from the mock", async () => {
+        renderAt(ROUTES.PROFILE);
+
+        // "Tuan Huynh" also names the header's current-user trigger — the
+        // username line is the page's own, unambiguous evidence.
+        expect(await screen.findByText("@tuanhq02")).toBeInTheDocument();
+        expect(screen.getAllByText("Tuan Huynh").length).toBeGreaterThan(0);
+      });
+    });
+
+    describe("a group conversation's details panel", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+      });
+
+      it("lists every member with their role once opened", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "g1",
+              type: ChatConversationType.GROUP,
+              groupName: "Team Alpha",
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.ADMIN,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.conversationByIdPath("g1"));
+
+        await user.click(
+          await screen.findByRole("button", { name: "Conversation details" }),
+        );
+
+        const membersHeading = await screen.findByText("Members · 2");
+        const memberList = within(membersHeading.parentElement as HTMLElement);
+
+        expect(memberList.getByText("Tuan Huynh")).toBeInTheDocument();
+        expect(memberList.getByText("Admin")).toBeInTheDocument();
+        expect(memberList.getByText("Lan Nguyen")).toBeInTheDocument();
+        expect(memberList.getByText("Member")).toBeInTheDocument();
       });
     });
   });

@@ -17,6 +17,7 @@ import LayoutTemplate from "~/features/layout/templates/layout.template";
 import ConversationPage from "./conversation-page";
 import FriendsPage from "./friends-page";
 import HomePage from "./home-page";
+import ProfilePage from "./profile-page";
 import SignInPage from "./sign-in-page";
 import SignUpPage from "./sign-up-page";
 
@@ -49,6 +50,7 @@ export function AppRoutes() {
                 this boundary — only the conversation screens need its
                 message/seen cache patching (see chat-socket-provider.tsx). */}
             <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
+            <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
             <Route element={<ChatSocketRouteBoundary />}>
               <Route index element={<HomePage />} />
               <Route

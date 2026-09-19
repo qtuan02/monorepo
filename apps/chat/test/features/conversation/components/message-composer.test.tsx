@@ -50,6 +50,7 @@ const DIRECT_CONVERSATION: Conversation = {
   lastMessage: "No messages yet.",
   lastMessageAt: null,
   unreadCount: 0,
+  currentUserId: "u1",
   members: [
     {
       userId: "u1",

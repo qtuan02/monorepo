@@ -49,3 +49,20 @@ export interface ChatConversationListPayload {
 
 export type ChatConversationListResponse =
   ChatBaseResponse<ChatConversationListPayload>;
+
+export interface ChatCreateGroupParams {
+  type: "GROUP";
+  name: string;
+  memberIds: string[];
+}
+
+export interface ChatUpdateGroupParams {
+  name: string;
+}
+
+export interface ChatGroupMembersParams {
+  memberIds: string[];
+}
+
+export type ChatConversationResponse = ChatBaseResponse<ChatConversationRecord>;
+export type ChatLeaveGroupResponse = ChatBaseResponse<null>;

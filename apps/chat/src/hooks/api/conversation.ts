@@ -12,12 +12,18 @@ import {
 import { useNavigate } from "react-router";
 
 import type { ChatConversationPage } from "@monorepo/api/chat/conversation-service";
-import type { ChatConversationRecord } from "@monorepo/types/chat-conversation";
+import type {
+  ChatConversationRecord,
+  ChatCreateGroupParams,
+  ChatGroupMembersParams,
+  ChatUpdateGroupParams,
+} from "@monorepo/types/chat-conversation";
 import type {
   ChatConversationSeenEvent,
   ChatConversationUpdatedEvent,
 } from "@monorepo/types/chat-socket";
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
+import { toast } from "@monorepo/ui/components/toast";
 
 import type {
   UseInfiniteQueryOptionsWrapper,
@@ -205,4 +211,118 @@ export function useOpenDirectConversation() {
     },
     [conversationsQuery.data, navigate],
   );
+}
+
+// The four group writes below all invalidate the whole conversation list
+// rather than patching one record in place — unlike the socket-driven
+// helpers above, each already holds the full updated record from its own
+// response, but a group write also changes `participants`, which several
+// other cached reads (the details panel, the member picker's disabled set)
+// derive from — see .agents/rules/tanstack-consume-mutation.md.
+
+export function useCreateGroupMutation(
+  options?: UseMutationOptionsWrapper<
+    ChatCreateGroupParams,
+    ChatConversationRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: ChatCreateGroupParams) =>
+      chatConversationService.createGroup(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
+      toast.add({ title: "Group created.", type: "success" });
+    },
+    ...options,
+  });
+}
+
+export function useUpdateGroupMutation(
+  options?: UseMutationOptionsWrapper<
+    { conversationId: string; params: ChatUpdateGroupParams },
+    ChatConversationRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      conversationId,
+      params,
+    }: {
+      conversationId: string;
+      params: ChatUpdateGroupParams;
+    }) => chatConversationService.updateGroup(conversationId, params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
+      toast.add({ title: "Group name updated.", type: "success" });
+    },
+    ...options,
+  });
+}
+
+export function useAddGroupMembersMutation(
+  options?: UseMutationOptionsWrapper<
+    { conversationId: string; params: ChatGroupMembersParams },
+    ChatConversationRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      conversationId,
+      params,
+    }: {
+      conversationId: string;
+      params: ChatGroupMembersParams;
+    }) => chatConversationService.addMembers(conversationId, params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
+      toast.add({ title: "Members added.", type: "success" });
+    },
+    ...options,
+  });
+}
+
+export function useRemoveGroupMemberMutation(
+  options?: UseMutationOptionsWrapper<
+    { conversationId: string; memberId: string },
+    ChatConversationRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      conversationId,
+      memberId,
+    }: {
+      conversationId: string;
+      memberId: string;
+    }) => chatConversationService.removeMember(conversationId, memberId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
+      toast.add({ title: "Member removed.", type: "success" });
+    },
+    ...options,
+  });
+}
+
+export function useLeaveGroupMutation(
+  options?: UseMutationOptionsWrapper<string, void>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (conversationId: string) =>
+      chatConversationService.leave(conversationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
+      toast.add({ title: "You left the group.", type: "success" });
+    },
+    ...options,
+  });
 }

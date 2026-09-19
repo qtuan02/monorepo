@@ -1,17 +1,19 @@
-import { ArrowLeft } from "lucide-react";
+import * as React from "react";
+import { ArrowLeft, Info } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
 import {
   ChatConversationType,
   ChatParticipantRole,
 } from "@monorepo/types/chat-conversation";
-import { buttonVariants } from "@monorepo/ui/components/button";
+import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { ROUTES } from "~/constants/routes";
+import { ConversationDetailsPanel } from "~/features/conversation/components/conversation-details-panel";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
@@ -53,6 +55,7 @@ function buildDraftConversation(
       },
     ],
     otherMemberId: draftUser.id,
+    currentUserId,
   };
 }
 
@@ -62,6 +65,7 @@ export default function ConversationPanel({
   showBackButton,
 }: ConversationPanelProps) {
   const navigate = useNavigate();
+  const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
   const { conversations } = useConversationList();
   const currentUserQuery = useCurrentUserQuery();
   const conversation = conversationId
@@ -92,48 +96,75 @@ export default function ConversationPanel({
   const title = activeConversation?.title ?? "Conversation";
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col">
-      <header className="border-border flex items-center gap-2 border-b px-3 py-2">
-        {showBackButton && (
-          // A control that navigates is a styled Link, never a Button
-          // rendering one — see .agents/rules/architecture-ui-primitives.md.
-          <Link
-            to={ROUTES.HOME}
-            aria-label="Back to conversations"
-            className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
-          >
-            <ArrowLeft className="size-4" />
-          </Link>
-        )}
-        <ConversationAvatar
-          title={title}
-          avatarUrl={activeConversation?.avatarUrl}
-          online={isOtherMemberOnline}
-        />
-        <h1 className="truncate text-sm font-semibold">{title}</h1>
-      </header>
-      <div className="min-h-0 flex-1">
-        {draftUser ? (
-          <div className="flex h-full items-center justify-center p-6">
-            <p className="text-muted-foreground text-sm">No messages yet.</p>
-          </div>
-        ) : (
-          conversationId && <MessageList conversationId={conversationId} />
+    <div className="flex h-full min-h-0 flex-1">
+      <div className="flex h-full min-h-0 flex-1 flex-col">
+        <header className="border-border flex items-center gap-2 border-b px-3 py-2">
+          {showBackButton && (
+            // A control that navigates is a styled Link, never a Button
+            // rendering one — see .agents/rules/architecture-ui-primitives.md.
+            <Link
+              to={ROUTES.HOME}
+              aria-label="Back to conversations"
+              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+            >
+              <ArrowLeft className="size-4" />
+            </Link>
+          )}
+          <ConversationAvatar
+            title={title}
+            avatarUrl={activeConversation?.avatarUrl}
+            online={isOtherMemberOnline}
+          />
+          <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">
+            {title}
+          </h1>
+          {activeConversation && (
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              onClick={() => setIsDetailsOpen(true)}
+              aria-label="Conversation details"
+            >
+              <Info className="size-4" />
+            </Button>
+          )}
+        </header>
+        <div className="min-h-0 flex-1">
+          {draftUser ? (
+            <div className="flex h-full items-center justify-center p-6">
+              <p className="text-muted-foreground text-sm">No messages yet.</p>
+            </div>
+          ) : (
+            conversationId && <MessageList conversationId={conversationId} />
+          )}
+        </div>
+        {activeConversation && (
+          <MessageComposer
+            key={activeConversation.id}
+            conversation={activeConversation}
+            onSent={
+              draftUser
+                ? (message) =>
+                    navigate(
+                      ROUTES.conversationByIdPath(message.conversationId),
+                      { replace: true },
+                    )
+                : undefined
+            }
+          />
         )}
       </div>
+
       {activeConversation && (
-        <MessageComposer
-          key={activeConversation.id}
+        <ConversationDetailsPanel
           conversation={activeConversation}
-          onSent={
-            draftUser
-              ? (message) =>
-                  navigate(
-                    ROUTES.conversationByIdPath(message.conversationId),
-                    { replace: true },
-                  )
-              : undefined
-          }
+          open={isDetailsOpen}
+          onClose={() => setIsDetailsOpen(false)}
+          onLeftGroup={() => {
+            setIsDetailsOpen(false);
+            navigate(ROUTES.HOME);
+          }}
         />
       )}
     </div>

@@ -1,14 +1,26 @@
-import type { UseInfiniteQueryResult } from "@tanstack/react-query";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import type {
+  UseInfiniteQueryResult,
+  UseQueryResult,
+} from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import type { ChatUserSearchPage } from "@monorepo/api/chat/user-service";
 import type {
+  ChatUpdateUserParams,
+  ChatUserInfo,
   ChatUserProfile,
   ChatUserSearchRecord,
 } from "@monorepo/types/chat-user";
+import { toast } from "@monorepo/ui/components/toast";
 
 import type {
   UseInfiniteQueryOptionsWrapper,
+  UseMutationOptionsWrapper,
   UseQueryOptionsWrapper,
 } from "~/libs/query-key-factory";
 import { chatUserService } from "~/libs/http-client";
@@ -23,11 +35,12 @@ export const userQueryKeys = {
   ...userQueryKeyFactory,
   current: () => userQueryKeyFactory.detail("me"),
   search: (search: string) => userQueryKeyFactory.list({ search }),
+  info: (userId: string) => userQueryKeyFactory.detail(userId),
 };
 
 export function useCurrentUserQuery(
   options?: UseQueryOptionsWrapper<ChatUserProfile>,
-) {
+): UseQueryResult<ChatUserProfile, Error> {
   const token = useAuthStore((state) => state.token);
 
   return useQuery<ChatUserProfile, Error>({
@@ -36,7 +49,7 @@ export function useCurrentUserQuery(
     // `chatUserService.me` loses its `this` the moment TanStack Query calls
     // it back, since `me` is a prototype method (see .agents/rules/tanstack-use-query.md).
     queryFn: () => chatUserService.me(),
-    enabled: !!token && (options?.enabled ?? true),
+    enabled: !!token,
     ...options,
   });
 }
@@ -76,6 +89,36 @@ export function useUserSearchInfiniteQuery(
     enabled: search.trim().length > 0,
     // Flattened here, not by the caller — see .agents/rules/tanstack-consume-infinite.md.
     select: (data) => data.pages.flatMap((page) => page.items),
+    ...options,
+  });
+}
+
+/** The direct-conversation info panel's read of "the other person" — the
+ * conversation record itself only carries name/avatar/role. */
+export function useUserInfoQuery(
+  userId: string | undefined,
+  options?: UseQueryOptionsWrapper<ChatUserInfo>,
+): UseQueryResult<ChatUserInfo, Error> {
+  return useQuery<ChatUserInfo, Error>({
+    queryKey: userQueryKeys.info(userId ?? ""),
+    queryFn: () => chatUserService.info(userId as string),
+    enabled: !!userId,
+    ...options,
+  });
+}
+
+export function useUpdateProfileMutation(
+  options?: UseMutationOptionsWrapper<ChatUpdateUserParams, ChatUserProfile>,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ChatUpdateUserParams) =>
+      chatUserService.updateMe(payload),
+    onSuccess: (profile) => {
+      queryClient.setQueryData(userQueryKeys.current(), profile);
+      toast.add({ title: "Profile updated.", type: "success" });
+    },
     ...options,
   });
 }

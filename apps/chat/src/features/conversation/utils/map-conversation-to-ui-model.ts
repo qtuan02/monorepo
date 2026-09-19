@@ -26,6 +26,7 @@ export function mapConversationToUiModel(
     (participant) => ({
       userId: participant.userId,
       displayName: toDisplayName(participant),
+      username: participant.username ?? undefined,
       avatarUrl: participant.avatarUrl ?? undefined,
       role: participant.role,
     }),
@@ -56,5 +57,6 @@ export function mapConversationToUiModel(
     avatarUrl: isGroup ? undefined : otherMember?.avatarUrl,
     members,
     otherMemberId: isGroup ? undefined : otherMember?.userId,
+    currentUserId,
   };
 }
