@@ -36,6 +36,16 @@ export default function TenantListTemplate() {
             Thêm Người thuê
           </Button>
         }
+        mobileAction={
+          <Button
+            type="button"
+            size="icon-sm"
+            aria-label="Tạo Người thuê"
+            onClick={() => setIsCreateOpen(true)}
+          >
+            <Plus />
+          </Button>
+        }
       />
 
       <DataTable

@@ -155,6 +155,34 @@ describe("the route tree", () => {
       }
     });
 
+    // Round 4 §10 Q2 — `AppHeader` no longer names the area from `md` up;
+    // the screen's own `<h1>` is the one heading a visitor sees there. The
+    // string below is the area's OLD description, once printed by the
+    // header for every screen (`roomsItem.description` in
+    // `~/features/layout/constants/navigation`).
+    it("shows no area title/description in AppHeader — the screen's <h1> is the one heading", () => {
+      renderAt(ROUTES.ROOMS);
+
+      expect(heading("Phòng")).toBeInTheDocument();
+      expect(
+        screen.queryByText("Quản lý danh sách phòng và trạng thái."),
+      ).not.toBeInTheDocument();
+    });
+
+    // Round 4 §10 Q12 — the header's mobile "+" opens the SAME create sheet
+    // the desktop "Thêm phòng" button does, through the DOM slot in
+    // `~/components/page/header-action-slot.tsx`.
+    it("opens «Thêm phòng mới» from the header's mobile «Tạo phòng» button", async () => {
+      const user = userEvent.setup();
+      renderAt(ROUTES.ROOMS);
+
+      await user.click(screen.getByRole("button", { name: "Tạo phòng" }));
+
+      expect(
+        await screen.findByRole("dialog", { name: "Thêm phòng mới" }),
+      ).toBeInTheDocument();
+    });
+
     // Spec #153 §10 row 9 / ADR-0012 — a fact computed at read time, on the
     // screen that shows it, rather than trusted from the Mock's own literal.
     it("shows a derived Quá hạn badge on the invoice list", async () => {

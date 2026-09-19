@@ -35,6 +35,16 @@ export default function ExpenseListTemplate() {
             Thêm chi phí
           </Button>
         }
+        mobileAction={
+          <Button
+            type="button"
+            size="icon-sm"
+            aria-label="Tạo chi phí"
+            onClick={() => setIsFormOpen(true)}
+          >
+            <Plus />
+          </Button>
+        }
       />
 
       {expensesQuery.isLoading ? (

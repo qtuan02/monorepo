@@ -188,6 +188,39 @@ Bốn ticket độc lập, chạm sâu vào một slice mỗi cái thay vì thê
 Chi tiết đầy đủ (kể cả những chỗ lệch khỏi kế hoạch ban đầu) nằm ở comment tổng kết trên spec
 [#227](https://github.com/qtuan02/monorepo/issues/227); không lặp lại ở đây.
 
+## Hình dạng round 4
+
+Round 4 "gọn hơn" (spec #241, brief `docs/design/smart-rental-round4.md`, 22 quyết định) không đổi
+IA/flow/token — chỉ đổi **số thứ trên một màn** và **cỡ của chúng**, cắt theo composite thành 7 ticket
++ một tổng kiểm (#242–#249).
+
+**Shell (T1, #242):** mỗi màn giờ chỉ còn **một** tiêu đề. Từ `md` lên, `AppHeader` bỏ hẳn tên + mô tả
+mục sidebar — chỉ còn trigger sidebar · ô tìm ⌘K · chuông · avatar; `h1` của `ListPageHeader` /
+`DetailPageShell` là tiêu đề duy nhất. Dưới `md`, header giữ tên mục (nơi duy nhất nó còn hiện), `h1`
+của trang thành `sr-only` — vẫn trong DOM cho trình đọc màn hình, không in hai lần. Nút tạo của một màn
+danh sách không còn nằm ở một hàng riêng dưới tiêu đề trên điện thoại: nó là một nút navy tròn
+icon-only cạnh ô tìm/chuông trên `AppHeader`, tới đó qua **`#header-action-slot`** — một DOM id
+`AppHeader` mở, `ListPageHeader` portal `mobileAction` vào
+(`~/components/page/header-action-slot.tsx`). Không phải context xuyên `~/features/layout` ↔ một
+feature khác: hai bên chỉ cùng import một module ở `~/components`, giữ
+[[architecture-circular-dependencies]] nguyên vẹn — `AppHeader` không cần biết feature nào đang mở, và
+không feature nào import `~/features/layout`. Dải Toà nhà dưới `md` có một fade mép phải
+(`BuildingScope`) làm dấu hiệu còn cuộn được.
+
+**Bốn nấc chữ** (thay bảy cỡ đậm cũ của ba round trước): trang 20/600 · mục 15/600 · thân 14/400 · meta
+12/400 — chỉ **tiền** được 600 ngoài "thân". "Trang" và "mục" không khớp thang mặc định của Tailwind
+(`text-xl` là 20px, nhưng round 4 cấm chính lớp đó; 15px không có lớp mặc định nào), nên viết bằng giá
+trị tuỳ ý `text-[20px]`/`text-[15px]` thay vì `text-2xl`/`text-xl`/`font-bold` — ba lớp cấm đó là dấu
+vết còn lại của bảy cỡ cũ, nên một test quét văn bản phân biệt được "nấc mới" khỏi "thang cũ" mà không
+cần đọc weight. `test/text-tier-guard.test.ts` quét `src/components/**` + `src/features/**/templates/**`
+như văn bản thô, chặn ba lớp trên (trừ file trong allowlist) và chặn `lucide-react` trong một
+`*-columns.tsx` (ô bảng không icon trang trí — round 4 §1.3). T1 mở guard với allowlist liệt kê mọi
+file còn vi phạm tại thời điểm mở; T2–T7 rút file của mình khỏi allowlist khi chuyển, T8 xoá hẳn
+allowlist.
+
+Chi tiết 22 quyết định + việc từng ticket ship — comment tổng kết trên spec
+[#241](https://github.com/qtuan02/monorepo/issues/241) một khi T8 đóng; không lặp lại ở đây.
+
 ## Deploy Vercel
 
 `vercel.json` chép nguyên mẫu của `apps/documents`, chỉ đổi filter: install/build trỏ về

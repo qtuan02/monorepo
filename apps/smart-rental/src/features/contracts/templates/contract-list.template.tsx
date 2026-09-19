@@ -35,6 +35,15 @@ export default function ContractListTemplate() {
             Thêm hợp đồng
           </Link>
         }
+        mobileAction={
+          <Link
+            to={ROUTES.CONTRACT_CREATE}
+            aria-label="Tạo hợp đồng"
+            className={buttonVariants({ size: "icon-sm" })}
+          >
+            <Plus />
+          </Link>
+        }
       />
 
       <DataTable

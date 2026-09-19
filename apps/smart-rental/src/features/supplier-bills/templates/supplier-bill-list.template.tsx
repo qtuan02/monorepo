@@ -43,6 +43,16 @@ export default function SupplierBillListTemplate() {
             Thêm hoá đơn
           </Button>
         }
+        mobileAction={
+          <Button
+            type="button"
+            size="icon-sm"
+            aria-label="Tạo hoá đơn nhà cung cấp"
+            onClick={() => setIsFormOpen(true)}
+          >
+            <Plus />
+          </Button>
+        }
       />
 
       {supplierBillsQuery.isLoading ? (

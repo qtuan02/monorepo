@@ -56,7 +56,7 @@ export default function InvoiceListTemplate() {
     <div className="space-y-6">
       <ListPageHeader
         title="Hoá đơn"
-        description={`${stats.total} hoá đơn`}
+        description="Theo dõi thanh toán và công nợ."
         actions={
           <Link
             to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
@@ -64,6 +64,15 @@ export default function InvoiceListTemplate() {
           >
             <Plus />
             Tạo hoá đơn
+          </Link>
+        }
+        mobileAction={
+          <Link
+            to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
+            aria-label="Tạo hoá đơn"
+            className={buttonVariants({ size: "icon-sm" })}
+          >
+            <Plus />
           </Link>
         }
       />

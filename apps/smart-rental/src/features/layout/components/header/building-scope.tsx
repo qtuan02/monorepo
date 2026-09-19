@@ -32,25 +32,36 @@ interface BuildingScopeProps {
 // not `Tabs`-as-buttons (see `list-view.tsx`'s own note on the same call).
 function BuildingScopeTabs({ buildings, value, onChange }: BuildingScopeProps) {
   return (
-    <div className="overflow-x-auto">
-      <ToggleGroup
-        value={[value]}
-        onValueChange={(next) => {
-          const selected = next[0];
-          if (selected) onChange(selected === ALL_BUILDINGS ? null : selected);
-        }}
-        variant="outline"
-        size="sm"
-        spacing={0}
-        className="w-max"
-      >
-        <ToggleGroupItem value={ALL_BUILDINGS}>Tất cả Toà nhà</ToggleGroupItem>
-        {buildings.map((building) => (
-          <ToggleGroupItem key={building.id} value={building.id}>
-            {building.name}
+    <div className="relative">
+      <div className="overflow-x-auto">
+        <ToggleGroup
+          value={[value]}
+          onValueChange={(next) => {
+            const selected = next[0];
+            if (selected)
+              onChange(selected === ALL_BUILDINGS ? null : selected);
+          }}
+          variant="outline"
+          size="sm"
+          spacing={0}
+          className="w-max"
+        >
+          <ToggleGroupItem value={ALL_BUILDINGS}>
+            Tất cả Toà nhà
           </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+          {buildings.map((building) => (
+            <ToggleGroupItem key={building.id} value={building.id}>
+              {building.name}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </div>
+      {/* Below `md` the row can overflow the viewport — this fade is the
+          only hint that it scrolls (round 4 §1.6). */}
+      <div
+        aria-hidden
+        className="from-background pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent md:hidden"
+      />
     </div>
   );
 }

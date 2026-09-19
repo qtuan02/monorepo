@@ -49,6 +49,16 @@ export default function RoomListTemplate() {
             Thêm phòng
           </Button>
         }
+        mobileAction={
+          <Button
+            type="button"
+            size="icon-sm"
+            aria-label="Tạo phòng"
+            onClick={() => setIsFormOpen(true)}
+          >
+            <Plus />
+          </Button>
+        }
       />
 
       <DataTable
