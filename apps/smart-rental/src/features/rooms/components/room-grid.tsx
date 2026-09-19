@@ -94,7 +94,7 @@ function FloorSection({ floor, rooms }: { floor: number; rooms: RoomView[] }) {
               }
               header={
                 <CardHeader className="flex flex-row items-start justify-between gap-2 px-3">
-                  <h3 className="truncate text-sm leading-none font-semibold">
+                  <h3 className="truncate text-[15px] leading-none font-semibold">
                     {room.name}
                   </h3>
                   <div className="relative z-10 shrink-0">
