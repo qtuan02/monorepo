@@ -34,7 +34,7 @@ const themeSource = withoutComments(
   readFileSync(resolve(appRoot, "../../tooling/tailwind/theme.css"), "utf8"),
 );
 
-/** The tokens this app overrides at the app layer. */
+/** The tokens both themes override at the app layer. */
 const OVERRIDDEN_TOKENS = [
   "primary",
   "primary-foreground",
@@ -51,6 +51,18 @@ const OVERRIDDEN_TOKENS = [
   "sidebar-ring",
   "online",
 ] as const;
+
+/**
+ * `.dark` alone additionally overrides the Islands surface trio (ADR-0016
+ * §4) — dark islands on a dark gradient. Light does not: theme.css's white
+ * `--card` already clears AA as `bg-card/75` over the light gradient.
+ */
+const DARK_ONLY_TOKENS = ["card", "popover", "border"] as const;
+
+const EXPECTED_TOKENS = {
+  light: OVERRIDDEN_TOKENS,
+  dark: [...OVERRIDDEN_TOKENS, ...DARK_ONLY_TOKENS],
+} as const;
 
 /** Status colours never move — a status keeps the same meaning in every app. */
 const STATUS_TOKENS = [
@@ -87,10 +99,10 @@ describe.each(Object.entries(themes))(
     const background = rgbOf(themeRoot, "background");
 
     it("overrides exactly the tokens this app names, in oklch()", () => {
-      expect(Object.keys(override).sort()).toEqual(
-        [...OVERRIDDEN_TOKENS].sort(),
-      );
-      for (const token of OVERRIDDEN_TOKENS) {
+      const expected =
+        EXPECTED_TOKENS[themeName as keyof typeof EXPECTED_TOKENS];
+      expect(Object.keys(override).sort()).toEqual([...expected].sort());
+      for (const token of expected) {
         expect(override[token], token).toMatch(/^oklch\(/);
       }
     });
@@ -140,9 +152,12 @@ describe.each(Object.entries(themes))(
   },
 );
 
-it(".dark declares every colour token :root overrides", () => {
+it(".dark declares every colour token :root overrides, plus the Islands surface trio", () => {
+  for (const token of OVERRIDDEN_TOKENS) {
+    expect(themes.dark.override[token], token).toBeDefined();
+  }
   expect(Object.keys(themes.dark.override).sort()).toEqual(
-    Object.keys(themes.light.override).sort(),
+    [...OVERRIDDEN_TOKENS, ...DARK_ONLY_TOKENS].sort(),
   );
 });
 
@@ -173,7 +188,7 @@ describe("where the override sits in the cascade", () => {
    */
   it("keeps every overridden token outside every @layer block", () => {
     for (const region of atRuleRegions(globalsSource, "layer")) {
-      for (const token of OVERRIDDEN_TOKENS) {
+      for (const token of [...OVERRIDDEN_TOKENS, ...DARK_ONLY_TOKENS]) {
         expect(region, token).not.toMatch(new RegExp(`--${token}:`));
       }
     }
@@ -195,32 +210,27 @@ describe("where the override sits in the cascade", () => {
 
 /**
  * The Islands shape (ADR-0016): `--font-sans` plus the three gradient stops
- * `body` paints. Both live in `@layer base` — nothing in `theme.css`
+ * `body` paints — light and, since this ticket, `.dark`'s own darker trio
+ * (ADR-0016 §4). Both live in `@layer base` — nothing in `theme.css`
  * declares a literal value for either, so there is no unlayered declaration
  * to lose to (unlike the palette override above, which has to sit outside
- * every `@layer` for exactly that reason).
+ * every `@layer` for exactly that reason). `declarationsOf` merges every
+ * block it finds for a selector — the layered gradient block and, in
+ * `.dark`'s case, the unlayered palette override below it too — so reading
+ * `--card` for the dark case off the same merged object picks up this
+ * app's own dark surface rather than theme.css's neutral grey.
  */
-describe("Islands shell (ADR-0016)", () => {
-  // `declarationsOf` merges every `:root { … }` block it finds — the layered
-  // one below and the unlayered palette override above — into one object;
-  // that's fine here, this describe only asks for the two Islands-specific
-  // keys, never the palette ones the block above already covers.
-  const layeredRoot = declarationsOf(globalsSource, ":root");
+const GRADIENT_TOKENS = [
+  "islands-gradient-teal",
+  "islands-gradient-violet",
+  "islands-gradient-amber",
+] as const;
 
-  const GRADIENT_TOKENS = [
-    "islands-gradient-teal",
-    "islands-gradient-violet",
-    "islands-gradient-amber",
-  ] as const;
+describe("Islands shell (ADR-0016)", () => {
+  const layeredRoot = declarationsOf(globalsSource, ":root");
 
   it("declares --font-sans as a system stack, inside @layer base", () => {
     expect(declared(layeredRoot, "font-sans")).toMatch(/system-ui/);
-  });
-
-  it("declares all three gradient stops, in oklch()", () => {
-    for (const token of GRADIENT_TOKENS) {
-      expect(declared(layeredRoot, token), token).toMatch(/^oklch\(/);
-    }
   });
 
   it("paints all three stops on body, plus the theme's own --background as the last layer", () => {
@@ -232,29 +242,73 @@ describe("Islands shell (ADR-0016)", () => {
     }
     expect(bodyBlock).toContain("var(--background)");
   });
+});
+
+describe.each([
+  ["light", ":root"],
+  ["dark", ".dark"],
+] as const)("Islands shell — %s (ADR-0016)", (themeName, selector) => {
+  // Merges the layered gradient block with the unlayered palette override —
+  // for "dark" that is the only place this app's own --card/--popover live.
+  const root = declarationsOf(globalsSource, selector);
+  const themeRoot = declarationsOf(themeSource, selector);
+
+  it("declares all three gradient stops, in oklch()", () => {
+    for (const token of GRADIENT_TOKENS) {
+      expect(declared(root, token), token).toMatch(/^oklch\(/);
+    }
+  });
 
   it("reads AA on the darkest stop: --foreground on an Island (bg-card/75%) over it ≥ 4.5:1", () => {
-    const themeRoot = declarationsOf(themeSource, ":root");
-    const card = rgbOf(themeRoot, "card");
+    const card =
+      themeName === "light" ? rgbOf(themeRoot, "card") : rgbOf(root, "card");
     const foreground = rgbOf(themeRoot, "foreground");
+    const island = blendOverRgb(card, 0.75, darkestStopOf(root));
 
-    const stops = GRADIENT_TOKENS.map((token) =>
-      oklchToRgb(parseOklch(declared(layeredRoot, token))),
-    );
-    const darkestStop = stops.reduce((darkest, stop) =>
-      // Luminance is cheaper to compare via contrast against a fixed black
-      // reference than to expose a third helper for — the darker of two
-      // colours contrasts *less* with white.
-      contrastRatio(stop, { r: 255, g: 255, b: 255 }) >
-      contrastRatio(darkest, { r: 255, g: 255, b: 255 })
-        ? stop
-        : darkest,
-    );
-
-    const island = blendOverRgb(card, 0.75, darkestStop);
     expect(contrastRatio(foreground, island)).toBeGreaterThanOrEqual(4.5);
   });
+
+  /**
+   * Dark only: `.dark` is this ticket's own surface (`--card` overridden
+   * here, `--muted-foreground` still theme.css's unmodified value), so it is
+   * the one case where this pairing was never proven before. Light keeps
+   * theme.css's `--card` and was never asked to clear this pairing — adding
+   * it there now would be tightening a pre-existing, out-of-scope value
+   * rather than guarding this ticket's own change.
+   */
+  it.runIf(themeName === "dark")(
+    "reads AA on the darkest stop: --muted-foreground on the same Island surface ≥ 4.5:1",
+    () => {
+      const mutedForeground = rgbOf(themeRoot, "muted-foreground");
+      const island = blendOverRgb(
+        rgbOf(root, "card"),
+        0.75,
+        darkestStopOf(root),
+      );
+
+      expect(contrastRatio(mutedForeground, island)).toBeGreaterThanOrEqual(
+        4.5,
+      );
+    },
+  );
 });
+
+/** The gradient stop with the lowest luminance — the worst case an Island sits over. */
+function darkestStopOf(root: Record<string, string>) {
+  const stops = GRADIENT_TOKENS.map((token) =>
+    oklchToRgb(parseOklch(declared(root, token))),
+  );
+
+  return stops.reduce((darkest, stop) =>
+    // Luminance is cheaper to compare via contrast against a fixed black
+    // reference than to expose a third helper for — the darker of two
+    // colours contrasts *less* with white.
+    contrastRatio(stop, { r: 255, g: 255, b: 255 }) >
+    contrastRatio(darkest, { r: 255, g: 255, b: 255 })
+      ? stop
+      : darkest,
+  );
+}
 
 /** The declarations of the first `selector { … }` block found in `source`, as raw text (not parsed key/value). */
 function declarationsOfSelectorBlock(

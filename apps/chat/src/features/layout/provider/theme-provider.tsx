@@ -7,15 +7,6 @@ type ResolvedTheme = "light" | "dark";
 /** The key the provider persists the raw preference under. */
 export const THEME_STORAGE_KEY = "chat-theme";
 
-/**
- * ponytail: Islands' `.dark` (dark islands on a dark gradient, ADR-0016 §4)
- * is its own ticket, closing this spec — every resolution is capped to
- * "light" until then, so a system-dark visitor never sees the pha-1 `.dark`
- * this app still ships underneath. Flip this one constant to unlock Dark;
- * nothing else in the provider has to change.
- */
-const ISLANDS_DARK_READY: boolean = false;
-
 interface ThemeContextValue {
   preference: ThemePreference;
   resolvedTheme: ResolvedTheme;
@@ -42,7 +33,6 @@ function systemPrefersDark(): boolean {
 }
 
 function resolve(preference: ThemePreference): ResolvedTheme {
-  if (!ISLANDS_DARK_READY) return "light";
   if (preference === "system") return systemPrefersDark() ? "dark" : "light";
   return preference;
 }
@@ -52,7 +42,7 @@ function resolve(preference: ThemePreference): ResolvedTheme {
  * a context, an effect and one `localStorage` key — no `next-themes`, no
  * store. Three preferences rather than documents' two, because Islands ships
  * a "System" default (ADR-0016 §4); "system" is re-resolved on every mount
- * and, once Dark unlocks, on every OS change while that preference is held.
+ * and on every OS change while that preference is held.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [preference, setPreferenceState] =
@@ -70,7 +60,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setResolvedTheme(resolve(preference));
 
-    if (preference !== "system" || !ISLANDS_DARK_READY) return;
+    if (preference !== "system") return;
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const onChange = () => setResolvedTheme(resolve(preference));

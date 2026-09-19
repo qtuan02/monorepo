@@ -5,9 +5,8 @@ import { describe, expect, it } from "vitest";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
 import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 
-/** The one UI-observable half of the lock (ADR-0016 §4) — the provider's own half is theme-provider.test.tsx. */
 describe("ThemeToggleButton", () => {
-  it("offers Light/Dark/System, with Dark disabled", async () => {
+  it("offers Light/Dark/System, all enabled, System checked by default", async () => {
     const user = userEvent.setup();
 
     render(
@@ -18,16 +17,11 @@ describe("ThemeToggleButton", () => {
 
     await user.click(screen.getByRole("button", { name: "Appearance" }));
 
-    expect(
-      await screen.findByRole("menuitemradio", { name: "Light" }),
-    ).not.toHaveAttribute("aria-disabled", "true");
-    expect(screen.getByRole("menuitemradio", { name: "Dark" })).toHaveAttribute(
-      "aria-disabled",
-      "true",
-    );
-    expect(
-      screen.getByRole("menuitemradio", { name: "System" }),
-    ).not.toHaveAttribute("aria-disabled", "true");
+    for (const name of ["Light", "Dark", "System"]) {
+      expect(
+        await screen.findByRole("menuitemradio", { name }),
+      ).not.toHaveAttribute("aria-disabled", "true");
+    }
 
     // System is the default, and it is the one already checked.
     expect(

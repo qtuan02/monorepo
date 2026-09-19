@@ -12,11 +12,7 @@ import {
 import type { ThemePreference } from "~/features/layout/provider/theme-provider";
 import { useTheme } from "~/features/layout/provider/theme-provider";
 
-/**
- * Appearance: Light / Dark / System (copy — brief §7). Dark is disabled
- * rather than hidden, so the option is visibly "coming soon" instead of
- * looking like it was never planned; see theme-provider.tsx for the lock.
- */
+/** Appearance: Light / Dark / System (copy — brief §7). */
 export default function ThemeToggleButton() {
   const { preference, setPreference } = useTheme();
 
@@ -40,9 +36,7 @@ export default function ThemeToggleButton() {
           onValueChange={(value) => setPreference(value as ThemePreference)}
         >
           <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="dark" disabled>
-            Dark
-          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

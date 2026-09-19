@@ -39,10 +39,10 @@ function stubSystemTheme(dark: boolean) {
 }
 
 /**
- * Three decisions: which preference to open in, what a switch persists, and
- * — the one thing this provider does that `apps/documents`' doesn't —
- * capping every resolution to "light" while Islands' `.dark` isn't built
- * (ADR-0016 §4). The look of each theme is CSS (`test/globals.test.ts`).
+ * Two decisions: which preference to open in, and what a switch persists
+ * and resolves to — including "system" following the OS both ways, now
+ * that Islands' `.dark` is built (ADR-0016 §4). The look of each theme is
+ * CSS (`test/globals.test.ts`).
  */
 describe("ThemeProvider", () => {
   beforeEach(() => {
@@ -66,7 +66,7 @@ describe("ThemeProvider", () => {
     expect(document.documentElement).not.toHaveClass("dark");
   });
 
-  it("stays light even when the system prefers dark — Dark is locked", () => {
+  it("resolves System to dark when the OS prefers dark", () => {
     stubSystemTheme(true);
 
     render(
@@ -75,8 +75,8 @@ describe("ThemeProvider", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getByTestId("resolved")).toHaveTextContent("light");
-    expect(document.documentElement).not.toHaveClass("dark");
+    expect(screen.getByTestId("resolved")).toHaveTextContent("dark");
+    expect(document.documentElement).toHaveClass("dark");
   });
 
   it("reads the stored preference back on mount", () => {
@@ -91,7 +91,7 @@ describe("ThemeProvider", () => {
     expect(screen.getByTestId("preference")).toHaveTextContent("system");
   });
 
-  it("persists a preference and keeps the resolved theme capped to light", async () => {
+  it("persists a preference and resolves it", async () => {
     const user = userEvent.setup();
 
     render(
@@ -104,12 +104,10 @@ describe("ThemeProvider", () => {
       user.click(screen.getByRole("button", { name: "set dark" })),
     );
 
-    // The raw choice is remembered — so it "just works" the day Dark unlocks —
-    // but nothing paints dark yet.
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe("dark");
     expect(screen.getByTestId("preference")).toHaveTextContent("dark");
-    expect(screen.getByTestId("resolved")).toHaveTextContent("light");
-    expect(document.documentElement).not.toHaveClass("dark");
+    expect(screen.getByTestId("resolved")).toHaveTextContent("dark");
+    expect(document.documentElement).toHaveClass("dark");
   });
 
   it("throws when read outside the provider, rather than answering light", () => {
