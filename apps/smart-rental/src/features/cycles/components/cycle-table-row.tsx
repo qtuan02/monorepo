@@ -1,13 +1,29 @@
 import type { Control } from "react-hook-form";
+import { useState } from "react";
+import { Pencil } from "lucide-react";
 
+import { Badge } from "@monorepo/ui/components/badge";
+import { Button } from "@monorepo/ui/components/button";
 import { TableCell, TableRow } from "@monorepo/ui/components/table";
+import { toast } from "@monorepo/ui/components/toast";
 
+import type { EntityActionMenuItem } from "~/components/menu/entity-action-menu";
 import type { CycleFormValues } from "~/features/cycles/types/cycle-form";
 import type { CycleRow } from "~/types/cycle";
+import type { UtilityType } from "~/types/utility";
 import { StatusBadge } from "~/components/badge/status-badge";
-import { cycleRowStatusConfig } from "~/constants/status";
-import { MeterCell } from "~/features/cycles/components/meter-cell";
+import { EntityActionMenu } from "~/components/menu/entity-action-menu";
+import {
+  cycleRowStatusConfig,
+  statusTone,
+  utilityTypeConfig,
+} from "~/constants/status";
+import { MeterCell, meterGates } from "~/features/cycles/components/meter-cell";
+import { OldIndexCorrectionSheet } from "~/features/cycles/components/old-index-correction-sheet";
+import { useApproveCycleReading } from "~/hooks/api/cycle";
 import { formatCurrency } from "~/utils/currency";
+
+const METER_TYPES = ["electricity", "water"] as const;
 
 interface CycleTableRowProps {
   index: number;
@@ -19,9 +35,11 @@ interface CycleTableRowProps {
 }
 
 /**
- * One Phòng on "Kỳ điện nước & hoá đơn" (ADR-0013) — layout only: two
- * `MeterCell` (điện, nước) beside the money cells, each owning its own three
- * gates (ticket #228, spec #227).
+ * One Phòng on "Kỳ điện nước & hoá đơn" — header hai tầng (round 4, ticket
+ * #247): two `MeterCell` in `layout="table"` render 3 `td` each (no label,
+ * no pencil, no Duyệt), so those three actions move here — "Sửa chỉ số cũ"
+ * into the row's ⋯, badge + "Duyệt" into the Trạng thái cell — reusing the
+ * same `meterGates` (ticket #228, spec #227) rather than a second rule.
  */
 export function CycleTableRow({
   index,
@@ -30,11 +48,41 @@ export function CycleTableRow({
   month,
   readOnly = false,
 }: CycleTableRowProps) {
+  const [correctionType, setCorrectionType] = useState<UtilityType | null>(
+    null,
+  );
+  const approveReading = useApproveCycleReading();
+
+  const gatesByType = {
+    electricity: meterGates(row, "electricity", readOnly),
+    water: meterGates(row, "water", readOnly),
+  };
+  const rowEditable = gatesByType.electricity.editable;
+  const anomalies = METER_TYPES.map((type) => {
+    const reason =
+      type === "electricity"
+        ? row.electricityAnomalyReason
+        : row.waterAnomalyReason;
+    return gatesByType[type].approvable && reason ? { type, reason } : null;
+  }).filter((anomaly): anomaly is { type: UtilityType; reason: string } =>
+    Boolean(anomaly),
+  );
+
+  const menuItems: EntityActionMenuItem[] = rowEditable
+    ? METER_TYPES.map((type) => ({
+        key: type,
+        label: `Sửa chỉ số ${utilityTypeConfig[type].label.toLowerCase()} cũ`,
+        icon: <Pencil />,
+        onClick: () => setCorrectionType(type),
+      }))
+    : [];
+
   return (
-    <TableRow className={row.status === "EMPTY" ? "opacity-50" : undefined}>
-      <TableCell className="font-medium">{row.roomName}</TableCell>
-      <TableCell>
+    <>
+      <TableRow className={row.status === "EMPTY" ? "opacity-50" : undefined}>
+        <TableCell className="font-medium">{row.roomName}</TableCell>
         <MeterCell
+          layout="table"
           row={row}
           type="electricity"
           index={index}
@@ -42,9 +90,8 @@ export function CycleTableRow({
           month={month}
           readOnly={readOnly}
         />
-      </TableCell>
-      <TableCell>
         <MeterCell
+          layout="table"
           row={row}
           type="water"
           index={index}
@@ -52,36 +99,88 @@ export function CycleTableRow({
           month={month}
           readOnly={readOnly}
         />
-      </TableCell>
-      <TableCell className="tabular-nums">
-        {row.status === "EMPTY" ? (
-          "—"
-        ) : (
-          <div className="flex flex-col">
-            <span>{formatCurrency(row.rentAmount)}</span>
-            {row.rentProrationNote && (
-              <span className="text-muted-foreground text-xs">
-                {row.rentProrationNote}
-              </span>
-            )}
-          </div>
-        )}
-      </TableCell>
-      <TableCell className="tabular-nums">
-        {row.status === "EMPTY" ? "—" : formatCurrency(row.electricAmount)}
-      </TableCell>
-      <TableCell className="tabular-nums">
-        {row.status === "EMPTY" ? "—" : formatCurrency(row.waterAmount)}
-      </TableCell>
-      <TableCell className="text-right font-bold tabular-nums">
-        {row.status === "EMPTY" ? "—" : formatCurrency(row.totalAmount)}
-      </TableCell>
-      <TableCell className="text-right">
-        <div className="flex flex-col items-end gap-1.5">
-          <StatusBadge config={cycleRowStatusConfig[row.status]} isCompact />
-          <span className="text-muted-foreground text-xs">{row.reason}</span>
-        </div>
-      </TableCell>
-    </TableRow>
+        <TableCell className="text-right tabular-nums">
+          {row.status === "EMPTY" ? (
+            "—"
+          ) : (
+            <div className="flex flex-col items-end">
+              <span>{formatCurrency(row.rentAmount)}</span>
+              {row.rentProrationNote && (
+                <span className="text-muted-foreground text-xs">
+                  {row.rentProrationNote}
+                </span>
+              )}
+            </div>
+          )}
+        </TableCell>
+        <TableCell className="text-right tabular-nums">
+          {row.status === "EMPTY" ? "—" : formatCurrency(row.electricAmount)}
+        </TableCell>
+        <TableCell className="text-right tabular-nums">
+          {row.status === "EMPTY" ? "—" : formatCurrency(row.waterAmount)}
+        </TableCell>
+        <TableCell className="text-right font-semibold tabular-nums">
+          {row.status === "EMPTY" ? "—" : formatCurrency(row.totalAmount)}
+        </TableCell>
+        <TableCell className="text-right">
+          {anomalies.length > 0 ? (
+            <div className="flex flex-col items-end gap-1.5">
+              {anomalies.map(({ type, reason }) => (
+                <div key={type} className="flex items-center gap-1.5">
+                  <Badge variant="outline" className={statusTone.warning}>
+                    {utilityTypeConfig[type].label} {reason}
+                  </Badge>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={approveReading.isPending}
+                    onClick={() =>
+                      approveReading.mutate(
+                        { roomId: row.roomId, type, month },
+                        {
+                          onSuccess: () =>
+                            toast.add({
+                              title: `Đã duyệt chỉ số ${utilityTypeConfig[type].label.toLowerCase()} phòng ${row.roomName}`,
+                              type: "success",
+                            }),
+                        },
+                      )
+                    }
+                  >
+                    Duyệt
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <StatusBadge config={cycleRowStatusConfig[row.status]} isCompact />
+          )}
+        </TableCell>
+        <TableCell>
+          {menuItems.length > 0 && (
+            <EntityActionMenu
+              label={`Thao tác phòng ${row.roomName}`}
+              items={menuItems}
+            />
+          )}
+        </TableCell>
+      </TableRow>
+      {rowEditable && (
+        <OldIndexCorrectionSheet
+          open={correctionType !== null}
+          onOpenChange={(open) => {
+            if (!open) setCorrectionType(null);
+          }}
+          roomId={row.roomId}
+          roomName={row.roomName}
+          type={correctionType ?? "electricity"}
+          month={month}
+          currentOldIndex={
+            correctionType === "water" ? row.oldWater : row.oldElectricity
+          }
+        />
+      )}
+    </>
   );
 }

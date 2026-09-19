@@ -49,10 +49,12 @@ describe("CycleTemplate", () => {
     ).not.toHaveValue(null);
     expect(within(readyRow).getByText("Sẵn sàng")).toBeInTheDocument();
 
-    // R-B1-103 is the Mock's one deliberately anomalous Phòng of kỳ 09.
+    // R-B1-103 is the Mock's one deliberately anomalous Phòng of kỳ 09 — its
+    // Trạng thái cell shows the per-đồng-hồ badge instead of a plain "Bất
+    // thường" (round 4, ticket #247).
     expect(
       within(screen.getByRole("row", { name: /^Phòng 103\b/ })).getByText(
-        "Bất thường",
+        /^Điện gấp/,
       ),
     ).toBeInTheDocument();
     // R-B1-106 is the Mock's one deliberately unread Phòng of kỳ 09.
@@ -88,8 +90,12 @@ describe("CycleTemplate", () => {
       name: "Lập 3 hoá đơn",
     });
     expect(submitButton).toBeDisabled();
+    // Action bar helper (round 4, ticket #247): ngày chốt + đếm trạng thái
+    // trong một dòng — 3 sẵn sàng, 1 bất thường (103), 1 trống (101).
     expect(
-      screen.getByText(/Chỉ lập được từ sau ngày chốt của kỳ/),
+      screen.getByText(
+        /Chỉ lập được từ \d{2}\/\d{2}\/\d{4} · 3\/6 sẵn sàng · 1 bất thường · 1 trống/,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -116,20 +122,20 @@ describe("CycleTemplate", () => {
     const anomalousRow = await screen.findByRole("row", {
       name: /^Phòng 103\b/,
     });
-    expect(within(anomalousRow).getByText("Bất thường")).toBeInTheDocument();
-    // Nước was never flagged for this Phòng — only điện gets a Duyệt button.
+    expect(within(anomalousRow).getByText(/^Điện gấp/)).toBeInTheDocument();
+    // Nước was never flagged for this Phòng — only one Duyệt button, điện's.
     expect(
-      within(anomalousRow).queryByRole("button", { name: "Duyệt nước" }),
-    ).not.toBeInTheDocument();
+      within(anomalousRow).getAllByRole("button", { name: "Duyệt" }),
+    ).toHaveLength(1);
 
     await user.click(
-      within(anomalousRow).getByRole("button", { name: "Duyệt điện" }),
+      within(anomalousRow).getByRole("button", { name: "Duyệt" }),
     );
 
     const readyRow = await screen.findByRole("row", { name: /^Phòng 103\b/ });
     expect(within(readyRow).getByText("Sẵn sàng")).toBeInTheDocument();
     expect(
-      within(readyRow).queryByRole("button", { name: "Duyệt điện" }),
+      within(readyRow).queryByRole("button", { name: "Duyệt" }),
     ).not.toBeInTheDocument();
     // 103 joined the previously-3 READY rows.
     expect(
@@ -146,10 +152,12 @@ describe("CycleTemplate", () => {
     renderTemplate();
 
     const row = await screen.findByRole("row", { name: /^Phòng 102\b/ });
+    // round 4 (ticket #247): ✎ moved off the meter cell into the row's ⋯.
     await user.click(
-      within(row).getByRole("button", {
-        name: "Sửa chỉ số điện cũ phòng Phòng 102",
-      }),
+      within(row).getByRole("button", { name: "Thao tác phòng Phòng 102" }),
+    );
+    await user.click(
+      await screen.findByRole("menuitem", { name: "Sửa chỉ số điện cũ" }),
     );
 
     const oldIndexInput = await screen.findByLabelText("Chỉ số điện cũ mới");

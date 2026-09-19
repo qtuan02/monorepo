@@ -52,9 +52,9 @@ export function EntityActionMenu({
         }
       />
       <DropdownMenuContent align="end" side={side} className="w-44">
-        <DropdownMenuLabel>{label}</DropdownMenuLabel>
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuLabel>{label}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           {items.map((item) => (
             <DropdownMenuItem
               key={item.key}

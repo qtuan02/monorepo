@@ -114,6 +114,48 @@ function MeterCellHarness({
   );
 }
 
+/** round 4 (ticket #247) — the table's `layout="table"` render, 3 `td`s. */
+function MeterCellTableHarness({
+  row: cycleRow,
+  type,
+  readOnly = false,
+}: HarnessProps): ReactNode {
+  const form = useForm<CycleFormValues>({
+    defaultValues: {
+      rows: [
+        {
+          roomId: cycleRow.roomId,
+          newElectricity:
+            cycleRow.newElectricity != null
+              ? String(cycleRow.newElectricity)
+              : "",
+          newWater: cycleRow.newWater != null ? String(cycleRow.newWater) : "",
+        },
+      ],
+    },
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <table>
+        <tbody>
+          <tr>
+            <MeterCell
+              layout="table"
+              row={cycleRow}
+              type={type}
+              index={0}
+              control={form.control}
+              month="2026-09"
+              readOnly={readOnly}
+            />
+          </tr>
+        </tbody>
+      </table>
+    </QueryClientProvider>
+  );
+}
+
 describe("MeterCell", () => {
   it("renders the chỉ số mới input when editable", () => {
     queryClient.clear();
@@ -257,5 +299,72 @@ describe("MeterCell", () => {
     expect(
       await screen.findByLabelText("Chỉ số điện cũ mới"),
     ).toBeInTheDocument();
+  });
+});
+
+describe("MeterCell — layout table (round 4, ticket #247)", () => {
+  it("renders 3 td — cũ, ô nhập mới, dùng — with no label/pencil/Duyệt", () => {
+    render(
+      <MeterCellTableHarness
+        row={row({ status: "READY" })}
+        type="electricity"
+      />,
+    );
+
+    expect(screen.getByText("100")).toBeInTheDocument(); // cũ
+    expect(
+      screen.getByRole("spinbutton", {
+        name: "Chỉ số điện mới phòng Phòng 101",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("50")).toBeInTheDocument(); // dùng
+    expect(
+      screen.queryByRole("button", { name: /Sửa chỉ số/ }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /Duyệt/ }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("Phòng trống — cũ/dùng đọc gạch ngang, ô nhập bỏ trống", () => {
+    render(
+      <MeterCellTableHarness
+        row={row({ status: "EMPTY" })}
+        type="electricity"
+      />,
+    );
+
+    expect(screen.getAllByText("—")).toHaveLength(2);
+    expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+  });
+
+  it("khoá ô nhập khi không editable — đọc số thường, không spinbutton", () => {
+    render(
+      <MeterCellTableHarness
+        row={row({ status: "INVOICED" })}
+        type="electricity"
+      />,
+    );
+
+    expect(screen.queryByRole("spinbutton")).not.toBeInTheDocument();
+    expect(screen.getByText("150")).toBeInTheDocument();
+  });
+
+  it("bất thường — ô nhập viền warning", () => {
+    render(
+      <MeterCellTableHarness
+        row={row({
+          status: "ANOMALY",
+          electricityAnomalyReason: "gấp 2 lần kỳ trước",
+        })}
+        type="electricity"
+      />,
+    );
+
+    expect(
+      screen.getByRole("spinbutton", {
+        name: "Chỉ số điện mới phòng Phòng 101",
+      }),
+    ).toHaveClass("border-warning");
   });
 });

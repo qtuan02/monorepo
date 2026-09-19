@@ -192,9 +192,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
       readyRow.getByLabel("Chỉ số điện mới phòng Phòng 102"),
     ).not.toHaveValue("");
 
+    // Round 4 (ticket #247): the Trạng thái cell shows the per-đồng-hồ badge
+    // ("Điện gấp …") + a "Duyệt" button instead of a plain "Bất thường".
     const anomalyRow = page.getByRole("row", { name: "Phòng 103" });
+    await expect(anomalyRow.getByText(/^Điện gấp/)).toBeVisible();
     await expect(
-      anomalyRow.getByText("Bất thường", { exact: true }),
+      anomalyRow.getByRole("button", { name: "Duyệt" }),
     ).toBeVisible();
 
     const missingRow = page.getByRole("row", { name: "Phòng 106" });
