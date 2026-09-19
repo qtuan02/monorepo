@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>apps/chat — mockup v2, ba hướng mạnh</title>
+<style>
+  /* Bản ghi tại thời điểm chọn — không phải nguồn sự thật cho code. Tự chứa: không script, không font ngoài. */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111827;background:#dfe3e8}
+  body{padding:32px 24px 80px}
+  .doc{max-width:1200px;margin:0 auto 32px}
+  .doc h1{font-size:22px;margin-bottom:6px}
+  .doc p{color:#4b5563;max-width:85ch}
+  .doc code,.dir code{font:12px ui-monospace,Menlo,Consolas,monospace;background:rgba(255,255,255,.7);padding:1px 5px;border-radius:4px}
+  .dir{max-width:1200px;margin:0 auto 72px}
+  .dir h2{font-size:18px;margin-bottom:4px}
+  .dir .why{color:#4b5563;margin-bottom:14px;max-width:95ch}
+  .dir .why b{color:#111827}
+  .frames{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+  .frame{border-radius:16px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.14);position:relative}
+  .desk{width:1180px;height:720px}
+  .phone{width:360px;height:720px}
+  svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .cap{font-size:12px;color:#6b7280;margin-top:8px}
+  .av{position:relative;flex:none;display:grid;place-items:center;font:600 13px system-ui;color:#fff;border-radius:50%}
+  .c1{background:linear-gradient(135deg,#7c3aed,#c084fc)}.c2{background:linear-gradient(135deg,#0284c7,#38bdf8)}.c3{background:linear-gradient(135deg,#d97706,#fbbf24)}
+  .c4{background:linear-gradient(135deg,#db2777,#f472b6)}.c5{background:linear-gradient(135deg,#059669,#34d399)}.c6{background:linear-gradient(135deg,#4f46e5,#818cf8)}
+  .c7{background:linear-gradient(135deg,#dc2626,#f87171)}.c8{background:linear-gradient(135deg,#0d9488,#2dd4bf)}
+  .t{min-width:0;flex:1}
+  .t .n{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .t .p{display:flex;justify-content:space-between;gap:8px;white-space:nowrap;overflow:hidden;align-items:center}
+  .t .p span:first-child{overflow:hidden;text-overflow:ellipsis}
+
+  /* ════════════════ D — ISLANDS ════════════════ */
+  [data-dir="d"] .frame{
+    background:
+      radial-gradient(60% 50% at 8% 10%, rgba(45,212,191,.55), transparent 60%),
+      radial-gradient(50% 45% at 92% 18%, rgba(167,139,250,.5), transparent 60%),
+      radial-gradient(55% 55% at 50% 100%, rgba(253,186,116,.45), transparent 60%),
+      linear-gradient(180deg,#eef3f8,#e9eef5);
+    color:#0f172a}
+  [data-dir="d"] .desk{display:grid;grid-template-columns:64px 320px 1fr 292px;gap:12px;padding:12px}
+  [data-dir="d"] .isl{background:rgba(255,255,255,.72);backdrop-filter:blur(22px);border:1px solid rgba(255,255,255,.75);border-radius:22px;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 10px 30px rgba(15,23,42,.08);min-height:0;display:flex;flex-direction:column;overflow:hidden}
+  [data-dir="d"] .rail{align-items:center;padding:14px 0;gap:8px}
+  [data-dir="d"] .mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#0f8b74,#2dd4bf);color:#fff;display:grid;place-items:center;font-weight:800;margin-bottom:8px;box-shadow:0 6px 16px rgba(15,139,116,.35)}
+  [data-dir="d"] .rail a{position:relative;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#475569}
+  [data-dir="d"] .rail a.on{background:#0f172a;color:#fff;box-shadow:0 8px 20px rgba(15,23,42,.25)}
+  [data-dir="d"] .grow{flex:1}
+  [data-dir="d"] .dot{position:absolute;top:4px;right:4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:#f43f5e;color:#fff;font:700 10px/16px system-ui;text-align:center;border:2px solid rgba(255,255,255,.9)}
+  [data-dir="d"] .me{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#818cf8);color:#fff;display:grid;place-items:center;font:700 12px system-ui;box-shadow:0 0 0 3px rgba(255,255,255,.8)}
+  [data-dir="d"] .lh{padding:18px 18px 10px}
+  [data-dir="d"] .lh h3{font-size:26px;font-weight:800;letter-spacing:-.02em;display:flex;justify-content:space-between;align-items:center}
+  [data-dir="d"] .lh h3 a{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#0f8b74,#2dd4bf);color:#fff;display:grid;place-items:center;box-shadow:0 6px 16px rgba(15,139,116,.35)}
+  [data-dir="d"] .search{margin:0 14px 10px;height:40px;border-radius:14px;background:rgba(255,255,255,.85);display:flex;align-items:center;gap:8px;padding:0 12px;color:#64748b;border:1px solid rgba(15,23,42,.06)}
+  [data-dir="d"] .chips{display:flex;gap:6px;padding:0 14px 10px}
+  [data-dir="d"] .chips span{font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;background:rgba(255,255,255,.6);color:#475569;border:1px solid rgba(15,23,42,.06)}
+  [data-dir="d"] .chips span.on{background:#0f172a;color:#fff;border-color:#0f172a}
+  [data-dir="d"] .rows{flex:1;min-height:0;overflow:hidden;padding:0 10px}
+  [data-dir="d"] .row{height:66px;display:flex;align-items:center;gap:12px;padding:0 10px;border-radius:16px;position:relative}
+  [data-dir="d"] .row.on{background:#fff;box-shadow:0 8px 22px rgba(15,23,42,.10)}
+  [data-dir="d"] .row .av{width:44px;height:44px}
+  [data-dir="d"] .av i{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;background:#22c55e;border:2.5px solid #fff}
+  [data-dir="d"] .av.grp{border-radius:14px}
+  [data-dir="d"] .t .n{font-weight:600;font-size:14.5px}
+  [data-dir="d"] .t .n small{color:#94a3b8;font-weight:500;font-size:12px;font-variant-numeric:tabular-nums}
+  [data-dir="d"] .t .p{color:#64748b;font-size:13px}
+  [data-dir="d"] .row.un .n,[data-dir="d"] .row.un .p span:first-child{color:#0f172a;font-weight:700}
+  [data-dir="d"] .pillc{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#0f8b74;color:#fff;font:700 11px/20px system-ui;text-align:center}
+  [data-dir="d"] .ph{height:68px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid rgba(15,23,42,.06)}
+  [data-dir="d"] .ph .av{width:42px;height:42px}
+  [data-dir="d"] .ph .t .n{font-weight:700;font-size:16px}
+  [data-dir="d"] .ph .t .p{font-size:12px;color:#16a34a;font-weight:600}
+  [data-dir="d"] .ib{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#475569;background:rgba(255,255,255,.7);border:1px solid rgba(15,23,42,.06)}
+  [data-dir="d"] .msgs{flex:1;min-height:0;overflow:hidden;padding:18px 22px 10px;display:flex;flex-direction:column;gap:16px;position:relative}
+  [data-dir="d"] .day{align-self:center;font-size:11px;font-weight:700;color:#475569;background:rgba(255,255,255,.7);padding:4px 12px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase}
+  [data-dir="d"] .g{display:flex;gap:10px;align-items:flex-end;max-width:70%}
+  [data-dir="d"] .g.own{align-self:flex-end;flex-direction:row-reverse}
+  [data-dir="d"] .g .av{width:30px;height:30px;font-size:11px}
+  [data-dir="d"] .col{display:flex;flex-direction:column;gap:3px;min-width:0}
+  [data-dir="d"] .g.own .col{align-items:flex-end}
+  [data-dir="d"] .b{padding:10px 14px;border-radius:20px;background:#fff;box-shadow:0 2px 10px rgba(15,23,42,.06);width:fit-content;max-width:100%;font-size:14.5px;line-height:1.4}
+  [data-dir="d"] .g.own .b{background:linear-gradient(135deg,#0f8b74,#1fb39a);color:#fff;box-shadow:0 8px 20px rgba(15,139,116,.28)}
+  [data-dir="d"] .g:not(.own) .b+.b{border-top-left-radius:8px}
+  [data-dir="d"] .g:not(.own) .b:has(+.b){border-bottom-left-radius:8px}
+  [data-dir="d"] .g.own .b+.b{border-top-right-radius:8px}
+  [data-dir="d"] .g.own .b:has(+.b){border-bottom-right-radius:8px}
+  [data-dir="d"] .meta{font-size:11px;color:#94a3b8;margin:2px 12px 0;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+  [data-dir="d"] .seen{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#c084fc);color:#fff;font:700 8px system-ui;display:inline-grid;place-items:center}
+  [data-dir="d"] .jump{position:absolute;right:22px;bottom:14px;height:34px;padding:0 14px 0 10px;border-radius:999px;background:#0f172a;color:#fff;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;box-shadow:0 8px 20px rgba(15,23,42,.3)}
+  [data-dir="d"] .jump svg{width:14px;height:14px}
+  [data-dir="d"] .comp{padding:0 16px 16px}
+  [data-dir="d"] .field{min-height:50px;border-radius:18px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.12);display:flex;align-items:center;gap:4px;padding:5px 6px 5px 8px}
+  [data-dir="d"] .field .ib{background:transparent;border:0}
+  [data-dir="d"] .field .in{flex:1;color:#94a3b8;padding:0 6px;font-size:14.5px}
+  [data-dir="d"] .send{width:40px;height:40px;border-radius:14px;background:linear-gradient(135deg,#0f8b74,#2dd4bf);color:#fff;display:grid;place-items:center;box-shadow:0 6px 16px rgba(15,139,116,.35)}
+  [data-dir="d"] .det{padding:18px;gap:16px;align-items:center;text-align:center}
+  [data-dir="d"] .det .hd{align-self:stretch;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+  [data-dir="d"] .det .big{width:88px;height:88px;font-size:28px;box-shadow:0 0 0 4px #fff,0 0 0 7px rgba(15,139,116,.35)}
+  [data-dir="d"] .det .nm{font-size:18px;font-weight:800;letter-spacing:-.01em}
+  [data-dir="d"] .det small{color:#64748b;font-size:12px;display:block;margin-top:2px}
+  [data-dir="d"] .det .bio{font-size:13px;color:#475569}
+  [data-dir="d"] .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-self:stretch}
+  [data-dir="d"] .acts a{height:40px;border-radius:14px;display:grid;place-items:center;font-size:13px;font-weight:600;background:#fff;box-shadow:0 2px 10px rgba(15,23,42,.06)}
+  [data-dir="d"] .acts a.dng{color:#e11d48}
+  [data-dir="d"] .stat{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-self:stretch}
+  [data-dir="d"] .stat div{background:rgba(255,255,255,.7);border-radius:14px;padding:10px 6px}
+  [data-dir="d"] .stat b{display:block;font-size:16px}
+  [data-dir="d"] .stat span{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700}
+  /* phone D */
+  [data-dir="d"] .phone{display:flex;flex-direction:column;padding:12px;gap:12px}
+  [data-dir="d"] .phone .isl{flex:1}
+  [data-dir="d"] .phone .isl.nav{flex:none;height:66px}
+  [data-dir="d"] .phone .lh{padding:18px 18px 8px}
+  [data-dir="d"] .nav{height:66px;border-radius:22px;display:grid;grid-template-columns:repeat(3,1fr);align-items:center;flex:none}
+  [data-dir="d"] .nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#64748b;position:relative;font-weight:600}
+  [data-dir="d"] .nav a.on{color:#0f172a}
+  [data-dir="d"] .nav a.on svg{background:#0f172a;color:#fff;border-radius:10px;padding:5px;width:30px;height:30px}
+  [data-dir="d"] .nav a .dot{top:-6px;left:calc(50% + 8px);right:auto}
+
+  /* ════════════════ E — LEDGER ════════════════ */
+  [data-dir="e"] .frame{background:#f3eee4;color:#1c1a17;--ink:#123f36;--rule:#dcd3c2;--cream:#faf6ee;--mute:#7b7468}
+  [data-dir="e"] .serif{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif}
+  [data-dir="e"] .sc{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);font-weight:600}
+  [data-dir="e"] .desk{display:grid;grid-template-columns:60px 330px 1fr 284px;background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(28,26,23,.035) 27px 28px)}
+  [data-dir="e"] .rail{border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:10px;background:#f3eee4}
+  [data-dir="e"] .mark{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:26px;font-style:italic;color:var(--ink);margin-bottom:12px;line-height:1}
+  [data-dir="e"] .rail a{position:relative;width:40px;height:40px;display:grid;place-items:center;color:var(--mute);border-bottom:2px solid transparent}
+  [data-dir="e"] .rail a.on{color:var(--ink);border-bottom-color:var(--ink)}
+  [data-dir="e"] .grow{flex:1}
+  [data-dir="e"] .dot{position:absolute;top:6px;right:4px;min-width:15px;height:15px;padding:0 4px;border-radius:2px;background:var(--ink);color:#f3eee4;font:700 9.5px/15px system-ui;text-align:center}
+  [data-dir="e"] .me{width:34px;height:34px;border:1px solid var(--ink);display:grid;place-items:center;font-family:Georgia,serif;font-size:14px;color:var(--ink);background:var(--cream)}
+  [data-dir="e"] .list{border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0;background:#f3eee4}
+  [data-dir="e"] .lh{padding:22px 20px 6px}
+  [data-dir="e"] .lh .kicker{margin-bottom:4px}
+  [data-dir="e"] .lh h3{font-size:30px;font-weight:400;letter-spacing:-.01em;display:flex;justify-content:space-between;align-items:baseline;color:#1c1a17}
+  [data-dir="e"] .lh h3 a{font-size:13px;font-family:system-ui;font-weight:600;color:var(--ink);border-bottom:1px solid var(--ink);padding-bottom:1px;display:flex;align-items:center;gap:4px}
+  [data-dir="e"] .lh h3 a svg{width:14px;height:14px}
+  [data-dir="e"] .search{margin:12px 20px 6px;height:34px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:8px;color:var(--mute);font-style:italic;font-family:Georgia,serif}
+  [data-dir="e"] .rows{flex:1;min-height:0;overflow:hidden}
+  [data-dir="e"] .row{height:72px;display:flex;align-items:center;gap:14px;padding:0 20px;border-bottom:1px solid var(--rule);position:relative}
+  [data-dir="e"] .row.on{background:var(--cream)}
+  [data-dir="e"] .row.on::before{content:"";position:absolute;left:0;top:0;bottom:-1px;width:3px;background:var(--ink)}
+  [data-dir="e"] .row .av{width:44px;height:44px;border-radius:0;background:var(--cream);border:1px solid var(--rule);color:var(--ink);font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:18px;font-weight:400}
+  [data-dir="e"] .av i{position:absolute;right:-4px;top:-4px;width:9px;height:9px;border-radius:50%;background:#2f8f5b;border:1.5px solid #f3eee4}
+  [data-dir="e"] .t .n{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:17px}
+  [data-dir="e"] .t .n small{font-family:system-ui;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-variant-numeric:tabular-nums}
+  [data-dir="e"] .t .p{color:var(--mute);font-size:13px;margin-top:1px}
+  [data-dir="e"] .row.un .n{font-weight:700}
+  [data-dir="e"] .row.un .p span:first-child{color:#1c1a17}
+  [data-dir="e"] .pillc{width:8px;height:8px;border-radius:50%;background:var(--ink);flex:none}
+  [data-dir="e"] .pane{display:flex;flex-direction:column;min-height:0}
+  [data-dir="e"] .ph{height:76px;display:flex;align-items:flex-end;gap:14px;padding:0 28px 14px;border-bottom:1px solid var(--rule)}
+  [data-dir="e"] .ph .t .n{font-size:24px;line-height:1.1}
+  [data-dir="e"] .ph .t .p{margin-top:3px}
+  [data-dir="e"] .ph .t .p b{color:#2f8f5b;font-weight:600}
+  [data-dir="e"] .ib{width:36px;height:36px;display:grid;place-items:center;color:var(--mute);border:1px solid var(--rule);background:var(--cream)}
+  [data-dir="e"] .msgs{flex:1;min-height:0;overflow:hidden;padding:20px 28px 10px;display:flex;flex-direction:column;gap:18px;position:relative}
+  [data-dir="e"] .day{display:flex;align-items:center;gap:12px}
+  [data-dir="e"] .day::before,[data-dir="e"] .day::after{content:"";flex:1;height:1px;background:var(--rule)}
+  [data-dir="e"] .g{display:flex;gap:12px;align-items:flex-start;max-width:68%}
+  [data-dir="e"] .g.own{align-self:flex-end;flex-direction:row-reverse}
+  [data-dir="e"] .g .av{width:30px;height:30px;border-radius:0;background:var(--cream);border:1px solid var(--rule);color:var(--ink);font-family:Georgia,serif;font-size:12px;margin-top:20px}
+  [data-dir="e"] .col{display:flex;flex-direction:column;gap:4px;min-width:0}
+  [data-dir="e"] .g.own .col{align-items:flex-end}
+  [data-dir="e"] .who{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:14px;color:#1c1a17;margin-bottom:1px}
+  [data-dir="e"] .b{padding:10px 14px;background:var(--cream);border:1px solid var(--rule);width:fit-content;max-width:100%;font-size:14.5px;line-height:1.5;border-radius:3px}
+  [data-dir="e"] .g.own .b{background:var(--ink);color:#f3eee4;border-color:var(--ink)}
+  [data-dir="e"] .meta{margin:3px 2px 0;display:flex;gap:8px}
+  [data-dir="e"] .seen{color:var(--ink);font-weight:700}
+  [data-dir="e"] .jump{position:absolute;right:28px;bottom:14px;height:30px;padding:0 12px 0 10px;background:var(--ink);color:#f3eee4;display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+  [data-dir="e"] .jump svg{width:13px;height:13px}
+  [data-dir="e"] .comp{padding:12px 28px 18px}
+  [data-dir="e"] .field{display:flex;align-items:flex-end;gap:10px;border-bottom:2px solid var(--ink);padding:0 0 8px}
+  [data-dir="e"] .field .ib{border:0;background:transparent;width:32px;height:32px}
+  [data-dir="e"] .field .in{flex:1;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-style:italic;font-size:17px;color:var(--mute);padding-bottom:4px}
+  [data-dir="e"] .send{width:36px;height:36px;background:var(--ink);color:#f3eee4;display:grid;place-items:center}
+  [data-dir="e"] .hint{margin-top:8px}
+  [data-dir="e"] .det{border-left:1px solid var(--rule);padding:22px 20px;display:flex;flex-direction:column;gap:14px;background:#f3eee4;min-height:0;overflow:hidden}
+  [data-dir="e"] .det .hd{display:flex;justify-content:space-between;align-items:center}
+  [data-dir="e"] .det .big{width:96px;height:96px;border-radius:0;background:var(--cream);border:1px solid var(--rule);color:var(--ink);font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:40px;font-weight:400}
+  [data-dir="e"] .det .nm{font-size:24px;line-height:1.1;margin-top:6px}
+  [data-dir="e"] .det small{display:block;margin-top:4px}
+  [data-dir="e"] .det .bio{font-family:"Iowan Old Style",Palatino,Georgia,serif;font-style:italic;font-size:15px;color:#3f3a33;line-height:1.45;border-left:2px solid var(--rule);padding-left:12px}
+  [data-dir="e"] .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;border-top:1px solid var(--rule);padding-top:12px}
+  [data-dir="e"] .kv .sc{align-self:center}
+  [data-dir="e"] .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  [data-dir="e"] .acts a{height:38px;border:1px solid var(--ink);display:grid;place-items:center;font-size:12px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;color:var(--ink)}
+  [data-dir="e"] .acts a.dng{border-color:var(--rule);color:#9a3412}
+  /* phone E */
+  [data-dir="e"] .phone{display:flex;flex-direction:column;background-image:repeating-linear-gradient(0deg,transparent 0 27px,rgba(28,26,23,.035) 27px 28px)}
+  [data-dir="e"] .phone .lh{padding:22px 20px 4px}
+  [data-dir="e"] .phone .rows{flex:1}
+  [data-dir="e"] .nav{height:66px;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(3,1fr);align-items:center;background:#f3eee4;flex:none}
+  [data-dir="e"] .nav a{display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--mute);position:relative;padding-top:2px}
+  [data-dir="e"] .nav a .sc{font-size:9.5px}
+  [data-dir="e"] .nav a.on{color:var(--ink)}
+  [data-dir="e"] .nav a.on .sc{color:var(--ink)}
+  [data-dir="e"] .nav a.on::after{content:"";position:absolute;top:-1px;left:30%;right:30%;height:2px;background:var(--ink)}
+  [data-dir="e"] .nav a .dot{top:-4px;left:calc(50% + 8px);right:auto}
+
+  /* ════════════════ F — MIDNIGHT ════════════════ */
+  [data-dir="f"] .frame{background:#0a0e13;color:#e6edf3;--sur:#10161d;--sur2:#161e27;--line:rgba(255,255,255,.06);--mute:#8b98a5;--teal:#2dd4bf}
+  [data-dir="f"] .desk{display:grid;grid-template-columns:64px 320px 1fr 288px}
+  [data-dir="f"] .rail{background:#0a0e13;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:8px}
+  [data-dir="f"] .mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#042f2e;display:grid;place-items:center;font-weight:800;margin-bottom:8px;box-shadow:0 0 24px rgba(45,212,191,.45)}
+  [data-dir="f"] .rail a{position:relative;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#66727f}
+  [data-dir="f"] .rail a.on{background:rgba(45,212,191,.12);color:var(--teal);box-shadow:0 0 0 1px rgba(45,212,191,.25),0 0 18px rgba(45,212,191,.2)}
+  [data-dir="f"] .grow{flex:1}
+  [data-dir="f"] .dot{position:absolute;top:4px;right:4px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--teal);color:#042f2e;font:800 10px/16px system-ui;text-align:center;border:2px solid #0a0e13}
+  [data-dir="f"] .me{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:700 12px system-ui;color:#fff;box-shadow:0 0 0 2px #0a0e13,0 0 0 4px rgba(45,212,191,.5)}
+  [data-dir="f"] .list{background:var(--sur);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+  [data-dir="f"] .lh{padding:18px 18px 10px}
+  [data-dir="f"] .lh h3{font-size:24px;font-weight:800;letter-spacing:-.02em;display:flex;justify-content:space-between;align-items:center}
+  [data-dir="f"] .lh h3 a{width:36px;height:36px;border-radius:12px;background:var(--teal);color:#042f2e;display:grid;place-items:center;box-shadow:0 0 20px rgba(45,212,191,.4)}
+  [data-dir="f"] .search{margin:0 14px 10px;height:40px;border-radius:12px;background:#0a0e13;border:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:0 12px;color:#66727f}
+  [data-dir="f"] .search kbd{margin-left:auto;font:11px ui-monospace,Menlo,monospace;border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:#66727f}
+  [data-dir="f"] .rows{flex:1;min-height:0;overflow:hidden;padding:0 10px}
+  [data-dir="f"] .row{height:66px;display:flex;align-items:center;gap:12px;padding:0 10px;border-radius:14px;position:relative}
+  [data-dir="f"] .row.on{background:rgba(45,212,191,.08);box-shadow:inset 3px 0 0 var(--teal)}
+  [data-dir="f"] .row .av{width:44px;height:44px}
+  [data-dir="f"] .av.on-ring{box-shadow:0 0 0 2px var(--sur),0 0 0 4px var(--teal),0 0 14px rgba(45,212,191,.5)}
+  [data-dir="f"] .row.on .av.on-ring{box-shadow:0 0 0 2px #142228,0 0 0 4px var(--teal),0 0 14px rgba(45,212,191,.5)}
+  [data-dir="f"] .av.grp{border-radius:14px}
+  [data-dir="f"] .t .n{font-weight:600;font-size:14.5px;color:#e6edf3}
+  [data-dir="f"] .t .n small{color:#66727f;font-weight:500;font-size:12px;font-variant-numeric:tabular-nums}
+  [data-dir="f"] .t .p{color:var(--mute);font-size:13px}
+  [data-dir="f"] .row.un .n,[data-dir="f"] .row.un .p span:first-child{color:#fff;font-weight:700}
+  [data-dir="f"] .pillc{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--teal);color:#042f2e;font:800 11px/20px system-ui;text-align:center;box-shadow:0 0 12px rgba(45,212,191,.5)}
+  [data-dir="f"] .pane{display:flex;flex-direction:column;min-height:0;background:radial-gradient(60% 40% at 85% 0%, rgba(45,212,191,.14), transparent 60%),#0a0e13}
+  [data-dir="f"] .ph{height:68px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+  [data-dir="f"] .ph .av{width:42px;height:42px}
+  [data-dir="f"] .ph .t .n{font-weight:700;font-size:16px}
+  [data-dir="f"] .ph .t .p{font-size:12px;color:var(--teal);font-weight:600;display:flex;align-items:center;gap:6px}
+  [data-dir="f"] .ph .t .p::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal)}
+  [data-dir="f"] .ib{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#8b98a5;background:var(--sur2);border:1px solid var(--line)}
+  [data-dir="f"] .msgs{flex:1;min-height:0;overflow:hidden;padding:18px 22px 10px;display:flex;flex-direction:column;gap:16px;position:relative}
+  [data-dir="f"] .day{align-self:center;font-size:11px;font-weight:700;color:#8b98a5;background:var(--sur2);border:1px solid var(--line);padding:4px 12px;border-radius:999px;letter-spacing:.04em;text-transform:uppercase}
+  [data-dir="f"] .g{display:flex;gap:10px;align-items:flex-end;max-width:70%}
+  [data-dir="f"] .g.own{align-self:flex-end;flex-direction:row-reverse}
+  [data-dir="f"] .g .av{width:30px;height:30px;font-size:11px}
+  [data-dir="f"] .col{display:flex;flex-direction:column;gap:3px;min-width:0}
+  [data-dir="f"] .g.own .col{align-items:flex-end}
+  [data-dir="f"] .b{padding:10px 14px;border-radius:18px;background:var(--sur2);border:1px solid var(--line);width:fit-content;max-width:100%;font-size:14.5px;line-height:1.4;color:#e6edf3}
+  [data-dir="f"] .g.own .b{background:linear-gradient(135deg,#14b8a6,#0d9488);color:#f0fdfa;border-color:transparent;box-shadow:0 6px 24px rgba(20,184,166,.28)}
+  [data-dir="f"] .g:not(.own) .b+.b{border-top-left-radius:7px}
+  [data-dir="f"] .g:not(.own) .b:has(+.b){border-bottom-left-radius:7px}
+  [data-dir="f"] .g.own .b+.b{border-top-right-radius:7px}
+  [data-dir="f"] .g.own .b:has(+.b){border-bottom-right-radius:7px}
+  [data-dir="f"] .meta{font-size:11px;color:#66727f;margin:2px 12px 0;display:flex;gap:6px;align-items:center;font-variant-numeric:tabular-nums}
+  [data-dir="f"] .seen{width:16px;height:16px;border-radius:50%;font:700 8px system-ui;display:inline-grid;place-items:center;color:#fff;box-shadow:0 0 0 1.5px #0a0e13}
+  [data-dir="f"] .jump{position:absolute;right:22px;bottom:14px;height:34px;padding:0 14px 0 10px;border-radius:999px;background:var(--teal);color:#042f2e;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;box-shadow:0 0 24px rgba(45,212,191,.55)}
+  [data-dir="f"] .jump svg{width:14px;height:14px}
+  [data-dir="f"] .comp{padding:0 16px 16px}
+  [data-dir="f"] .fw{padding:1px;border-radius:19px;background:linear-gradient(135deg,rgba(45,212,191,.7),rgba(45,212,191,.05) 40%,rgba(129,140,248,.4))}
+  [data-dir="f"] .field{min-height:50px;border-radius:18px;background:#10161d;display:flex;align-items:center;gap:4px;padding:5px 6px 5px 8px}
+  [data-dir="f"] .field .ib{background:transparent;border:0}
+  [data-dir="f"] .field .in{flex:1;color:#66727f;padding:0 6px;font-size:14.5px}
+  [data-dir="f"] .send{width:40px;height:40px;border-radius:14px;background:var(--teal);color:#042f2e;display:grid;place-items:center;box-shadow:0 0 20px rgba(45,212,191,.45)}
+  [data-dir="f"] .det{border-left:1px solid var(--line);background:var(--sur);padding:18px;display:flex;flex-direction:column;gap:16px;align-items:center;text-align:center;min-height:0;overflow:hidden}
+  [data-dir="f"] .det .hd{align-self:stretch;display:flex;justify-content:space-between;align-items:center;font-weight:700}
+  [data-dir="f"] .det .big{width:88px;height:88px;font-size:28px;box-shadow:0 0 0 3px var(--sur),0 0 0 6px var(--teal),0 0 30px rgba(45,212,191,.5)}
+  [data-dir="f"] .det .nm{font-size:18px;font-weight:800}
+  [data-dir="f"] .det small{color:var(--mute);font-size:12px;display:block;margin-top:2px}
+  [data-dir="f"] .det .bio{font-size:13px;color:var(--mute)}
+  [data-dir="f"] .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-self:stretch}
+  [data-dir="f"] .acts a{height:40px;border-radius:14px;display:grid;place-items:center;font-size:13px;font-weight:600;background:var(--sur2);border:1px solid var(--line)}
+  [data-dir="f"] .acts a.dng{color:#fb7185}
+  [data-dir="f"] .mems{align-self:stretch;text-align:left;display:flex;flex-direction:column;gap:2px}
+  [data-dir="f"] .mems h4{font-size:11px;color:#66727f;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+  [data-dir="f"] .mem{display:flex;align-items:center;gap:10px;padding:6px 0}
+  [data-dir="f"] .mem .av{width:30px;height:30px;font-size:11px}
+  [data-dir="f"] .mem .t .n{font-size:13px}
+  [data-dir="f"] .tag{font-size:10px;font-weight:800;padding:1px 7px;border-radius:999px;background:rgba(45,212,191,.15);color:var(--teal);border:1px solid rgba(45,212,191,.3)}
+  /* phone F */
+  [data-dir="f"] .phone{display:flex;flex-direction:column;background:var(--sur)}
+  [data-dir="f"] .phone .lh{padding:18px 18px 8px}
+  [data-dir="f"] .phone .rows{flex:1}
+  [data-dir="f"] .nav{height:66px;border-top:1px solid var(--line);background:rgba(10,14,19,.9);display:grid;grid-template-columns:repeat(3,1fr);align-items:center;flex:none}
+  [data-dir="f"] .nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:#66727f;position:relative;font-weight:600}
+  [data-dir="f"] .nav a.on{color:var(--teal);text-shadow:0 0 12px rgba(45,212,191,.6)}
+  [data-dir="f"] .nav a .dot{top:-6px;left:calc(50% + 8px);right:auto}
+  .bar{width:120px;height:4px;border-radius:2px;background:currentColor;opacity:.35;margin:6px auto 8px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.4-4.2A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20h6a5 5 0 0 0-3-4.6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a5 5 0 0 0 7 0M9 10h.01M15 10h.01"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+</svg>
+
+<header class="doc">
+  <h1>apps/chat — redesign, vòng 2: ba hướng mạnh</h1>
+  <p>Vòng 1 (A/B/C) bị từ chối: <em>"bình thường quá"</em> — đổi token, giữ hình. Vòng này mỗi hướng có một <b>ý tưởng thị giác</b> riêng: <b>D</b> các đảo kính nổi trên biển gradient · <b>E</b> sổ cái giấy-mực với serif · <b>F</b> đêm neon, ánh sáng là ngôn ngữ trạng thái. Lớp nền (rail · list có tìm · pane group theo người gửi · composer một khối · details · bottom nav) giữ như brief §3 — vẫn map lên <code>Item</code>, <code>Bubble</code>, <code>Message</code>, <code>InputGroup</code>, <code>Empty</code>.</p>
+</header>
+
+<!-- ═══════════════════════════ D — ISLANDS ═══════════════════════════ -->
+<section class="dir" data-dir="d">
+  <h2>Hướng D — <em>Islands</em> — đảo kính nổi trên biển gradient</h2>
+  <p class="why"><b>Không có panel nào chạm mép.</b> Rail, danh sách, cuộc trò chuyện, chi tiết là bốn hòn đảo kính bo 22px, cách nhau 12px, nổi trên một nền gradient tĩnh ba màu (teal · tím · cam). Tin của mình là gradient teal có bóng màu; nút chính là gradient; hàng đang mở "nhấc" lên thành thẻ trắng. Chip lọc <em>All · Unread · Groups</em> ngay dưới ô tìm. Composer là một hòn đảo nhỏ nổi trên tin nhắn. Mobile: một đảo lớn + bottom nav là một đảo pill. Họ hàng Prism (ADR-0009) nhưng bố cục khác hẳn: đảo, không phải trang.</p>
+  <div class="frames">
+    <div class="frame desk">
+      <aside class="isl rail">
+        <div class="mark">C</div>
+        <a class="on"><svg><use href="#i-chat"/></svg><span class="dot">4</span></a>
+        <a><svg><use href="#i-users"/></svg><span class="dot">2</span></a>
+        <a><svg><use href="#i-user"/></svg></a>
+        <div class="grow"></div>
+        <a><svg><use href="#i-moon"/></svg></a>
+        <div class="me">TQ</div>
+      </aside>
+      <section class="isl list">
+        <div class="lh"><h3>Messages<a><svg><use href="#i-plus"/></svg></a></h3></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search</div>
+        <div class="chips"><span class="on">All</span><span>Unread · 4</span><span>Groups</span></div>
+        <div class="rows">
+          <div class="row on"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+          <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+          <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+          <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+          <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+          <div class="row"><div class="av c8">BL</div><div class="t"><div class="n">Bảo Lê<small>12/09</small></div><div class="p"><span>You: let's sync tomorrow</span></div></div></div>
+        </div>
+      </section>
+      <section class="isl pane">
+        <header class="ph"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần</div><div class="p">Active now</div></div><a class="ib"><svg><use href="#i-info"/></svg></a></header>
+        <div class="msgs">
+          <span class="day">Today</span>
+          <div class="g"><div class="av c1">LT</div><div class="col"><div class="b">Hey! Did you get a chance to look at the redesign brief?</div><div class="b">I left comments on the composer section.</div><div class="meta">10:12</div></div></div>
+          <div class="g own"><div class="col"><div class="b">Yes — reading now.</div><div class="b">Agree on grouping bubbles by sender; every message showing its own timestamp is noise.</div><div class="b">Let's keep the time on the last bubble of a group only.</div><div class="meta"><span>10:15</span><span class="seen">L</span></div></div></div>
+          <div class="g"><div class="av c1">LT</div><div class="col"><div class="b">Perfect. See you at 3 then 👍</div><div class="meta">10:41</div></div></div>
+          <div class="g own"><div class="col"><div class="b">See you at 3 then 👍</div><div class="meta"><span>10:42</span><span>Sent</span></div></div></div>
+          <div class="jump"><svg><use href="#i-down"/></svg>2 new messages</div>
+        </div>
+        <div class="comp"><div class="field"><a class="ib"><svg><use href="#i-smile"/></svg></a><div class="in">Message Linh…</div><a class="send"><svg><use href="#i-send"/></svg></a></div></div>
+      </section>
+      <aside class="isl det">
+        <div class="hd">Profile<a class="ib"><svg><use href="#i-x"/></svg></a></div>
+        <div class="av c1 big">LT</div>
+        <div><div class="nm">Linh Trần</div><small>@linhtran · Active now</small></div>
+        <p class="bio">Product designer. Coffee first, pixels second.</p>
+        <div class="stat"><div><b>2</b><span>Groups</span></div><div><b>1.2k</b><span>Messages</span></div><div><b>Mar</b><span>Since</span></div></div>
+        <div class="acts"><a>View profile</a><a class="dng">Unfriend</a></div>
+      </aside>
+    </div>
+    <div class="frame phone">
+      <section class="isl">
+        <div class="lh"><h3>Messages<a><svg><use href="#i-plus"/></svg></a></h3></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search</div>
+        <div class="chips"><span class="on">All</span><span>Unread · 4</span><span>Groups</span></div>
+        <div class="rows">
+          <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+          <div class="row"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+          <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on</span></div></div></div>
+          <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+        </div>
+      </section>
+      <nav class="isl nav"><a class="on"><svg><use href="#i-chat"/></svg>Chats<span class="dot">4</span></a><a><svg><use href="#i-users"/></svg>Friends<span class="dot">2</span></a><a><svg><use href="#i-user"/></svg>Me</a></nav>
+    </div>
+  </div>
+  <p class="cap">Đảo = <code>Card</code> với <code>bg-card/70 backdrop-blur</code>; nền gradient viết ở <code>body</code> như documents. Chip = <code>ToggleGroup</code>. Chi phí: blur trên list ảo hoá (như C vòng 1), và <code>.dark</code> phải làm lại.</p>
+</section>
+
+<!-- ═══════════════════════════ E — LEDGER ═══════════════════════════ -->
+<section class="dir" data-dir="e">
+  <h2>Hướng E — <em>Ledger</em> — sổ cái giấy-mực, serif</h2>
+  <p class="why"><b>Không có bubble tròn, không có gradient, không có màu avatar.</b> Giấy ấm <code>#f3eee4</code> kẻ dòng mờ, mực xanh rêu <code>#123f36</code> là màu duy nhất. Tên người và tiêu đề dùng <b>serif</b>; nhãn phụ là small caps; avatar là <b>monogram vuông</b> viền mảnh. Tin người khác là thẻ kem có viền; tin của mình là khối mực. Ô tìm và composer là một <em>dòng kẻ</em> chứ không phải hộp. Presence là chấm xanh lá nhỏ ở góc monogram. Đây là hướng khác biệt nhất trong repo — không app nào đang dùng serif — và rẻ: token giấy/mực + một font serif qua <code>@fontsource-variable</code> (Fraunces hoặc Newsreader), không blur, không gradient.</p>
+  <div class="frames">
+    <div class="frame desk">
+      <aside class="rail">
+        <div class="mark">C</div>
+        <a class="on"><svg><use href="#i-chat"/></svg><span class="dot">4</span></a>
+        <a><svg><use href="#i-users"/></svg><span class="dot">2</span></a>
+        <a><svg><use href="#i-user"/></svg></a>
+        <div class="grow"></div>
+        <a><svg><use href="#i-moon"/></svg></a>
+        <div class="me">T</div>
+      </aside>
+      <section class="list">
+        <div class="lh"><div class="sc kicker">Inbox · 4 unread</div><h3 class="serif">Conversations<a><svg><use href="#i-pen"/></svg>New</a></h3></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search by name…</div>
+        <div class="rows">
+          <div class="row on"><div class="av">L<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av">D</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc"></span></div></div></div>
+          <div class="row un"><div class="av">H<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc"></span></div></div></div>
+          <div class="row"><div class="av">A</div><div class="t"><div class="n">An Nguyễn<small>Yest.</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av">F</div><div class="t"><div class="n">FE guild<small>Yest.</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+          <div class="row"><div class="av">Q<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+          <div class="row"><div class="av">M</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+        </div>
+      </section>
+      <section class="pane">
+        <header class="ph"><div class="t"><div class="n serif">Linh Trần</div><div class="p sc"><b>Active now</b> · @linhtran</div></div><a class="ib"><svg><use href="#i-info"/></svg></a></header>
+        <div class="msgs">
+          <span class="day sc">Today</span>
+          <div class="g"><div class="av">L</div><div class="col"><span class="who">Linh Trần</span><div class="b">Hey! Did you get a chance to look at the redesign brief?</div><div class="b">I left comments on the composer section.</div><div class="meta sc">10:12</div></div></div>
+          <div class="g own"><div class="col"><div class="b">Yes — reading now.</div><div class="b">Agree on grouping bubbles by sender; every message showing its own timestamp is noise.</div><div class="b">Let's keep the time on the last bubble of a group only.</div><div class="meta sc"><span>10:15</span><span class="seen">Seen</span></div></div></div>
+          <div class="g"><div class="av">L</div><div class="col"><span class="who">Linh Trần</span><div class="b">Perfect. See you at 3 then 👍</div><div class="meta sc">10:41</div></div></div>
+          <div class="g own"><div class="col"><div class="b">See you at 3 then 👍</div><div class="meta sc"><span>10:42</span><span>Sent</span></div></div></div>
+          <div class="jump"><svg><use href="#i-down"/></svg>2 new</div>
+        </div>
+        <div class="comp">
+          <div class="field"><a class="ib"><svg><use href="#i-smile"/></svg></a><div class="in">Write to Linh…</div><a class="send"><svg><use href="#i-send"/></svg></a></div>
+          <div class="hint sc">Enter to send · Shift + Enter for a new line</div>
+        </div>
+      </section>
+      <aside class="det">
+        <div class="hd"><span class="sc">Profile</span><a class="ib"><svg><use href="#i-x"/></svg></a></div>
+        <div class="av big">L</div>
+        <div><div class="nm serif">Linh Trần</div><small class="sc">@linhtran · Active now</small></div>
+        <p class="bio">"Product designer. Coffee first, pixels second."</p>
+        <div class="kv"><span class="sc">Friends</span><span>since March 2026</span><span class="sc">Groups</span><span>Design team, FE guild</span></div>
+        <div class="acts"><a>Profile</a><a class="dng">Unfriend</a></div>
+      </aside>
+    </div>
+    <div class="frame phone">
+      <div class="lh"><div class="sc kicker">Inbox · 4 unread</div><h3 class="serif">Conversations<a><svg><use href="#i-pen"/></svg>New</a></h3></div>
+      <div class="search"><svg><use href="#i-search"/></svg>Search by name…</div>
+      <div class="rows">
+        <div class="row un"><div class="av">D</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc"></span></div></div></div>
+        <div class="row"><div class="av">L<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+        <div class="row un"><div class="av">H<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc"></span></div></div></div>
+        <div class="row"><div class="av">A</div><div class="t"><div class="n">An Nguyễn<small>Yest.</small></div><div class="p"><span>Photo</span></div></div></div>
+        <div class="row"><div class="av">F</div><div class="t"><div class="n">FE guild<small>Yest.</small></div><div class="p"><span>Tuấn: React Compiler on</span></div></div></div>
+        <div class="row"><div class="av">Q<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+      </div>
+      <nav class="nav"><a class="on"><svg><use href="#i-chat"/></svg><span class="sc">Chats</span><span class="dot">4</span></a><a><svg><use href="#i-users"/></svg><span class="sc">Friends</span><span class="dot">2</span></a><a><svg><use href="#i-user"/></svg><span class="sc">Me</span></a></nav>
+    </div>
+  </div>
+  <p class="cap">Monogram = <code>AvatarFallback</code> đổi class (vuông, viền); ảnh đại diện thật vẫn hiện nếu có. Own bubble = <code>Bubble</code> với class mực. Dark mode = giấy tối (than) + mực kem, không phải đảo màu.</p>
+</section>
+
+<!-- ═══════════════════════════ F — MIDNIGHT ═══════════════════════════ -->
+<section class="dir" data-dir="f">
+  <h2>Hướng F — <em>Midnight</em> — dark-first, ánh sáng là trạng thái</h2>
+  <p class="why"><b>Tối là mặc định, teal là nguồn sáng duy nhất — và ánh sáng có nghĩa.</b> Người đang online có <em>vòng sáng</em> quanh avatar (không phải chấm); hàng chưa đọc, mục nav đang mở, nút gửi, nút "tin mới" đều phát sáng cùng một teal; tin của mình là gradient teal có bóng màu. Nền pane có một quầng teal mờ ở góc. Composer viền gradient mảnh. Rẻ hơn tưởng: <code>.dark</code> đã viết đủ trong <code>globals.css</code> và đang là dead CSS — hướng này biến nó thành mặc định và thêm glow; light theme vẫn là nửa kia của toggle. Không blur trên list, không serif, contrast trên nền tối dễ kiểm.</p>
+  <div class="frames">
+    <div class="frame desk">
+      <aside class="rail">
+        <div class="mark">C</div>
+        <a class="on"><svg><use href="#i-chat"/></svg><span class="dot">4</span></a>
+        <a><svg><use href="#i-users"/></svg><span class="dot">2</span></a>
+        <a><svg><use href="#i-user"/></svg></a>
+        <div class="grow"></div>
+        <a><svg><use href="#i-sun"/></svg></a>
+        <div class="me c6">TQ</div>
+      </aside>
+      <section class="list">
+        <div class="lh"><h3>Chats<a><svg><use href="#i-plus"/></svg></a></h3></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search<kbd>⌘K</kbd></div>
+        <div class="rows">
+          <div class="row on"><div class="av c1 on-ring">LT</div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+          <div class="row un"><div class="av c3 on-ring">HP</div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+          <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+          <div class="row"><div class="av c6 on-ring">QD</div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+          <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+          <div class="row"><div class="av c8">BL</div><div class="t"><div class="n">Bảo Lê<small>12/09</small></div><div class="p"><span>You: let's sync tomorrow</span></div></div></div>
+        </div>
+      </section>
+      <section class="pane">
+        <header class="ph"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team</div><div class="p">3 of 5 online</div></div><a class="ib"><svg><use href="#i-info"/></svg></a></header>
+        <div class="msgs">
+          <span class="day">Today</span>
+          <div class="g"><div class="av c3">HP</div><div class="col"><div class="meta" style="margin:0 12px 2px">Hà Phạm</div><div class="b">Sender name shows once per group, not on every line.</div><div class="meta">10:12</div></div></div>
+          <div class="g"><div class="av c5">MH</div><div class="col"><div class="meta" style="margin:0 12px 2px">Minh Hoàng</div><div class="b">pushed the new tokens</div><div class="b">--online is the only new one, the rest override theme.css</div><div class="meta">10:31</div></div></div>
+          <div class="g own"><div class="col"><div class="b">Nice. Presence as a glowing ring reads at a glance across the whole list.</div><div class="b">And the unread pill, the active tab and the send button share the same light.</div><div class="meta"><span>10:33</span><span class="seen c3">H</span><span class="seen c5" style="margin-left:-8px">M</span></div></div></div>
+          <div class="jump"><svg><use href="#i-down"/></svg>Jump to latest</div>
+        </div>
+        <div class="comp"><div class="fw"><div class="field"><a class="ib"><svg><use href="#i-smile"/></svg></a><div class="in">Message Design team…</div><a class="send"><svg><use href="#i-send"/></svg></a></div></div></div>
+      </section>
+      <aside class="det">
+        <div class="hd">Group info<a class="ib"><svg><use href="#i-x"/></svg></a></div>
+        <div class="av grp c2 big" style="border-radius:26px">DT</div>
+        <div><div class="nm">Design team</div><small>5 members · 3 online</small></div>
+        <div class="acts"><a>Add members</a><a class="dng">Leave</a></div>
+        <div class="mems"><h4>Members</h4>
+          <div class="mem"><div class="av c6 on-ring">TQ</div><div class="t"><div class="n">You <span class="tag">Owner</span></div></div></div>
+          <div class="mem"><div class="av c3 on-ring">HP</div><div class="t"><div class="n">Hà Phạm</div></div></div>
+          <div class="mem"><div class="av c5 on-ring">MH</div><div class="t"><div class="n">Minh Hoàng</div></div></div>
+          <div class="mem"><div class="av c1">LT</div><div class="t"><div class="n">Linh Trần</div></div></div>
+          <div class="mem"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn</div></div></div>
+        </div>
+      </aside>
+    </div>
+    <div class="frame phone">
+      <div class="lh"><h3>Chats<a><svg><use href="#i-plus"/></svg></a></h3></div>
+      <div class="search"><svg><use href="#i-search"/></svg>Search</div>
+      <div class="rows">
+        <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+        <div class="row"><div class="av c1 on-ring">LT</div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+        <div class="row un"><div class="av c3 on-ring">HP</div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+        <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+        <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on</span></div></div></div>
+        <div class="row"><div class="av c6 on-ring">QD</div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+        <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+      </div>
+      <nav class="nav"><a class="on"><svg><use href="#i-chat"/></svg>Chats<span class="dot">4</span></a><a><svg><use href="#i-users"/></svg>Friends<span class="dot">2</span></a><a><svg><use href="#i-user"/></svg>Me</a></nav>
+    </div>
+  </div>
+  <p class="cap">Pane mở một <b>group</b>: tên người gửi một lần/nhóm, "Seen" là chồng avatar nhỏ. Vòng sáng = <code>ring-2 ring-online shadow-[0_0_14px_var(--online)]</code> trên <code>Avatar</code>; glow chỉ ở 5 chỗ có nghĩa, không trang trí.</p>
+</section>
+
+</body>
+</html>

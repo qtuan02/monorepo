@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>apps/chat — mockup v1, ba hướng</title>
+<style>
+  /* Bản ghi tại thời điểm chọn — không phải nguồn sự thật cho code. Tự chứa: không script, không font ngoài. */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111827;background:#e7e9ec}
+  body{padding:32px 24px 80px}
+  .doc{max-width:1200px;margin:0 auto 32px}
+  .doc h1{font-size:22px;margin-bottom:6px}
+  .doc p{color:#4b5563;max-width:80ch}
+  .doc code{font:12px ui-monospace,Menlo,Consolas,monospace;background:#fff;padding:1px 5px;border-radius:4px}
+  .dir{max-width:1200px;margin:0 auto 64px}
+  .dir h2{font-size:18px;margin-bottom:4px}
+  .dir .why{color:#4b5563;margin-bottom:14px;max-width:90ch}
+  .dir .why b{color:#111827}
+  .frames{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+  .frame{border:1px solid #cfd3d8;border-radius:14px;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,.08)}
+  .desk{width:1180px;height:720px;display:grid;grid-template-columns:56px 320px 1fr 280px}
+  .phone{width:360px;height:720px;display:flex;flex-direction:column}
+  svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+  .cap{font-size:12px;color:#6b7280;margin-top:8px}
+
+  /* ── tokens từng hướng ─────────────────────────────── */
+  [data-dir="a"]{--bg:#fff;--panel:#fff;--list:#fff;--rail:#fafafa;--line:#e5e7eb;--text:#111827;--muted:#6b7280;
+    --accent:#0f8b74;--accent-fg:#fff;--own-bg:#0f8b74;--own-fg:#fff;--other-bg:#f3f4f6;--other-fg:#111827;
+    --r:8px;--rb:14px;--row:60px;--active:#eef4f2;--field:#fff;--field-line:#d1d5db;--shadow:none;--pill:8px;--blur:none;--av:36px}
+  [data-dir="b"]{--bg:#f4f7f6;--panel:#fff;--list:#eef6f3;--rail:#fff;--line:#e3ebe8;--text:#15201d;--muted:#6b7a76;
+    --accent:#0f8b74;--accent-fg:#fff;--own-bg:#d3eee6;--own-fg:#0b3a31;--other-bg:#fff;--other-fg:#15201d;
+    --r:16px;--rb:18px;--row:68px;--active:#fff;--field:#fff;--field-line:transparent;--shadow:0 1px 2px rgba(15,32,29,.06),0 6px 20px rgba(15,32,29,.06);--pill:999px;--blur:none;--av:44px}
+  [data-dir="c"]{--bg:linear-gradient(135deg,#d8f3ec 0%,#e4ecfb 45%,#f6e6f4 100%);--panel:rgba(255,255,255,.66);--list:rgba(255,255,255,.5);--rail:rgba(255,255,255,.35);
+    --line:rgba(255,255,255,.7);--text:#111827;--muted:#5b6470;--accent:#0f8b74;--accent-fg:#fff;--own-bg:linear-gradient(135deg,#0f8b74,#1aa38a);--own-fg:#fff;
+    --other-bg:rgba(255,255,255,.85);--other-fg:#111827;--r:14px;--rb:18px;--row:64px;--active:rgba(255,255,255,.85);--field:rgba(255,255,255,.75);--field-line:rgba(255,255,255,.9);
+    --shadow:0 1px 0 rgba(255,255,255,.8) inset,0 8px 24px rgba(17,24,39,.08);--pill:999px;--blur:blur(18px);--av:40px}
+
+  .frame{background:var(--bg);color:var(--text)}
+  .panel{background:var(--panel);backdrop-filter:var(--blur)}
+  /* rail */
+  .rail{background:var(--rail);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:12px 0;gap:6px;backdrop-filter:var(--blur)}
+  .mark{width:32px;height:32px;border-radius:9px;background:var(--accent);color:var(--accent-fg);display:grid;place-items:center;margin-bottom:10px;font-weight:700;font-size:15px}
+  .rail a{position:relative;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+  .rail a.on{background:var(--active);color:var(--accent)}
+  [data-dir="a"] .rail a.on{background:#e6f1ee}
+  .rail .grow{flex:1}
+  .dot{position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--accent);color:var(--accent-fg);font:600 10px/16px system-ui;text-align:center}
+  .me{width:32px;height:32px;border-radius:50%;background:#c7d2fe;display:grid;place-items:center;font:600 12px system-ui;color:#3730a3}
+  /* list */
+  .list{background:var(--list);border-right:1px solid var(--line);display:flex;flex-direction:column;min-height:0;backdrop-filter:var(--blur)}
+  .lh{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 8px}
+  .lh h3{font-size:18px;font-weight:700}
+  .ib{width:34px;height:34px;border-radius:var(--pill);display:grid;place-items:center;color:var(--muted);border:1px solid transparent}
+  .ib.pri{background:var(--accent);color:var(--accent-fg)}
+  .search{margin:0 12px 8px;height:36px;border-radius:var(--pill);background:var(--field);border:1px solid var(--field-line);display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--muted);box-shadow:var(--shadow)}
+  .search svg{width:16px;height:16px}
+  .rows{overflow:hidden;flex:1;min-height:0}
+  .row{height:var(--row);display:flex;align-items:center;gap:12px;padding:0 12px;margin:0 6px;border-radius:var(--r);position:relative}
+  [data-dir="a"] .row{margin:0;border-radius:0;border-bottom:1px solid var(--line)}
+  .row.on{background:var(--active);box-shadow:var(--shadow)}
+  [data-dir="a"] .row.on::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent)}
+  .av{position:relative;width:var(--av);height:var(--av);border-radius:50%;flex:none;display:grid;place-items:center;font:600 13px system-ui;color:#fff}
+  .av i{position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-radius:50%;background:#22c55e;border:2px solid var(--panel)}
+  .av.grp{border-radius:12px}
+  .t{min-width:0;flex:1}
+  .t .n{display:flex;justify-content:space-between;gap:8px;font-weight:500}
+  .t .n small{color:var(--muted);font-weight:400;font-size:12px;font-variant-numeric:tabular-nums}
+  .t .p{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden}
+  .t .p span{overflow:hidden;text-overflow:ellipsis}
+  .row.un .n,.row.un .p span{font-weight:600;color:var(--text)}
+  .pillc{min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:var(--accent-fg);font:600 11px/20px system-ui;text-align:center;flex:none}
+  /* pane */
+  .pane{display:flex;flex-direction:column;min-height:0;background:var(--panel);backdrop-filter:var(--blur)}
+  .ph{height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;border-bottom:1px solid var(--line)}
+  .ph .t .n{font-weight:600;font-size:15px}
+  .ph .t .p{font-size:12px;color:var(--muted)}
+  .ph .t .p b{color:#16a34a;font-weight:500}
+  .msgs{flex:1;min-height:0;overflow:hidden;padding:16px 20px 8px;display:flex;flex-direction:column;gap:14px;position:relative}
+  .day{align-self:center;font-size:11px;font-weight:600;color:var(--muted);background:var(--other-bg);border:1px solid var(--line);padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+  [data-dir="a"] .day{background:transparent;border:0}
+  .g{display:flex;gap:8px;align-items:flex-end;max-width:72%}
+  .g.own{align-self:flex-end;flex-direction:row-reverse}
+  .g .av{width:28px;height:28px;font-size:11px}
+  .g .col{display:flex;flex-direction:column;gap:3px;min-width:0}
+  .g.own .col{align-items:flex-end}
+  .g .who{font-size:11px;color:var(--muted);margin:0 0 2px 12px}
+  .b{padding:8px 12px;border-radius:var(--rb);background:var(--other-bg);color:var(--other-fg);box-shadow:var(--shadow);width:fit-content;max-width:100%}
+  [data-dir="a"] .b{box-shadow:none}
+  .g.own .b{background:var(--own-bg);color:var(--own-fg)}
+  .g:not(.own) .b+.b{border-top-left-radius:6px}
+  .g:not(.own) .b:has(+.b){border-bottom-left-radius:6px}
+  .g.own .b+.b{border-top-right-radius:6px}
+  .g.own .b:has(+.b){border-bottom-right-radius:6px}
+  .meta{font-size:11px;color:var(--muted);margin:2px 12px 0;font-variant-numeric:tabular-nums;display:flex;gap:6px;align-items:center}
+  .meta .seen{width:16px;height:16px;border-radius:50%;background:#fbbf24;display:inline-grid;place-items:center;font:600 8px system-ui;color:#78350f}
+  .jump{position:absolute;right:20px;bottom:12px;height:32px;padding:0 12px 0 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.12);display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--accent)}
+  .jump svg{width:14px;height:14px}
+  .typing{display:flex;gap:8px;align-items:flex-end}
+  .typing .b{padding:10px 12px;display:flex;gap:4px}
+  .typing .b i{width:6px;height:6px;border-radius:50%;background:var(--muted);opacity:.6}
+  .comp{padding:10px 16px 14px;border-top:1px solid var(--line)}
+  .field{min-height:44px;border-radius:calc(var(--pill) * 1);background:var(--field);border:1px solid var(--field-line);box-shadow:var(--shadow);display:flex;align-items:center;gap:4px;padding:4px 6px 4px 8px}
+  [data-dir="a"] .field{border-radius:12px}
+  .field .ib{width:34px;height:34px}
+  .field .in{flex:1;color:var(--muted);padding:0 6px}
+  .field .send{background:var(--accent);color:var(--accent-fg);width:34px;height:34px;border-radius:calc(var(--pill) * 1);display:grid;place-items:center}
+  [data-dir="a"] .field .send{border-radius:8px}
+  .hint{font-size:11px;color:var(--muted);margin:6px 12px 0}
+  .hint kbd{font:11px ui-monospace,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:4px;padding:0 4px;background:var(--field)}
+  /* details */
+  .det{border-left:1px solid var(--line);background:var(--panel);backdrop-filter:var(--blur);padding:16px;display:flex;flex-direction:column;gap:16px;min-height:0;overflow:hidden}
+  .det .hd{display:flex;justify-content:space-between;align-items:center;font-weight:600}
+  .det .big{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center}
+  .det .big .av{width:72px;height:72px;font-size:24px}
+  .det .big small{color:var(--muted);font-size:12px}
+  .det .bio{font-size:13px;color:var(--muted);text-align:center;padding:0 8px}
+  .det .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .det .acts a{height:36px;border:1px solid var(--line);border-radius:var(--r);display:grid;place-items:center;font-size:13px;font-weight:500;background:var(--field)}
+  .det .acts a.dng{color:#b91c1c}
+  .det h4{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .mem{display:flex;align-items:center;gap:10px;padding:6px 0}
+  .mem .av{width:32px;height:32px;font-size:12px}
+  .mem .t .n{font-size:13px}
+  .mem .t .p{font-size:12px}
+  .tag{font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--active);color:var(--accent);border:1px solid var(--line)}
+  /* phone */
+  .phone .top{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--panel);backdrop-filter:var(--blur)}
+  .phone .top h3{font-size:22px;font-weight:700}
+  .phone .search{margin:8px 12px}
+  .phone .rows{background:var(--list);flex:1}
+  .phone .row{margin:0 6px}
+  [data-dir="a"] .phone .row{margin:0}
+  .nav{height:64px;border-top:1px solid var(--line);background:var(--panel);backdrop-filter:var(--blur);display:grid;grid-template-columns:repeat(3,1fr);align-items:center}
+  .nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);position:relative}
+  .nav a.on{color:var(--accent);font-weight:600}
+  .nav a .dot{position:absolute;top:-4px;left:calc(50% + 6px)}
+  .nav a svg{width:22px;height:22px}
+  .bar{width:120px;height:4px;border-radius:2px;background:#9ca3af;margin:6px auto 8px}
+
+  /* nền + màu avatar */
+  .c1{background:#7c3aed}.c2{background:#0ea5e9}.c3{background:#f59e0b}.c4{background:#ec4899}.c5{background:#10b981}.c6{background:#6366f1}.c7{background:#ef4444}.c8{background:#14b8a6}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H8l-5 3 1.4-4.2A8 8 0 1 1 21 12z"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20h6a5 5 0 0 0-3-4.6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a5 5 0 0 0 7 0M9 10h.01M15 10h.01"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+</svg>
+
+<header class="doc">
+  <h1>apps/chat — redesign, vòng 1: ba hướng</h1>
+  <p>Cùng một <b>lớp nền</b> (rail điều hướng + danh sách có ô tìm + pane tin nhắn group theo người gửi + composer một khối + panel chi tiết; mobile: bottom nav), khác nhau ở <b>bề mặt</b>. Mọi thứ trong khung đều map được lên primitive <code>@monorepo/ui</code> đã có (<code>Sidebar</code>, <code>Item</code>, <code>Bubble</code>, <code>Message</code>, <code>MessageScroller</code>, <code>InputGroup</code>, <code>Empty</code>). Brief: <code>docs/design/chat-redesign.md</code>.</p>
+</header>
+
+<!-- ═══════════════════════════ A ═══════════════════════════ -->
+<section class="dir" data-dir="a">
+  <h2>Hướng A — <em>Inbox</em> (Minimalism &amp; Swiss + Micro-interactions — đúng dòng <code>products#92</code>)</h2>
+  <p class="why"><b>Phẳng, hairline, dày thông tin.</b> Trắng toàn bộ, viền 1px, radius nhỏ, teal chỉ xuất hiện ở đúng ba chỗ: bubble của mình, hàng đang mở, badge chưa đọc. Nhìn như Slack/Linear — hợp người dùng nhiều giờ một ngày. Rẻ nhất để làm: gần như chỉ đổi primitive, không đổi token.</p>
+  <div class="frames">
+    <div class="frame desk">
+      <aside class="rail">
+        <div class="mark">C</div>
+        <a class="on" aria-label="Chats"><svg><use href="#i-chat"/></svg><span class="dot">3</span></a>
+        <a aria-label="Friends"><svg><use href="#i-users"/></svg><span class="dot">2</span></a>
+        <a aria-label="Profile"><svg><use href="#i-user"/></svg></a>
+        <div class="grow"></div>
+        <a aria-label="Theme"><svg><use href="#i-moon"/></svg></a>
+        <div class="me">TQ</div>
+      </aside>
+      <section class="list">
+        <div class="lh"><h3>Chats</h3><a class="ib pri" aria-label="New"><svg><use href="#i-plus"/></svg></a></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search chats</div>
+        <div class="rows">
+          <div class="row on"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+          <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+          <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+          <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+          <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+          <div class="row"><div class="av c8">BL</div><div class="t"><div class="n">Bảo Lê<small>12/09</small></div><div class="p"><span>You: let's sync tomorrow</span></div></div></div>
+          <div class="row"><div class="av grp c1">OP</div><div class="t"><div class="n">Ops<small>10/09</small></div><div class="p"><span>Deploy done</span></div></div></div>
+        </div>
+      </section>
+      <section class="pane">
+        <header class="ph"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần</div><div class="p"><b>Active now</b></div></div><a class="ib" aria-label="Details"><svg><use href="#i-info"/></svg></a></header>
+        <div class="msgs">
+          <span class="day">Today</span>
+          <div class="g"><div class="av c1">LT</div><div class="col"><div class="b">Hey! Did you get a chance to look at the redesign brief?</div><div class="b">I left comments on the composer section.</div><div class="meta">10:12</div></div></div>
+          <div class="g own"><div class="col"><div class="b">Yes — reading now.</div><div class="b">Agree on grouping bubbles by sender; every message showing its own timestamp is noise.</div><div class="b">Let's keep the time on the last bubble of a group only.</div><div class="meta"><span>10:15</span><span class="seen" title="Seen by Linh">L</span></div></div></div>
+          <div class="g"><div class="av c1">LT</div><div class="col"><div class="b">Perfect. See you at 3 then 👍</div><div class="meta">10:41</div></div></div>
+          <div class="g own"><div class="col"><div class="b">See you at 3 then 👍</div><div class="meta"><span>10:42</span><span>Sent</span></div></div></div>
+          <div class="jump"><svg><use href="#i-down"/></svg>2 new messages</div>
+        </div>
+        <div class="comp">
+          <div class="field"><a class="ib" aria-label="Emoji"><svg><use href="#i-smile"/></svg></a><div class="in">Message Linh…</div><a class="send" aria-label="Send"><svg><use href="#i-send"/></svg></a></div>
+          <div class="hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd>+<kbd>Enter</kbd> for a new line</div>
+        </div>
+      </section>
+      <aside class="det">
+        <div class="hd">Profile<a class="ib" aria-label="Close"><svg><use href="#i-x"/></svg></a></div>
+        <div class="big"><div class="av c1">LT<i></i></div><div><div><b>Linh Trần</b></div><small>@linhtran · Active now</small></div></div>
+        <p class="bio">Product designer. Coffee first, pixels second.</p>
+        <div class="acts"><a>View profile</a><a class="dng">Unfriend</a></div>
+      </aside>
+    </div>
+    <div class="frame phone">
+      <div class="top"><h3>Chats</h3><a class="ib pri" aria-label="New"><svg><use href="#i-plus"/></svg></a></div>
+      <div class="search"><svg><use href="#i-search"/></svg>Search chats</div>
+      <div class="rows">
+        <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+        <div class="row"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+        <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+        <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+        <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+        <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+        <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+        <div class="row"><div class="av c8">BL</div><div class="t"><div class="n">Bảo Lê<small>12/09</small></div><div class="p"><span>You: let's sync tomorrow</span></div></div></div>
+      </div>
+      <nav class="nav"><a class="on"><svg><use href="#i-chat"/></svg>Chats<span class="dot">4</span></a><a><svg><use href="#i-users"/></svg>Friends<span class="dot">2</span></a><a><svg><use href="#i-user"/></svg>Me</a></nav>
+      <div class="bar"></div>
+    </div>
+  </div>
+  <p class="cap">Desktop 1180×720 (rail 56 · list 320 · pane · details 280) và phone 360 (list + bottom nav 3 mục). Details mở qua nút ⓘ, mặc định đóng.</p>
+</section>
+
+<!-- ═══════════════════════════ B ═══════════════════════════ -->
+<section class="dir" data-dir="b">
+  <h2>Hướng B — <em>Soft</em> (Soft UI Evolution — <code>styles#19</code>, secondary của <code>products#21</code> collaboration)</h2>
+  <p class="why"><b>Mềm, tinted, tròn 16px, bubble của mình là teal nhạt chữ tối.</b> Nền xám-xanh rất nhạt, panel trắng nổi bằng bóng mềm thay vì viền, danh sách phủ teal 5%, avatar to hơn, hàng cao hơn. Cảm giác Messenger/iMessage — thân thiện, hợp dùng cá nhân/bạn bè. Đổi ~6 token, không đổi hình dạng.</p>
+  <div class="frames">
+    <div class="frame desk">
+      <aside class="rail">
+        <div class="mark">C</div>
+        <a class="on" aria-label="Chats"><svg><use href="#i-chat"/></svg><span class="dot">3</span></a>
+        <a aria-label="Friends"><svg><use href="#i-users"/></svg><span class="dot">2</span></a>
+        <a aria-label="Profile"><svg><use href="#i-user"/></svg></a>
+        <div class="grow"></div>
+        <a aria-label="Theme"><svg><use href="#i-moon"/></svg></a>
+        <div class="me">TQ</div>
+      </aside>
+      <section class="list">
+        <div class="lh"><h3>Chats</h3><a class="ib pri" aria-label="New"><svg><use href="#i-plus"/></svg></a></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search chats</div>
+        <div class="rows">
+          <div class="row on"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+          <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+          <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+          <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+          <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+          <div class="row"><div class="av c8">BL</div><div class="t"><div class="n">Bảo Lê<small>12/09</small></div><div class="p"><span>You: let's sync tomorrow</span></div></div></div>
+        </div>
+      </section>
+      <section class="pane">
+        <header class="ph"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team</div><div class="p">5 members · <b>3 online</b></div></div><a class="ib" aria-label="Details"><svg><use href="#i-info"/></svg></a></header>
+        <div class="msgs">
+          <span class="day">Today</span>
+          <div class="g"><div class="av c3">HP</div><div class="col"><span class="who">Hà Phạm</span><div class="b">Sender name shows once per group, not on every line.</div><div class="meta">10:12</div></div></div>
+          <div class="g"><div class="av c5">MH</div><div class="col"><span class="who">Minh Hoàng</span><div class="b">pushed the new tokens</div><div class="b">--online is the only new one, the rest override theme.css</div><div class="meta">10:31</div></div></div>
+          <div class="g own"><div class="col"><div class="b">Nice. Own bubbles are tinted teal with dark text here — reads softer than solid teal, and still 7:1.</div><div class="meta"><span>10:33</span><span class="seen" title="Seen by 2">2</span></div></div></div>
+          <div class="typing"><div class="av c3" style="width:28px;height:28px;font-size:11px">HP</div><div class="b"><i></i><i></i><i></i></div></div>
+          <div class="jump"><svg><use href="#i-down"/></svg>Jump to latest</div>
+        </div>
+        <div class="comp">
+          <div class="field"><a class="ib" aria-label="Emoji"><svg><use href="#i-smile"/></svg></a><div class="in">Message Design team…</div><a class="send" aria-label="Send"><svg><use href="#i-send"/></svg></a></div>
+        </div>
+      </section>
+      <aside class="det">
+        <div class="hd">Group info<a class="ib" aria-label="Close"><svg><use href="#i-x"/></svg></a></div>
+        <div class="big"><div class="av grp c2">DT</div><div><div><b>Design team</b> <a class="ib" style="display:inline-grid;width:24px;height:24px;vertical-align:middle" aria-label="Rename"><svg style="width:14px;height:14px"><use href="#i-edit"/></svg></a></div><small>5 members</small></div></div>
+        <div class="acts"><a>Add members</a><a class="dng">Leave group</a></div>
+        <h4>Members</h4>
+        <div class="mem"><div class="av c6">TQ</div><div class="t"><div class="n">You <span class="tag">Owner</span></div></div></div>
+        <div class="mem"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm</div><div class="p"><span>@hapham</span></div></div></div>
+        <div class="mem"><div class="av c5">MH<i></i></div><div class="t"><div class="n">Minh Hoàng</div><div class="p"><span>@minhh</span></div></div></div>
+        <div class="mem"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần</div><div class="p"><span>@linhtran</span></div></div></div>
+        <div class="mem"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn</div><div class="p"><span>@annguyen</span></div></div></div>
+      </aside>
+    </div>
+    <div class="frame phone">
+      <div class="top"><h3>Chats</h3><a class="ib pri" aria-label="New"><svg><use href="#i-plus"/></svg></a></div>
+      <div class="search"><svg><use href="#i-search"/></svg>Search chats</div>
+      <div class="rows">
+        <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+        <div class="row"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+        <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+        <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+        <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+        <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+        <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+      </div>
+      <nav class="nav"><a class="on"><svg><use href="#i-chat"/></svg>Chats<span class="dot">4</span></a><a><svg><use href="#i-users"/></svg>Friends<span class="dot">2</span></a><a><svg><use href="#i-user"/></svg>Me</a></nav>
+      <div class="bar"></div>
+    </div>
+  </div>
+  <p class="cap">Pane ở hướng này mở một <b>group</b> để thấy tên người gửi một lần/nhóm, typing indicator, và panel Group info (rename · add · leave · members có role).</p>
+</section>
+
+<!-- ═══════════════════════════ C ═══════════════════════════ -->
+<section class="dir" data-dir="c">
+  <h2>Hướng C — <em>Aurora</em> (Glassmorphism — <code>styles#3</code>, secondary của <code>products#92</code>)</h2>
+  <p class="why"><b>Kính mờ trên nền aurora tĩnh</b> — họ hàng với "Prism" của <code>apps/documents</code> (ADR-0009). Panel <code>rgba(255,255,255,.66)</code> + blur, bubble của mình gradient teal đặc để giữ contrast. Đẹp nhất trong ba khi nhìn ảnh; đắt nhất khi dùng: <code>styles#3</code> ghi rõ <em>"Do not use for: critical accessibility, performance-limited"</em> — blur trên list ảo hoá cuộn liên tục và text trên kính phải đo contrast lại từng cặp.</p>
+  <div class="frames">
+    <div class="frame desk">
+      <aside class="rail">
+        <div class="mark">C</div>
+        <a class="on" aria-label="Chats"><svg><use href="#i-chat"/></svg><span class="dot">3</span></a>
+        <a aria-label="Friends"><svg><use href="#i-users"/></svg><span class="dot">2</span></a>
+        <a aria-label="Profile"><svg><use href="#i-user"/></svg></a>
+        <div class="grow"></div>
+        <a aria-label="Theme"><svg><use href="#i-moon"/></svg></a>
+        <div class="me">TQ</div>
+      </aside>
+      <section class="list">
+        <div class="lh"><h3>Chats</h3><a class="ib pri" aria-label="New"><svg><use href="#i-plus"/></svg></a></div>
+        <div class="search"><svg><use href="#i-search"/></svg>Search chats</div>
+        <div class="rows">
+          <div class="row on"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+          <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+          <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+          <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+          <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+          <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+          <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+          <div class="row"><div class="av c8">BL</div><div class="t"><div class="n">Bảo Lê<small>12/09</small></div><div class="p"><span>You: let's sync tomorrow</span></div></div></div>
+        </div>
+      </section>
+      <section class="pane">
+        <header class="ph"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần</div><div class="p"><b>Active now</b></div></div><a class="ib" aria-label="Details"><svg><use href="#i-info"/></svg></a></header>
+        <div class="msgs">
+          <span class="day">Today</span>
+          <div class="g"><div class="av c1">LT</div><div class="col"><div class="b">Hey! Did you get a chance to look at the redesign brief?</div><div class="b">I left comments on the composer section.</div><div class="meta">10:12</div></div></div>
+          <div class="g own"><div class="col"><div class="b">Yes — reading now.</div><div class="b">Agree on grouping bubbles by sender; every message showing its own timestamp is noise.</div><div class="meta"><span>10:15</span><span class="seen" title="Seen by Linh">L</span></div></div></div>
+          <div class="g"><div class="av c1">LT</div><div class="col"><div class="b">Perfect. See you at 3 then 👍</div><div class="meta">10:41</div></div></div>
+          <div class="g own"><div class="col"><div class="b">See you at 3 then 👍</div><div class="meta"><span>10:42</span><span>Sent</span></div></div></div>
+          <div class="jump"><svg><use href="#i-down"/></svg>2 new messages</div>
+        </div>
+        <div class="comp">
+          <div class="field"><a class="ib" aria-label="Emoji"><svg><use href="#i-smile"/></svg></a><div class="in">Message Linh…</div><a class="send" aria-label="Send"><svg><use href="#i-send"/></svg></a></div>
+        </div>
+      </section>
+      <aside class="det">
+        <div class="hd">Profile<a class="ib" aria-label="Close"><svg><use href="#i-x"/></svg></a></div>
+        <div class="big"><div class="av c1">LT<i></i></div><div><div><b>Linh Trần</b></div><small>@linhtran · Active now</small></div></div>
+        <p class="bio">Product designer. Coffee first, pixels second.</p>
+        <div class="acts"><a>View profile</a><a class="dng">Unfriend</a></div>
+      </aside>
+    </div>
+    <div class="frame phone">
+      <div class="top"><h3>Chats</h3><a class="ib pri" aria-label="New"><svg><use href="#i-plus"/></svg></a></div>
+      <div class="search"><svg><use href="#i-search"/></svg>Search chats</div>
+      <div class="rows">
+        <div class="row un"><div class="av grp c2">DT</div><div class="t"><div class="n">Design team<small>10:31</small></div><div class="p"><span>Minh: pushed the new tokens</span><span class="pillc">3</span></div></div></div>
+        <div class="row"><div class="av c1">LT<i></i></div><div class="t"><div class="n">Linh Trần<small>10:42</small></div><div class="p"><span>You: See you at 3 then 👍</span></div></div></div>
+        <div class="row un"><div class="av c3">HP<i></i></div><div class="t"><div class="n">Hà Phạm<small>09:58</small></div><div class="p"><span>Can you review #229?</span><span class="pillc">1</span></div></div></div>
+        <div class="row"><div class="av c4">AN</div><div class="t"><div class="n">An Nguyễn<small>Yesterday</small></div><div class="p"><span>Photo</span></div></div></div>
+        <div class="row"><div class="av grp c5">FE</div><div class="t"><div class="n">FE guild<small>Yesterday</small></div><div class="p"><span>Tuấn: React Compiler on by default</span></div></div></div>
+        <div class="row"><div class="av c6">QD<i></i></div><div class="t"><div class="n">Quang Đỗ<small>Mon</small></div><div class="p"><span>You: ok</span></div></div></div>
+        <div class="row"><div class="av c7">MV</div><div class="t"><div class="n">Mai Vũ<small>Sun</small></div><div class="p"><span>Thanks!</span></div></div></div>
+      </div>
+      <nav class="nav"><a class="on"><svg><use href="#i-chat"/></svg>Chats<span class="dot">4</span></a><a><svg><use href="#i-users"/></svg>Friends<span class="dot">2</span></a><a><svg><use href="#i-user"/></svg>Me</a></nav>
+      <div class="bar"></div>
+    </div>
+  </div>
+  <p class="cap">Nền aurora là gradient tĩnh (không animation). Nếu chọn C thì grill phải chốt: blur có bật trên list ảo hoá không, và mobile có giữ blur không.</p>
+</section>
+
+</body>
+</html>

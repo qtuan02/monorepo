@@ -35,15 +35,27 @@ function getInitials(name: string): string {
  * Base UI closes the menu (and starts unmounting it) before the dialog's own
  * open state has a chance to render — see
  * .agents/rules/architecture-ui-primitives.md.
+ *
+ * `compact` is the Rail's own trigger (brief §3.1 — "avatar (mở
+ * CurrentUserMenu hiện có)"): the same dropdown, opened from a bare avatar
+ * rather than the name+chevron button a 64px-wide rail has no room for.
  */
-export function CurrentUserMenu() {
+interface CurrentUserMenuProps {
+  compact?: boolean;
+}
+
+export function CurrentUserMenu({ compact = false }: CurrentUserMenuProps) {
   const navigate = useNavigate();
   const { data: currentUser, isLoading } = useCurrentUserQuery();
   const signOut = useSignOut();
   const [isProfileEditOpen, setIsProfileEditOpen] = React.useState(false);
 
   if (isLoading) {
-    return <Skeleton className="h-9 w-40 rounded-md" />;
+    return (
+      <Skeleton
+        className={compact ? "size-9 rounded-full" : "h-9 w-40 rounded-md"}
+      />
+    );
   }
 
   if (!currentUser) return null;
@@ -58,7 +70,12 @@ export function CurrentUserMenu() {
             <Button
               type="button"
               variant="ghost"
-              className="h-auto gap-2 rounded-full px-2 py-1"
+              aria-label={compact ? displayName : undefined}
+              className={
+                compact
+                  ? "size-9 rounded-full p-0"
+                  : "h-auto gap-2 rounded-full px-2 py-1"
+              }
             >
               <Avatar className="size-8">
                 {currentUser.avatarUrl && (
@@ -68,10 +85,14 @@ export function CurrentUserMenu() {
                   {getInitials(displayName)}
                 </AvatarFallback>
               </Avatar>
-              <span className="max-w-32 truncate text-sm font-medium">
-                {displayName}
-              </span>
-              <ChevronsUpDown className="text-muted-foreground size-3.5" />
+              {!compact && (
+                <>
+                  <span className="max-w-32 truncate text-sm font-medium">
+                    {displayName}
+                  </span>
+                  <ChevronsUpDown className="text-muted-foreground size-3.5" />
+                </>
+              )}
             </Button>
           }
         />

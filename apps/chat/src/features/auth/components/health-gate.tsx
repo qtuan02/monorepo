@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Loader2 } from "lucide-react";
 
+import { BootIsland } from "~/components/boot/boot-island";
 import { useBackendHealthQuery } from "~/hooks/api/health";
 
 /**
@@ -12,14 +12,7 @@ export default function HealthGate({ children }: { children: ReactNode }) {
   const healthQuery = useBackendHealthQuery();
 
   if (!healthQuery.isSuccess) {
-    return (
-      <main className="bg-background text-foreground grid min-h-svh place-items-center">
-        <div className="text-muted-foreground flex items-center gap-3 text-sm">
-          <Loader2 className="size-5 animate-spin" aria-hidden="true" />
-          <span>Connecting to server...</span>
-        </div>
-      </main>
-    );
+    return <BootIsland message="Connecting to server..." />;
   }
 
   return <>{children}</>;

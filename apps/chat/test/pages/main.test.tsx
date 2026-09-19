@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { VirtuosoMockContext } from "react-virtuoso";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 import {
@@ -138,9 +138,9 @@ vi.mock("~/stores/use-socket-store", async () => {
  * message lists render deterministically with no ResizeObserver-driven
  * measurement to wait on.
  */
-function renderAt(path: string) {
+function renderAt(path: string, state?: unknown) {
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
-    initialEntries: [path],
+    initialEntries: [{ pathname: path, state }],
   });
   render(
     <QueryClientProvider client={new QueryClient()}>
@@ -212,6 +212,60 @@ describe("the route tree", () => {
     ).toBeInTheDocument();
   });
 
+  it("shares one role=status boot Island between the Health gate and the session check, only the text changing", async () => {
+    chatHealthCheck.mockResolvedValue(undefined);
+    let rejectRefresh: ((error: Error) => void) | undefined;
+    chatAuthRefresh.mockReturnValue(
+      new Promise((_resolve, reject) => {
+        rejectRefresh = reject;
+      }),
+    );
+
+    renderAt(ROUTES.HOME);
+
+    // First the Health gate's own phase of the same boot Island...
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Connecting to server...",
+    );
+
+    // ...then, once it resolves, the session guard's — same role, same
+    // Island, only the line changing (no layout jump between the two).
+    await screen.findByText("Checking session...");
+    const status = screen.getByRole("status");
+    expect(status).toHaveTextContent("Checking session...");
+    // No second, differently-shaped loading screen anywhere else in the tree.
+    expect(screen.getAllByRole("status")).toHaveLength(1);
+
+    // Settle the refresh so `use-session-check.ts`'s module-scoped
+    // `pendingRefresh` clears — left pending, it would leak into whichever
+    // test runs next.
+    await act(async () => rejectRefresh?.(new Error("no session")));
+  });
+
+  it("adds the slow-connection line after 10s, and not before", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    chatHealthCheck.mockReturnValue(new Promise(() => {})); // never resolves
+    chatAuthRefresh.mockRejectedValue(new Error("no session"));
+
+    renderAt(ROUTES.SIGN_IN);
+
+    expect(
+      screen.queryByText("Still connecting — the server may be waking up"),
+    ).not.toBeInTheDocument();
+
+    await act(() => vi.advanceTimersByTimeAsync(9_999));
+    expect(
+      screen.queryByText("Still connecting — the server may be waking up"),
+    ).not.toBeInTheDocument();
+
+    await act(() => vi.advanceTimersByTimeAsync(1));
+    expect(
+      screen.getByText("Still connecting — the server may be waking up"),
+    ).toBeInTheDocument();
+
+    vi.useRealTimers();
+  });
+
   describe("once the backend answers healthy", () => {
     beforeEach(() => {
       chatHealthCheck.mockResolvedValue(undefined);
@@ -261,6 +315,194 @@ describe("the route tree", () => {
       expect(
         await screen.findByRole("heading", { name: "404 Not Found" }),
       ).toBeInTheDocument();
+    });
+
+    describe("the Islands shell", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+        // Three conversations, two of them unread — the badge counts
+        // conversations, not messages (brief §10 row 17), so this must
+        // read 2, not the sum of their unreadCount (5 + 1 = 6).
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "c1",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 5,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+            {
+              id: "c2",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 1,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u3",
+                  firstName: "Minh",
+                  lastName: "Tran",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+            {
+              id: "c3",
+              type: ChatConversationType.DIRECT,
+              groupName: null,
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u4",
+                  firstName: "An",
+                  lastName: "Le",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+        chatFriendRequests.mockResolvedValue({
+          sentRequests: [],
+          receivedRequests: [
+            {
+              id: "r1",
+              fromUser: {
+                id: "u5",
+                username: "hoa",
+                firstName: "Hoa",
+                lastName: "Pham",
+              },
+              createdAt: "2026-09-19T00:00:00.000Z",
+            },
+          ],
+        });
+      });
+
+      it("shows the Rail on desktop, marks the current page and no other, and shows no Bottom nav", async () => {
+        renderAt(ROUTES.FRIENDS);
+
+        const nav = await screen.findByRole("navigation", { name: "Primary" });
+        const chats = within(nav).getByRole("link", { name: /Chats/ });
+        const friends = within(nav).getByRole("link", { name: /Friends/ });
+        const profile = within(nav).getByRole("link", { name: /Profile/ });
+
+        expect(friends).toHaveAttribute("aria-current", "page");
+        expect(chats).not.toHaveAttribute("aria-current");
+        expect(profile).not.toHaveAttribute("aria-current");
+
+        // Chats badge: conversations with unread > 0 (2), not the total (6).
+        expect(await within(chats).findByText("2")).toBeInTheDocument();
+        // Friends badge: pending received requests (1).
+        expect(await within(friends).findByText("1")).toBeInTheDocument();
+
+        expect(screen.queryAllByRole("navigation")).toHaveLength(1);
+      });
+
+      it("marks Chats current for a conversation screen too, reached from that list", async () => {
+        renderAt(ROUTES.conversationByIdPath("c1"));
+
+        const nav = await screen.findByRole("navigation", { name: "Primary" });
+        expect(
+          within(nav).getByRole("link", { name: /Chats/ }),
+        ).toHaveAttribute("aria-current", "page");
+      });
+
+      describe("on a mobile viewport", () => {
+        let originalMatchMedia: typeof window.matchMedia;
+
+        beforeEach(() => {
+          originalMatchMedia = window.matchMedia;
+          window.matchMedia = (query: string) =>
+            ({
+              matches: query.includes("max-width"),
+              media: query,
+              onchange: null,
+              addListener: () => {},
+              removeListener: () => {},
+              addEventListener: () => {},
+              removeEventListener: () => {},
+              dispatchEvent: () => false,
+            }) as unknown as MediaQueryList;
+        });
+
+        afterEach(() => {
+          window.matchMedia = originalMatchMedia;
+        });
+
+        it("shows a 3-item Bottom nav on the conversation list, with the same badges as the Rail", async () => {
+          renderAt(ROUTES.HOME);
+
+          const nav = await screen.findByRole("navigation", {
+            name: "Primary",
+          });
+          const links = within(nav).getAllByRole("link");
+          expect(links).toHaveLength(3);
+
+          const chats = within(nav).getByRole("link", { name: /Chats/ });
+          const me = within(nav).getByRole("link", { name: /Me/ });
+          expect(await within(chats).findByText("2")).toBeInTheDocument();
+          expect(chats).toHaveAttribute("aria-current", "page");
+          expect(me).not.toHaveAttribute("aria-current");
+        });
+
+        it("hides the Bottom nav once a real conversation is open", async () => {
+          renderAt(ROUTES.conversationByIdPath("c1"));
+
+          await screen.findByRole("heading", { name: "Lan Nguyen" });
+          expect(
+            screen.queryByRole("navigation", { name: "Primary" }),
+          ).not.toBeInTheDocument();
+        });
+
+        it("hides the Bottom nav for a Draft conversation on Home", async () => {
+          renderAt(ROUTES.HOME, {
+            directMessageDraftUser: {
+              id: "u9",
+              username: "hoa",
+              firstName: "Hoa",
+              lastName: "Pham",
+            },
+          });
+
+          await screen.findByRole("heading", { name: "Hoa Pham" });
+          expect(
+            screen.queryByRole("navigation", { name: "Primary" }),
+          ).not.toBeInTheDocument();
+        });
+      });
     });
 
     describe("the conversation screens", () => {

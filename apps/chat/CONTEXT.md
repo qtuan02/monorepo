@@ -43,3 +43,21 @@ _Avoid_: pending conversation, temp chat, new chat (tên nút)
 Lời mời kết bạn một chiều với vòng đời gửi → chấp nhận / từ chối / thu hồi; hai user là **bạn** khi lời
 mời được chấp nhận, và huỷ kết bạn là thao tác riêng, không phải "từ chối".
 _Avoid_: invitation, connection, follow
+
+### Hình dạng màn hình — "Islands" (chốt ở vòng grill 2026-09-19)
+
+**Islands**:
+Tên hình dạng thị giác của app từ redesign 2026-09-19: mọi vùng nội dung là một Island nổi trên một nền gradient tĩnh của app, không vùng nào chạm mép cửa sổ. Khác "Prism" của `apps/documents` ở chỗ đây là một *bố cục* (các đảo tách rời nhau) chứ không phải một backdrop sau trang.
+_Avoid_: Prism, glass theme, aurora (tên nền, không phải tên hình dạng)
+
+**Island**:
+Một vùng nội dung tự đứng — danh sách hội thoại, khung tin nhắn, chi tiết, thanh điều hướng — bo góc lớn, hơi trong, nổi trên nền gradient và cách các Island khác một khe. Một màn có nhiều Island; một Island không lồng Island khác.
+_Avoid_: panel, card (tên primitive), cột, khung
+
+**Rail**:
+Island điều hướng dọc, hẹp, bên trái màn desktop: ba đích Chats · Friends · Profile, nút đổi theme và ảnh đại diện của mình. Chỉ tồn tại từ `md` trở lên; dưới đó vai của nó do Bottom nav đảm nhận.
+_Avoid_: sidebar (là primitive của `@monorepo/ui`, không dùng ở đây), menu trái
+
+**Bottom nav**:
+Island điều hướng nằm ngang ở đáy màn mobile với ba đích Chats · Friends · Me; ẩn khi đang trong một Conversation vì composer chiếm đáy. Là bản mobile của Rail, không phải một menu.
+_Avoid_: tab bar, menu dưới, footer

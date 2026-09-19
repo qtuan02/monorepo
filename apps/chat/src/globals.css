@@ -7,6 +7,52 @@
 @source "../../../packages/ui";
 
 /**
+ * The Islands shape (ADR-0016, CONTEXT.md — Islands · Island): `--font-sans`
+ * (`theme.css` maps `font-sans` onto a variable the app owns, so an app that
+ * declares none renders it as nothing at all — see the Next Template's own
+ * copy of this note) and the gradient `body` paints once and never touches
+ * again. Three pastel stops, teal · violet · amber, chosen light enough that
+ * an Island's `bg-card/75` still clears AA text contrast over the darkest of
+ * them with no blur underneath (`test/globals.test.ts` — ADR-0016 §2 bans
+ * `backdrop-filter` outright, both list Islands carry a scrolling Virtuoso).
+ * Layered, unlike the palette override below it: nothing in `theme.css`
+ * declares a literal value for either of these, so there is no unlayered
+ * declaration to lose to.
+ */
+@layer base {
+  :root {
+    --font-sans:
+      ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+      sans-serif;
+
+    --islands-gradient-teal: oklch(0.88 0.09 175);
+    --islands-gradient-violet: oklch(0.85 0.1 300);
+    --islands-gradient-amber: oklch(0.88 0.11 55);
+  }
+
+  body {
+    background:
+      radial-gradient(
+        ellipse 60% 55% at 6% 0%,
+        var(--islands-gradient-teal),
+        transparent 65%
+      ),
+      radial-gradient(
+        ellipse 60% 55% at 100% 10%,
+        var(--islands-gradient-violet),
+        transparent 65%
+      ),
+      radial-gradient(
+        ellipse 70% 55% at 40% 100%,
+        var(--islands-gradient-amber),
+        transparent 65%
+      ),
+      var(--background);
+    background-attachment: fixed;
+  }
+}
+
+/**
  * The teal palette of the source app (`chat-socket-fe`), kept as an app-layer
  * override — the same move `apps/portfolio` (ADR-0008), `apps/documents`
  * (ADR-0009) and `apps/smart-rental` (ADR-0011) make. Unlayered, exactly like

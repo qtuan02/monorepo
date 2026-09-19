@@ -13,6 +13,7 @@ import HealthGate from "~/features/auth/components/health-gate";
 import GuestRoute from "~/features/auth/provider/guest-route";
 import ProtectedRoute from "~/features/auth/provider/protected-route";
 import { ChatSocketRouteBoundary } from "~/features/chat/provider/chat-socket-provider";
+import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import LayoutTemplate from "~/features/layout/templates/layout.template";
 import ConversationPage from "./conversation-page";
 import FriendsPage from "./friends-page";
@@ -37,35 +38,37 @@ const LazyReactQueryDevtools = React.lazy(async () => {
  */
 export function AppRoutes() {
   return (
-    <HealthGate>
-      <Routes>
-        <Route element={<GuestRoute />}>
-          <Route path={ROUTES.SIGN_IN} element={<SignInPage />} />
-          <Route path={ROUTES.SIGN_UP} element={<SignUpPage />} />
-        </Route>
-
-        <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
-          <Route element={<ProtectedRoute />}>
-            {/* Presence comes from the layout-level socket connection, not
-                this boundary — only the conversation screens need its
-                message/seen cache patching (see chat-socket-provider.tsx). */}
-            <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
-            <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
-            <Route element={<ChatSocketRouteBoundary />}>
-              <Route index element={<HomePage />} />
-              <Route
-                path={ROUTES.CONVERSATION_BY_ID}
-                element={<ConversationPage />}
-              />
-            </Route>
+    <ThemeProvider>
+      <HealthGate>
+        <Routes>
+          <Route element={<GuestRoute />}>
+            <Route path={ROUTES.SIGN_IN} element={<SignInPage />} />
+            <Route path={ROUTES.SIGN_UP} element={<SignUpPage />} />
           </Route>
 
-          {/* Outside the guard on purpose — a mistyped URL should say so,
-              not bounce an already-signed-in user to sign-in. */}
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
-    </HealthGate>
+          <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
+            <Route element={<ProtectedRoute />}>
+              {/* Presence comes from the layout-level socket connection, not
+                  this boundary — only the conversation screens need its
+                  message/seen cache patching (see chat-socket-provider.tsx). */}
+              <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
+              <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+              <Route element={<ChatSocketRouteBoundary />}>
+                <Route index element={<HomePage />} />
+                <Route
+                  path={ROUTES.CONVERSATION_BY_ID}
+                  element={<ConversationPage />}
+                />
+              </Route>
+            </Route>
+
+            {/* Outside the guard on purpose — a mistyped URL should say so,
+                not bounce an already-signed-in user to sign-in. */}
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </HealthGate>
+    </ThemeProvider>
   );
 }
 

@@ -25,7 +25,11 @@ test.describe("Health gate", () => {
     await mockSessionRefresh(page, null);
 
     const navigation = page.goto(ROUTES.SIGN_IN);
-    await expect(page.getByText("Connecting to server...")).toBeVisible();
+    // The boot Island (CONTEXT.md, ADR-0016) — one `role="status"` shared
+    // with the session check, only its text changing between the two.
+    await expect(page.getByRole("status")).toHaveText(
+      "Connecting to server...",
+    );
 
     resolveHealth?.();
     await navigation;

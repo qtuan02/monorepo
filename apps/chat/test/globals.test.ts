@@ -2,7 +2,12 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { contrastRatio, oklchToRgb, parseOklch } from "./support/contrast";
+import {
+  blendOverRgb,
+  contrastRatio,
+  oklchToRgb,
+  parseOklch,
+} from "./support/contrast";
 import {
   atRuleRegions,
   declarationsOf,
@@ -182,4 +187,91 @@ describe("where the override sits in the cascade", () => {
       ),
     ).toBe(true);
   });
+
+  it("never reaches for backdrop-filter (ADR-0016 §2)", () => {
+    expect(globalsSource).not.toMatch(/backdrop-filter/);
+  });
 });
+
+/**
+ * The Islands shape (ADR-0016): `--font-sans` plus the three gradient stops
+ * `body` paints. Both live in `@layer base` — nothing in `theme.css`
+ * declares a literal value for either, so there is no unlayered declaration
+ * to lose to (unlike the palette override above, which has to sit outside
+ * every `@layer` for exactly that reason).
+ */
+describe("Islands shell (ADR-0016)", () => {
+  // `declarationsOf` merges every `:root { … }` block it finds — the layered
+  // one below and the unlayered palette override above — into one object;
+  // that's fine here, this describe only asks for the two Islands-specific
+  // keys, never the palette ones the block above already covers.
+  const layeredRoot = declarationsOf(globalsSource, ":root");
+
+  const GRADIENT_TOKENS = [
+    "islands-gradient-teal",
+    "islands-gradient-violet",
+    "islands-gradient-amber",
+  ] as const;
+
+  it("declares --font-sans as a system stack, inside @layer base", () => {
+    expect(declared(layeredRoot, "font-sans")).toMatch(/system-ui/);
+  });
+
+  it("declares all three gradient stops, in oklch()", () => {
+    for (const token of GRADIENT_TOKENS) {
+      expect(declared(layeredRoot, token), token).toMatch(/^oklch\(/);
+    }
+  });
+
+  it("paints all three stops on body, plus the theme's own --background as the last layer", () => {
+    const bodyBlock = declarationsOfSelectorBlock(globalsSource, "body");
+    if (!bodyBlock) throw new Error("Expected a body { … } block");
+
+    for (const token of GRADIENT_TOKENS) {
+      expect(bodyBlock, token).toContain(`var(--${token})`);
+    }
+    expect(bodyBlock).toContain("var(--background)");
+  });
+
+  it("reads AA on the darkest stop: --foreground on an Island (bg-card/75%) over it ≥ 4.5:1", () => {
+    const themeRoot = declarationsOf(themeSource, ":root");
+    const card = rgbOf(themeRoot, "card");
+    const foreground = rgbOf(themeRoot, "foreground");
+
+    const stops = GRADIENT_TOKENS.map((token) =>
+      oklchToRgb(parseOklch(declared(layeredRoot, token))),
+    );
+    const darkestStop = stops.reduce((darkest, stop) =>
+      // Luminance is cheaper to compare via contrast against a fixed black
+      // reference than to expose a third helper for — the darker of two
+      // colours contrasts *less* with white.
+      contrastRatio(stop, { r: 255, g: 255, b: 255 }) >
+      contrastRatio(darkest, { r: 255, g: 255, b: 255 })
+        ? stop
+        : darkest,
+    );
+
+    const island = blendOverRgb(card, 0.75, darkestStop);
+    expect(contrastRatio(foreground, island)).toBeGreaterThanOrEqual(4.5);
+  });
+});
+
+/** The declarations of the first `selector { … }` block found in `source`, as raw text (not parsed key/value). */
+function declarationsOfSelectorBlock(
+  source: string,
+  selector: string,
+): string | undefined {
+  const opener = `${selector} {`;
+  const start = source.indexOf(opener);
+  if (start === -1) return undefined;
+
+  let depth = 0;
+  let index = start + opener.length - 1;
+  for (; index < source.length; index++) {
+    if (source[index] === "{") depth++;
+    if (source[index] === "}") depth--;
+    if (depth === 0) break;
+  }
+
+  return source.slice(start, index + 1);
+}
