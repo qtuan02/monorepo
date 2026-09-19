@@ -1,5 +1,7 @@
 import * as React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, PencilLine, X } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
 import {
@@ -13,9 +15,11 @@ import {
   AlertDialogTitle,
 } from "@monorepo/ui/components/alert-dialog";
 import { Button } from "@monorepo/ui/components/button";
+import { Field, FieldError } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import type { RenameGroupFormValues } from "~/features/group/types/rename-group-form";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { AddGroupMembersDialog } from "~/features/group/components/add-group-members-dialog";
 import { GroupActions } from "~/features/group/components/group-actions";
@@ -41,12 +45,19 @@ function GroupHeaderTitle({
   onRename,
 }: GroupHeaderProps) {
   const [isEditing, setIsEditing] = React.useState(false);
-  const [draft, setDraft] = React.useState(name);
-  const [error, setError] = React.useState<string>();
+  const form = useForm<RenameGroupFormValues>({
+    resolver: zodResolver(renameGroupFormSchema),
+    defaultValues: { name },
+  });
 
   if (!canRename) {
     return <p className="text-base font-semibold">{name}</p>;
   }
+
+  const cancel = () => {
+    setIsEditing(false);
+    form.reset({ name });
+  };
 
   if (!isEditing) {
     return (
@@ -58,8 +69,7 @@ function GroupHeaderTitle({
           variant="ghost"
           aria-label="Rename group"
           onClick={() => {
-            setDraft(name);
-            setError(undefined);
+            form.reset({ name });
             setIsEditing(true);
           }}
         >
@@ -69,63 +79,52 @@ function GroupHeaderTitle({
     );
   }
 
-  const commit = () => {
-    const result = renameGroupFormSchema.safeParse({ name: draft });
-    if (!result.success) {
-      setError(result.error.issues[0]?.message);
-      return;
-    }
-    setError(undefined);
+  const onSubmit = form.handleSubmit((values) => {
     setIsEditing(false);
-    if (result.data.name !== name) onRename(result.data.name);
-  };
-
-  const cancel = () => {
-    setIsEditing(false);
-    setError(undefined);
-    setDraft(name);
-  };
+    if (values.name !== name) onRename(values.name);
+  });
 
   return (
-    <form
-      className="flex flex-col gap-1"
-      onSubmit={(event) => {
-        event.preventDefault();
-        commit();
-      }}
-    >
-      <div className="flex items-center gap-1">
-        <Input
-          autoFocus
-          value={draft}
-          disabled={isSubmitting}
-          aria-label="Group name"
-          className="h-8"
-          onChange={(event) => setDraft(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Escape") cancel();
-          }}
-        />
-        <Button
-          type="submit"
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Save group name"
-          disabled={isSubmitting}
-        >
-          <Check className="size-3.5" />
-        </Button>
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="ghost"
-          aria-label="Cancel rename"
-          onClick={cancel}
-        >
-          <X className="size-3.5" />
-        </Button>
-      </div>
-      {error && <p className="text-destructive text-xs">{error}</p>}
+    <form onSubmit={onSubmit}>
+      <Controller
+        name="name"
+        control={form.control}
+        render={({ field, fieldState }) => (
+          <Field data-invalid={fieldState.invalid} orientation="horizontal">
+            <Input
+              {...field}
+              id={field.name}
+              autoFocus
+              disabled={isSubmitting}
+              aria-label="Group name"
+              aria-invalid={fieldState.invalid}
+              className="h-8"
+              onKeyDown={(event) => {
+                if (event.key === "Escape") cancel();
+              }}
+            />
+            <Button
+              type="submit"
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Save group name"
+              disabled={isSubmitting}
+            >
+              <Check className="size-3.5" />
+            </Button>
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              aria-label="Cancel rename"
+              onClick={cancel}
+            >
+              <X className="size-3.5" />
+            </Button>
+            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+          </Field>
+        )}
+      />
     </form>
   );
 }
