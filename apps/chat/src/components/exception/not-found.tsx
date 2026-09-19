@@ -1,39 +1,34 @@
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 
+import { buttonVariants } from "@monorepo/ui/components/button";
+import { cn } from "@monorepo/ui/utils/cn";
+
+import { BrandMark } from "~/components/brand/brand-mark";
 import { ROUTES } from "~/constants/routes";
 
+/**
+ * The catch-all route's own screen (main.tsx — outside the guard, inside the
+ * Islands shell), so it already sits on `LayoutTemplate`'s Island; this is
+ * its content, not a second Island.
+ */
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center py-20 text-sm max-md:px-4">
-      <h1 className="bg-linear-to-r from-gray-500 to-gray-800 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-        404 Not Found
-      </h1>
-      <div className="my-5 h-px w-80 rounded bg-linear-to-r from-gray-400 to-gray-800 md:my-7"></div>
-      <p className="max-w-lg text-center text-gray-400 md:text-xl">
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+      <BrandMark />
+      <h1 className="text-2xl font-bold">404 Not Found</h1>
+      <p className="text-muted-foreground max-w-sm text-sm">
         The page you are looking for does not exist or has been moved.
       </p>
+      {/* A navigation link styled as a button — never `Button` itself, which
+          assumes a native <button> (see .agents/rules/architecture-ui-
+          primitives.md, "A link that looks like a button"). */}
       <Link
         to={ROUTES.HOME}
-        className="group mt-10 flex items-center gap-1 rounded-full bg-white px-7 py-2.5 font-medium text-gray-800 transition-all hover:bg-gray-200 active:scale-95"
+        className={cn(buttonVariants(), "mt-2 h-11 gap-1.5")}
       >
-        Back to Home
-        <svg
-          aria-hidden="true"
-          className="transition group-hover:translate-x-0.5"
-          width="22"
-          height="22"
-          viewBox="0 0 22 22"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M4.583 11h12.833m0 0L11 4.584M17.416 11 11 17.417"
-            stroke="#1E1E1E"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        Back to Chats
+        <ArrowRight className="size-4" aria-hidden="true" />
       </Link>
     </div>
   );

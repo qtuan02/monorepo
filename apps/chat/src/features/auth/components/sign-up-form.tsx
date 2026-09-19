@@ -1,6 +1,5 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MessageCircle } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Link } from "react-router";
 
@@ -59,6 +58,7 @@ export default function SignUpForm() {
         <Button
           type="button"
           disabled={signIn.isPending}
+          className="h-11 w-full"
           onClick={() => signIn.mutate(createdCredentials)}
         >
           {signIn.isPending ? "Signing in..." : "Yes, sign in"}
@@ -83,10 +83,6 @@ export default function SignUpForm() {
       onSubmit={onSubmit}
     >
       <div className="flex flex-col items-center gap-1 text-center">
-        <span className="text-primary mb-1 inline-flex items-center gap-2">
-          <MessageCircle className="size-6" aria-hidden="true" />
-          <span className="text-lg font-bold tracking-tight">Chat</span>
-        </span>
         <h1 className="text-2xl font-bold">Create account</h1>
         <p className="text-muted-foreground text-sm">
           Create your Chat application account
@@ -189,7 +185,11 @@ export default function SignUpForm() {
           )}
         />
 
-        <Button type="submit" disabled={signUp.isPending} className="w-full">
+        <Button
+          type="submit"
+          disabled={signUp.isPending}
+          className="h-11 w-full"
+        >
           {signUp.isPending ? "Creating account..." : "Sign up"}
         </Button>
       </FieldGroup>

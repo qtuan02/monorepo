@@ -315,6 +315,9 @@ describe("the route tree", () => {
       expect(
         await screen.findByRole("heading", { name: "404 Not Found" }),
       ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /Back to Chats/ }),
+      ).toHaveAttribute("href", ROUTES.HOME);
     });
 
     describe("the Islands shell", () => {
@@ -501,6 +504,19 @@ describe("the route tree", () => {
           expect(
             screen.queryByRole("navigation", { name: "Primary" }),
           ).not.toBeInTheDocument();
+        });
+
+        it("signs out from the Sign out row on /profile — the Bottom nav's 'Me' needs no dropdown", async () => {
+          const user = userEvent.setup();
+          renderAt(ROUTES.PROFILE);
+
+          await user.click(
+            await screen.findByRole("button", { name: "Sign out" }),
+          );
+
+          expect(
+            await screen.findByRole("heading", { name: "Welcome back" }),
+          ).toBeInTheDocument();
         });
       });
     });

@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MessageCircle } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { Link } from "react-router";
 
@@ -36,10 +35,6 @@ export default function SignInForm() {
       onSubmit={onSubmit}
     >
       <div className="flex flex-col items-center gap-1 text-center">
-        <span className="text-primary mb-1 inline-flex items-center gap-2">
-          <MessageCircle className="size-6" aria-hidden="true" />
-          <span className="text-lg font-bold tracking-tight">Chat</span>
-        </span>
         <h1 className="text-2xl font-bold">Welcome back</h1>
         <p className="text-muted-foreground text-sm">
           Login to your Chat application
@@ -85,7 +80,11 @@ export default function SignInForm() {
           )}
         />
 
-        <Button type="submit" disabled={signIn.isPending} className="w-full">
+        <Button
+          type="submit"
+          disabled={signIn.isPending}
+          className="h-11 w-full"
+        >
           {signIn.isPending ? "Signing in..." : "Sign in"}
         </Button>
       </FieldGroup>
