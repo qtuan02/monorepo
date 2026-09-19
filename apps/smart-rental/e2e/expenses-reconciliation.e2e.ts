@@ -90,18 +90,20 @@ test.describe("Chi phí, Hoá đơn nhà cung cấp, Đối soát", () => {
     await expect.poll(() => totalTile.textContent()).not.toBe(totalsBefore);
   });
 
-  test("Đối soát: no mũi tên icon on the Chênh lệch column (round 4 §10 Q16)", async ({
+  test("Đối soát: Chênh lệch still renders after round 4 dropped its arrow icon (§10 Q16)", async ({
     page,
   }) => {
     await page.goto(ROUTES.RECONCILIATION);
-    await expect(
-      page.getByRole("heading", { name: "Trọ Sinh Viên Xanh" }),
-    ).toBeVisible();
+    const table = page.getByRole("table").first();
+    await expect(table).toBeVisible();
 
-    // The badge still carries Lỗ/Lãi — the row's money no longer repeats it
-    // with an arrow, the thing round 4 removed (brief's "ba lần mã hoá một
-    // trạng thái").
-    await expect(page.locator(".lucide-arrow-up")).toHaveCount(0);
-    await expect(page.locator(".lucide-arrow-down")).toHaveCount(0);
+    // Round 4 §10 Q16 simplified this cell's markup (no more icon + coloured
+    // wrapper — the badge alone carries Lỗ/Lãi now); `lucide-react` leaving
+    // the column file is guarded at the source level by `text-tier-guard`,
+    // so what's worth proving here is that the figure itself still renders.
+    const firstDataRow = table.getByRole("row").nth(1);
+    const netAmountCell = firstDataRow.getByRole("cell").last();
+    await expect(netAmountCell).toBeVisible();
+    await expect(netAmountCell).not.toBeEmpty();
   });
 });
