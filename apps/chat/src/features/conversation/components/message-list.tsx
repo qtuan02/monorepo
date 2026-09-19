@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Virtuoso } from "react-virtuoso";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -6,6 +7,7 @@ import type { Message } from "~/features/conversation/types/message";
 import { MessageListSkeleton } from "~/features/conversation/components/message-list.skeleton";
 import MessageRow from "~/features/conversation/components/message-row";
 import { useConversationMessages } from "~/features/conversation/hooks/use-conversation-messages";
+import { groupMessages } from "~/features/conversation/utils/group-messages";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 
 interface MessageListProps {
@@ -16,6 +18,7 @@ export default function MessageList({ conversationId }: MessageListProps) {
   const currentUserQuery = useCurrentUserQuery();
   const {
     messages,
+    members,
     firstItemIndex,
     isLoading,
     isError,
@@ -24,6 +27,16 @@ export default function MessageList({ conversationId }: MessageListProps) {
     fetchNextPage,
     refetch,
   } = useConversationMessages(conversationId);
+  const currentUserId = currentUserQuery.data?.id;
+
+  const avatarUrlBySenderId = useMemo(
+    () => new Map(members.map((member) => [member.userId, member.avatarUrl])),
+    [members],
+  );
+  const positions = useMemo(
+    () => groupMessages(messages, currentUserId ?? ""),
+    [messages, currentUserId],
+  );
 
   if (isLoading) {
     return (
@@ -52,8 +65,6 @@ export default function MessageList({ conversationId }: MessageListProps) {
     );
   }
 
-  const currentUserId = currentUserQuery.data?.id;
-
   return (
     <div className="h-full">
       <Virtuoso<Message>
@@ -67,13 +78,16 @@ export default function MessageList({ conversationId }: MessageListProps) {
         startReached={() => {
           if (hasNextPage && !isFetchingNextPage) fetchNextPage();
         }}
-        itemContent={(index, message) => {
+        itemContent={(index) => {
           const arrayIndex = index - firstItemIndex;
+          const position = positions[arrayIndex];
+          if (!position) return null;
           return (
             <MessageRow
-              message={message}
-              previousMessage={messages[arrayIndex - 1]}
-              isOwn={message.senderId === currentUserId}
+              position={position}
+              senderAvatarUrl={avatarUrlBySenderId.get(
+                position.message.senderId,
+              )}
             />
           );
         }}

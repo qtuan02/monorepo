@@ -46,3 +46,8 @@ export function formatMessageTime(value: string): string {
 export function isSameDay(a: string, b: string): boolean {
   return toLocal(a).isSame(toLocal(b), "day");
 }
+
+/** Elapsed whole minutes between two ISO timestamps, order-independent. */
+export function minutesBetween(a: string, b: string): number {
+  return Math.abs(dayjs(a).diff(dayjs(b), "minute"));
+}

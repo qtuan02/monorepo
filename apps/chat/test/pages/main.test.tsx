@@ -16,6 +16,7 @@ import { ChatMessageType } from "@monorepo/types/chat-message";
 import { ROUTES } from "~/constants/routes";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
+import { useSocketStore } from "~/stores/use-socket-store";
 
 // The seam of the Session ticket (#198): the route tree mounted at a path,
 // with the service singleton mocked, asserting the Health gate + the async
@@ -159,6 +160,7 @@ describe("the route tree", () => {
     // `true` replaces rather than merges, so a token set by one test cannot
     // survive into the next.
     useAuthStore.setState(initialAuthState, true);
+    useSocketStore.setState({ onlineUsers: [] });
     chatHealthCheck.mockReset();
     chatAuthRefresh.mockReset();
     chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
@@ -652,6 +654,49 @@ describe("the route tree", () => {
           "c1",
           expect.objectContaining({ cursor: undefined }),
         );
+      });
+
+      it("shows the group header's 'N members · M online' line, excluding the signed-in visitor from the online count", async () => {
+        chatConversationGetConversations.mockResolvedValue({
+          items: [
+            {
+              id: "g1",
+              type: ChatConversationType.GROUP,
+              groupName: "Team Alpha",
+              lastMessage: null,
+              lastMessageAt: null,
+              unreadCount: 0,
+              participants: [
+                {
+                  userId: "u1",
+                  firstName: "Tuan",
+                  lastName: "Huynh",
+                  role: ChatParticipantRole.ADMIN,
+                },
+                {
+                  userId: "u2",
+                  firstName: "Lan",
+                  lastName: "Nguyen",
+                  role: ChatParticipantRole.MEMBER,
+                },
+                {
+                  userId: "u3",
+                  firstName: "Minh",
+                  lastName: "Tran",
+                  role: ChatParticipantRole.MEMBER,
+                },
+              ],
+            },
+          ],
+          nextCursor: null,
+        });
+        useSocketStore.setState({ onlineUsers: ["u1", "u3"] });
+
+        renderAt(ROUTES.conversationByIdPath("g1"));
+
+        await screen.findByRole("heading", { name: "Team Alpha" });
+        // u1 is the signed-in visitor and must not count toward "online".
+        expect(screen.getByText("3 members · 1 online")).toBeInTheDocument();
       });
     });
 

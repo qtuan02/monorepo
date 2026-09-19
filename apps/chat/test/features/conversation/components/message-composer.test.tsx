@@ -218,4 +218,53 @@ describe("MessageComposer", () => {
     await waitFor(() => expect(chatMessageSendDirect).toHaveBeenCalled());
     await waitFor(() => expect(textarea).toHaveValue("Hi there"));
   });
+
+  it("disables Send while the textarea is empty, and enables it once there is text", async () => {
+    const user = userEvent.setup();
+    renderComposer(DIRECT_CONVERSATION);
+
+    const sendButton = screen.getByRole("button", { name: "Send" });
+    expect(sendButton).toBeDisabled();
+
+    await user.type(screen.getByLabelText("Message composer"), "Hi there");
+    expect(sendButton).toBeEnabled();
+
+    await user.clear(screen.getByLabelText("Message composer"));
+    expect(sendButton).toBeDisabled();
+  });
+
+  it("shows a Spinner on Send while the mutation is pending", async () => {
+    const user = userEvent.setup();
+    let resolveSend: (() => void) | undefined;
+    chatMessageSendDirect.mockReturnValue(
+      new Promise((resolve) => {
+        resolveSend = () =>
+          resolve({
+            id: "m1",
+            conversationId: "c1",
+            senderId: "u1",
+            content: "Hi there",
+            type: ChatMessageType.TEXT,
+            createdAt: "2026-09-19T00:00:00.000Z",
+            updatedAt: "2026-09-19T00:00:00.000Z",
+          });
+      }),
+    );
+    renderComposer(DIRECT_CONVERSATION);
+
+    await user.type(
+      screen.getByLabelText("Message composer"),
+      "Hi there{Enter}",
+    );
+
+    expect(
+      await screen.findByRole("button", { name: "Sending..." }),
+    ).toBeInTheDocument();
+    expect(document.querySelector('[data-slot="spinner"]')).toBeInTheDocument();
+
+    resolveSend?.();
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Send" })).toBeInTheDocument(),
+    );
+  });
 });

@@ -1,44 +1,93 @@
+import { Bubble, BubbleContent } from "@monorepo/ui/components/bubble";
+import {
+  Message,
+  MessageAvatar,
+  MessageContent,
+  MessageFooter,
+  MessageHeader,
+} from "@monorepo/ui/components/message";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import type { Message } from "~/features/conversation/types/message";
-import MessageBubble from "~/features/conversation/components/message-bubble";
-import { formatMessageDateLabel, isSameDay } from "~/utils/date";
+import type { MessagePosition } from "~/features/conversation/utils/group-messages";
+import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import { formatMessageDateLabel, formatMessageTime } from "~/utils/date";
+
+const OWN_BUBBLE_CLASSNAME =
+  "border-transparent bg-gradient-to-br from-primary to-[oklch(from_var(--primary)_calc(l+0.14)_c_h)] text-primary-foreground shadow-lg shadow-primary/25";
 
 interface MessageRowProps {
-  message: Message;
-  previousMessage?: Message;
-  isOwn: boolean;
+  position: MessagePosition;
+  senderAvatarUrl?: string;
 }
 
 export default function MessageRow({
-  message,
-  previousMessage,
-  isOwn,
+  position,
+  senderAvatarUrl,
 }: MessageRowProps) {
-  const showDateDivider =
-    !previousMessage ||
-    !isSameDay(previousMessage.createdAt, message.createdAt);
-  const showSenderName =
-    !isOwn &&
-    (!previousMessage ||
-      previousMessage.senderId !== message.senderId ||
-      showDateDivider);
+  const {
+    message,
+    isSystem,
+    isOwn,
+    isFirstInGroup,
+    isLastInGroup,
+    showDateDivider,
+  } = position;
 
   return (
-    <div className="flex flex-col gap-1 px-3 py-1">
+    <div
+      className={cn(
+        "flex flex-col gap-0.5 px-3",
+        isFirstInGroup ? "pt-3" : "pt-0.5",
+      )}
+    >
       {showDateDivider && (
-        <div className="text-muted-foreground my-2 text-center text-xs font-medium">
-          {formatMessageDateLabel(message.createdAt)}
+        <div className="my-2 flex justify-center">
+          <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-xs font-medium">
+            {formatMessageDateLabel(message.createdAt)}
+          </span>
         </div>
       )}
-      {showSenderName && (
-        <span className="text-muted-foreground ml-1 text-xs">
-          {message.senderName}
-        </span>
+
+      {isSystem ? (
+        <div className="flex justify-center py-1">
+          <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 text-xs">
+            {message.content}
+          </span>
+        </div>
+      ) : (
+        <Message align={isOwn ? "end" : "start"}>
+          {!isOwn && (
+            <MessageAvatar className={cn(!isFirstInGroup && "invisible")}>
+              <ConversationAvatar
+                title={message.senderName}
+                avatarUrl={senderAvatarUrl}
+              />
+            </MessageAvatar>
+          )}
+          <MessageContent>
+            {!isOwn && isFirstInGroup && (
+              <MessageHeader>{message.senderName}</MessageHeader>
+            )}
+            <Bubble
+              align={isOwn ? "end" : "start"}
+              variant={isOwn ? "default" : "muted"}
+            >
+              <BubbleContent
+                className={isOwn ? OWN_BUBBLE_CLASSNAME : undefined}
+              >
+                <p className="break-words whitespace-pre-wrap">
+                  {message.content}
+                </p>
+              </BubbleContent>
+            </Bubble>
+            {isLastInGroup && (
+              <MessageFooter>
+                {formatMessageTime(message.createdAt)}
+              </MessageFooter>
+            )}
+          </MessageContent>
+        </Message>
       )}
-      <div className={cn("flex", isOwn ? "justify-end" : "justify-start")}>
-        <MessageBubble message={message} isOwn={isOwn} />
-      </div>
     </div>
   );
 }

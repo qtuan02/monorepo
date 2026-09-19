@@ -1,8 +1,13 @@
 import { Send } from "lucide-react";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
-import { Button } from "@monorepo/ui/components/button";
-import { Textarea } from "@monorepo/ui/components/textarea";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupTextarea,
+} from "@monorepo/ui/components/input-group";
+import { Spinner } from "@monorepo/ui/components/spinner";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposerEmojiPicker from "~/features/conversation/components/message-composer-emoji-picker";
@@ -28,32 +33,48 @@ export default function MessageComposer({
   } = useMessageComposer(conversation, onSent);
 
   return (
-    <form
-      className="border-border flex items-end gap-2 border-t p-3"
-      onSubmit={(event) => {
-        event.preventDefault();
-        void handleSubmit();
-      }}
-    >
-      <MessageComposerEmojiPicker onSelect={insertEmoji} />
-      <Textarea
-        ref={textareaRef}
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        onKeyDown={handleKeyDown}
-        rows={1}
-        aria-label="Message composer"
-        placeholder="Aa"
-        className="max-h-32 min-h-10 flex-1 resize-none rounded-3xl"
-      />
-      <Button
-        type="submit"
-        size="icon"
-        disabled={isPending || !content.trim()}
-        aria-label={isPending ? "Sending..." : "Send"}
+    <div className="border-border border-t p-3">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSubmit();
+        }}
       >
-        <Send className="size-4" />
-      </Button>
-    </form>
+        <InputGroup className="items-end rounded-3xl">
+          <InputGroupAddon align="inline-start" className="self-end pb-2">
+            <MessageComposerEmojiPicker onSelect={insertEmoji} />
+          </InputGroupAddon>
+          <InputGroupTextarea
+            ref={textareaRef}
+            value={content}
+            onChange={(event) => setContent(event.target.value)}
+            onKeyDown={handleKeyDown}
+            rows={1}
+            aria-label="Message composer"
+            placeholder={`Message ${conversation.title}…`}
+            className="max-h-32 min-h-9 py-2"
+          />
+          <InputGroupAddon align="inline-end" className="self-end pb-1.5">
+            <InputGroupButton
+              type="submit"
+              variant="default"
+              size="icon-sm"
+              disabled={isPending || !content.trim()}
+              aria-label={isPending ? "Sending..." : "Send"}
+              className="bg-gradient-to-br from-primary to-[oklch(from_var(--primary)_calc(l+0.14)_c_h)] text-primary-foreground shadow-md shadow-primary/25"
+            >
+              {isPending ? (
+                <Spinner className="size-4" />
+              ) : (
+                <Send className="size-4" />
+              )}
+            </InputGroupButton>
+          </InputGroupAddon>
+        </InputGroup>
+      </form>
+      <p className="text-muted-foreground mt-1.5 hidden text-[11px] md:block">
+        <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for a new line
+      </p>
+    </div>
   );
 }

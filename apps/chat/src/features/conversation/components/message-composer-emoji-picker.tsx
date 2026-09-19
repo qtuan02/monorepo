@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Smile } from "lucide-react";
 
-import { Button } from "@monorepo/ui/components/button";
+import { InputGroupButton } from "@monorepo/ui/components/input-group";
 import {
   Popover,
   PopoverContent,
@@ -45,14 +45,14 @@ export default function MessageComposerEmojiPicker({
     >
       <PopoverTrigger
         render={
-          <Button
+          <InputGroupButton
             type="button"
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             aria-label="Insert emoji"
           >
-            <Smile className="size-5" />
-          </Button>
+            <Smile className="size-4.5" />
+          </InputGroupButton>
         }
       />
       <PopoverContent className="w-auto p-0" side="top" align="start">

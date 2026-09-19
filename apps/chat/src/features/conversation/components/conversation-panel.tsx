@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Info, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 
 import {
@@ -7,6 +7,14 @@ import {
   ChatParticipantRole,
 } from "@monorepo/types/chat-conversation";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@monorepo/ui/components/empty";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
@@ -71,34 +79,60 @@ export default function ConversationPanel({
   const conversation = conversationId
     ? conversations.find((item) => item.id === conversationId)
     : undefined;
-
-  const isOtherMemberOnline = useSocketStore((state) => {
-    const otherMemberId = conversation?.otherMemberId ?? draftUser?.id;
-    return otherMemberId ? state.onlineUsers.includes(otherMemberId) : false;
-  });
-
-  if (!conversationId && !draftUser) {
-    return (
-      <div className="flex h-full flex-1 items-center justify-center p-6">
-        <p className="text-muted-foreground text-sm">
-          Pick a conversation to begin.
-        </p>
-      </div>
-    );
-  }
-
   const currentUserId = currentUserQuery.data?.id;
   const draftConversation =
     draftUser && currentUserId
       ? buildDraftConversation(draftUser, currentUserId)
       : undefined;
   const activeConversation = conversation ?? draftConversation;
+
+  const isOtherMemberOnline = useSocketStore((state) => {
+    const otherMemberId = conversation?.otherMemberId ?? draftUser?.id;
+    return otherMemberId ? state.onlineUsers.includes(otherMemberId) : false;
+  });
+  const onlineMemberCount = useSocketStore((state) => {
+    if (!activeConversation) return 0;
+    return activeConversation.members.filter(
+      (member) =>
+        member.userId !== currentUserId &&
+        state.onlineUsers.includes(member.userId),
+    ).length;
+  });
+
+  if (!conversationId && !draftUser) {
+    return (
+      <Empty className="h-full flex-1">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <MessageCircle />
+          </EmptyMedia>
+          <EmptyTitle>Pick a conversation</EmptyTitle>
+        </EmptyHeader>
+        <EmptyContent>
+          <Link
+            to={ROUTES.FRIENDS}
+            className={cn(buttonVariants({ variant: "default" }))}
+          >
+            New message
+          </Link>
+        </EmptyContent>
+      </Empty>
+    );
+  }
+
   const title = activeConversation?.title ?? "Conversation";
+  const isGroup = activeConversation?.type === ChatConversationType.GROUP;
+  const memberCount = activeConversation?.members.length ?? 0;
+  const subtitle = isGroup
+    ? `${memberCount} members · ${onlineMemberCount} online`
+    : isOtherMemberOnline
+      ? "Active now"
+      : undefined;
 
   return (
     <div className="flex h-full min-h-0 flex-1">
       <div className="flex h-full min-h-0 flex-1 flex-col">
-        <header className="border-border flex items-center gap-2 border-b px-3 py-2">
+        <header className="border-border flex h-[68px] shrink-0 items-center gap-2 border-b px-3">
           {showBackButton && (
             // A control that navigates is a styled Link, never a Button
             // rendering one — see .agents/rules/architecture-ui-primitives.md.
@@ -113,16 +147,25 @@ export default function ConversationPanel({
           <ConversationAvatar
             title={title}
             avatarUrl={activeConversation?.avatarUrl}
-            online={isOtherMemberOnline}
+            online={!isGroup && isOtherMemberOnline}
           />
-          <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">
-            {title}
-          </h1>
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-[15px] font-semibold">{title}</h1>
+            {subtitle && (
+              <p className="text-muted-foreground flex items-center gap-1.5 truncate text-xs">
+                {!isGroup && (
+                  <span className="bg-online inline-block size-1.5 shrink-0 rounded-full" />
+                )}
+                {subtitle}
+              </p>
+            )}
+          </div>
           {activeConversation && (
             <Button
               type="button"
-              size="icon-sm"
+              size="icon"
               variant="ghost"
+              className="size-11 md:size-9"
               onClick={() => setIsDetailsOpen(true)}
               aria-label="Conversation details"
             >
@@ -132,9 +175,15 @@ export default function ConversationPanel({
         </header>
         <div className="min-h-0 flex-1">
           {draftUser ? (
-            <div className="flex h-full items-center justify-center p-6">
-              <p className="text-muted-foreground text-sm">No messages yet.</p>
-            </div>
+            <Empty className="h-full">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <MessageCircle />
+                </EmptyMedia>
+                <EmptyTitle>No messages yet</EmptyTitle>
+                <EmptyDescription>Say hi to {title}</EmptyDescription>
+              </EmptyHeader>
+            </Empty>
           ) : (
             conversationId && <MessageList conversationId={conversationId} />
           )}
