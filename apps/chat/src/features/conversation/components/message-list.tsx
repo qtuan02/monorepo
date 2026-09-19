@@ -49,6 +49,13 @@ export default function MessageList({ conversationId }: MessageListProps) {
     () => groupMessages(messages, currentUserId ?? ""),
     [messages, currentUserId],
   );
+  // "Seen" belongs on the visitor's LAST own message in the whole thread —
+  // never every earlier own group `isLastInGroup` also true for — so a
+  // reply the other person read past doesn't light up every older run too.
+  const lastOwnMessageId = useMemo(
+    () => [...messages].reverse().find((message) => message.senderId === currentUserId)?.id,
+    [messages, currentUserId],
+  );
 
   function scrollToBottom() {
     virtuosoRef.current?.scrollToIndex({
@@ -118,8 +125,7 @@ export default function MessageList({ conversationId }: MessageListProps) {
               }
               seenByOther={
                 !isGroup &&
-                position.isOwn &&
-                position.isLastInGroup &&
+                position.message.id === lastOwnMessageId &&
                 isSeenByOther(position.message, otherMember)
               }
             />

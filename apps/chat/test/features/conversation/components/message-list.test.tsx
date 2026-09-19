@@ -4,7 +4,6 @@ import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ChatMessagePage } from "@monorepo/api/chat/message-service";
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 import {
@@ -14,7 +13,7 @@ import {
 import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import MessageList from "~/features/conversation/components/message-list";
-import { messageQueryKeys } from "~/hooks/api/message";
+import { appendConversationMessageToCache } from "~/hooks/api/message";
 import { useAuthStore } from "~/stores/use-auth-store";
 
 const CURRENT_USER: ChatUserProfile = {
@@ -72,11 +71,15 @@ vi.mock("react-virtuoso", () => ({
   },
 }));
 
-function messageRecord(id: string, createdAt: string): ChatMessageRecord {
+function messageRecord(
+  id: string,
+  createdAt: string,
+  senderId = "u2",
+): ChatMessageRecord {
   return {
     id,
     conversationId: "c1",
-    senderId: "u2",
+    senderId,
     content: id,
     type: ChatMessageType.TEXT,
     createdAt,
@@ -84,21 +87,10 @@ function messageRecord(id: string, createdAt: string): ChatMessageRecord {
   };
 }
 
-/** Prepends onto `pages[0]` — the same shape a live socket append uses (see appendConversationMessageToCache). */
+/** The exact helper the socket provider calls on a live arrival — see chat-socket-provider.tsx. */
 async function appendLiveMessage(queryClient: QueryClient, message: ChatMessageRecord) {
   await act(async () => {
-    queryClient.setQueryData<{ pages: ChatMessagePage[]; pageParams: unknown[] }>(
-      messageQueryKeys.byConversation("c1"),
-      (data) => {
-        if (!data) return data;
-        const [firstPage, ...rest] = data.pages;
-        if (!firstPage) return data;
-        return {
-          ...data,
-          pages: [{ ...firstPage, items: [message, ...firstPage.items] }, ...rest],
-        };
-      },
-    );
+    appendConversationMessageToCache(queryClient, message);
   });
 }
 
@@ -161,7 +153,10 @@ describe("MessageList — new messages button", () => {
     act(() => latestVirtuoso.atBottomStateChange?.(false));
 
     await appendLiveMessage(queryClient, messageRecord("m2", "2026-09-19T08:01:00.000Z"));
-    expect(await screen.findByRole("button", { name: "1 new message" })).toBeInTheDocument();
+    const button = await screen.findByRole("button", { name: "1 new message" });
+    expect(button).toBeInTheDocument();
+    // The count announces without stealing focus — the region is `polite`.
+    expect(button.closest('[aria-live="polite"]')).not.toBeNull();
 
     await appendLiveMessage(queryClient, messageRecord("m3", "2026-09-19T08:02:00.000Z"));
     expect(
@@ -189,5 +184,62 @@ describe("MessageList — new messages button", () => {
     act(() => latestVirtuoso.atBottomStateChange?.(true));
 
     expect(screen.queryByText(/new message/)).not.toBeInTheDocument();
+  });
+});
+
+describe("MessageList — 'Seen' placement", () => {
+  beforeEach(() => {
+    useAuthStore.setState({ token: "a-token" });
+    latestVirtuoso.atBottomStateChange = undefined;
+    latestVirtuoso.scrollToIndex.mockReset();
+    chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+  });
+
+  it("shows 'Seen' only under the visitor's LAST own message, not every earlier own group", async () => {
+    chatConversationGetConversations.mockReset().mockResolvedValue({
+      items: [
+        {
+          id: "c1",
+          type: ChatConversationType.DIRECT,
+          groupName: null,
+          lastMessage: null,
+          lastMessageAt: null,
+          unreadCount: 0,
+          participants: [
+            { userId: "u1", firstName: "Tuan", lastName: "Huynh", role: ChatParticipantRole.MEMBER },
+            {
+              userId: "u2",
+              firstName: "Lan",
+              lastName: "Nguyen",
+              role: ChatParticipantRole.MEMBER,
+              // Read past both of the visitor's messages, with the other
+              // participant's own reply sitting between them.
+              lastReadAt: "2026-09-19T08:03:00.000Z",
+            },
+          ],
+        },
+      ],
+      nextCursor: null,
+    });
+    // Newest-first within the page — see hooks/api/message.ts.
+    chatMessageGetMessages.mockReset().mockResolvedValue({
+      items: [
+        messageRecord("m3", "2026-09-19T08:02:00.000Z", "u1"),
+        messageRecord("m2", "2026-09-19T08:01:00.000Z", "u2"),
+        messageRecord("m1", "2026-09-19T08:00:00.000Z", "u1"),
+      ],
+      nextCursor: null,
+    });
+
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MessageList conversationId="c1" />
+      </QueryClientProvider>,
+    );
+
+    await screen.findByText("m3");
+    // Only m3 (the visitor's actual last message) gets it — not m1, whose
+    // own group also has isLastInGroup=true.
+    expect(screen.getAllByText("Seen")).toHaveLength(1);
   });
 });
