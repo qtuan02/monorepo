@@ -32,7 +32,7 @@ describe("KpiStrip", () => {
     expect(screen.getByText("▼ -4%")).toBeInTheDocument();
   });
 
-  it("shares one markup for both sizes — a horizontal-scroll container over min-width items", () => {
+  it("shares one markup for both layouts — a sm: flex row over min-width items, a grid below it", () => {
     const { container } = render(
       <KpiStrip
         items={[
@@ -43,10 +43,46 @@ describe("KpiStrip", () => {
     );
 
     const strip = container.firstElementChild;
-    expect(strip).toHaveClass("overflow-x-auto");
+    expect(strip).toHaveClass("grid", "grid-cols-2");
+    expect(strip).toHaveClass("sm:flex", "sm:overflow-x-auto");
     const [first] = Array.from(strip?.children ?? []);
-    expect(first).toHaveClass("min-w-[150px]");
-    expect(first).toHaveClass("flex-1");
+    expect(first).toHaveClass("sm:min-w-[150px]");
+    expect(first).toHaveClass("sm:flex-1");
+  });
+
+  it("2×2s a four-item strip on mobile, no tile spanning both columns", () => {
+    const { container } = render(
+      <KpiStrip
+        items={[
+          { label: "A", value: 1 },
+          { label: "B", value: 2 },
+          { label: "C", value: 3 },
+          { label: "D", value: 4 },
+        ]}
+      />,
+    );
+
+    const tiles = Array.from(container.firstElementChild?.children ?? []);
+    expect(tiles).toHaveLength(4);
+    for (const tile of tiles) expect(tile).not.toHaveClass("col-span-2");
+  });
+
+  it("spans the third tile full width on mobile when there are only three", () => {
+    const { container } = render(
+      <KpiStrip
+        items={[
+          { label: "A", value: 1 },
+          { label: "B", value: 2 },
+          { label: "C", value: 3 },
+        ]}
+      />,
+    );
+
+    const tiles = Array.from(container.firstElementChild?.children ?? []);
+    expect(tiles).toHaveLength(3);
+    expect(tiles[0]).not.toHaveClass("col-span-2");
+    expect(tiles[1]).not.toHaveClass("col-span-2");
+    expect(tiles[2]).toHaveClass("col-span-2", "sm:col-span-1");
   });
 });
 
@@ -62,5 +98,12 @@ describe("KpiStripSkeleton", () => {
     const { container } = render(<KpiStripSkeleton />);
 
     expect(container.firstElementChild?.children).toHaveLength(4);
+  });
+
+  it("mirrors KpiStrip's mobile span for a three-tile skeleton", () => {
+    const { container } = render(<KpiStripSkeleton count={3} />);
+
+    const tiles = Array.from(container.firstElementChild?.children ?? []);
+    expect(tiles[2]).toHaveClass("col-span-2", "sm:col-span-1");
   });
 });

@@ -1,11 +1,6 @@
-﻿import { User } from "lucide-react";
-import { Link } from "react-router";
+﻿import { Link } from "react-router";
 
-import {
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@monorepo/ui/components/card";
+import { CardContent, CardHeader } from "@monorepo/ui/components/card";
 
 import type { RoomView } from "~/types/room";
 import { StatusBadge } from "~/components/badge/status-badge";
@@ -72,14 +67,25 @@ function FloorSection({ floor, rooms }: { floor: number; rooms: RoomView[] }) {
         <div className="bg-border h-px flex-1" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {rooms.map((room) => {
           const status = roomStatusConfig[room.status];
+          // Badge only when the room ISN'T "Đã thuê" — an occupied room with
+          // no other signal says nothing extra (spec #153 §3.3); Trống/Bảo
+          // trì/Đã đặt each get their own status.
+          const showBadge = room.status !== "occupied";
+          const meta = [
+            roomTypeConfig[room.type].label,
+            `${room.area} m²`,
+            room.tenant,
+          ]
+            .filter(Boolean)
+            .join(" · ");
 
           return (
             <EntityListCard
               key={room.id}
-              className="pt-0"
+              className="gap-1.5 py-3"
               overlay={
                 <Link
                   to={ROUTES.roomDetailPath(room.id)}
@@ -87,35 +93,27 @@ function FloorSection({ floor, rooms }: { floor: number; rooms: RoomView[] }) {
                 />
               }
               header={
-                // Badge only, no colour-filled header (spec #153 §3.3: "Phòng
-                // header KHÔNG tô màu theo trạng thái; badge đủ").
-                <CardHeader className="flex items-start justify-between gap-2 py-4">
-                  <div>
-                    <h3 className="text-lg leading-none font-bold">
-                      {room.name}
-                    </h3>
-                    <p className="text-muted-foreground mt-1 text-xs font-medium tracking-wider uppercase">
-                      {roomTypeConfig[room.type].label} • {room.area}m²
-                    </p>
+                <CardHeader className="flex flex-row items-start justify-between gap-2 px-3">
+                  <h3 className="truncate text-sm leading-none font-semibold">
+                    {room.name}
+                  </h3>
+                  <div className="relative z-10 shrink-0">
+                    <RoomRowActions room={room} side="top" />
                   </div>
-                  <StatusBadge config={status} isCompact />
                 </CardHeader>
               }
               content={
-                <CardContent className="flex flex-col gap-2">
-                  <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-                    <User className="size-3.5" />
-                    <span className="truncate">{room.tenant ?? "Trống"}</span>
+                <CardContent className="gap-1 px-3">
+                  <p className="text-muted-foreground truncate text-xs">
+                    {meta}
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold">
+                      {formatCurrency(room.price)}
+                    </span>
+                    {showBadge && <StatusBadge config={status} isCompact />}
                   </div>
-                  <span className="text-sm font-bold">
-                    {formatCurrency(room.price)}
-                  </span>
                 </CardContent>
-              }
-              footer={
-                <CardFooter className="relative z-10 justify-end">
-                  <RoomRowActions room={room} side="top" />
-                </CardFooter>
               }
             />
           );

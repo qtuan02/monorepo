@@ -3,8 +3,6 @@ import { Plus, Users } from "lucide-react";
 
 import { Button } from "@monorepo/ui/components/button";
 
-import type { TenantStatus, TenantView } from "~/types/tenant";
-import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
 import { ListPageHeader } from "~/components/page/list-page-header";
 import { tenantStatusConfig, toFilterOptions } from "~/constants/status";
@@ -15,24 +13,12 @@ import TenantMobileRow from "~/features/tenants/components/tenant-mobile-row";
 import { useGetTenants } from "~/hooks/api/tenant";
 import { useBuildingStore } from "~/stores/use-building-store";
 
-/** The three KPI tiles above the list; a `status` counts that status, none counts everything. */
-const summaryTiles: { label: string; status?: TenantStatus }[] = [
-  { label: "Tổng Người thuê" },
-  { label: "Đang thuê", status: "active" },
-  { label: "Đã rời", status: "ended" },
-];
-
-function countByStatus(tenants: TenantView[], status?: TenantStatus) {
-  return status
-    ? tenants.filter((tenant) => tenant.status === status).length
-    : tenants.length;
-}
-
 /**
- * "Quản lý Người thuê": KPI tiles over the scoped list, then the list
- * composite with a card/table view on the URL. "Thêm Người thuê" goes to the
- * create screen — the prototype's second, thinner create dialog is folded
- * into it.
+ * "Quản lý Người thuê": the list composite with a card/table view on the
+ * URL — no KPI strip above it (round 4, #245): "Tổng/Đang thuê/Đã rời" never
+ * moved from the Mock's seed count, so the strip only ever repeated the
+ * table's own facet counts. "Thêm Người thuê" goes to the create screen —
+ * the prototype's second, thinner create dialog is folded into it.
  */
 export default function TenantListTemplate() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -51,19 +37,6 @@ export default function TenantListTemplate() {
           </Button>
         }
       />
-
-      {tenantsQuery.isLoading ? (
-        <KpiStripSkeleton count={3} />
-      ) : (
-        !tenantsQuery.isError && (
-          <KpiStrip
-            items={summaryTiles.map((tile) => ({
-              label: tile.label,
-              value: countByStatus(tenantsQuery.data ?? [], tile.status),
-            }))}
-          />
-        )
-      )}
 
       <DataTable
         columns={tenantColumns}

@@ -122,7 +122,7 @@ describe("DashboardTemplate", () => {
       .findByText("Còn phải thu tháng này")
       .then((label) => label.closest('[data-slot="kpi-strip"]') as HTMLElement);
     const values = within(strip)
-      .getAllByText(/./, { selector: "p.text-xl" })
+      .getAllByText(/./, { selector: "p.text-lg" })
       .map((el) => el.textContent);
 
     expect(values).toHaveLength(3);

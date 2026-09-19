@@ -1,10 +1,6 @@
 import { Calendar, FileText, Home, Landmark, User } from "lucide-react";
 
-import {
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@monorepo/ui/components/card";
+import { CardContent, CardHeader } from "@monorepo/ui/components/card";
 
 import type { Contract } from "~/types/contract";
 import { StatusBadge } from "~/components/badge/status-badge";
@@ -23,27 +19,27 @@ export default function ContractCard({ contract }: ContractCardProps) {
   return (
     <EntityListCard
       header={
-        <CardHeader className="pb-0">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-3">
-              <div className="bg-primary/10 text-primary flex size-10 items-center justify-center rounded-xl shadow-sm">
-                <FileText className="size-5" />
-              </div>
-              <div>
-                <h3 className="leading-tight font-bold">
-                  {contract.contractNumber}
-                </h3>
-                <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs font-medium uppercase">
-                  <Calendar className="size-2.5" />
-                  Ký: {formatDate(contract.startDate)}
-                </p>
-              </div>
+        <CardHeader className="flex flex-row items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="bg-primary/10 text-primary flex size-10 shrink-0 items-center justify-center rounded-xl shadow-sm">
+              <FileText className="size-5" />
             </div>
+            <div className="min-w-0">
+              <h3 className="truncate leading-tight font-semibold">
+                {contract.contractNumber}
+              </h3>
+              <p className="text-muted-foreground mt-1 flex items-center gap-1.5 text-xs">
+                <Calendar className="size-2.5" />
+                Ký: {formatDate(contract.startDate)}
+              </p>
+            </div>
+          </div>
+          <div className="relative z-10 flex shrink-0 items-center gap-2">
             <StatusBadge
               config={contractStatusConfig[contract.status]}
               isCompact
-              className="text-xs font-bold tracking-wider uppercase"
             />
+            <ContractRowActions contract={contract} side="top" />
           </div>
         </CardHeader>
       }
@@ -97,11 +93,6 @@ export default function ContractCard({ contract }: ContractCardProps) {
             </div>
           </dl>
         </CardContent>
-      }
-      footer={
-        <CardFooter className="justify-end">
-          <ContractRowActions contract={contract} side="top" />
-        </CardFooter>
       }
     />
   );

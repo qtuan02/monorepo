@@ -16,24 +16,37 @@ interface KpiStripProps {
 }
 
 const STRIP_CLASSNAME =
-  "bg-card ring-foreground/10 flex divide-x divide-border overflow-x-auto rounded-xl shadow-xs ring-1";
+  "bg-card ring-foreground/10 grid grid-cols-2 gap-px overflow-hidden rounded-xl shadow-xs ring-1 sm:flex sm:gap-0 sm:divide-x sm:divide-border sm:overflow-x-auto";
+
+/** The last of an odd item count spans both mobile columns instead of leaving a hole. */
+function isFullWidthOnMobile(index: number, count: number) {
+  return count % 2 === 1 && index === count - 1;
+}
 
 /**
- * One KPI strip, two sizes from one markup (spec #153 §10 row 16): each item
- * carries `min-w-[150px]` and `flex-1`, so a desktop-width container lets
- * every item share the space evenly while a narrow one overflows into a
- * horizontal scroll — no separate mobile layout to keep in sync.
+ * One KPI strip, two layouts from one markup (round 4, #245): a `sm:` flex
+ * row with `min-w-[150px]`/`flex-1` items — same shape as before — and below
+ * `sm` a `grid-cols-2` so all tiles read at a glance instead of a horizontal
+ * scroll that cut the strip off. An odd tile count spans its last item full
+ * width on the grid so it never sits alone in a half-empty row.
  */
 export function KpiStrip({ items, className }: KpiStripProps) {
   return (
     <div data-slot="kpi-strip" className={cn(STRIP_CLASSNAME, className)}>
-      {items.map((item) => (
-        <div key={item.label} className="min-w-[150px] flex-1 p-4">
+      {items.map((item, index) => (
+        <div
+          key={item.label}
+          className={cn(
+            "bg-card p-3 sm:min-w-[150px] sm:flex-1",
+            isFullWidthOnMobile(index, items.length) &&
+              "col-span-2 sm:col-span-1",
+          )}
+        >
           <p className="text-muted-foreground text-xs font-medium">
             {item.label}
           </p>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <p className="text-xl font-bold tabular-nums">{item.value}</p>
+            <p className="text-lg font-semibold tabular-nums">{item.value}</p>
             {item.trend && (
               <span
                 className={cn(
@@ -76,10 +89,16 @@ export function KpiStripSkeleton({
       data-slot="kpi-strip-skeleton"
       className={cn(STRIP_CLASSNAME, className)}
     >
-      {SKELETON_TILES.slice(0, count).map((tile) => (
-        <div key={tile} className="min-w-[150px] flex-1 space-y-2 p-4">
+      {SKELETON_TILES.slice(0, count).map((tile, index) => (
+        <div
+          key={tile}
+          className={cn(
+            "space-y-2 p-3 sm:min-w-[150px] sm:flex-1",
+            isFullWidthOnMobile(index, count) && "col-span-2 sm:col-span-1",
+          )}
+        >
           <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-6 w-20" />
+          <Skeleton className="h-5 w-20" />
         </div>
       ))}
     </div>
