@@ -1,13 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { FieldGroup } from "@monorepo/ui/components/field";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { DateField } from "~/components/form/date-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { useExtendResidenceRegistration } from "~/hooks/api/compliance";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 import { formatDate } from "~/utils/date";
 
 const residenceRegistrationExtendFormSchema = z.object({
@@ -31,8 +29,6 @@ interface ResidenceRegistrationExtendSheetProps {
   tenantName: string;
 }
 
-const FORM_ID = "residence-registration-extend-form";
-
 /**
  * "Đã gia hạn đến …" (ticket #188): the one write Đăng ký tạm trú has —
  * registrationStatus itself is never stored, only `dueDate` moves.
@@ -44,39 +40,24 @@ export function ResidenceRegistrationExtendSheet({
   tenantName,
 }: ResidenceRegistrationExtendSheetProps) {
   const extend = useExtendResidenceRegistration();
-  const form = useForm<ResidenceRegistrationExtendFormValues>({
-    resolver: zodResolver(residenceRegistrationExtendFormSchema),
-    defaultValues: defaultValues(),
-  });
-
-  const onSubmit = form.handleSubmit((values) => {
-    extend.mutate(
-      { tenantId, newDueDate: formatDate(values.newDueDate) },
-      {
-        onSuccess: () => {
-          toast.add({
-            title: `Đã gia hạn Đăng ký tạm trú cho ${tenantName}`,
-            type: "success",
-          });
-          onOpenChange(false);
-        },
-      },
-    );
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: residenceRegistrationExtendFormSchema,
+    toDefaultValues: defaultValues,
+    mutations: { create: extend },
+    toPayload: (values) => ({
+      tenantId,
+      newDueDate: formatDate(values.newDueDate),
+    }),
+    successMessage: () => `Đã gia hạn Đăng ký tạm trú cho ${tenantName}`,
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(defaultValues());
-        onOpenChange(next);
-      }}
+      {...sheetProps}
       title="Gia hạn Đăng ký tạm trú"
       description="Cập nhật hạn mới sau khi Người thuê đã gia hạn trên Cổng dịch vụ công."
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={extend.isPending}
     >
       <FieldGroup>
         <DateField

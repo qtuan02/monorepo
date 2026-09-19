@@ -1,4 +1,5 @@
 import type { FormEventHandler, ReactNode } from "react";
+import type { FieldErrors, FieldValues } from "react-hook-form";
 import { useState } from "react";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -12,6 +13,7 @@ import {
 } from "@monorepo/ui/components/sheet";
 
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
+import { FormErrorSummary } from "~/components/form/form-error-summary";
 
 interface FormSheetProps {
   open: boolean;
@@ -24,6 +26,8 @@ interface FormSheetProps {
   /** `form.formState.isDirty` — closing while dirty asks for confirmation first. */
   isDirty: boolean;
   isPending?: boolean;
+  /** `form.formState.errors` — rendered as a `FormErrorSummary` at ≥ 2 invalid fields. */
+  errors?: FieldErrors<FieldValues>;
   submitLabel?: string;
   cancelLabel?: string;
   children: ReactNode;
@@ -44,6 +48,7 @@ export function FormSheet({
   onSubmit,
   isDirty,
   isPending,
+  errors,
   submitLabel = "Lưu lại",
   cancelLabel = "Hủy",
   children,
@@ -72,6 +77,7 @@ export function FormSheet({
             noValidate
             className="flex-1 overflow-y-auto p-4"
           >
+            {errors && <FormErrorSummary errors={errors} />}
             {children}
           </form>
           <SheetFooter className="flex-row justify-end border-t">

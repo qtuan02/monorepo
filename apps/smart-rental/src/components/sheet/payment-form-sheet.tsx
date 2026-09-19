@@ -1,6 +1,4 @@
-import { useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import dayjs from "@monorepo/dayjs";
 import { Field, FieldGroup, FieldLabel } from "@monorepo/ui/components/field";
@@ -11,20 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@monorepo/ui/components/select";
-import { toast } from "@monorepo/ui/components/toast";
 
-import type {
-  InvoicePaymentFormInput,
-  InvoicePaymentFormValues,
-} from "~/types/invoice-payment-form";
+import type { InvoicePaymentFormInput } from "~/types/invoice-payment-form";
 import { CurrencyField } from "~/components/form/currency-field";
 import { DateField } from "~/components/form/date-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { invoicePaymentMethodConfig } from "~/constants/status";
 import { useRecordInvoicePayment } from "~/hooks/api/invoice";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 import { invoicePaymentFormSchema } from "~/types/invoice-payment-form";
-
-const FORM_ID = "invoice-payment-form";
 
 function defaultValues(defaultAmount?: number): InvoicePaymentFormInput {
   return {
@@ -56,50 +49,21 @@ export default function PaymentFormSheet({
   defaultAmount,
 }: PaymentFormSheetProps) {
   const recordPayment = useRecordInvoicePayment();
-  const form = useForm<
-    InvoicePaymentFormInput,
-    unknown,
-    InvoicePaymentFormValues
-  >({
-    resolver: zodResolver(invoicePaymentFormSchema),
-    defaultValues: defaultValues(defaultAmount),
-  });
-
-  // `open` flips from the caller's own "Ghi nhận thu" button — a plain
-  // setState, never through FormSheet's own onOpenChange — so resetting
-  // inside that callback's `next === true` branch never runs. Reset here
-  // instead, or reopening after a payment shows the previous (now stale)
-  // còn lại instead of the freshly recomputed one.
-  useEffect(() => {
-    if (open) form.reset(defaultValues(defaultAmount));
-  }, [open, defaultAmount, form]);
-
-  const onSubmit = form.handleSubmit((values) => {
-    recordPayment.mutate(
-      { invoiceId, ...values },
-      {
-        onSuccess: () => {
-          toast.add({
-            title: `Đã ghi nhận thanh toán cho ${invoiceNumber}`,
-            type: "success",
-          });
-          form.reset(defaultValues(defaultAmount));
-          onOpenChange(false);
-        },
-      },
-    );
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: invoicePaymentFormSchema,
+    toDefaultValues: () => defaultValues(defaultAmount),
+    mutations: { create: recordPayment },
+    toPayload: (values) => ({ invoiceId, ...values }),
+    successMessage: () => `Đã ghi nhận thanh toán cho ${invoiceNumber}`,
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={onOpenChange}
+      {...sheetProps}
       title="Ghi nhận Thanh toán"
       description={`Một khoản thu cho ${invoiceNumber}.`}
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={recordPayment.isPending}
     >
       <FieldGroup>
         <DateField

@@ -1,20 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
 import { FieldGroup } from "@monorepo/ui/components/field";
-import { toast } from "@monorepo/ui/components/toast";
 
-import type {
-  TenantFormInput,
-  TenantFormValues,
-} from "~/features/tenants/types/tenant-form";
+import type { TenantFormInput } from "~/features/tenants/types/tenant-form";
 import type { Tenant } from "~/types/tenant";
 import { DateField } from "~/components/form/date-field";
-import { FormErrorSummary } from "~/components/form/form-error-summary";
 import { TextField } from "~/components/form/text-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { tenantFormSchema } from "~/features/tenants/types/tenant-form";
 import { useCreateTenant, useUpdateTenant } from "~/hooks/api/tenant";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 import { useBuildingStore } from "~/stores/use-building-store";
 
 interface TenantFormSheetProps {
@@ -26,7 +19,18 @@ interface TenantFormSheetProps {
   onCreated?: (tenant: Tenant) => void;
 }
 
-const FORM_ID = "tenant-form";
+function toDefaultValues(tenant: Tenant | undefined): TenantFormInput {
+  return {
+    fullName: tenant?.name ?? "",
+    idCard: tenant?.idNumber ?? "",
+    dob: "",
+    hometown: "",
+    phone: tenant?.phone ?? "",
+    email: tenant?.email ?? "",
+    vehicleType: "",
+    vehiclePlate: "",
+  };
+}
 
 /**
  * "Tạo/sửa trong Sheet" (spec #153 §10 row 15, ticket #161) — one Sheet, one
@@ -45,74 +49,37 @@ export default function TenantFormSheet({
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const createTenant = useCreateTenant();
   const updateTenant = useUpdateTenant();
-  const form = useForm<TenantFormInput, unknown, TenantFormValues>({
-    resolver: zodResolver(tenantFormSchema),
-    defaultValues: {
-      fullName: tenant?.name ?? "",
-      idCard: tenant?.idNumber ?? "",
-      dob: "",
-      hometown: "",
-      phone: tenant?.phone ?? "",
-      email: tenant?.email ?? "",
-      vehicleType: "",
-      vehiclePlate: "",
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: tenantFormSchema,
+    entity: tenant,
+    toDefaultValues,
+    mutations: { create: createTenant, update: updateTenant },
+    toPayload: (values, entity) =>
+      entity
+        ? { tenantId: entity.id, payload: values }
+        : { ...values, buildingId: selectedBuildingId ?? undefined },
+    successMessage: (result, entity) =>
+      entity
+        ? `Đã cập nhật Người thuê ${result.name}`
+        : `Đã thêm Người thuê ${result.name}`,
+    onSuccess: (result, entity) => {
+      if (!entity) onCreated?.(result);
     },
-  });
-
-  const onSubmit = form.handleSubmit((values) => {
-    if (isEdit) {
-      updateTenant.mutate(
-        { tenantId: tenant.id, payload: values },
-        {
-          onSuccess: (updated) => {
-            toast.add({
-              title: `Đã cập nhật Người thuê ${updated.name}`,
-              type: "success",
-            });
-            form.reset();
-            onOpenChange(false);
-          },
-        },
-      );
-      return;
-    }
-
-    createTenant.mutate(
-      { ...values, buildingId: selectedBuildingId ?? undefined },
-      {
-        onSuccess: (created) => {
-          toast.add({
-            title: `Đã thêm Người thuê ${created.name}`,
-            type: "success",
-          });
-          form.reset();
-          onOpenChange(false);
-          onCreated?.(created);
-        },
-      },
-    );
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset();
-        onOpenChange(next);
-      }}
+      {...sheetProps}
       title={isEdit ? "Chỉnh sửa Người thuê" : "Thêm Người thuê mới"}
       description={
         isEdit
           ? "Cập nhật thông tin Người thuê."
           : "Nhập thông tin để thêm Người thuê mới."
       }
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={isEdit ? updateTenant.isPending : createTenant.isPending}
     >
       <FieldGroup>
-        <FormErrorSummary errors={form.formState.errors} />
         <TextField
           control={form.control}
           name="fullName"

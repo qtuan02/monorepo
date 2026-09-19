@@ -1,3 +1,4 @@
+import type { FieldErrors, FieldValues } from "react-hook-form";
 import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -8,9 +9,10 @@ import { FormSheet } from "~/components/sheet/form-sheet";
 interface HarnessProps {
   isDirty: boolean;
   onOpenChange: (open: boolean) => void;
+  errors?: FieldErrors<FieldValues>;
 }
 
-function FormSheetHarness({ isDirty, onOpenChange }: HarnessProps) {
+function FormSheetHarness({ isDirty, onOpenChange, errors }: HarnessProps) {
   const [open, setOpen] = useState(true);
 
   return (
@@ -24,6 +26,7 @@ function FormSheetHarness({ isDirty, onOpenChange }: HarnessProps) {
       formId="test-form"
       onSubmit={(event) => event.preventDefault()}
       isDirty={isDirty}
+      errors={errors}
     >
       <p>Nội dung form</p>
     </FormSheet>
@@ -71,5 +74,30 @@ describe("FormSheet", () => {
     );
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("renders a FormErrorSummary once `errors` carries ≥ 2 invalid fields", () => {
+    render(
+      <FormSheetHarness
+        isDirty={false}
+        onOpenChange={vi.fn()}
+        errors={{
+          name: { type: "required", message: "Bắt buộc" },
+          email: { type: "required", message: "Email không hợp lệ" },
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByText(/^Vui lòng kiểm tra lại \d+ lỗi$/),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no FormErrorSummary when `errors` is empty or omitted", () => {
+    render(<FormSheetHarness isDirty={false} onOpenChange={vi.fn()} />);
+
+    expect(
+      screen.queryByText(/^Vui lòng kiểm tra lại \d+ lỗi$/),
+    ).not.toBeInTheDocument();
   });
 });
