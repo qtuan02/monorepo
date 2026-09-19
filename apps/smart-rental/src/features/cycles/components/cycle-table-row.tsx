@@ -25,6 +25,17 @@ import { formatCurrency } from "~/utils/currency";
 
 const METER_TYPES = ["electricity", "water"] as const;
 
+/**
+ * "gấp 2,2 lần kỳ trước" → "×2,2" for the Trạng thái badge (round 4, ticket
+ * #247, mockup A2) — the ratio is the whole point of a compact badge, the
+ * rest of the sentence is what the table's header hai tầng already implies.
+ * The one reason with no ratio ("chỉ số bất thường") is shown as-is.
+ */
+function toCompactAnomalyLabel(reason: string): string {
+  const ratio = reason.match(/^gấp ([\d,]+) lần/)?.[1];
+  return ratio ? `×${ratio}` : reason;
+}
+
 interface CycleTableRowProps {
   index: number;
   row: CycleRow;
@@ -128,7 +139,8 @@ export function CycleTableRow({
               {anomalies.map(({ type, reason }) => (
                 <div key={type} className="flex items-center gap-1.5">
                   <Badge variant="outline" className={statusTone.warning}>
-                    {utilityTypeConfig[type].label} {reason}
+                    {utilityTypeConfig[type].label}{" "}
+                    {toCompactAnomalyLabel(reason)}
                   </Badge>
                   <Button
                     type="button"

@@ -50,11 +50,11 @@ describe("CycleTemplate", () => {
     expect(within(readyRow).getByText("Sẵn sàng")).toBeInTheDocument();
 
     // R-B1-103 is the Mock's one deliberately anomalous Phòng of kỳ 09 — its
-    // Trạng thái cell shows the per-đồng-hồ badge instead of a plain "Bất
-    // thường" (round 4, ticket #247).
+    // Trạng thái cell shows the per-đồng-hồ compact badge ("Điện ×2,2")
+    // instead of a plain "Bất thường" (round 4, ticket #247).
     expect(
       within(screen.getByRole("row", { name: /^Phòng 103\b/ })).getByText(
-        /^Điện gấp/,
+        /^Điện ×/,
       ),
     ).toBeInTheDocument();
     // R-B1-106 is the Mock's one deliberately unread Phòng of kỳ 09.
@@ -122,7 +122,7 @@ describe("CycleTemplate", () => {
     const anomalousRow = await screen.findByRole("row", {
       name: /^Phòng 103\b/,
     });
-    expect(within(anomalousRow).getByText(/^Điện gấp/)).toBeInTheDocument();
+    expect(within(anomalousRow).getByText(/^Điện ×/)).toBeInTheDocument();
     // Nước was never flagged for this Phòng — only one Duyệt button, điện's.
     expect(
       within(anomalousRow).getAllByRole("button", { name: "Duyệt" }),

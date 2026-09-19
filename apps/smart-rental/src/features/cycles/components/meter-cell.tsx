@@ -55,10 +55,11 @@ interface MeterCellProps {
   month: string;
   readOnly: boolean;
   /**
-   * `"card"` (default) — the mobile card's own block: pencil + Duyệt inline,
-   * unchanged (ticket #228). `"table"` — round 4's `td`-per-value shape
-   * (ticket #247): no label, no pencil, no Duyệt — those move to the row's
-   * ⋯ menu and Trạng thái cell, which is why `meterGates` stays exported.
+   * `"card"` (default) — the mobile card's own block, byte-identical to
+   * before round 4 (ticket #228): label + pencil, Duyệt inline. `"table"` —
+   * round 4's `td`-per-value shape (ticket #247): no label, no pencil, no
+   * Duyệt — those move to the row's ⋯ menu and Trạng thái cell, which is
+   * why `meterGates` stays exported.
    */
   layout?: "card" | "table";
 }
@@ -67,9 +68,9 @@ interface MeterCellProps {
  * One đồng hồ (điện hoặc nước) của một Phòng trên "Kỳ điện nước & hoá đơn" —
  * chỉ số cũ, ô nhập chỉ số mới (bind qua `Controller` vào `rows[index]` của
  * form Kỳ), tiêu thụ. Two render shapes share the same `meterGates` (ticket
- * #228 → #247): a card block, and three right-aligned `td`s for the round 4
- * table (header carries "Điện"/"Nước" · "Cũ · Mới · Dùng", so the cell
- * itself states no label).
+ * #228 → #247): the mobile card's own block (unchanged), and three
+ * right-aligned `td`s for the round 4 table (header carries "Điện"/"Nước" ·
+ * "Cũ · Mới · Dùng", so the cell itself states no label).
  */
 export function MeterCell({
   row,
@@ -172,8 +173,9 @@ export function MeterCell({
 
   return (
     <div className="space-y-1.5">
-      {correctable && (
-        <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-1">
+        <span className="text-muted-foreground text-xs">{typeLabel}</span>
+        {correctable && (
           <Button
             type="button"
             variant="ghost"
@@ -183,8 +185,8 @@ export function MeterCell({
           >
             <Pencil />
           </Button>
-        </div>
-      )}
+        )}
+      </div>
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground w-12 shrink-0 tabular-nums text-sm">
           {oldValue}
