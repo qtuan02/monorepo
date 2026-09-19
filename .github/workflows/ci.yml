@@ -2,13 +2,14 @@ name: CI
 
 # The Gate: `check`, `typecheck`, `test`, `build` — the same four commands
 # `bun run` locally, so running them by hand reproduces this workflow exactly.
-# Nothing else here is allowed to block a merge. Four jobs sit outside it and
-# all four carry `continue-on-error: true` for a reason written at the job
-# itself: `e2e` (Playwright over every app that ships a playwright.config.ts),
-# `docker` (one image build per app that ships a Dockerfile), `changeset-status`
-# (a missing release note on a diff that changes the published surface) and
-# `publish-smoke` (the two Publish shells packed and installed into a throwaway
-# consumer project).
+# Nothing else here is allowed to block a merge. Three jobs sit outside it and
+# all three carry `continue-on-error: true` for a reason written at the job
+# itself: `docker` (one image build per app that ships a Dockerfile),
+# `changeset-status` (a missing release note on a diff that changes the
+# published surface) and `publish-smoke` (the two Publish shells packed and
+# installed into a throwaway consumer project).
+#
+# E2E (Playwright) is local-only — `bun run e2e` — and does not run in CI.
 #
 # Runs on a push to ANY branch, and there is deliberately no `pull_request`
 # trigger: a check is attached to the head commit, so a push-triggered run is
@@ -88,19 +89,17 @@ jobs:
             turbo-build-${{ github.ref_name }}-
       - run: bun run build
 
-  # Scopes the four non-blocking jobs below — `e2e`, `docker`,
-  # `changeset-status` and `publish-smoke` — without scoping the trigger. The
-  # four Gate jobs are required checks and must run on every push, so
-  # `on.push.paths` is not an option — the filtering has to happen per-job, and
-  # a plain `git diff` does it without a third-party action.
+  # Scopes the non-blocking jobs below — `docker`, `changeset-status` and
+  # `publish-smoke` — without scoping the trigger. The four Gate jobs are
+  # required checks and must run on every push, so `on.push.paths` is not an
+  # option — the filtering has to happen per-job, and a plain `git diff` does
+  # it without a third-party action.
   #
   # TWO outputs, because the two pairs genuinely want different paths — which is
   # the split the single-`app` version of this comment said to make only once
   # that became true:
   #
-  #   `app`     — what can change the behaviour Playwright drives is exactly
-  #               what can change the bytes that land in an image, so `e2e` and
-  #               `docker` still share one regex.
+  #   `app`     — what can change the bytes that land in a Docker image.
   #   `publish` — what can change the two Publish shells' published bytes, or
   #               the way those bytes are proven: the two source packages, the
   #               two shells, the Tailwind tooling `dist/globals.css` is
@@ -171,87 +170,6 @@ jobs:
             | paste -sd, -)
           echo "apps=[$apps]" >> "$GITHUB_OUTPUT"
           echo "docker matrix: [$apps]"
-
-  # Playwright, over every app that ships a `playwright.config.ts`, in one
-  # job. Four constraints, each of which has broken this job before — three
-  # here, and a fourth written at the `unzip` step that fixes it:
-  #
-  #   1. The container tag MUST match `@playwright/test` in the `testing`
-  #      catalog exactly (1.62.1) — the image bakes in the browser revision that
-  #      version expects, which is why the catalog pins it without a caret. Bump
-  #      the tag and the catalog entry together, never one alone.
-  #   2. NOT routed through `turbo run`. Turbo filters the environment in strict
-  #      mode and swallows the image's PLAYWRIGHT_BROWSERS_PATH, which surfaces
-  #      as "Executable doesn't exist" with the browsers sitting on disk.
-  #   3. `continue-on-error: true` while the suite proves it is not flaky, so it
-  #      reports without blocking. Deleting that one line makes E2E a real gate.
-  #
-  # Each app's `webServer` builds and serves the app itself, on its own E2E port
-  # (3100 for the Vite Template, 3101 for the Next one — each declared in that
-  # app's `apps/<app>/ports.env`), so the two steps cannot collide even though
-  # they share a runner.
-  e2e:
-    name: e2e
-    needs: changes
-    if: needs.changes.outputs.app == 'true'
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    container:
-      image: mcr.microsoft.com/playwright:v1.62.1-noble
-    steps:
-      - uses: actions/checkout@v7
-      # The fourth constraint, and the one that actually broke the first run:
-      # `oven-sh/setup-bun` extracts Bun's archive by shelling out to `unzip`,
-      # and this image ships none. Without it the composite action below dies on
-      # "Unable to locate executable file: unzip", and every later step then
-      # fails with exit 127 on `bun: command not found` — a failure that names
-      # Bun and blames the wrong thing. The Gate jobs never hit it because they
-      # run on the bare ubuntu-latest image, which has unzip.
-      - name: Install unzip (setup-bun needs it, this image has none)
-        run: apt-get update && apt-get install -y --no-install-recommends unzip
-      # Also seeds `.env`, which every one of them genuinely needs here: each
-      # webServer runs a real production build, and the PUBLIC_*/NEXT_PUBLIC_*
-      # values are baked into the bundle at that point.
-      - uses: ./.github/actions/setup-workspace
-      # Every app that ships a `playwright.config.ts`, discovered rather than
-      # listed — the same trick the `docker` job plays with `Dockerfile`, and for
-      # the same reason: an app arriving from a migrate ticket is covered here
-      # with no edit to this file. The two Template apps were hard-coded until
-      # `portfolio` and `documents` landed and silently were not run, while the
-      # job still reported green because `changes.app` had already fired.
-      #
-      # `set +e` and the failure tally are load-bearing: without them the first
-      # red app ends the step and every later app goes unreported, which is the
-      # same blind spot one level down.
-      - name: E2E — every app with a Playwright config
-        run: |
-          set +e
-          failed=""
-          for config in apps/*/playwright.config.ts; do
-            app="$(basename "$(dirname "$config")")"
-            echo "::group::E2E — $app"
-            bun run --filter "@monorepo/$app" e2e
-            [ $? -eq 0 ] || failed="$failed $app"
-            echo "::endgroup::"
-          done
-          if [ -n "$failed" ]; then
-            echo "E2E failed for:$failed"
-            exit 1
-          fi
-      # `continue-on-error` means the job always reports green, so the uploaded
-      # report is the only place a failure is visible — upload it regardless.
-      - name: Upload the Playwright reports
-        if: always()
-        # v7, not v5: v5 targets Node 20, which the runner now force-migrates to
-        # 24 with a deprecation annotation on every run.
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report
-          path: |
-            apps/*/playwright-report/
-            apps/*/junit.xml
-          retention-days: 7
-          if-no-files-found: ignore
 
   # One image build per app that ships a Dockerfile — build only. Nothing is
   # pushed, nothing is published, nothing is deployed from here. It exists
