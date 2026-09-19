@@ -20,7 +20,10 @@ import {
   dashboardItem,
   navigationSections,
 } from "~/features/layout/constants/navigation";
-import { isNavigationItemActive } from "~/features/layout/utils/navigation";
+import {
+  isNavigationItemActive,
+  resolveNavigationItemTo,
+} from "~/features/layout/utils/navigation";
 import NavUser from "./nav-user";
 
 /**
@@ -61,7 +64,7 @@ export default function AppSidebar() {
                   isActive={isNavigationItemActive(dashboardItem, pathname)}
                   tooltip={dashboardItem.title}
                   render={
-                    <Link to={dashboardItem.path}>
+                    <Link to={resolveNavigationItemTo(dashboardItem)}>
                       <dashboardItem.icon className="shrink-0" />
                       <span>{dashboardItem.title}</span>
                     </Link>
@@ -80,12 +83,12 @@ export default function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {section.items.map((item) => (
-                  <SidebarMenuItem key={item.path}>
+                  <SidebarMenuItem key={item.match}>
                     <SidebarMenuButton
                       isActive={isNavigationItemActive(item, pathname)}
                       tooltip={item.title}
                       render={
-                        <Link to={item.path}>
+                        <Link to={resolveNavigationItemTo(item)}>
                           <item.icon className="shrink-0" />
                           <span>{item.title}</span>
                         </Link>

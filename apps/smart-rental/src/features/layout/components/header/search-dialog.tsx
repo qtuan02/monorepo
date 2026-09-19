@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Building2, FileText, ReceiptText, Search, Users } from "lucide-react";
+import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -16,6 +16,13 @@ import {
 import { Kbd } from "@monorepo/ui/components/kbd";
 
 import { ROUTES } from "~/constants/routes";
+import {
+  contractsItem,
+  invoicesItem,
+  roomsItem,
+  tenantsItem,
+} from "~/features/layout/constants/navigation";
+import { resolveNavigationItemTo } from "~/features/layout/utils/navigation";
 import { useGetContracts } from "~/hooks/api/contract";
 import { useGetInvoices } from "~/hooks/api/invoice";
 import { useGetRooms } from "~/hooks/api/room";
@@ -32,12 +39,8 @@ interface SearchResult {
   to: string;
 }
 
-const quickLinks: { label: string; icon: LucideIcon; to: string }[] = [
-  { label: "Phòng", icon: Building2, to: ROUTES.ROOMS },
-  { label: "Người thuê", icon: Users, to: ROUTES.TENANTS },
-  { label: "Hợp đồng", icon: FileText, to: ROUTES.CONTRACTS },
-  { label: "Hoá đơn", icon: ReceiptText, to: ROUTES.INVOICES },
-];
+/** The same four items as the sidebar — never a second title/icon table (ticket #224). */
+const quickLinks = [roomsItem, tenantsItem, contractsItem, invoicesItem];
 
 function matches(query: string, ...fields: (string | null)[]): boolean {
   const needle = query.toLowerCase();
@@ -69,14 +72,14 @@ function SearchResults({ query, onSelect }: SearchResultsProps) {
       <CommandGroup heading="Truy cập nhanh">
         {quickLinks.map((link) => (
           <CommandItem
-            key={link.label}
-            value={link.label}
-            onSelect={() => onSelect(link.to)}
+            key={link.title}
+            value={link.title}
+            onSelect={() => onSelect(resolveNavigationItemTo(link))}
           >
             <span className="bg-primary/10 flex size-7 shrink-0 items-center justify-center rounded-md">
               <link.icon className="text-primary size-3.5" />
             </span>
-            {link.label}
+            {link.title}
           </CommandItem>
         ))}
       </CommandGroup>
@@ -92,8 +95,8 @@ function SearchResults({ query, onSelect }: SearchResultsProps) {
         subtitle: room.tenant
           ? `${room.tenant} · Tầng ${room.floor}`
           : "Phòng trống",
-        category: "Phòng",
-        icon: Building2,
+        category: roomsItem.title,
+        icon: roomsItem.icon,
         to: ROUTES.roomDetailPath(room.id),
       })),
     ...tenants
@@ -104,8 +107,8 @@ function SearchResults({ query, onSelect }: SearchResultsProps) {
         id: tenant.id,
         title: tenant.name,
         subtitle: `${tenant.room} · ${tenant.phone}`,
-        category: "Người thuê",
-        icon: Users,
+        category: tenantsItem.title,
+        icon: tenantsItem.icon,
         to: ROUTES.tenantDetailPath(tenant.id),
       })),
     ...contracts
@@ -116,8 +119,8 @@ function SearchResults({ query, onSelect }: SearchResultsProps) {
         id: contract.id,
         title: `Hợp đồng ${contract.contractNumber}`,
         subtitle: `${contract.tenant} · ${contract.room}`,
-        category: "Hợp đồng",
-        icon: FileText,
+        category: contractsItem.title,
+        icon: contractsItem.icon,
         to: ROUTES.contractDetailPath(contract.id),
       })),
     ...invoices
@@ -128,8 +131,8 @@ function SearchResults({ query, onSelect }: SearchResultsProps) {
         id: invoice.id,
         title: `Hoá đơn ${invoice.invoiceNumber}`,
         subtitle: `${invoice.tenant} · ${invoice.room} · kỳ ${invoice.month}`,
-        category: "Hoá đơn",
-        icon: ReceiptText,
+        category: invoicesItem.title,
+        icon: invoicesItem.icon,
         to: ROUTES.invoiceDetailPath(invoice.id),
       })),
   ];
