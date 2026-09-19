@@ -188,7 +188,7 @@ describe("the route tree", () => {
     it("shows a derived Quá hạn badge on the invoice list", async () => {
       renderAt(ROUTES.INVOICES);
 
-      expect(await screen.findAllByText("Quá hạn")).not.toHaveLength(0);
+      expect(await screen.findAllByText(/Quá hạn/)).not.toHaveLength(0);
     });
 
     // Ticket #157 — the KPI strip's own numbers, over the whole (unscoped)
@@ -251,7 +251,10 @@ describe("the route tree", () => {
       // dueDate, so the oldest (overdue) due date leads.
       const firstDataRow = rows[1];
       if (!firstDataRow) throw new Error("expected at least one data row");
-      expect(within(firstDataRow).getByText("Quá hạn")).toBeInTheDocument();
+      // Round 4 §10 Q11 — the badge carries its own day count.
+      expect(
+        within(firstDataRow).getByText(/^Quá hạn \d+ ngày$/),
+      ).toBeInTheDocument();
     });
 
     it("opens the tab named by `?tab=` on a detail screen's deep link", async () => {

@@ -1,7 +1,3 @@
-import { Eye } from "lucide-react";
-import { Link } from "react-router";
-
-import { buttonVariants } from "@monorepo/ui/components/button";
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -10,7 +6,6 @@ import {
 import type { SupplierBill } from "~/types/supplier-bill";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
-import { ROUTES } from "~/constants/routes";
 import {
   supplierBillPaymentConfig,
   supplierBillTypeConfig,
@@ -18,6 +13,7 @@ import {
 import { getSupplierBillPaymentStatus } from "~/features/supplier-bills/utils/supplier-bill-payment";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
+import SupplierBillRowActions from "./supplier-bill-row-actions";
 
 const helper = createDataTableColumnHelper<SupplierBill>();
 
@@ -93,14 +89,6 @@ export const supplierBillColumns = helper.columns([
   }),
   helper.display({
     id: "actions",
-    cell: ({ row }) => (
-      <Link
-        to={ROUTES.supplierBillDetailPath(row.original.id)}
-        aria-label="Xem chi tiết"
-        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-      >
-        <Eye />
-      </Link>
-    ),
+    cell: ({ row }) => <SupplierBillRowActions supplierBill={row.original} />,
   }),
 ]);

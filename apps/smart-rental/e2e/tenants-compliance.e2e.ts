@@ -46,6 +46,21 @@ test.describe("Người thuê và Khai báo lưu trú", () => {
     ).toBeVisible();
   });
 
+  // Round 4 §10 T5 — the secondary field (Tầng) folds into the primary
+  // column's own line instead of a second row, "Phòng · Tầng".
+  test("Người thuê: cột Phòng gộp tầng vào một dòng, không icon trang trí", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.TENANTS);
+
+    await expect(
+      page
+        .getByRole("table")
+        .getByText(/^Phòng \d+ · Tầng \d+$/)
+        .first(),
+    ).toBeVisible();
+  });
+
   test("marks Thông báo lưu trú Đã gửi from Khai báo lưu trú", async ({
     page,
   }) => {

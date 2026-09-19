@@ -84,14 +84,10 @@ const TEXT_SCALE_ALLOWLIST = new Set([
   "src/features/invoices/templates/invoice-detail.template.tsx",
 ]);
 
-const LUCIDE_COLUMNS_ALLOWLIST = new Set([
-  "src/features/expenses/components/expense-columns.tsx",
-  "src/features/invoices/components/invoice-columns.tsx",
-  "src/features/reconciliation/components/reconciliation-columns.tsx",
-  "src/features/supplier-bills/components/supplier-bill-columns.tsx",
-  "src/features/tenants/components/tenant-columns.tsx",
-  "src/features/utilities/components/utility-columns.tsx",
-]);
+// Round 4 T5 (#246) converted every remaining offender — empty, rather than
+// deleted outright, so the mechanism itself still matches T1's own comment
+// ("T8 deletes the allowlist outright").
+const LUCIDE_COLUMNS_ALLOWLIST = new Set<string>([]);
 
 const textScaleFiles = [
   ...collectFiles(

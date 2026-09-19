@@ -10,9 +10,9 @@ import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { StatItem } from "~/components/card/stat-item";
-import { invoiceStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate, formatMonth } from "~/utils/date";
+import { invoiceStatusBadgeConfig } from "~/utils/invoice-status";
 import InvoiceRowActions from "./invoice-row-actions";
 
 interface InvoiceCardProps {
@@ -34,7 +34,7 @@ export default function InvoiceCard({ invoice }: InvoiceCardProps) {
       }
       content={
         <CardContent className="space-y-3">
-          <StatusBadge config={invoiceStatusConfig[invoice.status]} />
+          <StatusBadge config={invoiceStatusBadgeConfig(invoice)} />
           <div className="bg-muted/50 space-y-2 rounded-lg p-3 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground text-xs font-medium">

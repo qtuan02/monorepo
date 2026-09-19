@@ -4,6 +4,7 @@ import {
   canDeleteInvoice,
   daysOverdue,
   deriveInvoiceStatus,
+  invoiceStatusBadgeConfig,
 } from "~/utils/invoice-status";
 
 const today = new Date("2026-09-17T00:00:00.000Z");
@@ -116,5 +117,25 @@ describe("daysOverdue", () => {
 
   it("counts whole days past the due date", () => {
     expect(daysOverdue("2026-09-12", today)).toBe(5);
+  });
+});
+
+describe("invoiceStatusBadgeConfig", () => {
+  it("carries the day count on the label only for OVERDUE", () => {
+    expect(
+      invoiceStatusBadgeConfig(
+        { status: "OVERDUE", dueDate: "2026-09-12" },
+        today,
+      ).label,
+    ).toBe("Quá hạn 5 ngày");
+  });
+
+  it("keeps the plain config label for every other status", () => {
+    expect(
+      invoiceStatusBadgeConfig(
+        { status: "UNPAID", dueDate: "2026-09-20" },
+        today,
+      ).label,
+    ).toBe("Chưa thu");
   });
 });

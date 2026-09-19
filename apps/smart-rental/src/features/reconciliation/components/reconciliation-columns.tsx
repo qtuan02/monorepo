@@ -1,5 +1,3 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
-
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -79,11 +77,10 @@ export const reconciliationColumns = helper.columns([
         <div className="flex flex-col items-end">
           <div
             className={cn(
-              "flex items-center gap-1 font-bold tabular-nums",
+              "font-bold tabular-nums",
               isGain ? "text-success" : "text-destructive",
             )}
           >
-            {isGain ? <ArrowUp /> : <ArrowDown />}
             {formatCurrency(Math.abs(getValue()))}
           </div>
           {/* 0 is no trend, not a red "0%" — the prototype hid it the same way. */}

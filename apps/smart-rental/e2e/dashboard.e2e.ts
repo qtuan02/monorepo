@@ -81,4 +81,29 @@ test.describe("dashboard", () => {
     const amountInput = page.getByLabel("Số tiền");
     await expect(amountInput).not.toHaveValue("");
   });
+
+  // Round 4 §10 Q22: no per-row hàng đợi action is the navy default-variant
+  // Button — "Nhắc tất cả" is outline, "Xem n hoá đơn" is ghost.
+  test("hàng đợi's action theo dòng là outline/ghost, không có nút default nào", async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(ROUTES.HOME);
+
+    const group = page
+      .locator('[data-slot="collapsible"]')
+      .filter({ hasText: /Hoá đơn quá hạn/ })
+      .first();
+    await expect(
+      group.getByRole("button", { name: "Nhắc tất cả" }),
+    ).toHaveAttribute("data-variant", "outline");
+    await expect(
+      group.getByRole("button", { name: /Xem \d+ hoá đơn/ }),
+    ).toHaveAttribute("data-variant", "ghost");
+
+    const queueCard = page
+      .locator('[data-slot="card"]')
+      .filter({ hasText: "Cần làm hôm nay" });
+    await expect(queueCard.locator('[data-variant="default"]')).toHaveCount(0);
+  });
 });

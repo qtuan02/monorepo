@@ -38,20 +38,29 @@ import { taskRelatedPath } from "~/utils/task-due";
  * bell (ticket #230). `contract_expiring` alone gets a second, ghost
  * "Thanh lý" — the only Việc with two valid next steps.
  */
+// A styled Link — not a real Button — carries no data-variant of its own
+// (see [[architecture-ui-primitives]]), so it is set here by hand from the
+// same variant handed to buttonVariants(), never a second literal that could
+// drift from it.
+const PRIMARY_VARIANT = "outline";
+const SECONDARY_VARIANT = "ghost";
+
 function TaskActionsRow({ task }: { task: Task }) {
   return (
     <ItemActions className="w-full flex-wrap md:w-auto">
       <Link
         to={taskRelatedPath(task)}
-        className={cn(buttonVariants({ size: "default" }))}
+        data-variant={PRIMARY_VARIANT}
+        className={cn(buttonVariants({ variant: PRIMARY_VARIANT, size: "sm" }))}
       >
         {taskTypeConfig[task.type].actionLabel}
       </Link>
       {task.type === "contract_expiring" && (
         <Link
           to={ROUTES.contractLiquidationPath(task.relatedId)}
+          data-variant={SECONDARY_VARIANT}
           className={cn(
-            buttonVariants({ size: "default", variant: "outline" }),
+            buttonVariants({ size: "sm", variant: SECONDARY_VARIANT }),
           )}
         >
           Thanh lý
@@ -82,7 +91,8 @@ function OverdueInvoiceActions({
     <>
       <Button
         type="button"
-        size="default"
+        variant="outline"
+        size="sm"
         onClick={() => setIsPaymentOpen(true)}
       >
         Ghi nhận thu
@@ -95,7 +105,7 @@ function OverdueInvoiceActions({
         bankAccount={bankAccount}
         buildingId={buildingId}
         variant="outline"
-        size="default"
+        size="sm"
         className=""
       />
 
@@ -225,14 +235,15 @@ function OverdueGroupCollapsible({
           <ItemActions className="w-full flex-wrap md:w-auto">
             <Button
               type="button"
-              size="default"
+              variant="outline"
+              size="sm"
               onClick={() => setIsReminderOpen(true)}
             >
               Nhắc tất cả
             </Button>
             <CollapsibleTrigger
               render={
-                <Button type="button" size="default" variant="outline">
+                <Button type="button" size="sm" variant="ghost">
                   <ChevronDown
                     className={cn(
                       "transition-transform",

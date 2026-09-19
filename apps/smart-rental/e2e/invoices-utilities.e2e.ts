@@ -26,12 +26,38 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await expect(page.getByText("22 chỉ số")).toBeVisible();
   });
 
+  // Round 4 §10 Q11 — desktop keeps the sortable Hạn column with a plain
+  // date, the day count moves into the status badge; mobile drops the
+  // column entirely and keeps only the badge.
+  test("Hoá đơn: desktop giữ cột Hạn và badge Quá hạn mang số ngày; mobile bỏ cột, chỉ còn badge", async ({
+    page,
+  }) => {
+    // Filtered to OVERDUE so row 1 is guaranteed to carry the badge —
+    // unfiltered, ascending-by-hạn puts the oldest (already-settled) Kỳ
+    // first, not the currently overdue one.
+    await page.goto(`${ROUTES.INVOICES}?status=OVERDUE&sort=dueDate`);
+
+    await expect(
+      page.getByRole("columnheader", { name: "Hạn thanh toán" }),
+    ).toBeVisible();
+    await expect(page.getByText(/Quá hạn \d+ ngày/).first()).toBeVisible();
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.getByRole("table")).toBeHidden();
+    await expect(
+      page
+        .locator('[data-slot="data-table-mobile-row"]')
+        .getByText(/Quá hạn \d+ ngày/)
+        .first(),
+    ).toBeVisible();
+  });
+
   // Ticket #157 — the list-screen foundation, proven on Hoá đơn: the KPI
   // strip, row selection → the sticky action bar, and — at 390 px, where the
   // table gives way to an Item list — no horizontal overflow. Ticket #167
   // (spec #153, tổng kiểm) adds the bottom nav and the KPI strip's own
   // horizontal scroll to the same 390 px assertion, on this same screen.
-  test("shows the KPI strip and the selection bar on desktop; the mobile shell (bottom nav, Item list, scrollable KPI) at 390 px", async ({
+  test("shows the KPI strip and the selection bar on desktop; the mobile shell (bottom nav, Item list, 2×2 KPI grid) at 390 px", async ({
     page,
   }) => {
     await page.goto(ROUTES.INVOICES);
@@ -83,12 +109,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
       bottomNav.getByRole("link", { name: "Thu tiền", exact: true }),
     ).toHaveAttribute("data-active");
 
-    // The KPI strip itself overflows into a horizontal scroll at 390 px
-    // rather than shrinking its three tiles unreadably (spec #153 §10 row 16).
+    // Round 4 T4 (#245) replaced the horizontally-scrolling strip with a
+    // 2×2 grid at mobile — the four tiles now fit with no overflow.
     const kpiOverflow = await kpiStrip.evaluate(
       (el) => el.scrollWidth - el.clientWidth,
     );
-    expect(kpiOverflow).toBeGreaterThan(0);
+    expect(kpiOverflow).toBeLessThanOrEqual(1);
   });
 
   test("opens the VietQR dialog from a Hoá đơn detail", async ({ page }) => {
