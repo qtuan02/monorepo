@@ -30,6 +30,14 @@ test.describe("Báo cáo và Cài đặt", () => {
     await expect(
       page.getByRole("columnheader", { name: "Tháng" }),
     ).toBeVisible();
+
+    // Round 4 §10 Q16: the donut is gone (the KPI strip above already prints
+    // the same "Lấp đầy phòng" percentage), and "Xuất báo cáo" moved onto the
+    // title row instead of a row of its own.
+    await expect(page.getByText("Tỷ lệ lấp đầy")).toHaveCount(0);
+    await expect(
+      page.getByRole("button", { name: "Xuất báo cáo" }),
+    ).toBeVisible();
   });
 
   test("Cài đặt: hồ sơ chủ nhà, không còn cấu hình điện bậc thang", async ({

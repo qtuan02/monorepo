@@ -51,13 +51,13 @@ export default function BuildingComparisonTable({
             {rows.map((row) => (
               <TableRow key={row.building}>
                 <TableCell className="font-medium">{row.building}</TableCell>
-                <TableCell className="text-success text-right font-medium tabular-nums">
+                <TableCell className="text-foreground text-right font-semibold tabular-nums">
                   {formatCurrency(row.revenue)}
                 </TableCell>
-                <TableCell className="text-destructive text-right font-medium tabular-nums">
+                <TableCell className="text-foreground text-right font-semibold tabular-nums">
                   {formatCurrency(row.expenses)}
                 </TableCell>
-                <TableCell className="text-right font-medium tabular-nums">
+                <TableCell className="text-foreground text-right font-semibold tabular-nums">
                   {formatCurrency(row.profit)}
                 </TableCell>
                 <TableCell className="text-center">

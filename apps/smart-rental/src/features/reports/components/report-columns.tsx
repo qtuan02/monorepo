@@ -28,30 +28,42 @@ export const reportColumns = helper.columns([
   }),
   helper.accessor("revenue", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Doanh thu" />
+      <DataTableColumnHeader
+        column={column}
+        title="Doanh thu"
+        className="ml-auto"
+      />
     ),
     cell: ({ getValue }) => (
-      <span className="text-success font-medium tabular-nums">
+      <span className="text-foreground block text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </span>
     ),
   }),
   helper.accessor("expenses", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Chi phí" />
+      <DataTableColumnHeader
+        column={column}
+        title="Chi phí"
+        className="ml-auto"
+      />
     ),
     cell: ({ getValue }) => (
-      <span className="text-destructive font-medium tabular-nums">
+      <span className="text-foreground block text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </span>
     ),
   }),
   helper.accessor("profit", {
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Lợi nhuận" />
+      <DataTableColumnHeader
+        column={column}
+        title="Lợi nhuận"
+        className="ml-auto"
+      />
     ),
     cell: ({ getValue }) => (
-      <span className="font-medium tabular-nums">
+      <span className="text-foreground block text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </span>
     ),

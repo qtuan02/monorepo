@@ -89,4 +89,19 @@ test.describe("Chi phí, Hoá đơn nhà cung cấp, Đối soát", () => {
 
     await expect.poll(() => totalTile.textContent()).not.toBe(totalsBefore);
   });
+
+  test("Đối soát: no mũi tên icon on the Chênh lệch column (round 4 §10 Q16)", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.RECONCILIATION);
+    await expect(
+      page.getByRole("heading", { name: "Trọ Sinh Viên Xanh" }),
+    ).toBeVisible();
+
+    // The badge still carries Lỗ/Lãi — the row's money no longer repeats it
+    // with an arrow, the thing round 4 removed (brief's "ba lần mã hoá một
+    // trạng thái").
+    await expect(page.locator(".lucide-arrow-up")).toHaveCount(0);
+    await expect(page.locator(".lucide-arrow-down")).toHaveCount(0);
+  });
 });

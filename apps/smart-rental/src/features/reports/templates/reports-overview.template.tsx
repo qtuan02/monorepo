@@ -21,7 +21,6 @@ import {
 } from "~/components/panel/loading-panel";
 import BuildingComparisonTable from "~/features/reports/components/building-comparison-table";
 import FloorOccupancyChart from "~/features/reports/components/floor-occupancy-chart";
-import OccupancyDonutChart from "~/features/reports/components/occupancy-donut-chart";
 import { reportColumns } from "~/features/reports/components/report-columns";
 import {
   useGetBuildingComparison,
@@ -29,7 +28,6 @@ import {
   useGetProfitLossSummary,
   useGetReportRows,
 } from "~/hooks/api/report";
-import { useGetRooms } from "~/hooks/api/room";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { downloadCsv } from "~/utils/csv";
 import { formatCurrency } from "~/utils/currency";
@@ -38,15 +36,13 @@ import {
   buildReportRowsCsv,
 } from "~/utils/report-rows";
 
-/** One Toà nhà: doanh thu 6 kỳ + lấp đầy theo tầng on chart, kỳ on a `DataTable`. */
-function SingleBuildingReport({ buildingId }: { buildingId: string }) {
-  const summaryQuery = useGetProfitLossSummary({ buildingId });
+/** "Xuất báo cáo" on `ListPageHeader`'s own row (round 4 §10 Q16) — reads off
+ * the same query the table below renders, deduped through the cache. */
+function ExportReportRowsButton({ buildingId }: { buildingId: string }) {
   const rowsQuery = useGetReportRows({ buildingId });
-  const floorQuery = useGetFloorOccupancy({ buildingId });
-  const roomsQuery = useGetRooms({ buildingId });
-  const rows = rowsQuery.data ?? [];
 
   function exportCsv() {
+    const rows = rowsQuery.data ?? [];
     if (rows.length === 0) {
       toast.add({ title: "Không có dòng nào để xuất" });
       return;
@@ -55,14 +51,47 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-end">
-        <Button type="button" variant="outline" size="sm" onClick={exportCsv}>
-          <Download />
-          Xuất báo cáo
-        </Button>
-      </div>
+    <Button type="button" variant="outline" size="sm" onClick={exportCsv}>
+      <Download />
+      Xuất báo cáo
+    </Button>
+  );
+}
 
+/** Same idea for the scope-`null` comparison table. */
+function ExportBuildingComparisonButton() {
+  const comparisonQuery = useGetBuildingComparison();
+
+  function exportCsv() {
+    const rows = comparisonQuery.data ?? [];
+    if (rows.length === 0) {
+      toast.add({ title: "Không có dòng nào để xuất" });
+      return;
+    }
+    downloadCsv("bao-cao-so-sanh.csv", buildBuildingComparisonCsv(rows));
+  }
+
+  return (
+    <Button type="button" variant="outline" size="sm" onClick={exportCsv}>
+      <Download />
+      Xuất báo cáo
+    </Button>
+  );
+}
+
+/**
+ * One Toà nhà: doanh thu 6 kỳ + lấp đầy theo tầng on chart, kỳ on a
+ * `DataTable` — whose own toolbar is where "Kỳ" already lives as a facet
+ * (round 4 §10 Q16: no separate row for it).
+ */
+function SingleBuildingReport({ buildingId }: { buildingId: string }) {
+  const summaryQuery = useGetProfitLossSummary({ buildingId });
+  const rowsQuery = useGetReportRows({ buildingId });
+  const floorQuery = useGetFloorOccupancy({ buildingId });
+  const rows = rowsQuery.data ?? [];
+
+  return (
+    <>
       {summaryQuery.isLoading ? (
         <KpiStripSkeleton />
       ) : summaryQuery.isError || !summaryQuery.data ? (
@@ -96,40 +125,7 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
         />
       )}
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {roomsQuery.isLoading ? (
-              <CardGridSkeleton itemCount={1} className="lg:grid-cols-1" />
-            ) : roomsQuery.isError || !roomsQuery.data ? (
-              <ErrorPanel
-                description="Không thể tải danh sách Phòng."
-                action={{
-                  label: "Thử lại",
-                  onClick: () => void roomsQuery.refetch(),
-                }}
-              />
-            ) : (
-              <OccupancyDonutChart
-                occupied={
-                  roomsQuery.data.filter((room) => room.status === "occupied")
-                    .length
-                }
-                vacant={
-                  roomsQuery.data.filter((room) => room.status === "available")
-                    .length
-                }
-                vacantRoomNames={roomsQuery.data
-                  .filter((room) => room.status === "available")
-                  .map((room) => room.name)}
-              />
-            )}
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Doanh thu theo tháng</CardTitle>
@@ -204,39 +200,19 @@ function SingleBuildingReport({ buildingId }: { buildingId: string }) {
 /** Scope `null`: một bảng so sánh giữa các Toà nhà (spec #153 §10 row 29). */
 function BuildingComparisonReport() {
   const comparisonQuery = useGetBuildingComparison();
-  const rows = comparisonQuery.data ?? [];
 
-  function exportCsv() {
-    if (rows.length === 0) {
-      toast.add({ title: "Không có dòng nào để xuất" });
-      return;
-    }
-    downloadCsv("bao-cao-so-sanh.csv", buildBuildingComparisonCsv(rows));
-  }
-
-  return (
-    <>
-      <div className="flex items-center justify-end">
-        <Button type="button" variant="outline" size="sm" onClick={exportCsv}>
-          <Download />
-          Xuất báo cáo
-        </Button>
-      </div>
-
-      {comparisonQuery.isLoading ? (
-        <TableSkeleton />
-      ) : comparisonQuery.isError || !comparisonQuery.data ? (
-        <ErrorPanel
-          description="Không thể tải bảng so sánh."
-          action={{
-            label: "Thử lại",
-            onClick: () => void comparisonQuery.refetch(),
-          }}
-        />
-      ) : (
-        <BuildingComparisonTable rows={comparisonQuery.data} />
-      )}
-    </>
+  return comparisonQuery.isLoading ? (
+    <TableSkeleton />
+  ) : comparisonQuery.isError || !comparisonQuery.data ? (
+    <ErrorPanel
+      description="Không thể tải bảng so sánh."
+      action={{
+        label: "Thử lại",
+        onClick: () => void comparisonQuery.refetch(),
+      }}
+    />
+  ) : (
+    <BuildingComparisonTable rows={comparisonQuery.data} />
   );
 }
 
@@ -246,7 +222,9 @@ function BuildingComparisonReport() {
  * `DataTable`; `null` → bảng so sánh giữa các Toà nhà. Bốn tab cũ và
  * `ReportFiltersBar` đều gỡ — không còn "Lợi nhuận dịch vụ" (một con số cứng
  * mỗi tầng) hay "Cảnh báo thất thoát" (luôn rỗng), và không còn key trùng
- * (research C.1 #19 — chúng đến từ Mock cũ, đã bỏ ở ADR-0012).
+ * (research C.1 #19 — chúng đến từ Mock cũ, đã bỏ ở ADR-0012). Round 4 §10
+ * Q16 drops "Tỷ lệ lấp đầy" (a donut with no label the KPI strip already
+ * prints) and moves "Xuất báo cáo" onto this header's own row.
  */
 export default function ReportsOverviewTemplate() {
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
@@ -256,6 +234,13 @@ export default function ReportsOverviewTemplate() {
       <ListPageHeader
         title="Báo cáo"
         description="Phân tích doanh thu, chi phí và hiệu suất quản lý."
+        actions={
+          selectedBuildingId ? (
+            <ExportReportRowsButton buildingId={selectedBuildingId} />
+          ) : (
+            <ExportBuildingComparisonButton />
+          )
+        }
       />
 
       {selectedBuildingId ? (
