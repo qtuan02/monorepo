@@ -15,10 +15,8 @@ import { describe, expect, it } from "vitest";
  * `lucide-react` is banned in a `*-columns.tsx` file: a table cell states
  * the value, header text already says what it is (brief §1.3).
  *
- * ALLOWLIST holds every file that still violates a rule when this ticket
- * (#242) opened the guard — T2–T7 remove their own files from it as they
- * convert; T8 deletes the allowlist outright. A file this ticket itself
- * converted is never listed.
+ * No allowlist: T1 (#242) opened this guard with one so T2–T7 could convert
+ * incrementally; T8 (#249) removed it once every file in scope converted.
  */
 const appRoot = process.cwd();
 
@@ -71,24 +69,6 @@ function collectColumnFiles(): string[] {
 
 const BANNED_TEXT_CLASSES = [/\btext-2xl\b/, /\btext-xl\b/, /\bfont-bold\b/];
 
-const TEXT_SCALE_ALLOWLIST = new Set([
-  "src/components/avatar/tenant-avatar.tsx",
-  "src/components/dialog/vietqr-dialog.tsx",
-  "src/components/exception/internal-server-error.tsx",
-  "src/components/exception/not-found.tsx",
-  "src/components/page/detail-page-shell.tsx",
-  "src/features/auth/templates/auth-layout.template.tsx",
-  "src/features/contracts/templates/contract-create.template.tsx",
-  "src/features/contracts/templates/contract-detail.template.tsx",
-  "src/features/contracts/templates/contract-liquidation.template.tsx",
-  "src/features/invoices/templates/invoice-detail.template.tsx",
-]);
-
-// Round 4 T5 (#246) converted every remaining offender — empty, rather than
-// deleted outright, so the mechanism itself still matches T1's own comment
-// ("T8 deletes the allowlist outright").
-const LUCIDE_COLUMNS_ALLOWLIST = new Set<string>([]);
-
 const textScaleFiles = [
   ...collectFiles(
     "src/components",
@@ -104,17 +84,13 @@ const columnFiles = collectColumnFiles()
   .sort((a, b) => a.localeCompare(b));
 
 describe("round 4 four-tier text scale — src/components/** + src/features/**/templates/**", () => {
-  it("covers at least every file the allowlist names", () => {
-    const covered = new Set(textScaleFiles);
-    for (const relPath of TEXT_SCALE_ALLOWLIST) {
-      expect(covered.has(relPath)).toBe(true);
-    }
+  it("covers at least one file", () => {
+    expect(textScaleFiles.length).toBeGreaterThan(0);
   });
 
   it.each(textScaleFiles)(
-    "%s carries no text-2xl/text-xl/font-bold, unless allowlisted",
+    "%s carries no text-2xl/text-xl/font-bold",
     (relPath) => {
-      if (TEXT_SCALE_ALLOWLIST.has(relPath)) return;
       const source = readFileSync(resolve(appRoot, relPath), "utf8");
       expect(BANNED_TEXT_CLASSES.some((pattern) => pattern.test(source))).toBe(
         false,
@@ -124,12 +100,12 @@ describe("round 4 four-tier text scale — src/components/** + src/features/**/t
 });
 
 describe("round 4 column files carry no decorative lucide-react icon", () => {
-  it.each(columnFiles)(
-    "%s imports no lucide-react, unless allowlisted",
-    (relPath) => {
-      if (LUCIDE_COLUMNS_ALLOWLIST.has(relPath)) return;
-      const source = readFileSync(resolve(appRoot, relPath), "utf8");
-      expect(source).not.toContain("lucide-react");
-    },
-  );
+  it("covers at least one file", () => {
+    expect(columnFiles.length).toBeGreaterThan(0);
+  });
+
+  it.each(columnFiles)("%s imports no lucide-react", (relPath) => {
+    const source = readFileSync(resolve(appRoot, relPath), "utf8");
+    expect(source).not.toContain("lucide-react");
+  });
 });

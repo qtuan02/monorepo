@@ -213,13 +213,68 @@ không feature nào import `~/features/layout`. Dải Toà nhà dưới `md` có
 trị tuỳ ý `text-[20px]`/`text-[15px]` thay vì `text-2xl`/`text-xl`/`font-bold` — ba lớp cấm đó là dấu
 vết còn lại của bảy cỡ cũ, nên một test quét văn bản phân biệt được "nấc mới" khỏi "thang cũ" mà không
 cần đọc weight. `test/text-tier-guard.test.ts` quét `src/components/**` + `src/features/**/templates/**`
-như văn bản thô, chặn ba lớp trên (trừ file trong allowlist) và chặn `lucide-react` trong một
-`*-columns.tsx` (ô bảng không icon trang trí — round 4 §1.3). T1 mở guard với allowlist liệt kê mọi
-file còn vi phạm tại thời điểm mở; T2–T7 rút file của mình khỏi allowlist khi chuyển, T8 xoá hẳn
-allowlist.
+như văn bản thô, chặn ba lớp trên, và chặn `lucide-react` trong một `*-columns.tsx` (ô bảng không icon
+trang trí — round 4 §1.3). T1 mở guard với một allowlist liệt kê mọi file còn vi phạm tại thời điểm mở
+(cả hai chiều); mỗi ticket sau đó rút file của mình khi chuyển, và T8 (#249) xoá hẳn allowlist — quét
+toàn phạm vi, không ngoại lệ nào còn lại.
 
-Chi tiết 22 quyết định + việc từng ticket ship — comment tổng kết trên spec
-[#241](https://github.com/qtuan02/monorepo/issues/241) một khi T8 đóng; không lặp lại ở đây.
+**`DataTable` là chủ con số (T2, #243):** toolbar tự in "N `entityLabel`" hoặc, khi có lọc/tìm, "M / N
+`entityLabel`" — `h1`/`ListPageHeader` không còn in số đếm riêng (tránh nói hai lần, §1.1). Ô tìm **và**
+`PaginationBar` cùng tự ẩn khi `total ≤ pageSize` (12) — Đối soát (3 dòng) hết ô tìm/lật trang mà không
+cần rời `DataTable`. Hàng bảng `h-11` (44 px, target chạm HIG), header `h-9`; cột tiền căn phải cả header
+lẫn ô. Dưới `md`, toolbar gộp một hàng — ô tìm · nút facet icon-only · một `⋯` gom Xuất CSV và chuyển
+Dạng thẻ/Dạng bảng (thay vì mỗi thứ một hàng).
+
+**`DetailPageShell` + `InfoCard` (T3, #244):** `h2` tên thực thể 20/600; cột phải chỉ mở khi màn có ≥ 1
+hành động **ngoài** header — không có thì nội dung rộng `max-w-3xl`. Ô "Liên kết" bỏ hẳn ở mọi màn chi
+tiết (Phòng, Hợp đồng, …) — link thuộc-về đã nằm ở dòng meta dưới tên. `InfoRow` flex-between (nhãn sát
+trái, giá trị sát phải, cách nhau tới 600 px) đổi thành `dl` hai cột `[140px_1fr]` — giá trị đứng ngay
+cạnh nhãn. Phòng: "Người thuê hiện tại" (từng là một card riêng cho một dòng) gộp vào một `dt`/`dd` của
+"Thông tin phòng"; phòng trống đọc "— (trống)" kèm link "Tạo hợp đồng" khi `contractActions` cho phép.
+Hợp đồng: alert "sẽ hết hạn trong N ngày" bỏ — badge tự mang số ngày ("Sắp hết hạn · 11 ngày"), nút "Gia
+hạn" đã ở header. `ContractCreate` vào một card `max-w-2xl` (640 px) như mọi form khác.
+
+**`KpiStrip` + thẻ thực thể (T4, #245):** `KpiStrip` xuống `p-3`, số `text-lg font-semibold` (18/600);
+mobile lưới 2×2, ô cuối full-width nếu số KPI lẻ. Bỏ hẳn ở danh sách Người thuê (ba số "5 / 5 / 0" là
+hằng của Mock, không phải trạng thái). Thẻ Phòng ≈ 96 px — tên + `⋯` một hàng, meta sentence-case một
+dòng `truncate` ("Phòng đơn · 22 m² · Nguyễn Văn A"), giá; badge chỉ khi trạng thái **khác** "Đã thuê".
+Thẻ Toà nhà bỏ khối ảnh `h-32` (Mock chưa có ảnh thật) — chờ `imageUrl` thật mới thêm avatar 40 px cạnh
+tên, chiều cao thẻ không đổi.
+
+**10 file `*-columns.tsx` + `TaskQueue` (T5, #246):** bỏ icon `lucide-react` trong ô (hộp biên lai,
+người, nhà, lịch, điện thoại, …) — header cột đã nói đó là gì, mã hoá đơn về `font-mono` không hộp. Tiền
+`text-foreground font-semibold tabular-nums text-right`, không còn `text-primary` (navy dành cho hành
+động, không phải mọi con số). Tên + phòng gộp một dòng "Nguyễn Văn A · Phòng 102". Hoá đơn: desktop giữ
+cột Hạn (sort được), badge tự mang số ngày quá hạn; mobile bỏ cột, chỉ còn badge. `TaskQueue`: hành động
+theo dòng ("Nhắc tất cả", "Xem N hoá đơn", "Sửa chỉ số") về `outline`/`ghost` `size="sm"` — không còn
+`Button` mặc định (navy đặc) theo dòng.
+
+**Màn Kỳ (T6, #247):** bảng có header hai tầng — "Điện (kWh)"/"Nước (m³)" ở trên, "Cũ · Mới · Dùng" ở
+dưới, mỗi giá trị một `td` căn phải thay vì một `flex` riêng mỗi ô (ba số giờ thẳng cột giữa các dòng).
+`MeterCell` (#228) vẫn một gate, chỉ đổi **hình**: 3 `td` cho bảng, một khối như cũ cho thẻ mobile. Nhãn
+"Điện"/"Nước" lặp trong từng dòng bỏ; ✎ sửa chỉ số cũ chuyển vào `⋯` cuối dòng; bất thường đọc badge
+"Điện ×2,2" + nút "Duyệt" `sm` ngay trong ô Trạng thái. Action bar ("Lưu nháp chỉ số" `outline` + "Lập N
+hoá đơn" — primary duy nhất của màn) chuyển thành một hàng ngay trên bảng, helper text điều kiện + tiến
+độ cùng hàng bên trái.
+
+**Báo cáo + Đối soát (T7, #248):** biểu đồ đổi màu qua `chartConfig` của từng chart sang `var(--primary)`
+(navy của app, không đụng `--chart-*` — ADR-0011); nửa donut "Lấp đầy theo tầng" bỏ hẳn, thay bằng cột
+một màu kèm nhãn % trực tiếp, sắp giảm dần; "Doanh thu theo tháng" thêm nhãn giá trị. "Xuất báo cáo" lên
+hàng `h1`, bộ chọn "Kỳ" vào hàng toolbar của bảng — mỗi thứ không còn chiếm một hàng 50 px riêng. Đối
+soát về `Table` thường (Q4/Q5 đã làm `DataTable` đủ gọn cho 3 dòng); badge "Lỗ/Lãi" giữ tone, số tiền +
+chênh lệch về màu chữ thường, mũi tên bỏ hẳn.
+
+**Tổng kiểm (T8, #249):** đo lại 14 route ở 1440×900/390×844 (scope null + `b1`), so với đích của brief
+§1 — hàng bảng 53→44 px, thẻ Phòng 235→≈96 px, 9→0 icon trang trí trong ô, 6→≤1 nút navy đặc mỗi màn đều
+đạt; dòng đầu mobile Phòng ≤ 360 px đạt, nhưng Hoá đơn dừng ở **402 px** (525 px trước round) — `KpiStrip`
+(145 px của khối này) là quyết định đã ship của T4, và phần còn lại cần nén `space-y-6`/`space-y-4` dùng
+chung bởi 17 template + `DataTable`, vượt phạm vi sửa nhỏ của T8 — theo dõi ở
+[#250](https://github.com/qtuan02/monorepo/issues/250). T8 cũng thu nhỏ nút `⋯` (`EntityActionMenu`) từ
+`icon-sm` (32 px) xuống `icon-xs` (24 px, vẫn trên sàn WCAG 2.2 AA) — ở `icon-sm`, ô "Trạng thái"/"⋯" đẩy
+hàng bảng lên 49 px, vượt đích 44 px của chính T2.
+
+Chi tiết đầy đủ 22 quyết định + việc từng ticket ship (kể cả những chỗ lệch khỏi kế hoạch ban đầu) — comment
+tổng kết trên spec [#241](https://github.com/qtuan02/monorepo/issues/241); không lặp lại ở đây.
 
 ## Deploy Vercel
 

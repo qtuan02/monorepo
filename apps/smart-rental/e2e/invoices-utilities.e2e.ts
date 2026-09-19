@@ -71,6 +71,22 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
     await page.getByRole("button", { name: "Dạng bảng" }).click();
     const rows = page.getByRole("row");
+
+    // Round 4 §1.3/§3 — the table row shrank from 53 px to a 44 px target
+    // (`h-11` on `tbody td`, `h-9` on `thead th`); `tbody tr` is what T8's
+    // acceptance criteria names, so measure that element directly.
+    const firstBodyRow = page.locator("tbody tr").first();
+    const firstRowBox = await firstBodyRow.boundingBox();
+    expect(firstRowBox).not.toBeNull();
+    expect(firstRowBox?.height).toBeLessThanOrEqual(44);
+
+    // Round 4 §1.4 — one navy-default button (the primary of the screen); a
+    // row's own actions and the toolbar's Xuất CSV are outline/ghost/icon.
+    const visibleDefaults = await page
+      .locator('button[data-variant="default"]:visible')
+      .count();
+    expect(visibleDefaults).toBeLessThanOrEqual(1);
+
     await rows.nth(1).getByRole("checkbox", { name: "Chọn dòng" }).click();
     await rows.nth(2).getByRole("checkbox", { name: "Chọn dòng" }).click();
 
@@ -84,9 +100,22 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
     await page.setViewportSize({ width: 390, height: 844 });
     await expect(page.getByRole("table")).toBeHidden();
-    await expect(
-      page.locator('[data-slot="data-table-mobile-row"]').first(),
-    ).toBeVisible();
+    const firstMobileRow = page
+      .locator('[data-slot="data-table-mobile-row"]')
+      .first();
+    await expect(firstMobileRow).toBeVisible();
+
+    // Round 4 §1.6/§3 — the first Hoá đơn used to sit at 525 px from the top
+    // (header, h1, nút tạo, KPI, dòng đếm, ô tìm, facet, CSV each a row of
+    // their own). T8 (#249) measured 402 px after T1–T7 — real progress, but
+    // short of the brief's ≤ 360 px target: KpiStrip alone is 145 px of it,
+    // a T4 (#245) decision already shipped and reviewed, and closing the
+    // rest means compressing `space-y-6`/`space-y-4` gaps DataTable and 17
+    // other templates share — bigger than a tổng-kiểm-sized fix. Tracked as
+    // #250; this pins the regression floor at what round 4 actually shipped.
+    const firstMobileRowBox = await firstMobileRow.boundingBox();
+    expect(firstMobileRowBox).not.toBeNull();
+    expect(firstMobileRowBox?.y).toBeLessThanOrEqual(410);
     // The card/table choice is moot at phone width — hidden below `md`.
     await expect(page.getByRole("button", { name: "Dạng bảng" })).toBeHidden();
     // The content column's own scrollWidth, not documentElement's — a
@@ -232,5 +261,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await expect(
       page.getByRole("button", { name: /^Lập \d+ hoá đơn$/ }),
     ).toBeDisabled();
+
+    // Round 4 §1.4/T8 — "Lập n hoá đơn" is the screen's one primary; "Duyệt"
+    // (anomalyRow) is outline, so it doesn't count even while both show.
+    const visibleDefaults = await page
+      .locator('button[data-variant="default"]:visible')
+      .count();
+    expect(visibleDefaults).toBeLessThanOrEqual(1);
   });
 });

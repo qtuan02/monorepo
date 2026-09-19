@@ -19,7 +19,7 @@ export function TenantAvatar({ tenant, className }: TenantAvatarProps) {
     <div
       aria-hidden
       className={cn(
-        "bg-primary text-primary-foreground flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold shadow-sm",
+        "bg-primary text-primary-foreground flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-semibold shadow-sm",
         className,
       )}
     >

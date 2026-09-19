@@ -13,7 +13,7 @@ import { ROUTES } from "~/constants/routes";
 export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20 text-center">
-      <h1 className="text-foreground text-3xl font-bold md:text-4xl">
+      <h1 className="text-foreground text-[20px] font-semibold">
         404 Không tìm thấy
       </h1>
       <p className="text-muted-foreground max-w-lg">

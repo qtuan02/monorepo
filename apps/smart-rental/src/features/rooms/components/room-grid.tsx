@@ -137,7 +137,7 @@ export default function RoomGrid({ rooms, buildingNameById }: RoomGridProps) {
         {groupByBuilding(rooms, buildingNameById).map(
           ({ buildingId, buildingName, floors }) => (
             <section key={buildingId} className="space-y-6">
-              <h2 className="text-xl font-bold tracking-tight">
+              <h2 className="text-[15px] font-semibold tracking-tight">
                 {buildingName}
               </h2>
               <div className="space-y-8">

@@ -78,7 +78,7 @@ function OverviewTab({ invoice }: { invoice: Invoice }) {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Tổng cộng</TableCell>
-            <TableCell className="text-right font-bold tabular-nums">
+            <TableCell className="text-right font-semibold tabular-nums">
               {formatCurrency(invoice.amount)}
             </TableCell>
           </TableRow>

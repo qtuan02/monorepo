@@ -307,7 +307,7 @@ function LiquidationFlow({
           <CardContent>
             {settlement ? (
               <>
-                <p className="text-2xl font-bold tabular-nums">
+                <p className="text-[20px] font-semibold tabular-nums">
                   {formatCurrency(settlement.returnedAmount)}
                 </p>
                 <p className="text-muted-foreground mt-1 text-xs">

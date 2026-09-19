@@ -23,10 +23,12 @@ test.describe("Chi phí, Hoá đơn nhà cung cấp, Đối soát", () => {
 
     const sheet = page.getByRole("dialog", { name: "Thêm khoản chi" });
     await sheet.getByRole("button", { name: "Lưu lại" }).click();
-    await expect(sheet.getByText("Chọn một toà nhà")).toBeVisible();
+    // Toà nhà is already prefilled from the selected Building scope
+    // (`defaultBuildingId`) — Danh mục is the field that's actually empty.
+    await expect(
+      sheet.locator('[data-slot="field-error"]', { hasText: "Nhập danh mục" }),
+    ).toBeVisible();
 
-    await sheet.getByLabel("Toà nhà").click();
-    await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
     await sheet.getByLabel("Danh mục").fill("Kiểm thử E2E");
     await sheet.getByLabel("Số tiền").fill("500000");
     await sheet.getByRole("button", { name: "Ngày chi" }).click();

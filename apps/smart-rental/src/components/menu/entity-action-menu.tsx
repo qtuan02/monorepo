@@ -44,7 +44,7 @@ export function EntityActionMenu({
           <Button
             type="button"
             variant="outline"
-            size="icon-sm"
+            size="icon-xs"
             aria-label={label}
           >
             <MoreHorizontal />

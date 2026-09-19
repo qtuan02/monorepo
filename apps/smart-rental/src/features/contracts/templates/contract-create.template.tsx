@@ -183,7 +183,7 @@ export default function ContractCreateTemplate() {
     <div className="mx-auto w-full max-w-[640px] space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold">
+          <h1 className="text-[20px] font-semibold">
             {room ? `Tạo hợp đồng · ${room.name}` : "Tạo hợp đồng mới"}
           </h1>
           <p className="text-muted-foreground text-sm">

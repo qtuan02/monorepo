@@ -176,7 +176,7 @@ export default function ContractDetailTemplate({
                   <StatItem
                     label="Số tiền"
                     value={formatCurrency(contract.depositAmount)}
-                    valueClassName="text-lg font-bold"
+                    valueClassName="text-sm font-semibold tabular-nums"
                   />
                   <StatusBadge config={deposit} />
                   <p className="text-muted-foreground text-xs">

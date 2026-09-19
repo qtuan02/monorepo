@@ -106,4 +106,22 @@ test.describe("dashboard", () => {
       .filter({ hasText: "Cần làm hôm nay" });
     await expect(queueCard.locator('[data-variant="default"]')).toHaveCount(0);
   });
+
+  // T8 tổng kiểm (round 4 §1.4): one navy-default button per screen at most —
+  // Hôm nay has none of its own (every action theo dòng is outline/ghost),
+  // so this is the zero end of "≤ 1 primary/màn".
+  test("has at most one visible primary (data-variant=default) button", async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(ROUTES.HOME);
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
+
+    const visibleDefaults = await page
+      .locator('button[data-variant="default"]:visible')
+      .count();
+    expect(visibleDefaults).toBeLessThanOrEqual(1);
+  });
 });

@@ -11,9 +11,11 @@ export default function AuthLayoutTemplate() {
       <div className="w-full max-w-md p-4">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="bg-primary text-primary-foreground mb-4 flex size-12 items-center justify-center rounded-xl shadow-sm">
-            <span className="text-xl font-bold">PT</span>
+            <span className="text-[20px] font-semibold">PT</span>
           </div>
-          <p className="text-2xl font-bold tracking-tight">Phòng Trọ Pro</p>
+          <p className="text-[20px] font-semibold tracking-tight">
+            Phòng Trọ Pro
+          </p>
           <p className="text-muted-foreground mt-2 text-sm">
             Giải pháp quản lý phòng trọ toàn diện
           </p>

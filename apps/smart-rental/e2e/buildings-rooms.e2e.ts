@@ -29,6 +29,25 @@ test.describe("Toà nhà và Phòng", () => {
     ).not.toBeVisible();
   });
 
+  // Round 4 §1.6/§3, T8 tổng kiểm — same "dòng đầu mobile ≤ 360 px" target as
+  // Hoá đơn. Phòng's `defaultView="grid"` renders `RoomGrid` at every
+  // viewport (DataTable's mobile-row branch only fires for the table view),
+  // so the first card — not `[data-slot="data-table-mobile-row"]` — is what
+  // a phone actually shows first.
+  test("puts the first Phòng mobile card within 360 px of the top", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(ROUTES.ROOMS);
+
+    const firstCard = page.locator('[data-slot="card"]').first();
+    await expect(firstCard).toBeVisible();
+
+    const firstCardBox = await firstCard.boundingBox();
+    expect(firstCardBox).not.toBeNull();
+    expect(firstCardBox?.y).toBeLessThanOrEqual(360);
+  });
+
   test("keeps the Phòng search, facet and page on the URL across a reload (dạng bảng)", async ({
     page,
   }) => {
@@ -88,7 +107,14 @@ test.describe("Toà nhà và Phòng", () => {
 
     const sheet = page.getByRole("dialog", { name: "Thêm phòng mới" });
     await sheet.getByRole("button", { name: "Lưu lại" }).click();
-    await expect(sheet.getByText("Chọn một toà nhà")).toBeVisible();
+    // `≥ 2` invalid fields also raises `FormErrorSummary`, which repeats
+    // this same message as an `<li>` — scope to the field's own inline
+    // error so the locator stays unambiguous either way.
+    await expect(
+      sheet.locator('[data-slot="field-error"]', {
+        hasText: "Chọn một toà nhà",
+      }),
+    ).toBeVisible();
 
     await sheet.getByLabel("Toà nhà").click();
     await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
@@ -139,8 +165,12 @@ test.describe("Toà nhà và Phòng", () => {
 
     await page.getByRole("button", { name: "Thêm toà nhà" }).click();
     await page.getByRole("button", { name: "Lưu lại" }).click();
+    // Scoped to the field's own inline error — `FormErrorSummary` repeats
+    // the same message as an `<li>` once ≥ 2 fields are invalid.
     await expect(
-      page.getByText("Tên toà nhà phải có ít nhất 2 ký tự"),
+      page.locator('[data-slot="field-error"]', {
+        hasText: "Tên toà nhà phải có ít nhất 2 ký tự",
+      }),
     ).toBeVisible();
 
     await page.getByLabel("Tên toà nhà").fill("Trọ E2E");
