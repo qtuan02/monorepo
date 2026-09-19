@@ -1,5 +1,4 @@
-import type { LucideIcon } from "lucide-react";
-import { Bell, FileClock, Gauge, ShieldAlert, Wrench } from "lucide-react";
+import { Bell } from "lucide-react";
 import { Link } from "react-router";
 
 import { Badge } from "@monorepo/ui/components/badge";
@@ -12,27 +11,24 @@ import {
 import { ScrollArea } from "@monorepo/ui/components/scroll-area";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import type { TaskType } from "~/types/task";
 import type { TaskQueueEntry } from "~/utils/task-queue";
 import { ROUTES } from "~/constants/routes";
+import { taskTypeConfig } from "~/constants/status";
 import { useGetTaskQueueEntries } from "~/hooks/api/task-queue";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { taskRelatedPath } from "~/utils/task-due";
 
-const taskTypeIcon: Record<TaskType, LucideIcon> = {
-  invoice_overdue: Bell,
-  contract_expiring: FileClock,
-  maintenance: Wrench,
-  utility_anomaly: Gauge,
-  residence_notification: ShieldAlert,
-  residence_registration_expiring: ShieldAlert,
-  batch_pending: Bell,
-};
-
-function NotificationEntry({ entry }: { entry: TaskQueueEntry }) {
+/**
+ * One dòng, exported for its own test (ticket #230) — proving the bell
+ * lands on the exact same `to` Hôm nay's own `TaskQueue` hành động does,
+ * off the same `taskTypeConfig` table rather than a bell-only copy.
+ */
+export function NotificationEntry({ entry }: { entry: TaskQueueEntry }) {
   const Icon =
-    entry.kind === "overdue-group" ? Bell : taskTypeIcon[entry.task.type];
+    entry.kind === "overdue-group"
+      ? Bell
+      : taskTypeConfig[entry.task.type].icon;
   const title =
     entry.kind === "overdue-group"
       ? `${entry.invoices.length} Hoá đơn quá hạn`

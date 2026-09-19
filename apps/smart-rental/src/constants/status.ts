@@ -7,9 +7,12 @@ import {
   Circle,
   Clock,
   Droplets,
+  FileClock,
+  Gauge,
   Mail,
   MessageSquare,
   Send,
+  ShieldAlert,
   TrendingDown,
   TrendingUp,
   Wrench,
@@ -36,6 +39,7 @@ import type {
   SupplierBillPaymentStatus,
   SupplierBillType,
 } from "~/types/supplier-bill";
+import type { TaskType } from "~/types/task";
 import type { TenantStatus } from "~/types/tenant";
 import type { UtilityStatus, UtilityType } from "~/types/utility";
 
@@ -72,6 +76,25 @@ export interface FilterOption {
   value: string;
   icon?: LucideIcon;
 }
+
+export interface TaskTypeConfig {
+  icon: LucideIcon;
+  /** The primary hành động's label — Hôm nay's own button and the bell read the SAME entry (ticket #230). */
+  actionLabel: string;
+}
+
+/** One table, two readers — Hôm nay's `TaskQueue` and the header's `NotificationPanel` (ticket #230). */
+export const taskTypeConfig: Record<TaskType, TaskTypeConfig> = {
+  invoice_overdue: { icon: Bell, actionLabel: "Thu tiền" },
+  contract_expiring: { icon: FileClock, actionLabel: "Gia hạn" },
+  utility_anomaly: { icon: Gauge, actionLabel: "Sửa chỉ số" },
+  residence_notification: { icon: ShieldAlert, actionLabel: "Khai báo" },
+  residence_registration_expiring: {
+    icon: ShieldAlert,
+    actionLabel: "Khai báo",
+  },
+  batch_pending: { icon: Bell, actionLabel: "Lập Đợt hoá đơn" },
+};
 
 /** Tone meaning over tint (spec #153 §10 row 4 fixes the old "occupied = grey primary" reading). */
 export const roomStatusConfig: Record<RoomStatus, StatusConfig> = {

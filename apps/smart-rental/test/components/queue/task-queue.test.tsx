@@ -8,6 +8,8 @@ import type { Task } from "~/types/task";
 import type { OverdueQueueGroup, TaskQueueEntry } from "~/utils/task-queue";
 import { TaskQueue } from "~/components/queue/task-queue";
 import { mockInvoices } from "~/constants/mock/invoices";
+import { taskTypeConfig } from "~/constants/status";
+import { taskRelatedPath } from "~/utils/task-due";
 
 const task: Task = {
   id: "task-1",
@@ -74,6 +76,18 @@ describe("TaskQueue", () => {
 
     expect(screen.getByRole("link", { name: "Gia hạn" })).toHaveClass("h-9");
     expect(screen.getByRole("link", { name: "Thanh lý" })).toHaveClass("h-9");
+  });
+
+  // The bell links to `taskRelatedPath(task)` too (see NotificationEntry's
+  // own test) — reading the same table/function is what keeps the two in
+  // sync (ticket #230).
+  it("uses the shared taskTypeConfig label and taskRelatedPath's own destination", () => {
+    renderQueue([{ kind: "task", key: task.id, task, dueAt: 0 }]);
+
+    const primaryLink = screen.getByRole("link", {
+      name: taskTypeConfig[task.type].actionLabel,
+    });
+    expect(primaryLink).toHaveAttribute("href", taskRelatedPath(task));
   });
 
   it("shows «Không có việc nào» once the queue is empty", () => {
