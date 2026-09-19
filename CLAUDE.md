@@ -572,7 +572,7 @@ Multi-context: the root [`CONTEXT-MAP.md`](./CONTEXT-MAP.md) points at [`CONTEXT
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **monorepo** (9790 symbols, 19530 relationships, 256 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **monorepo** (10171 symbols, 20316 relationships, 273 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
