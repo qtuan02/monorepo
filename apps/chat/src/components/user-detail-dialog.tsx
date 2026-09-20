@@ -51,6 +51,52 @@ function UserDetailSkeleton() {
   );
 }
 
+/**
+ * SENT (revoke) and RECEIVED (accept) both act on the same `requestId`,
+ * differing only in which mutation/label/style runs — one component instead
+ * of two near-identical footers.
+ */
+function PendingRequestFooter({
+  requestId,
+  statusFriend,
+}: {
+  requestId: string;
+  statusFriend: FriendStatus.SENT | FriendStatus.RECEIVED;
+}) {
+  const { t } = useTranslation();
+  const acceptMutation = useAcceptFriendRequestMutation();
+  const cancelMutation = useCancelFriendRequestMutation();
+
+  if (statusFriend === FriendStatus.SENT) {
+    return (
+      <DialogFooter>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={cancelMutation.isPending}
+          onClick={() => cancelMutation.mutate(requestId)}
+        >
+          {t("chat.common.cancelRequest")}
+        </Button>
+      </DialogFooter>
+    );
+  }
+
+  return (
+    <DialogFooter>
+      <Button
+        type="button"
+        className="w-full"
+        disabled={acceptMutation.isPending}
+        onClick={() => acceptMutation.mutate(requestId)}
+      >
+        {t("chat.common.accept")}
+      </Button>
+    </DialogFooter>
+  );
+}
+
 /** Mounted only while the dialog is open, so the read fires on open (see
  * .agents/rules/patterns-fetch-on-mount.md). */
 function UserDetailBody({
@@ -66,8 +112,6 @@ function UserDetailBody({
     state.onlineUsers.includes(userId),
   );
   const openDirectConversation = useOpenDirectConversation();
-  const acceptMutation = useAcceptFriendRequestMutation();
-  const cancelMutation = useCancelFriendRequestMutation();
 
   if (userQuery.isLoading) {
     return (
@@ -81,6 +125,7 @@ function UserDetailBody({
   }
 
   const user = userQuery.data;
+
   if (!user) {
     return (
       <div className="flex flex-col items-center gap-2">
@@ -127,36 +172,14 @@ function UserDetailBody({
         </DialogFooter>
       )}
 
-      {user.statusFriend === FriendStatus.SENT && user.requestId && (
-        <DialogFooter>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={cancelMutation.isPending}
-            onClick={() => {
-              if (user.requestId) cancelMutation.mutate(user.requestId);
-            }}
-          >
-            {t("chat.common.cancelRequest")}
-          </Button>
-        </DialogFooter>
-      )}
-
-      {user.statusFriend === FriendStatus.RECEIVED && user.requestId && (
-        <DialogFooter>
-          <Button
-            type="button"
-            className="w-full"
-            disabled={acceptMutation.isPending}
-            onClick={() => {
-              if (user.requestId) acceptMutation.mutate(user.requestId);
-            }}
-          >
-            {t("chat.common.accept")}
-          </Button>
-        </DialogFooter>
-      )}
+      {user.requestId &&
+        (user.statusFriend === FriendStatus.SENT ||
+          user.statusFriend === FriendStatus.RECEIVED) && (
+          <PendingRequestFooter
+            requestId={user.requestId}
+            statusFriend={user.statusFriend}
+          />
+        )}
     </>
   );
 }
