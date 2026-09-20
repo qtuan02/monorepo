@@ -1,5 +1,14 @@
 # @fe-monorepo/ui
 
+## 1.0.4
+
+### Patch Changes
+
+- e328335: `Button` now stamps `data-variant={variant}` on its root element, matching the
+  same convention already carried by `Item`, `Field`, `Tabs`, `ToggleGroup` and
+  other primitives in this package. Additive only — no visual or behavioral
+  change.
+
 ## 1.0.3
 
 > Version number chosen by hand rather than computed from the changesets below (`1.0.1`/`2.0.0` are burned on npm — see the package README). The changes themselves are exactly what the listed changesets describe.
