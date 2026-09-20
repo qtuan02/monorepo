@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ArrowLeft, Info, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
@@ -18,6 +19,7 @@ import {
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import type { Message } from "~/features/conversation/types/message";
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import IslandBoundary from "~/components/exception/island-boundary";
@@ -95,6 +97,12 @@ export default function ConversationPanel({
     ? conversations.find((item) => item.id === conversationId)
     : undefined;
   const currentUserId = currentUserQuery.data?.id;
+
+  // T3 (spec #253) — scoped to the open conversation so switching away from
+  // a half-edited message doesn't carry its edit banner into the next one.
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const activeEditingMessage =
+    editingMessage?.conversationId === conversationId ? editingMessage : null;
 
   // Deep-link/reload fallback: the list hasn't loaded this conversation (a
   // fresh `/conversations/:id`, or a mobile session with no sidebar ever
@@ -258,6 +266,7 @@ export default function ConversationPanel({
                 <MessageList
                   key={conversationId}
                   conversationId={conversationId}
+                  onEditMessage={setEditingMessage}
                 />
               )
             )}
@@ -267,6 +276,8 @@ export default function ConversationPanel({
           <MessageComposer
             key={activeConversation.id}
             conversation={activeConversation}
+            editingMessage={activeEditingMessage}
+            onCancelEdit={() => setEditingMessage(null)}
             onSent={
               draftUser
                 ? (message) =>

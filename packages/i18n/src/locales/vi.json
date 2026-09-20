@@ -439,7 +439,9 @@
         "send": "Gửi",
         "sending": "Đang gửi...",
         "toSend": "để gửi",
-        "newLine": "để xuống dòng"
+        "newLine": "để xuống dòng",
+        "editingBanner": "Đang sửa tin nhắn",
+        "cancelEdit": "Huỷ"
       },
       "list": {
         "couldNotLoad": "Không thể tải tin nhắn.",
@@ -447,7 +449,17 @@
         "newMessagesButton": "{count, plural, other {# tin nhắn mới}}"
       },
       "row": {
-        "seen": "Đã xem"
+        "seen": "Đã xem",
+        "edited": "(đã sửa)",
+        "actions": {
+          "menuLabel": "Thao tác với tin nhắn",
+          "edit": "Sửa",
+          "delete": "Xoá",
+          "deleting": "Đang xoá...",
+          "cancel": "Huỷ",
+          "deleteConfirmTitle": "Xoá tin nhắn này?",
+          "deleteConfirmDescription": "Không thể hoàn tác sau khi xoá."
+        }
       },
       "toast": {
         "removedFromConversation": "Bạn không còn ở trong hội thoại này."

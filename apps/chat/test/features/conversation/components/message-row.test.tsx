@@ -1,5 +1,13 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
 import { ChatMessageType } from "@monorepo/types/chat-message";
@@ -9,6 +17,14 @@ import type { Message } from "~/features/conversation/types/message";
 import type { MessagePosition } from "~/features/conversation/utils/group-messages";
 import MessageRow from "~/features/conversation/components/message-row";
 import { groupMessages } from "~/features/conversation/utils/group-messages";
+
+const { chatMessageDelete } = vi.hoisted(() => ({
+  chatMessageDelete: vi.fn(),
+}));
+
+vi.mock("~/libs/http-client", () => ({
+  chatMessageService: { deleteMessage: chatMessageDelete },
+}));
 
 const CURRENT_USER_ID = "u1";
 
@@ -20,6 +36,7 @@ function message(overrides: Partial<Message> & Pick<Message, "id">): Message {
     content: "hi",
     type: ChatMessageType.TEXT,
     createdAt: "2026-09-16T08:00:00.000Z",
+    updatedAt: "2026-09-16T08:00:00.000Z",
     ...overrides,
   };
 }
@@ -36,12 +53,15 @@ function reader(
 
 function renderThread(messages: Message[]) {
   const positions = groupMessages(messages, CURRENT_USER_ID);
+  const queryClient = new QueryClient();
   render(
-    <div data-testid="thread">
-      {positions.map((position) => (
-        <MessageRow key={position.message.id} position={position} />
-      ))}
-    </div>,
+    <QueryClientProvider client={queryClient}>
+      <div data-testid="thread">
+        {positions.map((position) => (
+          <MessageRow key={position.message.id} position={position} />
+        ))}
+      </div>
+    </QueryClientProvider>,
   );
   return within(screen.getByTestId("thread"));
 }
@@ -49,18 +69,25 @@ function renderThread(messages: Message[]) {
 function renderPosition(
   position: MessagePosition,
   props: Partial<
-    Pick<Parameters<typeof MessageRow>[0], "readers" | "seenByOther">
+    Pick<Parameters<typeof MessageRow>[0], "readers" | "seenByOther" | "onEdit">
   > = {},
 ) {
+  const queryClient = new QueryClient();
   render(
-    <div data-testid="row">
-      <MessageRow position={position} {...props} />
-    </div>,
+    <QueryClientProvider client={queryClient}>
+      <div data-testid="row">
+        <MessageRow position={position} {...props} />
+      </div>
+    </QueryClientProvider>,
   );
   return within(screen.getByTestId("row"));
 }
 
 describe("MessageRow", () => {
+  beforeEach(() => {
+    chatMessageDelete.mockReset().mockResolvedValue(undefined);
+  });
+
   it("renders the sender's name once and the time once, on a three-message run", () => {
     const thread = renderThread([
       message({
@@ -179,6 +206,112 @@ describe("MessageRow", () => {
       expect(row.getByText("AL")).toBeInTheDocument();
       expect(row.queryByText("BV")).not.toBeInTheDocument();
       expect(row.getByText("+1")).toBeInTheDocument();
+    });
+  });
+
+  describe("edit / delete actions (T3, spec #253)", () => {
+    function ownTextPosition(overrides: Partial<Message> = {}): MessagePosition {
+      const [position] = groupMessages(
+        [message({ id: "m1", senderId: CURRENT_USER_ID, ...overrides })],
+        CURRENT_USER_ID,
+      );
+      if (!position) throw new Error("expected one grouped message");
+      return position;
+    }
+
+    it("shows the ⋯ menu on the visitor's own message", () => {
+      const own = renderPosition(ownTextPosition());
+      expect(
+        own.getByRole("button", { name: "Message actions" }),
+      ).toBeInTheDocument();
+    });
+
+    it("hides the ⋯ menu on someone else's message", () => {
+      const otherPosition = groupMessages(
+        [message({ id: "m2" })],
+        CURRENT_USER_ID,
+      )[0];
+      if (!otherPosition) throw new Error("expected one grouped message");
+
+      const other = renderPosition(otherPosition);
+      expect(
+        other.queryByRole("button", { name: "Message actions" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("offers 'Edit' for a TEXT message and calls onEdit with it", async () => {
+      const user = userEvent.setup();
+      const onEdit = vi.fn();
+      const row = renderPosition(ownTextPosition({ type: ChatMessageType.TEXT }), {
+        onEdit,
+      });
+
+      await user.click(row.getByRole("button", { name: "Message actions" }));
+      fireEvent.click(await screen.findByRole("menuitem", { name: "Edit" }));
+
+      expect(onEdit).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "m1" }),
+      );
+    });
+
+    it("hides 'Edit' for a non-TEXT message, and still offers 'Delete'", async () => {
+      const user = userEvent.setup();
+      const row = renderPosition(ownTextPosition({ type: ChatMessageType.IMAGE }));
+
+      await user.click(row.getByRole("button", { name: "Message actions" }));
+
+      expect(
+        await screen.findByRole("menuitem", { name: "Delete" }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole("menuitem", { name: "Edit" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("asks for confirmation before deleting, and only deletes on confirm", async () => {
+      const user = userEvent.setup();
+      const row = renderPosition(ownTextPosition());
+
+      await user.click(row.getByRole("button", { name: "Message actions" }));
+      fireEvent.click(await screen.findByRole("menuitem", { name: "Delete" }));
+
+      const dialog = screen.getByRole("alertdialog");
+      expect(chatMessageDelete).not.toHaveBeenCalled();
+
+      await user.click(within(dialog).getByRole("button", { name: "Cancel" }));
+      expect(chatMessageDelete).not.toHaveBeenCalled();
+
+      await user.click(row.getByRole("button", { name: "Message actions" }));
+      fireEvent.click(await screen.findByRole("menuitem", { name: "Delete" }));
+      await user.click(
+        within(screen.getByRole("alertdialog")).getByRole("button", {
+          name: "Delete",
+        }),
+      );
+
+      await waitFor(() =>
+        expect(chatMessageDelete).toHaveBeenCalledWith("m1"),
+      );
+    });
+
+    it("shows '(edited)' once updatedAt differs from createdAt", () => {
+      const edited = renderPosition(
+        ownTextPosition({
+          createdAt: "2026-09-16T08:00:00.000Z",
+          updatedAt: "2026-09-16T08:05:00.000Z",
+        }),
+      );
+      expect(edited.getByText("(edited)")).toBeInTheDocument();
+    });
+
+    it("shows no '(edited)' when updatedAt equals createdAt", () => {
+      const unedited = renderPosition(
+        ownTextPosition({
+          createdAt: "2026-09-16T08:00:00.000Z",
+          updatedAt: "2026-09-16T08:00:00.000Z",
+        }),
+      );
+      expect(unedited.queryByText("(edited)")).not.toBeInTheDocument();
     });
   });
 });

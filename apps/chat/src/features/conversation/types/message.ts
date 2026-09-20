@@ -9,4 +9,5 @@ export interface Message {
   content: string;
   type: ChatMessageType;
   createdAt: string;
+  updatedAt: string;
 }

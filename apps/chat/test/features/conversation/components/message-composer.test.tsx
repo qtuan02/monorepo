@@ -12,6 +12,7 @@ import {
 import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import type { Message } from "~/features/conversation/types/message";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import { useAuthStore } from "~/stores/use-auth-store";
@@ -23,19 +24,24 @@ const CURRENT_USER: ChatUserProfile = {
   lastName: "Huynh",
 };
 
-const { chatUserMe, chatMessageSendDirect, chatMessageSendGroup } = vi.hoisted(
-  () => ({
-    chatUserMe: vi.fn(),
-    chatMessageSendDirect: vi.fn(),
-    chatMessageSendGroup: vi.fn(),
-  }),
-);
+const {
+  chatUserMe,
+  chatMessageSendDirect,
+  chatMessageSendGroup,
+  chatMessageUpdate,
+} = vi.hoisted(() => ({
+  chatUserMe: vi.fn(),
+  chatMessageSendDirect: vi.fn(),
+  chatMessageSendGroup: vi.fn(),
+  chatMessageUpdate: vi.fn(),
+}));
 
 vi.mock("~/libs/http-client", () => ({
   chatUserService: { me: chatUserMe },
   chatMessageService: {
     sendDirect: chatMessageSendDirect,
     sendGroup: chatMessageSendGroup,
+    updateMessage: chatMessageUpdate,
   },
   chatConversationService: {
     getConversations: vi
@@ -72,21 +78,52 @@ const GROUP_CONVERSATION: Conversation = {
   title: "Weekend trip",
 };
 
+interface RenderComposerOptions {
+  onSent?: (message: ChatMessageRecord) => void;
+  editingMessage?: Message | null;
+  onCancelEdit?: () => void;
+}
+
 function renderComposer(
   conversation: Conversation,
-  onSent?: (message: ChatMessageRecord) => void,
+  options: RenderComposerOptions = {},
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false } },
   });
-  render(
+  const tree = (opts: RenderComposerOptions) => (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <MessageComposer conversation={conversation} onSent={onSent} />
+        <MessageComposer
+          conversation={conversation}
+          onSent={opts.onSent}
+          editingMessage={opts.editingMessage}
+          onCancelEdit={opts.onCancelEdit}
+        />
       </ThemeProvider>
-    </QueryClientProvider>,
+    </QueryClientProvider>
   );
+  const result = render(tree(options));
+  return {
+    ...result,
+    // Re-renders the SAME tree with new props — how a real prop change from
+    // ConversationPanel (opening/closing edit mode) reaches this component,
+    // as opposed to a fresh `render()` which would mount a second instance.
+    rerenderWith: (nextOptions: RenderComposerOptions) =>
+      result.rerender(tree(nextOptions)),
+  };
 }
+
+const EDITING_MESSAGE: Message = {
+  id: "m1",
+  conversationId: "c1",
+  senderId: "u1",
+  senderName: "Tuan Huynh",
+  content: "Original text",
+  type: ChatMessageType.TEXT,
+  createdAt: "2026-09-20T00:00:00.000Z",
+  updatedAt: "2026-09-20T00:00:00.000Z",
+};
 
 describe("MessageComposer", () => {
   beforeEach(() => {
@@ -94,6 +131,7 @@ describe("MessageComposer", () => {
     chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
     chatMessageSendDirect.mockReset();
     chatMessageSendGroup.mockReset();
+    chatMessageUpdate.mockReset();
   });
 
   it("sends a direct message to the other member on Enter, and clears the textarea", async () => {
@@ -200,7 +238,7 @@ describe("MessageComposer", () => {
     };
     chatMessageSendDirect.mockResolvedValue(message);
     const onSent = vi.fn();
-    renderComposer(DIRECT_CONVERSATION, onSent);
+    renderComposer(DIRECT_CONVERSATION, { onSent });
 
     await user.type(
       screen.getByLabelText("Message composer"),
@@ -269,5 +307,85 @@ describe("MessageComposer", () => {
     await waitFor(() =>
       expect(screen.getByRole("button", { name: "Send" })).toBeInTheDocument(),
     );
+  });
+
+  describe("edit mode (T3, spec #253)", () => {
+    it("shows the editing banner and the message's own text in the textarea", () => {
+      renderComposer(DIRECT_CONVERSATION, { editingMessage: EDITING_MESSAGE });
+
+      expect(screen.getByText("Editing message")).toBeInTheDocument();
+      expect(screen.getByLabelText("Message composer")).toHaveValue(
+        "Original text",
+      );
+    });
+
+    it("Enter calls updateMessage, not send, and does not call onSent", async () => {
+      const user = userEvent.setup();
+      const onSent = vi.fn();
+      const onCancelEdit = vi.fn();
+      chatMessageUpdate.mockResolvedValue({
+        ...EDITING_MESSAGE,
+        content: "Edited text",
+        updatedAt: "2026-09-20T00:05:00.000Z",
+      });
+      renderComposer(DIRECT_CONVERSATION, {
+        editingMessage: EDITING_MESSAGE,
+        onCancelEdit,
+        onSent,
+      });
+
+      const textarea = screen.getByLabelText("Message composer");
+      await user.clear(textarea);
+      await user.type(textarea, "Edited text{Enter}");
+
+      await waitFor(() =>
+        expect(chatMessageUpdate).toHaveBeenCalledWith("m1", {
+          content: "Edited text",
+        }),
+      );
+      expect(chatMessageSendDirect).not.toHaveBeenCalled();
+      expect(onSent).not.toHaveBeenCalled();
+      await waitFor(() => expect(onCancelEdit).toHaveBeenCalled());
+    });
+
+    it("Huỷ exits edit mode without saving, and restores the prior draft", async () => {
+      const user = userEvent.setup();
+      const onCancelEdit = vi.fn();
+      const { rerenderWith } = renderComposer(DIRECT_CONVERSATION, {
+        onCancelEdit,
+      });
+
+      // A draft the visitor already had before opening edit mode.
+      await user.type(screen.getByLabelText("Message composer"), "My draft");
+
+      rerenderWith({ editingMessage: EDITING_MESSAGE, onCancelEdit });
+      expect(screen.getByLabelText("Message composer")).toHaveValue(
+        "Original text",
+      );
+
+      await user.click(screen.getByRole("button", { name: "Cancel" }));
+      expect(onCancelEdit).toHaveBeenCalled();
+      expect(chatMessageUpdate).not.toHaveBeenCalled();
+
+      // The parent (ConversationPanel) clears its own editingMessage state.
+      rerenderWith({ onCancelEdit });
+      expect(screen.getByLabelText("Message composer")).toHaveValue(
+        "My draft",
+      );
+    });
+
+    it("Escape exits edit mode without saving", async () => {
+      const user = userEvent.setup();
+      const onCancelEdit = vi.fn();
+      renderComposer(DIRECT_CONVERSATION, {
+        editingMessage: EDITING_MESSAGE,
+        onCancelEdit,
+      });
+
+      await user.type(screen.getByLabelText("Message composer"), "{Escape}");
+
+      expect(onCancelEdit).toHaveBeenCalled();
+      expect(chatMessageUpdate).not.toHaveBeenCalled();
+    });
   });
 });

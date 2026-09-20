@@ -12,6 +12,7 @@ import {
 import type { ChatMessagePage } from "@monorepo/api/chat/message-service";
 import type {
   ChatMessageRecord,
+  ChatUpdateMessageParams,
   DirectMessageRequest,
   GroupMessageRequest,
 } from "@monorepo/types/chat-message";
@@ -113,10 +114,13 @@ function removeMessageFromCache(
   };
 }
 
-/** `message.deleted` — the backend keeps no tombstone, so the row is simply gone. */
+/** `message.deleted` — the backend keeps no tombstone, so the row is simply gone.
+ * Takes just the `id`/`conversationId` pair rather than a full record, so a
+ * caller that never fetched the whole `ChatMessageRecord` (a delete mutation
+ * fired from the UI's own `Message` model) doesn't have to fabricate one. */
 export function removeConversationMessageFromCache(
   queryClient: QueryClient,
-  message: ChatMessageRecord,
+  message: Pick<ChatMessageRecord, "id" | "conversationId">,
 ) {
   queryClient.setQueriesData<MessageInfiniteData>(
     { queryKey: messageQueryKeys.byConversation(message.conversationId) },
@@ -200,6 +204,49 @@ export function useSendGroupMessageMutation(
     mutationFn: (params: GroupMessageRequest) =>
       chatMessageService.sendGroup(params),
     onSuccess: (message) => applySentMessage(queryClient, message),
+    ...options,
+  });
+}
+
+export interface UpdateMessageVariables {
+  messageId: string;
+  params: ChatUpdateMessageParams;
+}
+
+/** Success upserts right away (see `appendConversationMessageToCache`), so
+ * the `message.updated` echo the socket delivers a moment later dedupes by
+ * id and is a no-op — see chat-socket-provider.tsx. */
+export function useUpdateMessageMutation(
+  options?: UseMutationOptionsWrapper<
+    UpdateMessageVariables,
+    ChatMessageRecord
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ messageId, params }: UpdateMessageVariables) =>
+      chatMessageService.updateMessage(messageId, params),
+    onSuccess: (message) =>
+      appendConversationMessageToCache(queryClient, message),
+    ...options,
+  });
+}
+
+/** Success removes right away, same reasoning as above for `message.deleted`. */
+export function useDeleteMessageMutation(
+  options?: UseMutationOptionsWrapper<
+    Pick<ChatMessageRecord, "id" | "conversationId">,
+    void
+  >,
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (message: Pick<ChatMessageRecord, "id" | "conversationId">) =>
+      chatMessageService.deleteMessage(message.id),
+    onSuccess: (_data, message) =>
+      removeConversationMessageFromCache(queryClient, message),
     ...options,
   });
 }

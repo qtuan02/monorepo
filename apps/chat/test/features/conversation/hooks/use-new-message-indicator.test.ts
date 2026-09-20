@@ -15,6 +15,7 @@ function message(id: string): Message {
     content: id,
     type: ChatMessageType.TEXT,
     createdAt: "2026-09-19T08:00:00.000Z",
+    updatedAt: "2026-09-19T08:00:00.000Z",
   };
 }
 

@@ -14,5 +14,6 @@ export function mapMessageToUiModel(
     content: record.content,
     type: record.type,
     createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
   };
 }
