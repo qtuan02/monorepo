@@ -80,12 +80,14 @@ function unreadConversation(
     participants: [
       {
         userId: "u1",
+        username: "tuanhq02",
         firstName: "Tuan",
         lastName: "Huynh",
         role: ChatParticipantRole.MEMBER,
       },
       {
         userId: `member-of-${id}`,
+        username: `member-of-${id}`,
         firstName: title,
         lastName: "",
         role: ChatParticipantRole.MEMBER,

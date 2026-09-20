@@ -11,15 +11,27 @@ import { UserDetailDialog } from "~/components/user-detail-dialog";
 import { UserItem } from "~/components/user-item";
 import { useSocketStore } from "~/stores/use-socket-store";
 
-const { chatUserInfo, chatConversationGetConversations } = vi.hoisted(() => ({
+const {
+  chatUserInfo,
+  chatConversationGetConversations,
+  chatFriendAccept,
+  chatFriendCancel,
+} = vi.hoisted(() => ({
   chatUserInfo: vi.fn(),
   chatConversationGetConversations: vi.fn(),
+  chatFriendAccept: vi.fn(),
+  chatFriendCancel: vi.fn(),
 }));
 
 vi.mock("~/libs/http-client", () => ({
   chatUserService: { info: chatUserInfo },
   chatConversationService: {
     getConversations: chatConversationGetConversations,
+  },
+  chatFriendService: {
+    accept: chatFriendAccept,
+    decline: vi.fn(),
+    cancel: chatFriendCancel,
   },
 }));
 
@@ -68,6 +80,8 @@ describe("UserDetailDialog", () => {
     chatConversationGetConversations
       .mockReset()
       .mockResolvedValue({ items: [], nextCursor: null });
+    chatFriendAccept.mockReset().mockResolvedValue(LAN);
+    chatFriendCancel.mockReset().mockResolvedValue(undefined);
   });
 
   it("fetches the person on open and shows every field — a dash where the profile left one blank", async () => {
@@ -107,6 +121,58 @@ describe("UserDetailDialog", () => {
     expect(
       screen.queryByRole("button", { name: "Message" }),
     ).not.toBeInTheDocument();
+  });
+
+  it("offers no revoke action to a SENT status with no requestId", async () => {
+    chatUserInfo.mockResolvedValue({
+      ...LAN,
+      statusFriend: FriendStatus.SENT,
+      requestId: null,
+    });
+    renderWithProviders(
+      <UserDetailDialog userId="u2" open onOpenChange={vi.fn()} />,
+    );
+
+    await screen.findByRole("heading", { name: "Lan Nguyen" });
+    expect(
+      screen.queryByRole("button", { name: "Cancel request" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("revokes a sent request from this screen via requestId", async () => {
+    const user = userEvent.setup();
+    chatUserInfo.mockResolvedValue({
+      ...LAN,
+      statusFriend: FriendStatus.SENT,
+      requestId: "r1",
+    });
+    renderWithProviders(
+      <UserDetailDialog userId="u2" open onOpenChange={vi.fn()} />,
+    );
+
+    const cancelButton = await screen.findByRole("button", {
+      name: "Cancel request",
+    });
+    await user.click(cancelButton);
+
+    expect(chatFriendCancel).toHaveBeenCalledWith("r1");
+  });
+
+  it("accepts a received request from this screen via requestId", async () => {
+    const user = userEvent.setup();
+    chatUserInfo.mockResolvedValue({
+      ...LAN,
+      statusFriend: FriendStatus.RECEIVED,
+      requestId: "r2",
+    });
+    renderWithProviders(
+      <UserDetailDialog userId="u2" open onOpenChange={vi.fn()} />,
+    );
+
+    const acceptButton = await screen.findByRole("button", { name: "Accept" });
+    await user.click(acceptButton);
+
+    expect(chatFriendAccept).toHaveBeenCalledWith("r2");
   });
 
   it("does not fetch while closed", () => {

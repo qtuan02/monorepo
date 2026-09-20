@@ -73,12 +73,14 @@ function conversationRecord(): ChatConversationRecord {
     participants: [
       {
         userId: CURRENT_USER_ID,
+        username: "tuanhq02",
         firstName: "Tuan",
         lastName: "Huynh",
         role: ChatParticipantRole.MEMBER,
       },
       {
         userId: OTHER_USER_ID,
+        username: "lan",
         firstName: "Lan",
         lastName: "Nguyen",
         role: ChatParticipantRole.MEMBER,

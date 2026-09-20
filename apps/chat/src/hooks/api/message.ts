@@ -12,8 +12,8 @@ import {
 import type { ChatMessagePage } from "@monorepo/api/chat/message-service";
 import type {
   ChatMessageRecord,
-  ChatSendDirectMessageParams,
-  ChatSendGroupMessageParams,
+  DirectMessageRequest,
+  GroupMessageRequest,
 } from "@monorepo/types/chat-message";
 
 import type {
@@ -140,15 +140,12 @@ function applySentMessage(
 }
 
 export function useSendDirectMessageMutation(
-  options?: UseMutationOptionsWrapper<
-    ChatSendDirectMessageParams,
-    ChatMessageRecord
-  >,
+  options?: UseMutationOptionsWrapper<DirectMessageRequest, ChatMessageRecord>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: ChatSendDirectMessageParams) =>
+    mutationFn: (params: DirectMessageRequest) =>
       chatMessageService.sendDirect(params),
     onSuccess: (message) => applySentMessage(queryClient, message),
     ...options,
@@ -156,15 +153,12 @@ export function useSendDirectMessageMutation(
 }
 
 export function useSendGroupMessageMutation(
-  options?: UseMutationOptionsWrapper<
-    ChatSendGroupMessageParams,
-    ChatMessageRecord
-  >,
+  options?: UseMutationOptionsWrapper<GroupMessageRequest, ChatMessageRecord>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: ChatSendGroupMessageParams) =>
+    mutationFn: (params: GroupMessageRequest) =>
       chatMessageService.sendGroup(params),
     onSuccess: (message) => applySentMessage(queryClient, message),
     ...options,

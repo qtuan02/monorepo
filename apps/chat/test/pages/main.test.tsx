@@ -469,12 +469,13 @@ describe("the route tree", () => {
           receivedRequests: [
             {
               id: "r1",
-              fromUser: {
+              user: {
                 id: "u5",
                 username: "hoa",
                 firstName: "Hoa",
                 lastName: "Pham",
               },
+              message: null,
               createdAt: "2026-09-19T00:00:00.000Z",
             },
           ],
@@ -1217,24 +1218,26 @@ describe("the route tree", () => {
           sentRequests: [
             {
               id: "r2",
-              toUser: {
+              user: {
                 id: "u4",
                 username: "hoa",
                 firstName: "Hoa",
                 lastName: "Pham",
               },
+              message: null,
               createdAt: "2026-09-19T00:00:00.000Z",
             },
           ],
           receivedRequests: [
             {
               id: "r1",
-              fromUser: {
+              user: {
                 id: "u3",
                 username: "minh",
                 firstName: "Minh",
                 lastName: "Tran",
               },
+              message: null,
               createdAt: "2026-09-19T00:00:00.000Z",
             },
           ],

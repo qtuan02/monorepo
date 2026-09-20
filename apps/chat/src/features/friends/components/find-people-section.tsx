@@ -63,15 +63,10 @@ export function FindPeopleSection() {
   const handleCancelRequest = (requestId: string, userId: string) => {
     if (isBusy) return;
     setProcessingUserId(userId);
-    cancelRequestMutation.mutate(
-      { requestId },
-      {
-        onSettled: () =>
-          setProcessingUserId((current) =>
-            current === userId ? null : current,
-          ),
-      },
-    );
+    cancelRequestMutation.mutate(requestId, {
+      onSettled: () =>
+        setProcessingUserId((current) => (current === userId ? null : current)),
+    });
   };
 
   const results = isDebouncing ? [] : (searchQuery.data ?? []);

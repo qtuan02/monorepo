@@ -11,6 +11,10 @@ import {
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
 import { UserInfo } from "~/components/user-info";
+import {
+  useAcceptFriendRequestMutation,
+  useCancelFriendRequestMutation,
+} from "~/hooks/api/friend";
 import { useUserInfoQuery } from "~/hooks/api/user";
 import { useOpenDirectConversation } from "~/hooks/use-open-direct-conversation";
 import { useSocketStore } from "~/stores/use-socket-store";
@@ -62,6 +66,8 @@ function UserDetailBody({
     state.onlineUsers.includes(userId),
   );
   const openDirectConversation = useOpenDirectConversation();
+  const acceptMutation = useAcceptFriendRequestMutation();
+  const cancelMutation = useCancelFriendRequestMutation();
 
   if (userQuery.isLoading) {
     return (
@@ -120,6 +126,37 @@ function UserDetailBody({
           </Button>
         </DialogFooter>
       )}
+
+      {user.statusFriend === FriendStatus.SENT && user.requestId && (
+        <DialogFooter>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={cancelMutation.isPending}
+            onClick={() => {
+              if (user.requestId) cancelMutation.mutate(user.requestId);
+            }}
+          >
+            {t("chat.common.cancelRequest")}
+          </Button>
+        </DialogFooter>
+      )}
+
+      {user.statusFriend === FriendStatus.RECEIVED && user.requestId && (
+        <DialogFooter>
+          <Button
+            type="button"
+            className="w-full"
+            disabled={acceptMutation.isPending}
+            onClick={() => {
+              if (user.requestId) acceptMutation.mutate(user.requestId);
+            }}
+          >
+            {t("chat.common.accept")}
+          </Button>
+        </DialogFooter>
+      )}
     </>
   );
 }
@@ -128,9 +165,10 @@ function UserDetailBody({
  * Someone else's profile in a dialog — the friends screen's rows, a group's
  * member list and the Details panel's "View profile" all open it. The block
  * itself is `UserInfo`, so another frame (a sheet, a page) reuses it without
- * this dialog. Relationship actions stay on the row that already carries the
- * request id; here only Message is offered, since `ChatUserInfo` names the
- * status but not the request behind it.
+ * this dialog. `ChatUserInfo.requestId` carries the pending request behind a
+ * SENT/RECEIVED status, so this is also where a visitor who opened the
+ * dialog from a row with no request affordance (a group member, the details
+ * panel's "View profile") can still revoke/accept.
  */
 export function UserDetailDialog({
   userId,

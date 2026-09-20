@@ -24,12 +24,14 @@ function directConversation(
     participants: [
       {
         userId: CURRENT_USER_ID,
+        username: "tuanhq02",
         firstName: "Tuan",
         lastName: "Huynh",
         role: ChatParticipantRole.MEMBER,
       },
       {
         userId: "u2",
+        username: "lan",
         firstName: "Lan",
         lastName: "Nguyen",
         avatarUrl: "https://example.com/lan.png",
@@ -71,12 +73,14 @@ describe("mapConversationToUiModel", () => {
         participants: [
           {
             userId: CURRENT_USER_ID,
+            username: "tuanhq02",
             firstName: "Tuan",
             lastName: "Huynh",
             role: ChatParticipantRole.MEMBER,
           },
           {
             userId: "u2",
+            username: "",
             firstName: "",
             lastName: "",
             role: ChatParticipantRole.MEMBER,
@@ -178,6 +182,7 @@ describe("mapConversationToUiModel", () => {
     expect(conversation.members[1]).toEqual({
       userId: "u2",
       displayName: "Lan Nguyen",
+      username: "lan",
       avatarUrl: "https://example.com/lan.png",
       role: ChatParticipantRole.MEMBER,
     });
