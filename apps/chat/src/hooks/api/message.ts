@@ -98,6 +98,21 @@ export function appendConversationMessageToCache(
   );
 }
 
+function removeMessageFromCache(
+  data: MessageInfiniteData | undefined,
+  messageId: string,
+): MessageInfiniteData | undefined {
+  if (!data) return data;
+
+  return {
+    ...data,
+    pages: data.pages.map((page) => ({
+      ...page,
+      items: page.items.filter((item) => item.id !== messageId),
+    })),
+  };
+}
+
 /** `message.deleted` — the backend keeps no tombstone, so the row is simply gone. */
 export function removeConversationMessageFromCache(
   queryClient: QueryClient,
@@ -105,17 +120,7 @@ export function removeConversationMessageFromCache(
 ) {
   queryClient.setQueriesData<MessageInfiniteData>(
     { queryKey: messageQueryKeys.byConversation(message.conversationId) },
-    (data) => {
-      if (!data) return data;
-
-      return {
-        ...data,
-        pages: data.pages.map((page) => ({
-          ...page,
-          items: page.items.filter((item) => item.id !== message.id),
-        })),
-      };
-    },
+    (data) => removeMessageFromCache(data, message.id),
   );
 }
 
