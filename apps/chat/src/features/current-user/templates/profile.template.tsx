@@ -6,6 +6,7 @@ import { Button } from "@monorepo/ui/components/button";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
 import IslandBoundary from "~/components/exception/island-boundary";
+import { ChangePasswordForm } from "~/features/current-user/components/change-password-form";
 import { ProfileForm } from "~/features/current-user/components/profile-form";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
 import { useCurrentUserQuery, userQueryKeys } from "~/hooks/api/user";
@@ -65,6 +66,7 @@ function ProfileTemplateContent() {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
       <ProfileForm profile={currentUser} />
+      <ChangePasswordForm />
 
       {/* Only on mobile — the Bottom nav's "Me" tab has no menu to fall
           back on, so this row is what makes it self-sufficient; on

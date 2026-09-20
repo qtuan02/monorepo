@@ -486,6 +486,26 @@
       },
       "toast": {
         "updated": "Đã cập nhật hồ sơ."
+      },
+      "changePassword": {
+        "title": "Đổi mật khẩu",
+        "field": {
+          "currentPassword": "Mật khẩu hiện tại",
+          "newPassword": "Mật khẩu mới",
+          "confirmPassword": "Nhập lại mật khẩu mới"
+        },
+        "save": "Đổi mật khẩu",
+        "saving": "Đang đổi...",
+        "validation": {
+          "currentPasswordRequired": "Vui lòng nhập mật khẩu hiện tại.",
+          "newPasswordRequired": "Vui lòng nhập mật khẩu mới.",
+          "newPasswordLength": "Mật khẩu mới phải từ 8 đến 72 ký tự.",
+          "confirmPasswordRequired": "Vui lòng nhập lại mật khẩu mới.",
+          "confirmPasswordMismatch": "Mật khẩu nhập lại không khớp."
+        },
+        "toast": {
+          "success": "Đã đổi mật khẩu."
+        }
       }
     },
     "friends": {
