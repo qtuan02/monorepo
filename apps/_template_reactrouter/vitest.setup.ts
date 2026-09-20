@@ -1,9 +1,18 @@
 import "@testing-library/jest-dom/vitest";
 
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterEach, beforeAll } from "vitest";
 
 import i18n from "~/libs/i18n";
+
+// `findBy*`'s default `waitFor` budget is 1000ms — plenty for a plain render,
+// too tight for a route rendered through `createRoutesStub`, which builds a
+// real data router and resolves its loader before anything paints. Passes
+// locally; timed out twice in a row in `release.yml` (a single job running
+// check/typecheck/test/build sequentially on one runner, unlike `ci.yml`'s
+// dedicated `test` job) — same class of fix as `apps/documents`'s
+// `testTimeout` bump.
+configure({ asyncUtilTimeout: 5000 });
 
 // The language is pinned rather than detected. jsdom has a `document`, so
 // `createI18n` does register the browser detector here, and it answers
