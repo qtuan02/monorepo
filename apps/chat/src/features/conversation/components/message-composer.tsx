@@ -25,6 +25,10 @@ interface MessageComposerProps {
   editingMessage?: Message | null;
   onCancelEdit?: () => void;
   onSent?: (message: ChatMessageRecord) => void;
+  /** From `ConversationPanel`'s `useTypingIndicator(conversationId, …)` — kept
+   * up there so it starts on the same trigger as the message subscription
+   * (the route's conversationId), not only once this composer mounts. */
+  typingUserIds: string[];
 }
 
 export default function MessageComposer({
@@ -32,11 +36,12 @@ export default function MessageComposer({
   editingMessage = null,
   onCancelEdit = () => {},
   onSent,
+  typingUserIds,
 }: MessageComposerProps) {
   const { t } = useTranslation();
   const {
     content,
-    setContent,
+    handleContentChange,
     textareaRef,
     isPending,
     isSendDisabled,
@@ -49,9 +54,27 @@ export default function MessageComposer({
     handleFileInputChange,
     handleRemoveAttachment,
   } = useMessageComposer(conversation, editingMessage, onCancelEdit, onSent);
+  const typingNames = typingUserIds
+    .map(
+      (userId) =>
+        conversation.members.find((member) => member.userId === userId)
+          ?.displayName,
+    )
+    .filter((name): name is string => !!name);
 
   return (
     <div className="px-3 pt-2 pb-3 md:px-4">
+      {typingNames.length > 0 && (
+        <p
+          aria-live="polite"
+          className="text-muted-foreground truncate px-2 pb-1 text-xs italic"
+        >
+          {t("chat.convPane.typing.line", {
+            count: typingNames.length,
+            names: typingNames.join(", "),
+          })}
+        </p>
+      )}
       {attachment && !editingMessage && (
         <MessageComposerAttachment
           attachment={attachment}
@@ -105,7 +128,7 @@ export default function MessageComposer({
           <InputGroupTextarea
             ref={textareaRef}
             value={content}
-            onChange={(event) => setContent(event.target.value)}
+            onChange={(event) => handleContentChange(event.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}
             aria-label={t("chat.convPane.composer.ariaLabel")}

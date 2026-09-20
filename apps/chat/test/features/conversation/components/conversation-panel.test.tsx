@@ -1,17 +1,22 @@
+import type { Client } from "@stomp/stompjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChatConversationRecord } from "@monorepo/types/chat-conversation";
+import type { ChatTypingEvent } from "@monorepo/types/chat-socket";
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 import { HttpError } from "@monorepo/api/client";
 import {
   ChatConversationType,
   ChatParticipantRole,
 } from "@monorepo/types/chat-conversation";
+import { ChatSocketEventType } from "@monorepo/types/chat-socket";
 
 import ConversationPanel from "~/features/conversation/components/conversation-panel";
+import { useAuthStore } from "~/stores/use-auth-store";
+import { useSocketStore } from "~/stores/use-socket-store";
 
 const CURRENT_USER: ChatUserProfile = {
   id: "u1",
@@ -24,10 +29,18 @@ const {
   chatUserMe,
   chatConversationGetConversations,
   chatConversationGetConversation,
+  subscribeToTyping,
 } = vi.hoisted(() => ({
   chatUserMe: vi.fn(),
   chatConversationGetConversations: vi.fn(),
   chatConversationGetConversation: vi.fn(),
+  subscribeToTyping: vi.fn(
+    (
+      _client: Client,
+      _conversationId: string,
+      _onTyping: (event: ChatTypingEvent) => void,
+    ) => vi.fn(),
+  ),
 }));
 
 vi.mock("~/libs/http-client", () => ({
@@ -37,6 +50,14 @@ vi.mock("~/libs/http-client", () => ({
     getConversation: chatConversationGetConversation,
     markAsSeen: vi.fn().mockResolvedValue(undefined),
   },
+}));
+
+// Only the typing seam is reached from this tree — MessageComposer's own
+// sendTyping isn't exercised by any test below, so it's left real (a no-op
+// on the fake client the store below hands it).
+vi.mock("~/libs/socket", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("~/libs/socket")>()),
+  subscribeToTyping,
 }));
 
 vi.mock("~/stores/use-socket-store", async () => {
@@ -151,5 +172,49 @@ describe("ConversationPanel — deep-link fallback", () => {
     expect(
       screen.queryByRole("heading", { name: "404 Not Found" }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("ConversationPanel — typing", () => {
+  beforeEach(() => {
+    useAuthStore.setState({ token: "a-token" });
+    chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+    chatConversationGetConversations
+      .mockReset()
+      .mockResolvedValue({ items: [], nextCursor: null });
+    chatConversationGetConversation
+      .mockReset()
+      .mockResolvedValue(conversationRecord());
+    subscribeToTyping.mockClear();
+    useSocketStore.setState({ client: {} as Client, isConnected: true });
+  });
+
+  afterEach(() => {
+    useSocketStore.setState({ client: null, isConnected: false });
+  });
+
+  it('shows "X is typing…" above the composer, and hides it again after 3s with no follow-up event', async () => {
+    renderPanel("c9");
+    await screen.findByLabelText("Message composer");
+
+    vi.useFakeTimers();
+    try {
+      const onTyping = subscribeToTyping.mock.calls.at(-1)?.[2];
+      act(() =>
+        onTyping?.({
+          eventType: ChatSocketEventType.TYPING,
+          conversationId: "c9",
+          userId: "u2",
+        }),
+      );
+      expect(screen.getByText("Lan Nguyen is typing…")).toBeInTheDocument();
+
+      act(() => vi.advanceTimersByTime(3000));
+      expect(
+        screen.queryByText("Lan Nguyen is typing…"),
+      ).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

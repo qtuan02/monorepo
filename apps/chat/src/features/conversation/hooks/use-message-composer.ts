@@ -12,7 +12,14 @@ import {
   useUpdateMessageMutation,
   useUploadAttachmentMutation,
 } from "~/hooks/api/message";
+import { sendTyping } from "~/libs/socket";
+import { useSocketStore } from "~/stores/use-socket-store";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "~/utils/attachment";
+import { isDraftConversationId } from "~/utils/direct-message-draft";
+
+/** Never gọi `sendTyping` more than once every ~2s (T4, spec #253) — a plain
+ * timestamp ref, not the shared `useThrottle` (dropped at #195). */
+const TYPING_SEND_THROTTLE_MS = 2000;
 
 interface EmojiSelection {
   native?: string;
@@ -61,11 +68,14 @@ export function useMessageComposer(
   // whose file no longer matches this ref (superseded by a later select, or
   // by Remove) is stale and must not resurrect its own attachment state.
   const currentFileRef = React.useRef<File | null>(null);
+  const lastTypingSentAtRef = React.useRef(0);
   const { sendMessage, isPending: isSendPending } =
     useSendMessage(conversation);
   const uploadAttachment = useUploadAttachmentMutation();
   const updateMessage = useUpdateMessageMutation();
   const isPending = isSendPending || updateMessage.isPending;
+  const client = useSocketStore((state) => state.client);
+  const isConnected = useSocketStore((state) => state.isConnected);
 
   const editingId = editingMessage?.id ?? null;
   // Adjusting state during render (not an effect — see
@@ -99,6 +109,28 @@ export function useMessageComposer(
     ? content.trim() !== ""
     : content.trim() !== "" || attachment !== null;
   const isSendDisabled = isPending || isUploadingAttachment || !hasBody;
+
+  const handleContentChange = React.useCallback(
+    (value: string) => {
+      setContent(value);
+
+      if (
+        !client ||
+        !isConnected ||
+        !value.trim() ||
+        isDraftConversationId(conversation.id)
+      ) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastTypingSentAtRef.current < TYPING_SEND_THROTTLE_MS) return;
+
+      lastTypingSentAtRef.current = now;
+      sendTyping(client, conversation.id);
+    },
+    [client, isConnected, conversation.id],
+  );
 
   const handleFileSelected = React.useCallback(
     (file: File) => {
@@ -240,7 +272,7 @@ export function useMessageComposer(
 
   return {
     content,
-    setContent,
+    handleContentChange,
     textareaRef,
     isPending,
     isSendDisabled,

@@ -452,6 +452,9 @@
         "editingBanner": "Đang sửa tin nhắn",
         "cancelEdit": "Huỷ"
       },
+      "typing": {
+        "line": "{names} {count, plural, other {đang gõ…}}"
+      },
       "list": {
         "couldNotLoad": "Không thể tải tin nhắn.",
         "retry": "Thử lại",

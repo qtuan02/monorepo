@@ -452,6 +452,9 @@
         "editingBanner": "Editing message",
         "cancelEdit": "Cancel"
       },
+      "typing": {
+        "line": "{names} {count, plural, one {is typing…} other {are typing…}}"
+      },
       "list": {
         "couldNotLoad": "Couldn't load messages.",
         "retry": "Retry",
