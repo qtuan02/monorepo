@@ -56,6 +56,7 @@ export function useMessageComposer(
   const { sendMessage, isPending } = useSendMessage(conversation);
   const uploadAttachment = useUploadAttachmentMutation();
   const client = useSocketStore((state) => state.client);
+  const isConnected = useSocketStore((state) => state.isConnected);
 
   React.useEffect(() => {
     textareaRef.current?.focus();
@@ -69,7 +70,12 @@ export function useMessageComposer(
     (value: string) => {
       setContent(value);
 
-      if (!client || !value.trim() || isDraftConversationId(conversation.id)) {
+      if (
+        !client ||
+        !isConnected ||
+        !value.trim() ||
+        isDraftConversationId(conversation.id)
+      ) {
         return;
       }
 
@@ -79,7 +85,7 @@ export function useMessageComposer(
       lastTypingSentAtRef.current = now;
       sendTyping(client, conversation.id);
     },
-    [client, conversation.id],
+    [client, isConnected, conversation.id],
   );
 
   const handleFileSelected = React.useCallback(

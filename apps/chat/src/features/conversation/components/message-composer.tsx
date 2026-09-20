@@ -15,17 +15,21 @@ import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposerAttachment from "~/features/conversation/components/message-composer-attachment";
 import MessageComposerEmojiPicker from "~/features/conversation/components/message-composer-emoji-picker";
 import { useMessageComposer } from "~/features/conversation/hooks/use-message-composer";
-import { useTypingIndicator } from "~/features/conversation/hooks/use-typing-indicator";
 import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
 
 interface MessageComposerProps {
   conversation: Conversation;
   onSent?: (message: ChatMessageRecord) => void;
+  /** From `ConversationPanel`'s `useTypingIndicator(conversationId, …)` — kept
+   * up there so it starts on the same trigger as the message subscription
+   * (the route's conversationId), not only once this composer mounts. */
+  typingUserIds: string[];
 }
 
 export default function MessageComposer({
   conversation,
   onSent,
+  typingUserIds,
 }: MessageComposerProps) {
   const { t } = useTranslation();
   const {
@@ -43,10 +47,6 @@ export default function MessageComposer({
     handleFileInputChange,
     handleRemoveAttachment,
   } = useMessageComposer(conversation, onSent);
-  const typingUserIds = useTypingIndicator(
-    conversation.id,
-    conversation.currentUserId,
-  );
   const typingNames = typingUserIds
     .map(
       (userId) =>

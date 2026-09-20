@@ -28,6 +28,7 @@ import { ConversationDetailsPanel } from "~/features/conversation/components/con
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
+import { useTypingIndicator } from "~/features/conversation/hooks/use-typing-indicator";
 import { mapConversationToUiModel } from "~/features/conversation/utils/map-conversation-to-ui-model";
 import {
   conversationQueryKeys,
@@ -137,6 +138,12 @@ export default function ConversationPanel({
         state.onlineUsers.includes(member.userId),
     ).length;
   });
+
+  // Keyed on the route's `conversationId`, same as `ChatSocketProvider`'s
+  // message subscription — not on `activeConversation`, which a deep-linked
+  // reload may still be fetching, so a typing event lands the moment the
+  // pane opens instead of only once the entity has resolved.
+  const typingUserIds = useTypingIndicator(conversationId, currentUserId);
 
   if (!conversationId && !draftUser) return <NoConversationSelected />;
 
@@ -267,6 +274,7 @@ export default function ConversationPanel({
           <MessageComposer
             key={activeConversation.id}
             conversation={activeConversation}
+            typingUserIds={typingUserIds}
             onSent={
               draftUser
                 ? (message) =>

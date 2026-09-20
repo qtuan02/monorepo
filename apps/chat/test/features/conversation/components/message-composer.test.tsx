@@ -11,14 +11,12 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
-import type { ChatTypingEvent } from "@monorepo/types/chat-socket";
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 import {
   ChatConversationType,
   ChatParticipantRole,
 } from "@monorepo/types/chat-conversation";
 import { ChatMessageType } from "@monorepo/types/chat-message";
-import { ChatSocketEventType } from "@monorepo/types/chat-socket";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposer from "~/features/conversation/components/message-composer";
@@ -40,7 +38,6 @@ const {
   chatMessageUpload,
   toastAdd,
   sendTyping,
-  subscribeToTyping,
 } = vi.hoisted(() => ({
   chatUserMe: vi.fn(),
   chatMessageSendDirect: vi.fn(),
@@ -48,13 +45,6 @@ const {
   chatMessageUpload: vi.fn(),
   toastAdd: vi.fn(),
   sendTyping: vi.fn(),
-  subscribeToTyping: vi.fn(
-    (
-      _client: Client,
-      _conversationId: string,
-      _onTyping: (event: ChatTypingEvent) => void,
-    ) => vi.fn(),
-  ),
 }));
 
 vi.mock("~/libs/http-client", () => ({
@@ -75,11 +65,11 @@ vi.mock("@monorepo/ui/components/toast", () => ({
   toast: { add: toastAdd },
 }));
 
-// Real subscribeToConversationMessages/Updates are never reached here (the
-// composer alone never mounts ChatSocketProvider) — only sendTyping and
-// subscribeToTyping, which useMessageComposer/useTypingIndicator call
-// directly, need stubbing.
-vi.mock("~/libs/socket", () => ({ sendTyping, subscribeToTyping }));
+// `useMessageComposer` calls this directly on every onChange throttled to
+// ~2s — the pane's own subscribeToTyping lives one level up, in
+// ConversationPanel (see use-typing-indicator.test.ts), so it needs no
+// stubbing here.
+vi.mock("~/libs/socket", () => ({ sendTyping }));
 
 const DIRECT_CONVERSATION: Conversation = {
   id: "c1",
@@ -112,6 +102,7 @@ const GROUP_CONVERSATION: Conversation = {
 function renderComposer(
   conversation: Conversation,
   onSent?: (message: ChatMessageRecord) => void,
+  typingUserIds: string[] = [],
 ) {
   const queryClient = new QueryClient({
     defaultOptions: { mutations: { retry: false } },
@@ -119,7 +110,11 @@ function renderComposer(
   render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <MessageComposer conversation={conversation} onSent={onSent} />
+        <MessageComposer
+          conversation={conversation}
+          onSent={onSent}
+          typingUserIds={typingUserIds}
+        />
       </ThemeProvider>
     </QueryClientProvider>,
   );
@@ -544,34 +539,41 @@ describe("MessageComposer", () => {
       expect(sendTyping).toHaveBeenCalledTimes(1);
     });
 
-    it('shows "X is typing…" once the pane hears someone else typing', () => {
-      renderComposer(DIRECT_CONVERSATION);
-
-      const onTyping = subscribeToTyping.mock.calls.at(-1)?.[2];
-      act(() =>
-        onTyping?.({
-          eventType: ChatSocketEventType.TYPING,
-          conversationId: "c1",
-          userId: "u2",
-        }),
-      );
+    // `typingUserIds` arrives resolved from `ConversationPanel`'s
+    // `useTypingIndicator` (see use-typing-indicator.test.ts for the
+    // show/hide/reset/merge/own-id behaviour) — the composer's own job is
+    // resolving those ids to display names and rendering (or hiding) the line.
+    it('renders "X is typing…" for one typing userId', () => {
+      renderComposer(DIRECT_CONVERSATION, undefined, ["u2"]);
 
       expect(screen.getByText("Lan Nguyen is typing…")).toBeInTheDocument();
     });
 
-    it("ignores its own userId and never renders a typing line for it", () => {
-      renderComposer(DIRECT_CONVERSATION);
+    it('joins several typing userIds as "A, B are typing…"', () => {
+      const group: Conversation = {
+        ...GROUP_CONVERSATION,
+        members: [
+          ...GROUP_CONVERSATION.members,
+          {
+            userId: "u3",
+            displayName: "Minh Tran",
+            role: ChatParticipantRole.MEMBER,
+          },
+        ],
+      };
+      renderComposer(group, undefined, ["u2", "u3"]);
 
-      const onTyping = subscribeToTyping.mock.calls.at(-1)?.[2];
-      act(() =>
-        onTyping?.({
-          eventType: ChatSocketEventType.TYPING,
-          conversationId: "c1",
-          userId: "u1",
-        }),
-      );
+      expect(
+        screen.getByText("Lan Nguyen, Minh Tran are typing…"),
+      ).toBeInTheDocument();
+    });
 
-      expect(screen.queryByText(/is typing…/)).not.toBeInTheDocument();
+    it("renders no typing line when nobody is typing", () => {
+      renderComposer(DIRECT_CONVERSATION, undefined, []);
+
+      expect(
+        screen.queryByText(/is typing…|are typing…/),
+      ).not.toBeInTheDocument();
     });
   });
 });
