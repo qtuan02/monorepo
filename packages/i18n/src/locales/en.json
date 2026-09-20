@@ -448,7 +448,9 @@
         "send": "Send",
         "sending": "Sending...",
         "toSend": "to send",
-        "newLine": "for a new line"
+        "newLine": "for a new line",
+        "editingBanner": "Editing message",
+        "cancelEdit": "Cancel"
       },
       "list": {
         "couldNotLoad": "Couldn't load messages.",
@@ -456,7 +458,17 @@
         "newMessagesButton": "{count, plural, one {# new message} other {# new messages}}"
       },
       "row": {
-        "seen": "Seen"
+        "seen": "Seen",
+        "edited": "(edited)",
+        "actions": {
+          "menuLabel": "Message actions",
+          "edit": "Edit",
+          "delete": "Delete",
+          "deleting": "Deleting...",
+          "cancel": "Cancel",
+          "deleteConfirmTitle": "Delete this message?",
+          "deleteConfirmDescription": "This can't be undone."
+        }
       },
       "toast": {
         "removedFromConversation": "You're no longer in this conversation."

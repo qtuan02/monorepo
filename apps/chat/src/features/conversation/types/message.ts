@@ -10,4 +10,5 @@ export interface Message {
   attachmentUrl: string | null;
   type: ChatMessageType;
   createdAt: string;
+  updatedAt: string;
 }
