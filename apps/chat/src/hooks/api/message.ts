@@ -12,9 +12,10 @@ import {
 import type { ChatMessagePage } from "@monorepo/api/chat/message-service";
 import type {
   ChatMessageRecord,
-  ChatSendDirectMessageParams,
-  ChatSendGroupMessageParams,
+  DirectMessageRequest,
+  GroupMessageRequest,
 } from "@monorepo/types/chat-message";
+import type { ChatUploadedFile } from "@monorepo/types/chat-upload";
 
 import type {
   UseInfiniteQueryOptionsWrapper,
@@ -50,11 +51,13 @@ export interface MessagesReadModel {
 type MessageInfiniteData = InfiniteData<ChatMessagePage, string | undefined>;
 
 /**
- * Prepends a live message onto the newest-fetched page (`pages[0]`), never
- * pushes: `pages[0].items` is itself newest-first (see the `select` above),
- * so putting the new message at `items[0]` is what makes it land last once
- * `useMessagesInfiniteQuery` re-orders it to chronological. Prepending there
- * also leaves `olderMessageCount` (computed from `pages.slice(1)`)
+ * Upserts a live message by `id`: replaces it in place where it already
+ * sits (a `message.updated` echo, or the socket racing a mutation's own
+ * response), or prepends it onto the newest-fetched page (`pages[0]`) when
+ * it's new. `pages[0].items` is itself newest-first (see the `select`
+ * above), so putting a new message at `items[0]` is what makes it land last
+ * once `useMessagesInfiniteQuery` re-orders it to chronological. Prepending
+ * there also leaves `olderMessageCount` (computed from `pages.slice(1)`)
  * unaffected, so `firstItemIndex` doesn't shift under Virtuoso mid-scroll.
  */
 export function appendConversationMessageToCache(
@@ -66,10 +69,21 @@ export function appendConversationMessageToCache(
     (data) => {
       if (!data) return data;
 
-      const alreadyPresent = data.pages.some((page) =>
+      const isPresent = data.pages.some((page) =>
         page.items.some((item) => item.id === message.id),
       );
-      if (alreadyPresent) return data;
+
+      if (isPresent) {
+        return {
+          ...data,
+          pages: data.pages.map((page) => ({
+            ...page,
+            items: page.items.map((item) =>
+              item.id === message.id ? message : item,
+            ),
+          })),
+        };
+      }
 
       const [firstPage, ...restPages] = data.pages;
       if (!firstPage) return data;
@@ -82,6 +96,32 @@ export function appendConversationMessageToCache(
         ],
       };
     },
+  );
+}
+
+function removeMessageFromCache(
+  data: MessageInfiniteData | undefined,
+  messageId: string,
+): MessageInfiniteData | undefined {
+  if (!data) return data;
+
+  return {
+    ...data,
+    pages: data.pages.map((page) => ({
+      ...page,
+      items: page.items.filter((item) => item.id !== messageId),
+    })),
+  };
+}
+
+/** `message.deleted` — the backend keeps no tombstone, so the row is simply gone. */
+export function removeConversationMessageFromCache(
+  queryClient: QueryClient,
+  message: ChatMessageRecord,
+) {
+  queryClient.setQueriesData<MessageInfiniteData>(
+    { queryKey: messageQueryKeys.byConversation(message.conversationId) },
+    (data) => removeMessageFromCache(data, message.id),
   );
 }
 
@@ -140,15 +180,12 @@ function applySentMessage(
 }
 
 export function useSendDirectMessageMutation(
-  options?: UseMutationOptionsWrapper<
-    ChatSendDirectMessageParams,
-    ChatMessageRecord
-  >,
+  options?: UseMutationOptionsWrapper<DirectMessageRequest, ChatMessageRecord>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: ChatSendDirectMessageParams) =>
+    mutationFn: (params: DirectMessageRequest) =>
       chatMessageService.sendDirect(params),
     onSuccess: (message) => applySentMessage(queryClient, message),
     ...options,
@@ -156,17 +193,24 @@ export function useSendDirectMessageMutation(
 }
 
 export function useSendGroupMessageMutation(
-  options?: UseMutationOptionsWrapper<
-    ChatSendGroupMessageParams,
-    ChatMessageRecord
-  >,
+  options?: UseMutationOptionsWrapper<GroupMessageRequest, ChatMessageRecord>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (params: ChatSendGroupMessageParams) =>
+    mutationFn: (params: GroupMessageRequest) =>
       chatMessageService.sendGroup(params),
     onSuccess: (message) => applySentMessage(queryClient, message),
+    ...options,
+  });
+}
+
+/** T2 (spec #253) — uploads before a send; no cache write, nothing else reads it. */
+export function useUploadAttachmentMutation(
+  options?: UseMutationOptionsWrapper<File, ChatUploadedFile>,
+) {
+  return useMutation({
+    mutationFn: (file: File) => chatMessageService.upload(file),
     ...options,
   });
 }

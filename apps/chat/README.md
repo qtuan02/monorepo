@@ -49,7 +49,7 @@ bun run dev:chat     # http://localhost:3007
 | Data layer | `packages/api/src/chat/*.ts` | Sáu service class — `ChatAuthService`, `ChatHealthService`, `ChatUserService`, `ChatFriendService`, `ChatConversationService`, `ChatMessageService` — unwrap `ChatBaseResponse.data` (`@monorepo/types/chat-base`), singleton ở `~/libs/http-client.ts` (`withCredentials`, `onAuthError` → refresh + cất token, `onUnauthorized` → xoá cache + đăng xuất — ADR-0014). |
 | Shell | `src/features/layout/templates/layout.template.tsx` | `NavRail` (`≥md`) hoặc `BottomNav` (`<md`, ẩn trong màn chat) quanh một `Island` bọc `<Outlet/>` — xem § Hình dạng Islands. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown View profile/Edit profile (`/profile?edit=1`)/Sign out. |
 | Conversation | `src/features/conversation/` | Sidebar danh sách (direct + group, cuộn vô hạn, Presence) qua `react-virtuoso`; màn chat cuộn ngược vô hạn, composer + emoji picker lazy-load, Draft conversation từ Friends. |
-| Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`), patch cache tại chỗ khi tin đến, Presence online/offline, `seen`. |
+| Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`); type guard cho 6 payload (`conversation.updated{conversation}`, `.removed`, `.seen`, `message.created\|updated\|deleted{message}`, `typing`) — payload lạ/`group.deleted` bị bỏ qua. `conversation.updated` **upsert** nguyên record vào list theo `id` (hội thoại mới tự hiện); `conversation.removed` xoá khỏi list, và nếu đang mở đúng id thì đưa về Home kèm toast. Message cache upsert theo `id`, `message.deleted` xoá. `subscribeToTyping`/`sendTyping` đã có ở lib (UI hiện "đang gõ" là T4). Presence online/offline như cũ. |
 | Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ tại chỗ — một `ProfileForm` với hai trạng thái view/edit trên `?edit=`, không có dialog. |
 | Palette | `src/globals.css` | Teal của nguồn, override ở tầng app (xem § Token/accent) — cùng hình dạng ADR-0008/0009/0011. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Như `apps/smart-rental`: build/install từ root qua `npx --yes bun@1.4.0`, SPA rewrite `/(.*)` → `/index.html`. Dockerfile/nginx của Template giữ nguyên cho job `docker`. |
@@ -67,10 +67,12 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
    qua `~/utils/date.ts` (`toLocal`), không gọi `dayjs(value)` thẳng; gửi lên BE dùng `toApiTimestamp` (UTC ISO).
 2. **Không `~/services/`.** Không có, và sẽ không có: mọi gọi backend đi qua service class trong
    `@monorepo/api` (`packages/api/src/chat/`) — quy ước chung của cả monorepo, không phải riêng app này.
-3. **Không optimistic send, không typing indicator, không render `IMAGE`/`FILE`, không tìm hội thoại
-   phía server.** Cố ý ngoài scope spec #232 (đủ cả bốn ở "Out of Scope" của spec) — gửi lỗi khôi phục
-   chữ vào composer nhưng không có "Failed · Retry" tại chỗ; backend không phát event typing; client chỉ
-   gửi `TEXT`; tìm hội thoại lọc client trên trang đã tải, không gọi server.
+3. **Attachment, Sửa/Xoá tin, Typing UI, đổi mật khẩu — chưa có UI.** Backend (`chat-socket` contract
+   2026-09-20) và socket lib đã sẵn sàng cho cả bốn từ T1b (#255); UI của mỗi cái là ticket riêng độc
+   lập trong cùng spec #253: Attachment ở T2, Sửa/Xoá tin ở T3, "đang gõ…" ở T4, đổi mật khẩu ở T5.
+   Không phải drift — đọc comment tổng kết trên spec #253 để biết trạng thái từng ticket.
+   Optimistic send, "Failed · Retry" tại chỗ, và tìm hội thoại phía server vẫn cố ý ngoài scope, như
+   từ spec #232.
 4. **Không CI job E2E, không throttle callback riêng.** `useThrottle` của nguồn bỏ hẳn — double-submit
    chặn bằng `isPending` của mutation; `use-debounce` của nguồn đổi sang `@monorepo/hook/use-debounce`.
 

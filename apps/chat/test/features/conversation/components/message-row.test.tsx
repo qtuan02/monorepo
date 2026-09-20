@@ -18,6 +18,7 @@ function message(overrides: Partial<Message> & Pick<Message, "id">): Message {
     senderId: "u2",
     senderName: "Lan Nguyen",
     content: "hi",
+    attachmentUrl: null,
     type: ChatMessageType.TEXT,
     createdAt: "2026-09-16T08:00:00.000Z",
     ...overrides,
@@ -123,6 +124,71 @@ describe("MessageRow", () => {
     // A SYSTEM entry starts and ends its own run: the sender name renders
     // again right after it, proving the bubble run before it did not swallow it.
     expect(thread.getAllByText("Lan Nguyen")).toHaveLength(2);
+  });
+
+  describe("attachment", () => {
+    function onlyPosition(m: Message): MessagePosition {
+      const [position] = groupMessages([m], CURRENT_USER_ID);
+      if (!position) throw new Error("expected one grouped message");
+      return position;
+    }
+
+    it("renders an IMAGE attachment as an <img>, never wrapped in a link — the backend forces a download on open", () => {
+      const row = renderPosition(
+        onlyPosition(
+          message({
+            id: "m1",
+            type: ChatMessageType.IMAGE,
+            content: "",
+            attachmentUrl: "http://localhost:8089/api/files/abc.png",
+          }),
+        ),
+      );
+
+      const image = row.getByAltText("Image attachment");
+      expect(image.tagName).toBe("IMG");
+      expect(image).toHaveAttribute(
+        "src",
+        "http://localhost:8089/api/files/abc.png",
+      );
+      expect(image.closest("a")).toBeNull();
+    });
+
+    it("renders a FILE attachment as a download link labeled with its extension", () => {
+      const row = renderPosition(
+        onlyPosition(
+          message({
+            id: "m1",
+            type: ChatMessageType.FILE,
+            content: "",
+            attachmentUrl: "http://localhost:8089/api/files/report.pdf",
+          }),
+        ),
+      );
+
+      const link = row.getByRole("link", { name: "File .pdf" });
+      expect(link).toHaveAttribute("download");
+      expect(link).toHaveAttribute(
+        "href",
+        "http://localhost:8089/api/files/report.pdf",
+      );
+    });
+
+    it("renders the caption below the attachment when content is present", () => {
+      const row = renderPosition(
+        onlyPosition(
+          message({
+            id: "m1",
+            type: ChatMessageType.IMAGE,
+            content: "Look at this",
+            attachmentUrl: "http://localhost:8089/api/files/abc.png",
+          }),
+        ),
+      );
+
+      expect(row.getByAltText("Image attachment")).toBeInTheDocument();
+      expect(row.getByText("Look at this")).toBeInTheDocument();
+    });
   });
 
   describe("read receipt", () => {

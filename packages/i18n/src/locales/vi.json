@@ -414,6 +414,15 @@
       "loading": "Đang tải...",
       "morePeople": "Xem thêm mọi người"
     },
+    "attachment": {
+      "attachButton": "Đính kèm tệp",
+      "removeAttachment": "Bỏ tệp đính kèm",
+      "tooLarge": "Tệp lớn hơn 10MB.",
+      "imageAlt": "Ảnh đính kèm",
+      "fileLabel": "Tệp .{extension}",
+      "previewImage": "📷 Ảnh",
+      "previewFile": "📎 Tệp"
+    },
     "convPane": {
       "header": {
         "fallbackTitle": "Cuộc trò chuyện",
@@ -448,6 +457,9 @@
       },
       "row": {
         "seen": "Đã xem"
+      },
+      "toast": {
+        "removedFromConversation": "Bạn không còn ở trong hội thoại này."
       }
     },
     "profile": {

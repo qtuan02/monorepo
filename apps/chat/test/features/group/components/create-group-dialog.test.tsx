@@ -31,12 +31,14 @@ const GROUP: ChatConversationRecord = {
   participants: [
     {
       userId: "u1",
+      username: "tuanhq02",
       firstName: "Tuan",
       lastName: "Huynh",
       role: ChatParticipantRole.ADMIN,
     },
     {
       userId: "u2",
+      username: "lan",
       firstName: "Lan",
       lastName: "Nguyen",
       role: ChatParticipantRole.MEMBER,

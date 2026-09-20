@@ -13,7 +13,7 @@ export enum ChatParticipantRole {
 
 export interface ChatConversationParticipant {
   userId: string;
-  username?: string | null;
+  username: string;
   firstName: string;
   lastName: string;
   avatarUrl?: string | null;
@@ -41,9 +41,7 @@ export interface ChatConversationListParams {
 }
 
 export interface ChatConversationListPayload {
-  // Not a copy-paste bug: `chat-socket` names this field `messages` on both
-  // the conversation-list and message-list endpoints.
-  messages: ChatConversationRecord[];
+  items: ChatConversationRecord[];
   nextCursor: string | null;
 }
 

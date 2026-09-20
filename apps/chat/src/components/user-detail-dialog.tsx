@@ -11,6 +11,10 @@ import {
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
 import { UserInfo } from "~/components/user-info";
+import {
+  useAcceptFriendRequestMutation,
+  useCancelFriendRequestMutation,
+} from "~/hooks/api/friend";
 import { useUserInfoQuery } from "~/hooks/api/user";
 import { useOpenDirectConversation } from "~/hooks/use-open-direct-conversation";
 import { useSocketStore } from "~/stores/use-socket-store";
@@ -47,6 +51,52 @@ function UserDetailSkeleton() {
   );
 }
 
+/**
+ * SENT (revoke) and RECEIVED (accept) both act on the same `requestId`,
+ * differing only in which mutation/label/style runs — one component instead
+ * of two near-identical footers.
+ */
+function PendingRequestFooter({
+  requestId,
+  statusFriend,
+}: {
+  requestId: string;
+  statusFriend: FriendStatus.SENT | FriendStatus.RECEIVED;
+}) {
+  const { t } = useTranslation();
+  const acceptMutation = useAcceptFriendRequestMutation();
+  const cancelMutation = useCancelFriendRequestMutation();
+
+  if (statusFriend === FriendStatus.SENT) {
+    return (
+      <DialogFooter>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={cancelMutation.isPending}
+          onClick={() => cancelMutation.mutate(requestId)}
+        >
+          {t("chat.common.cancelRequest")}
+        </Button>
+      </DialogFooter>
+    );
+  }
+
+  return (
+    <DialogFooter>
+      <Button
+        type="button"
+        className="w-full"
+        disabled={acceptMutation.isPending}
+        onClick={() => acceptMutation.mutate(requestId)}
+      >
+        {t("chat.common.accept")}
+      </Button>
+    </DialogFooter>
+  );
+}
+
 /** Mounted only while the dialog is open, so the read fires on open (see
  * .agents/rules/patterns-fetch-on-mount.md). */
 function UserDetailBody({
@@ -75,6 +125,7 @@ function UserDetailBody({
   }
 
   const user = userQuery.data;
+
   if (!user) {
     return (
       <div className="flex flex-col items-center gap-2">
@@ -120,6 +171,15 @@ function UserDetailBody({
           </Button>
         </DialogFooter>
       )}
+
+      {user.requestId &&
+        (user.statusFriend === FriendStatus.SENT ||
+          user.statusFriend === FriendStatus.RECEIVED) && (
+          <PendingRequestFooter
+            requestId={user.requestId}
+            statusFriend={user.statusFriend}
+          />
+        )}
     </>
   );
 }
@@ -128,9 +188,10 @@ function UserDetailBody({
  * Someone else's profile in a dialog — the friends screen's rows, a group's
  * member list and the Details panel's "View profile" all open it. The block
  * itself is `UserInfo`, so another frame (a sheet, a page) reuses it without
- * this dialog. Relationship actions stay on the row that already carries the
- * request id; here only Message is offered, since `ChatUserInfo` names the
- * status but not the request behind it.
+ * this dialog. `ChatUserInfo.requestId` carries the pending request behind a
+ * SENT/RECEIVED status, so this is also where a visitor who opened the
+ * dialog from a row with no request affordance (a group member, the details
+ * panel's "View profile") can still revoke/accept.
  */
 export function UserDetailDialog({
   userId,

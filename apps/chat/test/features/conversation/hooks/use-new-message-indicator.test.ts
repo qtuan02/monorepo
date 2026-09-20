@@ -13,6 +13,7 @@ function message(id: string): Message {
     senderId: "u2",
     senderName: "Lan Nguyen",
     content: id,
+    attachmentUrl: null,
     type: ChatMessageType.TEXT,
     createdAt: "2026-09-19T08:00:00.000Z",
   };

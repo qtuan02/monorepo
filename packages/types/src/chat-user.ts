@@ -44,8 +44,7 @@ export interface ChatUserSearchParams {
 }
 
 export interface ChatUserSearchPayload {
-  // Same `messages` naming as every other list endpoint — see chat-conversation.ts.
-  messages: ChatUserSearchRecord[];
+  items: ChatUserSearchRecord[];
   nextOffset: number | null;
 }
 
@@ -62,6 +61,14 @@ export interface ChatUserInfo {
   phone?: string | null;
   joinedAt: string;
   statusFriend: FriendStatus;
+  // Present (non-null) only when `statusFriend` is SENT/RECEIVED — the id a
+  // revoke/accept action on this profile needs (see chat-friend.ts).
+  requestId?: string | null;
 }
 
 export type ChatUserInfoResponse = ChatBaseResponse<ChatUserInfo>;
+
+export interface ChatChangePasswordParams {
+  currentPassword: string;
+  newPassword: string;
+}

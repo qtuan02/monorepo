@@ -1,17 +1,23 @@
 import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { matchPath, Outlet, useLocation } from "react-router";
+import { useTranslation } from "react-i18next";
+import { matchPath, Outlet, useLocation, useNavigate } from "react-router";
 
 import { ChatSocketEventType } from "@monorepo/types/chat-socket";
+import { toast } from "@monorepo/ui/components/toast";
 
 import { ROUTES } from "~/constants/routes";
 import {
+  applyConversationRemovedToCache,
   applyConversationSeenToCache,
   applyConversationUpdateToCache,
   useMarkConversationAsSeenMutation,
 } from "~/hooks/api/conversation";
-import { appendConversationMessageToCache } from "~/hooks/api/message";
+import {
+  appendConversationMessageToCache,
+  removeConversationMessageFromCache,
+} from "~/hooks/api/message";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 import {
   subscribeToConversationMessages,
@@ -41,6 +47,8 @@ export function ChatSocketProvider({
   activeConversationId,
   children,
 }: ChatSocketProviderProps) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const client = useSocketStore((state) => state.client);
   const isConnected = useSocketStore((state) => state.isConnected);
@@ -69,22 +77,39 @@ export function ChatSocketProvider({
         return;
       }
 
-      if (event.lastMessage) {
-        appendConversationMessageToCache(queryClient, event.lastMessage);
+      if (event.eventType === ChatSocketEventType.CONVERSATION_REMOVED) {
+        applyConversationRemovedToCache(queryClient, event);
+
+        // Kicked, left, or the group was deleted while I had it open — a
+        // self-triggered leave already navigated home before this arrives,
+        // so `activeConversationId` no longer matches and this is a no-op.
+        if (event.conversationId === screen.activeConversationId) {
+          navigate(ROUTES.HOME, { replace: true });
+          toast.add({
+            title: t("chat.convPane.toast.removedFromConversation"),
+            type: "info",
+          });
+        }
+        return;
+      }
+
+      const { conversation } = event;
+      if (conversation.lastMessage) {
+        appendConversationMessageToCache(queryClient, conversation.lastMessage);
       }
 
       applyConversationUpdateToCache(queryClient, event, {
         unreadCount:
-          event.conversationId === screen.activeConversationId &&
+          conversation.id === screen.activeConversationId &&
           isFromOtherUser(
-            event.lastMessage?.senderId ?? "",
+            conversation.lastMessage?.senderId ?? "",
             screen.currentUserId,
           )
             ? 0
             : undefined,
       });
     });
-  }, [client, isConnected, queryClient]);
+  }, [client, isConnected, navigate, queryClient, t]);
 
   useEffect(() => {
     if (!client || !isConnected || !activeConversationId) return;
@@ -92,13 +117,23 @@ export function ChatSocketProvider({
     return subscribeToConversationMessages(
       client,
       activeConversationId,
-      (message) => {
+      (event) => {
+        const { message } = event;
+
+        if (event.eventType === ChatSocketEventType.MESSAGE_DELETED) {
+          removeConversationMessageFromCache(queryClient, message);
+          return;
+        }
+
         appendConversationMessageToCache(queryClient, message);
 
-        // The conversation I'm looking at just got a message from someone
-        // else — mark it seen right away instead of waiting on the next
-        // fetch/focus.
-        if (isFromOtherUser(message.senderId, currentUserId)) {
+        // A brand-new message from someone else in the conversation I'm
+        // looking at — mark it seen right away instead of waiting on the
+        // next fetch/focus. An edit (MESSAGE_UPDATED) doesn't re-trigger it.
+        if (
+          event.eventType === ChatSocketEventType.MESSAGE_CREATED &&
+          isFromOtherUser(message.senderId, currentUserId)
+        ) {
           markConversationAsSeen(message.conversationId);
         }
       },

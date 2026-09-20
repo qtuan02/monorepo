@@ -1,7 +1,7 @@
 import * as React from "react";
 
+import type { SendableMessageType } from "@monorepo/types/chat-message";
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
-import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import {
@@ -9,6 +9,13 @@ import {
   useSendGroupMessageMutation,
 } from "~/hooks/api/message";
 import { useCurrentUserQuery } from "~/hooks/api/user";
+
+export interface SendMessageInput {
+  content: string;
+  /** TEXT unless an Attachment (T2, spec #253) rode along. */
+  type: SendableMessageType;
+  attachmentUrl: string | null;
+}
 
 /**
  * A mutation's own `isPending` only flips true once React commits the
@@ -26,7 +33,7 @@ export function useSendMessage(conversation: Conversation) {
   const isPending = sendDirectMessage.isPending || sendGroupMessage.isPending;
 
   const sendMessage = React.useCallback(
-    async (content: string) => {
+    async ({ content, type, attachmentUrl }: SendMessageInput) => {
       const currentUserId = currentUserQuery.data?.id;
       if (!currentUserId || isSubmittingRef.current) return;
 
@@ -46,16 +53,16 @@ export function useSendMessage(conversation: Conversation) {
           return await sendDirectMessage.mutateAsync({
             recipientId,
             content,
-            type: ChatMessageType.TEXT,
-            attachmentUrl: null,
+            type,
+            attachmentUrl,
           });
         }
 
         return await sendGroupMessage.mutateAsync({
           conversationId: conversation.id,
           content,
-          type: ChatMessageType.TEXT,
-          attachmentUrl: null,
+          type,
+          attachmentUrl,
         });
       } finally {
         isSubmittingRef.current = false;

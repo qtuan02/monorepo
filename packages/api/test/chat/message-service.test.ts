@@ -6,9 +6,7 @@ import { ChatMessageType } from "@monorepo/types/chat-message";
 import type { HttpClient } from "../../src/client";
 import { ChatMessageService } from "../../src/chat/message-service";
 
-function clientWith(
-  overrides: Partial<Pick<HttpClient, "get" | "post">>,
-): HttpClient {
+function clientWith(overrides: Partial<HttpClient>): HttpClient {
   const unused = () =>
     Promise.reject(new Error("This method is not part of the test."));
 
@@ -33,9 +31,9 @@ const MESSAGE: ChatMessageRecord = {
 };
 
 describe("ChatMessageService.getMessages", () => {
-  it("GETs the conversation's message path with the cursor params and unwraps `messages` into `items`", async () => {
+  it("GETs the conversation's message path with the cursor params and unwraps `items`", async () => {
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [MESSAGE], nextCursor: "cursor-2" },
+      data: { items: [MESSAGE], nextCursor: "cursor-2" },
       message: null,
       status: 200,
     });
@@ -51,7 +49,7 @@ describe("ChatMessageService.getMessages", () => {
 
   it("resolves a null nextCursor as the last page", async () => {
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [], nextCursor: null },
+      data: { items: [], nextCursor: null },
       message: null,
       status: 200,
     });
@@ -153,5 +151,57 @@ describe("ChatMessageService.sendGroup", () => {
         attachmentUrl: null,
       }),
     ).rejects.toBe(failure);
+  });
+});
+
+describe("ChatMessageService.updateMessage", () => {
+  it("PATCHes the message's own path with the new content and unwraps the record", async () => {
+    const updated: ChatMessageRecord = { ...MESSAGE, content: "Edited" };
+    const patch = vi
+      .fn()
+      .mockResolvedValue({ data: updated, message: null, status: 200 });
+    const service = new ChatMessageService(clientWith({ patch }));
+
+    await expect(
+      service.updateMessage("m1", { content: "Edited" }),
+    ).resolves.toBe(updated);
+    expect(patch).toHaveBeenCalledWith("/v1/message/m1", {
+      content: "Edited",
+    });
+  });
+});
+
+describe("ChatMessageService.deleteMessage", () => {
+  it("DELETEs the message's own path", async () => {
+    const del = vi
+      .fn()
+      .mockResolvedValue({ data: null, message: null, status: 204 });
+    const service = new ChatMessageService(clientWith({ delete: del }));
+
+    await expect(service.deleteMessage("m1")).resolves.toBeUndefined();
+    expect(del).toHaveBeenCalledWith("/v1/message/m1");
+  });
+});
+
+describe("ChatMessageService.upload", () => {
+  it("POSTs a FormData with the file under the `file` field and unwraps the response", async () => {
+    const uploaded = {
+      url: "http://localhost:8089/api/files/0199.png",
+      name: "0199.png",
+      size: 12345,
+      contentType: "image/png",
+    };
+    const post = vi
+      .fn()
+      .mockResolvedValue({ data: uploaded, message: null, status: 201 });
+    const service = new ChatMessageService(clientWith({ post }));
+    const file = new File(["binary"], "photo.png", { type: "image/png" });
+
+    await expect(service.upload(file)).resolves.toBe(uploaded);
+    expect(post).toHaveBeenCalledTimes(1);
+    const [path, body] = post.mock.calls[0] as [string, FormData];
+    expect(path).toBe("/v1/upload");
+    expect(body).toBeInstanceOf(FormData);
+    expect(body.get("file")).toBe(file);
   });
 });

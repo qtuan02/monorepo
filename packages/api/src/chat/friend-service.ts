@@ -1,6 +1,6 @@
+import type { ChatBaseResponse } from "@monorepo/types/chat-base";
 import type {
   ChatFriendAcceptResponse,
-  ChatFriendActionPayload,
   ChatFriendActionResponse,
   ChatFriendListParams,
   ChatFriendListResponse,
@@ -8,8 +8,8 @@ import type {
   ChatFriendRemoveResponse,
   ChatFriendRequestsPayload,
   ChatFriendRequestsResponse,
-  ChatFriendRequestUser,
   ChatFriendSendRequestPayload,
+  UserSummaryDto,
 } from "@monorepo/types/chat-friend";
 
 import type { HttpClient } from "../client";
@@ -29,7 +29,7 @@ export class ChatFriendService {
     );
 
     return {
-      items: response.data.messages,
+      items: response.data.items,
       nextOffset: response.data.nextOffset,
     };
   }
@@ -50,33 +50,24 @@ export class ChatFriendService {
     return response.data;
   }
 
-  async accept(
-    payload: ChatFriendActionPayload,
-  ): Promise<ChatFriendRequestUser> {
+  async accept(requestId: string): Promise<UserSummaryDto> {
     const response = await this.client.post<ChatFriendAcceptResponse>(
-      "/v1/friend/accept",
-      payload,
+      `/v1/friend/request/${requestId}/accept`,
     );
 
     return response.data;
   }
 
-  async decline(payload: ChatFriendActionPayload): Promise<string | null> {
-    const response = await this.client.post<ChatFriendActionResponse>(
-      "/v1/friend/decline",
-      payload,
+  async decline(requestId: string): Promise<void> {
+    await this.client.post<ChatBaseResponse<null>>(
+      `/v1/friend/request/${requestId}/decline`,
     );
-
-    return response.data;
   }
 
-  async cancel(payload: ChatFriendActionPayload): Promise<string | null> {
-    const response = await this.client.post<ChatFriendActionResponse>(
-      "/v1/friend/cancel",
-      payload,
+  async cancel(requestId: string): Promise<void> {
+    await this.client.delete<ChatBaseResponse<null>>(
+      `/v1/friend/request/${requestId}`,
     );
-
-    return response.data;
   }
 
   async remove(friendId: string): Promise<string | null> {

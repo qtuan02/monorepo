@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type {
   ChatFriendRecord,
-  ChatFriendRequestUser,
+  UserSummaryDto,
 } from "@monorepo/types/chat-friend";
 
 import type { HttpClient } from "../../src/client";
@@ -30,7 +30,7 @@ const FRIEND: ChatFriendRecord = {
   joinedAt: "2026-01-01T00:00:00.000Z",
 };
 
-const REQUEST_USER: ChatFriendRequestUser = {
+const REQUEST_USER: UserSummaryDto = {
   id: "u3",
   username: "minh",
   firstName: "Minh",
@@ -38,9 +38,9 @@ const REQUEST_USER: ChatFriendRequestUser = {
 };
 
 describe("ChatFriendService.list", () => {
-  it("GETs with the offset params and unwraps `messages` into `items`", async () => {
+  it("GETs with the offset params and unwraps `items`", async () => {
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [FRIEND], nextOffset: 50 },
+      data: { items: [FRIEND], nextOffset: 50 },
       message: null,
       status: 200,
     });
@@ -57,7 +57,7 @@ describe("ChatFriendService.list", () => {
 
   it("resolves a null nextOffset as the last page", async () => {
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [], nextOffset: null },
+      data: { items: [], nextOffset: null },
       message: null,
       status: 200,
     });
@@ -98,46 +98,38 @@ describe("ChatFriendService.send", () => {
 });
 
 describe("ChatFriendService.accept", () => {
-  it("POSTs the requestId and unwraps the accepted user", async () => {
+  it("POSTs to the request's own accept subpath with no body and unwraps the accepted user", async () => {
     const post = vi
       .fn()
-      .mockResolvedValue({ data: REQUEST_USER, message: null, status: 200 });
+      .mockResolvedValue({ data: REQUEST_USER, message: null, status: 201 });
     const service = new ChatFriendService(clientWith({ post }));
 
-    await expect(service.accept({ requestId: "r1" })).resolves.toBe(
-      REQUEST_USER,
-    );
-    expect(post).toHaveBeenCalledWith("/v1/friend/accept", {
-      requestId: "r1",
-    });
+    await expect(service.accept("r1")).resolves.toBe(REQUEST_USER);
+    expect(post).toHaveBeenCalledWith("/v1/friend/request/r1/accept");
   });
 });
 
 describe("ChatFriendService.decline", () => {
-  it("POSTs the requestId", async () => {
+  it("POSTs to the request's own decline subpath with no body", async () => {
     const post = vi
       .fn()
-      .mockResolvedValue({ data: null, message: null, status: 200 });
+      .mockResolvedValue({ data: null, message: null, status: 204 });
     const service = new ChatFriendService(clientWith({ post }));
 
-    await service.decline({ requestId: "r1" });
-    expect(post).toHaveBeenCalledWith("/v1/friend/decline", {
-      requestId: "r1",
-    });
+    await expect(service.decline("r1")).resolves.toBeUndefined();
+    expect(post).toHaveBeenCalledWith("/v1/friend/request/r1/decline");
   });
 });
 
 describe("ChatFriendService.cancel", () => {
-  it("POSTs the requestId", async () => {
-    const post = vi
+  it("DELETEs the request's own path", async () => {
+    const del = vi
       .fn()
-      .mockResolvedValue({ data: null, message: null, status: 200 });
-    const service = new ChatFriendService(clientWith({ post }));
+      .mockResolvedValue({ data: null, message: null, status: 204 });
+    const service = new ChatFriendService(clientWith({ delete: del }));
 
-    await service.cancel({ requestId: "r1" });
-    expect(post).toHaveBeenCalledWith("/v1/friend/cancel", {
-      requestId: "r1",
-    });
+    await expect(service.cancel("r1")).resolves.toBeUndefined();
+    expect(del).toHaveBeenCalledWith("/v1/friend/request/r1");
   });
 });
 

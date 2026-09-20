@@ -12,11 +12,10 @@ import {
 
 import type { ChatFriendPage } from "@monorepo/api/chat/friend-service";
 import type {
-  ChatFriendActionPayload,
   ChatFriendRecord,
   ChatFriendRequestsPayload,
-  ChatFriendRequestUser,
   ChatFriendSendRequestPayload,
+  UserSummaryDto,
 } from "@monorepo/types/chat-friend";
 import { toast } from "@monorepo/ui/components/toast";
 
@@ -120,16 +119,12 @@ export function useSendFriendRequestMutation(
 }
 
 export function useAcceptFriendRequestMutation(
-  options?: UseMutationOptionsWrapper<
-    ChatFriendActionPayload,
-    ChatFriendRequestUser
-  >,
+  options?: UseMutationOptionsWrapper<string, UserSummaryDto>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ChatFriendActionPayload) =>
-      chatFriendService.accept(payload),
+    mutationFn: (requestId: string) => chatFriendService.accept(requestId),
     onSuccess: () => {
       invalidateFriendData(queryClient);
       toast.add({
@@ -142,13 +137,12 @@ export function useAcceptFriendRequestMutation(
 }
 
 export function useDeclineFriendRequestMutation(
-  options?: UseMutationOptionsWrapper<ChatFriendActionPayload, string | null>,
+  options?: UseMutationOptionsWrapper<string, void>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ChatFriendActionPayload) =>
-      chatFriendService.decline(payload),
+    mutationFn: (requestId: string) => chatFriendService.decline(requestId),
     onSuccess: () => {
       invalidateFriendData(queryClient);
       toast.add({
@@ -161,13 +155,12 @@ export function useDeclineFriendRequestMutation(
 }
 
 export function useCancelFriendRequestMutation(
-  options?: UseMutationOptionsWrapper<ChatFriendActionPayload, string | null>,
+  options?: UseMutationOptionsWrapper<string, void>,
 ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ChatFriendActionPayload) =>
-      chatFriendService.cancel(payload),
+    mutationFn: (requestId: string) => chatFriendService.cancel(requestId),
     onSuccess: () => {
       invalidateFriendData(queryClient);
       toast.add({

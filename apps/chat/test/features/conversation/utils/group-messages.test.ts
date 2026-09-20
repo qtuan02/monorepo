@@ -13,6 +13,7 @@ function message(overrides: Partial<Message> & Pick<Message, "id">): Message {
     senderId: "u2",
     senderName: "Lan Nguyen",
     content: "hi",
+    attachmentUrl: null,
     type: ChatMessageType.TEXT,
     createdAt: "2026-09-16T08:00:00.000Z",
     ...overrides,
