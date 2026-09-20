@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -423,6 +423,60 @@ describe("MessageComposer", () => {
           attachmentUrl: null,
         }),
       );
+    });
+
+    it("ignores a stale upload response once a newer file replaced it mid-flight", async () => {
+      const user = userEvent.setup();
+      let resolveFirst: ((uploaded: unknown) => void) | undefined;
+      let resolveSecond: ((uploaded: unknown) => void) | undefined;
+      chatMessageUpload
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveFirst = resolve;
+            }),
+        )
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) => {
+              resolveSecond = resolve;
+            }),
+        );
+      renderComposer(DIRECT_CONVERSATION);
+
+      const fileA = new File(["a"], "a.png", { type: "image/png" });
+      const fileB = new File(["b"], "b.pdf", { type: "application/pdf" });
+
+      await user.upload(fileInput(), fileA);
+      await waitFor(() => expect(chatMessageUpload).toHaveBeenCalledTimes(1));
+
+      // Replaces fileA before its upload has settled — "chọn tệp khác thay
+      // tệp đang có".
+      await user.upload(fileInput(), fileB);
+      await waitFor(() => expect(chatMessageUpload).toHaveBeenCalledTimes(2));
+
+      // The newer upload (B) settles first.
+      await act(async () => {
+        resolveSecond?.({
+          url: "http://localhost:8089/api/files/b.pdf",
+          name: "b.pdf",
+          size: 10,
+          contentType: "application/pdf",
+        });
+      });
+      expect(await screen.findByText("b.pdf")).toBeInTheDocument();
+
+      // fileA's upload was superseded — its late response must not resurrect it.
+      await act(async () => {
+        resolveFirst?.({
+          url: "http://localhost:8089/api/files/a.png",
+          name: "a.png",
+          size: 5,
+          contentType: "image/png",
+        });
+      });
+      expect(screen.getByText("b.pdf")).toBeInTheDocument();
+      expect(screen.queryByText("a.png")).not.toBeInTheDocument();
     });
   });
 });

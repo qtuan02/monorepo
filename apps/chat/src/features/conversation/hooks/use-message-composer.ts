@@ -41,6 +41,10 @@ export function useMessageComposer(
   );
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  // The file this hook is currently uploading/holding — an in-flight upload
+  // whose file no longer matches this ref (superseded by a later select, or
+  // by Remove) is stale and must not resurrect its own attachment state.
+  const currentFileRef = React.useRef<File | null>(null);
   const { sendMessage, isPending } = useSendMessage(conversation);
   const uploadAttachment = useUploadAttachmentMutation();
 
@@ -59,9 +63,11 @@ export function useMessageComposer(
         return;
       }
 
+      currentFileRef.current = file;
       setAttachment({ status: "uploading", fileName: file.name });
       uploadAttachment.mutate(file, {
         onSuccess: (uploaded) => {
+          if (currentFileRef.current !== file) return;
           setAttachment({
             status: "ready",
             fileName: file.name,
@@ -71,7 +77,10 @@ export function useMessageComposer(
         },
         // The global MutationCache.onError already toasted the failure —
         // just drop the stuck "uploading" card so Send isn't disabled forever.
-        onError: () => setAttachment(null),
+        onError: () => {
+          if (currentFileRef.current !== file) return;
+          setAttachment(null);
+        },
       });
     },
     [t, uploadAttachment],
@@ -92,6 +101,7 @@ export function useMessageComposer(
   );
 
   const handleRemoveAttachment = React.useCallback(() => {
+    currentFileRef.current = null;
     setAttachment(null);
   }, []);
 
