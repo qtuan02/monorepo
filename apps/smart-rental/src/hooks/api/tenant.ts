@@ -1,5 +1,7 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import { HttpError } from "@monorepo/api/client";
 
 import type {
   UseMutationOptionsWrapper,
@@ -12,16 +14,13 @@ import type {
   TenantView,
 } from "~/types/tenant";
 import { mockBuildings } from "~/constants/mock/buildings";
-import { mockContracts } from "~/constants/mock/contracts";
-import { mockInvoices } from "~/constants/mock/invoices";
 import { mockTenants } from "~/constants/mock/tenants";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { formatDate } from "~/utils/date";
-import { toTenantView } from "~/utils/tenant-status";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock. Wiring `be-motel` later is swapping those lines for a
-// service singleton from `~/libs/http-client`.
+// answers through `readWorld` (ADR-0015). Wiring `be-motel` later is swapping
+// that one line for a service singleton from `~/libs/http-client`.
 const tenantQueryKeyFactory = queryKeysFactory("tenant");
 
 export const tenantQueryKeys = {
@@ -30,23 +29,13 @@ export const tenantQueryKeys = {
   getTenant: (tenantId: string) => tenantQueryKeyFactory.detail(tenantId),
 };
 
-function withStatus(tenant: Tenant): TenantView {
-  return toTenantView(tenant, mockContracts, mockInvoices);
-}
-
 export function useGetTenants(
   params?: TenantListParams,
   options?: UseQueryOptionsWrapper<TenantView[]>,
 ): UseQueryResult<TenantView[], Error> {
   return useQuery<TenantView[], Error>({
     queryKey: tenantQueryKeys.getTenants(params),
-    queryFn: async () =>
-      mockTenants
-        .filter(
-          (tenant) =>
-            !params?.buildingId || tenant.buildingId === params.buildingId,
-        )
-        .map(withStatus),
+    queryFn: async () => readWorld(params?.buildingId ?? null).tenants,
     ...options,
   });
 }
@@ -57,10 +46,8 @@ export function useGetTenant(
 ): UseQueryResult<TenantView | null, Error> {
   return useQuery<TenantView | null, Error>({
     queryKey: tenantQueryKeys.getTenant(tenantId),
-    queryFn: async () => {
-      const tenant = mockTenants.find((item) => item.id === tenantId);
-      return tenant ? withStatus(tenant) : null;
-    },
+    queryFn: async () =>
+      readWorld(null).tenants.find((item) => item.id === tenantId) ?? null,
     ...options,
   });
 }
@@ -68,11 +55,10 @@ export function useGetTenant(
 export function useCreateTenant(
   options?: UseMutationOptionsWrapper<CreateTenantRequest, Tenant>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Prepends to the Mock as the building mutation does. A fresh Người thuê
-    // has no Phòng or Hợp đồng yet, so those fields are the "chờ vào" blanks.
+    // has no Phòng or Hợp đồng yet — World's `room`/`floor`/… fall back to
+    // their own "chờ vào" blanks until one exists (ADR-0015 §2).
     mutationFn: async (request: CreateTenantRequest) => {
       const tenant: Tenant = {
         id: `T${String(mockTenants.length + 1).padStart(3, "0")}`,
@@ -80,20 +66,12 @@ export function useCreateTenant(
         name: request.fullName,
         phone: request.phone,
         email: request.email,
-        room: "—",
-        floor: 0,
-        rentAmount: 0,
-        depositAmount: 0,
-        moveInDate: formatDate(new Date()),
-        contractEnd: "—",
         idNumber: request.idCard,
         gender: "male",
       };
       mockTenants.unshift(tenant);
       return tenant;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.lists() }),
     ...options,
   });
 }
@@ -112,13 +90,15 @@ interface UpdateTenantRequest {
 export function useUpdateTenant(
   options?: UseMutationOptionsWrapper<UpdateTenantRequest, Tenant>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ tenantId, payload }: UpdateTenantRequest) => {
       const index = mockTenants.findIndex((tenant) => tenant.id === tenantId);
-      if (index === -1)
-        throw new Error(`Không tìm thấy Người thuê ${tenantId}`);
+      if (index === -1) {
+        throw new HttpError({
+          statusCode: 404,
+          message: `Không tìm thấy Người thuê ${tenantId}`,
+        });
+      }
 
       const updated: Tenant = {
         ...(mockTenants[index] as Tenant),
@@ -130,26 +110,16 @@ export function useUpdateTenant(
       mockTenants[index] = updated;
       return updated;
     },
-    onSuccess: (tenant) => {
-      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: tenantQueryKeys.getTenant(tenant.id),
-      });
-    },
     ...options,
   });
 }
 
 export function useDeleteTenant(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (tenantId: string) => {
       const index = mockTenants.findIndex((tenant) => tenant.id === tenantId);
       if (index !== -1) mockTenants.splice(index, 1);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: tenantQueryKeys.all }),
     ...options,
   });
 }

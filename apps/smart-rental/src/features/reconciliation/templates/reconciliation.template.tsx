@@ -54,7 +54,12 @@ function ReconciliationBlock({ title, items }: ReconciliationBlockProps) {
 
       <DataTable
         columns={reconciliationColumns}
-        data={items}
+        query={{
+          data: items,
+          isLoading: false,
+          isError: false,
+          refetch: () => {},
+        }}
         getRowId={(item) => item.id}
         search={{ columnId: "lineItemName", placeholder: "Tìm hạng mục..." }}
         facets={[
@@ -64,12 +69,8 @@ function ReconciliationBlock({ title, items }: ReconciliationBlockProps) {
             options: toFilterOptions(reconciliationStatusConfig),
           },
         ]}
-        empty={{
-          icon: Receipt,
-          title: "Không có dữ liệu đối soát",
-          description: "Chưa có hoá đơn hay khoản chi nào trong kỳ này.",
-        }}
-        resultLabel={(count) => `${count} hạng mục được tìm thấy`}
+        empty={{ icon: Receipt, title: "Không có dữ liệu đối soát" }}
+        entityLabel="hạng mục"
       />
     </div>
   );

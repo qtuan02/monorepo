@@ -20,11 +20,10 @@ const invoice = (
   paidAmount,
   reminders: [],
   billingMonth: "2026-04",
-  month: "04/2026",
-  dueDate: "10/04/2026",
+  dueDate: "2026-04-10",
   status,
   paymentDate: null,
-  lastUpdated: "20/04/2026",
+  lastUpdated: "2026-04-20",
 });
 
 describe("buildInvoiceSummaryStats", () => {

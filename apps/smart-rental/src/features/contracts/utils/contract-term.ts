@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 /**
  * ISO `YYYY-MM-DD` end date `months` after an ISO start date, one day short
@@ -17,15 +16,13 @@ export function computeContractEndDate(
 }
 
 /**
- * ISO `YYYY-MM-DD` `months` after a display-formatted (`DD/MM/YYYY`) current
- * end date — a Gia hạn extends the existing end date, so unlike a fresh term
- * there is no day-before adjustment.
+ * ISO `YYYY-MM-DD` `months` after an ISO current end date — a Gia hạn
+ * extends the existing end date, so unlike a fresh term there is no
+ * day-before adjustment.
  */
 export function computeRenewedEndDate(
-  currentEndDateDisplay: string,
+  currentEndDateIso: string,
   months: number,
 ): string {
-  return dayjs(currentEndDateDisplay, DATE_FORMAT)
-    .add(months, "month")
-    .format("YYYY-MM-DD");
+  return dayjs(currentEndDateIso).add(months, "month").format("YYYY-MM-DD");
 }

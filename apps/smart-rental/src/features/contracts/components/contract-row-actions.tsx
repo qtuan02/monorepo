@@ -5,7 +5,7 @@ import { useCopyToClipboard } from "@monorepo/hook/use-copy-to-clipboard";
 import type { Contract } from "~/types/contract";
 import { EntityActionMenu } from "~/components/menu/entity-action-menu";
 import { ROUTES } from "~/constants/routes";
-import { isContractLive } from "~/utils/contract-status";
+import { contractActions } from "~/utils/contract-status";
 
 interface ContractRowActionsProps {
   contract: Contract;
@@ -18,10 +18,10 @@ export default function ContractRowActions({
   side = "bottom",
 }: ContractRowActionsProps) {
   const [, copy] = useCopyToClipboard();
-  // Same predicate the detail/renew/liquidation screens gate on — a hand-rolled
+  // Same object the detail/renew/liquidation screens gate on — a hand-rolled
   // "EXPIRED or TERMINATED" check here previously left a DRAFT Hợp đồng's
   // Gia hạn/Thanh lý links enabled, dead-ending on "Không thể gia hạn/thanh lý".
-  const isEnded = !isContractLive(contract);
+  const { canRenew, canLiquidate } = contractActions(contract);
 
   return (
     <EntityActionMenu
@@ -43,15 +43,15 @@ export default function ContractRowActions({
           key: "renew",
           label: "Gia hạn",
           icon: <RefreshCw />,
-          link: isEnded ? undefined : ROUTES.contractRenewPath(contract.id),
+          link: canRenew ? ROUTES.contractRenewPath(contract.id) : undefined,
         },
         {
           key: "liquidation",
           label: "Thanh lý",
           icon: <FileX />,
-          link: isEnded
-            ? undefined
-            : ROUTES.contractLiquidationPath(contract.id),
+          link: canLiquidate
+            ? ROUTES.contractLiquidationPath(contract.id)
+            : undefined,
           isDestructive: true,
         },
       ]}

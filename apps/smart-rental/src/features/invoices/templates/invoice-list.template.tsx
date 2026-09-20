@@ -9,11 +9,8 @@ import { toast } from "@monorepo/ui/components/toast";
 import type { Invoice } from "~/types/invoice";
 import { KpiStrip, KpiStripSkeleton } from "~/components/card/kpi-strip";
 import { DataTable } from "~/components/data-table/data-table";
-import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
 import SendReminderDialog from "~/components/dialog/send-reminder-dialog";
 import { ListPageHeader } from "~/components/page/list-page-header";
-import { ErrorPanel } from "~/components/panel/error-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { invoiceStatusConfig, toFilterOptions } from "~/constants/status";
 import InvoiceCard from "~/features/invoices/components/invoice-card";
@@ -46,23 +43,20 @@ function exportInvoicesCsv(invoices: Invoice[]) {
  * (ADR-0013).
  */
 export default function InvoiceListTemplate() {
-  const [view, setView] = useListView();
   const [reminderRequest, setReminderRequest] = useState<{
     invoiceIds: string[];
     clearSelection: () => void;
   } | null>(null);
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
-  const { data, isLoading, isError, refetch } = useGetInvoices({
-    buildingId: selectedBuildingId,
-  });
+  const invoicesQuery = useGetInvoices({ buildingId: selectedBuildingId });
 
-  const stats = buildInvoiceSummaryStats(data ?? []);
+  const stats = buildInvoiceSummaryStats(invoicesQuery.data ?? []);
 
   return (
     <div className="space-y-6">
       <ListPageHeader
         title="Hoá đơn"
-        description={`${stats.total} hoá đơn`}
+        description="Theo dõi thanh toán và công nợ."
         actions={
           <Link
             to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
@@ -72,20 +66,21 @@ export default function InvoiceListTemplate() {
             Tạo hoá đơn
           </Link>
         }
+        mobileAction={
+          <Link
+            to={ROUTES.cycleDetailPath(dayjs().format("YYYY-MM"))}
+            aria-label="Tạo hoá đơn"
+            className={buttonVariants({ size: "icon-sm" })}
+          >
+            <Plus />
+          </Link>
+        }
       />
 
-      {isLoading ? (
-        <div className="space-y-6">
-          <KpiStripSkeleton />
-          <CardGridSkeleton />
-        </div>
-      ) : isError ? (
-        <ErrorPanel
-          description="Không tải được danh sách hoá đơn."
-          action={{ label: "Thử lại", onClick: () => refetch() }}
-        />
+      {invoicesQuery.isLoading ? (
+        <KpiStripSkeleton />
       ) : (
-        <>
+        !invoicesQuery.isError && (
           <KpiStrip
             items={[
               { label: "Đã thu", value: formatCurrency(stats.paidAmount) },
@@ -100,75 +95,57 @@ export default function InvoiceListTemplate() {
               },
             ]}
           />
-
-          <DataTable
-            columns={invoiceColumns}
-            data={data ?? []}
-            getRowId={(invoice) => invoice.id}
-            search={{
-              columnId: "invoiceNumber",
-              placeholder: "Tìm số hoá đơn...",
-            }}
-            facets={[
-              {
-                columnId: "status",
-                title: "Trạng thái",
-                options: toFilterOptions(invoiceStatusConfig),
-              },
-            ]}
-            empty={{
-              icon: FileText,
-              title: "Không tìm thấy hoá đơn",
-              description:
-                "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.",
-            }}
-            resultLabel={(count) => `${count} hoá đơn được tìm thấy`}
-            viewSwitch={<ListViewSwitch view={view} onViewChange={setView} />}
-            defaultSort={{ columnId: "dueDate" }}
-            toolbarActions={(filteredInvoices) => (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => exportInvoicesCsv(filteredInvoices)}
-              >
-                <Download />
-                Xuất CSV
-              </Button>
-            )}
-            renderRows={
-              view === "grid"
-                ? (invoices) => (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {invoices.map((invoice) => (
-                        <InvoiceCard key={invoice.id} invoice={invoice} />
-                      ))}
-                    </div>
-                  )
-                : undefined
-            }
-            renderMobileRow={(invoice) => (
-              <InvoiceMobileRow invoice={invoice} />
-            )}
-            selectionActions={(selected, clearSelection) => (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  setReminderRequest({
-                    invoiceIds: selected.map((invoice) => invoice.id),
-                    clearSelection,
-                  })
-                }
-              >
-                <Bell />
-                Gửi nhắc
-              </Button>
-            )}
-          />
-        </>
+        )
       )}
+
+      <DataTable
+        columns={invoiceColumns}
+        query={invoicesQuery}
+        getRowId={(invoice) => invoice.id}
+        search={{
+          columnId: "invoiceNumber",
+          placeholder: "Tìm số hoá đơn...",
+        }}
+        facets={[
+          {
+            columnId: "status",
+            title: "Trạng thái",
+            options: toFilterOptions(invoiceStatusConfig),
+          },
+        ]}
+        empty={{ icon: FileText, title: "Không tìm thấy hoá đơn" }}
+        entityLabel="hoá đơn"
+        defaultSort={{ columnId: "dueDate" }}
+        toolbarActions={(filteredInvoices) => (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => exportInvoicesCsv(filteredInvoices)}
+          >
+            <Download />
+            Xuất CSV
+          </Button>
+        )}
+        card={(invoice) => <InvoiceCard invoice={invoice} />}
+        renderMobileRow={(invoice) => <InvoiceMobileRow invoice={invoice} />}
+        selectionActions={(selected, clearSelection) => (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              setReminderRequest({
+                invoiceIds: selected.map((invoice) => invoice.id),
+                clearSelection,
+              })
+            }
+          >
+            <Bell />
+            Gửi nhắc
+          </Button>
+        )}
+      />
 
       {reminderRequest && (
         <SendReminderDialog

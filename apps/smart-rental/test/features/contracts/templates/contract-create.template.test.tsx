@@ -21,6 +21,7 @@ import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate } from "~/utils/date";
 import { deriveTasks } from "~/utils/task-derivation";
+import { buildWorld } from "~/utils/world";
 
 const initialAuthState = useAuthStore.getState();
 const initialBuildingState = useBuildingStore.getState();
@@ -114,12 +115,6 @@ describe("ContractCreateTemplate — điều khoản điền sẵn, tóm tắt s
       name: "Kiểm Thử Wizard",
       phone: "0900000186",
       email: "kiemthu186@example.com",
-      room: "",
-      floor: 0,
-      rentAmount: 0,
-      depositAmount: 0,
-      moveInDate: "18/09/2026",
-      contractEnd: "",
       idNumber: "000000186",
       gender: "male",
     };
@@ -154,14 +149,26 @@ describe("ContractCreateTemplate — điều khoản điền sẵn, tóm tắt s
     ).not.toHaveLength(0);
     expect(room.status).toBe("occupied");
 
-    const tasks = deriveTasks({
-      contracts: mockContracts,
-      invoices: [],
-      utilities: [],
-      tenants: mockTenants,
-      complianceItems: mockComplianceItems,
-      buildings: mockBuildings,
-    });
+    const tasks = deriveTasks(
+      buildWorld(
+        {
+          buildings: mockBuildings,
+          rooms: mockRooms,
+          contracts: mockContracts,
+          invoices: [],
+          utilities: [],
+          utilityOldIndexOverrides: [],
+          tenants: mockTenants,
+          complianceItems: mockComplianceItems,
+          expenses: [],
+          supplierBills: [],
+          notificationTemplates: [],
+          sendLogs: [],
+          landlordProfile: { name: "", phone: "", email: "" },
+        },
+        null,
+      ),
+    );
     expect(
       tasks.some(
         (task) => task.id === `residence_notification-${freshTenant.id}`,

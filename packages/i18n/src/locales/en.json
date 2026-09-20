@@ -276,6 +276,331 @@
       "description": "The screen behind sign-in, kept from the Template — it is what the session guard protects."
     }
   },
+  "chat": {
+    "meta": {
+      "title": "Chat"
+    },
+    "nav": {
+      "primary": "Primary",
+      "chats": "Chats",
+      "friends": "Friends",
+      "profile": "Profile",
+      "me": "Me"
+    },
+    "appearance": {
+      "label": "Appearance",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "language": {
+      "label": "Language"
+    },
+    "date": {
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "auth": {
+      "boot": {
+        "connecting": "Connecting to server...",
+        "checkingSession": "Checking session..."
+      },
+      "toast": {
+        "signedIn": "Signed in successfully."
+      },
+      "validation": {
+        "usernameRequired": "Username is required.",
+        "passwordRequired": "Password is required.",
+        "passwordMinLength": "Password must be at least 6 characters.",
+        "emailInvalid": "Please enter a valid email address.",
+        "firstNameRequired": "First name is required.",
+        "lastNameRequired": "Last name is required."
+      },
+      "field": {
+        "username": "Username",
+        "usernamePlaceholder": "your-username",
+        "password": "Password",
+        "passwordPlaceholder": "Enter your password",
+        "email": "Email",
+        "firstName": "First name",
+        "lastName": "Last name"
+      },
+      "signIn": {
+        "title": "Welcome back",
+        "subtitle": "Login to your Chat application",
+        "submitting": "Signing in...",
+        "submit": "Sign in",
+        "noAccount": "Don't have an account?",
+        "signUpLink": "Sign up"
+      },
+      "signUp": {
+        "title": "Create account",
+        "subtitle": "Create your Chat application account",
+        "submitting": "Creating account...",
+        "submit": "Sign up",
+        "hasAccount": "Already have an account?",
+        "createdTitle": "Account created",
+        "createdSubtitle": "Your account has been created successfully. You can sign in now.",
+        "confirmSignIn": "Yes, sign in",
+        "goToSignIn": "Go to sign in instead"
+      }
+    },
+    "common": {
+      "onlineLabel": "Online",
+      "stillConnecting": "Still connecting — the server may be waking up",
+      "errorTitle": "Something went wrong",
+      "errorDescription": "The app hit an unexpected error. Please reload the page.",
+      "reloadPage": "Reload page",
+      "notFoundTitle": "404 Not Found",
+      "notFoundDescription": "The page you are looking for does not exist or has been moved.",
+      "backToChats": "Back to Chats",
+      "profileTitle": "Profile",
+      "profileLoadError": "Couldn't load this profile.",
+      "retry": "Retry",
+      "message": "Message",
+      "statusFriend": "Friends",
+      "statusSent": "Request sent",
+      "statusReceived": "Request received",
+      "you": "You",
+      "activeNow": "Active now",
+      "username": "Username",
+      "email": "Email",
+      "phone": "Phone",
+      "bio": "Bio",
+      "joined": "Joined",
+      "addFriend": "Add friend",
+      "cancelRequest": "Cancel request",
+      "decline": "Decline",
+      "accept": "Accept",
+      "unfriend": "Unfriend",
+      "removeConfirmTitle": "Remove {name}?",
+      "removeConfirmDescription": "{name} will be removed from your friends list. You can send a new friend request later.",
+      "cancel": "Cancel",
+      "remove": "Remove",
+      "removing": "Removing..."
+    },
+    "islandFallback": {
+      "title": "This section couldn't load.",
+      "retry": "Retry"
+    },
+    "convList": {
+      "activeNow": "Active now",
+      "viewProfile": "View profile",
+      "unfriend": "Unfriend",
+      "removeFriendTitle": "Remove {name}?",
+      "removeFriendDescription": "{name} will be removed from your friends list. You can send a new friend request later.",
+      "cancel": "Cancel",
+      "removing": "Removing...",
+      "remove": "Remove",
+      "groupInfo": "Group info",
+      "profile": "Profile",
+      "closeDetails": "Close details",
+      "chats": "Chats",
+      "newGroup": "New group",
+      "searchPlaceholder": "Search chats and people",
+      "clearSearch": "Clear search",
+      "filterAll": "All",
+      "filterUnread": "Unread",
+      "filterGroups": "Groups",
+      "people": "People",
+      "emptyTitle": "No conversations yet",
+      "emptyDescription": "Search for someone above to say hi, or start a group with +.",
+      "emptyFilterTitle": "No conversations match this filter",
+      "searchPeopleError": "Couldn't search people.",
+      "couldNotLoad": "Couldn't load your conversations.",
+      "retry": "Retry",
+      "noPeopleFound": "No one found.",
+      "notFriendsYet": "Not friends yet",
+      "loading": "Loading...",
+      "morePeople": "More people"
+    },
+    "convPane": {
+      "header": {
+        "fallbackTitle": "Conversation",
+        "backToConversations": "Back to conversations",
+        "groupSubtitle": "{memberCount} members · {onlineMemberCount} online",
+        "activeNow": "Active now",
+        "reconnecting": "Reconnecting…",
+        "detailsButton": "Conversation details"
+      },
+      "draft": {
+        "emptyTitle": "No messages yet",
+        "sayHiTo": "Say hi to {title}"
+      },
+      "empty": {
+        "pickTitle": "Pick a conversation",
+        "pickDescription": "Choose a chat on the left, or search a name to start a new one.",
+        "noMessagesYet": "No messages yet."
+      },
+      "composer": {
+        "ariaLabel": "Message composer",
+        "placeholder": "Message {title}…",
+        "insertEmoji": "Insert emoji",
+        "send": "Send",
+        "sending": "Sending...",
+        "toSend": "to send",
+        "newLine": "for a new line"
+      },
+      "list": {
+        "couldNotLoad": "Couldn't load messages.",
+        "retry": "Retry",
+        "newMessagesButton": "{count, plural, one {# new message} other {# new messages}}"
+      },
+      "row": {
+        "seen": "Seen"
+      }
+    },
+    "profile": {
+      "menu": {
+        "viewProfile": "View profile"
+      },
+      "editProfile": "Edit profile",
+      "signOut": "Sign out",
+      "signingOut": "Signing out...",
+      "appearance": "Appearance",
+      "loadError": "Unable to load your profile.",
+      "form": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving...",
+        "notProvided": "Not provided"
+      },
+      "field": {
+        "firstName": "First name",
+        "lastName": "Last name",
+        "username": "Username",
+        "email": "Email",
+        "phone": "Phone",
+        "bio": "Bio"
+      },
+      "validation": {
+        "usernameRequired": "Username is required.",
+        "usernameTooLong": "Username is too long.",
+        "emailInvalid": "Enter a valid email.",
+        "emailTooLong": "Email is too long.",
+        "firstNameRequired": "First name is required.",
+        "firstNameTooLong": "First name is too long.",
+        "lastNameRequired": "Last name is required.",
+        "lastNameTooLong": "Last name is too long.",
+        "phoneTooLong": "Phone number is too long."
+      },
+      "toast": {
+        "updated": "Profile updated."
+      }
+    },
+    "friends": {
+      "title": "Friends",
+      "retry": "Retry",
+      "loadMore": "Load more",
+      "loadingMore": "Loading...",
+      "tabs": {
+        "friends": "Friends",
+        "requests": "Requests",
+        "find": "Find people"
+      },
+      "find": {
+        "searchSrLabel": "Search users",
+        "searchPlaceholder": "Search by name or username",
+        "emptyTitle": "Search for people",
+        "emptyDescription": "Type a name or username to search.",
+        "error": "Couldn't search users.",
+        "noResults": "No one found"
+      },
+      "requests": {
+        "received": "Received",
+        "sent": "Sent",
+        "noReceived": "No received requests.",
+        "noSent": "No sent requests.",
+        "error": "Couldn't load friend requests."
+      },
+      "list": {
+        "error": "Couldn't load friends.",
+        "emptyTitle": "No friends added yet.",
+        "emptyDescription": "Find people by name or username and send them a request."
+      },
+      "toast": {
+        "requestSent": "Friend request sent.",
+        "requestAccepted": "Friend request accepted.",
+        "requestDeclined": "Friend request declined.",
+        "requestCancelled": "Friend request cancelled.",
+        "friendRemoved": "Friend removed."
+      }
+    },
+    "group": {
+      "addMembers": {
+        "title": "Add members",
+        "description": "Pick friends who aren't already in this group.",
+        "cancel": "Cancel",
+        "submitting": "Adding...",
+        "submit": "Add"
+      },
+      "create": {
+        "title": "Create group conversation",
+        "description": "Pick a group name and at least one friend to start a new group chat.",
+        "nameLabel": "Group name",
+        "namePlaceholder": "Team Alpha",
+        "cancel": "Cancel",
+        "submitting": "Creating...",
+        "submit": "Create",
+        "submitWithCount": "Create ({count})"
+      },
+      "actions": {
+        "addMembers": "Add members",
+        "leaveGroup": "Leave group",
+        "leaving": "Leaving..."
+      },
+      "picker": {
+        "searchLabel": "Search friends",
+        "searchPlaceholder": "Search by name or username",
+        "selectedLabel": "Selected members",
+        "noneSelected": "No members selected.",
+        "member": "member",
+        "removeAria": "Remove {name}",
+        "addAria": "Add {name}",
+        "loadError": "Unable to load friends.",
+        "retry": "Retry",
+        "noMatch": "No friends match this search.",
+        "noFriends": "No friends found.",
+        "loadMore": "Load more"
+      },
+      "membersSection": {
+        "title": "Members · {count}",
+        "you": "(You)",
+        "owner": "Owner",
+        "removeAria": "Remove {name} from group",
+        "confirmTitle": "Remove {name}?",
+        "confirmDescription": "They will no longer see this group's messages.",
+        "cancel": "Cancel",
+        "remove": "Remove"
+      },
+      "header": {
+        "renameAria": "Rename group",
+        "nameAria": "Group name",
+        "saveAria": "Save group name",
+        "cancelAria": "Cancel rename",
+        "memberSummary": "{count} members · {online} online"
+      },
+      "leaveConfirm": {
+        "title": "Leave this group?",
+        "description": "You will stop receiving its messages. You can only rejoin if someone adds you back.",
+        "cancel": "Cancel",
+        "confirm": "Leave"
+      },
+      "validation": {
+        "selectMemberToAdd": "Select at least one member to add.",
+        "nameRequired": "Group name is required.",
+        "nameTooLong": "Group name is too long.",
+        "selectMemberToCreate": "Select at least one member to create a group."
+      },
+      "toast": {
+        "created": "Group created.",
+        "renamed": "Group name updated.",
+        "membersAdded": "Members added.",
+        "memberRemoved": "Member removed.",
+        "left": "You left the group."
+      }
+    }
+  },
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",

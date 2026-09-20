@@ -9,7 +9,9 @@ import { Button } from "@monorepo/ui/components/button";
 export default function InternalServerError() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-4">
-      <h1 className="text-foreground text-3xl font-bold">Đã có lỗi xảy ra</h1>
+      <h1 className="text-foreground text-[20px] font-semibold">
+        Đã có lỗi xảy ra
+      </h1>
       <p className="text-muted-foreground max-w-lg text-center">
         Ứng dụng gặp sự cố ngoài dự kiến. Vui lòng tải lại trang.
       </p>

@@ -1,10 +1,7 @@
-import { ArrowDown, ArrowUp } from "lucide-react";
-
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
 } from "@monorepo/ui/components/data-table";
-import { cn } from "@monorepo/ui/utils/cn";
 
 import type { ReconciliationItem } from "~/types/reconciliation";
 import { StatusBadge } from "~/components/badge/status-badge";
@@ -45,7 +42,7 @@ export const reconciliationColumns = helper.columns([
       />
     ),
     cell: ({ getValue }) => (
-      <div className="text-right font-medium text-success tabular-nums">
+      <div className="text-foreground text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </div>
     ),
@@ -59,7 +56,7 @@ export const reconciliationColumns = helper.columns([
       />
     ),
     cell: ({ getValue }) => (
-      <div className="text-right font-medium text-destructive tabular-nums">
+      <div className="text-foreground text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </div>
     ),
@@ -73,27 +70,17 @@ export const reconciliationColumns = helper.columns([
       />
     ),
     cell: ({ row, getValue }) => {
-      const isGain = row.original.status === "gain";
       const trendRate = row.original.trendRate;
       return (
         <div className="flex flex-col items-end">
-          <div
-            className={cn(
-              "flex items-center gap-1 font-bold tabular-nums",
-              isGain ? "text-success" : "text-destructive",
-            )}
-          >
-            {isGain ? <ArrowUp /> : <ArrowDown />}
+          <div className="text-foreground font-semibold tabular-nums">
             {formatCurrency(Math.abs(getValue()))}
           </div>
-          {/* 0 is no trend, not a red "0%" — the prototype hid it the same way. */}
+          {/* 0 is no trend, not a "0%" line — the prototype hid it the same
+              way. The status badge already carries Lỗ/Lãi, so this stays
+              plain rather than colouring the same state a third time. */}
           {!!trendRate && (
-            <div
-              className={cn(
-                "text-xs font-medium opacity-70",
-                trendRate > 0 ? "text-success" : "text-destructive",
-              )}
-            >
+            <div className="text-muted-foreground text-xs">
               {trendRate > 0 ? "+" : ""}
               {trendRate}% so với kỳ trước
             </div>

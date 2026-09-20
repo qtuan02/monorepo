@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+import { useState } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
@@ -10,10 +12,13 @@ function renderShell(
   props: Parameters<typeof DetailPageShell>[0],
   initialPath = "/",
 ) {
-  const router = createMemoryRouter(
-    [{ path: "*", element: <DetailPageShell {...props} /> }],
-    { initialEntries: [initialPath] },
-  );
+  return renderNode(<DetailPageShell {...props} />, initialPath);
+}
+
+function renderNode(node: ReactNode, initialPath = "/") {
+  const router = createMemoryRouter([{ path: "*", element: node }], {
+    initialEntries: [initialPath],
+  });
   render(<RouterProvider router={router} />);
   return router;
 }
@@ -173,5 +178,114 @@ describe("DetailPageShell", () => {
     expect(
       screen.queryByRole("button", { name: /Quay lại/ }),
     ).not.toBeInTheDocument();
+  });
+
+  // Ticket #225 (spec #221 T4) — the shell itself owns the loading skeleton
+  // and the "không tìm thấy" panel once given a `query`, so no template
+  // writes either branch by hand any more.
+  describe("query + notFound", () => {
+    it("shows the detail skeleton while the query is loading", () => {
+      renderShell({
+        title: "Chi tiết phòng",
+        backTo: "/rooms",
+        query: { data: undefined, isLoading: true },
+        id: "R-1",
+        notFound: (id) => ({
+          title: "Không tìm thấy phòng.",
+          description: `Không có phòng nào với mã ${id}.`,
+        }),
+      });
+
+      expect(
+        screen.getByRole("heading", { level: 1, name: "Chi tiết phòng" }),
+      ).toBeInTheDocument();
+      expect(screen.queryByRole("tab")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("Không tìm thấy phòng."),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows the notFound copy once the query settles with no entity", () => {
+      renderShell({
+        title: "Chi tiết phòng",
+        backTo: "/rooms",
+        query: { data: undefined, isLoading: false },
+        id: "khong-co",
+        notFound: (id) => ({
+          title: "Không tìm thấy phòng.",
+          description: `Không có phòng nào với mã ${id}.`,
+        }),
+      });
+
+      expect(screen.getByText("Không tìm thấy phòng.")).toBeInTheDocument();
+      expect(
+        screen.getByText("Không có phòng nào với mã khong-co."),
+      ).toBeInTheDocument();
+    });
+
+    it("calls children(entity) once the query resolves", () => {
+      renderShell({
+        title: "Chi tiết phòng",
+        backTo: "/rooms",
+        query: { data: { name: "Phòng 101" }, isLoading: false },
+        children: (room) => <p>{(room as { name: string }).name}</p>,
+      });
+
+      expect(screen.getByText("Phòng 101")).toBeInTheDocument();
+    });
+
+    it("still renders the static layout when no query is given", () => {
+      renderShell({
+        title: "Gia hạn hợp đồng",
+        children: <p>Form gia hạn</p>,
+      });
+
+      expect(screen.getByText("Form gia hạn")).toBeInTheDocument();
+    });
+  });
+
+  // Ticket #225 spike — before removing the per-caller "use no memo"
+  // directives in invoice-detail.template.tsx, prove the shell's own tab
+  // wiring updates a non-default, currently-active tab's content after a
+  // same-screen state change (a plain re-render, the shell's own mechanics).
+  // The deeper React Compiler false negative that directive works around is
+  // a separate question — settled empirically against
+  // invoice-detail.template.test.tsx, see the comment on `TabPanelBody`.
+  it("updates a non-default tab's content after a same-screen mutation while it stays active", async () => {
+    function Harness() {
+      const [count, setCount] = useState(0);
+      return (
+        <>
+          <button type="button" onClick={() => setCount((c) => c + 1)}>
+            Tăng
+          </button>
+          <DetailPageShell
+            title="Chi tiết"
+            name="X"
+            tabs={[
+              {
+                value: "overview",
+                label: "Tổng quan",
+                content: <p>Overview</p>,
+              },
+              {
+                value: "detail",
+                label: "Chi tiết",
+                content: <p>Đã nhắc {count} lần</p>,
+              },
+            ]}
+          />
+        </>
+      );
+    }
+
+    const user = userEvent.setup();
+    renderNode(<Harness />);
+
+    await user.click(screen.getByRole("tab", { name: "Chi tiết" }));
+    expect(screen.getByText("Đã nhắc 0 lần")).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Tăng" }));
+    expect(screen.getByText("Đã nhắc 1 lần")).toBeVisible();
   });
 });

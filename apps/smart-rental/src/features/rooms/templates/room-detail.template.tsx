@@ -1,22 +1,8 @@
 import { useState } from "react";
-import {
-  DoorOpen,
-  Edit,
-  FilePlus2,
-  FileText,
-  Gauge,
-  Trash2,
-} from "lucide-react";
-import { Link, useNavigate } from "react-router";
+import { DoorOpen, Edit, FileText, Gauge, Trash2 } from "lucide-react";
+import { Link } from "react-router";
 
-import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
-import { toast } from "@monorepo/ui/components/toast";
+import { Button } from "@monorepo/ui/components/button";
 import {
   Tooltip,
   TooltipContent,
@@ -27,8 +13,7 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
-import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
+import { RelationTab } from "~/components/page/relation-tab";
 import { ROUTES } from "~/constants/routes";
 import { roomStatusConfig, roomTypeConfig } from "~/constants/status";
 import ContractCard from "~/features/contracts/components/contract-card";
@@ -38,7 +23,9 @@ import { useGetBuilding } from "~/hooks/api/building";
 import { useGetContracts } from "~/hooks/api/contract";
 import { useDeleteRoom, useGetRoom } from "~/hooks/api/room";
 import { useGetUtilities } from "~/hooks/api/utility";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate } from "~/utils/date";
 import { canDeleteRoom } from "~/utils/room-delete";
 
 interface RoomDetailTemplateProps {
@@ -49,42 +36,44 @@ const TITLE = "Chi tiết phòng";
 
 /**
  * "Chi tiết phòng" (spec #153 §10 row 35): header entity + tabs Tổng quan ·
- * Hợp đồng · Chỉ số, cột phải chỉ liên kết. "Xóa" is disabled with a tooltip
- * reason while the Phòng has a live Hợp đồng (§10 row 37); a Phòng trống
- * deletes through the confirm dialog and lands back on the list.
+ * Hợp đồng · Chỉ số, no right column (round 4 Q8) — Toà nhà is a link in the
+ * header meta, and Người thuê is a row inside "Thông tin phòng" (Q9). "Xóa"
+ * is disabled with a tooltip reason while the Phòng has a live Hợp đồng (§10
+ * row 37); a Phòng trống deletes through the confirm dialog and lands back
+ * on the list.
  */
 export default function RoomDetailTemplate({
   roomId,
 }: RoomDetailTemplateProps) {
-  const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const roomQuery = useGetRoom(roomId);
-  const deleteRoom = useDeleteRoom();
-
   const room = roomQuery.data;
   const buildingQuery = useGetBuilding(room?.buildingId ?? "");
   const contractsQuery = useGetContracts({ buildingId: room?.buildingId });
   const utilitiesQuery = useGetUtilities({ buildingId: room?.buildingId });
 
-  if (roomQuery.isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
+  const deleteRoom = useDeleteEntity({
+    mutation: useDeleteRoom(),
+    id: room?.id ?? "",
+    label: "phòng",
+    entity: room?.name,
+    successMessage: `Đã xóa ${room?.name}`,
+    redirectTo: ROUTES.ROOMS,
+  });
 
   if (!room) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.ROOMS}>
-        <EmptyPanel
-          icon={DoorOpen}
-          title="Không tìm thấy phòng."
-          description={`Không có phòng nào với mã ${roomId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.ROOMS}
+        query={roomQuery}
+        id={roomId}
+        notFound={(id) => ({
+          icon: DoorOpen,
+          title: "Không tìm thấy phòng.",
+          description: `Không có phòng nào với mã ${id}.`,
+        })}
+      />
     );
   }
 
@@ -98,15 +87,6 @@ export default function RoomDetailTemplate({
     .sort((a, b) => b.month.localeCompare(a.month));
   const canDelete = canDeleteRoom(room.id, contractsQuery.data ?? []);
 
-  const handleDelete = () =>
-    deleteRoom.mutate(room.id, {
-      onSuccess: () => {
-        toast.add({ title: `Đã xóa ${room.name}`, type: "success" });
-        setIsDeleteOpen(false);
-        navigate(ROUTES.ROOMS, { replace: true });
-      },
-    });
-
   const deleteButton = (
     <Button
       type="button"
@@ -114,7 +94,7 @@ export default function RoomDetailTemplate({
       size="sm"
       className="text-destructive hover:text-destructive"
       disabled={!canDelete}
-      onClick={() => setIsDeleteOpen(true)}
+      onClick={deleteRoom.onOpen}
     >
       <Trash2 />
       Xóa
@@ -123,15 +103,6 @@ export default function RoomDetailTemplate({
 
   const actions = (
     <>
-      {room.status === "available" && (
-        <Link
-          to={`${ROUTES.CONTRACT_CREATE}?room=${room.id}`}
-          className={buttonVariants({ variant: "default", size: "sm" })}
-        >
-          <FilePlus2 />
-          Tạo hợp đồng
-        </Link>
-      )}
       <Button
         type="button"
         variant="outline"
@@ -166,98 +137,91 @@ export default function RoomDetailTemplate({
         name={room.name}
         badge={<StatusBadge config={status} />}
         meta={[
-          buildingQuery.data?.name,
+          buildingQuery.data ? (
+            <Link
+              key="building"
+              to={ROUTES.buildingDetailPath(room.buildingId)}
+              className="hover:text-foreground underline-offset-2 hover:underline"
+            >
+              {buildingQuery.data.name}
+            </Link>
+          ) : null,
           `Tầng ${room.floor}`,
           `${formatCurrency(room.price)}/tháng`,
-        ].filter((item): item is string => !!item)}
+        ].filter((item): item is NonNullable<typeof item> => item != null)}
         actions={actions}
         tabs={[
           {
             value: "overview",
             label: "Tổng quan",
             content: (
-              <>
-                <InfoCard title="Thông tin phòng">
-                  <InfoRow label="Mã phòng" value={room.id} />
-                  <InfoRow label="Loại phòng" value={typeLabel} />
-                  <InfoRow label="Diện tích" value={`${room.area}m²`} />
-                  <InfoRow label="Cập nhật lần cuối" value={room.lastUpdated} />
-                </InfoCard>
-
-                <InfoCard title="Người thuê hiện tại">
-                  {room.tenant ? (
-                    <InfoRow
-                      label="Tên Người thuê"
-                      value={room.tenant}
-                      isHighlighted
-                    />
-                  ) : (
-                    <p className="text-muted-foreground text-sm italic">
-                      Phòng này hiện chưa có Người thuê
-                    </p>
-                  )}
-                </InfoCard>
-              </>
+              <InfoCard title="Thông tin phòng">
+                <InfoRow label="Loại phòng" value={typeLabel} />
+                <InfoRow label="Diện tích" value={`${room.area}m²`} />
+                <InfoRow
+                  label="Người thuê"
+                  value={
+                    room.tenant ? (
+                      room.tenant
+                    ) : (
+                      <span className="flex flex-wrap items-center gap-x-2">
+                        <span className="text-muted-foreground italic">
+                          — (trống)
+                        </span>
+                        {room.status === "available" && (
+                          <Link
+                            to={`${ROUTES.CONTRACT_CREATE}?room=${room.id}`}
+                            className="text-primary hover:underline"
+                          >
+                            Tạo hợp đồng
+                          </Link>
+                        )}
+                      </span>
+                    )
+                  }
+                  isHighlighted={!!room.tenant}
+                />
+                <InfoRow
+                  label="Cập nhật lần cuối"
+                  value={formatDate(room.lastUpdated)}
+                />
+              </InfoCard>
             ),
           },
           {
             value: "contracts",
             label: "Hợp đồng",
-            content:
-              roomContracts.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {roomContracts.map((contract) => (
-                    <ContractCard key={contract.id} contract={contract} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyPanel
-                  icon={FileText}
-                  title="Chưa có hợp đồng."
-                  description="Phòng này chưa từng gắn với hợp đồng nào."
-                  className="border"
-                />
-              ),
+            content: (
+              <RelationTab
+                items={roomContracts}
+                empty={{
+                  icon: FileText,
+                  title: "Chưa có hợp đồng.",
+                  description: "Phòng này chưa từng gắn với hợp đồng nào.",
+                }}
+              >
+                {(contract) => <ContractCard contract={contract} />}
+              </RelationTab>
+            ),
           },
           {
             value: "utilities",
             label: "Chỉ số",
-            content:
-              roomUtilities.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {roomUtilities.map((utility) => (
-                    <UtilityCard key={utility.id} utility={utility} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyPanel
-                  icon={Gauge}
-                  title="Chưa có chỉ số."
-                  description="Phòng này chưa có bản ghi chỉ số điện nước nào."
-                  className="border"
-                />
-              ),
+            content: (
+              <RelationTab
+                items={roomUtilities}
+                empty={{
+                  icon: Gauge,
+                  title: "Chưa có chỉ số.",
+                  description:
+                    "Phòng này chưa có bản ghi chỉ số điện nước nào.",
+                }}
+              >
+                {(utility) => <UtilityCard utility={utility} />}
+              </RelationTab>
+            ),
           },
         ]}
-        sidebar={
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Liên kết</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Link
-                to={ROUTES.buildingDetailPath(room.buildingId)}
-                className={buttonVariants({
-                  variant: "outline",
-                  size: "sm",
-                  className: "w-full",
-                })}
-              >
-                Xem toà nhà
-              </Link>
-            </CardContent>
-          </Card>
-        }
       />
 
       <RoomFormSheet
@@ -266,16 +230,7 @@ export default function RoomDetailTemplate({
         onOpenChange={setIsEditOpen}
       />
 
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa phòng"
-        description={`Bạn có chắc chắn muốn xóa phòng "${room.name}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        isPending={deleteRoom.isPending}
-        onConfirm={handleDelete}
-      />
+      <ConfirmActionDialog {...deleteRoom.dialogProps} />
     </>
   );
 }

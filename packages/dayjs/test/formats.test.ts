@@ -4,11 +4,13 @@ import dayjs from "../src/dayjs";
 import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
+  DAY_MONTH_FORMAT,
   FULL_DATE_FORMAT,
   FULL_DATE_TIME_FORMAT,
   MONTH_FORMAT,
   TIME_FORMAT,
   TIME_WITH_SECONDS_FORMAT,
+  WEEKDAY_FORMAT,
   YEAR_FORMAT,
 } from "../src/formats";
 
@@ -27,6 +29,13 @@ describe("the format table", () => {
     expect(instant.format(TIME_FORMAT)).toBe("08:09");
     expect(instant.format(TIME_WITH_SECONDS_FORMAT)).toBe("08:09:07");
     expect(instant.format(DATE_TIME_FORMAT)).toBe("05/03/2024 08:09");
+    expect(instant.format(DAY_MONTH_FORMAT)).toBe("05/03");
+  });
+
+  it("renders the bare weekday format in the instance's locale", () => {
+    const english = dayjs(INSTANT).locale("en");
+
+    expect(english.format(WEEKDAY_FORMAT)).toBe("Tuesday");
   });
 
   it("renders the weekday formats in the instance's locale", () => {

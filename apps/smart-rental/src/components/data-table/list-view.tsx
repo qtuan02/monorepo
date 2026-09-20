@@ -47,9 +47,8 @@ interface ListViewSwitchProps {
  * component map: a switch has no panel, so `Tabs` was the wrong semantics).
  * A single active value can't be toggled off: `next[0]` is only ever
  * undefined when the pressed item was already the one selected. Hidden
- * below `md`: a phone-width screen already gets the mobile substitute for
- * whichever view is current (a card grid stacks on its own, a table gives
- * way to `renderMobileRow`), so the choice itself is moot there.
+ * below `md`: at phone width `DataTable` folds the same two choices into its
+ * own "⋯" menu instead, so the toolbar stays one row (round 4 Q17 T2).
  */
 export function ListViewSwitch({ view, onViewChange }: ListViewSwitchProps) {
   return (

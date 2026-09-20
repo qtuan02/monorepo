@@ -23,10 +23,12 @@ test.describe("Chi phí, Hoá đơn nhà cung cấp, Đối soát", () => {
 
     const sheet = page.getByRole("dialog", { name: "Thêm khoản chi" });
     await sheet.getByRole("button", { name: "Lưu lại" }).click();
-    await expect(sheet.getByText("Chọn một toà nhà")).toBeVisible();
+    // Toà nhà is already prefilled from the selected Building scope
+    // (`defaultBuildingId`) — Danh mục is the field that's actually empty.
+    await expect(
+      sheet.locator('[data-slot="field-error"]', { hasText: "Nhập danh mục" }),
+    ).toBeVisible();
 
-    await sheet.getByLabel("Toà nhà").click();
-    await page.getByRole("option", { name: "Trọ Sinh Viên Xanh" }).click();
     await sheet.getByLabel("Danh mục").fill("Kiểm thử E2E");
     await sheet.getByLabel("Số tiền").fill("500000");
     await sheet.getByRole("button", { name: "Ngày chi" }).click();
@@ -88,5 +90,22 @@ test.describe("Chi phí, Hoá đơn nhà cung cấp, Đối soát", () => {
     await page.getByRole("button", { name: "Th 4" }).click();
 
     await expect.poll(() => totalTile.textContent()).not.toBe(totalsBefore);
+  });
+
+  test("Đối soát: Chênh lệch still renders after round 4 dropped its arrow icon (§10 Q16)", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.RECONCILIATION);
+    const table = page.getByRole("table").first();
+    await expect(table).toBeVisible();
+
+    // Round 4 §10 Q16 simplified this cell's markup (no more icon + coloured
+    // wrapper — the badge alone carries Lỗ/Lãi now); `lucide-react` leaving
+    // the column file is guarded at the source level by `text-tier-guard`,
+    // so what's worth proving here is that the figure itself still renders.
+    const firstDataRow = table.getByRole("row").nth(1);
+    const netAmountCell = firstDataRow.getByRole("cell").last();
+    await expect(netAmountCell).toBeVisible();
+    await expect(netAmountCell).not.toBeEmpty();
   });
 });

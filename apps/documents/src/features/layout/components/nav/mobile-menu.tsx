@@ -47,7 +47,7 @@ export default function MobileMenu() {
           </SheetDescription>
         </SheetHeader>
         <NavLinks layout="sheet" />
-        <NavActions />
+        <NavActions layout="sheet" />
       </SheetContent>
     </Sheet>
   );

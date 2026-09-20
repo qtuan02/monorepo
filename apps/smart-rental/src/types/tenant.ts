@@ -14,24 +14,28 @@ export interface Tenant {
   name: string;
   phone: string;
   email: string;
-  /** Denormalized: the Phòng's display name, not its id (spec #127). */
-  room: string;
-  floor: number;
-  rentAmount: number;
-  depositAmount: number;
-  /** Already display-formatted (`DD/MM/YYYY`) in the prototype's Mock. */
-  moveInDate: string;
-  contractEnd: string;
   idNumber: string;
   gender: TenantGender;
 }
 
 /**
- * What `~/hooks/api/tenant` actually returns: the Mock entity plus two
- * hook-computed fields (ADR-0012) — `status` from an active Hợp đồng, and
- * `hasOverdueInvoice` from a Hoá đơn on one of them derived `OVERDUE`.
+ * What `~/hooks/api/tenant` actually returns: the Mock entity plus World's
+ * computed fields (ADR-0015 §2) — `room`/`floor`/`rentAmount`/
+ * `depositAmount`/`moveInDate`/`contractEnd` off the tenant's live
+ * (`ACTIVE`/`EXPIRING`) Hợp đồng, falling back to its most recently ended one
+ * once none is live, and the "chờ vào" blanks (`"—"`/`0`) once it has never
+ * had one; plus `status` and `hasOverdueInvoice` (ADR-0012).
  */
 export type TenantView = Tenant & {
+  /** Denormalized: the Phòng's display name, not its id (spec #127). */
+  room: string;
+  floor: number;
+  rentAmount: number;
+  depositAmount: number;
+  /** ISO `YYYY-MM-DD`, or `"—"` while the tenant has never had a Hợp đồng. */
+  moveInDate: string;
+  /** Same shape as `moveInDate`. */
+  contractEnd: string;
   status: TenantStatus;
   hasOverdueInvoice: boolean;
 };

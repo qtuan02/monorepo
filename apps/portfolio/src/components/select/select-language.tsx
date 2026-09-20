@@ -66,9 +66,12 @@ export function SelectLanguage({
     >
       <SelectTrigger className={triggerClassName} size="sm" aria-label={label}>
         {/* Children rather than `items`: without either, Base UI renders the raw
-            value ("vi") instead of the label. */}
+            value ("vi") instead of the label. Below `sm` there is no room for
+            the full name (spec #211), so the trigger shows the bare locale
+            code instead — not a catalogue key, just `locale.toUpperCase()`. */}
         <SelectValue placeholder={t("language.placeholder")}>
-          {t(`language.${locale}`)}
+          <span className="sm:hidden">{locale.toUpperCase()}</span>
+          <span className="hidden sm:inline">{t(`language.${locale}`)}</span>
         </SelectValue>
       </SelectTrigger>
       <SelectContent

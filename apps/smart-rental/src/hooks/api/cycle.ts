@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -13,55 +13,37 @@ import type { UtilityType } from "~/types/utility";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockInvoices } from "~/constants/mock/invoices";
-import { mockRooms } from "~/constants/mock/rooms";
 import { mockUtilities } from "~/constants/mock/utilities";
 import { mockUtilityOldIndexOverrides } from "~/constants/mock/utility-old-index-overrides";
-import { invoiceQueryKeys } from "~/hooks/api/invoice";
-import { reconciliationQueryKeys } from "~/hooks/api/reconciliation";
-import { taskQueryKeys } from "~/hooks/api/task";
-import { utilityQueryKeys } from "~/hooks/api/utility";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import {
   buildCycleDueDate,
   buildCycleLineItems,
   buildCycleRows,
 } from "~/utils/cycle-rows";
-import { formatDate, formatMonth } from "~/utils/date";
+import { todayIsoDate } from "~/utils/date";
 
 const cycleQueryKeyFactory = queryKeysFactory("cycle");
 
 export const cycleQueryKeys = {
   ...cycleQueryKeyFactory,
-  getCycleRows: (buildingId: string, month: string) =>
+  getCycleRows: (buildingId: string | null, month: string) =>
     cycleQueryKeyFactory.list({ buildingId, month }),
 };
 
-/** `buildCycleRows` off the live Mock — the one seam `useGetCycleRows` and `useCreateCycleInvoices` both read through. */
-function resolveCycleRows(buildingId: string, month: string): CycleRow[] {
-  const building = mockBuildings.find((item) => item.id === buildingId);
-  if (!building) return [];
-  return buildCycleRows(
-    buildingId,
-    month,
-    mockRooms,
-    mockContracts,
-    mockUtilities,
-    mockInvoices,
-    building.priceList,
-    undefined,
-    mockUtilityOldIndexOverrides,
-  );
-}
-
-/** "Kỳ điện nước & hoá đơn"'s one table — `buildCycleRows` off the live Mock (ADR-0013). */
+/** "Kỳ điện nước & hoá đơn"'s one table — `buildCycleRows` off `readWorld` (ADR-0013, ADR-0015). */
 export function useGetCycleRows(
   buildingId: string | null,
   month: string,
   options?: UseQueryOptionsWrapper<CycleRow[]>,
 ): UseQueryResult<CycleRow[], Error> {
   return useQuery<CycleRow[], Error>({
-    queryKey: cycleQueryKeys.getCycleRows(buildingId ?? "", month),
-    queryFn: async () => resolveCycleRows(buildingId ?? "", month),
+    queryKey: cycleQueryKeys.getCycleRows(buildingId, month),
+    queryFn: async () =>
+      buildingId
+        ? buildCycleRows(readWorld(buildingId), buildingId, month)
+        : [],
     enabled: !!buildingId,
     ...options,
   });
@@ -84,15 +66,11 @@ export interface SaveCycleReadingsRequest {
 
 /**
  * "Lưu nháp chỉ số" — upserts every entered reading as `DRAFT` (ADR-0013:
- * `FINALIZED` only happens at "Lập n hoá đơn", never here). Invalidates
- * `utility`/`task` too, so a fixed anomaly or a newly-eligible row shows up
- * on the very next read.
+ * `FINALIZED` only happens at "Lập n hoá đơn", never here).
  */
 export function useSaveCycleReadings(
   options?: UseMutationOptionsWrapper<SaveCycleReadingsRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: SaveCycleReadingsRequest) => {
       const updatedAt = new Date().toISOString();
@@ -132,11 +110,6 @@ export function useSaveCycleReadings(
         }
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -158,8 +131,6 @@ export interface CreateCycleInvoicesRequest {
 export function useCreateCycleInvoices(
   options?: UseMutationOptionsWrapper<CreateCycleInvoicesRequest, Invoice[]>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateCycleInvoicesRequest) => {
       const building = mockBuildings.find(
@@ -172,7 +143,8 @@ export function useCreateCycleInvoices(
         });
       }
 
-      const readyRows = resolveCycleRows(
+      const readyRows = buildCycleRows(
+        readWorld(request.buildingId),
         request.buildingId,
         request.month,
       ).filter((row) => row.status === "READY");
@@ -210,11 +182,10 @@ export function useCreateCycleInvoices(
           paidAmount: 0,
           reminders: [],
           billingMonth: request.month,
-          month: formatMonth(request.month),
           dueDate: buildCycleDueDate(building, request.month),
           status: "UNPAID",
           paymentDate: null,
-          lastUpdated: formatDate(new Date()),
+          lastUpdated: todayIsoDate(),
         };
         mockInvoices.push(invoice);
         created.push(invoice);
@@ -232,15 +203,6 @@ export function useCreateCycleInvoices(
 
       return created;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: invoiceQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
-      // New lineItems change the thu side of Đối soát for this kỳ — mirrors
-      // the invalidation expense.ts/supplier-bill.ts already do on their writes.
-      queryClient.invalidateQueries({ queryKey: reconciliationQueryKeys.all });
-    },
     ...options,
   });
 }
@@ -256,8 +218,6 @@ export interface ApproveCycleReadingRequest {
 export function useApproveCycleReading(
   options?: UseMutationOptionsWrapper<ApproveCycleReadingRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: ApproveCycleReadingRequest) => {
       const reading = mockUtilities.find(
@@ -274,11 +234,6 @@ export function useApproveCycleReading(
       }
       reading.approved = true;
       reading.updatedAt = new Date().toISOString();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: utilityQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
     },
     ...options,
   });
@@ -301,8 +256,6 @@ export interface CorrectCycleOldIndexRequest {
 export function useCorrectCycleOldIndex(
   options?: UseMutationOptionsWrapper<CorrectCycleOldIndexRequest, void>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CorrectCycleOldIndexRequest) => {
       const existing = mockUtilityOldIndexOverrides.find(
@@ -328,13 +281,6 @@ export function useCorrectCycleOldIndex(
           updatedAt,
         });
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: cycleQueryKeys.all });
-      // A corrected chỉ số cũ can turn a MISSING/ANOMALY row eligible, which
-      // can affect Việc cần làm's "chưa lập Đợt" — mirrors the invalidation
-      // useApproveCycleReading already does above.
-      queryClient.invalidateQueries({ queryKey: taskQueryKeys.all });
     },
     ...options,
   });

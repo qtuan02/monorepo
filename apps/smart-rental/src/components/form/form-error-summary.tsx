@@ -39,7 +39,7 @@ export function FormErrorSummary<TValues extends FieldValues>({
   if (messages.length < minErrors) return null;
 
   return (
-    <Alert variant="destructive" ref={ref} tabIndex={-1}>
+    <Alert variant="destructive" ref={ref} tabIndex={-1} className="mb-7">
       <AlertCircle />
       <AlertTitle>Vui lòng kiểm tra lại {messages.length} lỗi</AlertTitle>
       <AlertDescription>

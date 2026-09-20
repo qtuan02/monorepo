@@ -1,10 +1,6 @@
 import { Calendar, DoorOpen, Mail, Phone } from "lucide-react";
 
-import {
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@monorepo/ui/components/card";
+import { CardContent, CardHeader } from "@monorepo/ui/components/card";
 
 import type { TenantView } from "~/types/tenant";
 import { TenantAvatar } from "~/components/avatar/tenant-avatar";
@@ -16,6 +12,7 @@ import {
   tenantStatusConfig,
 } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatOptionalDate } from "~/utils/date";
 import TenantRowActions from "./tenant-row-actions";
 
 interface TenantCardProps {
@@ -27,8 +24,8 @@ export default function TenantCard({ tenant }: TenantCardProps) {
   return (
     <EntityListCard
       header={
-        <CardHeader className="pb-0">
-          <div className="flex items-center gap-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-3">
             <TenantAvatar tenant={tenant} />
             <div className="min-w-0">
               <h3 className="truncate text-sm leading-tight font-semibold">
@@ -41,6 +38,9 @@ export default function TenantCard({ tenant }: TenantCardProps) {
                 <span>Tầng {tenant.floor}</span>
               </p>
             </div>
+          </div>
+          <div className="relative z-10 shrink-0">
+            <TenantRowActions tenant={tenant} side="top" />
           </div>
         </CardHeader>
       }
@@ -74,22 +74,17 @@ export default function TenantCard({ tenant }: TenantCardProps) {
               valueClassName="text-sm tabular-nums"
             />
           </dl>
-        </CardContent>
-      }
-      footer={
-        <CardFooter className="justify-between gap-2 text-xs">
-          <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1">
+          <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
             <span className="flex items-center gap-1.5">
               <Calendar className="size-3" />
-              Vào: {tenant.moveInDate}
+              Vào: {formatOptionalDate(tenant.moveInDate)}
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="size-3" />
-              HĐ: {tenant.contractEnd}
+              HĐ: {formatOptionalDate(tenant.contractEnd)}
             </span>
           </div>
-          <TenantRowActions tenant={tenant} side="top" />
-        </CardFooter>
+        </CardContent>
       }
     />
   );

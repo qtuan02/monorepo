@@ -4,9 +4,11 @@ Eighteen generic React hooks, published from the [`monorepo`](https://github.com
 workspace as ESM with per-file type declarations. No barrel, no root entry — you import the
 hook you need by its own subpath, so a bundler ships only that file.
 
-> `2.0.0` is a rewrite, not an upgrade. The `1.0.0` line published 14 hooks from the
+> `1.0.1` is a rewrite, not an upgrade. The `1.0.0` line published 14 hooks from the
 > pre-Skeleton codebase; this line republishes hooks-ts 0.12.0 itself, patched for SSR.
-> Nothing carries over — treat it as a new package.
+> Nothing carries over — treat it as a new package. The number is chosen by hand rather
+> than computed from a changeset: a breaking rewrite would ordinarily be a major bump
+> (`2.0.0`), but this release takes the patch number instead.
 
 ## Install
 

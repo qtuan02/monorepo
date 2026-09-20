@@ -52,7 +52,7 @@ export function FacetedFilter({
             className="border-dashed"
           >
             <PlusCircle />
-            {title}
+            <span className="hidden md:inline">{title}</span>
             {selectedSet.size > 0 && (
               <>
                 <Separator orientation="vertical" className="mx-1 h-4" />

@@ -11,8 +11,6 @@ import {
 import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
-import { EmptyPanel } from "~/components/panel/empty-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import { utilityStatusConfig, utilityTypeConfig } from "~/constants/status";
 import ProofImageAttachment from "~/features/utilities/components/proof-image-attachment";
@@ -42,7 +40,8 @@ const TITLE = "Chi tiết chỉ số điện nước";
 export default function UtilityDetailTemplate({
   utilityId,
 }: UtilityDetailTemplateProps) {
-  const { data: utility, isLoading } = useGetUtility(utilityId);
+  const utilityQuery = useGetUtility(utilityId);
+  const utility = utilityQuery.data;
   const { data: building } = useGetBuilding(utility?.buildingId ?? "", {
     enabled: !!utility?.buildingId,
   });
@@ -51,24 +50,19 @@ export default function UtilityDetailTemplate({
     { enabled: !!utility },
   );
 
-  if (isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.UTILITIES}>
-        <CardGridSkeleton itemCount={2} className="lg:grid-cols-2" />
-      </DetailPageShell>
-    );
-  }
-
   if (!utility) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.UTILITIES}>
-        <EmptyPanel
-          icon={Gauge}
-          title="Chỉ số không tìm thấy."
-          description={`Không có bản ghi nào với mã ${utilityId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.UTILITIES}
+        query={utilityQuery}
+        id={utilityId}
+        notFound={(id) => ({
+          icon: Gauge,
+          title: "Chỉ số không tìm thấy.",
+          description: `Không có bản ghi nào với mã ${id}.`,
+        })}
+      />
     );
   }
 

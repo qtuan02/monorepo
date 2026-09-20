@@ -17,3 +17,9 @@ export const FULL_DATE_FORMAT = "dddd, DD/MM/YYYY";
 
 /** Long readout for a header or detail row. `dddd` renders in the active locale. */
 export const FULL_DATE_TIME_FORMAT = "dddd, DD/MM/YYYY HH:mm:ss";
+
+/** Day and month, year omitted — this year's date with no year noise. */
+export const DAY_MONTH_FORMAT = "DD/MM";
+
+/** The weekday on its own, for a readout within the last week. `dddd` renders in the active locale. */
+export const WEEKDAY_FORMAT = "dddd";

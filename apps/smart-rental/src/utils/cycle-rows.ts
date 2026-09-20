@@ -1,18 +1,16 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
-import type { Building, PriceList } from "~/types/building";
+import type { Building } from "~/types/building";
 import type { Contract } from "~/types/contract";
 import type { CycleRow, CycleRowStatus } from "~/types/cycle";
-import type { Invoice, InvoiceLineItem } from "~/types/invoice";
-import type { Room } from "~/types/room";
+import type { InvoiceLineItem } from "~/types/invoice";
 import type {
   Utility,
   UtilityOldIndexOverride,
   UtilityType,
 } from "~/types/utility";
+import type { World } from "~/types/world";
 import { isContractLive } from "~/utils/contract-status";
-import { formatDate } from "~/utils/date";
 import { isUtilityAnomalous } from "~/utils/utility-anomaly";
 
 const REASON_BY_STATUS: Record<CycleRowStatus, string> = {
@@ -111,7 +109,7 @@ export function computeProratedRent(
 ): { amount: number; note: string | null } {
   const monthStart = dayjs(month, "YYYY-MM").startOf("month");
   const daysInMonth = monthStart.daysInMonth();
-  const startDate = dayjs(contract.startDate, DATE_FORMAT);
+  const startDate = dayjs(contract.startDate);
 
   if (!startDate.isAfter(monthStart, "day")) {
     return { amount: contract.rentAmount, note: null };
@@ -133,20 +131,23 @@ export function computeProratedRent(
  * covers this (contract, kỳ), else `READY`.
  */
 export function buildCycleRows(
+  world: World,
   buildingId: string,
   month: string,
-  rooms: Room[],
-  contracts: Contract[],
-  utilities: Utility[],
-  invoices: Pick<Invoice, "contractId" | "billingMonth">[],
-  priceList: PriceList,
-  today: Date = new Date(),
-  oldIndexOverrides: OldIndexOverrideLookup[] = [],
 ): CycleRow[] {
-  return rooms
+  const building = world.buildings.find((item) => item.id === buildingId);
+  if (!building) return [];
+
+  const { priceList } = building;
+  const today = world.today;
+  const utilities = world.utilities;
+  const oldIndexOverrides: OldIndexOverrideLookup[] =
+    world.utilityOldIndexOverrides;
+
+  return world.rooms
     .filter((room) => room.buildingId === buildingId)
     .map((room) => {
-      const contract = contracts.find(
+      const contract = world.contracts.find(
         (item) => item.roomId === room.id && isContractLive(item, today),
       );
 
@@ -246,7 +247,7 @@ export function buildCycleRows(
         : null;
 
       const hasBothReadings = !!currentElectricity && !!currentWater;
-      const alreadyInvoiced = invoices.some(
+      const alreadyInvoiced = world.invoices.some(
         (invoice) =>
           invoice.contractId === contract.id && invoice.billingMonth === month,
       );
@@ -398,7 +399,7 @@ export function buildCycleDueDate(
     2,
     "0",
   );
-  return formatDate(`${dueMonth.format("YYYY-MM")}-${day}`);
+  return `${dueMonth.format("YYYY-MM")}-${day}`;
 }
 
 /**

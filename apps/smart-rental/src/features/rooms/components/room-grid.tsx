@@ -1,13 +1,8 @@
-import { User } from "lucide-react";
-import { Link } from "react-router";
+﻿import { Link } from "react-router";
 
-import {
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@monorepo/ui/components/card";
+import { CardContent, CardHeader } from "@monorepo/ui/components/card";
 
-import type { Room } from "~/types/room";
+import type { RoomView } from "~/types/room";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { EntityListCard } from "~/components/card/entity-list-card";
 import { ROUTES } from "~/constants/routes";
@@ -16,7 +11,7 @@ import { formatCurrency } from "~/utils/currency";
 import RoomRowActions from "./room-row-actions";
 
 interface RoomGridProps {
-  rooms: Room[];
+  rooms: RoomView[];
   /**
    * Present only at Building scope null ("Tất cả Toà nhà") — one more
    * grouping layer above tầng, a title per Toà nhà (spec #179 §"Danh sách và
@@ -27,8 +22,8 @@ interface RoomGridProps {
 }
 
 /** Groups by floor, highest first; each floor's Phòng by name. */
-function groupByFloor(rooms: Room[]) {
-  const byFloor = new Map<number, Room[]>();
+function groupByFloor(rooms: RoomView[]) {
+  const byFloor = new Map<number, RoomView[]>();
   for (const room of rooms) {
     const floor = room.floor || 1;
     byFloor.set(floor, [...(byFloor.get(floor) ?? []), room]);
@@ -42,8 +37,11 @@ function groupByFloor(rooms: Room[]) {
 }
 
 /** Groups by Toà nhà, by name; each Toà nhà's Phòng grouped by floor in turn. */
-function groupByBuilding(rooms: Room[], buildingNameById: Map<string, string>) {
-  const byBuilding = new Map<string, Room[]>();
+function groupByBuilding(
+  rooms: RoomView[],
+  buildingNameById: Map<string, string>,
+) {
+  const byBuilding = new Map<string, RoomView[]>();
   for (const room of rooms) {
     byBuilding.set(room.buildingId, [
       ...(byBuilding.get(room.buildingId) ?? []),
@@ -59,7 +57,7 @@ function groupByBuilding(rooms: Room[], buildingNameById: Map<string, string>) {
     .sort((a, b) => a.buildingName.localeCompare(b.buildingName));
 }
 
-function FloorSection({ floor, rooms }: { floor: number; rooms: Room[] }) {
+function FloorSection({ floor, rooms }: { floor: number; rooms: RoomView[] }) {
   return (
     <section className="space-y-4">
       <div className="bg-background sticky top-0 z-10 flex items-center gap-4 py-1">
@@ -69,14 +67,25 @@ function FloorSection({ floor, rooms }: { floor: number; rooms: Room[] }) {
         <div className="bg-border h-px flex-1" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {rooms.map((room) => {
           const status = roomStatusConfig[room.status];
+          // Badge only when the room ISN'T "Đã thuê" — an occupied room with
+          // no other signal says nothing extra (spec #153 §3.3); Trống/Bảo
+          // trì/Đã đặt each get their own status.
+          const showBadge = room.status !== "occupied";
+          const meta = [
+            roomTypeConfig[room.type].label,
+            `${room.area} m²`,
+            room.tenant,
+          ]
+            .filter(Boolean)
+            .join(" · ");
 
           return (
             <EntityListCard
               key={room.id}
-              className="pt-0"
+              className="gap-1.5 py-3"
               overlay={
                 <Link
                   to={ROUTES.roomDetailPath(room.id)}
@@ -84,35 +93,27 @@ function FloorSection({ floor, rooms }: { floor: number; rooms: Room[] }) {
                 />
               }
               header={
-                // Badge only, no colour-filled header (spec #153 §3.3: "Phòng
-                // header KHÔNG tô màu theo trạng thái; badge đủ").
-                <CardHeader className="flex items-start justify-between gap-2 py-4">
-                  <div>
-                    <h3 className="text-lg leading-none font-bold">
-                      {room.name}
-                    </h3>
-                    <p className="text-muted-foreground mt-1 text-xs font-medium tracking-wider uppercase">
-                      {roomTypeConfig[room.type].label} • {room.area}m²
-                    </p>
+                <CardHeader className="flex flex-row items-start justify-between gap-2 px-3">
+                  <h3 className="truncate text-[15px] leading-none font-semibold">
+                    {room.name}
+                  </h3>
+                  <div className="relative z-10 shrink-0">
+                    <RoomRowActions room={room} side="top" />
                   </div>
-                  <StatusBadge config={status} isCompact />
                 </CardHeader>
               }
               content={
-                <CardContent className="flex flex-col gap-2">
-                  <div className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
-                    <User className="size-3.5" />
-                    <span className="truncate">{room.tenant ?? "Trống"}</span>
+                <CardContent className="gap-1 px-3">
+                  <p className="text-muted-foreground truncate text-xs">
+                    {meta}
+                  </p>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-sm font-semibold">
+                      {formatCurrency(room.price)}
+                    </span>
+                    {showBadge && <StatusBadge config={status} isCompact />}
                   </div>
-                  <span className="text-sm font-bold">
-                    {formatCurrency(room.price)}
-                  </span>
                 </CardContent>
-              }
-              footer={
-                <CardFooter className="relative z-10 justify-end">
-                  <RoomRowActions room={room} side="top" />
-                </CardFooter>
               }
             />
           );
@@ -136,7 +137,7 @@ export default function RoomGrid({ rooms, buildingNameById }: RoomGridProps) {
         {groupByBuilding(rooms, buildingNameById).map(
           ({ buildingId, buildingName, floors }) => (
             <section key={buildingId} className="space-y-6">
-              <h2 className="text-xl font-bold tracking-tight">
+              <h2 className="text-[15px] font-semibold tracking-tight">
                 {buildingName}
               </h2>
               <div className="space-y-8">

@@ -1,5 +1,3 @@
-import { Calendar, Home, ReceiptText, User } from "lucide-react";
-
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -7,34 +5,27 @@ import {
 
 import type { Invoice } from "~/types/invoice";
 import { StatusBadge } from "~/components/badge/status-badge";
-import {
-  createSelectionColumn,
-  facetFilterFn,
-} from "~/components/data-table/data-table";
-import { invoiceStatusConfig } from "~/constants/status";
+import { facetFilterFn } from "~/components/data-table/data-table";
 import { formatCurrency } from "~/utils/currency";
-import { compareDisplayDates } from "~/utils/date";
+import { formatDate } from "~/utils/date";
+import { invoiceStatusBadgeConfig } from "~/utils/invoice-status";
 import InvoiceRowActions from "./invoice-row-actions";
 
 const helper = createDataTableColumnHelper<Invoice>();
 
 /**
  * The Hoá đơn table. `invoiceNumber` carries the search, `status` the facet —
- * the prototype also searched `tenant`, but the composite searches one column.
+ * the prototype also searched `tenant`, but the composite searches one
+ * column. No selection column here either: `DataTable` prepends its own
+ * because `invoice-list.template.tsx` passes `selectionActions` (Gửi nhắc).
  */
 export const invoiceColumns = helper.columns([
-  createSelectionColumn<Invoice>(),
   helper.accessor("invoiceNumber", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Số hoá đơn" />
     ),
     cell: ({ getValue }) => (
-      <div className="flex items-center gap-3">
-        <div className="bg-primary/10 text-primary flex size-8 items-center justify-center rounded-lg">
-          <ReceiptText className="size-4" />
-        </div>
-        <span className="font-mono font-medium">{getValue()}</span>
-      </div>
+      <span className="font-mono font-medium">{getValue()}</span>
     ),
     filterFn: "includesString",
   }),
@@ -43,16 +34,9 @@ export const invoiceColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Người thuê" />
     ),
     cell: ({ row }) => (
-      <div className="flex flex-col">
-        <div className="flex items-center gap-2">
-          <User className="text-muted-foreground size-3.5" />
-          <span className="font-medium">{row.original.tenant}</span>
-        </div>
-        <div className="text-muted-foreground flex items-center gap-2 text-xs">
-          <Home className="size-3" />
-          <span>{row.original.room}</span>
-        </div>
-      </div>
+      <span className="font-medium">
+        {row.original.tenant} · {row.original.room}
+      </span>
     ),
   }),
   helper.accessor("amount", {
@@ -64,7 +48,7 @@ export const invoiceColumns = helper.columns([
       />
     ),
     cell: ({ getValue }) => (
-      <div className="text-primary text-right font-bold tabular-nums">
+      <div className="text-foreground text-right font-semibold tabular-nums">
         {formatCurrency(getValue())}
       </div>
     ),
@@ -74,22 +58,17 @@ export const invoiceColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Hạn thanh toán" />
     ),
     cell: ({ getValue }) => (
-      <div className="text-muted-foreground flex items-center gap-2 text-sm">
-        <Calendar className="size-4" />
-        <span>{getValue()}</span>
-      </div>
+      <span className="text-muted-foreground text-sm">
+        {formatDate(getValue())}
+      </span>
     ),
-    // `DD/MM/YYYY` — the auto-inferred string sort would compare the day
-    // digit first (spec #179 §3.6's "Hoá đơn theo hạn").
-    sortFn: (rowA, rowB) =>
-      compareDisplayDates(rowA.original.dueDate, rowB.original.dueDate),
   }),
   helper.accessor("status", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Trạng thái" />
     ),
-    cell: ({ getValue }) => (
-      <StatusBadge config={invoiceStatusConfig[getValue()]} />
+    cell: ({ row }) => (
+      <StatusBadge config={invoiceStatusBadgeConfig(row.original)} />
     ),
     filterFn: facetFilterFn,
   }),

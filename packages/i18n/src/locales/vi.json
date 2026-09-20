@@ -276,6 +276,331 @@
       "description": "Màn hình sau đăng nhập, giữ nguyên từ Template — nó là thứ session guard đang bảo vệ."
     }
   },
+  "chat": {
+    "meta": {
+      "title": "Chat"
+    },
+    "nav": {
+      "primary": "Điều hướng chính",
+      "chats": "Tin nhắn",
+      "friends": "Bạn bè",
+      "profile": "Hồ sơ",
+      "me": "Tôi"
+    },
+    "appearance": {
+      "label": "Giao diện",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "language": {
+      "label": "Ngôn ngữ"
+    },
+    "date": {
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua"
+    },
+    "auth": {
+      "boot": {
+        "connecting": "Đang kết nối máy chủ...",
+        "checkingSession": "Đang kiểm tra phiên đăng nhập..."
+      },
+      "toast": {
+        "signedIn": "Đăng nhập thành công."
+      },
+      "validation": {
+        "usernameRequired": "Vui lòng nhập tên đăng nhập.",
+        "passwordRequired": "Vui lòng nhập mật khẩu.",
+        "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự.",
+        "emailInvalid": "Vui lòng nhập địa chỉ email hợp lệ.",
+        "firstNameRequired": "Vui lòng nhập tên.",
+        "lastNameRequired": "Vui lòng nhập họ."
+      },
+      "field": {
+        "username": "Tên đăng nhập",
+        "usernamePlaceholder": "ten-dang-nhap",
+        "password": "Mật khẩu",
+        "passwordPlaceholder": "Nhập mật khẩu của bạn",
+        "email": "Email",
+        "firstName": "Tên",
+        "lastName": "Họ"
+      },
+      "signIn": {
+        "title": "Chào mừng trở lại",
+        "subtitle": "Đăng nhập vào ứng dụng Chat của bạn",
+        "submitting": "Đang đăng nhập...",
+        "submit": "Đăng nhập",
+        "noAccount": "Chưa có tài khoản?",
+        "signUpLink": "Đăng ký"
+      },
+      "signUp": {
+        "title": "Tạo tài khoản",
+        "subtitle": "Tạo tài khoản ứng dụng Chat của bạn",
+        "submitting": "Đang tạo tài khoản...",
+        "submit": "Đăng ký",
+        "hasAccount": "Đã có tài khoản?",
+        "createdTitle": "Đã tạo tài khoản",
+        "createdSubtitle": "Tài khoản của bạn đã được tạo thành công. Bạn có thể đăng nhập ngay bây giờ.",
+        "confirmSignIn": "Đồng ý, đăng nhập",
+        "goToSignIn": "Quay lại đăng nhập"
+      }
+    },
+    "common": {
+      "onlineLabel": "Đang trực tuyến",
+      "stillConnecting": "Vẫn đang kết nối — máy chủ có thể đang khởi động lại",
+      "errorTitle": "Đã có lỗi xảy ra",
+      "errorDescription": "Ứng dụng gặp lỗi không mong muốn. Vui lòng tải lại trang.",
+      "reloadPage": "Tải lại trang",
+      "notFoundTitle": "404 - Không tìm thấy",
+      "notFoundDescription": "Trang bạn đang tìm không tồn tại hoặc đã được di chuyển.",
+      "backToChats": "Quay lại Tin nhắn",
+      "profileTitle": "Hồ sơ",
+      "profileLoadError": "Không thể tải hồ sơ này.",
+      "retry": "Thử lại",
+      "message": "Nhắn tin",
+      "statusFriend": "Bạn bè",
+      "statusSent": "Đã gửi lời mời",
+      "statusReceived": "Đã nhận lời mời",
+      "you": "Bạn",
+      "activeNow": "Đang hoạt động",
+      "username": "Tên đăng nhập",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "bio": "Giới thiệu",
+      "joined": "Tham gia",
+      "addFriend": "Kết bạn",
+      "cancelRequest": "Huỷ lời mời",
+      "decline": "Từ chối",
+      "accept": "Chấp nhận",
+      "unfriend": "Huỷ kết bạn",
+      "removeConfirmTitle": "Xoá {name}?",
+      "removeConfirmDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lời mời kết bạn mới sau.",
+      "cancel": "Huỷ",
+      "remove": "Xoá",
+      "removing": "Đang xoá..."
+    },
+    "islandFallback": {
+      "title": "Phần này không tải được.",
+      "retry": "Thử lại"
+    },
+    "convList": {
+      "activeNow": "Đang hoạt động",
+      "viewProfile": "Xem hồ sơ",
+      "unfriend": "Hủy kết bạn",
+      "removeFriendTitle": "Hủy kết bạn với {name}?",
+      "removeFriendDescription": "{name} sẽ bị xóa khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
+      "cancel": "Hủy",
+      "removing": "Đang xóa...",
+      "remove": "Xóa",
+      "groupInfo": "Thông tin nhóm",
+      "profile": "Hồ sơ",
+      "closeDetails": "Đóng bảng thông tin",
+      "chats": "Tin nhắn",
+      "newGroup": "Tạo nhóm mới",
+      "searchPlaceholder": "Tìm cuộc trò chuyện và mọi người",
+      "clearSearch": "Xóa tìm kiếm",
+      "filterAll": "Tất cả",
+      "filterUnread": "Chưa đọc",
+      "filterGroups": "Nhóm",
+      "people": "Mọi người",
+      "emptyTitle": "Chưa có cuộc trò chuyện nào",
+      "emptyDescription": "Tìm ai đó ở trên để chào hỏi, hoặc tạo nhóm mới bằng nút +.",
+      "emptyFilterTitle": "Không có cuộc trò chuyện nào khớp với bộ lọc này",
+      "searchPeopleError": "Không thể tìm kiếm mọi người.",
+      "couldNotLoad": "Không tải được cuộc trò chuyện.",
+      "retry": "Thử lại",
+      "noPeopleFound": "Không tìm thấy ai.",
+      "notFriendsYet": "Chưa phải bạn bè",
+      "loading": "Đang tải...",
+      "morePeople": "Xem thêm mọi người"
+    },
+    "convPane": {
+      "header": {
+        "fallbackTitle": "Cuộc trò chuyện",
+        "backToConversations": "Quay lại danh sách trò chuyện",
+        "groupSubtitle": "{memberCount} thành viên · {onlineMemberCount} đang trực tuyến",
+        "activeNow": "Đang hoạt động",
+        "reconnecting": "Đang kết nối lại…",
+        "detailsButton": "Chi tiết cuộc trò chuyện"
+      },
+      "draft": {
+        "emptyTitle": "Chưa có tin nhắn nào",
+        "sayHiTo": "Nói lời chào với {title}"
+      },
+      "empty": {
+        "pickTitle": "Chọn một cuộc trò chuyện",
+        "pickDescription": "Chọn một cuộc trò chuyện ở bên trái, hoặc tìm tên để bắt đầu cuộc trò chuyện mới.",
+        "noMessagesYet": "Chưa có tin nhắn nào."
+      },
+      "composer": {
+        "ariaLabel": "Ô soạn tin nhắn",
+        "placeholder": "Nhắn tin cho {title}…",
+        "insertEmoji": "Chèn biểu tượng cảm xúc",
+        "send": "Gửi",
+        "sending": "Đang gửi...",
+        "toSend": "để gửi",
+        "newLine": "để xuống dòng"
+      },
+      "list": {
+        "couldNotLoad": "Không thể tải tin nhắn.",
+        "retry": "Thử lại",
+        "newMessagesButton": "{count, plural, other {# tin nhắn mới}}"
+      },
+      "row": {
+        "seen": "Đã xem"
+      }
+    },
+    "profile": {
+      "menu": {
+        "viewProfile": "Xem hồ sơ"
+      },
+      "editProfile": "Sửa hồ sơ",
+      "signOut": "Đăng xuất",
+      "signingOut": "Đang đăng xuất...",
+      "appearance": "Giao diện",
+      "loadError": "Không thể tải hồ sơ của bạn.",
+      "form": {
+        "cancel": "Hủy",
+        "save": "Lưu",
+        "saving": "Đang lưu...",
+        "notProvided": "Chưa cung cấp"
+      },
+      "field": {
+        "firstName": "Tên",
+        "lastName": "Họ",
+        "username": "Tên đăng nhập",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "bio": "Giới thiệu"
+      },
+      "validation": {
+        "usernameRequired": "Vui lòng nhập tên đăng nhập.",
+        "usernameTooLong": "Tên đăng nhập quá dài.",
+        "emailInvalid": "Vui lòng nhập email hợp lệ.",
+        "emailTooLong": "Email quá dài.",
+        "firstNameRequired": "Vui lòng nhập tên.",
+        "firstNameTooLong": "Tên quá dài.",
+        "lastNameRequired": "Vui lòng nhập họ.",
+        "lastNameTooLong": "Họ quá dài.",
+        "phoneTooLong": "Số điện thoại quá dài."
+      },
+      "toast": {
+        "updated": "Đã cập nhật hồ sơ."
+      }
+    },
+    "friends": {
+      "title": "Bạn bè",
+      "retry": "Thử lại",
+      "loadMore": "Tải thêm",
+      "loadingMore": "Đang tải...",
+      "tabs": {
+        "friends": "Bạn bè",
+        "requests": "Lời mời",
+        "find": "Tìm bạn bè"
+      },
+      "find": {
+        "searchSrLabel": "Tìm người dùng",
+        "searchPlaceholder": "Tìm theo tên hoặc tên người dùng",
+        "emptyTitle": "Tìm kiếm mọi người",
+        "emptyDescription": "Nhập tên hoặc tên người dùng để tìm kiếm.",
+        "error": "Không thể tìm người dùng.",
+        "noResults": "Không tìm thấy ai"
+      },
+      "requests": {
+        "received": "Đã nhận",
+        "sent": "Đã gửi",
+        "noReceived": "Không có lời mời nào.",
+        "noSent": "Không có lời mời đã gửi.",
+        "error": "Không thể tải lời mời kết bạn."
+      },
+      "list": {
+        "error": "Không thể tải danh sách bạn bè.",
+        "emptyTitle": "Chưa có bạn bè nào.",
+        "emptyDescription": "Tìm người theo tên hoặc tên người dùng và gửi lời mời kết bạn."
+      },
+      "toast": {
+        "requestSent": "Đã gửi lời mời kết bạn.",
+        "requestAccepted": "Đã chấp nhận lời mời kết bạn.",
+        "requestDeclined": "Đã từ chối lời mời kết bạn.",
+        "requestCancelled": "Đã huỷ lời mời kết bạn.",
+        "friendRemoved": "Đã xoá bạn bè."
+      }
+    },
+    "group": {
+      "addMembers": {
+        "title": "Thêm thành viên",
+        "description": "Chọn bạn bè chưa có trong nhóm này.",
+        "cancel": "Huỷ",
+        "submitting": "Đang thêm...",
+        "submit": "Thêm"
+      },
+      "create": {
+        "title": "Tạo hội thoại nhóm",
+        "description": "Chọn tên nhóm và ít nhất một người bạn để bắt đầu cuộc trò chuyện nhóm mới.",
+        "nameLabel": "Tên nhóm",
+        "namePlaceholder": "Team Alpha",
+        "cancel": "Huỷ",
+        "submitting": "Đang tạo...",
+        "submit": "Tạo",
+        "submitWithCount": "Tạo ({count})"
+      },
+      "actions": {
+        "addMembers": "Thêm thành viên",
+        "leaveGroup": "Rời nhóm",
+        "leaving": "Đang rời..."
+      },
+      "picker": {
+        "searchLabel": "Tìm bạn bè",
+        "searchPlaceholder": "Tìm theo tên hoặc tên đăng nhập",
+        "selectedLabel": "Thành viên đã chọn",
+        "noneSelected": "Chưa chọn thành viên nào.",
+        "member": "thành viên",
+        "removeAria": "Bỏ {name}",
+        "addAria": "Thêm {name}",
+        "loadError": "Không thể tải danh sách bạn bè.",
+        "retry": "Thử lại",
+        "noMatch": "Không có bạn bè nào khớp với tìm kiếm này.",
+        "noFriends": "Không tìm thấy bạn bè nào.",
+        "loadMore": "Tải thêm"
+      },
+      "membersSection": {
+        "title": "Thành viên · {count}",
+        "you": "(Bạn)",
+        "owner": "Chủ nhóm",
+        "removeAria": "Xoá {name} khỏi nhóm",
+        "confirmTitle": "Xoá {name}?",
+        "confirmDescription": "Người này sẽ không còn thấy tin nhắn của nhóm.",
+        "cancel": "Huỷ",
+        "remove": "Xoá"
+      },
+      "header": {
+        "renameAria": "Đổi tên nhóm",
+        "nameAria": "Tên nhóm",
+        "saveAria": "Lưu tên nhóm",
+        "cancelAria": "Huỷ đổi tên",
+        "memberSummary": "{count} thành viên · {online} đang online"
+      },
+      "leaveConfirm": {
+        "title": "Rời nhóm này?",
+        "description": "Bạn sẽ không nhận tin nhắn của nhóm nữa. Bạn chỉ có thể tham gia lại nếu ai đó thêm bạn vào lại.",
+        "cancel": "Huỷ",
+        "confirm": "Rời nhóm"
+      },
+      "validation": {
+        "selectMemberToAdd": "Chọn ít nhất một thành viên để thêm.",
+        "nameRequired": "Tên nhóm là bắt buộc.",
+        "nameTooLong": "Tên nhóm quá dài.",
+        "selectMemberToCreate": "Chọn ít nhất một thành viên để tạo nhóm."
+      },
+      "toast": {
+        "created": "Đã tạo nhóm.",
+        "renamed": "Đã cập nhật tên nhóm.",
+        "membersAdded": "Đã thêm thành viên.",
+        "memberRemoved": "Đã xoá thành viên.",
+        "left": "Bạn đã rời nhóm."
+      }
+    }
+  },
   "documents": {
     "meta": {
       "brand": "@fe-monorepo",

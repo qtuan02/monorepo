@@ -81,4 +81,47 @@ test.describe("dashboard", () => {
     const amountInput = page.getByLabel("Số tiền");
     await expect(amountInput).not.toHaveValue("");
   });
+
+  // Round 4 §10 Q22: no per-row hàng đợi action is the navy default-variant
+  // Button — "Nhắc tất cả" is outline, "Xem n hoá đơn" is ghost.
+  test("hàng đợi's action theo dòng là outline/ghost, không có nút default nào", async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(ROUTES.HOME);
+
+    const group = page
+      .locator('[data-slot="collapsible"]')
+      .filter({ hasText: /Hoá đơn quá hạn/ })
+      .first();
+    await expect(
+      group.getByRole("button", { name: "Nhắc tất cả" }),
+    ).toHaveAttribute("data-variant", "outline");
+    await expect(
+      group.getByRole("button", { name: /Xem \d+ hoá đơn/ }),
+    ).toHaveAttribute("data-variant", "ghost");
+
+    const queueCard = page
+      .locator('[data-slot="card"]')
+      .filter({ hasText: "Cần làm hôm nay" });
+    await expect(queueCard.locator('[data-variant="default"]')).toHaveCount(0);
+  });
+
+  // T8 tổng kiểm (round 4 §1.4): one navy-default button per screen at most —
+  // Hôm nay has none of its own (every action theo dòng is outline/ghost),
+  // so this is the zero end of "≤ 1 primary/màn".
+  test("has at most one visible primary (data-variant=default) button", async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto(ROUTES.HOME);
+    await expect(
+      page.getByRole("heading", { name: homeHeading }),
+    ).toBeVisible();
+
+    const visibleDefaults = await page
+      .locator('button[data-variant="default"]:visible')
+      .count();
+    expect(visibleDefaults).toBeLessThanOrEqual(1);
+  });
 });

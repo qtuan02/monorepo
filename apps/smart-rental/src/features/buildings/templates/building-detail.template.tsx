@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { AlertTriangle, Building2, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
 
 import {
   Alert,
@@ -14,23 +13,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@monorepo/ui/components/card";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { StatGroup, StatItem } from "~/components/card/stat-item";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { OccupancyBar } from "~/components/progress/occupancy-bar";
 import { ROUTES } from "~/constants/routes";
 import { ELECTRICITY_PRICE_CAP_PER_KWH } from "~/constants/tariff";
 import BuildingSettingsFormSheet from "~/features/buildings/components/building-settings-form-sheet";
-import { getBuildingStats } from "~/features/buildings/utils/building-stats";
 import RoomGrid from "~/features/rooms/components/room-grid";
 import { useDeleteBuilding, useGetBuilding } from "~/hooks/api/building";
 import { useGetContracts } from "~/hooks/api/contract";
 import { useGetRooms } from "~/hooks/api/room";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { canDeleteBuilding } from "~/utils/building-delete";
 import { formatCurrency } from "~/utils/currency";
 import { isElectricityPriceOverCap } from "~/utils/tariff";
@@ -43,58 +40,49 @@ const TITLE = "Chi tiết toà nhà";
 
 /**
  * "Chi tiết toà nhà" (spec #153 §3.4): header entity + tabs Tổng quan · Phòng
- * · Cài đặt, cột phải chỉ tỷ lệ lấp đầy. The reference the other nine detail
- * screens migrate to next, one ticket at a time (#160–#166).
+ * · Cài đặt, no right column (round 4 Q8) — "Tỷ lệ lấp đầy" sits inside Tổng
+ * quan instead, since it carries no action of its own.
  */
 export default function BuildingDetailTemplate({
   buildingId,
 }: BuildingDetailTemplateProps) {
-  const navigate = useNavigate();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const buildingQuery = useGetBuilding(buildingId);
+  const building = buildingQuery.data;
   const roomsQuery = useGetRooms({ buildingId });
   const contractsQuery = useGetContracts({ buildingId });
-  const deleteBuilding = useDeleteBuilding();
 
-  if (buildingQuery.isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.BUILDINGS}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
+  const deleteBuilding = useDeleteEntity({
+    mutation: useDeleteBuilding(),
+    id: building?.id ?? "",
+    label: "toà nhà",
+    entity: building?.name,
+    successMessage: `Đã xóa ${building?.name}`,
+    redirectTo: ROUTES.BUILDINGS,
+  });
 
-  const building = buildingQuery.data;
   if (!building) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.BUILDINGS}>
-        <EmptyPanel
-          icon={Building2}
-          title="Không tìm thấy toà nhà."
-          description={`Không có toà nhà nào với mã ${buildingId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.BUILDINGS}
+        query={buildingQuery}
+        id={buildingId}
+        notFound={(id) => ({
+          icon: Building2,
+          title: "Không tìm thấy toà nhà.",
+          description: `Không có toà nhà nào với mã ${id}.`,
+        })}
+      />
     );
   }
 
-  const stats = getBuildingStats(building);
   const rooms = roomsQuery.data ?? [];
   const canDelete = canDeleteBuilding(building.id, contractsQuery.data ?? []);
   const isElectricityOverCap = isElectricityPriceOverCap(
     building.priceList.electricityPricePerKwh,
   );
-
-  const handleDelete = () =>
-    deleteBuilding.mutate(building.id, {
-      onSuccess: () => {
-        toast.add({ title: `Đã xóa ${building.name}`, type: "success" });
-        setIsDeleteOpen(false);
-        navigate(ROUTES.BUILDINGS, { replace: true });
-      },
-    });
 
   // "Cài đặt" has exactly one entry point — the tab's own "Chỉnh sửa" — not a
   // second header button opening the same sheet (spec #179 §"Chi tiết / danh
@@ -106,7 +94,7 @@ export default function BuildingDetailTemplate({
       size="sm"
       className="text-destructive hover:text-destructive"
       disabled={!canDelete}
-      onClick={() => setIsDeleteOpen(true)}
+      onClick={deleteBuilding.onOpen}
     >
       <Trash2 />
       Xóa
@@ -137,15 +125,18 @@ export default function BuildingDetailTemplate({
                   </CardHeader>
                   <CardContent>
                     <StatGroup>
-                      <StatItem label="Tổng phòng" value={stats.totalRooms} />
+                      <StatItem
+                        label="Tổng phòng"
+                        value={building.totalRooms}
+                      />
                       <StatItem
                         label="Phòng trống"
-                        value={stats.availableRooms}
+                        value={building.availableRooms}
                         valueClassName="text-success"
                       />
                       <StatItem
                         label="Đang hoạt động"
-                        value={stats.activeContracts}
+                        value={building.activeContracts}
                       />
                     </StatGroup>
                   </CardContent>
@@ -158,6 +149,17 @@ export default function BuildingDetailTemplate({
                     value={building.description ?? "---"}
                   />
                 </InfoCard>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
+                  </CardHeader>
+                  {/* One "83%" — the OccupancyBar's own figure, not a second
+                      big number above it (spec #179 §"Chi tiết / danh sách"). */}
+                  <CardContent>
+                    <OccupancyBar rate={building.occupancyRate} />
+                  </CardContent>
+                </Card>
               </>
             ),
           },
@@ -242,18 +244,6 @@ export default function BuildingDetailTemplate({
             ),
           },
         ]}
-        sidebar={
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Tỷ lệ lấp đầy</CardTitle>
-            </CardHeader>
-            {/* One "83%" — the OccupancyBar's own figure, not a second big
-                number above it (spec #179 §"Chi tiết / danh sách"). */}
-            <CardContent>
-              <OccupancyBar rate={stats.occupancyRate} />
-            </CardContent>
-          </Card>
-        }
       />
 
       <BuildingSettingsFormSheet
@@ -262,16 +252,7 @@ export default function BuildingDetailTemplate({
         onOpenChange={setIsSettingsOpen}
       />
 
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa toà nhà"
-        description={`Bạn có chắc chắn muốn xóa toà nhà "${building.name}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        isPending={deleteBuilding.isPending}
-        onConfirm={handleDelete}
-      />
+      <ConfirmActionDialog {...deleteBuilding.dialogProps} />
     </>
   );
 }

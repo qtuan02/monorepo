@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
@@ -8,17 +8,22 @@ import { describe, expect, it } from "vitest";
 import type { Invoice } from "~/types/invoice";
 import { mockInvoices } from "~/constants/mock/invoices";
 import InvoiceDetailTemplate from "~/features/invoices/templates/invoice-detail.template";
+import { queryClient } from "~/libs/query-client";
 
 // The template alone, with the two providers it reaches for (a router for
 // the back link, a query client for the Mock) — the route wiring is
-// `test/pages/main.test.tsx`'s business.
+// `test/pages/main.test.tsx`'s business. The app's own `queryClient`
+// singleton, cleared per render — not a bare `new QueryClient()` — because
+// ADR-0015 §3 moved every mutation's cache invalidation onto that
+// singleton's global `MutationCache.onSuccess`.
 function renderInvoice(invoiceId: string) {
+  queryClient.clear();
   const router = createMemoryRouter(
     [{ path: "*", element: <InvoiceDetailTemplate invoiceId={invoiceId} /> }],
     { initialEntries: ["/"] },
   );
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
@@ -111,11 +116,10 @@ describe("InvoiceDetailTemplate", () => {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2099-01",
-    month: "01/2099",
-    dueDate: "31/01/2099",
+    dueDate: "2099-01-31",
     status: "UNPAID",
     paymentDate: null,
-    lastUpdated: "01/01/2099",
+    lastUpdated: "2099-01-01",
   };
 
   it("Ghi nhận thu n đ điền sẵn còn lại — 2 tr rồi hết còn lại → Thu một phần rồi Đã thu", async () => {

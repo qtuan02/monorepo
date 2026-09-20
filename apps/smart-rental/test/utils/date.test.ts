@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  compareDisplayDates,
   formatDate,
   formatDateTime,
   formatMonth,
+  formatOptionalDate,
 } from "~/utils/date";
 
 describe("formatDate", () => {
@@ -27,12 +27,9 @@ describe("formatMonth", () => {
   });
 });
 
-describe("compareDisplayDates", () => {
-  it("orders chronologically, not lexicographically", () => {
-    // A string sort would put "09/01/2026" (Jan) before "17/09/2025" (Sep of
-    // the prior year) — the day digit compares first.
-    expect(compareDisplayDates("09/01/2026", "17/09/2025")).toBeGreaterThan(0);
-    expect(compareDisplayDates("17/09/2025", "09/01/2026")).toBeLessThan(0);
-    expect(compareDisplayDates("20/04/2026", "20/04/2026")).toBe(0);
+describe("formatOptionalDate", () => {
+  it("formats an ISO date, and passes the '—' placeholder through untouched", () => {
+    expect(formatOptionalDate("2026-04-20")).toBe("20/04/2026");
+    expect(formatOptionalDate("—")).toBe("—");
   });
 });

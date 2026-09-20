@@ -1,5 +1,4 @@
 import { Badge } from "@monorepo/ui/components/badge";
-import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -10,36 +9,18 @@ import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { contractStatusConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
-import { compareDisplayDates } from "~/utils/date";
+import { formatDate } from "~/utils/date";
 import ContractRowActions from "./contract-row-actions";
 
 const helper = createDataTableColumnHelper<Contract>();
 
 /**
  * The Hợp đồng table, minus the prototype's drag handle (row reorder is not
- * ported — spec #127). `contractNumber` carries the search, `status` the facet.
+ * ported — spec #127). `contractNumber` carries the search, `status` the
+ * facet. No selection column: nothing on this screen acts on a selection
+ * (spec #221 T2 — `DataTable` only prepends one when given `selectionActions`).
  */
 export const contractColumns = helper.columns([
-  helper.display({
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Chọn tất cả"
-        checked={table.getIsAllPageRowsSelected()}
-        indeterminate={
-          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label="Chọn dòng"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-  }),
   helper.accessor("contractNumber", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Số HĐ" />
@@ -86,7 +67,7 @@ export const contractColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Bắt đầu" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{getValue()}</span>
+      <span className="text-muted-foreground">{formatDate(getValue())}</span>
     ),
   }),
   helper.accessor("endDate", {
@@ -94,11 +75,8 @@ export const contractColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Kết thúc" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{getValue()}</span>
+      <span className="text-muted-foreground">{formatDate(getValue())}</span>
     ),
-    // `DD/MM/YYYY` — see the same note on invoiceColumns' `dueDate`.
-    sortFn: (rowA, rowB) =>
-      compareDisplayDates(rowA.original.endDate, rowB.original.endDate),
   }),
   helper.accessor("status", {
     header: ({ column }) => (
@@ -114,7 +92,7 @@ export const contractColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Cập nhật" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{getValue()}</span>
+      <span className="text-muted-foreground">{formatDate(getValue())}</span>
     ),
   }),
   helper.display({

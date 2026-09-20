@@ -2,10 +2,10 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it } from "vitest";
 
-import type { Room } from "~/types/room";
+import type { RoomView } from "~/types/room";
 import RoomGrid from "~/features/rooms/components/room-grid";
 
-const roomA: Room = {
+const roomA: RoomView = {
   id: "R-B2-201",
   buildingId: "b2",
   name: "201",
@@ -18,7 +18,7 @@ const roomA: Room = {
   lastUpdated: "18/09/2026",
 };
 
-const roomB: Room = {
+const roomB: RoomView = {
   id: "R-B1-101",
   buildingId: "b1",
   name: "101",

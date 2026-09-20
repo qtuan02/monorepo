@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { Edit, Receipt, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { ReceiptAttachment } from "~/components/attachment/receipt-attachment";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { InfoCard, InfoRow } from "~/components/card/info-card";
 import { ConfirmActionDialog } from "~/components/dialog/confirm-action-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
-import { EmptyPanel } from "~/components/panel/empty-panel";
-import { DetailSkeleton } from "~/components/panel/loading-panel";
 import { ROUTES } from "~/constants/routes";
 import {
   supplierBillPaymentConfig,
@@ -23,6 +19,7 @@ import {
   useDeleteSupplierBill,
   useGetSupplierBill,
 } from "~/hooks/api/supplier-bill";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { formatCurrency } from "~/utils/currency";
 import { formatDate, formatMonth } from "~/utils/date";
 
@@ -41,41 +38,34 @@ const TITLE = "Chi tiết hoá đơn nhà cung cấp";
 export default function SupplierBillDetailTemplate({
   billId,
 }: SupplierBillDetailTemplateProps) {
-  const navigate = useNavigate();
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const { data: bill, isLoading } = useGetSupplierBill(billId);
-  const deleteBill = useDeleteSupplierBill();
+  const billQuery = useGetSupplierBill(billId);
+  const bill = billQuery.data;
 
-  if (isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.SUPPLIER_BILLS}>
-        <DetailSkeleton />
-      </DetailPageShell>
-    );
-  }
+  const deleteBill = useDeleteEntity({
+    mutation: useDeleteSupplierBill(),
+    id: bill?.id ?? "",
+    label: "hoá đơn nhà cung cấp",
+    entity: bill?.supplierName,
+    successMessage: "Đã xóa hoá đơn nhà cung cấp",
+    redirectTo: ROUTES.SUPPLIER_BILLS,
+  });
 
   if (!bill) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.SUPPLIER_BILLS}>
-        <EmptyPanel
-          icon={Receipt}
-          title="Không tìm thấy hoá đơn nhà cung cấp."
-          description={`Không có hoá đơn nào với mã ${billId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.SUPPLIER_BILLS}
+        query={billQuery}
+        id={billId}
+        notFound={(id) => ({
+          icon: Receipt,
+          title: "Không tìm thấy hoá đơn nhà cung cấp.",
+          description: `Không có hoá đơn nào với mã ${id}.`,
+        })}
+      />
     );
   }
-
-  const handleDelete = () =>
-    deleteBill.mutate(bill.id, {
-      onSuccess: () => {
-        toast.add({ title: "Đã xóa hoá đơn nhà cung cấp", type: "success" });
-        setIsDeleteOpen(false);
-        navigate(ROUTES.SUPPLIER_BILLS, { replace: true });
-      },
-    });
 
   return (
     <>
@@ -111,7 +101,7 @@ export default function SupplierBillDetailTemplate({
               variant="outline"
               size="sm"
               className="text-destructive hover:text-destructive"
-              onClick={() => setIsDeleteOpen(true)}
+              onClick={deleteBill.onOpen}
             >
               <Trash2 />
               Xóa
@@ -158,16 +148,7 @@ export default function SupplierBillDetailTemplate({
         onOpenChange={setIsEditOpen}
       />
 
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa hoá đơn nhà cung cấp"
-        description={`Bạn có chắc chắn muốn xóa hoá đơn của "${bill.supplierName}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        isPending={deleteBill.isPending}
-        onConfirm={handleDelete}
-      />
+      <ConfirmActionDialog {...deleteBill.dialogProps} />
     </>
   );
 }

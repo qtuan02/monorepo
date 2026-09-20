@@ -34,6 +34,7 @@ export function Swatch({ slug, size = "md", className }: SwatchProps) {
   return (
     <span
       aria-hidden="true"
+      data-testid="swatch"
       className={cn(
         "swatch-gradient block shrink-0 shadow-(--sh-2)",
         swatchSizes[size],

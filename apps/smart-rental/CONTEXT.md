@@ -27,6 +27,16 @@ hai ngoại lệ có tên là Cài đặt (toàn cục) và Báo cáo (so sánh 
 Toà nhà; màn Kỳ (chốt chỉ số và lập Đợt hoá đơn) đòi đúng một Toà nhà.
 _Avoid_: current building, selected building, bộ lọc toà nhà (nó không phải một filter của bảng)
 
+**World**:
+Mọi thứ Portal biết dưới một Building scope tại một thời điểm — Toà nhà, Phòng, Người thuê, Hợp
+đồng, Hoá đơn, Chỉ số điện nước, Chi phí, Hoá đơn nhà cung cấp, Khai báo lưu trú — với mọi trạng
+thái suy ra đã được suy (Hoá đơn Quá hạn, Hợp đồng Sắp hết hạn, Chỉ số bất thường, Người thuê
+đang thuê/đã rời) và mọi tên tham chiếu đã được nối (Phòng biết Người thuê hiện tại, Người thuê
+biết ngày hết Hợp đồng, Toà nhà biết tỷ lệ lấp đầy). Hôm nay, Việc cần làm, Kỳ, Đối soát, Báo cáo
+đều là một phép suy trên World; không màn nào tự ghép các nguồn. Một giá trị suy được không sống
+trong Mock — nó chỉ tồn tại trên World.
+_Avoid_: snapshot, state, store, dữ liệu tổng hợp, "the data"
+
 **Phòng** (`Room`):
 Đơn vị cho thuê trong một Toà nhà, có trạng thái `available | occupied | maintenance | reserved`.
 _Avoid_: unit, căn

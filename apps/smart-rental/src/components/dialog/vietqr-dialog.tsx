@@ -138,7 +138,7 @@ export default function VietQrDialog({
             <p className="text-muted-foreground text-sm font-medium">
               Số tiền thanh toán
             </p>
-            <p className="text-primary text-2xl font-bold tabular-nums">
+            <p className="text-primary text-[20px] font-semibold tabular-nums">
               {formatCurrency(amount)}
             </p>
             {link && (

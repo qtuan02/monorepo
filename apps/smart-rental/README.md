@@ -28,11 +28,11 @@ bun run dev:smart-rental     # http://localhost:3006
 | Session | `src/stores/use-auth-store.ts` | Zustand + `persist` (localStorage) của Template. Đăng nhập là **giả**: form qua được Zod là set một token giả và về `/`. Store giữ thêm `user` (`{ name, email }`) cho nav-user: `signIn(token, user)` / `logout()`. |
 | Building scope | `src/stores/use-building-store.ts` | Zustand + `persist` localStorage, key `building`; `selectedBuildingId: string \| null`, `null` = mọi Toà nhà. Sống ở một hàng tabs dưới header (≤ 6 Toà nhà; từ 7 đổi thành `Select`) chứ không phải bộ lọc bảng — mọi danh sách, KPI và Việc cần làm đọc nó qua selector hẹp. Hai ngoại lệ: Cài đặt (toàn cục) và Báo cáo (`null` = bảng so sánh giữa các Toà nhà thay vì tổng). |
 | Shell "Hôm nay" | `src/features/layout/` | `templates/layout.template.tsx` (`SidebarProvider` + `SidebarInset`) · `components/sidebar/` (`app-sidebar` 14 mục bốn nhóm theo chuỗi việc — Tháng này · Người & phòng · Sổ sách · Hệ thống, `nav-user` đăng xuất + Cài đặt) · `components/header/` (`app-header`, hàng tabs Building scope, `notification-panel` đọc hàng đợi Việc cần làm đã gộp, `search-dialog` Ctrl K/⌘K theo platform) · `components/bottom-nav.tsx` — mobile (`< md`): 4 ô cố định Hôm nay · Phòng · Người thuê · Thu tiền (cùng route `/invoices`, lọc còn phải thu sắp theo hạn) + "Thêm" mở Sheet (hàng tài khoản + Đăng xuất tách riêng + lưới khu vực còn lại), header chỉ còn tiêu đề + tìm + chuông, tabs scope thành pill cuộn ngang · `constants/navigation.ts` là manifest 14 khu vực, `utils/navigation.ts` khớp theo **segment**. Header **không** render `<h1>` — heading là của màn hình, seam test assert nó. |
-| Dữ liệu | `~/hooks/api` | Mock đứng sau hook TanStack Query, viết theo contract `be-motel` (ADR-0012) — `buildingId` bắt buộc trên mọi entity, một kiểu kỳ `YYYY-MM`, enum khớp `fe-api-integration/*.md`. Mock nằm ở **`~/constants/mock/<entity>.ts`**: `~/hooks/api` phục vụ nó và hook không được import `~/features` (`architecture-circular-dependencies`, CRITICAL). `~/libs/http-client.ts` chỉ export `httpClient`, chưa có service class — khi `be-motel` có contract, việc nối là đổi `queryFn`. Ghi lên Mock in-memory, mất khi reload; Cài đặt có "Khôi phục dữ liệu mẫu" (`useResetMockData`, gọi `resetMock<Entity>` của từng slice qua `trackMockReset`). |
-| Trạng thái dẫn xuất | ADR-0012 | Không trạng thái nào lưu tay: `EXPIRING` (Hợp đồng, ≤ 30 ngày), `PARTIAL`/`OVERDUE` (Hoá đơn, từ `dueDate` + Thanh toán), bất thường (Chỉ số, > 2× kỳ trước hoặc giảm), trạng thái hiển thị Người thuê (từ Hợp đồng + cờ quá hạn), Việc cần làm (năm nguồn), Đối soát/Báo cáo/KPI (từ Hoá đơn + Hoá đơn NCC + Chi phí của scope + kỳ) — mỗi phép suy là một hàm thuần trong `~/utils`, có test, gọi từ `queryFn`. |
-| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133, deepened ở pha 2). `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack, search/facet/page/size trên **URL**, thanh hành động hàng loạt sticky khi chọn dòng, `renderMobileRow` (mỗi hàng một `Item` trên điện thoại), `ToggleGroup` đổi thẻ/bảng. `card/kpi-strip.tsx` — một dải KPI hai cỡ (desktop liền, mobile cuộn ngang), thay `SummaryCard` cũ. `page/detail-page-shell.tsx` — header entity + tabs thật + cột phải chỉ hành động, `Breadcrumb` ở route ≥ 3 cấp thay nút Quay lại. `form/` — `Sheet` cho form ngắn, `DateField`/`MonthField` (+ `month-picker`), `InputGroup` hậu tố "đ", `Combobox` tự tải, `Attachment`. `menu/entity-action-menu.tsx` — mục không có `link` lẫn `onClick` tự disable; đừng ship một mục vĩnh viễn như vậy. Còn `badge/status-badge.tsx`, `panel/` (empty/error/loading theo footprint), `dialog/confirm-action-dialog`, `queue/task-queue.tsx` (hàng đợi gộp theo loại, sắp theo hạn — Hôm nay và chuông dùng chung, round 3 bỏ `/tasks`), `chart/revenue-chart.tsx` (nay ở slice `reports`), `navigation/page-back-button`. |
+| Dữ liệu | `~/hooks/api` | Mock đứng sau hook TanStack Query, viết theo contract `be-motel` (ADR-0012) — `buildingId` bắt buộc trên mọi entity, một kiểu kỳ `YYYY-MM`, enum khớp `fe-api-integration/*.md`. Mock nằm ở **`~/constants/mock/<entity>.ts`**: `~/hooks/api` phục vụ nó và hook không được import `~/features` (`architecture-circular-dependencies`, CRITICAL). **World** (ADR-0015 §1) là seam đọc duy nhất — `buildWorld` (`~/utils/world.ts`) là hàm thuần ghép + scope + suy trạng thái mọi mảng Mock theo một Building scope; `readWorld` (`~/libs/mock-world.ts`) bind nó vào Mock sống và là hàm **duy nhất** ngoài `mutationFn` được chạm `~/constants/mock`. Mọi `queryFn` derived đọc qua `readWorld`, không tự ghép mảng. Seam ghi là **invalidate-tất-cả**: một dòng `MutationCache.onSuccess` trong `~/libs/query-client.ts` invalidate mọi query sau mọi mutation thành công — không hook nào tự liệt kê key để invalidate, không hook nào import `*QueryKeys` của hook khác (test quét text `test/hooks/api/world-write-seam.test.ts`). `~/libs/http-client.ts` chỉ export `httpClient`, chưa có service class — khi `be-motel` có contract, việc nối là đổi `readWorld`/`queryFn`. Ghi lên Mock in-memory, mất khi reload; Cài đặt có "Khôi phục dữ liệu mẫu" (`useResetMockData`, gọi `resetMock<Entity>` của từng slice qua `trackMockReset`). |
+| Trạng thái dẫn xuất | ADR-0012, ADR-0015 §2 | Không trạng thái nào lưu tay: `EXPIRING` (Hợp đồng, ≤ 30 ngày), `PARTIAL`/`OVERDUE` (Hoá đơn, từ `dueDate` + Thanh toán), bất thường (Chỉ số, > 2× kỳ trước hoặc giảm), trạng thái hiển thị Người thuê (từ Hợp đồng + cờ quá hạn), Việc cần làm (năm nguồn), Đối soát/Báo cáo/KPI (từ Hoá đơn + Hoá đơn NCC + Chi phí của scope + kỳ) — mỗi phép suy là một hàm thuần trong `~/utils`, có test, gọi từ `World`. Ba họ bản sao lưu sẵn không còn trong type/Mock — `Room.tenant`, `Tenant.room/floor/rentAmount/depositAmount/moveInDate/contractEnd`, `Building.totalRooms/activeContracts/availableRooms/occupancyRate` — World tính lại **dưới cùng tên** trên `RoomView`/`TenantView`/`BuildingView` từ Hợp đồng đang có hiệu lực (`ACTIVE`/`EXPIRING`) mỗi lần đọc, nên Thanh lý/Gia hạn/tạo Hợp đồng thấy ngay trên mọi màn hình mà không đổi tên field. Tên trên **chứng từ** (`Invoice`/`Contract.tenant/room/floor`) giữ nguyên — Hoá đơn và Hợp đồng là văn bản, tên lúc lập là đúng nghiệp vụ. |
+| Composite dùng chung | `~/components/<group>/` | Bộ composite mọi slice đứng lên (#133, deepened ở pha 2). `data-table/data-table.tsx`: tìm kiếm, faceted filter, sort, phân trang + cỡ trang trên **một** instance TanStack, search/facet/page/size trên **URL**, thanh hành động hàng loạt sticky khi chọn dòng, `renderMobileRow` (mỗi hàng một `Item` trên điện thoại), `ToggleGroup` đổi thẻ/bảng. `card/kpi-strip.tsx` — một dải KPI hai cỡ (desktop liền, mobile cuộn ngang), thay `SummaryCard` cũ. `page/detail-page-shell.tsx` — header entity + tabs thật + cột phải chỉ hành động, `Breadcrumb` ở route ≥ 3 cấp thay nút Quay lại, và nhận `query` + `notFound(id)` + `children(entity)` để tự lo skeleton/"không tìm thấy" — 8 màn chi tiết không còn tự viết hai nhánh đó. `page/relation-tab.tsx` — một tab quan hệ (Hợp đồng của Phòng, Hoá đơn của Người thuê…): lưới thẻ hay `EmptyPanel`, nhận `items` + `children(item)`. `~/hooks/use-delete-entity.ts` — `useDeleteEntity({ mutation, id, label, entity?, successMessage, redirectTo })` gói cả nghi thức xoá (hỏi xác nhận "không thể hoàn tác", mutate → toast → `navigate(redirectTo, { replace: true })`), sáu màn có xoá dùng chung. `form/` — `Sheet` cho form ngắn, `DateField`/`MonthField` (+ `month-picker`), `InputGroup` hậu tố "đ", `Combobox` tự tải, `Attachment`. `menu/entity-action-menu.tsx` — mục không có `link` lẫn `onClick` tự disable; đừng ship một mục vĩnh viễn như vậy. Còn `badge/status-badge.tsx`, `panel/` (empty/error/loading theo footprint), `dialog/confirm-action-dialog`, `queue/task-queue.tsx` (hàng đợi gộp theo loại, sắp theo hạn — Hôm nay và chuông dùng chung, round 3 bỏ `/tasks`), `chart/revenue-chart.tsx` (nay ở slice `reports`), `navigation/page-back-button`. |
 | Status config | `~/constants/status.ts` | **Một** nơi cho mọi config trạng thái/hiển thị: `statusTone`, `StatusConfig`, và một config theo mỗi entity (Phòng, Hợp đồng, Cọc, Hoá đơn, kênh thanh toán, Chỉ số, Hoá đơn NCC, Việc cần làm, kênh liên lạc…), `toFilterOptions()`. |
-| Utils | `~/utils/` | Chỉ hàm thuần, mỗi cái một test: `currency.ts`, `date.ts`, `pagination.ts`, `csv.ts` (`toCsv`, RFC 4180 — dùng cho Xuất CSV Hoá đơn), `vietqr.ts` (link `img.vietqr.io` + cắt `addInfo`), `invoice-payments.ts`, `room-delete.ts`, `task-due.ts`, `report-rows.ts`, `reconciliation-items.ts`, `mock-reset.ts` (`trackMockReset`). |
+| Utils | `~/utils/` | Chỉ hàm thuần, mỗi cái một test: `world.ts` (`buildWorld`, ADR-0015 §1), `tenant-status.ts` (`toTenantView`/`buildTenantViews`/`findTenantContract`, ADR-0015 §2), `contract-status.ts`, `invoice-status.ts`, `utility-anomaly.ts`, `residence-declaration.ts`, `currency.ts`, `date.ts`, `pagination.ts`, `csv.ts` (`toCsv`, RFC 4180 — dùng cho Xuất CSV Hoá đơn), `vietqr.ts` (link `img.vietqr.io` + cắt `addInfo`), `invoice-payments.ts`, `room-delete.ts`, `task-due.ts`, `task-derivation.ts`, `report-rows.ts`, `reconciliation-items.ts`, `mock-reset.ts` (`trackMockReset`). |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Vercel rewrite `/(.*)` → `/index.html` cho SPA (§ Deploy Vercel); image thì builder Bun → `nginx:stable-alpine` như Template, giữ cho job `docker` của CI. |
 
 ## Những gì cố ý không có
@@ -153,6 +153,128 @@ Chi tiết từng quyết định — 24 quyết định của vòng grill round
 vì sao — nằm ở comment tổng kết trên spec [#179](https://github.com/qtuan02/monorepo/issues/179);
 37 quyết định pha 2 vẫn ở comment trên spec [#153](https://github.com/qtuan02/monorepo/issues/153).
 Không lặp lại ở đây để khỏi có hai nguồn.
+
+## Hình dạng spec #227 — deepening trong slice
+
+Bốn ticket độc lập, chạm sâu vào một slice mỗi cái thay vì thêm màn mới:
+
+- **C1 — MeterCell** (`~/features/cycles/components/meter-cell.tsx`, #228): `meterGates(row, type,
+  readOnly)` là hàm thuần chung cho bảng **và** thẻ mobile — trước đây hai nơi tự suy gate riêng và
+  lệch nhau (thẻ mobile chỉ đòi có `anomalyReason`, bảng đòi cả `anomalyReason` lẫn `status ===
+  "ANOMALY"`). `MeterCell` gộp ô chỉ số cũ + input chỉ số mới + nút Duyệt + gate hiển thị thành một
+  component, `CycleTableRow`/`CycleMobileCard` chỉ còn đặt hai `MeterCell` (điện, nước) cạnh các ô tiền.
+- **C2 — `contractActions` + `TermPicker`** (#229): `contractActions(contract)` trong
+  `~/utils/contract-status.ts` thay `isContractLive`/`canDeleteContract` rải rác ở bốn consumer
+  (row-actions, chi tiết, Gia hạn, Thanh lý) bằng một object — `canRenew`/`canLiquidate`/`canDelete` +
+  một `blockedReason` duy nhất, in nguyên văn ở nơi bị chặn. `TermPicker`
+  (`~/features/contracts/components/term-picker.tsx`) dùng chung cho "Tạo hợp đồng" (`mode="fresh"`,
+  mặc định 12 tháng) và "Gia hạn" (`mode="extend"`, mặc định 6 tháng), thay hai bản
+  preset/`recompute*` từng viết trùng trong hai template.
+- **C3 — bảng Task trong `status.ts`** (#230): `taskTypeConfig` (icon + `actionLabel`) chuyển vào
+  `~/constants/status.ts` thay cho hai bản cục bộ ở `TaskQueue` và `notification-panel`; bấm một Việc
+  "contract_expiring" ở chuông giờ đi thẳng tới Gia hạn (`contractRenewPath`), đúng nơi bấm ở Hôm nay
+  đi — trước đây chuông đưa tới chi tiết Hợp đồng, một nơi khác. "bảo trì" bị bỏ khỏi `TaskType` —
+  glossary chưa từng có task này.
+- **C4 — một encoding ngày: ISO** (#231): Mock chỉ còn lưu ngày `YYYY-MM-DD`/mốc thời gian ISO
+  timestamp/kỳ `YYYY-MM` — không còn `DD/MM/YYYY` hay `MM/YYYY` sống trong Mock, `mutationFn`, hay một
+  type comment nào. Mọi màn hình hiển thị vẫn `DD/MM/YYYY`/`MM/YYYY` như cũ, nhưng đọc qua
+  `formatDate`/`formatMonth`/`formatOptionalDate` (ba hàm còn lại của `~/utils/date.ts`) đúng lúc
+  render — không còn `compareDisplayDates` hay `toIsoDate` (hai hàm đảo encoding qua lại đã xoá cùng
+  các "already display-formatted" trên type). `Invoice.month` (bản MM/YYYY viết sẵn) cũng xoá —
+  màn hình tự `formatMonth(billingMonth)`. `test/constants/mock-integrity.test.tsx` quét mọi field tên
+  `*Date`/`*At`/`*Updated`/`month`/`period` trên mọi entity Mock và đỏ ngay khi ai seed một ngày hiển
+  thị.
+
+Chi tiết đầy đủ (kể cả những chỗ lệch khỏi kế hoạch ban đầu) nằm ở comment tổng kết trên spec
+[#227](https://github.com/qtuan02/monorepo/issues/227); không lặp lại ở đây.
+
+## Hình dạng round 4
+
+Round 4 "gọn hơn" (spec #241, brief `docs/design/smart-rental-round4.md`, 22 quyết định) không đổi
+IA/flow/token — chỉ đổi **số thứ trên một màn** và **cỡ của chúng**, cắt theo composite thành 7 ticket
++ một tổng kiểm (#242–#249).
+
+**Shell (T1, #242):** mỗi màn giờ chỉ còn **một** tiêu đề. Từ `md` lên, `AppHeader` bỏ hẳn tên + mô tả
+mục sidebar — chỉ còn trigger sidebar · ô tìm ⌘K · chuông · avatar; `h1` của `ListPageHeader` /
+`DetailPageShell` là tiêu đề duy nhất. Dưới `md`, header giữ tên mục (nơi duy nhất nó còn hiện), `h1`
+của trang thành `sr-only` — vẫn trong DOM cho trình đọc màn hình, không in hai lần. Nút tạo của một màn
+danh sách không còn nằm ở một hàng riêng dưới tiêu đề trên điện thoại: nó là một nút navy tròn
+icon-only cạnh ô tìm/chuông trên `AppHeader`, tới đó qua **`#header-action-slot`** — một DOM id
+`AppHeader` mở, `ListPageHeader` portal `mobileAction` vào
+(`~/components/page/header-action-slot.tsx`). Không phải context xuyên `~/features/layout` ↔ một
+feature khác: hai bên chỉ cùng import một module ở `~/components`, giữ
+[[architecture-circular-dependencies]] nguyên vẹn — `AppHeader` không cần biết feature nào đang mở, và
+không feature nào import `~/features/layout`. Dải Toà nhà dưới `md` có một fade mép phải
+(`BuildingScope`) làm dấu hiệu còn cuộn được.
+
+**Bốn nấc chữ** (thay bảy cỡ đậm cũ của ba round trước): trang 20/600 · mục 15/600 · thân 14/400 · meta
+12/400 — chỉ **tiền** được 600 ngoài "thân". "Trang" và "mục" không khớp thang mặc định của Tailwind
+(`text-xl` là 20px, nhưng round 4 cấm chính lớp đó; 15px không có lớp mặc định nào), nên viết bằng giá
+trị tuỳ ý `text-[20px]`/`text-[15px]` thay vì `text-2xl`/`text-xl`/`font-bold` — ba lớp cấm đó là dấu
+vết còn lại của bảy cỡ cũ, nên một test quét văn bản phân biệt được "nấc mới" khỏi "thang cũ" mà không
+cần đọc weight. `test/text-tier-guard.test.ts` quét `src/components/**` + `src/features/**/templates/**`
+như văn bản thô, chặn ba lớp trên, và chặn `lucide-react` trong một `*-columns.tsx` (ô bảng không icon
+trang trí — round 4 §1.3). T1 mở guard với một allowlist liệt kê mọi file còn vi phạm tại thời điểm mở
+(cả hai chiều); mỗi ticket sau đó rút file của mình khi chuyển, và T8 (#249) xoá hẳn allowlist — quét
+toàn phạm vi, không ngoại lệ nào còn lại.
+
+**`DataTable` là chủ con số (T2, #243):** toolbar tự in "N `entityLabel`" hoặc, khi có lọc/tìm, "M / N
+`entityLabel`" — `h1`/`ListPageHeader` không còn in số đếm riêng (tránh nói hai lần, §1.1). Ô tìm **và**
+`PaginationBar` cùng tự ẩn khi `total ≤ pageSize` (12) — Đối soát (3 dòng) hết ô tìm/lật trang mà không
+cần rời `DataTable`. Hàng bảng `h-11` (44 px, target chạm HIG), header `h-9`; cột tiền căn phải cả header
+lẫn ô. Dưới `md`, toolbar gộp một hàng — ô tìm · nút facet icon-only · một `⋯` gom Xuất CSV và chuyển
+Dạng thẻ/Dạng bảng (thay vì mỗi thứ một hàng).
+
+**`DetailPageShell` + `InfoCard` (T3, #244):** `h2` tên thực thể 20/600; cột phải chỉ mở khi màn có ≥ 1
+hành động **ngoài** header — không có thì nội dung rộng `max-w-3xl`. Ô "Liên kết" bỏ hẳn ở mọi màn chi
+tiết (Phòng, Hợp đồng, …) — link thuộc-về đã nằm ở dòng meta dưới tên. `InfoRow` flex-between (nhãn sát
+trái, giá trị sát phải, cách nhau tới 600 px) đổi thành `dl` hai cột `[140px_1fr]` — giá trị đứng ngay
+cạnh nhãn. Phòng: "Người thuê hiện tại" (từng là một card riêng cho một dòng) gộp vào một `dt`/`dd` của
+"Thông tin phòng"; phòng trống đọc "— (trống)" kèm link "Tạo hợp đồng" khi `contractActions` cho phép.
+Hợp đồng: alert "sẽ hết hạn trong N ngày" bỏ — badge tự mang số ngày ("Sắp hết hạn · 11 ngày"), nút "Gia
+hạn" đã ở header. `ContractCreate` vào một card `max-w-2xl` (640 px) như mọi form khác.
+
+**`KpiStrip` + thẻ thực thể (T4, #245):** `KpiStrip` xuống `p-3`, số `text-lg font-semibold` (18/600);
+mobile lưới 2×2, ô cuối full-width nếu số KPI lẻ. Bỏ hẳn ở danh sách Người thuê (ba số "5 / 5 / 0" là
+hằng của Mock, không phải trạng thái). Thẻ Phòng ≈ 96 px — tên + `⋯` một hàng, meta sentence-case một
+dòng `truncate` ("Phòng đơn · 22 m² · Nguyễn Văn A"), giá; badge chỉ khi trạng thái **khác** "Đã thuê".
+Thẻ Toà nhà bỏ khối ảnh `h-32` (Mock chưa có ảnh thật) — chờ `imageUrl` thật mới thêm avatar 40 px cạnh
+tên, chiều cao thẻ không đổi.
+
+**10 file `*-columns.tsx` + `TaskQueue` (T5, #246):** bỏ icon `lucide-react` trong ô (hộp biên lai,
+người, nhà, lịch, điện thoại, …) — header cột đã nói đó là gì, mã hoá đơn về `font-mono` không hộp. Tiền
+`text-foreground font-semibold tabular-nums text-right`, không còn `text-primary` (navy dành cho hành
+động, không phải mọi con số). Tên + phòng gộp một dòng "Nguyễn Văn A · Phòng 102". Hoá đơn: desktop giữ
+cột Hạn (sort được), badge tự mang số ngày quá hạn; mobile bỏ cột, chỉ còn badge. `TaskQueue`: hành động
+theo dòng ("Nhắc tất cả", "Xem N hoá đơn", "Sửa chỉ số") về `outline`/`ghost` `size="sm"` — không còn
+`Button` mặc định (navy đặc) theo dòng.
+
+**Màn Kỳ (T6, #247):** bảng có header hai tầng — "Điện (kWh)"/"Nước (m³)" ở trên, "Cũ · Mới · Dùng" ở
+dưới, mỗi giá trị một `td` căn phải thay vì một `flex` riêng mỗi ô (ba số giờ thẳng cột giữa các dòng).
+`MeterCell` (#228) vẫn một gate, chỉ đổi **hình**: 3 `td` cho bảng, một khối như cũ cho thẻ mobile. Nhãn
+"Điện"/"Nước" lặp trong từng dòng bỏ; ✎ sửa chỉ số cũ chuyển vào `⋯` cuối dòng; bất thường đọc badge
+"Điện ×2,2" + nút "Duyệt" `sm` ngay trong ô Trạng thái. Action bar ("Lưu nháp chỉ số" `outline` + "Lập N
+hoá đơn" — primary duy nhất của màn) chuyển thành một hàng ngay trên bảng, helper text điều kiện + tiến
+độ cùng hàng bên trái.
+
+**Báo cáo + Đối soát (T7, #248):** biểu đồ đổi màu qua `chartConfig` của từng chart sang `var(--primary)`
+(navy của app, không đụng `--chart-*` — ADR-0011); nửa donut "Lấp đầy theo tầng" bỏ hẳn, thay bằng cột
+một màu kèm nhãn % trực tiếp, sắp giảm dần; "Doanh thu theo tháng" thêm nhãn giá trị. "Xuất báo cáo" lên
+hàng `h1`, bộ chọn "Kỳ" vào hàng toolbar của bảng — mỗi thứ không còn chiếm một hàng 50 px riêng. Đối
+soát về `Table` thường (Q4/Q5 đã làm `DataTable` đủ gọn cho 3 dòng); badge "Lỗ/Lãi" giữ tone, số tiền +
+chênh lệch về màu chữ thường, mũi tên bỏ hẳn.
+
+**Tổng kiểm (T8, #249):** đo lại 14 route ở 1440×900/390×844 (scope null + `b1`), so với đích của brief
+§1 — hàng bảng 53→44 px, thẻ Phòng 235→≈96 px, 9→0 icon trang trí trong ô, 6→≤1 nút navy đặc mỗi màn đều
+đạt; dòng đầu mobile Phòng ≤ 360 px đạt, nhưng Hoá đơn dừng ở **402 px** (525 px trước round) — `KpiStrip`
+(145 px của khối này) là quyết định đã ship của T4, và phần còn lại cần nén `space-y-6`/`space-y-4` dùng
+chung bởi 17 template + `DataTable`, vượt phạm vi sửa nhỏ của T8 — theo dõi ở
+[#250](https://github.com/qtuan02/monorepo/issues/250). T8 cũng thu nhỏ nút `⋯` (`EntityActionMenu`) từ
+`icon-sm` (32 px) xuống `icon-xs` (24 px, vẫn trên sàn WCAG 2.2 AA) — ở `icon-sm`, ô "Trạng thái"/"⋯" đẩy
+hàng bảng lên 49 px, vượt đích 44 px của chính T2.
+
+Chi tiết đầy đủ 22 quyết định + việc từng ticket ship (kể cả những chỗ lệch khỏi kế hoạch ban đầu) — comment
+tổng kết trên spec [#241](https://github.com/qtuan02/monorepo/issues/241); không lặp lại ở đây.
 
 ## Deploy Vercel
 

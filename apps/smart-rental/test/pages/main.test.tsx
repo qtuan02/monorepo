@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
@@ -7,12 +7,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import dayjs from "@monorepo/dayjs";
 
-import { mockExpenses } from "~/constants/mock/expenses";
 import { mockInvoices } from "~/constants/mock/invoices";
-import { mockSupplierBills } from "~/constants/mock/supplier-bills";
 import { ROUTES } from "~/constants/routes";
 import { buildInvoiceSummaryStats } from "~/features/invoices/utils/invoice-calculations";
 import { getReconciliationStats } from "~/features/reconciliation/utils/reconciliation-stats";
+import { readWorld } from "~/libs/mock-world";
+import { queryClient } from "~/libs/query-client";
 import { AppRoutes } from "~/pages/main";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useBuildingStore } from "~/stores/use-building-store";
@@ -36,15 +36,20 @@ const initialBuildingState = useBuildingStore.getState();
  * `MemoryRouter`: only a data router exposes `state.historyAction`, which is
  * what proves a guard bounced with `replace` and not `push`.
  *
- * A fresh `QueryClient` per render, the provider `MainApp` gives the tree: the
- * shell's Building scope selector reads its Toà nhà through `~/hooks/api`.
+ * The app's own `queryClient` singleton (`~/libs/query-client`), the same one
+ * `MainApp` provides — not a bare `new QueryClient()` — because ADR-0015 §3
+ * moved every mutation's cache invalidation onto that singleton's global
+ * `MutationCache.onSuccess`; a fresh client with no `mutationCache` config
+ * would never invalidate anything. `clear()` keeps each render starting from
+ * an empty cache, the same isolation a fresh client gave before.
  */
 function renderAt(path: string) {
+  queryClient.clear();
   const router = createMemoryRouter([{ path: "*", element: <AppRoutes /> }], {
     initialEntries: [path],
   });
   render(
-    <QueryClientProvider client={new QueryClient()}>
+    <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
@@ -150,12 +155,40 @@ describe("the route tree", () => {
       }
     });
 
+    // Round 4 §10 Q2 — `AppHeader` no longer names the area from `md` up;
+    // the screen's own `<h1>` is the one heading a visitor sees there. The
+    // string below is the area's OLD description, once printed by the
+    // header for every screen (`roomsItem.description` in
+    // `~/features/layout/constants/navigation`).
+    it("shows no area title/description in AppHeader — the screen's <h1> is the one heading", () => {
+      renderAt(ROUTES.ROOMS);
+
+      expect(heading("Phòng")).toBeInTheDocument();
+      expect(
+        screen.queryByText("Quản lý danh sách phòng và trạng thái."),
+      ).not.toBeInTheDocument();
+    });
+
+    // Round 4 §10 Q12 — the header's mobile "+" opens the SAME create sheet
+    // the desktop "Thêm phòng" button does, through the DOM slot in
+    // `~/components/page/header-action-slot.tsx`.
+    it("opens «Thêm phòng mới» from the header's mobile «Tạo phòng» button", async () => {
+      const user = userEvent.setup();
+      renderAt(ROUTES.ROOMS);
+
+      await user.click(screen.getByRole("button", { name: "Tạo phòng" }));
+
+      expect(
+        await screen.findByRole("dialog", { name: "Thêm phòng mới" }),
+      ).toBeInTheDocument();
+    });
+
     // Spec #153 §10 row 9 / ADR-0012 — a fact computed at read time, on the
     // screen that shows it, rather than trusted from the Mock's own literal.
     it("shows a derived Quá hạn badge on the invoice list", async () => {
       renderAt(ROUTES.INVOICES);
 
-      expect(await screen.findAllByText("Quá hạn")).not.toHaveLength(0);
+      expect(await screen.findAllByText(/Quá hạn/)).not.toHaveLength(0);
     });
 
     // Ticket #157 — the KPI strip's own numbers, over the whole (unscoped)
@@ -198,13 +231,7 @@ describe("the route tree", () => {
       renderAt(ROUTES.RECONCILIATION);
 
       const period = dayjs().format("YYYY-MM");
-      const items = buildReconciliationItems(
-        mockInvoices,
-        mockSupplierBills,
-        mockExpenses,
-        "b1",
-        period,
-      );
+      const items = buildReconciliationItems(readWorld("b1"), period);
       const stats = getReconciliationStats(items);
 
       expect(
@@ -224,7 +251,10 @@ describe("the route tree", () => {
       // dueDate, so the oldest (overdue) due date leads.
       const firstDataRow = rows[1];
       if (!firstDataRow) throw new Error("expected at least one data row");
-      expect(within(firstDataRow).getByText("Quá hạn")).toBeInTheDocument();
+      // Round 4 §10 Q11 — the badge carries its own day count.
+      expect(
+        within(firstDataRow).getByText(/^Quá hạn \d+ ngày$/),
+      ).toBeInTheDocument();
     });
 
     it("opens the tab named by `?tab=` on a detail screen's deep link", async () => {
@@ -256,6 +286,36 @@ describe("the route tree", () => {
       renderAt(ROUTES.TENANTS);
 
       expect(await screen.findAllByText("Đang thuê")).not.toHaveLength(0);
+    });
+
+    // Ticket #223 (spec #221 T2) — `DataTable` only prepends a selection
+    // column when given `selectionActions`; Phòng and Hợp đồng pass none, so
+    // their old hand-copied checkbox (dead — nothing ever read the selection)
+    // is gone, while Hoá đơn keeps its (Gửi nhắc reads it).
+    it("renders no selection checkbox on the room list", async () => {
+      renderAt(ROUTES.ROOMS);
+      // The desktop table and the mobile row substitute both sit in the DOM
+      // at once (only CSS decides which one shows), so a row's text is
+      // findAllBy, not findBy — see [[testing-coverage]].
+      expect(await screen.findAllByText("Phòng 101")).not.toHaveLength(0);
+      expect(
+        screen.queryByRole("checkbox", { name: "Chọn dòng" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("renders no selection checkbox on the contract list", async () => {
+      renderAt(ROUTES.CONTRACTS);
+      expect(await screen.findAllByText("HĐ-002")).not.toHaveLength(0);
+      expect(
+        screen.queryByRole("checkbox", { name: "Chọn dòng" }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("keeps the selection checkbox on the invoice list", async () => {
+      renderAt(ROUTES.INVOICES);
+      expect(
+        await screen.findAllByRole("checkbox", { name: "Chọn dòng" }),
+      ).not.toHaveLength(0);
     });
 
     // Ticket #161 — "tạo/sửa trong FormSheet", never a separate page (there is
@@ -596,8 +656,8 @@ describe("Building scope required — Kỳ điện nước & hoá đơn", () => 
 });
 
 // Spec #153 §10 row 32 (AC: "xoá một Phòng, reset, Phòng trở lại") — each
-// `renderAt` mounts a fresh QueryClient, so this only proves something if the
-// Mock array itself, not a cache, is what came back.
+// `renderAt` clears the cache before rendering, so this only proves something
+// if the Mock array itself, not a stale cache entry, is what came back.
 describe("Khôi phục dữ liệu mẫu — Cài đặt", () => {
   beforeEach(() => {
     useAuthStore.setState(initialAuthState, true);

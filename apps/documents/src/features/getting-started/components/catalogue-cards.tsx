@@ -73,7 +73,8 @@ function CountCard({
  * The three cards under the hero (brief §2c *Landing*): the two catalogues,
  * each counted from the generated JSON rather than a literal — run `ui-add`
  * and the next build says 64 — and a solid indigo card that is the Storybook
- * call to action. `1.2fr 1fr 1fr` from `md`, stacked below.
+ * call to action. Two columns from `md` (Storybook spanning both), `1.2fr
+ * 1fr 1fr` from `lg`, stacked below `md`.
  */
 export default function CatalogueCards() {
   const { t } = useTranslation();
@@ -81,7 +82,7 @@ export default function CatalogueCards() {
   const hookCount = hookCatalogue.items.length;
 
   return (
-    <div className="grid gap-4 pb-10 md:grid-cols-[1.2fr_1fr_1fr]">
+    <div className="grid gap-4 pb-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr]">
       <CountCard
         to={ROUTES.COMPONENTS}
         heading={t("documents.nav.components")}
@@ -107,7 +108,7 @@ export default function CatalogueCards() {
         rel="noopener noreferrer"
         className={cn(
           cardClassName,
-          "text-primary-foreground border-primary-foreground/35 bg-[linear-gradient(135deg,var(--primary),var(--aurora-violet))]",
+          "text-primary-foreground border-primary-foreground/35 bg-[linear-gradient(135deg,var(--primary),var(--aurora-violet))] md:col-span-2 lg:col-span-1",
         )}
       >
         <span

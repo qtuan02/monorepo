@@ -62,3 +62,6 @@ settings.local.json
 .gitnexus/
 # `npx ui-ux-pro-max-cli init` vendors Python scripts under .agents/skills/ui-ux-pro-max; running them would leave bytecode there
 __pycache__/
+
+# Claude Code scheduled-task lock: a per-session pid file, never source
+.agents/scheduled_tasks.lock

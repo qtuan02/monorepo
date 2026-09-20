@@ -1,14 +1,13 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
-import { useEffect } from "react";
-import { X } from "lucide-react";
+import { Fragment, useEffect } from "react";
+import { LayoutGrid, List, MoreHorizontal, X } from "lucide-react";
 
 import type {
   DataTableColumnDef,
   DataTableInstance,
   DataTableRowData,
 } from "@monorepo/ui/components/data-table";
-import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
 import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
@@ -16,16 +15,37 @@ import {
   DataTableContent,
   useDataTable,
 } from "@monorepo/ui/components/data-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@monorepo/ui/components/dropdown-menu";
+import { cn } from "@monorepo/ui/utils/cn";
 
+import type { ListView } from "~/components/data-table/list-view";
 import type { TableSort } from "~/components/data-table/use-table-search-params";
 import type { FilterOption } from "~/constants/status";
 import { FacetedFilter } from "~/components/data-table/faceted-filter";
+import { ListViewSwitch, useListView } from "~/components/data-table/list-view";
 import { PaginationBar } from "~/components/data-table/pagination-bar";
 import { SearchInput } from "~/components/data-table/search-input";
 import { SelectionBar } from "~/components/data-table/selection-bar";
 import { useTableSearchParams } from "~/components/data-table/use-table-search-params";
 import { EmptyPanel } from "~/components/panel/empty-panel";
+import { ErrorPanel } from "~/components/panel/error-panel";
+import {
+  CardGridSkeleton,
+  TableSkeleton,
+} from "~/components/panel/loading-panel";
 import { clampPage } from "~/utils/pagination";
+
+/** `h-9`/`h-11` beat the primitive's own `h-10` header / padding-driven body height on specificity (round 4 "Bớt", 44 px rows). */
+const ROW_HEIGHT_CLASSNAME = "[&_thead_th]:h-9 [&_tbody_td]:h-11";
+
+const FILTER_EMPTY_DESCRIPTION =
+  "Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm để xem kết quả.";
 
 /**
  * The filter a facet column opts into: the row's value is one of the selected
@@ -42,12 +62,15 @@ export function facetFilterFn(
 }
 
 /**
- * A checkbox column for row selection — a `DataTable`'s selection bar (spec
- * #153 §10 row 178) only makes sense once a table has one. Header toggles
- * every row on the current page; `stopPropagation` keeps a click on the box
- * itself from also triggering a row-level click handler a caller may add.
+ * A checkbox column for row selection, auto-prepended by `DataTable` itself
+ * whenever `selectionActions` is given — a caller never lists it among its
+ * own `columns` (spec #221 T2: a hand-copied one with no `selectionActions`
+ * behind it is a dead checkbox, the bug this fixes on Rooms/Hợp đồng). Header
+ * toggles every row on the current page; `stopPropagation` keeps a click on
+ * the box itself from also triggering a row-level click handler a caller may
+ * add.
  */
-export function createSelectionColumn<
+function createSelectionColumn<
   TData extends DataTableRowData,
 >(): DataTableColumnDef<TData> {
   const helper = createDataTableColumnHelper<TData>();
@@ -83,47 +106,76 @@ interface DataTableFacet {
   options: FilterOption[];
 }
 
+/**
+ * The shape `DataTable` reads off a TanStack Query result — a real
+ * `useQuery`/`useGetXxx()` return satisfies this structurally, with no cast
+ * needed, and so does a hand-built stand-in for data a caller already
+ * resolved itself (e.g. one Toà nhà's slice of an outer query).
+ */
+export interface DataTableQuery<TData> {
+  data: TData[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  refetch: () => unknown;
+}
+
 interface DataTableProps<TData extends DataTableRowData> {
   columns: DataTableColumnDef<TData>[];
-  data: TData[];
+  query: DataTableQuery<TData>;
   getRowId: (row: TData) => string;
   /** Free-text search over one column, with `filterFn: "includesString"` set on it. */
   search?: { columnId: string; placeholder: string };
   facets?: DataTableFacet[];
-  empty: { icon?: LucideIcon; title: string; description?: string };
-  /** "45 phòng được tìm thấy" — built from the filtered count. */
-  resultLabel?: (filteredCount: number) => string;
-  /** Controls at the right end of the result line (a grid/table switch). */
-  viewSwitch?: ReactNode;
+  empty: { icon?: LucideIcon; title: string };
+  /**
+   * "phòng" → the toolbar's own count: "45 phòng" unfiltered, "12 / 45 phòng"
+   * once a search/facet narrows it (round 4 Q3 — `DataTable` is the one owner
+   * of this number). Omit for no count line at all.
+   */
+  entityLabel?: string;
   /**
    * Controls at the right end of the filter toolbar. A function is handed
    * the filtered (pre-pagination) rows — "các hàng đang lọc" — for a CSV
    * export button that must export exactly what search/facets narrowed to.
    */
   toolbarActions?: ReactNode | ((filteredRows: TData[]) => ReactNode);
-  /** An alternative body over the same filtered, sorted, paged rows (a card grid). */
+  /**
+   * One row as a card — `DataTable` wraps every visible row's card in the
+   * shared `sm:grid-cols-2 lg:grid-cols-3` grid itself once the view switches
+   * to "Dạng thẻ". Giving either this or `renderRows` turns the switch on.
+   */
+  card?: (row: TData) => ReactNode;
+  /**
+   * An alternative body over the whole filtered+sorted set (the Phòng floor
+   * grid) — kept for a grid that is not a plain one-card-per-row mapping.
+   * Pagination auto-disables while this is the view showing, since a floor
+   * grid must show its whole scope at once.
+   */
   renderRows?: (rows: TData[], table: DataTableInstance<TData>) => ReactNode;
   /**
    * A row's mobile substitute (`~/components/data-table/item.tsx` shape) —
-   * only reached when `renderRows` is not set, i.e. the table itself is
-   * showing, since a card grid already stacks to one column on its own.
+   * only reached when the table itself is showing (neither `card` nor
+   * `renderRows` is the current view), since a card grid already stacks to
+   * one column on its own.
    */
   renderMobileRow?: (row: TData) => ReactNode;
   /**
    * The selection bar's action buttons, given the selected rows and a
-   * function to clear the selection. Only rendered once `columns` carries a
-   * `createSelectionColumn()` entry — without one, nothing is ever selected.
+   * function to clear the selection. Given this, `DataTable` prepends its own
+   * selection column — nothing is ever selectable without it.
    */
   selectionActions?: (
     selectedRows: TData[],
     clearSelection: () => void,
   ) => ReactNode;
   /**
-   * `false` shows the whole filtered+sorted set with no `PaginationBar` —
-   * the Phòng grid groups by floor and must show the entire scope at once
-   * (spec #153 §10 row 43). Default `true`.
+   * `false` shows the whole filtered+sorted set with no `PaginationBar`, for
+   * a screen with no card/table switch at all (a report's period rows).
+   * Ignored (forced off) while `renderRows` is the view showing. Default `true`.
    */
   paginate?: boolean;
+  /** The view "Dạng thẻ"/"Dạng bảng" opens on, while `card` or `renderRows` is given. Default `"table"`. */
+  defaultView?: ListView;
   /**
    * The list's own order (spec #179 §3.6) — a column id the columns carry,
    * ascending unless `desc`. Applied until a header is clicked; clicking back
@@ -135,26 +187,35 @@ interface DataTableProps<TData extends DataTableRowData> {
 /**
  * The list composite every slice stands on (spec #127): search, faceted
  * filters, sort, page and page size over one TanStack instance from the
- * `data-table` primitive. Search, facets, page, size and sort live on the
- * URL — a reload or a shared link lands on the same view — while row
- * selection stays in the table.
+ * `data-table` primitive, plus the query's own loading/error/empty states
+ * (spec #221 T2 — merged in from the now-deleted `QuerySection`). Search,
+ * facets, page, size, sort and the card/table view all live on the URL — a
+ * reload or a shared link lands on the same view — while row selection stays
+ * in the table.
  */
 export function DataTable<TData extends DataTableRowData>({
   columns,
-  data,
+  query,
   getRowId,
   search,
   facets = [],
   empty,
-  resultLabel,
-  viewSwitch,
+  entityLabel,
   toolbarActions,
+  card,
   renderRows,
   renderMobileRow,
   selectionActions,
   defaultSort,
   paginate = true,
+  defaultView = "table",
 }: DataTableProps<TData>) {
+  const data = query.data ?? [];
+  const effectiveColumns = selectionActions
+    ? [createSelectionColumn<TData>(), ...columns]
+    : columns;
+  const hasAltView = !!(card || renderRows);
+
   const facetIds = facets.map((facet) => facet.columnId);
   const { params, setParams } = useTableSearchParams(
     facetIds,
@@ -162,6 +223,9 @@ export function DataTable<TData extends DataTableRowData>({
       ? { columnId: defaultSort.columnId, desc: !!defaultSort.desc }
       : null,
   );
+  // Called unconditionally (Rules of Hooks) even when no card/renderRows is
+  // given — the switch itself only renders while `hasAltView` is true.
+  const [view, setView] = useListView(defaultView);
 
   const columnFilters = [
     ...(search && params.search
@@ -180,7 +244,7 @@ export function DataTable<TData extends DataTableRowData>({
     : [];
 
   const table = useDataTable<TData>({
-    columns,
+    columns: effectiveColumns,
     data,
     getRowId,
     state: { columnFilters, pagination, sorting },
@@ -219,6 +283,11 @@ export function DataTable<TData extends DataTableRowData>({
     },
   });
 
+  const showingGrid = hasAltView && view === "grid";
+  // A floor/custom grid must show its whole scope at once; a plain card grid
+  // still paginates like the table does.
+  const effectivePaginate = showingGrid && renderRows ? false : paginate;
+
   const filteredRows = table.getFilteredRowModel().rows;
   const filteredCount = filteredRows.length;
   const toolbar =
@@ -226,21 +295,24 @@ export function DataTable<TData extends DataTableRowData>({
       ? toolbarActions(filteredRows.map((row) => row.original))
       : toolbarActions;
   const pageCount = table.getPageCount();
-  // Filtered + sorted, pre-pagination — what `paginate={false}` shows in full.
-  const rows = paginate
+  // Filtered + sorted, pre-pagination — what `effectivePaginate === false` shows in full.
+  const rows = effectivePaginate
     ? table.getRowModel().rows
     : table.getSortedRowModel().rows;
   const selectedCount = Object.keys(table.state.rowSelection ?? {}).length;
   const isFiltering = columnFilters.length > 0;
+  // Round 4 Q4: a list that already fits one page has nothing for either
+  // control to do — hides both together, facets stay.
+  const hideSearchAndPagination = data.length <= pagination.pageSize;
 
   // A `?page=` past the last page (a stale link, a shorter list after a
   // filter) is corrected in the URL, the external system that owns it —
   // moot while the whole set is already on screen.
   useEffect(() => {
-    if (!paginate) return;
+    if (!effectivePaginate) return;
     const safePage = clampPage(params.page, pageCount);
     if (safePage !== params.page) setParams({ page: safePage });
-  }, [paginate, params.page, pageCount, setParams]);
+  }, [effectivePaginate, params.page, pageCount, setParams]);
 
   // Counts per option over the whole scoped list, not the filtered one, so a
   // facet still shows what selecting it would reveal.
@@ -253,25 +325,63 @@ export function DataTable<TData extends DataTableRowData>({
     return counts;
   };
 
+  if (query.isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="hidden md:block">
+          <TableSkeleton columnCount={effectiveColumns.length} />
+        </div>
+        <div className="md:hidden">
+          <CardGridSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (query.isError) {
+    return (
+      <ErrorPanel
+        description={
+          entityLabel
+            ? `Không tải được danh sách ${entityLabel}.`
+            : "Không tải được dữ liệu."
+        }
+        action={{ label: "Thử lại", onClick: () => void query.refetch() }}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {(resultLabel || viewSwitch) && (
+      {(entityLabel || hasAltView || isFiltering) && (
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            {resultLabel && (
+            {entityLabel && (
               <span className="text-muted-foreground text-sm font-medium">
-                {resultLabel(filteredCount)}
+                {isFiltering
+                  ? `${filteredCount} / ${data.length} ${entityLabel}`
+                  : `${data.length} ${entityLabel}`}
               </span>
             )}
-            {isFiltering && <Badge variant="secondary">Đang lọc</Badge>}
+            {isFiltering && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => table.resetColumnFilters()}
+              >
+                Xóa bộ lọc
+                <X />
+              </Button>
+            )}
           </div>
-          {viewSwitch}
+          {hasAltView && <ListViewSwitch view={view} onViewChange={setView} />}
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-1 flex-wrap items-center gap-2">
-          {search && (
+      <div className="flex items-center gap-2">
+        <div className="flex flex-1 items-center gap-2 overflow-x-auto">
+          {search && !hideSearchAndPagination && (
             <SearchInput
               value={params.search}
               placeholder={search.placeholder}
@@ -296,26 +406,50 @@ export function DataTable<TData extends DataTableRowData>({
               }
             />
           ))}
-          {isFiltering && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => table.resetColumnFilters()}
-            >
-              Xóa bộ lọc
-              <X />
-            </Button>
-          )}
         </div>
-        {toolbar && <div className="flex items-center gap-2">{toolbar}</div>}
+        {toolbar && (
+          <div className="hidden items-center gap-2 md:flex">{toolbar}</div>
+        )}
+        {(toolbar || hasAltView) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-sm"
+                  aria-label="Thao tác khác"
+                  className="md:hidden"
+                >
+                  <MoreHorizontal />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end">
+              {hasAltView && (
+                <>
+                  <DropdownMenuItem onClick={() => setView("grid")}>
+                    <LayoutGrid />
+                    Dạng thẻ
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setView("table")}>
+                    <List />
+                    Dạng bảng
+                  </DropdownMenuItem>
+                  {toolbar && <DropdownMenuSeparator />}
+                </>
+              )}
+              {toolbar}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       {filteredCount === 0 ? (
         <EmptyPanel
           icon={empty.icon}
           title={empty.title}
-          description={empty.description}
+          description={FILTER_EMPTY_DESCRIPTION}
           action={
             isFiltering
               ? {
@@ -326,15 +460,28 @@ export function DataTable<TData extends DataTableRowData>({
           }
           className="border"
         />
-      ) : renderRows ? (
-        renderRows(
-          rows.map((row) => row.original),
-          table,
+      ) : showingGrid ? (
+        renderRows ? (
+          renderRows(
+            rows.map((row) => row.original),
+            table,
+          )
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {rows.map((row) => (
+              <Fragment key={getRowId(row.original)}>
+                {card?.(row.original)}
+              </Fragment>
+            ))}
+          </div>
         )
       ) : renderMobileRow ? (
         <>
           <div className="hidden md:block">
-            <DataTableContent table={table} className="bg-card shadow-sm" />
+            <DataTableContent
+              table={table}
+              className={cn("bg-card shadow-sm", ROW_HEIGHT_CLASSNAME)}
+            />
           </div>
           <div className="grid gap-2 md:hidden">
             {rows.map((row) => (
@@ -345,7 +492,10 @@ export function DataTable<TData extends DataTableRowData>({
           </div>
         </>
       ) : (
-        <DataTableContent table={table} className="bg-card shadow-sm" />
+        <DataTableContent
+          table={table}
+          className={cn("bg-card shadow-sm", ROW_HEIGHT_CLASSNAME)}
+        />
       )}
 
       {selectionActions && selectedCount > 0 && (
@@ -359,7 +509,7 @@ export function DataTable<TData extends DataTableRowData>({
         />
       )}
 
-      {filteredCount > 0 && paginate && (
+      {filteredCount > 0 && effectivePaginate && !hideSearchAndPagination && (
         <PaginationBar
           totalItems={filteredCount}
           currentPage={params.page}

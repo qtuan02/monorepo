@@ -1,3 +1,4 @@
+import type { Building } from "~/types/building";
 import type { Expense } from "~/types/expense";
 import type { Invoice, InvoiceLineItemType } from "~/types/invoice";
 import type { ReconciliationItem } from "~/types/reconciliation";
@@ -39,12 +40,10 @@ const SUPPLIER_BILL_LINE: Record<
  * a Hoá đơn's own line items, chi from Hoá đơn nhà cung cấp + Chi phí (both
  * folded into the line their `type`/`category` counts against), scoped to
  * one Toà nhà **and** one kỳ (§10 row 11 — "chọn kỳ bằng MonthField"). A line
- * with no income and no expense at all is left out. A "mỗi Toà nhà một khối"
- * screen calls this once per Toà nhà — the loop belongs in
- * `~/hooks/api/reconciliation.ts`, which already holds the Toà nhà list; this
- * function only ever knows one.
+ * with no income and no expense at all is left out. One Toà nhà's own block —
+ * every array already scoped to `buildingId`.
  */
-export function buildReconciliationItems(
+function buildReconciliationItemsForBuilding(
   invoices: IncomeInvoice[],
   supplierBills: ExpenseBill[],
   expenses: ExpenseLine[],
@@ -105,4 +104,32 @@ export function buildReconciliationItems(
       return item;
     })
     .filter((item) => item.incomeAmount > 0 || item.expenseAmount > 0);
+}
+
+/**
+ * "mỗi Toà nhà một khối" (spec #153 §10 row 11) — one block per Toà nhà in
+ * `world.buildings`, already the exact set a Building scope should cover
+ * (one, or every). Takes World (ADR-0015 §1) instead of three positional
+ * arrays; the per-building loop that used to live in
+ * `~/hooks/api/reconciliation.ts` moves here, since `world.buildings` is
+ * already the list a caller would otherwise have rebuilt by hand.
+ */
+export function buildReconciliationItems(
+  world: {
+    buildings: Pick<Building, "id">[];
+    invoices: IncomeInvoice[];
+    supplierBills: ExpenseBill[];
+    expenses: ExpenseLine[];
+  },
+  period: string,
+): ReconciliationItem[] {
+  return world.buildings.flatMap((building) =>
+    buildReconciliationItemsForBuilding(
+      world.invoices,
+      world.supplierBills,
+      world.expenses,
+      building.id,
+      period,
+    ),
+  );
 }

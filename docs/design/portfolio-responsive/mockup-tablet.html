@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>portfolio responsive — 768 px: một cột ↔ hai cột 3/2</title>
+<style>
+  :root{--ink:#252525;--muted:#6b6b6b;--accent:#5a49d6;--yellow:#f2dc3d;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px;background:#e9e9e9;font:14px/1.5 var(--sans);color:var(--ink)}
+  h1{font:700 18px var(--mono);margin:0 0 4px}
+  .note{max-width:80ch;margin:0 0 24px;color:var(--muted)}
+  .frames{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+  .frame{width:768px;flex:none}
+  .frame>h2{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px}
+  .screen{position:relative;width:768px;height:1024px;overflow:hidden;background:#fff;border:2px solid var(--ink)}
+  .page{padding:96px 24px 104px}
+  .block{border:2px solid var(--ink);background:#fff;box-shadow:4px 4px 0 0 var(--ink);padding:20px}
+  .bar{display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--ink);padding:8px 16px;font:13px var(--mono);color:var(--muted)}
+  .dots{display:flex;gap:6px}.dots i{width:12px;height:12px;border:2px solid var(--ink);border-radius:50%}
+  .cmd{font:13px var(--mono);margin:0 0 4px}.cmd b{color:var(--accent);font-weight:400}
+  h3.name{font:700 40px/1.1 var(--mono);margin:0}
+  p{margin:0}
+  .role{font-size:17px;line-height:1.6}.cur{font-size:15px;line-height:1.6;color:var(--muted)}
+  .avatar{width:144px;height:144px;flex:none;border:2px solid var(--ink);background:linear-gradient(135deg,#7aa07a,#3d6b3d)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}
+  .btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--ink);font:13px var(--mono);background:#fff}
+  .btn.y{background:var(--yellow)}
+  .h2{font:700 18px var(--mono);text-transform:uppercase;letter-spacing:.15em;margin:0 0 12px}.h2 b{color:var(--accent)}
+  .sec{margin-top:40px}
+  .prose{font-size:15px;line-height:1.65}.prose p+p{margin-top:8px}
+  .logo{width:48px;height:48px;flex:none;border:2px solid var(--ink);background:#2f9d8f;color:#fff;font:700 11px var(--mono);display:flex;align-items:center;justify-content:center}
+  .rowh{font:700 16px var(--mono)}.period{font:13px var(--mono);color:var(--muted)}
+  ul{margin:8px 0 0;padding-left:18px;font-size:15px;line-height:1.6}
+  .skill{display:grid;grid-template-columns:7.5rem 1fr;gap:4px 16px;font:13px/1.6 var(--mono)}.skill+.skill{margin-top:8px}
+  .skill h4{margin:0;font:600 13px var(--mono);color:var(--muted)}
+  .measure{position:absolute;top:8px;right:8px;font:11px var(--mono);background:#ffe9e9;border:1px solid #c33;padding:2px 6px;color:#c33}
+  .p .measure{background:#e6f6ea;border-color:#2a7;color:#2a7}
+  /* proposed: two columns 3/2 from md */
+  .p .grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);column-gap:32px}
+  .p .hero{grid-column:1/-1;margin-bottom:32px}
+  .p .sec{margin-top:0}.p .col>.sec+.sec{margin-top:32px}
+  .p .skill{grid-template-columns:1fr}
+  .p .avatar{width:128px;height:128px}
+  .dock{position:absolute;left:0;right:0;bottom:16px;display:flex;justify-content:center}
+  .dock nav{display:flex;align-items:center;gap:8px;padding:8px;border:2px solid var(--ink);background:#fff;box-shadow:4px 4px 0 0 var(--ink);font:14px var(--mono)}
+  .dock i{display:block;width:48px;height:48px;border:1px dashed #bbb}
+  .dock .sep{width:2px;height:32px;background:var(--ink);margin:0 4px}
+</style>
+</head>
+<body>
+<h1>apps/portfolio — 768 px (tablet dọc)</h1>
+<p class="note">Trái: hiện trạng — một cột 720 px, About ≈ 95–105 ký tự/dòng (chuẩn 65–75, <code>ux#73</code>), trang cao 2982 px. Phải: đề xuất §3.5 — hai cột từ <code>md</code> với tỉ lệ 3/2 (cột đọc 424 px ≈ 55 ký tự, rail 264 px), Skills về một cột trong rail, Contact/Hobbies xếp dọc; <code>lg</code> giữ 2/1 như v2. Dock ở 768 vẫn là pill nổi (vừa 403 px).</p>
+<div class="frames">
+
+<div class="frame cur"><h2>Hiện trạng — một cột</h2><div class="screen">
+<div class="measure">About: 676 px ≈ 100 ký tự/dòng</div>
+<div class="page">
+  <div class="block" style="padding:0">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span>tuan@portfolio:~</div>
+    <div style="display:flex;gap:32px;padding:24px">
+      <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:16px">
+        <div><p class="cmd"><b>$</b> whoami</p><h3 class="name">Huỳnh Quốc Tuấn</h3></div>
+        <div><p class="cmd"><b>$</b> cat role.txt</p><p class="role">Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.</p></div>
+        <div><p class="cmd"><b>$</b> current --job</p><p class="cur">Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.</p></div>
+        <div class="actions"><span class="btn y">✉ Email</span><span class="btn">⌥ GitHub</span><span class="btn">in LinkedIn</span><span class="btn">⎙ In CV</span></div>
+      </div>
+      <div class="avatar"></div>
+    </div>
+  </div>
+  <div class="sec"><div class="h2"><b>##</b> Giới thiệu</div><div class="block prose">
+    <p>Frontend Developer với 2+ năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Frontend là gốc, và khi dự án cần thì đã ship cả app di động Expo/React Native lẫn backend .NET 8, Spring Boot, PayloadCMS. Quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state để cải thiện hiệu năng và trải nghiệm người dùng.</p>
+    <p>Làm việc nhóm và giao tiếp tốt. Học nhanh, tinh thần thích nghi cao. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng. Có thể làm cả frontend lẫn backend khi dự án cần.</p>
+  </div></div>
+  <div class="sec"><div class="h2"><b>##</b> Kinh nghiệm làm việc</div><div class="block" style="display:flex;gap:16px">
+    <div class="logo">DHS</div>
+    <div style="min-width:0;flex:1"><div style="display:flex;justify-content:space-between"><span class="rowh">MedViet ›</span><span class="period">03/2026 – Hiện tại</span></div><div>Kỹ sư phần mềm</div>
+    <ul><li>Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó: đăng nhập người bệnh qua IAM kèm captcha, phiếu khám sinh từ form-server, lưu và ký theo từng nhóm chỉ tiêu.</li><li>Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR, hồ sơ trình ký và chữ ký.</li></ul></div>
+  </div></div>
+</div>
+<div class="dock"><nav><i></i><i></i><i></i><span class="sep"></span><i></i><span class="sep"></span><span style="padding:0 12px">Tiếng Việt ⌄</span></nav></div>
+</div></div>
+
+<div class="frame p"><h2>Đề xuất — hai cột 3/2 từ md</h2><div class="screen">
+<div class="measure">cột đọc 424 px ≈ 55 ký tự/dòng · rail 264 px</div>
+<div class="page">
+ <div class="grid">
+  <div class="block hero" style="padding:0">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span>tuan@portfolio:~</div>
+    <div style="display:flex;gap:32px;padding:24px">
+      <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:16px">
+        <div><p class="cmd"><b>$</b> whoami</p><h3 class="name">Huỳnh Quốc Tuấn</h3></div>
+        <div><p class="cmd"><b>$</b> cat role.txt</p><p class="role">Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.</p></div>
+        <div><p class="cmd"><b>$</b> current --job</p><p class="cur">Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.</p></div>
+        <div class="actions"><span class="btn y">✉ Email</span><span class="btn">⌥ GitHub</span><span class="btn">in LinkedIn</span><span class="btn">⎙ In CV</span></div>
+      </div>
+      <div class="avatar"></div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="sec"><div class="h2"><b>##</b> Giới thiệu</div><div class="block prose">
+      <p>Frontend Developer với 2+ năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Frontend là gốc, và khi dự án cần thì đã ship cả app di động Expo/React Native lẫn backend .NET 8, Spring Boot, PayloadCMS. Quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state.</p>
+      <p>Làm việc nhóm và giao tiếp tốt. Học nhanh, tinh thần thích nghi cao. Có thể làm cả frontend lẫn backend khi dự án cần.</p>
+    </div></div>
+    <div class="sec"><div class="h2"><b>##</b> Kinh nghiệm làm việc</div><div class="block" style="display:flex;gap:16px">
+      <div class="logo">DHS</div>
+      <div style="min-width:0;flex:1"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:0 12px"><span class="rowh">MedViet ›</span><span class="period">03/2026 – Hiện tại</span></div><div>Kỹ sư phần mềm</div>
+      <ul><li>Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó.</li></ul></div>
+    </div></div>
+  </div>
+  <div class="col">
+    <div class="sec"><div class="h2"><b>##</b> Kỹ năng</div><div class="block">
+      <div class="skill"><h4>Frontend/</h4><div>React, Next.js, TypeScript, Tailwind CSS, shadcn/ui, TanStack Query, Zustand, React Hook Form + Zod, Storybook, i18n</div></div>
+      <div class="skill"><h4>Mobile/</h4><div>React Native, Expo, NativeWind, Reanimated</div></div>
+      <div class="skill"><h4>Backend/</h4><div>Spring Boot, .NET 8, PayloadCMS, PostgreSQL, MongoDB, Redis</div></div>
+      <div class="skill"><h4>DevOps &amp; CI/</h4><div>Docker, GitHub Actions, Vercel, Turborepo, Changesets</div></div>
+      <div class="skill"><h4>Công cụ/</h4><div>Bun, Biome, Vitest, Playwright, Figma</div></div>
+    </div></div>
+    <div class="sec"><div class="h2"><b>##</b> Học vấn</div><div class="block" style="display:flex;gap:16px"><div class="logo" style="background:#fff;color:#c33">STU</div><div style="min-width:0"><div class="rowh">Saigon Technology University</div><div class="period">2020 – 2024</div><div>Kỹ sư Công nghệ thông tin</div></div></div></div>
+  </div>
+ </div>
+</div>
+<div class="dock"><nav><i></i><i></i><i></i><span class="sep"></span><i></i><span class="sep"></span><span style="padding:0 12px">Tiếng Việt ⌄</span></nav></div>
+</div></div>
+
+</div>
+</body>
+</html>

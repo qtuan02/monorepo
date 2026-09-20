@@ -1,43 +1,29 @@
-import type { Building } from "~/types/building";
-import type { Contract } from "~/types/contract";
 import type { CycleProgressSummary } from "~/types/dashboard";
-import type { Invoice } from "~/types/invoice";
-import type { Room } from "~/types/room";
-import type { Utility } from "~/types/utility";
+import type { World } from "~/types/world";
 import { buildCycleRows, isCycleClosingDatePassed } from "~/utils/cycle-rows";
 import { formatMonth } from "~/utils/date";
 
 /**
  * Hôm nay's third KPI ("Chỉ số kỳ MM/YYYY x/y phòng", spec #179 §"Hôm nay") —
  * off the SAME `buildCycleRows` the màn Kỳ table reads (ADR-0013), so the
- * two screens can never disagree on how many Phòng còn thiếu chỉ số. A `null`
- * Building scope sums every Toà nhà's own rows; a scope of one just reads it.
+ * two screens can never disagree on how many Phòng còn thiếu chỉ số. World's
+ * `buildings` already carries a `null` Building scope as every Toà nhà, or
+ * one as just itself, so summing across `world.buildings` reads correctly
+ * either way. Everything `buildCycleRows` needs (Bảng giá, `today`, "Sửa chỉ
+ * số cũ" overrides) now travels on `world` itself — nothing left to forget
+ * to forward (the bug ticket #206 vá'd by hand).
  */
 export function buildCycleProgressSummary(
-  buildings: Pick<Building, "id" | "priceList">[],
+  world: World,
   month: string,
-  rooms: Room[],
-  contracts: Contract[],
-  utilities: Utility[],
-  invoices: Pick<Invoice, "contractId" | "billingMonth">[],
-  today: Date = new Date(),
 ): CycleProgressSummary {
   let entered = 0;
   let total = 0;
   let anomalyCount = 0;
   let invoicedCount = 0;
 
-  for (const building of buildings) {
-    const rows = buildCycleRows(
-      building.id,
-      month,
-      rooms,
-      contracts,
-      utilities,
-      invoices,
-      building.priceList,
-      today,
-    );
+  for (const building of world.buildings) {
+    const rows = buildCycleRows(world, building.id, month);
     for (const row of rows) {
       if (row.status === "EMPTY") continue;
       total += 1;

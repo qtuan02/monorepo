@@ -5,7 +5,7 @@ import { formatDueLabel, taskRelatedPath } from "~/utils/task-due";
 
 const task = {
   id: "task-1",
-  type: "maintenance",
+  type: "batch_pending",
   title: "",
   description: "",
   status: "open",
@@ -19,7 +19,9 @@ const task = {
 describe("taskRelatedPath", () => {
   it.each([
     ["invoice", ROUTES.invoiceDetailPath("x-1")],
-    ["contract", ROUTES.contractDetailPath("x-1")],
+    // "contract" is only ever a contract_expiring Việc — its hành động IS
+    // "Gia hạn", so it lands on the renew wizard (ticket #230).
+    ["contract", ROUTES.contractRenewPath("x-1")],
     ["room", ROUTES.roomDetailPath("x-1")],
     // Both "tenant" task sources (ticket #188) land on the Lưu trú tab.
     ["tenant", `${ROUTES.tenantDetailPath("x-1")}?tab=residence`],

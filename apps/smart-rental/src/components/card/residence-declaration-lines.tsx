@@ -13,6 +13,7 @@ import {
   complianceStatusConfig,
   residenceNotificationStatusConfig,
 } from "~/constants/status";
+import { formatDate } from "~/utils/date";
 
 // Giữ nguyên link hiện tại (ticket #188) — chưa xác minh đây có đúng là cổng
 // dịch vụ công cho Thông báo lưu trú / Đăng ký tạm trú hay không.
@@ -59,7 +60,7 @@ export function ResidenceDeclarationLines({
             <p className="font-medium">Thông báo lưu trú</p>
             <p className="text-muted-foreground text-xs">
               {declaration.notificationStatus === "sent"
-                ? `Đã gửi ${declaration.notificationDate} · ${declaration.referenceNumber}`
+                ? `Đã gửi ${formatDate(declaration.notificationDate ?? "")} · ${declaration.referenceNumber}`
                 : "Chưa gửi cho công an cấp xã"}
             </p>
           </div>
@@ -89,7 +90,7 @@ export function ResidenceDeclarationLines({
           <div>
             <p className="font-medium">Đăng ký tạm trú</p>
             <p className="text-muted-foreground text-xs">
-              Hết hạn {declaration.registrationDueDate}
+              Hết hạn {formatDate(declaration.registrationDueDate)}
               {declaration.registrationExpiringSoon && " · sắp hết hạn"}
             </p>
           </div>

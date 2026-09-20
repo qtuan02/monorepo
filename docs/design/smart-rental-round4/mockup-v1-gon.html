@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>smart-rental round 4 — "gọn" — mockup v1 (hai hướng)</title>
+<style>
+  /* Bản ghi tại thời điểm chọn, không phải source. Không script, không font ngoài.
+     Token đúng bằng apps/smart-rental/src/globals.css (ADR-0011) — round này KHÔNG thêm token. */
+  :root{
+    --bg:#f8fafc;--fg:#0f172a;--muted:#475569;--card:#fff;--border:#e2e8f0;--border-2:#cbd5e1;
+    --primary:#1e3a5f;--accent:#eff6ff;--success:#016630;--success-bg:#dcfce7;--warning:#973c00;--warning-bg:#fef3c7;
+    --destructive:#9f0712;--destructive-bg:#fee2e2;--info:#193cb8;--info-bg:#dbeafe;--radius:6px;
+    /* Thang chữ 4 nấc — cả hai hướng dùng chung. */
+    --t-page:20px;--t-section:15px;--t-body:14px;--t-meta:12px;
+    /* Mật độ — hướng A "Bớt" */
+    --row:44px;--cell-x:12px;--card-pad:16px;--kpi-pad:12px 16px;--kpi-num:18px;--gap:16px;
+  }
+  .dir-b{--row:40px;--cell-x:10px;--card-pad:12px;--kpi-pad:8px 12px;--kpi-num:16px;--gap:12px;--t-body:13px;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#e2e8f0;color:var(--fg);font:14px/1.45 "IBM Plex Sans","Segoe UI",system-ui,sans-serif}
+  h1.doc{font-size:22px;margin:24px 32px 4px}
+  p.doc{margin:0 32px 16px;color:#334155;max-width:80ch}
+  .dir{padding:8px 32px 32px}
+  .dir>h2{font-size:18px;margin:16px 0 4px}
+  .dir>p{margin:0 0 16px;color:#334155;max-width:90ch}
+  .frames{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+  .frame{background:var(--bg);border:1px solid #94a3b8;border-radius:8px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .frame>.cap{background:#0f172a;color:#fff;font-size:12px;padding:6px 12px;letter-spacing:.02em}
+  .w1240{width:1240px}.w390{width:390px}
+  /* Shell */
+  .shell{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:640px}
+  .side{background:var(--bg);border-right:1px solid var(--border);padding:12px}
+  .side .brand{display:flex;gap:8px;align-items:center;font-weight:600;padding:4px 4px 14px}
+  .side .brand i{width:28px;height:28px;border-radius:6px;background:var(--primary);display:inline-block}
+  .side .g{font-size:11px;font-weight:600;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin:14px 8px 4px}
+  .side a{display:block;padding:6px 8px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:14px}
+  .side a.on{background:#e2e8f0;font-weight:600}
+  .top{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 20px;background:rgba(248,250,252,.8)}
+  .top .search{margin-left:auto;width:260px;height:32px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#94a3b8;font-size:13px;display:flex;align-items:center;padding:0 10px;justify-content:space-between}
+  .top .search kbd{font:11px/1 inherit;color:#64748b;border:1px solid var(--border);border-radius:4px;padding:2px 5px}
+  .top .ic{width:30px;height:30px;border-radius:6px;background:#e2e8f0;display:inline-block}
+  .scope{border-bottom:1px solid var(--border);padding:8px 20px;display:flex;gap:2px}
+  .scope span{padding:5px 10px;border:1px solid var(--border);background:#fff;border-radius:6px;font-size:13px;font-weight:500}
+  .scope span.on{border-color:var(--border-2);background:#e2e8f0}
+  .main{padding:20px 24px;display:flex;flex-direction:column;gap:var(--gap)}
+  /* Page header */
+  .ph{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .ph h1{font-size:var(--t-page);font-weight:600;margin:0;line-height:1.2}
+  .ph .sub{color:var(--muted);font-size:13px;margin-top:2px}
+  .btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:500;font-size:13px;white-space:nowrap}
+  .btn.p{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .btn.g{border-color:transparent;background:transparent}
+  .btn.sm{height:28px;padding:0 8px;font-size:12px}
+  .btn.d{color:var(--destructive)}
+  /* KPI */
+  .kpi{display:flex;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .kpi>div{flex:1;padding:var(--kpi-pad);border-right:1px solid var(--border)}
+  .kpi>div:last-child{border-right:0}
+  .kpi .l{font-size:var(--t-meta);color:var(--muted);font-weight:500}
+  .kpi .v{font-size:var(--kpi-num);font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+  .kpi .v small{font-size:var(--t-meta);color:var(--muted);font-weight:400;margin-left:6px}
+  .dir-b .kpi{border:0;background:transparent;gap:24px}
+  .dir-b .kpi>div{border:0;padding:0;flex:0 0 auto}
+  .dir-b .kpi .v{display:inline;margin-left:6px}
+  /* Toolbar */
+  .tb{display:flex;align-items:center;gap:8px}
+  .tb .in{height:34px;width:240px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#94a3b8;font-size:13px;display:flex;align-items:center;padding:0 10px}
+  .tb .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+  .tb .cnt{color:var(--muted);font-size:13px}
+  .seg{display:inline-flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:#fff}
+  .seg span{padding:0 10px;height:32px;display:inline-flex;align-items:center;font-size:13px}
+  .seg span.on{background:#e2e8f0;font-weight:500}
+  /* Table */
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:var(--t-body)}
+  th{font-size:var(--t-meta);font-weight:500;color:var(--muted);text-align:left;padding:0 var(--cell-x);height:36px;border-bottom:1px solid var(--border);background:#f8fafc;white-space:nowrap}
+  td{padding:0 var(--cell-x);height:var(--row);border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  th.n,td.n{text-align:right;font-variant-numeric:tabular-nums}
+  td.n.money{font-weight:600}
+  td .m{color:var(--muted);font-size:var(--t-meta)}
+  td.id{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:999px;font-size:var(--t-meta);font-weight:500;white-space:nowrap;line-height:18px}
+  .b-ok{background:var(--success-bg);color:var(--success)}.b-warn{background:var(--warning-bg);color:var(--warning)}
+  .b-bad{background:var(--destructive-bg);color:var(--destructive)}.b-info{background:var(--info-bg);color:var(--info)}
+  .b-mute{background:#e2e8f0;color:#475569}
+  .dots{display:inline-block;width:26px;height:26px;border-radius:6px;border:1px solid var(--border);text-align:center;line-height:24px;color:#64748b}
+  .check{display:inline-block;width:14px;height:14px;border:1px solid var(--border-2);border-radius:3px;vertical-align:middle}
+  /* Kỳ table: MeterCell trên lưới cột cố định */
+  .ky th.sub{font-weight:400;height:28px;background:#f1f5f9;text-align:right}
+  .ky th.grp{text-align:center;border-bottom:0}
+  .ky td.in{padding:0 4px}
+  .ky th,.ky td{padding-left:8px;padding-right:8px}
+  .ky .inp{display:inline-block;width:64px;height:30px;border:1px solid var(--border-2);border-radius:6px;background:#fff;padding:0 8px;line-height:28px;text-align:right;font-variant-numeric:tabular-nums}
+  .ky .inp.warn{border-color:#f59e0b;background:#fffbeb}
+  .ky td.note{color:var(--muted);font-size:var(--t-meta);white-space:normal}
+  .ky td.mute{color:#94a3b8}
+  .actbar{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+  .actbar .h{color:var(--muted);font-size:var(--t-meta);margin-right:auto}
+  .alert{border:1px solid #fecaca;background:#fff5f5;border-radius:8px;padding:8px 12px;font-size:13px;color:var(--destructive);display:flex;gap:8px;align-items:center}
+  .alert a{color:inherit}
+  /* Detail */
+  .dh h2{font-size:var(--t-page);font-weight:600;margin:0;display:inline}
+  .dh .meta{color:var(--muted);font-size:13px;margin-top:4px}
+  .dh .meta a{color:var(--primary);text-decoration:none}
+  .tabs{display:inline-flex;background:#e2e8f0;border-radius:6px;padding:2px;gap:2px}
+  .tabs span{padding:4px 12px;border-radius:5px;font-size:13px;color:#475569}
+  .tabs span.on{background:#fff;color:var(--fg);font-weight:500;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:var(--card-pad)}
+  .card h3{font-size:var(--t-section);font-weight:600;margin:0 0 10px}
+  dl{display:grid;grid-template-columns:140px 1fr;gap:6px 16px;margin:0;font-size:var(--t-body)}
+  dl dt{color:var(--muted)}dl dd{margin:0;font-weight:500}
+  .two{display:grid;grid-template-columns:2fr 1fr;gap:var(--gap)}
+  .stepper{display:flex;align-items:center;gap:8px;font-size:var(--t-meta);color:var(--muted)}
+  .stepper b{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--border-2);display:inline-flex;align-items:center;justify-content:center;font-weight:500;font-size:11px;color:var(--muted)}
+  .stepper b.done{background:var(--success-bg);border-color:#86efac;color:var(--success)}
+  .stepper b.on{border-color:var(--primary);color:var(--primary)}
+  .stepper i{flex:1;height:1px;background:var(--border)}
+  /* Room cards */
+  .rooms{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--gap)}
+  .room{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px 12px 10px}
+  .room .t{display:flex;justify-content:space-between;align-items:center}
+  .room .t b{font-size:15px;font-weight:600}
+  .room .m{color:var(--muted);font-size:var(--t-meta);margin-top:2px;white-space:nowrap}
+  .room .p{font-weight:600;margin-top:8px;font-variant-numeric:tabular-nums}
+  .floor{display:flex;align-items:center;gap:12px;font-size:var(--t-section);font-weight:600}
+  .floor i{flex:1;height:1px;background:var(--border)}
+  /* Mobile */
+  .m-top{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;background:#fff}
+  .m-top b{font-size:15px;font-weight:600;flex:1}
+  .m-scope{display:flex;gap:4px;padding:8px 16px;border-bottom:1px solid var(--border);overflow:hidden;position:relative}
+  .m-scope span{padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:13px;white-space:nowrap}
+  .m-scope span.on{background:#e2e8f0}
+  .m-scope:after{content:"";position:absolute;right:0;top:0;bottom:0;width:32px;background:linear-gradient(90deg,transparent,var(--bg))}
+  .m-main{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+  .m-kpi{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+  .m-kpi div{background:#fff;padding:6px 10px;line-height:1.3}
+  .m-kpi .l{font-size:11px;color:var(--muted)}.m-kpi .v{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+  .dir-b .m-kpi{display:flex;gap:0 14px;background:transparent;border:0;border-radius:0;flex-wrap:wrap}
+  .dir-b .m-kpi div{padding:0;background:transparent;font-size:12px}
+  .dir-b .m-kpi .l{display:inline}.dir-b .m-kpi .v{display:inline;font-size:13px;margin-left:4px}
+  .m-tb{display:flex;gap:6px}
+  .m-tb .in{flex:1;height:36px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#94a3b8;font-size:13px;display:flex;align-items:center;padding:0 10px}
+  .m-row{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center}
+  .m-row .id{grid-column:1;grid-row:1;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;font-weight:500}
+  .m-row .m{grid-column:1;grid-row:2;color:var(--muted);font-size:12px}
+  .m-row .n{grid-column:2;grid-row:1;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .m-row .st{grid-column:2;grid-row:2;justify-self:end}
+  .dir-b .m-row{border:0;border-bottom:1px solid var(--border);border-radius:0;padding:8px 0}
+  .m-nav{border-top:1px solid var(--border);background:#fff;display:grid;grid-template-columns:repeat(5,1fr);height:56px;font-size:11px;text-align:center;align-items:center;color:#475569}
+  .m-nav span.on{color:var(--primary);font-weight:600}
+  .m-nav i{display:block;width:20px;height:20px;border-radius:5px;background:#cbd5e1;margin:0 auto 2px}
+  .m-fab{display:flex;justify-content:flex-end}
+  /* Legend */
+  .legend{background:#fff;border:1px dashed #94a3b8;border-radius:8px;padding:12px 16px;margin:0 32px 8px;font-size:13px;max-width:100ch}
+  .legend b{display:block;margin-bottom:4px}
+  .ghost{color:#94a3b8}
+</style>
+</head>
+<body>
+<h1 class="doc">smart-rental · round 4 "gọn" — mockup v1</h1>
+<p class="doc">Hai hướng, cùng một thang chữ 4 nấc và cùng danh sách "bỏ đi" (brief §2). Khác nhau đúng một chiều: <b>mật độ</b>. Mỗi hướng ba frame — Hoá đơn 1240 · Kỳ 1240 · Hoá đơn 390 — cộng hai frame nhỏ (chi tiết Hợp đồng, lưới Phòng) chỉ vẽ ở hướng A vì hướng B chỉ khác ở số đo.</p>
+<div class="legend"><b>Đọc mockup</b>
+Số đo ghi trong brief §3. Màu, radius, font đúng token hiện tại — round này không thêm token nào; cột chart đổi từ <code>--chart-1</code> (cam) sang <code>--primary</code> qua <code>chartConfig</code>, không đụng theme.
+Thứ đã <span class="ghost">mờ</span> hoặc vắng trong frame là thứ brief đề nghị bỏ: tiêu đề lặp ở thanh header, dòng "N … được tìm thấy" khi không lọc, icon trang trí trong ô bảng, ô "Liên kết", pagination cho ≤ 12 dòng, nút primary lặp theo dòng.</div>
+
+<!-- ======================= HƯỚNG A ======================= -->
+<section class="dir dir-a">
+<h2>Hướng A — "Bớt": giữ cỡ chạm 44 px, chỉ bỏ thứ nói hai lần</h2>
+<p>Hàng 44 px, KPI vẫn là dải thẻ, thẻ mobile vẫn có viền. Cái được là <em>số thứ trên màn</em> giảm, không phải cỡ chữ. Rủi ro thấp nhất; thắng ~30 % chiều cao trên mobile, ~15 % trên desktop.</p>
+<div class="frames">
+
+<div class="frame w1240"><div class="cap">A1 · Hoá đơn · 1240 · scope "Trọ Sinh Viên Xanh"</div>
+<div class="shell">
+  <aside class="side">
+    <div class="brand"><i></i>Phòng Trọ</div>
+    <a>Hôm nay</a>
+    <div class="g">Tháng này</div><a>Kỳ điện nước &amp; hoá đơn</a><a class="on">Hoá đơn</a><a>Đối soát</a>
+    <div class="g">Người &amp; phòng</div><a>Toà nhà</a><a>Phòng</a><a>Người thuê</a><a>Hợp đồng</a><a>Khai báo lưu trú</a>
+    <div class="g">Sổ sách</div><a>Hoá đơn nhà cung cấp</a><a>Chi phí</a><a>Báo cáo</a>
+    <div class="g">Hệ thống</div><a>Thông báo</a><a>Cài đặt</a>
+  </aside>
+  <div>
+    <div class="top"><span class="ic" title="sidebar"></span><span class="ghost" style="font-size:13px">(không còn tiêu đề + mô tả lặp ở đây)</span><div class="search">Tìm kiếm… <kbd>Ctrl K</kbd></div><span class="ic"></span><span class="ic"></span></div>
+    <div class="scope"><span>Tất cả Toà nhà</span><span class="on">Trọ Sinh Viên Xanh</span><span>Căn hộ Dịch Vụ Cao Cấp</span><span>Chung cư Mini Lê Duẩn</span></div>
+    <div class="main">
+      <div class="ph"><div><h1>Hoá đơn</h1><div class="sub">30 hoá đơn · kỳ 09/2026</div></div><span class="btn p">+ Tạo hoá đơn</span></div>
+      <div class="kpi">
+        <div><div class="l">Đã thu</div><div class="v">85.440.000 ₫</div></div>
+        <div><div class="l">Quá hạn</div><div class="v">11.340.000 ₫<small>4 hoá đơn</small></div></div>
+        <div><div class="l">Chưa đến hạn</div><div class="v">0 ₫</div></div>
+        <div><div class="l">Thu một phần</div><div class="v">0 ₫</div></div>
+      </div>
+      <div class="tb"><div class="in">Tìm số hoá đơn…</div><span class="btn">⊕ Trạng thái</span><div class="r"><div class="seg"><span class="on">☷ Bảng</span><span>▦ Thẻ</span></div><span class="dots">…</span></div></div>
+      <table>
+        <thead><tr><th style="width:36px"></th><th>Số hoá đơn</th><th>Người thuê</th><th class="n">Tổng tiền</th><th class="n">Hạn thanh toán</th><th>Trạng thái</th><th style="width:44px"></th></tr></thead>
+        <tbody>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-001</td><td>Nguyễn Văn A <span class="m">· Phòng 102</span></td><td class="n money">3.240.000 ₫</td><td class="n">05/04/2026</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-002</td><td>Trần Thị B <span class="m">· Phòng 103</span></td><td class="n money">3.440.000 ₫</td><td class="n">05/04/2026</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-003</td><td>Lê Văn C <span class="m">· Phòng 104</span></td><td class="n money">3.040.000 ₫</td><td class="n">05/04/2026</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-071</td><td>Nguyễn Văn A <span class="m">· Phòng 102</span></td><td class="n money">3.340.000 ₫</td><td class="n">05/09/2026</td><td><span class="badge b-bad">Quá hạn 14 ngày</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-072</td><td>Trần Thị B <span class="m">· Phòng 103</span></td><td class="n money">4.110.000 ₫</td><td class="n">05/09/2026</td><td><span class="badge b-bad">Quá hạn 14 ngày</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-073</td><td>Lê Văn C <span class="m">· Phòng 104</span></td><td class="n money">3.251.000 ₫</td><td class="n">05/09/2026</td><td><span class="badge b-warn">Thu một phần</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-074</td><td>Phạm Thị D <span class="m">· Phòng 105</span></td><td class="n money">3.506.500 ₫</td><td class="n">05/09/2026</td><td><span class="badge b-info">Chưa đến hạn</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-075</td><td>Hoàng Văn E <span class="m">· Phòng 106</span></td><td class="n money">3.900.000 ₫</td><td class="n">05/09/2026</td><td><span class="badge b-mute">Nháp</span></td><td><span class="dots">…</span></td></tr>
+        </tbody>
+      </table>
+      <div class="tb"><span class="cnt">1–12 / 30</span><div class="r"><span class="btn sm">‹</span><span class="btn sm">1</span><span class="btn sm g">2</span><span class="btn sm g">3</span><span class="btn sm">›</span></div></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="frame w1240"><div class="cap">A2 · Kỳ 09/2026 · 1240 — MeterCell trên lưới cột cố định, nhãn Điện/Nước chỉ ở header, action bar một hàng</div>
+<div class="shell">
+  <aside class="side"><div class="brand"><i></i>Phòng Trọ</div><a>Hôm nay</a><div class="g">Tháng này</div><a class="on">Kỳ điện nước &amp; hoá đơn</a><a>Hoá đơn</a><a>Đối soát</a><div class="g">Người &amp; phòng</div><a>Toà nhà</a><a>Phòng</a><a>Người thuê</a><a>Hợp đồng</a><a>Khai báo lưu trú</a><div class="g">Sổ sách</div><a>Hoá đơn nhà cung cấp</a><a>Chi phí</a><a>Báo cáo</a><div class="g">Hệ thống</div><a>Thông báo</a><a>Cài đặt</a></aside>
+  <div>
+    <div class="top"><span class="ic"></span><div class="search">Tìm kiếm… <kbd>Ctrl K</kbd></div><span class="ic"></span><span class="ic"></span></div>
+    <div class="scope"><span>Tất cả Toà nhà</span><span class="on">Trọ Sinh Viên Xanh</span><span>Căn hộ Dịch Vụ Cao Cấp</span><span>Chung cư Mini Lê Duẩn</span></div>
+    <div class="main">
+      <div class="ph"><div><h1>Kỳ 09/2026 · Trọ Sinh Viên Xanh</h1><div class="sub">Bảng giá: 3.500 ₫/kWh · 15.000 ₫/m³ · 100.000 ₫ dịch vụ</div></div>
+        <div style="display:flex;gap:6px"><span class="btn">‹</span><span class="btn">09/2026</span><span class="btn">›</span><span class="dots" title="Xem các Kỳ trước">…</span></div></div>
+      <div class="alert">⚠ Vượt trần giá điện cho người thuê — trần hiện hành 3.460 ₫/kWh. <a href="#">Sửa giá</a></div>
+      <div class="actbar"><span class="h">Chỉ lập được từ sau ngày chốt của kỳ, 30/09/2026. 3/6 phòng sẵn sàng · 1 bất thường · 1 trống.</span><span class="btn">Lưu nháp chỉ số</span><span class="btn p" style="opacity:.55">Lập 3 hoá đơn</span></div>
+      <table class="ky">
+        <thead>
+          <tr><th rowspan="2">Phòng</th><th class="grp" colspan="3">Điện (kWh)</th><th class="grp" colspan="3">Nước (m³)</th><th class="n" rowspan="2">Phòng</th><th class="n" rowspan="2">Điện</th><th class="n" rowspan="2">Nước</th><th class="n" rowspan="2">Tổng</th><th rowspan="2">Trạng thái</th><th rowspan="2" style="width:36px"></th></tr>
+          <tr><th class="sub">Cũ</th><th class="sub">Mới</th><th class="sub">Dùng</th><th class="sub">Cũ</th><th class="sub">Mới</th><th class="sub">Dùng</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mute">Phòng 101</td><td class="n mute">—</td><td class="in"></td><td class="n mute">—</td><td class="n mute">—</td><td class="in"></td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td><span class="badge b-mute">Trống</span></td><td></td></tr>
+          <tr><td>Phòng 102</td><td class="n">1.120</td><td class="in"><span class="inp">1120</span></td><td class="n">120</td><td class="n">1.008</td><td class="in"><span class="inp">100</span></td><td class="n">8</td><td class="n">2.700.000</td><td class="n">420.000</td><td class="n">120.000</td><td class="n money">3.340.000</td><td><span class="badge b-ok">Sẵn sàng</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 103</td><td class="n">1.148</td><td class="in"><span class="inp warn">1295</span></td><td class="n" style="color:var(--warning)">270</td><td class="n">1.036</td><td class="in"><span class="inp">103</span></td><td class="n">11</td><td class="n">2.900.000</td><td class="n">945.000</td><td class="n">165.000</td><td class="n money">4.110.000</td><td><span class="badge b-warn">Điện ×2,2</span> <span class="btn sm">Duyệt</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 104</td><td class="n">1.176</td><td class="in"><span class="inp">1176</span></td><td class="n">126</td><td class="n">1.064</td><td class="in"><span class="inp">106</span></td><td class="n">14</td><td class="n">2.500.000</td><td class="n">441.000</td><td class="n">210.000</td><td class="n money">3.251.000</td><td><span class="badge b-ok">Sẵn sàng</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 105</td><td class="n">1.204</td><td class="in"><span class="inp">1204</span></td><td class="n">129</td><td class="n">1.092</td><td class="in"><span class="inp">109</span></td><td class="n">17</td><td class="n">2.700.000</td><td class="n">451.500</td><td class="n">255.000</td><td class="n money">3.506.500</td><td><span class="badge b-ok">Sẵn sàng</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 106</td><td class="n">1.310</td><td class="in"><span class="inp" style="color:#94a3b8">—</span></td><td class="n mute">—</td><td class="n">1.201</td><td class="in"><span class="inp" style="color:#94a3b8">—</span></td><td class="n mute">—</td><td class="n">2.900.000</td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td><span class="badge b-mute">Thiếu chỉ số</span></td><td><span class="dots">…</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div></div>
+
+<div class="frame w390"><div class="cap">A3 · Hoá đơn · 390 — một tiêu đề, nút tạo là "+" navy trên header (Q12), KPI 2×2 (Q18), toolbar một hàng, dòng đầu ở ≈ 360 px (hiện 525 px)</div>
+  <div class="m-top"><b>Hoá đơn</b><span class="ic" title="Tạo hoá đơn" style="background:var(--primary)"></span><span class="ic"></span><span class="ic"></span></div>
+  <div class="m-scope"><span>Tất cả</span><span class="on">Trọ Sinh Viên Xanh</span><span>Căn hộ Dịch Vụ Cao Cấp</span><span>Chung cư…</span></div>
+  <div class="m-main">
+    <div class="m-kpi"><div><div class="l">Đã thu</div><div class="v">85.440.000 ₫</div></div><div><div class="l">Quá hạn · 4</div><div class="v">11.340.000 ₫</div></div><div><div class="l">Chưa đến hạn</div><div class="v">0 ₫</div></div><div><div class="l">Thu một phần</div><div class="v">0 ₫</div></div></div>
+    <div class="m-tb"><div class="in">Tìm số hoá đơn…</div><span class="btn">⊕</span><span class="btn">…</span></div>
+    <div class="m-row"><span class="id">HÓA-071</span><span class="n">3.340.000 ₫</span><span class="m">Nguyễn Văn A · Phòng 102 · hạn 05/09</span><span class="st badge b-bad">Quá hạn 14 ngày</span></div>
+    <div class="m-row"><span class="id">HÓA-072</span><span class="n">4.110.000 ₫</span><span class="m">Trần Thị B · Phòng 103 · hạn 05/09</span><span class="st badge b-bad">Quá hạn 14 ngày</span></div>
+    <div class="m-row"><span class="id">HÓA-073</span><span class="n">3.251.000 ₫</span><span class="m">Lê Văn C · Phòng 104 · hạn 05/09</span><span class="st badge b-warn">Thu một phần</span></div>
+    <div class="m-row"><span class="id">HÓA-074</span><span class="n">3.506.500 ₫</span><span class="m">Phạm Thị D · Phòng 105 · hạn 05/09</span><span class="st badge b-info">Chưa đến hạn</span></div>
+    <div class="m-row"><span class="id">HÓA-001</span><span class="n">3.240.000 ₫</span><span class="m">Nguyễn Văn A · Phòng 102 · hạn 05/04</span><span class="st badge b-ok">Đã thu</span></div>
+  </div>
+  <div class="m-nav"><span class="on"><i></i>Hôm nay</span><span><i></i>Phòng</span><span><i></i>Người thuê</span><span><i></i>Thu tiền</span><span><i></i>Thêm</span></div>
+</div>
+
+<div class="frame" style="width:760px"><div class="cap">A4 · Chi tiết Hợp đồng · nội dung 760 — không cột "Liên kết", không alert lặp badge, dl hai cột</div>
+  <div class="main">
+    <div class="dh"><h2>HĐ-001</h2> <span class="badge b-warn">Sắp hết hạn · 11 ngày</span><span style="float:right;display:flex;gap:6px"><span class="btn">Gia hạn</span><span class="btn d">Thanh lý</span></span>
+      <div class="meta"><a href="#">Phòng 102</a> · <a href="#">Nguyễn Văn A</a> · 01/10/2025 → 30/09/2026</div></div>
+    <div class="stepper"><b class="done">✓</b>Nháp<i></i><b class="done">✓</b>Đang hiệu lực<i></i><b class="on">3</b>Sắp hết hạn<i></i><b>4</b>Đã hết hạn</div>
+    <div class="tabs"><span class="on">Tổng quan</span><span>Hoá đơn (6)</span><span>Chỉ số</span><span>Lịch sử</span></div>
+    <div class="two">
+      <div class="card"><h3>Điều khoản</h3><dl><dt>Tiền thuê</dt><dd>2.700.000 ₫ / tháng</dd><dt>Thời hạn</dt><dd>12 tháng</dd><dt>Báo trước</dt><dd>30 ngày</dd><dt>Ngày thu</dt><dd>5 hằng tháng <span class="ghost">(theo Toà nhà)</span></dd></dl></div>
+      <div class="card"><h3>Cọc</h3><dl style="grid-template-columns:80px 1fr"><dt>Số tiền</dt><dd>2.700.000 ₫</dd><dt>Trạng thái</dt><dd><span class="badge b-info">Đang giữ</span></dd></dl><div class="m" style="color:var(--muted);font-size:12px;margin-top:8px">Hoàn khi thanh lý.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="frame" style="width:760px"><div class="cap">A5 · Lưới Phòng · thẻ ≈ 96 px thay 235 px — tên · badge · người thuê · giá, ⋯ ở góc trên</div>
+  <div class="main">
+    <div class="floor">Tầng 1<i></i></div>
+    <div class="rooms" style="grid-template-columns:repeat(4,1fr)">
+      <div class="room"><div class="t"><b>Phòng 101</b><span class="dots">…</span></div><div class="m">Phòng đơn · 20 m² · <span class="badge b-mute">Trống</span></div><div class="p">2.500.000 ₫</div></div>
+      <div class="room"><div class="t"><b>Phòng 102</b><span class="dots">…</span></div><div class="m">Phòng đơn · 22 m² · Nguyễn Văn A</div><div class="p">2.700.000 ₫</div></div>
+      <div class="room"><div class="t"><b>Phòng 103</b><span class="dots">…</span></div><div class="m">Phòng đôi · 24 m² · Trần Thị B</div><div class="p">2.900.000 ₫ <span class="badge b-bad">Nợ 4.110.000 ₫</span></div></div>
+      <div class="room" style="opacity:.6"><div class="t"><b>Phòng 104</b><span class="dots">…</span></div><div class="m">Phòng đơn · 20 m² · Lê Văn C</div><div class="p">2.500.000 ₫</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+</section>
+
+<!-- ======================= HƯỚNG B ======================= -->
+<section class="dir dir-b">
+<h2>Hướng B — "Nén": cùng danh sách bỏ, cộng thang mật độ của styles#28 (hàng 40 px, body 13 px, KPI thành một dòng chữ)</h2>
+<p>Cho người dùng làm việc trên bàn với 45 phòng: nhiều dòng hơn một màn, KPI không còn là "thẻ" mà là một dòng số dưới tiêu đề, thẻ mobile bỏ viền thành danh sách chia vạch. Thắng ~45 % chiều cao trên mobile, ~30 % trên desktop; đổi lại body 13 px và target 40 px — dưới 44 pt của HIG nhưng trên 24 px của WCAG 2.2 AA (`web-target-size`).</p>
+<div class="frames">
+
+<div class="frame w1240"><div class="cap">B1 · Hoá đơn · 1240</div>
+<div class="shell">
+  <aside class="side"><div class="brand"><i></i>Phòng Trọ</div><a>Hôm nay</a><div class="g">Tháng này</div><a>Kỳ điện nước &amp; hoá đơn</a><a class="on">Hoá đơn</a><a>Đối soát</a><div class="g">Người &amp; phòng</div><a>Toà nhà</a><a>Phòng</a><a>Người thuê</a><a>Hợp đồng</a><a>Khai báo lưu trú</a><div class="g">Sổ sách</div><a>Hoá đơn nhà cung cấp</a><a>Chi phí</a><a>Báo cáo</a><div class="g">Hệ thống</div><a>Thông báo</a><a>Cài đặt</a></aside>
+  <div>
+    <div class="top"><span class="ic"></span><div class="search">Tìm kiếm… <kbd>Ctrl K</kbd></div><span class="ic"></span><span class="ic"></span></div>
+    <div class="scope"><span>Tất cả Toà nhà</span><span class="on">Trọ Sinh Viên Xanh</span><span>Căn hộ Dịch Vụ Cao Cấp</span><span>Chung cư Mini Lê Duẩn</span></div>
+    <div class="main">
+      <div class="ph"><div><h1>Hoá đơn</h1>
+        <div class="kpi" style="margin-top:6px"><div><span class="l">Đã thu</span><span class="v">85.440.000 ₫</span></div><div><span class="l">Quá hạn</span><span class="v" style="color:var(--destructive)">11.340.000 ₫ · 4</span></div><div><span class="l">Chưa đến hạn</span><span class="v">0 ₫</span></div><div><span class="l">Thu một phần</span><span class="v">0 ₫</span></div></div></div>
+        <span class="btn p">+ Tạo hoá đơn</span></div>
+      <div class="tb"><div class="in">Tìm số hoá đơn…</div><span class="btn">⊕ Trạng thái</span><div class="r"><div class="seg"><span class="on">☷</span><span>▦</span></div><span class="dots">…</span></div></div>
+      <table>
+        <thead><tr><th style="width:32px"></th><th>Số hoá đơn</th><th>Người thuê</th><th>Phòng</th><th class="n">Tổng tiền</th><th class="n">Hạn</th><th>Trạng thái</th><th style="width:36px"></th></tr></thead>
+        <tbody>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-001</td><td>Nguyễn Văn A</td><td class="m">102</td><td class="n money">3.240.000</td><td class="n">05/04/26</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-002</td><td>Trần Thị B</td><td class="m">103</td><td class="n money">3.440.000</td><td class="n">05/04/26</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-003</td><td>Lê Văn C</td><td class="m">104</td><td class="n money">3.040.000</td><td class="n">05/04/26</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-004</td><td>Phạm Thị D</td><td class="m">105</td><td class="n money">3.240.000</td><td class="n">05/04/26</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-071</td><td>Nguyễn Văn A</td><td class="m">102</td><td class="n money">3.340.000</td><td class="n">05/09/26</td><td><span class="badge b-bad">Quá hạn 14 ngày</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-072</td><td>Trần Thị B</td><td class="m">103</td><td class="n money">4.110.000</td><td class="n">05/09/26</td><td><span class="badge b-bad">Quá hạn 14 ngày</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-073</td><td>Lê Văn C</td><td class="m">104</td><td class="n money">3.251.000</td><td class="n">05/09/26</td><td><span class="badge b-warn">Thu một phần</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-074</td><td>Phạm Thị D</td><td class="m">105</td><td class="n money">3.506.500</td><td class="n">05/09/26</td><td><span class="badge b-info">Chưa đến hạn</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-075</td><td>Hoàng Văn E</td><td class="m">106</td><td class="n money">3.900.000</td><td class="n">05/09/26</td><td><span class="badge b-mute">Nháp</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td><span class="check"></span></td><td class="id">HÓA-076</td><td>Hoàng Văn E</td><td class="m">106</td><td class="n money">3.900.000</td><td class="n">05/08/26</td><td><span class="badge b-ok">Đã thu</span></td><td><span class="dots">…</span></td></tr>
+        </tbody>
+      </table>
+      <div class="tb"><span class="cnt">1–20 / 30</span><div class="r"><span class="btn sm">‹</span><span class="btn sm">1</span><span class="btn sm g">2</span><span class="btn sm">›</span></div></div>
+    </div>
+  </div>
+</div></div>
+
+<div class="frame w1240"><div class="cap">B2 · Kỳ 09/2026 · 1240 — cùng lưới A2, hàng 40 px, ô nhập 28 px</div>
+<div class="shell">
+  <aside class="side"><div class="brand"><i></i>Phòng Trọ</div><a>Hôm nay</a><div class="g">Tháng này</div><a class="on">Kỳ điện nước &amp; hoá đơn</a><a>Hoá đơn</a><a>Đối soát</a><div class="g">Người &amp; phòng</div><a>Toà nhà</a><a>Phòng</a><a>Người thuê</a><a>Hợp đồng</a><a>Khai báo lưu trú</a><div class="g">Sổ sách</div><a>Hoá đơn nhà cung cấp</a><a>Chi phí</a><a>Báo cáo</a><div class="g">Hệ thống</div><a>Thông báo</a><a>Cài đặt</a></aside>
+  <div>
+    <div class="top"><span class="ic"></span><div class="search">Tìm kiếm… <kbd>Ctrl K</kbd></div><span class="ic"></span><span class="ic"></span></div>
+    <div class="scope"><span>Tất cả Toà nhà</span><span class="on">Trọ Sinh Viên Xanh</span><span>Căn hộ Dịch Vụ Cao Cấp</span><span>Chung cư Mini Lê Duẩn</span></div>
+    <div class="main">
+      <div class="ph"><div><h1>Kỳ 09/2026 · Trọ Sinh Viên Xanh</h1><div class="sub">3.500 ₫/kWh · 15.000 ₫/m³ · 100.000 ₫ dịch vụ · <span style="color:var(--destructive)">vượt trần 3.460 ₫/kWh — <a href="#" style="color:inherit">Sửa giá</a></span></div></div>
+        <div style="display:flex;gap:6px"><span class="btn">‹</span><span class="btn">09/2026</span><span class="btn">›</span><span class="btn">Lưu nháp</span><span class="btn p" style="opacity:.55">Lập 3 hoá đơn</span></div></div>
+      <div class="actbar"><span class="h">Chỉ lập được từ 30/09/2026 · 3/6 sẵn sàng · 1 bất thường · 1 trống · 1 thiếu chỉ số.</span></div>
+      <table class="ky">
+        <thead>
+          <tr><th rowspan="2">Phòng</th><th class="grp" colspan="3">Điện (kWh)</th><th class="grp" colspan="3">Nước (m³)</th><th class="n" rowspan="2">Phòng</th><th class="n" rowspan="2">Điện</th><th class="n" rowspan="2">Nước</th><th class="n" rowspan="2">Tổng</th><th rowspan="2">Trạng thái</th><th rowspan="2" style="width:32px"></th></tr>
+          <tr><th class="sub">Cũ</th><th class="sub">Mới</th><th class="sub">Dùng</th><th class="sub">Cũ</th><th class="sub">Mới</th><th class="sub">Dùng</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mute">Phòng 101</td><td class="n mute">—</td><td></td><td class="n mute">—</td><td class="n mute">—</td><td></td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td><span class="badge b-mute">Trống</span></td><td></td></tr>
+          <tr><td>Phòng 102</td><td class="n">1.120</td><td class="in"><span class="inp" style="height:28px;line-height:26px">1120</span></td><td class="n">120</td><td class="n">1.008</td><td class="in"><span class="inp" style="height:28px;line-height:26px">100</span></td><td class="n">8</td><td class="n">2.700.000</td><td class="n">420.000</td><td class="n">120.000</td><td class="n money">3.340.000</td><td><span class="badge b-ok">Sẵn sàng</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 103</td><td class="n">1.148</td><td class="in"><span class="inp warn" style="height:28px;line-height:26px">1295</span></td><td class="n" style="color:var(--warning)">270</td><td class="n">1.036</td><td class="in"><span class="inp" style="height:28px;line-height:26px">103</span></td><td class="n">11</td><td class="n">2.900.000</td><td class="n">945.000</td><td class="n">165.000</td><td class="n money">4.110.000</td><td><span class="badge b-warn">Điện ×2,2</span> <span class="btn sm">Duyệt</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 104</td><td class="n">1.176</td><td class="in"><span class="inp" style="height:28px;line-height:26px">1176</span></td><td class="n">126</td><td class="n">1.064</td><td class="in"><span class="inp" style="height:28px;line-height:26px">106</span></td><td class="n">14</td><td class="n">2.500.000</td><td class="n">441.000</td><td class="n">210.000</td><td class="n money">3.251.000</td><td><span class="badge b-ok">Sẵn sàng</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 105</td><td class="n">1.204</td><td class="in"><span class="inp" style="height:28px;line-height:26px">1204</span></td><td class="n">129</td><td class="n">1.092</td><td class="in"><span class="inp" style="height:28px;line-height:26px">109</span></td><td class="n">17</td><td class="n">2.700.000</td><td class="n">451.500</td><td class="n">255.000</td><td class="n money">3.506.500</td><td><span class="badge b-ok">Sẵn sàng</span></td><td><span class="dots">…</span></td></tr>
+          <tr><td>Phòng 106</td><td class="n">1.310</td><td class="in"><span class="inp" style="height:28px;line-height:26px;color:#94a3b8">—</span></td><td class="n mute">—</td><td class="n">1.201</td><td class="in"><span class="inp" style="height:28px;line-height:26px;color:#94a3b8">—</span></td><td class="n mute">—</td><td class="n">2.900.000</td><td class="n mute">—</td><td class="n mute">—</td><td class="n mute">—</td><td><span class="badge b-mute">Thiếu chỉ số</span></td><td><span class="dots">…</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div></div>
+
+<div class="frame w390"><div class="cap">B3 · Hoá đơn · 390 — KPI thành hai dòng chữ, danh sách chia vạch, dòng đầu ở ≈ 270 px (hiện 525 px)</div>
+  <div class="m-top"><b>Hoá đơn</b><span class="ic" title="Tạo hoá đơn" style="background:var(--primary)"></span><span class="ic"></span><span class="ic"></span></div>
+  <div class="m-scope"><span>Tất cả</span><span class="on">Trọ Sinh Viên Xanh</span><span>Căn hộ Dịch Vụ Cao Cấp</span><span>Chung cư…</span></div>
+  <div class="m-main">
+    <div class="m-kpi"><div><span class="l">Đã thu</span><span class="v">85.440.000 ₫</span></div><div><span class="l">Quá hạn</span><span class="v" style="color:var(--destructive)">11.340.000 ₫ · 4</span></div><div><span class="l">Chưa đến hạn</span><span class="v">0 ₫</span></div><div><span class="l">Một phần</span><span class="v">0 ₫</span></div></div>
+    <div class="m-tb"><div class="in">Tìm số hoá đơn…</div><span class="btn">⊕</span><span class="btn">…</span></div>
+    <div>
+      <div class="m-row"><span class="id">HÓA-071</span><span class="n">3.340.000 ₫</span><span class="m">Nguyễn Văn A · P.102 · hạn 05/09</span><span class="st badge b-bad">Quá hạn 14 ngày</span></div>
+      <div class="m-row"><span class="id">HÓA-072</span><span class="n">4.110.000 ₫</span><span class="m">Trần Thị B · P.103 · hạn 05/09</span><span class="st badge b-bad">Quá hạn 14 ngày</span></div>
+      <div class="m-row"><span class="id">HÓA-073</span><span class="n">3.251.000 ₫</span><span class="m">Lê Văn C · P.104 · hạn 05/09</span><span class="st badge b-warn">Thu một phần</span></div>
+      <div class="m-row"><span class="id">HÓA-074</span><span class="n">3.506.500 ₫</span><span class="m">Phạm Thị D · P.105 · hạn 05/09</span><span class="st badge b-info">Chưa đến hạn</span></div>
+      <div class="m-row"><span class="id">HÓA-075</span><span class="n">3.900.000 ₫</span><span class="m">Hoàng Văn E · P.106 · hạn 05/09</span><span class="st badge b-mute">Nháp</span></div>
+      <div class="m-row"><span class="id">HÓA-001</span><span class="n">3.240.000 ₫</span><span class="m">Nguyễn Văn A · P.102 · hạn 05/04</span><span class="st badge b-ok">Đã thu</span></div>
+      <div class="m-row"><span class="id">HÓA-002</span><span class="n">3.440.000 ₫</span><span class="m">Trần Thị B · P.103 · hạn 05/04</span><span class="st badge b-ok">Đã thu</span></div>
+    </div>
+  </div>
+  <div class="m-nav"><span class="on"><i></i>Hôm nay</span><span><i></i>Phòng</span><span><i></i>Người thuê</span><span><i></i>Thu tiền</span><span><i></i>Thêm</span></div>
+</div>
+
+</div>
+</section>
+</body>
+</html>

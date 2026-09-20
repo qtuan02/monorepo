@@ -11,8 +11,9 @@ interface EntityListCardProps {
   footer?: ReactNode;
   /**
    * An invisible full-cover `Link` (`absolute inset-0 z-0`) that makes the
-   * whole card a link — every actionable control inside `footer` must sit
-   * above it (`relative z-10`) so its own click does not fall through to it.
+   * whole card a link — every actionable control inside `header`/`content`/
+   * `footer` must sit above it (`relative z-10`) so its own click does not
+   * fall through to it.
    */
   overlay?: ReactNode;
   className?: string;

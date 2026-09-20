@@ -1,45 +1,27 @@
 import { Badge } from "@monorepo/ui/components/badge";
-import { Checkbox } from "@monorepo/ui/components/checkbox";
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
 } from "@monorepo/ui/components/data-table";
 
-import type { Room } from "~/types/room";
+import type { RoomView } from "~/types/room";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { roomStatusConfig, roomTypeConfig } from "~/constants/status";
 import { formatCurrency } from "~/utils/currency";
+import { formatDate } from "~/utils/date";
 import RoomRowActions from "./room-row-actions";
 
-const helper = createDataTableColumnHelper<Room>();
+const helper = createDataTableColumnHelper<RoomView>();
 
 /**
  * The Phòng table, minus the prototype's drag handle (row reorder is not
  * ported — spec #127). `name` carries the search, `type` and `status` the
- * facets, so their `filterFn`s are the two the composite understands.
+ * facets, so their `filterFn`s are the two the composite understands. No
+ * selection column: nothing on this screen acts on a selection (spec #221 T2
+ * — `DataTable` only prepends one when given `selectionActions`).
  */
 export const roomColumns = helper.columns([
-  helper.display({
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        aria-label="Chọn tất cả"
-        checked={table.getIsAllPageRowsSelected()}
-        indeterminate={
-          table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label="Chọn dòng"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-  }),
   helper.accessor("name", {
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Tên phòng" />
@@ -111,7 +93,7 @@ export const roomColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Cập nhật" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{getValue()}</span>
+      <span className="text-muted-foreground">{formatDate(getValue())}</span>
     ),
   }),
   helper.display({

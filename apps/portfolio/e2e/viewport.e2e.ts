@@ -110,8 +110,144 @@ test.describe("viewport", () => {
     expect(Math.abs(skillsPhone.x - aboutPhone.x)).toBeLessThan(2);
   });
 
+  test("keeps the 2/1 desktop ratio exactly from the lg breakpoint (1024)", async ({
+    page,
+  }) => {
+    await openHomeAt(page, 1024, 900);
+
+    const about = page.locator("#about");
+    const aside = page.locator("aside");
+    const [aboutBox, asideBox] = await Promise.all([
+      about.boundingBox(),
+      aside.boundingBox(),
+    ]);
+    if (!aboutBox || !asideBox) throw new Error("a section has no box");
+
+    expect(asideBox.x).toBeGreaterThan(aboutBox.x + aboutBox.width);
+    expect(aboutBox.width / asideBox.width).toBeGreaterThan(1.8);
+    expect(aboutBox.width / asideBox.width).toBeLessThan(2.2);
+  });
+
+  test("splits the tablet into a 3/2 column pair, with a sticky rail, at 768", async ({
+    page,
+  }) => {
+    await openHomeAt(page, TABLET_WIDTH, 900);
+
+    const about = page.locator("#about");
+    const aside = page.locator("aside");
+    const [aboutBox, asideBox] = await Promise.all([
+      about.boundingBox(),
+      aside.boundingBox(),
+    ]);
+    if (!aboutBox || !asideBox) throw new Error("a section has no box");
+
+    // The rail sits beside the read column, not under it — the same shape as
+    // `lg`, just a narrower rail (~264 px of a 768 px well).
+    expect(asideBox.x).toBeGreaterThanOrEqual(aboutBox.x + aboutBox.width);
+    expect(asideBox.width).toBeGreaterThanOrEqual(240);
+    expect(asideBox.width).toBeLessThanOrEqual(290);
+
+    // The rail keeps up with the scroll instead of scrolling off with the
+    // column — `md:sticky`, not just `md:grid-cols-[...]`.
+    await page.mouse.wheel(0, 800);
+    const asideAfterScroll = await aside.boundingBox();
+    if (!asideAfterScroll) throw new Error("the rail lost its box");
+    expect(asideAfterScroll.y).toBeGreaterThanOrEqual(0);
+  });
+
+  test("stacks Skills' label over its list, and Hobbies under Contact, at 768", async ({
+    page,
+  }) => {
+    await openHomeAt(page, TABLET_WIDTH, 900);
+
+    // Rail width at 768 is too narrow for a fixed label gutter beside a list.
+    const firstGroupHeading = page.locator("#skills h3").first();
+    const firstGroupList = page.locator("#skills ul").first();
+    const [headingBox, listBox] = await Promise.all([
+      firstGroupHeading.boundingBox(),
+      firstGroupList.boundingBox(),
+    ]);
+    if (!headingBox || !listBox) throw new Error("a skills row has no box");
+    expect(listBox.y).toBeGreaterThan(headingBox.y);
+
+    const contact = page.locator("#contact");
+    const hobbies = page.locator("#hobbies");
+    const [contactBox, hobbiesBox] = await Promise.all([
+      contact.boundingBox(),
+      hobbies.boundingBox(),
+    ]);
+    if (!contactBox || !hobbiesBox) throw new Error("a section has no box");
+    expect(hobbiesBox.y).toBeGreaterThanOrEqual(
+      contactBox.y + contactBox.height,
+    );
+  });
+
+  test("keeps Contact and Hobbies side by side at 640 px (sm), below md", async ({
+    page,
+  }) => {
+    await openHomeAt(page, 640, 900);
+
+    const contact = page.locator("#contact");
+    const hobbies = page.locator("#hobbies");
+    const [contactBox, hobbiesBox] = await Promise.all([
+      contact.boundingBox(),
+      hobbies.boundingBox(),
+    ]);
+    if (!contactBox || !hobbiesBox) throw new Error("a section has no box");
+
+    expect(Math.abs(hobbiesBox.y - contactBox.y)).toBeLessThan(2);
+    expect(hobbiesBox.x).toBeGreaterThan(contactBox.x + contactBox.width - 2);
+  });
+
+  test("gives landscape phone the base top padding, and 768+ the full 96 px", async ({
+    page,
+  }) => {
+    // 667×375 is below `md`, so `main` keeps its base `py-12` (48 px) rather
+    // than the 96 px `pt-24` reserved for a viewport tall enough to afford it.
+    await page.setViewportSize({ width: 667, height: 375 });
+    await page.goto(ROUTES.HOME);
+    await expect(
+      page.getByRole("heading", { level: 2, name: "Sở thích" }),
+    ).toBeAttached();
+
+    const landscapePaddingTop = await page
+      .getByRole("main")
+      .evaluate((node) => getComputedStyle(node).paddingTop);
+    expect(Number.parseFloat(landscapePaddingTop)).toBe(48);
+
+    await openHomeAt(page, TABLET_WIDTH, 900);
+    const tabletPaddingTop = await page
+      .getByRole("main")
+      .evaluate((node) => getComputedStyle(node).paddingTop);
+    expect(Number.parseFloat(tabletPaddingTop)).toBe(96);
+  });
+
+  test("reserves scroll padding so a focused contact link clears the dock", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 812);
+
+    const scrollPaddingBottom = await page.evaluate(
+      () => getComputedStyle(document.documentElement).scrollPaddingBottom,
+    );
+    expect(Number.parseFloat(scrollPaddingBottom)).toBeCloseTo(96, 0);
+
+    const lastContactLink = page.locator("#contact").getByRole("link").last();
+    await lastContactLink.focus();
+
+    const box = await lastContactLink.boundingBox();
+    if (!box) throw new Error("the last contact link has no box");
+    // The dock is fixed at the bottom; ~68 px is its own reserve (see
+    // `~/globals.css`'s comment on `scroll-padding-bottom`).
+    expect(box.y + box.height).toBeLessThanOrEqual(812 - 68);
+  });
+
+  // 320 and 414 join the set from the 320 px commitment (#210 §8 Q6) — 320 is
+  // the narrowest phone anyone reads this on, 414 the widest common one.
   for (const [label, width] of [
+    ["320 px phone", 320],
     ["375 px phone", PHONE_WIDTH],
+    ["414 px phone", 414],
     ["768 px tablet", TABLET_WIDTH],
   ] as const) {
     test(`never scrolls sideways on a ${label}`, async ({ page }) => {
@@ -146,6 +282,31 @@ test.describe("viewport", () => {
 
     expect(scrollWidth).toBeLessThanOrEqual(PHONE_WIDTH);
   });
+
+  // 320, 414 and 768 join the English case too — same 320 px commitment, the
+  // other locale. A sibling test above already covers 375 in English.
+  for (const [label, width] of [
+    ["320 px phone", 320],
+    ["414 px phone", 414],
+    ["768 px tablet", TABLET_WIDTH],
+  ] as const) {
+    test(`never scrolls sideways on a ${label} in English`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/en");
+
+      await expect(
+        page.getByRole("heading", { level: 2, name: "Hobbies" }),
+      ).toBeAttached();
+
+      const scrollWidth = await page.evaluate(
+        () => document.documentElement.scrollWidth,
+      );
+
+      expect(scrollWidth).toBeLessThanOrEqual(width);
+    });
+  }
 
   test("sets body copy to at least 15 px on a phone", async ({ page }) => {
     await openHomeAt(page, PHONE_WIDTH, 800);
@@ -249,5 +410,219 @@ test.describe("viewport", () => {
     expect(await fontSizeOf(skill), "Skill").toBeGreaterThanOrEqual(
       META_MIN_PX,
     );
+  });
+
+  // The 320 px commitment (#210 §8 Q6): the dock's `position: fixed` never
+  // contributed to `scrollWidth`, so the "never scrolls sideways" specs above
+  // stayed green while the bar itself sat 14 px off each edge at 375 px
+  // (#211). This measures the bar's own box against the viewport instead.
+  for (const width of [320, PHONE_WIDTH, 414]) {
+    test(`keeps the dock inside the viewport at ${width} px`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 800);
+
+      const nav = page.getByRole("navigation");
+      const box = await nav.boundingBox();
+      if (!box) throw new Error("the dock has no box");
+
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+      // Below `sm` the dock is a full-width bar (Thanh chạm đáy) rather than
+      // a centred pill, so at 375 it spans the viewport exactly.
+      if (width === PHONE_WIDTH) expect(box.width).toBe(width);
+    });
+  }
+
+  // #212: the hero's own grid, the MedViet row's grid, and the two inline
+  // link hit-areas — the three points that used to be a `flex` row ceding a
+  // third of a 375 px viewport to the avatar or a work-row logo.
+
+  test("gives the hero's positioning line the full column on a phone, with the avatar only beside the name", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    const heading = page.locator("#hero").getByRole("heading", { level: 1 });
+    // The name row: `$ whoami` and the `h1` stacked in one grid cell — the
+    // element the avatar's own row actually aligns against (`align-self:
+    // start` on the avatar, per the mockup), not the `h1` alone.
+    const nameGroup = heading.locator("xpath=..");
+    // `getByRole("paragraph")` skips the two decorative `$ whoami`/`$ cat
+    // role.txt` command lines on its own — `aria-hidden` removes them from
+    // the accessibility tree, so a role query never sees them.
+    const positioning = page.locator("#hero").getByRole("paragraph").first();
+    const avatar = page.locator('#hero [data-slot="avatar"]');
+
+    const [headingBox, nameGroupBox, positioningBox, avatarBox] =
+      await Promise.all([
+        heading.boundingBox(),
+        nameGroup.boundingBox(),
+        positioning.boundingBox(),
+        avatar.boundingBox(),
+      ]);
+    if (!headingBox || !nameGroupBox || !positioningBox || !avatarBox) {
+      throw new Error("the hero is missing a box");
+    }
+
+    // Positioning runs the full column now that it isn't sharing a row with
+    // the avatar (`col-span-2` from this row down) — well past the 183 px
+    // it was squeezed to before, and close to the block's ~283 px content
+    // width at this viewport.
+    expect(positioningBox.width).toBeGreaterThanOrEqual(250);
+    expect(avatarBox.width).toBeCloseTo(80, 0);
+    // Still on the name row rather than dropped below the whole card.
+    expect(Math.abs(avatarBox.y - nameGroupBox.y)).toBeLessThanOrEqual(8);
+    // The name's own row stays narrower than positioning's, because the
+    // avatar shares it — that row is the one exception, by design
+    // (`docs/design/portfolio-responsive/mockup-phone.html`, `.top`).
+    expect(headingBox.width).toBeLessThan(positioningBox.width);
+  });
+
+  test("lays the hero's four actions out as a 2×2 grid on a phone, and one row from sm", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    // The three `<a>` actions (email, GitHub, LinkedIn) plus the print
+    // `<button>` — nothing else under `#hero` carries either role.
+    const actions = page
+      .locator("#hero")
+      .getByRole("link")
+      .or(page.locator("#hero").getByRole("button"));
+    await expect(actions).toHaveCount(4);
+    const email = actions.nth(0);
+    const github = actions.nth(1);
+    const linkedin = actions.nth(2);
+    const print = actions.nth(3);
+
+    const [emailBox, githubBox, linkedinBox, printBox] = await Promise.all([
+      email.boundingBox(),
+      github.boundingBox(),
+      linkedin.boundingBox(),
+      print.boundingBox(),
+    ]);
+    if (!emailBox || !githubBox || !linkedinBox || !printBox) {
+      throw new Error("a hero action has no box");
+    }
+
+    const phoneBoxes = [emailBox, githubBox, linkedinBox, printBox];
+    for (const box of phoneBoxes) {
+      expect(box.height).toBeGreaterThanOrEqual(40);
+    }
+    // Two rows of two: the first pair shares a `y`, the second a lower one.
+    expect(Math.abs(emailBox.y - githubBox.y)).toBeLessThan(2);
+    expect(Math.abs(linkedinBox.y - printBox.y)).toBeLessThan(2);
+    expect(linkedinBox.y).toBeGreaterThan(emailBox.y);
+    // All four share the same two equal-width grid columns.
+    const widths = phoneBoxes.map((box) => box.width);
+    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(2);
+
+    await openHomeAt(page, TABLET_WIDTH, 900);
+    const [tabletEmailBox, , , tabletPrintBox] = await Promise.all([
+      email.boundingBox(),
+      github.boundingBox(),
+      linkedin.boundingBox(),
+      print.boundingBox(),
+    ]);
+    if (!tabletEmailBox || !tabletPrintBox) {
+      throw new Error("a hero action has no box");
+    }
+
+    expect(tabletEmailBox.height).toBeCloseTo(32, 0);
+    expect(tabletPrintBox.height).toBeCloseTo(32, 0);
+    // One row: the first and the last action share a `y`.
+    expect(Math.abs(tabletPrintBox.y - tabletEmailBox.y)).toBeLessThan(2);
+  });
+
+  test("runs the MedViet row's body under its logo on a phone, and beside it from sm", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    // MedViet is `WORK_ITEMS[0]`, the only row expanded at rest.
+    const logo = page
+      .locator('#work [data-slot="standard-block"]')
+      .first()
+      .locator("img");
+    const body = page
+      .locator('#work [data-slot="resume-card-body"]')
+      .first()
+      .locator("ul");
+
+    const [logoBoxPhone, bodyBoxPhone] = await Promise.all([
+      logo.boundingBox(),
+      body.boundingBox(),
+    ]);
+    if (!logoBoxPhone || !bodyBoxPhone) throw new Error("the row has no box");
+    // The body runs the full row under the logo, not squeezed beside it.
+    expect(Math.abs(bodyBoxPhone.x - logoBoxPhone.x)).toBeLessThanOrEqual(2);
+
+    await openHomeAt(page, TABLET_WIDTH, 900);
+    const [logoBoxTablet, bodyBoxTablet] = await Promise.all([
+      logo.boundingBox(),
+      body.boundingBox(),
+    ]);
+    if (!logoBoxTablet || !bodyBoxTablet) {
+      throw new Error("the row has no box");
+    }
+    // Back beside the logo, as it was before this ticket.
+    expect(bodyBoxTablet.x).toBeGreaterThan(
+      logoBoxTablet.x + logoBoxTablet.width,
+    );
+  });
+
+  test("gives the first project link and the contact email a 24 px tap target on a phone", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    const projectLink = page.locator("#projects").getByRole("link").first();
+    const contactEmailLink = page
+      .locator("#contact")
+      .getByRole("link")
+      .filter({ hasText: "@" });
+
+    const [projectBox, contactBox] = await Promise.all([
+      projectLink.boundingBox(),
+      contactEmailLink.boundingBox(),
+    ]);
+    if (!projectBox || !contactBox) throw new Error("a link has no box");
+
+    expect(projectBox.height).toBeGreaterThanOrEqual(24);
+    expect(contactBox.height).toBeGreaterThanOrEqual(24);
+  });
+
+  test("keeps at least 8 px between the project links when they wrap to a second line", async ({
+    page,
+  }) => {
+    await openHomeAt(page, PHONE_WIDTH, 900);
+
+    // "Real-time Chat" carries three links (two repos + a live demo) — the
+    // row most likely to wrap its link line on a 375 px phone.
+    const links = page
+      .locator("#projects li", { hasText: "Real-time Chat" })
+      .getByRole("link");
+    const count = await links.count();
+    const boxes = await Promise.all(
+      Array.from({ length: count }, (_, i) => links.nth(i).boundingBox()),
+    );
+
+    const rowYs = [
+      ...new Set(
+        boxes.map((box) => {
+          if (!box) throw new Error("a project link has no box");
+          return Math.round(box.y);
+        }),
+      ),
+    ].sort((a, b) => a - b);
+
+    // Only meaningful once the row actually wraps onto more than one line.
+    for (let i = 1; i < rowYs.length; i++) {
+      const current = rowYs[i];
+      const previous = rowYs[i - 1];
+      if (current === undefined || previous === undefined) continue;
+      expect(current - previous).toBeGreaterThanOrEqual(8);
+    }
   });
 });

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>portfolio responsive — 375 px: hiện trạng ↔ đề xuất</title>
+<style>
+  :root{--ink:#252525;--bg:#fff;--muted:#6b6b6b;--accent:#5a49d6;--yellow:#f2dc3d;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px;background:#e9e9e9;font:14px/1.5 var(--sans);color:var(--ink)}
+  h1{font:700 18px var(--mono);margin:0 0 4px}
+  .note{max-width:70ch;margin:0 0 24px;color:var(--muted)}
+  .frames{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+  .frame{width:375px;flex:none}
+  .frame>h2{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px}
+  .screen{position:relative;width:375px;height:667px;overflow:hidden;background:var(--bg);border:2px solid var(--ink);color:var(--ink)}
+  .page{padding:48px 24px 104px}
+  .block{border:2px solid var(--ink);background:#fff;box-shadow:4px 4px 0 0 var(--ink);padding:16px}
+  .bar{display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--ink);padding:8px 16px;font:13px var(--mono);color:var(--muted)}
+  .dots{display:flex;gap:6px}.dots i{width:12px;height:12px;border:2px solid var(--ink);border-radius:50%}
+  .cmd{font:13px var(--mono);margin:0 0 4px}.cmd b{color:var(--accent);font-weight:400}
+  h3.name{font:700 24px/1.3 var(--mono);margin:0}
+  p{margin:0}
+  .role{font-size:16px;line-height:1.6}.cur{font-size:15px;line-height:1.6;color:var(--muted)}
+  .avatar{width:80px;height:80px;flex:none;border:2px solid var(--ink);background:linear-gradient(135deg,#7aa07a,#3d6b3d)}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;padding-top:4px}
+  .btn{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 10px;border:1px solid var(--ink);font:13px var(--mono);background:#fff;white-space:nowrap}
+  .btn.y{background:var(--yellow)}
+  .h2{font:700 18px var(--mono);text-transform:uppercase;letter-spacing:.15em;margin:24px 0 12px}.h2 b{color:var(--accent);font-weight:700}
+  .logo{width:48px;height:48px;flex:none;border:2px solid var(--ink);background:#2f9d8f;color:#fff;font:700 11px var(--mono);display:flex;align-items:center;justify-content:center}
+  .rowh{font:700 16px var(--mono)}.period{font:13px var(--mono);color:var(--muted)}.sub{font-size:14px}
+  ul{margin:8px 0 0;padding-left:18px;font-size:15px;line-height:1.6}
+  .links{display:flex;flex-wrap:wrap;gap:4px 16px;font:500 14px var(--sans);color:var(--accent)}
+  .links a{color:inherit;text-decoration:none}
+  /* dock */
+  .dock{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;pointer-events:none}
+  .dock nav{display:flex;align-items:center;gap:8px;padding:8px;border:2px solid var(--ink);background:#fff;box-shadow:4px 4px 0 0 var(--ink);margin-bottom:16px;width:max-content}
+  .dock .c{width:48px;height:48px;display:flex;align-items:center;justify-content:center}
+  .dock .c svg{width:18px;height:18px}
+  .dock .sep{width:2px;height:32px;background:var(--ink);margin:0 4px}
+  .dock .sel{height:48px;padding:0 12px;display:flex;align-items:center;gap:8px;font:14px var(--mono);white-space:nowrap}
+  /* proposed */
+  .p .hero-body{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;row-gap:16px}
+  .p .hero-body>.top{grid-column:1}.p .hero-body>.avatar{grid-column:2;grid-row:1;align-self:start}
+  .p .hero-body>.full{grid-column:1/-1}
+  .p .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.p .btn{justify-content:center;height:36px}
+  .p .row{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px}
+  .p .row .body{grid-column:1/-1}
+  .p .links{gap:8px 16px}.p .links a{padding:6px 0;margin:-6px 0}
+  .p .dock nav{width:100%;margin:0;border-left:0;border-right:0;border-bottom:0;box-shadow:none;justify-content:space-between;padding:8px 12px}
+  .measure{position:absolute;top:8px;right:8px;font:11px var(--mono);background:#ffe9e9;border:1px solid #c33;padding:2px 6px;color:#c33}
+  .p .measure{background:#e6f6ea;border-color:#2a7;color:#2a7}
+</style>
+</head>
+<body>
+<h1>apps/portfolio — 375 px</h1>
+<p class="note">Trái: hiện trạng đo trên dev (dock 403 px cắt 14 px mỗi bên; cột chữ hero 183 px; bullet nhường 64 px cho logo). Phải: đề xuất §3 của brief — dock B full-width + nhãn ngắn, hero grid (avatar chỉ ngang hàng tên), work row grid (thân chạy hết bề rộng), hit-area link 32 px. Cùng một DOM, chỉ đổi class theo breakpoint.</p>
+<div class="frames">
+
+<div class="frame cur"><h2>Hiện trạng</h2><div class="screen">
+<div class="measure">nav 403 px &gt; 375</div>
+<div class="page">
+  <div class="block" style="padding:0">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span>tuan@portfolio:~</div>
+    <div style="display:flex;gap:20px;padding:20px">
+      <div style="min-width:0;flex:1;display:flex;flex-direction:column;gap:16px">
+        <div><p class="cmd"><b>$</b> whoami</p><h3 class="name">Huỳnh Quốc Tuấn</h3></div>
+        <div><p class="cmd"><b>$</b> cat role.txt</p><p class="role">Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.</p></div>
+        <div><p class="cmd"><b>$</b> current --job</p><p class="cur">Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.</p></div>
+        <div class="actions"><span class="btn y">✉ Email</span><span class="btn">⌥ GitHub</span><span class="btn">in LinkedIn</span><span class="btn">⎙ In CV</span></div>
+      </div>
+      <div class="avatar"></div>
+    </div>
+  </div>
+  <div class="h2"><b>##</b> Kinh nghiệm làm việc</div>
+  <div class="block" style="display:flex;gap:16px">
+    <div class="logo">DHS</div>
+    <div style="min-width:0;flex:1">
+      <div class="rowh">MedViet ›</div><div class="period">03/2026 – Hiện tại</div><div class="sub">Kỹ sư phần mềm</div>
+      <ul><li>Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó: đăng nhập người bệnh qua IAM kèm captcha, phiếu khám sinh từ form-server.</li></ul>
+    </div>
+  </div>
+</div>
+<div class="dock"><nav>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h4v12H4zM6 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM10 9h4v2c1-2 6-2 6 2v8h-4v-7c0-2-2-2-2 0v7h-4z"/></svg></span>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-1-2.6c3-.3 6-1.4 6-6.4a5 5 0 0 0-1.4-3.5 4.6 4.6 0 0 0-.1-3.5s-1.1-.3-3.6 1.4a12.3 12.3 0 0 0-6.5 0C6.9 1.3 5.8 1.6 5.8 1.6a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 4.3 8.6c0 5 3 6.1 6 6.4a3.4 3.4 0 0 0-1 2.6V22"/></svg></span>
+  <span class="sep"></span>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg></span>
+  <span class="sep"></span>
+  <span class="sel">Tiếng Việt <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+</nav></div>
+</div></div>
+
+<div class="frame p"><h2>Đề xuất (3.1-B + 3.2 + 3.3 + 3.4)</h2><div class="screen">
+<div class="measure">nav = 100 % · cột chữ 335 px</div>
+<div class="page">
+  <div class="block" style="padding:0">
+    <div class="bar"><span class="dots"><i></i><i></i><i></i></span>tuan@portfolio:~</div>
+    <div class="hero-body" style="padding:20px">
+      <div class="top"><p class="cmd"><b>$</b> whoami</p><h3 class="name">Huỳnh Quốc Tuấn</h3></div>
+      <div class="avatar"></div>
+      <div class="full"><p class="cmd"><b>$</b> cat role.txt</p><p class="role">Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.</p></div>
+      <div class="full"><p class="cmd"><b>$</b> current --job</p><p class="cur">Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.</p></div>
+      <div class="full actions"><span class="btn y">✉ Email</span><span class="btn">⌥ GitHub</span><span class="btn">in LinkedIn</span><span class="btn">⎙ In CV</span></div>
+    </div>
+  </div>
+  <div class="h2"><b>##</b> Kinh nghiệm làm việc</div>
+  <div class="block row">
+    <div class="logo">DHS</div>
+    <div style="min-width:0"><div class="rowh">MedViet ›</div><div class="period">03/2026 – Hiện tại</div><div class="sub">Kỹ sư phần mềm</div></div>
+    <div class="body"><ul><li>Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó: đăng nhập người bệnh qua IAM kèm captcha, phiếu khám sinh từ form-server.</li></ul></div>
+  </div>
+  <div class="h2"><b>##</b> Dự án học và demo</div>
+  <div class="block"><div class="rowh" style="margin-bottom:8px">Real-time Chat</div><div class="links"><a>⌥ Mã nguồn (FE)</a><a>⌥ Mã nguồn (BE)</a><a>↗ Xem demo</a></div></div>
+</div>
+<div class="dock"><nav>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h4v12H4zM6 3a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM10 9h4v2c1-2 6-2 6 2v8h-4v-7c0-2-2-2-2 0v7h-4z"/></svg></span>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-1-2.6c3-.3 6-1.4 6-6.4a5 5 0 0 0-1.4-3.5 4.6 4.6 0 0 0-.1-3.5s-1.1-.3-3.6 1.4a12.3 12.3 0 0 0-6.5 0C6.9 1.3 5.8 1.6 5.8 1.6a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 4.3 8.6c0 5 3 6.1 6 6.4a3.4 3.4 0 0 0-1 2.6V22"/></svg></span>
+  <span class="sep"></span>
+  <span class="c"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5"/></svg></span>
+  <span class="sep"></span>
+  <span class="sel">VI <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></span>
+</nav></div>
+</div></div>
+
+</div>
+</body>
+</html>

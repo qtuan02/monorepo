@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -11,17 +11,19 @@ import type {
   CreateRoomRequest,
   Room,
   RoomListParams,
+  RoomView,
   UpdateRoomRequest,
 } from "~/types/room";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
-import { formatDate } from "~/utils/date";
+import { todayIsoDate } from "~/utils/date";
 import { canDeleteRoom } from "~/utils/room-delete";
 
 // The `building.ts` shape (spec #127): keys from the factory, a `queryFn` that
-// answers with the Mock. Wiring `be-motel` later is swapping those lines for a
-// service singleton from `~/libs/http-client`.
+// answers through `readWorld` (ADR-0015). Wiring `be-motel` later is swapping
+// that one line for a service singleton from `~/libs/http-client`.
 const roomQueryKeyFactory = queryKeysFactory("room");
 
 export const roomQueryKeys = {
@@ -32,27 +34,25 @@ export const roomQueryKeys = {
 
 export function useGetRooms(
   params?: RoomListParams,
-  options?: UseQueryOptionsWrapper<Room[]>,
-): UseQueryResult<Room[], Error> {
-  return useQuery<Room[], Error>({
+  options?: UseQueryOptionsWrapper<RoomView[]>,
+): UseQueryResult<RoomView[], Error> {
+  return useQuery<RoomView[], Error>({
     queryKey: roomQueryKeys.getRooms(params),
     // The Building scope is a query param, as it will be on the backend —
     // never a filter applied over an unscoped cache entry.
-    queryFn: async () =>
-      mockRooms.filter(
-        (room) => !params?.buildingId || room.buildingId === params.buildingId,
-      ),
+    queryFn: async () => readWorld(params?.buildingId ?? null).rooms,
     ...options,
   });
 }
 
 export function useGetRoom(
   roomId: string,
-  options?: UseQueryOptionsWrapper<Room | null>,
-): UseQueryResult<Room | null, Error> {
-  return useQuery<Room | null, Error>({
+  options?: UseQueryOptionsWrapper<RoomView | null>,
+): UseQueryResult<RoomView | null, Error> {
+  return useQuery<RoomView | null, Error>({
     queryKey: roomQueryKeys.getRoom(roomId),
-    queryFn: async () => mockRooms.find((room) => room.id === roomId) ?? null,
+    queryFn: async () =>
+      readWorld(null).rooms.find((room) => room.id === roomId) ?? null,
     ...options,
   });
 }
@@ -60,20 +60,16 @@ export function useGetRoom(
 export function useCreateRoom(
   options?: UseMutationOptionsWrapper<CreateRoomRequest, Room>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: CreateRoomRequest) => {
       const room: Room = {
         id: `R-${request.buildingId}-${String(mockRooms.length + 1).padStart(3, "0")}`,
         ...request,
-        lastUpdated: formatDate(new Date()),
+        lastUpdated: todayIsoDate(),
       };
       mockRooms.push(room);
       return room;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.lists() }),
     ...options,
   });
 }
@@ -81,8 +77,6 @@ export function useCreateRoom(
 export function useUpdateRoom(
   options?: UseMutationOptionsWrapper<UpdateRoomRequest, Room>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ roomId, ...patch }: UpdateRoomRequest) => {
       const room = mockRooms.find((item) => item.id === roomId);
@@ -92,22 +86,16 @@ export function useUpdateRoom(
           message: `Không tìm thấy phòng ${roomId}.`,
         });
       }
-      Object.assign(room, patch, { lastUpdated: formatDate(new Date()) });
-      return room;
-    },
-    onSuccess: (room) => {
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.lists() });
-      queryClient.invalidateQueries({
-        queryKey: roomQueryKeys.getRoom(room.id),
+      Object.assign(room, patch, {
+        lastUpdated: todayIsoDate(),
       });
+      return room;
     },
     ...options,
   });
 }
 
 export function useDeleteRoom(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Guarded twice: the template disables the action already, and the
     // mutation re-checks here so a stale button can never bypass it.
@@ -121,8 +109,6 @@ export function useDeleteRoom(options?: UseMutationOptionsWrapper<string>) {
       const index = mockRooms.findIndex((room) => room.id === roomId);
       if (index !== -1) mockRooms.splice(index, 1);
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all }),
     ...options,
   });
 }

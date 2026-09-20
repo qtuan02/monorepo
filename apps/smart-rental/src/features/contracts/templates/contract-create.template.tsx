@@ -7,13 +7,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import dayjs from "@monorepo/dayjs";
 import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@monorepo/ui/components/card";
+import { Card, CardContent, CardFooter } from "@monorepo/ui/components/card";
 import {
   Field,
   FieldDescription,
@@ -41,6 +35,7 @@ import { SelectRoom } from "~/components/select/select-room";
 import { SelectTenant } from "~/components/select/select-tenant";
 import { LifecycleStepper } from "~/components/stepper/lifecycle-stepper";
 import { ROUTES } from "~/constants/routes";
+import TermPicker from "~/features/contracts/components/term-picker";
 import { contractFormSchema } from "~/features/contracts/types/contract-form";
 import { computeContractEndDate } from "~/features/contracts/utils/contract-term";
 import TenantFormSheet from "~/features/tenants/components/tenant-form-sheet";
@@ -64,7 +59,6 @@ type ContractForm = ReturnType<
   typeof useForm<ContractFormInput, unknown, ContractFormValues>
 >;
 type DepositMode = "1" | "2" | "custom";
-type TermMode = "6" | "12" | "custom";
 
 /** 1/2 tháng tiền thuê, hoặc `null` for "Khác" (the caller keeps whatever was typed). */
 function depositMultiplier(mode: DepositMode): number | null {
@@ -72,17 +66,13 @@ function depositMultiplier(mode: DepositMode): number | null {
   return mode === "1" ? 1 : 2;
 }
 
-function termMonths(mode: TermMode): number | null {
-  if (mode === "custom") return null;
-  return mode === "6" ? 6 : 12;
-}
-
 /**
- * "Tạo hợp đồng mới": the two-step wizard (spec #179 §3.4) — "Phòng & Người
- * thuê" side by side, then "Điều khoản & xác nhận" where tiền thuê/cọc/thời
- * hạn are pre-filled from the Phòng and a live summary sits in the right
- * column with "Ký hợp đồng". `?room=` prefills step 1 from a Phòng trống's
- * own "Tạo hợp đồng" button.
+ * "Tạo hợp đồng mới": the two-step wizard (spec #179 §3.4), in one 640px card
+ * like every other form (round 4 Q17) — "Phòng & Người thuê" side by side,
+ * then "Điều khoản & xác nhận" where tiền thuê/cọc/thời hạn are pre-filled
+ * from the Phòng and a live summary sits below the fields, "Ký hợp đồng" in
+ * the card's own footer. `?room=` prefills step 1 from a Phòng trống's own
+ * "Tạo hợp đồng" link (see `room-detail.template.tsx`).
  */
 export default function ContractCreateTemplate() {
   const navigate = useNavigate();
@@ -90,7 +80,6 @@ export default function ContractCreateTemplate() {
   const prefillRoomId = searchParams.get("room");
   const [step, setStep] = useState(0);
   const [depositMode, setDepositMode] = useState<DepositMode>("1");
-  const [termMode, setTermMode] = useState<TermMode>("12");
   const selectedBuildingId = useBuildingStore((s) => s.selectedBuildingId);
   const createContract = useCreateContract();
 
@@ -154,21 +143,9 @@ export default function ContractCreateTemplate() {
     const rent = Number(form.getValues("rentAmount")) || 0;
     form.setValue("depositAmount", String(rent * multiplier));
   };
-  const recomputeEndDate = (mode: TermMode) => {
-    const months = termMonths(mode);
-    if (months === null) return; // "Khác" — the landlord picks the date directly.
-    form.setValue(
-      "endDate",
-      computeContractEndDate(form.getValues("startDate"), months),
-    );
-  };
   const onDepositModeChange = (mode: DepositMode) => {
     recomputeDeposit(mode);
     setDepositMode(mode);
-  };
-  const onTermModeChange = (mode: TermMode) => {
-    recomputeEndDate(mode);
-    setTermMode(mode);
   };
 
   const steps = wizardSteps.map((wizardStep, index) => ({
@@ -182,10 +159,9 @@ export default function ContractCreateTemplate() {
     const fields = wizardSteps[step]?.fields ?? [];
     if (!(await form.trigger(fields))) return;
     if (step === 0) {
-      // Tiền thuê only just arrived (step 1 doesn't need it) — seed cọc/
-      // ngày kết thúc from it now that step 2 is about to show them.
+      // Tiền thuê only just arrived (step 1 doesn't need it) — seed cọc
+      // from it now that step 2 is about to show it.
       recomputeDeposit(depositMode);
-      recomputeEndDate(termMode);
     }
     setStep((s) => Math.min(s + 1, LAST_STEP));
   };
@@ -204,13 +180,13 @@ export default function ContractCreateTemplate() {
   });
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto w-full max-w-[640px] space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-[20px] font-semibold">
             {room ? `Tạo hợp đồng · ${room.name}` : "Tạo hợp đồng mới"}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {room
               ? [
                   building?.name,
@@ -232,35 +208,49 @@ export default function ContractCreateTemplate() {
 
       <LifecycleStepper steps={steps} orientation="horizontal" />
 
-      <form id={FORM_ID} onSubmit={onSubmit} noValidate>
-        {step === 0 ? (
-          <RoomTenantStep
-            form={form}
-            buildingId={room?.buildingId ?? selectedBuildingId}
-          />
-        ) : (
-          <TermsStep
-            form={form}
-            room={room}
-            building={building}
-            depositMode={depositMode}
-            onDepositModeChange={onDepositModeChange}
-            termMode={termMode}
-            onTermModeChange={onTermModeChange}
-            onBack={prevStep}
-            isPending={createContract.isPending}
-          />
-        )}
-      </form>
-
-      {step === 0 && (
-        <div className="flex justify-end">
-          <Button type="button" onClick={nextStep}>
-            Tiếp theo
-            <ChevronRight />
-          </Button>
-        </div>
-      )}
+      <Card>
+        <CardContent className="pt-6">
+          <form id={FORM_ID} onSubmit={onSubmit} noValidate>
+            {step === 0 ? (
+              <RoomTenantStep
+                form={form}
+                buildingId={room?.buildingId ?? selectedBuildingId}
+              />
+            ) : (
+              <TermsStep
+                form={form}
+                room={room}
+                building={building}
+                depositMode={depositMode}
+                onDepositModeChange={onDepositModeChange}
+              />
+            )}
+          </form>
+        </CardContent>
+        <CardFooter className="justify-end gap-2">
+          {step === 1 && (
+            <Button type="button" variant="outline" onClick={prevStep}>
+              <ChevronLeft />
+              Quay lại
+            </Button>
+          )}
+          {step === 0 ? (
+            <Button type="button" onClick={nextStep}>
+              Tiếp theo
+              <ChevronRight />
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              form={FORM_ID}
+              disabled={createContract.isPending}
+            >
+              <Save />
+              {createContract.isPending ? "Đang lưu…" : "Ký hợp đồng"}
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
     </div>
   );
 }
@@ -338,15 +328,11 @@ interface TermsStepProps {
   building: Building | null | undefined;
   depositMode: DepositMode;
   onDepositModeChange: (mode: DepositMode) => void;
-  termMode: TermMode;
-  onTermModeChange: (mode: TermMode) => void;
-  onBack: () => void;
-  isPending: boolean;
 }
 
 /**
- * Step 2: điều khoản điền sẵn ở bên trái, tóm tắt sống ở cột phải — "Ký hợp
- * đồng" nằm ngay trong card tóm tắt (spec #179 §3.4).
+ * Step 2: điều khoản, rồi tóm tắt sống ngay bên dưới — cả hai trong cùng một
+ * card 640px với step 1 (round 4 Q17), "Ký hợp đồng" ở footer của card đó.
  */
 function TermsStep({
   form,
@@ -354,10 +340,6 @@ function TermsStep({
   building,
   depositMode,
   onDepositModeChange,
-  termMode,
-  onTermModeChange,
-  onBack,
-  isPending,
 }: TermsStepProps) {
   const [tenantId, rentAmount, depositAmount, startDate, endDate, noticeDays] =
     useWatch({
@@ -380,159 +362,115 @@ function TermsStep({
       : null;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <Card className="lg:col-span-2">
-        <CardContent className="space-y-4 pt-6">
-          <div className="grid gap-4 sm:grid-cols-2">
+    <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <CurrencyField
+          control={form.control}
+          name="rentAmount"
+          label="Tiền thuê / tháng"
+          required
+          description={room ? `Từ ${room.name}` : undefined}
+        />
+        <Field>
+          <FieldLabel>Tiền cọc</FieldLabel>
+          <ToggleGroup
+            value={[depositMode]}
+            onValueChange={(next) => {
+              const selected = next[0];
+              if (selected) onDepositModeChange(selected as DepositMode);
+            }}
+            variant="outline"
+            size="sm"
+          >
+            <ToggleGroupItem value="1">1 tháng</ToggleGroupItem>
+            <ToggleGroupItem value="2">2 tháng</ToggleGroupItem>
+            <ToggleGroupItem value="custom">Khác</ToggleGroupItem>
+          </ToggleGroup>
+          {depositMode === "custom" ? (
             <CurrencyField
               control={form.control}
-              name="rentAmount"
-              label="Tiền thuê / tháng"
-              required
-              description={room ? `Từ ${room.name}` : undefined}
-            />
-            <Field>
-              <FieldLabel>Tiền cọc</FieldLabel>
-              <ToggleGroup
-                value={[depositMode]}
-                onValueChange={(next) => {
-                  const selected = next[0];
-                  if (selected) onDepositModeChange(selected as DepositMode);
-                }}
-                variant="outline"
-                size="sm"
-              >
-                <ToggleGroupItem value="1">1 tháng</ToggleGroupItem>
-                <ToggleGroupItem value="2">2 tháng</ToggleGroupItem>
-                <ToggleGroupItem value="custom">Khác</ToggleGroupItem>
-              </ToggleGroup>
-              {depositMode === "custom" ? (
-                <CurrencyField
-                  control={form.control}
-                  name="depositAmount"
-                  label="Số tiền cọc"
-                  required
-                />
-              ) : (
-                <FieldDescription>
-                  {formatCurrency(Number(depositAmount) || 0)}
-                </FieldDescription>
-              )}
-            </Field>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <DateField
-              control={form.control}
-              name="startDate"
-              label="Ngày bắt đầu"
+              name="depositAmount"
+              label="Số tiền cọc"
               required
             />
-            <Field>
-              <FieldLabel>Thời hạn</FieldLabel>
-              <ToggleGroup
-                value={[termMode]}
-                onValueChange={(next) => {
-                  const selected = next[0];
-                  if (selected) onTermModeChange(selected as TermMode);
-                }}
-                variant="outline"
-                size="sm"
-              >
-                <ToggleGroupItem value="6">6 tháng</ToggleGroupItem>
-                <ToggleGroupItem value="12">12 tháng</ToggleGroupItem>
-                <ToggleGroupItem value="custom">Khác</ToggleGroupItem>
-              </ToggleGroup>
-              {termMode === "custom" ? (
-                <DateField
-                  control={form.control}
-                  name="endDate"
-                  label="Ngày kết thúc"
-                  required
-                />
-              ) : (
-                <FieldDescription>
-                  Kết thúc {endDate ? formatDate(endDate) : "…"}
-                  {noticeStartDate
-                    ? ` · nhắc gia hạn từ ${noticeStartDate}`
-                    : ""}
-                </FieldDescription>
-              )}
-            </Field>
-          </div>
+          ) : (
+            <FieldDescription>
+              {formatCurrency(Number(depositAmount) || 0)}
+            </FieldDescription>
+          )}
+        </Field>
+      </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field>
-              <FieldLabel>Ngày thu hằng tháng</FieldLabel>
-              <p className="text-sm">
-                {building ? `Ngày ${building.collectionDay}` : "—"}
-              </p>
-              <FieldDescription>Từ Toà nhà</FieldDescription>
-            </Field>
-            <TextField
-              control={form.control}
-              name="noticeDays"
-              label="Báo trước khi rời (ngày)"
-              type="number"
-              min={1}
-              required
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <DateField
+          control={form.control}
+          name="startDate"
+          label="Ngày bắt đầu"
+          required
+        />
+        <TermPicker
+          control={form.control}
+          name="endDate"
+          anchorDate={startDate}
+          mode="fresh"
+          defaultMonths={12}
+          label="Thời hạn"
+          dateFieldLabel="Ngày kết thúc"
+          hint={
+            noticeStartDate ? `nhắc gia hạn từ ${noticeStartDate}` : undefined
+          }
+        />
+      </div>
 
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle className="text-base">Xác nhận</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <InfoRow
-            label="Phòng"
-            value={
-              room
-                ? `${room.name}${building ? ` · ${building.name}` : ""}`
-                : "—"
-            }
-          />
-          <InfoRow label="Người thuê" value={tenant?.name ?? "—"} />
-          <InfoRow
-            label="Thời hạn"
-            value={
-              startDate && endDate
-                ? `${formatDate(startDate)} → ${formatDate(endDate)}`
-                : "—"
-            }
-          />
-          <InfoRow
-            label="Tiền thuê"
-            value={`${formatCurrency(Number(rentAmount) || 0)} / tháng`}
-            isHighlighted
-          />
-          <InfoRow
-            label="Cọc"
-            value={`${formatCurrency(Number(depositAmount) || 0)} · giữ đến thanh lý`}
-          />
-          <InfoRow
-            label="Ngày thu"
-            value={building ? `Ngày ${building.collectionDay}` : "—"}
-          />
-        </CardContent>
-        <CardFooter className="flex gap-2">
-          <Button type="button" variant="outline" onClick={onBack}>
-            <ChevronLeft />
-            Quay lại
-          </Button>
-          <Button
-            type="submit"
-            form={FORM_ID}
-            className="flex-1"
-            disabled={isPending}
-          >
-            <Save />
-            {isPending ? "Đang lưu…" : "Ký hợp đồng"}
-          </Button>
-        </CardFooter>
-      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field>
+          <FieldLabel>Ngày thu hằng tháng</FieldLabel>
+          <p className="text-sm">
+            {building ? `Ngày ${building.collectionDay}` : "—"}
+          </p>
+          <FieldDescription>Từ Toà nhà</FieldDescription>
+        </Field>
+        <TextField
+          control={form.control}
+          name="noticeDays"
+          label="Báo trước khi rời (ngày)"
+          type="number"
+          min={1}
+          required
+        />
+      </div>
+
+      <div className="bg-muted/40 space-y-3 rounded-lg border p-4">
+        <p className="text-[15px] font-semibold">Xác nhận</p>
+        <InfoRow
+          label="Phòng"
+          value={
+            room ? `${room.name}${building ? ` · ${building.name}` : ""}` : "—"
+          }
+        />
+        <InfoRow label="Người thuê" value={tenant?.name ?? "—"} />
+        <InfoRow
+          label="Thời hạn"
+          value={
+            startDate && endDate
+              ? `${formatDate(startDate)} → ${formatDate(endDate)}`
+              : "—"
+          }
+        />
+        <InfoRow
+          label="Tiền thuê"
+          value={`${formatCurrency(Number(rentAmount) || 0)} / tháng`}
+          isHighlighted
+        />
+        <InfoRow
+          label="Cọc"
+          value={`${formatCurrency(Number(depositAmount) || 0)} · giữ đến thanh lý`}
+        />
+        <InfoRow
+          label="Ngày thu"
+          value={building ? `Ngày ${building.collectionDay}` : "—"}
+        />
+      </div>
     </div>
   );
 }

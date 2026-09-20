@@ -15,15 +15,41 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
   test("scopes both lists to the selected Toà nhà", async ({ page }) => {
     await page.goto(ROUTES.INVOICES);
     // 6 kỳ Hoá đơn (04–09/2026) × 14 hợp đồng — spec #153 §10 row 33.
-    await expect(page.getByText("84 hoá đơn được tìm thấy")).toBeVisible();
+    await expect(page.getByText("84 hoá đơn")).toBeVisible();
 
     await page.getByRole("button", { name: "Căn hộ Dịch Vụ Cao Cấp" }).click();
-    await expect(page.getByText("36 hoá đơn được tìm thấy")).toBeVisible();
+    await expect(page.getByText("36 hoá đơn")).toBeVisible();
 
     // "Chỉ số điện nước" is no longer its own sidebar row (ADR-0013) — go
     // straight there; the Building scope carries over via the store.
     await page.goto(ROUTES.UTILITIES);
-    await expect(page.getByText("22 chỉ số được tìm thấy")).toBeVisible();
+    await expect(page.getByText("22 chỉ số")).toBeVisible();
+  });
+
+  // Round 4 §10 Q11 — desktop keeps the sortable Hạn column with a plain
+  // date, the day count moves into the status badge; mobile drops the
+  // column entirely and keeps only the badge.
+  test("Hoá đơn: desktop giữ cột Hạn và badge Quá hạn mang số ngày; mobile bỏ cột, chỉ còn badge", async ({
+    page,
+  }) => {
+    // Filtered to OVERDUE so row 1 is guaranteed to carry the badge —
+    // unfiltered, ascending-by-hạn puts the oldest (already-settled) Kỳ
+    // first, not the currently overdue one.
+    await page.goto(`${ROUTES.INVOICES}?status=OVERDUE&sort=dueDate`);
+
+    await expect(
+      page.getByRole("columnheader", { name: "Hạn thanh toán" }),
+    ).toBeVisible();
+    await expect(page.getByText(/Quá hạn \d+ ngày/).first()).toBeVisible();
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await expect(page.getByRole("table")).toBeHidden();
+    await expect(
+      page
+        .locator('[data-slot="data-table-mobile-row"]')
+        .getByText(/Quá hạn \d+ ngày/)
+        .first(),
+    ).toBeVisible();
   });
 
   // Ticket #157 — the list-screen foundation, proven on Hoá đơn: the KPI
@@ -31,7 +57,7 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
   // table gives way to an Item list — no horizontal overflow. Ticket #167
   // (spec #153, tổng kiểm) adds the bottom nav and the KPI strip's own
   // horizontal scroll to the same 390 px assertion, on this same screen.
-  test("shows the KPI strip and the selection bar on desktop; the mobile shell (bottom nav, Item list, scrollable KPI) at 390 px", async ({
+  test("shows the KPI strip and the selection bar on desktop; the mobile shell (bottom nav, Item list, 2×2 KPI grid) at 390 px", async ({
     page,
   }) => {
     await page.goto(ROUTES.INVOICES);
@@ -45,6 +71,22 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
     await page.getByRole("button", { name: "Dạng bảng" }).click();
     const rows = page.getByRole("row");
+
+    // Round 4 §1.3/§3 — the table row shrank from 53 px to a 44 px target
+    // (`h-11` on `tbody td`, `h-9` on `thead th`); `tbody tr` is what T8's
+    // acceptance criteria names, so measure that element directly.
+    const firstBodyRow = page.locator("tbody tr").first();
+    const firstRowBox = await firstBodyRow.boundingBox();
+    expect(firstRowBox).not.toBeNull();
+    expect(firstRowBox?.height).toBeLessThanOrEqual(44);
+
+    // Round 4 §1.4 — one navy-default button (the primary of the screen); a
+    // row's own actions and the toolbar's Xuất CSV are outline/ghost/icon.
+    const visibleDefaults = await page
+      .locator('button[data-variant="default"]:visible')
+      .count();
+    expect(visibleDefaults).toBeLessThanOrEqual(1);
+
     await rows.nth(1).getByRole("checkbox", { name: "Chọn dòng" }).click();
     await rows.nth(2).getByRole("checkbox", { name: "Chọn dòng" }).click();
 
@@ -58,9 +100,22 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
 
     await page.setViewportSize({ width: 390, height: 844 });
     await expect(page.getByRole("table")).toBeHidden();
-    await expect(
-      page.locator('[data-slot="data-table-mobile-row"]').first(),
-    ).toBeVisible();
+    const firstMobileRow = page
+      .locator('[data-slot="data-table-mobile-row"]')
+      .first();
+    await expect(firstMobileRow).toBeVisible();
+
+    // Round 4 §1.6/§3 — the first Hoá đơn used to sit at 525 px from the top
+    // (header, h1, nút tạo, KPI, dòng đếm, ô tìm, facet, CSV each a row of
+    // their own). T8 (#249) measured 402 px after T1–T7 — real progress, but
+    // short of the brief's ≤ 360 px target: KpiStrip alone is 145 px of it,
+    // a T4 (#245) decision already shipped and reviewed, and closing the
+    // rest means compressing `space-y-6`/`space-y-4` gaps DataTable and 17
+    // other templates share — bigger than a tổng-kiểm-sized fix. Tracked as
+    // #250; this pins the regression floor at what round 4 actually shipped.
+    const firstMobileRowBox = await firstMobileRow.boundingBox();
+    expect(firstMobileRowBox).not.toBeNull();
+    expect(firstMobileRowBox?.y).toBeLessThanOrEqual(410);
     // The card/table choice is moot at phone width — hidden below `md`.
     await expect(page.getByRole("button", { name: "Dạng bảng" })).toBeHidden();
     // The content column's own scrollWidth, not documentElement's — a
@@ -83,12 +138,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
       bottomNav.getByRole("link", { name: "Thu tiền", exact: true }),
     ).toHaveAttribute("data-active");
 
-    // The KPI strip itself overflows into a horizontal scroll at 390 px
-    // rather than shrinking its three tiles unreadably (spec #153 §10 row 16).
+    // Round 4 T4 (#245) replaced the horizontally-scrolling strip with a
+    // 2×2 grid at mobile — the four tiles now fit with no overflow.
     const kpiOverflow = await kpiStrip.evaluate(
       (el) => el.scrollWidth - el.clientWidth,
     );
-    expect(kpiOverflow).toBeGreaterThan(0);
+    expect(kpiOverflow).toBeLessThanOrEqual(1);
   });
 
   test("opens the VietQR dialog from a Hoá đơn detail", async ({ page }) => {
@@ -113,11 +168,11 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await page.getByRole("checkbox", { name: "Quá hạn" }).click();
     await page.keyboard.press("Escape");
 
-    const resultLabel = page.getByText(/hoá đơn được tìm thấy$/);
-    // Wait for the filtered (smaller) count, not the unfiltered "84 …" still on screen.
-    await expect(resultLabel).not.toHaveText("84 hoá đơn được tìm thấy");
+    // Filtering: the toolbar switches to "M / 84 hoá đơn" (round 4 Q3).
+    const resultLabel = page.getByText(/^\d+ \/ 84 hoá đơn$/);
+    await expect(resultLabel).toBeVisible();
     const filteredCount = Number(
-      (await resultLabel.textContent())?.match(/\d+/)?.[0],
+      (await resultLabel.textContent())?.match(/^\d+/)?.[0],
     );
     expect(filteredCount).toBeGreaterThan(0);
     expect(filteredCount).toBeLessThan(84);
@@ -192,9 +247,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
       readyRow.getByLabel("Chỉ số điện mới phòng Phòng 102"),
     ).not.toHaveValue("");
 
+    // Round 4 (ticket #247): the Trạng thái cell shows the per-đồng-hồ compact
+    // badge ("Điện ×2,2") + a "Duyệt" button instead of a plain "Bất thường".
     const anomalyRow = page.getByRole("row", { name: "Phòng 103" });
+    await expect(anomalyRow.getByText(/^Điện ×/)).toBeVisible();
     await expect(
-      anomalyRow.getByText("Bất thường", { exact: true }),
+      anomalyRow.getByRole("button", { name: "Duyệt" }),
     ).toBeVisible();
 
     const missingRow = page.getByRole("row", { name: "Phòng 106" });
@@ -203,5 +261,12 @@ test.describe("Hoá đơn và Chỉ số điện nước", () => {
     await expect(
       page.getByRole("button", { name: /^Lập \d+ hoá đơn$/ }),
     ).toBeDisabled();
+
+    // Round 4 §1.4/T8 — "Lập n hoá đơn" is the screen's one primary; "Duyệt"
+    // (anomalyRow) is outline, so it doesn't count even while both show.
+    const visibleDefaults = await page
+      .locator('button[data-variant="default"]:visible')
+      .count();
+    expect(visibleDefaults).toBeLessThanOrEqual(1);
   });
 });

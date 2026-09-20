@@ -19,7 +19,7 @@ import { useGetTaskQueueEntries } from "~/hooks/api/task-queue";
 import { useBuildingStore } from "~/stores/use-building-store";
 import { formatCurrency } from "~/utils/currency";
 import { resolveNextCycleAction } from "~/utils/cycle-progress";
-import { formatFullDate, formatMonth } from "~/utils/date";
+import { formatDate, formatFullDate, formatMonth } from "~/utils/date";
 
 /**
  * "Hôm nay" (spec #179 §"Hôm nay"): a real hàng đợi — three KPIs that never
@@ -83,7 +83,7 @@ export default function DashboardTemplate() {
                 label: "Hợp đồng sắp hết hạn",
                 value: data.expiringContracts.count,
                 description: data.expiringContracts.nearestEndDate
-                  ? `gần nhất ${data.expiringContracts.nearestEndDate}`
+                  ? `gần nhất ${formatDate(data.expiringContracts.nearestEndDate)}`
                   : undefined,
               },
               {

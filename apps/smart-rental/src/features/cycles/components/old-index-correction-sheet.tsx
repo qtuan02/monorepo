@@ -1,5 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import {
   Field,
@@ -9,16 +8,13 @@ import {
 } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 import { Textarea } from "@monorepo/ui/components/textarea";
-import { toast } from "@monorepo/ui/components/toast";
 
-import type { OldIndexCorrectionFormValues } from "~/features/cycles/types/old-index-correction-form";
 import type { UtilityType } from "~/types/utility";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { utilityTypeConfig } from "~/constants/status";
 import { oldIndexCorrectionFormSchema } from "~/features/cycles/types/old-index-correction-form";
 import { useCorrectCycleOldIndex } from "~/hooks/api/cycle";
-
-const FORM_ID = "old-index-correction-form";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 
 interface OldIndexCorrectionSheetProps {
   open: boolean;
@@ -46,49 +42,28 @@ export function OldIndexCorrectionSheet({
 }: OldIndexCorrectionSheetProps) {
   const correctOldIndex = useCorrectCycleOldIndex();
   const typeLabel = utilityTypeConfig[type].label;
-  const defaultValues = (): OldIndexCorrectionFormValues => ({
-    oldIndex: String(currentOldIndex),
-    note: "",
-  });
-  const form = useForm<OldIndexCorrectionFormValues>({
-    resolver: zodResolver(oldIndexCorrectionFormSchema),
-    defaultValues: defaultValues(),
-  });
-
-  const onSubmit = form.handleSubmit((values) => {
-    correctOldIndex.mutate(
-      {
-        roomId,
-        type,
-        month,
-        oldIndex: Number(values.oldIndex),
-        note: values.note,
-      },
-      {
-        onSuccess: () => {
-          toast.add({
-            title: `Đã sửa chỉ số ${typeLabel.toLowerCase()} cũ của ${roomName}`,
-            type: "success",
-          });
-          onOpenChange(false);
-        },
-      },
-    );
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: oldIndexCorrectionFormSchema,
+    toDefaultValues: () => ({ oldIndex: String(currentOldIndex), note: "" }),
+    mutations: { create: correctOldIndex },
+    toPayload: (values) => ({
+      roomId,
+      type,
+      month,
+      oldIndex: Number(values.oldIndex),
+      note: values.note,
+    }),
+    successMessage: () =>
+      `Đã sửa chỉ số ${typeLabel.toLowerCase()} cũ của ${roomName}`,
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(defaultValues());
-        onOpenChange(next);
-      }}
+      {...sheetProps}
       title={`Sửa chỉ số ${typeLabel.toLowerCase()} cũ`}
       description={`${roomName} — dùng khi thay công tơ giữa Kỳ.`}
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={correctOldIndex.isPending}
     >
       <FieldGroup>
         <Controller

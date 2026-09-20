@@ -1,5 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import {
   Field,
@@ -14,12 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@monorepo/ui/components/select";
-import { toast } from "@monorepo/ui/components/toast";
 
-import type {
-  SupplierBillFormInput,
-  SupplierBillFormValues,
-} from "~/features/supplier-bills/types/supplier-bill-form";
+import type { SupplierBillFormInput } from "~/features/supplier-bills/types/supplier-bill-form";
 import type { SupplierBill } from "~/types/supplier-bill";
 import { AttachmentUrlField } from "~/components/form/attachment-url-field";
 import { CurrencyField } from "~/components/form/currency-field";
@@ -34,6 +29,7 @@ import {
   useCreateSupplierBill,
   useUpdateSupplierBill,
 } from "~/hooks/api/supplier-bill";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 
 interface SupplierBillFormSheetProps {
   open: boolean;
@@ -43,8 +39,6 @@ interface SupplierBillFormSheetProps {
   /** The Building scope already picked — prefills the Combobox on create. */
   defaultBuildingId?: string | null;
 }
-
-const FORM_ID = "supplier-bill-form";
 
 function toDefaultValues(
   bill: SupplierBill | undefined,
@@ -77,60 +71,36 @@ export default function SupplierBillFormSheet({
   const updateBill = useUpdateSupplierBill();
   const isEdit = !!bill;
 
-  const form = useForm<SupplierBillFormInput, unknown, SupplierBillFormValues>({
-    resolver: zodResolver(supplierBillFormSchema),
-    defaultValues: toDefaultValues(bill, defaultBuildingId),
-  });
-
-  const onSubmit = form.handleSubmit((values) => {
-    const payload = {
-      ...values,
-      paymentDate: values.paymentDate || undefined,
-      invoiceImageUrl: values.invoiceImageUrl || undefined,
-    };
-
-    if (bill) {
-      updateBill.mutate(
-        { billId: bill.id, ...payload },
-        {
-          onSuccess: () => {
-            toast.add({
-              title: "Đã cập nhật hoá đơn nhà cung cấp",
-              type: "success",
-            });
-            onOpenChange(false);
-          },
-        },
-      );
-      return;
-    }
-
-    createBill.mutate(payload, {
-      onSuccess: () => {
-        toast.add({ title: "Đã thêm hoá đơn nhà cung cấp", type: "success" });
-        form.reset(toDefaultValues(undefined, defaultBuildingId));
-        onOpenChange(false);
-      },
-    });
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: supplierBillFormSchema,
+    entity: bill,
+    toDefaultValues: (entity) => toDefaultValues(entity, defaultBuildingId),
+    mutations: { create: createBill, update: updateBill },
+    toPayload: (values, entity) => {
+      const payload = {
+        ...values,
+        paymentDate: values.paymentDate || undefined,
+        invoiceImageUrl: values.invoiceImageUrl || undefined,
+      };
+      return entity ? { billId: entity.id, ...payload } : payload;
+    },
+    successMessage: (_result, entity) =>
+      entity
+        ? "Đã cập nhật hoá đơn nhà cung cấp"
+        : "Đã thêm hoá đơn nhà cung cấp",
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(toDefaultValues(bill, defaultBuildingId));
-        onOpenChange(next);
-      }}
+      {...sheetProps}
       title={
         isEdit ? "Chỉnh sửa hoá đơn nhà cung cấp" : "Thêm hoá đơn nhà cung cấp"
       }
       description={
         isEdit ? undefined : "Ghi nhận một khoản chi trả cho nhà cung cấp."
       }
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={isEdit ? updateBill.isPending : createBill.isPending}
     >
       <FieldGroup>
         <Controller

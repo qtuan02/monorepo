@@ -117,6 +117,39 @@ test.describe("shell", () => {
     ).toBeHidden();
   });
 
+  // Round 4 §10 Q2 — AppHeader no longer names the area from `md` up; a
+  // screen's own <h1> is the one heading. The string below is the area's
+  // OLD description (`roomsItem.description` in `~/features/layout/
+  // constants/navigation`), once printed by the header on every screen.
+  test("shows no area title/description in the desktop header — the screen's <h1> is the one heading", async ({
+    page,
+  }) => {
+    await page.goto(ROUTES.ROOMS);
+
+    await expect(
+      page.getByRole("heading", { level: 1, name: "Phòng" }),
+    ).toBeVisible();
+    await expect(page.locator("header")).not.toContainText(
+      "Quản lý danh sách phòng và trạng thái.",
+    );
+  });
+
+  // Round 4 §10 Q12 — the header's mobile "+" opens the same create sheet
+  // the desktop "Thêm phòng" button does, through the DOM slot in
+  // `~/components/page/header-action-slot.tsx`.
+  test("opens «Thêm phòng mới» from the header's mobile «Tạo phòng» button", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(ROUTES.ROOMS);
+
+    await page.getByRole("button", { name: "Tạo phòng" }).click();
+
+    await expect(
+      page.getByRole("dialog", { name: "Thêm phòng mới" }),
+    ).toBeVisible();
+  });
+
   test("signs out from the nav-user menu", async ({ page }) => {
     // `exact` — the desktop header carries its own account menu too
     // ("Menu tài khoản"), visible at the same width as this sidebar one.

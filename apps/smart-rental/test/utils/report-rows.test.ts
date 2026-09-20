@@ -1,9 +1,10 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 
-import type { Building } from "~/types/building";
+import type { BuildingView } from "~/types/building";
 import type { Invoice } from "~/types/invoice";
 import type { ReportRow } from "~/types/report";
-import type { Room } from "~/types/room";
+import type { Room, RoomView } from "~/types/room";
+import type { World } from "~/types/world";
 import {
   buildBuildingComparisonRows,
   buildFloorOccupancy,
@@ -12,7 +13,7 @@ import {
   occupancyBucket,
 } from "~/utils/report-rows";
 
-const buildings: Building[] = [
+const buildings: BuildingView[] = [
   {
     id: "b1",
     name: "Trọ Sinh Viên Xanh",
@@ -23,6 +24,10 @@ const buildings: Building[] = [
       waterPricePerM3: 15000,
       serviceFee: 100000,
     },
+    totalRooms: 0,
+    activeContracts: 0,
+    availableRooms: 0,
+    occupancyRate: 0,
   },
   {
     id: "b2",
@@ -34,10 +39,14 @@ const buildings: Building[] = [
       waterPricePerM3: 15000,
       serviceFee: 100000,
     },
+    totalRooms: 0,
+    activeContracts: 0,
+    availableRooms: 0,
+    occupancyRate: 0,
   },
 ];
 
-const rooms: Room[] = [
+const rooms: RoomView[] = [
   {
     id: "r1",
     buildingId: "b1",
@@ -79,44 +88,57 @@ function invoice(overrides: Partial<Invoice>): Invoice {
     paidAmount: 0,
     reminders: [],
     billingMonth: "2026-09",
-    month: "09/2026",
-    dueDate: "05/09/2026",
+    dueDate: "2026-09-05",
     status: "UNPAID",
     paymentDate: null,
-    lastUpdated: "17/09/2026",
+    lastUpdated: "2026-09-17",
+    ...overrides,
+  };
+}
+
+/** A minimal World — `buildReportRows` reads `world.buildings` as the Building scope itself. */
+function makeWorld(overrides: Partial<World> = {}): World {
+  return {
+    scope: null,
+    today: new Date("2026-09-17T00:00:00.000Z"),
+    buildings: [],
+    rooms: [],
+    contracts: [],
+    invoices: [],
+    utilities: [],
+    anomalousUtilities: [],
+    utilityOldIndexOverrides: [],
+    tenants: [],
+    complianceItems: [],
+    residenceDeclarations: [],
+    expenses: [],
+    supplierBills: [],
+    notificationTemplates: [],
+    sendLogs: [],
+    landlordProfile: { name: "", phone: "", email: "" },
     ...overrides,
   };
 }
 
 describe("buildReportRows", () => {
-  it("scopes to one Toà nhà when buildingId is given", () => {
-    const rows = buildReportRows({
-      buildings,
-      rooms,
-      invoices: [invoice({})],
-      expenses: [],
-      supplierBills: [],
-      utilities: [],
-      tenantViews: [],
-      buildingId: "b1",
-    });
+  it("scopes to one Toà nhà when world.buildings only carries that one", () => {
+    const rows = buildReportRows(
+      makeWorld({
+        buildings: [buildings[0] as BuildingView],
+        rooms,
+        invoices: [invoice({})],
+      }),
+    );
 
     expect(rows.every((row) => row.building === "Trọ Sinh Viên Xanh")).toBe(
       true,
     );
   });
 
-  it("covers every Toà nhà when buildingId is null", () => {
-    const rows = buildReportRows({
-      buildings,
-      rooms,
-      invoices: [invoice({})],
-      expenses: [],
-      supplierBills: [],
-      utilities: [],
-      tenantViews: [],
-      buildingId: null,
-    });
+  it("covers every Toà nhà when world.buildings carries every one", () => {
+    const rows = buildReportRows(
+      makeWorld({ buildings, rooms, invoices: [invoice({})] }),
+    );
 
     expect(new Set(rows.map((row) => row.building))).toEqual(
       new Set(["Trọ Sinh Viên Xanh", "Chung cư B2"]),
@@ -124,35 +146,44 @@ describe("buildReportRows", () => {
   });
 
   it("computes occupancyRate from the Toà nhà's own Phòng", () => {
-    const rows = buildReportRows({
-      buildings,
-      rooms,
-      invoices: [invoice({})],
-      expenses: [],
-      supplierBills: [],
-      utilities: [],
-      tenantViews: [],
-      buildingId: "b1",
-    });
+    const rows = buildReportRows(
+      makeWorld({
+        buildings: [buildings[0] as BuildingView],
+        rooms,
+        invoices: [invoice({})],
+      }),
+    );
 
     expect(rows[0]?.occupancyRate).toBe(50);
   });
 
   it("counts Hoá đơn nhà cung cấp alongside Chi phí in the same kỳ (spec #153 §10 row 11)", () => {
-    const rows = buildReportRows({
-      buildings,
-      rooms,
-      invoices: [invoice({ amount: 1_000_000 })],
-      expenses: [
-        { buildingId: "b1", amount: 100_000, expenseDate: "2026-09-10" },
-      ],
-      supplierBills: [
-        { buildingId: "b1", totalAmount: 200_000, billingPeriod: "2026-09" },
-      ],
-      utilities: [],
-      tenantViews: [],
-      buildingId: "b1",
-    });
+    const rows = buildReportRows(
+      makeWorld({
+        buildings: [buildings[0] as BuildingView],
+        rooms,
+        invoices: [invoice({ amount: 1_000_000 })],
+        expenses: [
+          {
+            id: "e1",
+            buildingId: "b1",
+            category: "",
+            amount: 100_000,
+            expenseDate: "2026-09-10",
+          },
+        ],
+        supplierBills: [
+          {
+            id: "sb1",
+            buildingId: "b1",
+            type: "electricity",
+            supplierName: "",
+            billingPeriod: "2026-09",
+            totalAmount: 200_000,
+          },
+        ],
+      }),
+    );
 
     expect(rows[0]?.expenses).toBe(300_000);
     expect(rows[0]?.profit).toBe(700_000);
@@ -204,7 +235,6 @@ describe("buildFloorOccupancy", () => {
     price: 0,
     status: "occupied",
     type: "single",
-    tenant: null,
     lastUpdated: "",
     floor: 1,
     ...patch,

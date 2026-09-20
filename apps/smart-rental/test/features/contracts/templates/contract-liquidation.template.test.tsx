@@ -135,4 +135,33 @@ describe("ContractLiquidationTemplate — quyết toán Cọc", () => {
       screen.queryByRole("button", { name: "Xóa" }),
     ).not.toBeInTheDocument();
   }, 15000);
+
+  // C001 (Nguyễn Văn A, R-B1-102) — a contract no other test in this file
+  // touches, so this test stays order-independent (spec #205 ticket C AC).
+  it("Thanh lý → lưới Phòng và chi tiết Phòng không còn Người thuê cũ (ADR-0015 §2)", async () => {
+    const contract = mockContracts.find((item) => item.id === "C001");
+    if (!contract) throw new Error("Fixture C001 missing from the Mock");
+    const tenantName = contract.tenant;
+    const roomId = contract.roomId;
+
+    const user = userEvent.setup();
+    const router = renderAt(ROUTES.contractLiquidationPath(contract.id));
+
+    await user.click(
+      await screen.findByRole(
+        "radio",
+        { name: "Giữ toàn bộ (không hoàn)" },
+        { timeout: 5000 },
+      ),
+    );
+    await user.click(screen.getByRole("button", { name: "Xác nhận thanh lý" }));
+    await screen.findByText("Đã thanh lý", {}, { timeout: 5000 });
+
+    await router.navigate(ROUTES.roomDetailPath(roomId));
+
+    expect(
+      await screen.findByText("— (trống)", {}, { timeout: 5000 }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(tenantName)).not.toBeInTheDocument();
+  }, 15000);
 });

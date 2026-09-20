@@ -166,6 +166,17 @@ React Router one reads the catalogue through the i18next Flavor, the same as a V
   the shape, with no domain behind it. Copy the shape, not the name. The type argument on
   `client.get<T>` is the entire point of the module: omit it and `T` infers `unknown`, which then
   flows through the hook and into the component.
+- **Refresh-token is opt-in on `createHttpClient`** (ADR-0014, `packages/api/README.md`):
+  `withCredentials?: boolean` (passed straight to axios) and
+  `onAuthError?: (error: HttpError) => Promise<string | null>`, which fires on a **401 or 403** from
+  a request that hasn't been retried yet. A resolved token retries the original request once with a
+  new `Authorization` header; `null` or a throw falls through to the existing throw +
+  `onUnauthorized` path. Concurrent 401/403s across requests dedupe into one in-flight
+  `onAuthError` call via a closure variable scoped to the client instance — the same scope
+  `getAuthToken` already reads per request. 403 is treated as an auth error at the client layer
+  because that is `apps/chat`'s backend contract, not a general "forbidden" rule; a backend where
+  403 means something else opts out by simply not passing `onAuthError`. Neither option changes
+  behaviour for a caller that doesn't pass it.
 
 ## TanStack Query defaults
 
@@ -191,6 +202,21 @@ In both server-rendered Runtimes, TanStack Query is for what happens *after* pai
 paginating, mutating, polling. What a crawler has to read comes from a cached server read in a Next
 app (`next-data-fetching.md`) and from a route module's `loader` in a React Router one
 (`reactrouter-loader-vs-query.md`). One value never lives in both.
+
+## Error boundaries (`react-error-boundary`)
+
+A failure inside a `queryFn` or a query's own `select` **never reaches an error boundary** — with the
+default `throwOnError: false` (unchanged anywhere in this repo), TanStack Query turns it into
+`status: "error"` / `isError: true` on the query result instead. Only a `TypeError` thrown during
+render (or inside a `useMemo`, after `data` is already defined) is a boundary's job — that is why
+`apps/chat`'s per-Island `react-error-boundary` boundaries (spec #251/#252,
+`~/components/exception/island-boundary.tsx`) need no `QueryErrorResetBoundary`: a rejected query and
+a render throw are different failures with different UI (an `isError` branch with its own Retry vs. an
+Island-wide fallback).
+
+`react-error-boundary`'s `withErrorBoundary` HOC is built on `React.forwardRef`, so it trips
+`react-no-forwardref.md` the moment it is used — compose with the `<ErrorBoundary>` JSX component
+instead, never the HOC.
 
 ## UI primitives (`@monorepo/ui`)
 

@@ -25,8 +25,9 @@ function padIndex(value: number) {
  * One block of a documentation page, as a glass panel (glossary: *Panel
  * kính*): a left column with the kicker, the heading and a sentence, a right
  * column with whatever renders the point — a snippet, a list, a grid. One
- * column below `md`, where the two would fight for width. Every page here is
- * a stack of these, which is what keeps the templates readable.
+ * column below `lg`, where the two would fight for width or force the code
+ * column to scroll. Every page here is a stack of these, which is what keeps
+ * the templates readable.
  */
 export function DocsSection({
   index,
@@ -40,7 +41,7 @@ export function DocsSection({
   return (
     <GlassPanel
       as="section"
-      className="grid gap-6 px-5 py-6 sm:px-7 sm:py-7 md:grid-cols-[260px_1fr] md:gap-7"
+      className="grid gap-6 px-5 py-6 sm:px-7 sm:py-7 lg:grid-cols-[260px_1fr] lg:gap-7"
     >
       <div>
         {numbered ? (

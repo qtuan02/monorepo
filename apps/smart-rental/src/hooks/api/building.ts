@@ -1,5 +1,5 @@
 import type { UseQueryResult } from "@tanstack/react-query";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { HttpError } from "@monorepo/api/client";
 
@@ -9,19 +9,20 @@ import type {
 } from "~/libs/query-key-factory";
 import type {
   Building,
+  BuildingView,
   CreateBuildingRequest,
   UpdateBuildingSettingsRequest,
 } from "~/types/building";
 import { mockBuildings } from "~/constants/mock/buildings";
 import { mockContracts } from "~/constants/mock/contracts";
 import { mockRooms } from "~/constants/mock/rooms";
-import { roomQueryKeys } from "~/hooks/api/room";
+import { readWorld } from "~/libs/mock-world";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { canDeleteBuilding } from "~/utils/building-delete";
 
 // The shape every slice copies (spec #127): keys from the factory, a `queryFn`
-// that answers with the Mock. Wiring `be-motel` later is swapping that one line
-// for a service singleton from `~/libs/http-client`.
+// that answers through `readWorld` (ADR-0015). Wiring `be-motel` later is
+// swapping that one line for a service singleton from `~/libs/http-client`.
 const buildingQueryKeyFactory = queryKeysFactory("building");
 
 export const buildingQueryKeys = {
@@ -34,25 +35,22 @@ export const buildingQueryKeys = {
 // The explicit return type is load-bearing: without it Biome cannot see through
 // `useQuery` and reads `isLoading` as always false at every call site.
 export function useGetBuildings(
-  options?: UseQueryOptionsWrapper<Building[]>,
-): UseQueryResult<Building[], Error> {
-  return useQuery<Building[], Error>({
+  options?: UseQueryOptionsWrapper<BuildingView[]>,
+): UseQueryResult<BuildingView[], Error> {
+  return useQuery<BuildingView[], Error>({
     queryKey: buildingQueryKeys.getBuildings(),
-    // A copy, so the cache never holds the Mock array itself; the create
-    // mutation below invalidates `lists()` after writing into it.
-    queryFn: async () => [...mockBuildings],
+    queryFn: async () => readWorld(null).buildings,
     ...options,
   });
 }
 
 export function useGetBuilding(
   buildingId: string,
-  options?: UseQueryOptionsWrapper<Building | null>,
-): UseQueryResult<Building | null, Error> {
-  return useQuery<Building | null, Error>({
+  options?: UseQueryOptionsWrapper<BuildingView | null>,
+): UseQueryResult<BuildingView | null, Error> {
+  return useQuery<BuildingView | null, Error>({
     queryKey: buildingQueryKeys.getBuilding(buildingId),
-    queryFn: async () =>
-      mockBuildings.find((building) => building.id === buildingId) ?? null,
+    queryFn: async () => readWorld(buildingId).buildings[0] ?? null,
     ...options,
   });
 }
@@ -60,8 +58,6 @@ export function useGetBuilding(
 export function useCreateBuilding(
   options?: UseMutationOptionsWrapper<CreateBuildingRequest, Building>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Prepends to the Mock exactly as the prototype's repository did: a fresh
     // Toà nhà has no Phòng yet, and its note doubles as the description.
@@ -82,16 +78,10 @@ export function useCreateBuilding(
         },
         note: request.note,
         description: request.note,
-        totalRooms: 0,
-        activeContracts: 0,
-        availableRooms: 0,
-        occupancyRate: 0,
       };
       mockBuildings.unshift(building);
       return building;
     },
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: buildingQueryKeys.lists() }),
     ...options,
   });
 }
@@ -99,8 +89,6 @@ export function useCreateBuilding(
 export function useUpdateBuildingSettings(
   options?: UseMutationOptionsWrapper<UpdateBuildingSettingsRequest, Building>,
 ) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (request: UpdateBuildingSettingsRequest) => {
       const building = mockBuildings.find((b) => b.id === request.buildingId);
@@ -115,17 +103,11 @@ export function useUpdateBuildingSettings(
       building.bankAccount = request.bankAccount;
       return building;
     },
-    onSuccess: (building) =>
-      queryClient.invalidateQueries({
-        queryKey: buildingQueryKeys.getBuilding(building.id),
-      }),
     ...options,
   });
 }
 
 export function useDeleteBuilding(options?: UseMutationOptionsWrapper<string>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     // Guarded twice: the template disables the action already, and the
     // mutation re-checks here so a stale button can never bypass it.
@@ -141,10 +123,6 @@ export function useDeleteBuilding(options?: UseMutationOptionsWrapper<string>) {
       for (let i = mockRooms.length - 1; i >= 0; i -= 1) {
         if (mockRooms[i]?.buildingId === buildingId) mockRooms.splice(i, 1);
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: buildingQueryKeys.all });
-      queryClient.invalidateQueries({ queryKey: roomQueryKeys.all });
     },
     ...options,
   });

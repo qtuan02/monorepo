@@ -1,13 +1,5 @@
-import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
-import {
-  Bell,
-  ChevronDown,
-  FileClock,
-  Gauge,
-  ShieldAlert,
-  Wrench,
-} from "lucide-react";
+import { Bell, ChevronDown } from "lucide-react";
 import { Link } from "react-router";
 
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
@@ -27,78 +19,53 @@ import {
 } from "@monorepo/ui/components/item";
 import { cn } from "@monorepo/ui/utils/cn";
 
-import type { Task, TaskType } from "~/types/task";
+import type { BankAccount } from "~/types/building";
+import type { Task } from "~/types/task";
 import type { OverdueQueueGroup, TaskQueueEntry } from "~/utils/task-queue";
 import SendReminderDialog from "~/components/dialog/send-reminder-dialog";
 import VietQrDialog from "~/components/dialog/vietqr-dialog";
 import PaymentFormSheet from "~/components/sheet/payment-form-sheet";
 import { ROUTES } from "~/constants/routes";
+import { taskTypeConfig } from "~/constants/status";
 import { useGetBuilding } from "~/hooks/api/building";
 import { formatCurrency } from "~/utils/currency";
 import { daysOverdue } from "~/utils/invoice-status";
 import { taskRelatedPath } from "~/utils/task-due";
 
-const taskTypeIcon: Record<TaskType, LucideIcon> = {
-  invoice_overdue: Bell,
-  contract_expiring: FileClock,
-  maintenance: Wrench,
-  utility_anomaly: Gauge,
-  residence_notification: ShieldAlert,
-  residence_registration_expiring: ShieldAlert,
-  batch_pending: Bell,
-};
-
-interface TaskAction {
-  label: string;
-  to: string;
-}
-
 /**
- * The action(s) for one single Việc (spec #179 §"Hôm nay") — Hoá đơn quá
- * hạn never reaches here any more, it is always part of an
- * `OverdueQueueGroup` instead (see `~/utils/task-queue`). Primary is always
- * the hành động ghi nhận; "Xem" (when present) is the ghost secondary.
+ * The primary hành động — its label from the shared `taskTypeConfig` table,
+ * its `to` from `taskRelatedPath`, both read identically by the header's
+ * bell (ticket #230). `contract_expiring` alone gets a second, ghost
+ * "Thanh lý" — the only Việc with two valid next steps.
  */
-function actionsFor(task: Task): TaskAction[] {
-  switch (task.type) {
-    case "contract_expiring":
-      return [
-        { label: "Gia hạn", to: ROUTES.contractRenewPath(task.relatedId) },
-        {
-          label: "Thanh lý",
-          to: ROUTES.contractLiquidationPath(task.relatedId),
-        },
-      ];
-    case "utility_anomaly":
-      return [{ label: "Sửa chỉ số", to: taskRelatedPath(task) }];
-    case "residence_notification":
-    case "residence_registration_expiring":
-      return [{ label: "Khai báo", to: taskRelatedPath(task) }];
-    case "batch_pending":
-      return [{ label: "Lập Đợt hoá đơn", to: taskRelatedPath(task) }];
-    case "invoice_overdue":
-    case "maintenance":
-      return [{ label: "Xem", to: taskRelatedPath(task) }];
-  }
-}
+// A styled Link — not a real Button — carries no data-variant of its own
+// (see [[architecture-ui-primitives]]), so it is set here by hand from the
+// same variant handed to buttonVariants(), never a second literal that could
+// drift from it.
+const PRIMARY_VARIANT = "outline";
+const SECONDARY_VARIANT = "ghost";
 
 function TaskActionsRow({ task }: { task: Task }) {
   return (
     <ItemActions className="w-full flex-wrap md:w-auto">
-      {actionsFor(task).map((action, index) => (
+      <Link
+        to={taskRelatedPath(task)}
+        data-variant={PRIMARY_VARIANT}
+        className={cn(buttonVariants({ variant: PRIMARY_VARIANT, size: "sm" }))}
+      >
+        {taskTypeConfig[task.type].actionLabel}
+      </Link>
+      {task.type === "contract_expiring" && (
         <Link
-          key={action.label}
-          to={action.to}
+          to={ROUTES.contractLiquidationPath(task.relatedId)}
+          data-variant={SECONDARY_VARIANT}
           className={cn(
-            buttonVariants({
-              size: "default",
-              variant: index === 0 ? "default" : "outline",
-            }),
+            buttonVariants({ size: "sm", variant: SECONDARY_VARIANT }),
           )}
         >
-          {action.label}
+          Thanh lý
         </Link>
-      ))}
+      )}
     </ItemActions>
   );
 }
@@ -112,18 +79,20 @@ function TaskActionsRow({ task }: { task: Task }) {
 function OverdueInvoiceActions({
   invoice,
   buildingId,
+  bankAccount,
 }: {
   invoice: OverdueQueueGroup["invoices"][number];
   buildingId: string;
+  bankAccount: BankAccount | undefined;
 }) {
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const buildingQuery = useGetBuilding(buildingId, { enabled: !!buildingId });
 
   return (
     <>
       <Button
         type="button"
-        size="default"
+        variant="outline"
+        size="sm"
         onClick={() => setIsPaymentOpen(true)}
       >
         Ghi nhận thu
@@ -133,10 +102,10 @@ function OverdueInvoiceActions({
         amount={invoice.outstanding}
         invoiceNumber={invoice.invoiceNumber}
         room={invoice.room}
-        bankAccount={buildingQuery.data?.bankAccount}
+        bankAccount={bankAccount}
         buildingId={buildingId}
         variant="outline"
-        size="default"
+        size="sm"
         className=""
       />
 
@@ -155,9 +124,11 @@ function OverdueInvoiceActions({
 function OverdueInvoiceRow({
   invoice,
   buildingId,
+  bankAccount,
 }: {
   invoice: OverdueQueueGroup["invoices"][number];
   buildingId: string;
+  bankAccount: BankAccount | undefined;
 }) {
   return (
     <Item variant="muted" className="pl-8">
@@ -170,7 +141,11 @@ function OverdueInvoiceRow({
         </ItemDescription>
       </ItemContent>
       <ItemActions className="w-full flex-wrap md:w-auto">
-        <OverdueInvoiceActions invoice={invoice} buildingId={buildingId} />
+        <OverdueInvoiceActions
+          invoice={invoice}
+          buildingId={buildingId}
+          bankAccount={bankAccount}
+        />
       </ItemActions>
     </Item>
   );
@@ -184,6 +159,11 @@ function OverdueInvoiceRow({
 function OverdueGroupItem({ group }: { group: OverdueQueueGroup }) {
   const soonest = group.invoices[0];
   const overdueDays = soonest ? daysOverdue(soonest.dueDate) : 0;
+  // Read once per Toà nhà mục — not per Hoá đơn row (ticket #230): a mục of
+  // n invoices no longer fires n identical `useGetBuilding` calls.
+  const buildingQuery = useGetBuilding(group.buildingId, {
+    enabled: !!group.buildingId,
+  });
 
   // One Hoá đơn is not a mục to "mở rộng" — show its own hành động inline,
   // exactly like every other single-invoice Việc, rather than making the
@@ -208,21 +188,30 @@ function OverdueGroupItem({ group }: { group: OverdueQueueGroup }) {
           <OverdueInvoiceActions
             invoice={soonest}
             buildingId={group.buildingId}
+            bankAccount={buildingQuery.data?.bankAccount}
           />
         </ItemActions>
       </Item>
     );
   }
 
-  return <OverdueGroupCollapsible group={group} overdueDays={overdueDays} />;
+  return (
+    <OverdueGroupCollapsible
+      group={group}
+      overdueDays={overdueDays}
+      bankAccount={buildingQuery.data?.bankAccount}
+    />
+  );
 }
 
 function OverdueGroupCollapsible({
   group,
   overdueDays,
+  bankAccount,
 }: {
   group: OverdueQueueGroup;
   overdueDays: number;
+  bankAccount: BankAccount | undefined;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isReminderOpen, setIsReminderOpen] = useState(false);
@@ -246,14 +235,15 @@ function OverdueGroupCollapsible({
           <ItemActions className="w-full flex-wrap md:w-auto">
             <Button
               type="button"
-              size="default"
+              variant="outline"
+              size="sm"
               onClick={() => setIsReminderOpen(true)}
             >
               Nhắc tất cả
             </Button>
             <CollapsibleTrigger
               render={
-                <Button type="button" size="default" variant="outline">
+                <Button type="button" size="sm" variant="ghost">
                   <ChevronDown
                     className={cn(
                       "transition-transform",
@@ -275,6 +265,7 @@ function OverdueGroupCollapsible({
               key={invoice.invoiceId}
               invoice={invoice}
               buildingId={group.buildingId}
+              bankAccount={bankAccount}
             />
           ))}
         </CollapsibleContent>
@@ -290,7 +281,7 @@ function OverdueGroupCollapsible({
 }
 
 function SingleTaskItem({ task }: { task: Task }) {
-  const Icon = taskTypeIcon[task.type];
+  const Icon = taskTypeConfig[task.type].icon;
   return (
     <Item variant="outline" role="listitem">
       <ItemMedia variant="icon">

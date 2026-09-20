@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Bell, Printer, ReceiptText, Trash2 } from "lucide-react";
-import { useNavigate } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -21,7 +20,6 @@ import SendReminderDialog from "~/components/dialog/send-reminder-dialog";
 import VietQrDialog from "~/components/dialog/vietqr-dialog";
 import { DetailPageShell } from "~/components/page/detail-page-shell";
 import { EmptyPanel } from "~/components/panel/empty-panel";
-import { CardGridSkeleton } from "~/components/panel/loading-panel";
 import PaymentFormSheet from "~/components/sheet/payment-form-sheet";
 import { ROUTES } from "~/constants/routes";
 import {
@@ -30,9 +28,10 @@ import {
   invoiceStatusConfig,
 } from "~/constants/status";
 import { useGetBuilding } from "~/hooks/api/building";
-import { useGetInvoice } from "~/hooks/api/invoice";
+import { useDeleteInvoice, useGetInvoice } from "~/hooks/api/invoice";
+import { useDeleteEntity } from "~/hooks/use-delete-entity";
 import { formatCurrency } from "~/utils/currency";
-import { formatDateTime } from "~/utils/date";
+import { formatDate, formatDateTime, formatMonth } from "~/utils/date";
 import { canDeleteInvoice, daysOverdue } from "~/utils/invoice-status";
 
 interface InvoiceDetailTemplateProps {
@@ -79,7 +78,7 @@ function OverviewTab({ invoice }: { invoice: Invoice }) {
         <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Tổng cộng</TableCell>
-            <TableCell className="text-right font-bold tabular-nums">
+            <TableCell className="text-right font-semibold tabular-nums">
               {formatCurrency(invoice.amount)}
             </TableCell>
           </TableRow>
@@ -112,7 +111,7 @@ function PaymentsTab({ invoice }: { invoice: Invoice }) {
             <InfoRow
               // biome-ignore lint/suspicious/noArrayIndexKey: payments is append-only and carries no id of its own.
               key={`payment-${index}`}
-              label={`${payment.paidAt} · ${invoicePaymentMethodConfig[payment.method].label}`}
+              label={`${formatDate(payment.paidAt)} · ${invoicePaymentMethodConfig[payment.method].label}`}
               value={formatCurrency(payment.amount)}
               isHighlighted
             />
@@ -198,32 +197,35 @@ export default function InvoiceDetailTemplate({
 }: InvoiceDetailTemplateProps) {
   // See RemindersTab's own "use no memo" for why every tab here needs it.
   "use no memo";
-  const navigate = useNavigate();
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
-  const { data: invoice, isLoading } = useGetInvoice(invoiceId);
+  const invoiceQuery = useGetInvoice(invoiceId);
+  const invoice = invoiceQuery.data;
   const { data: building } = useGetBuilding(invoice?.buildingId ?? "", {
     enabled: !!invoice?.buildingId,
   });
 
-  if (isLoading) {
-    return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES}>
-        <CardGridSkeleton itemCount={3} />
-      </DetailPageShell>
-    );
-  }
+  const deleteInvoice = useDeleteEntity({
+    mutation: useDeleteInvoice(),
+    id: invoice?.id ?? "",
+    label: "hoá đơn",
+    entity: invoice?.invoiceNumber,
+    successMessage: `Đã xóa hoá đơn ${invoice?.invoiceNumber}`,
+    redirectTo: ROUTES.INVOICES,
+  });
 
   if (!invoice) {
     return (
-      <DetailPageShell title={TITLE} backTo={ROUTES.INVOICES}>
-        <EmptyPanel
-          icon={ReceiptText}
-          title="Không tìm thấy hoá đơn."
-          description={`Không có hoá đơn nào với mã ${invoiceId}.`}
-          className="border"
-        />
-      </DetailPageShell>
+      <DetailPageShell
+        title={TITLE}
+        backTo={ROUTES.INVOICES}
+        query={invoiceQuery}
+        id={invoiceId}
+        notFound={(id) => ({
+          icon: ReceiptText,
+          title: "Không tìm thấy hoá đơn.",
+          description: `Không có hoá đơn nào với mã ${id}.`,
+        })}
+      />
     );
   }
 
@@ -246,7 +248,7 @@ export default function InvoiceDetailTemplate({
         meta={[
           invoice.room,
           invoice.tenant,
-          `Kỳ ${invoice.month} · Hạn thu ${invoice.dueDate}`,
+          `Kỳ ${formatMonth(invoice.billingMonth)} · Hạn thu ${formatDate(invoice.dueDate)}`,
         ]}
         actions={
           <>
@@ -287,7 +289,7 @@ export default function InvoiceDetailTemplate({
                 variant="outline"
                 size="sm"
                 className="text-destructive hover:text-destructive print:hidden"
-                onClick={() => setIsDeleteOpen(true)}
+                onClick={deleteInvoice.onOpen}
               >
                 <Trash2 />
                 Xóa
@@ -322,15 +324,7 @@ export default function InvoiceDetailTemplate({
         defaultAmount={remaining}
       />
 
-      <ConfirmActionDialog
-        open={isDeleteOpen}
-        onOpenChange={setIsDeleteOpen}
-        title="Xóa hoá đơn"
-        description={`Bạn có chắc chắn muốn xóa hoá đơn "${invoice.invoiceNumber}" không? Hành động này không thể hoàn tác.`}
-        actionLabel="Xóa"
-        variant="destructive"
-        onConfirm={() => navigate(ROUTES.INVOICES, { replace: true })}
-      />
+      <ConfirmActionDialog {...deleteInvoice.dialogProps} />
     </>
   );
 }

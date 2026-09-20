@@ -25,6 +25,13 @@ export default mergeConfig(
       // starts depending on a mock's calls surviving into the next case.
       clearMocks: true,
 
+      // The component-list search test types, waits out the debounce, then
+      // `findByText`s the empty state — comfortably under 5s locally, but it
+      // timed out in CI four release runs in a row (`release.yml` #191-#194)
+      // with 16 Turbo tasks contending for the runner's CPU. Same fix and
+      // reasoning as `apps/storybook/vitest.config.ts`.
+      testTimeout: 30_000,
+
       coverage: {
         provider: "v8",
         reporter: ["text", "html"],

@@ -4,9 +4,13 @@ import type { Building } from "~/types/building";
 import type { ComplianceItem } from "~/types/compliance";
 import type { Contract } from "~/types/contract";
 import type { Invoice } from "~/types/invoice";
+import type { Task } from "~/types/task";
 import type { Tenant } from "~/types/tenant";
 import type { Utility } from "~/types/utility";
+import type { BuildingScope } from "~/types/world";
+import type { WorldArrays } from "~/utils/world";
 import { deriveTasks } from "~/utils/task-derivation";
+import { buildWorld } from "~/utils/world";
 
 const today = new Date("2026-09-18T00:00:00.000Z");
 // Past the ngày chốt (cuối tháng) of the current Kỳ — the only moment
@@ -31,12 +35,6 @@ const tenant: Tenant = {
   name: "Nguyễn Văn A",
   phone: "0900000000",
   email: "a@example.com",
-  room: "Phòng 101",
-  floor: 1,
-  rentAmount: 2_000_000,
-  depositAmount: 2_000_000,
-  moveInDate: "01/01/2026",
-  contractEnd: "31/12/2027",
   idNumber: "012345678",
   gender: "male",
 };
@@ -55,11 +53,11 @@ const contract: Contract = {
   depositStatus: "HELD",
   depositReturnedAmount: 0,
   noticeDays: 30,
-  startDate: "01/01/2026",
-  endDate: "05/10/2026", // within the 30-day EXPIRING window of "today"
+  startDate: "2026-01-01",
+  endDate: "2026-10-05", // within the 30-day EXPIRING window of "today"
   status: "ACTIVE",
   renewalHistory: [],
-  lastUpdated: "01/09/2026",
+  lastUpdated: "2026-09-01",
 };
 
 const overdueInvoice: Invoice = {
@@ -76,11 +74,10 @@ const overdueInvoice: Invoice = {
   paidAmount: 0,
   reminders: [],
   billingMonth: "2026-09",
-  month: "09/2026",
-  dueDate: "05/09/2026",
+  dueDate: "2026-09-05",
   status: "UNPAID",
   paymentDate: null,
-  lastUpdated: "17/09/2026",
+  lastUpdated: "2026-09-17",
 };
 
 const anomalousUtility: Utility = {
@@ -110,21 +107,33 @@ const previousUtility: Utility = {
 
 const noComplianceItems: ComplianceItem[] = [];
 
+/** World fixtures for `deriveTasks` — seam 1 of ADR-0015: no `buildingId` field of its own any more, scoped by World. */
 function derive(
-  overrides: Partial<Parameters<typeof deriveTasks>[0]> = {},
+  overrides: Partial<WorldArrays> = {},
+  scope: BuildingScope = null,
   todayOverride: Date = today,
-) {
+): Task[] {
   return deriveTasks(
-    {
-      contracts: [contract],
-      invoices: [overdueInvoice],
-      utilities: [previousUtility, anomalousUtility],
-      tenants: [tenant],
-      complianceItems: noComplianceItems,
-      buildings: [building],
-      ...overrides,
-    },
-    todayOverride,
+    buildWorld(
+      {
+        buildings: [building],
+        rooms: [],
+        contracts: [contract],
+        invoices: [overdueInvoice],
+        utilities: [previousUtility, anomalousUtility],
+        utilityOldIndexOverrides: [],
+        tenants: [tenant],
+        complianceItems: noComplianceItems,
+        expenses: [],
+        supplierBills: [],
+        notificationTemplates: [],
+        sendLogs: [],
+        landlordProfile: { name: "", phone: "", email: "" },
+        ...overrides,
+      },
+      scope,
+      todayOverride,
+    ),
   );
 }
 
@@ -188,7 +197,7 @@ describe("deriveTasks", () => {
           room: "Phòng 101",
           type: "residence_registration",
           status: "pending",
-          dueDate: "05/10/2026", // 17 days after `today` (18/09/2026)
+          dueDate: "2026-10-05", // 17 days after `today` (18/09/2026)
         },
       ],
     });
@@ -210,7 +219,7 @@ describe("deriveTasks", () => {
           room: "Phòng 101",
           type: "residence_registration",
           status: "pending",
-          dueDate: "31/12/2027",
+          dueDate: "2027-12-31",
         },
       ],
     });
@@ -231,7 +240,7 @@ describe("deriveTasks", () => {
           room: "Phòng 101",
           type: "residence_notification",
           status: "completed",
-          dueDate: "01/01/2026",
+          dueDate: "2026-01-01",
         },
       ],
     });
@@ -240,7 +249,7 @@ describe("deriveTasks", () => {
   });
 
   it("adds batch_pending once the Kỳ's ngày chốt has passed and no Hoá đơn exists yet", () => {
-    const tasks = derive({ invoices: [] }, pastCycleEnd);
+    const tasks = derive({ invoices: [] }, null, pastCycleEnd);
     const task = tasks.find((t) => t.type === "batch_pending");
 
     expect(task).toMatchObject({
@@ -258,8 +267,8 @@ describe("deriveTasks", () => {
     expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
   });
 
-  it("skips batch_pending once a Hoá đơn of the Kỳ already exists", () => {
-    const tasks = derive({ invoices: [overdueInvoice] }, pastCycleEnd);
+  it("skips batch_pending once a Hoá đơn của Kỳ already exists", () => {
+    const tasks = derive({ invoices: [overdueInvoice] }, null, pastCycleEnd);
 
     expect(tasks.some((t) => t.type === "batch_pending")).toBe(false);
   });
@@ -267,11 +276,8 @@ describe("deriveTasks", () => {
   it("scopes batch_pending to one Toà nhà when buildingId is given", () => {
     const otherBuilding = { ...building, id: "b2", name: "Toà nhà khác" };
     const tasks = derive(
-      {
-        invoices: [],
-        buildings: [building, otherBuilding],
-        buildingId: "b1",
-      },
+      { invoices: [], buildings: [building, otherBuilding] },
+      "b1",
       pastCycleEnd,
     );
 
@@ -282,16 +288,13 @@ describe("deriveTasks", () => {
 
   it("scopes to one Toà nhà when buildingId is given", () => {
     const otherBuilding = { ...building, id: "b2", name: "Toà nhà khác" };
-    const tasks = derive({
-      buildings: [building, otherBuilding],
-      buildingId: "b1",
-    });
+    const tasks = derive({ buildings: [building, otherBuilding] }, "b1");
 
     expect(tasks.some((t) => t.relatedEntity === "invoice")).toBe(true);
   });
 
   it("finds nothing outside the given Building scope", () => {
-    const tasks = derive({ buildingId: "b-other" });
+    const tasks = derive({}, "b-other");
 
     expect(tasks).toEqual([]);
   });

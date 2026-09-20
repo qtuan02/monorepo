@@ -1,16 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import dayjs from "@monorepo/dayjs";
 import { FieldGroup } from "@monorepo/ui/components/field";
-import { toast } from "@monorepo/ui/components/toast";
 
 import { DateField } from "~/components/form/date-field";
 import { TextField } from "~/components/form/text-field";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { useMarkResidenceNotificationSent } from "~/hooks/api/compliance";
-import { formatDate } from "~/utils/date";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 
 const residenceNotificationSentFormSchema = z.object({
   referenceNumber: z
@@ -37,8 +34,6 @@ interface ResidenceNotificationSentSheetProps {
   tenantName: string;
 }
 
-const FORM_ID = "residence-notification-sent-form";
-
 /**
  * "Đã gửi" (ticket #188): hỏi mã hồ sơ Cổng DVC + ngày gửi thật, thay vì
  * đánh dấu ngay với mã tự bịa (`CT01-<tenantId>`) như trước. Dùng chung bởi
@@ -51,43 +46,25 @@ export function ResidenceNotificationSentSheet({
   tenantName,
 }: ResidenceNotificationSentSheetProps) {
   const markSent = useMarkResidenceNotificationSent();
-  const form = useForm<ResidenceNotificationSentFormValues>({
-    resolver: zodResolver(residenceNotificationSentFormSchema),
-    defaultValues: defaultValues(),
-  });
-
-  const onSubmit = form.handleSubmit((values) => {
-    markSent.mutate(
-      {
-        tenantId,
-        referenceNumber: values.referenceNumber,
-        sentDate: formatDate(values.sentDate),
-      },
-      {
-        onSuccess: () => {
-          toast.add({
-            title: `Đã đánh dấu gửi Thông báo lưu trú cho ${tenantName}`,
-            type: "success",
-          });
-          onOpenChange(false);
-        },
-      },
-    );
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: residenceNotificationSentFormSchema,
+    toDefaultValues: defaultValues,
+    mutations: { create: markSent },
+    toPayload: (values) => ({
+      tenantId,
+      referenceNumber: values.referenceNumber,
+      sentDate: values.sentDate,
+    }),
+    successMessage: () => `Đã đánh dấu gửi Thông báo lưu trú cho ${tenantName}`,
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(defaultValues());
-        onOpenChange(next);
-      }}
+      {...sheetProps}
       title="Đã gửi Thông báo lưu trú"
       description="Nhập mã hồ sơ và ngày gửi thật trên Cổng dịch vụ công."
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={markSent.isPending}
     >
       <FieldGroup>
         <TextField

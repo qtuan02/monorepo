@@ -1,5 +1,4 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import {
   Field,
@@ -7,12 +6,8 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@monorepo/ui/components/field";
-import { toast } from "@monorepo/ui/components/toast";
 
-import type {
-  ExpenseFormInput,
-  ExpenseFormValues,
-} from "~/features/expenses/types/expense-form";
+import type { ExpenseFormInput } from "~/features/expenses/types/expense-form";
 import type { Expense } from "~/types/expense";
 import { AttachmentUrlField } from "~/components/form/attachment-url-field";
 import { CurrencyField } from "~/components/form/currency-field";
@@ -22,6 +17,7 @@ import { SelectBuilding } from "~/components/select/select-building";
 import { FormSheet } from "~/components/sheet/form-sheet";
 import { expenseFormSchema } from "~/features/expenses/types/expense-form";
 import { useCreateExpense, useUpdateExpense } from "~/hooks/api/expense";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 
 interface ExpenseFormSheetProps {
   open: boolean;
@@ -31,8 +27,6 @@ interface ExpenseFormSheetProps {
   /** The Building scope already picked — prefills the Combobox on create. */
   defaultBuildingId?: string | null;
 }
-
-const FORM_ID = "expense-form";
 
 function toDefaultValues(
   expense: Expense | undefined,
@@ -63,53 +57,30 @@ export default function ExpenseFormSheet({
   const updateExpense = useUpdateExpense();
   const isEdit = !!expense;
 
-  const form = useForm<ExpenseFormInput, unknown, ExpenseFormValues>({
-    resolver: zodResolver(expenseFormSchema),
-    defaultValues: toDefaultValues(expense, defaultBuildingId),
-  });
-
-  const onSubmit = form.handleSubmit((values) => {
-    const payload = {
-      ...values,
-      description: values.description || undefined,
-      receiptImageUrl: values.receiptImageUrl || undefined,
-    };
-
-    if (expense) {
-      updateExpense.mutate(
-        { expenseId: expense.id, ...payload },
-        {
-          onSuccess: () => {
-            toast.add({ title: "Đã cập nhật khoản chi", type: "success" });
-            onOpenChange(false);
-          },
-        },
-      );
-      return;
-    }
-
-    createExpense.mutate(payload, {
-      onSuccess: () => {
-        toast.add({ title: "Đã thêm khoản chi", type: "success" });
-        form.reset(toDefaultValues(undefined, defaultBuildingId));
-        onOpenChange(false);
-      },
-    });
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: expenseFormSchema,
+    entity: expense,
+    toDefaultValues: (entity) => toDefaultValues(entity, defaultBuildingId),
+    mutations: { create: createExpense, update: updateExpense },
+    toPayload: (values, entity) => {
+      const payload = {
+        ...values,
+        description: values.description || undefined,
+        receiptImageUrl: values.receiptImageUrl || undefined,
+      };
+      return entity ? { expenseId: entity.id, ...payload } : payload;
+    },
+    successMessage: (_result, entity) =>
+      entity ? "Đã cập nhật khoản chi" : "Đã thêm khoản chi",
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={(next) => {
-        if (next) form.reset(toDefaultValues(expense, defaultBuildingId));
-        onOpenChange(next);
-      }}
+      {...sheetProps}
       title={isEdit ? "Chỉnh sửa khoản chi" : "Thêm khoản chi"}
       description={isEdit ? undefined : "Ghi nhận một khoản chi nội bộ."}
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={isEdit ? updateExpense.isPending : createExpense.isPending}
     >
       <FieldGroup>
         <Controller

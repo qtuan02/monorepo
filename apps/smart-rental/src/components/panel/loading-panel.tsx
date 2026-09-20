@@ -71,26 +71,45 @@ export function DetailSkeleton({ className }: { className?: string }) {
 
 interface TableSkeletonProps {
   rows?: number;
+  /** Cells per row — a `DataTable` passes its own `columns.length`. */
+  columnCount?: number;
   className?: string;
 }
 
-/** The bordered-table footprint — a list screen whose default view is a table. */
-export function TableSkeleton({ rows = 5, className }: TableSkeletonProps) {
+/**
+ * The bordered-table footprint — a list screen whose default view is a
+ * table. Row heights (`h-9` header / `h-11` body) match the real table's own
+ * `[&_thead_th]:h-9 [&_tbody_td]:h-11` (round 4 Q3/Q4, 44 px rows).
+ */
+export function TableSkeleton({
+  rows = 5,
+  columnCount = 3,
+  className,
+}: TableSkeletonProps) {
+  const cells = Array.from({ length: columnCount }, (_, i) => i);
+
   return (
     <div className={cn("overflow-hidden rounded-md border", className)}>
-      <div className="bg-muted/40 flex items-center gap-4 border-b px-4 py-3">
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="ml-auto h-4 w-16" />
+      <div
+        data-slot="table-skeleton-row"
+        className="bg-muted/40 flex h-9 items-center gap-4 border-b px-4"
+      >
+        {cells.map((cell) => (
+          <Skeleton
+            key={`loading-header-cell-${cell}`}
+            className="h-4 flex-1"
+          />
+        ))}
       </div>
       {TILES.slice(0, rows).map((tile) => (
         <div
           key={`loading-row-${tile}`}
-          className="flex items-center gap-4 border-b px-4 py-3 last:border-0"
+          data-slot="table-skeleton-row"
+          className="flex h-11 items-center gap-4 border-b px-4 last:border-0"
         >
-          <Skeleton className="h-4 w-1/4" />
-          <Skeleton className="h-4 w-1/4" />
-          <Skeleton className="ml-auto h-4 w-16" />
+          {cells.map((cell) => (
+            <Skeleton key={`loading-cell-${cell}`} className="h-4 flex-1" />
+          ))}
         </div>
       ))}
     </div>

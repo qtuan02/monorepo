@@ -20,8 +20,10 @@ interface ProjectRowProps {
 
 // 14 px, the floor `ux#67` sets for meta — and these are controls, not labels:
 // the contact lines, the closest thing on the page, read at the same size.
+// `py-1.5 -my-1.5`: a 32 px tap target (`ux#104`) without widening the line
+// itself — the negative margin cancels the padding's own footprint in flow.
 const linkClassName =
-  "inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
+  "inline-flex items-center gap-1 py-1.5 -my-1.5 text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";
 
 /**
  * One project, as a row of the projects block: the name, the links out beside
@@ -59,7 +61,7 @@ export default function ProjectRow({
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 className="font-mono text-base leading-snug font-bold">{name}</h3>
         {hasLinks && (
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             {source?.map((entry) => (
               <a
                 key={entry.id}

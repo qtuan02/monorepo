@@ -8,6 +8,8 @@ import type { Task } from "~/types/task";
 import type { OverdueQueueGroup, TaskQueueEntry } from "~/utils/task-queue";
 import { TaskQueue } from "~/components/queue/task-queue";
 import { mockInvoices } from "~/constants/mock/invoices";
+import { taskTypeConfig } from "~/constants/status";
+import { taskRelatedPath } from "~/utils/task-due";
 
 const task: Task = {
   id: "task-1",
@@ -69,11 +71,37 @@ describe("TaskQueue", () => {
     expect(actions).toHaveClass("w-full", "flex-wrap", "md:w-auto");
   });
 
-  it("sizes every action ≥ 36px tall (h-9)", () => {
+  it("sizes every action sm (h-8) — round 4 dropped the default-variant primary", () => {
     renderQueue([{ kind: "task", key: task.id, task, dueAt: 0 }]);
 
-    expect(screen.getByRole("link", { name: "Gia hạn" })).toHaveClass("h-9");
-    expect(screen.getByRole("link", { name: "Thanh lý" })).toHaveClass("h-9");
+    expect(screen.getByRole("link", { name: "Gia hạn" })).toHaveClass("h-8");
+    expect(screen.getByRole("link", { name: "Thanh lý" })).toHaveClass("h-8");
+  });
+
+  // Round 4 §10 Q22: no per-row action is the navy default-variant Button —
+  // "Nhắc tất cả"/"Sửa chỉ số"/etc. are outline, "Xem n hoá đơn"/"Thanh lý"
+  // are ghost. The bell reads the same composite, so this covers it too.
+  it("never renders a default-variant button on a queue row", () => {
+    const { container } = renderQueue([
+      { kind: "task", key: task.id, task, dueAt: 0 },
+      overdueGroup,
+    ]);
+
+    expect(container.querySelectorAll('[data-variant="default"]')).toHaveLength(
+      0,
+    );
+  });
+
+  // The bell links to `taskRelatedPath(task)` too (see NotificationEntry's
+  // own test) — reading the same table/function is what keeps the two in
+  // sync (ticket #230).
+  it("uses the shared taskTypeConfig label and taskRelatedPath's own destination", () => {
+    renderQueue([{ kind: "task", key: task.id, task, dueAt: 0 }]);
+
+    const primaryLink = screen.getByRole("link", {
+      name: taskTypeConfig[task.type].actionLabel,
+    });
+    expect(primaryLink).toHaveAttribute("href", taskRelatedPath(task));
   });
 
   it("shows «Không có việc nào» once the queue is empty", () => {

@@ -180,6 +180,16 @@ export function useGetTemplates(
 }
 ```
 
+## Refresh-token is an opt-in option, not a second HTTP layer
+
+A backend with a short-lived access token and a refresh flow does **not** earn its own
+`~/libs/axios.ts` inside the app. `createHttpClient` takes two opt-in options for exactly this —
+`withCredentials` and `onAuthError(error): Promise<string | null>`, which fires on a 401 or 403 from
+a request that hasn't been retried yet and either resolves a token to retry once or falls through to
+the existing throw. See [ADR-0014](../../docs/adr/0014-api-refresh-token-opt-in-http-client.md) and
+`packages/api/README.md`. Neither option changes behaviour for an app that doesn't pass it, so this
+does not conflict with the "one mock seam" rule above — the seam is still the service singleton.
+
 ## Errors: `HttpError`, toasted by the global handler
 
 The response interceptor normalizes every failure to an `HttpError` (`statusCode`, `message`,

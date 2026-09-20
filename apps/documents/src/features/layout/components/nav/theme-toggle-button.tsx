@@ -3,10 +3,23 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@monorepo/ui/components/button";
 
+import type { Theme } from "~/libs/theme-provider";
 import { useTheme } from "~/libs/theme-provider";
 
 interface ThemeToggleButtonProps {
   className?: string;
+}
+
+/**
+ * The catalogue key naming what a press switches *to* — shared with the
+ * sheet-menu row label in `nav-actions.tsx`, so the two never drift apart.
+ */
+export function nextThemeLabelKey(
+  resolvedTheme: Theme,
+): "documents.nav.theme.toLight" | "documents.nav.theme.toDark" {
+  return resolvedTheme === "dark"
+    ? "documents.nav.theme.toLight"
+    : "documents.nav.theme.toDark";
 }
 
 /**
@@ -27,11 +40,7 @@ export default function ThemeToggleButton({
       type="button"
       variant="ghost"
       size="icon"
-      aria-label={t(
-        nextTheme === "light"
-          ? "documents.nav.theme.toLight"
-          : "documents.nav.theme.toDark",
-      )}
+      aria-label={t(nextThemeLabelKey(resolvedTheme))}
       className={className}
       onClick={() => setTheme(nextTheme)}
     >

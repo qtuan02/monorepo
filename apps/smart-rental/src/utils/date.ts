@@ -10,6 +10,20 @@ export function formatDate(input: Date | number | string): string {
   return dayjs(input).format(DATE_FORMAT);
 }
 
+/** Today, ISO `YYYY-MM-DD` — what a `mutationFn` writes into a `*Date`/`lastUpdated` field. */
+export function todayIsoDate(): string {
+  return dayjs().format("YYYY-MM-DD");
+}
+
+/**
+ * `formatDate`, but tolerant of the "—" placeholder a Người thuê with no
+ * Hợp đồng carries in `moveInDate`/`contractEnd` (`~/utils/tenant-status`) —
+ * `dayjs("—")` would otherwise format to "Invalid Date".
+ */
+export function formatOptionalDate(input: string): string {
+  return input === "—" ? input : formatDate(input);
+}
+
 export function formatDateTime(input: Date | number | string): string {
   return dayjs(input).format(DATE_TIME_FORMAT);
 }
@@ -17,15 +31,6 @@ export function formatDateTime(input: Date | number | string): string {
 /** A `YYYY-MM` period (the Mock, an `<input type="month">`) read as `MM/YYYY`. */
 export function formatMonth(input: string): string {
   return dayjs(input).format(MONTH_FORMAT);
-}
-
-/**
- * Chronological compare for two `DD/MM/YYYY` display strings — a table
- * column's auto-inferred sort would compare the day digit first and put
- * "09/01/2026" before "17/09/2026".
- */
-export function compareDisplayDates(a: string, b: string): number {
-  return dayjs(a, DATE_FORMAT).valueOf() - dayjs(b, DATE_FORMAT).valueOf();
 }
 
 /**

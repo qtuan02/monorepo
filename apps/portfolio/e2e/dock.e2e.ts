@@ -97,42 +97,92 @@ test.describe("the dock", () => {
     }
   });
 
-  test("gives every control a 44px target, at least 8px from the next one", async ({
+  // Also at 375: the full-width bar below `sm` still owes the same contract —
+  // this is the case that failed before #211 (`boundingBox.x = -14`, controls
+  // clipped by the viewport).
+  for (const width of [undefined, 375] as const) {
+    test(
+      width
+        ? `gives every control a 44px target, at least 8px from the next one, on a ${width}px phone`
+        : "gives every control a 44px target, at least 8px from the next one",
+      async ({ page }) => {
+        if (width) await page.setViewportSize({ width, height: 800 });
+        await page.goto(ROUTES.HOME);
+
+        const controls = dockControls(page);
+
+        await expect(controls).toHaveCount(5);
+
+        const boxes = await controls.evaluateAll((nodes) =>
+          nodes.map((node) => {
+            const { x, width, height } = node.getBoundingClientRect();
+            return { x, width, height };
+          }),
+        );
+
+        for (const [index, box] of boxes.entries()) {
+          expect(box.width, `control ${index} width`).toBeGreaterThanOrEqual(
+            MIN_TARGET,
+          );
+          expect(box.height, `control ${index} height`).toBeGreaterThanOrEqual(
+            MIN_TARGET,
+          );
+        }
+
+        for (let index = 1; index < boxes.length; index += 1) {
+          const previous = boxes[index - 1];
+          const current = boxes[index];
+
+          if (!previous || !current) throw new Error("missing box");
+
+          expect(
+            current.x - (previous.x + previous.width),
+            `gap before control ${index}`,
+          ).toBeGreaterThanOrEqual(MIN_GAP);
+        }
+      },
+    );
+  }
+
+  test("is a full-width bar flush with the bottom edge, with only a top edge, below `sm`", async ({
     page,
   }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
     await page.goto(ROUTES.HOME);
 
-    const controls = dockControls(page);
+    const dock = page.getByRole("navigation");
+    const frame = await dock.evaluate((node) => {
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
 
-    await expect(controls).toHaveCount(5);
+      return {
+        shadow: style.boxShadow,
+        borderTop: style.borderTopWidth,
+        borderRight: style.borderRightWidth,
+        borderBottom: style.borderBottomWidth,
+        borderLeft: style.borderLeftWidth,
+        width: rect.width,
+        bottom: rect.bottom,
+      };
+    });
 
-    const boxes = await controls.evaluateAll((nodes) =>
-      nodes.map((node) => {
-        const { x, width, height } = node.getBoundingClientRect();
-        return { x, width, height };
-      }),
-    );
+    // `shadow-none` still computes to a stack of fully transparent layers
+    // rather than the literal string "none" — what matters is that none of
+    // them carries the hard shadow's 4px offset.
+    expect(frame.shadow).not.toContain("4px 4px");
+    expect(frame.borderTop).toBe("2px");
+    expect(frame.borderRight).toBe("0px");
+    expect(frame.borderBottom).toBe("0px");
+    expect(frame.borderLeft).toBe("0px");
+    // Full viewport width, chạm mép dưới — no `mb-4` offset below `sm`.
+    expect(frame.width).toBe(375);
+    expect(Math.round(frame.bottom)).toBe(800);
 
-    for (const [index, box] of boxes.entries()) {
-      expect(box.width, `control ${index} width`).toBeGreaterThanOrEqual(
-        MIN_TARGET,
-      );
-      expect(box.height, `control ${index} height`).toBeGreaterThanOrEqual(
-        MIN_TARGET,
-      );
-    }
-
-    for (let index = 1; index < boxes.length; index += 1) {
-      const previous = boxes[index - 1];
-      const current = boxes[index];
-
-      if (!previous || !current) throw new Error("missing box");
-
-      expect(
-        current.x - (previous.x + previous.width),
-        `gap before control ${index}`,
-      ).toBeGreaterThanOrEqual(MIN_GAP);
-    }
+    // Q9: below `sm` the bar itself never presses on hover — a full-width
+    // bar sinking 2px would open a gap at its own edge.
+    await expect(dock).toHaveCSS("translate", "none");
+    await dock.hover();
+    await expect(dock).toHaveCSS("translate", "none");
   });
 
   test("does not grow a control under the pointer", async ({ page }) => {

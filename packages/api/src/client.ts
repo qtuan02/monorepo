@@ -1,9 +1,31 @@
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import type {
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 import axios from "axios";
+
+/** The retry flag lives on the config object itself, so it survives the round trip through `error.config`. */
+type RetryableRequestConfig = InternalAxiosRequestConfig & {
+  _retried?: boolean;
+  /**
+   * Set by the refresh call itself (e.g. `ChatAuthService.refresh()`). Without
+   * it, that request's own 401/403 re-enters this same branch and awaits the
+   * shared `refreshing` promise — which is the very `onAuthError` call this
+   * request's failure is needed to resolve. Both sides wait on each other
+   * forever: no retry, no `onUnauthorized`, no logout, no error surfaced.
+   */
+  skipAuthRetry?: boolean;
+};
 
 export interface HttpClientOptions {
   baseURL: string;
   timeout?: number;
+  /**
+   * Passed straight to axios. Opt-in because it is meaningless without a
+   * backend that actually sets a cross-origin `HttpOnly` cookie — see ADR-0014.
+   */
+  withCredentials?: boolean;
   /**
    * Read at call time, once per request — never captured at construction. That
    * keeps this package below the app's store layer: it asks for a token when it
@@ -17,6 +39,15 @@ export interface HttpClientOptions {
    * router import.
    */
   onUnauthorized?: (error: HttpError) => void;
+  /**
+   * Fires on a 401 or 403 from a request that hasn't been retried yet — see
+   * ADR-0014. Resolve the refreshed token to retry the original request once
+   * with a new `Authorization` header; resolve `null` (or throw) to fail as
+   * `onUnauthorized`/throw already did. A request the app itself never wants
+   * refreshed (an auth endpoint) just resolves `null` — this client never needs
+   * to know the path. Concurrent failures share one in-flight call.
+   */
+  onAuthError?: (error: HttpError) => Promise<string | null>;
 }
 
 export interface HttpErrorContext {
@@ -84,11 +115,18 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
   const instance = axios.create({
     baseURL: options.baseURL,
     timeout: options.timeout ?? 10_000,
+    withCredentials: options.withCredentials,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
     },
   });
+
+  // Dedupes concurrent auth failures: the first one to arrive stores its
+  // in-flight call here, every other one awaits the SAME promise instead of
+  // calling `onAuthError` again. Scoped to this client instance, same as
+  // `getAuthToken` is read fresh per request rather than captured once.
+  let refreshing: Promise<string | null> | null = null;
 
   // The request interceptor exists only when the caller supplied a token reader,
   // so an unauthenticated app sends exactly the headers it did before.
@@ -108,31 +146,58 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
 
   // Only the failure path is intercepted: every rejection leaves this client as
   // an HttpError, so callers match on one type.
-  instance.interceptors.response.use(undefined, (error: unknown) => {
-    if (axios.isAxiosError(error)) {
-      // A network failure or timeout has no response, hence statusCode 0.
-      const status = error.response?.status ?? 0;
-      const message: string =
-        (error.response?.data as { message?: string } | undefined)?.message ??
-        error.message;
-
-      const httpError = new HttpError({
-        statusCode: status,
-        message,
-        response: error.response,
-      });
-
-      // Notify, then rethrow: the caller's own error handling still runs. The
-      // callback is for app-level reaction (sign out, clear caches), not for
-      // swallowing the failure.
-      if (httpError.isUnauthorized()) {
-        options.onUnauthorized?.(httpError);
-      }
-
-      throw httpError;
+  instance.interceptors.response.use(undefined, async (error: unknown) => {
+    if (!axios.isAxiosError(error)) {
+      throw error;
     }
 
-    throw error;
+    // A network failure or timeout has no response, hence statusCode 0.
+    const status = error.response?.status ?? 0;
+    const message: string =
+      (error.response?.data as { message?: string } | undefined)?.message ??
+      error.message;
+
+    const httpError = new HttpError({
+      statusCode: status,
+      message,
+      response: error.response,
+    });
+
+    const config = error.config as RetryableRequestConfig | undefined;
+
+    if (
+      options.onAuthError &&
+      config &&
+      !config._retried &&
+      !config.skipAuthRetry &&
+      (httpError.isUnauthorized() || httpError.isForbidden())
+    ) {
+      let token: string | null;
+
+      try {
+        refreshing ??= options.onAuthError(httpError);
+        token = await refreshing;
+      } catch {
+        token = null;
+      } finally {
+        refreshing = null;
+      }
+
+      if (token) {
+        config._retried = true;
+        config.headers.set("Authorization", `Bearer ${token}`);
+        return instance.request(config);
+      }
+    }
+
+    // Notify, then rethrow: the caller's own error handling still runs. The
+    // callback is for app-level reaction (sign out, clear caches), not for
+    // swallowing the failure.
+    if (httpError.isUnauthorized()) {
+      options.onUnauthorized?.(httpError);
+    }
+
+    throw httpError;
   });
 
   async function request<T>(config: AxiosRequestConfig): Promise<T> {

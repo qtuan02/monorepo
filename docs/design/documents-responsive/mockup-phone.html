@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>documents responsive — 375 px: hiện trạng ↔ đề xuất</title>
+<style>
+  :root{--ink:#312e81;--muted:#475569;--bg:#f4f5fb;--glass:rgb(255 255 255/.58);--tile:rgb(255 255 255/.75);--edge:rgb(255 255 255/.75);--primary:#4f46e5;--code:#312e81;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:ui-sans-serif,system-ui,"Segoe UI",Roboto,Arial,sans-serif;--sh:0 1px 0 rgb(255 255 255/.7) inset,0 1px 2px rgb(49 46 129/.06),0 12px 32px -8px rgb(49 46 129/.22)}
+  *{box-sizing:border-box}
+  body{margin:0;padding:32px;background:#e4e6f2;font:14px/1.5 var(--sans);color:var(--ink)}
+  h1{font:700 18px var(--mono);margin:0 0 4px}
+  .note{max-width:78ch;margin:0 0 24px;color:var(--muted)}
+  .row-title{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;margin:32px 0 8px;color:var(--muted)}
+  .frames{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+  .frame{width:375px;flex:none}
+  .frame>h2{font:700 13px var(--mono);text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px}
+  .screen{position:relative;width:375px;height:667px;overflow:hidden;border:2px solid var(--ink);border-radius:18px;color:var(--ink);
+    background:var(--bg);background-image:radial-gradient(60% 40% at 0% 0%,rgb(167 139 250/.7),transparent 70%),radial-gradient(50% 35% at 100% 5%,rgb(103 232 249/.6),transparent 70%),radial-gradient(45% 30% at 55% 30%,rgb(244 114 182/.45),transparent 70%)}
+  .measure{position:absolute;top:8px;right:8px;z-index:2;font:11px var(--mono);background:#ffe9e9;border:1px solid #c33;padding:2px 6px;color:#c33;border-radius:6px}
+  .p .measure{background:#e6f6ea;border-color:#2a7;color:#2a7}
+  /* nav pill */
+  .pill{position:absolute;top:16px;left:16px;right:16px;height:54px;display:flex;align-items:center;gap:6px;padding:8px 10px 8px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);backdrop-filter:blur(18px)}
+  .brand{display:flex;align-items:center;gap:10px;font:700 15px var(--sans);padding-right:10px;border-right:1px solid rgb(49 46 129/.1);white-space:nowrap}
+  .brand i{width:30px;height:30px;border-radius:10px;background:conic-gradient(from 210deg,#6366f1,#a78bfa,#67e8f9,#f472b6,#fbbf24,#6366f1)}
+  .rc{width:36px;height:36px;border-radius:50%;border:1px solid var(--edge);background:var(--glass);display:flex;align-items:center;justify-content:center;flex:none}
+  .rc svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+  .ml{margin-left:auto}
+  .page{position:absolute;inset:0;padding:96px 16px 0;overflow:hidden}
+  /* list */
+  .h1{font:800 40px/1 var(--sans);letter-spacing:-.04em;margin:0}
+  .lead{margin:8px 0 0;color:var(--muted);font-size:14px}
+  .filter{margin-top:20px;height:36px;border-radius:12px;border:1px solid rgb(49 46 129/.2);background:#fff;display:flex;align-items:center;padding:0 12px;color:var(--muted);gap:8px}
+  .count{margin:12px 0 0;color:var(--muted);font-size:14px}
+  ul{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:14px}
+  .tile{position:relative;display:flex;flex-direction:column;min-height:118px;padding:16px 16px 14px;border-radius:18px;background:var(--tile);border:1px solid var(--edge);box-shadow:var(--sh)}
+  .sw{width:38px;height:38px;border-radius:12px;flex:none;margin-bottom:12px;box-shadow:0 1px 2px rgb(49 46 129/.06)}
+  .slug{font:600 14px var(--mono)}
+  .prev{margin-top:4px;color:var(--muted);font:12px var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .n{position:absolute;top:14px;right:14px;background:var(--tile);border-radius:999px;padding:2px 8px;font:600 11px var(--mono);color:var(--muted)}
+  .p .tile{flex-direction:row;align-items:center;gap:12px;min-height:0;height:64px;padding:12px 14px}
+  .p .sw{margin:0;width:36px;height:36px}
+  .p .txt{min-width:0;flex:1;display:flex;flex-direction:column}
+  .p .slug{white-space:nowrap}
+  .p .prev{margin-top:2px}
+  .p .n{position:static;margin-left:auto}
+  /* detail */
+  .tool{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:13.5px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:999px;background:var(--tile);border:1px solid var(--edge);color:var(--muted);font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+  .chip b{color:var(--ink)}
+  .tool .nb{display:flex;gap:6px;margin-left:auto}
+  .hero{margin-top:24px;padding:24px;border-radius:18px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh),0 32px 64px -16px rgb(79 70 229/.28);backdrop-filter:blur(18px);display:flex;flex-direction:column;gap:24px}
+  .swl{width:120px;height:120px;border-radius:32px;background:linear-gradient(135deg,#a3e635,#4ade80)}
+  .hero h1{font:800 30px/1 var(--mono);letter-spacing:-.04em;margin:0}
+  .meta{margin:10px 0 0;font:13.5px var(--mono);color:var(--muted);word-break:break-all}
+  .meta b{color:var(--ink)}
+  .acts{display:flex;flex-direction:column;gap:8px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;height:36px;border-radius:999px;font:600 14px var(--sans);padding:0 16px;white-space:nowrap}
+  .btn.s{background:var(--ink);color:#fff}.btn.g{background:rgb(255 255 255/.78);border:1px solid var(--edge)}
+  .p .hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;align-items:center}
+  .p .swl{width:64px;height:64px;border-radius:20px}
+  .p .acts{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}
+  .p .btn{height:40px}
+  .panel{margin-top:16px;padding:20px;border-radius:18px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh)}
+  .kick{font:600 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin:0 0 12px}
+  .code{border-radius:14px;background:var(--code);color:#e0e7ff;font:13.5px/1.7 var(--mono);padding:16px;white-space:pre;overflow:hidden}
+  /* palette */
+  .dim{position:absolute;inset:0;background:rgb(11 10 31/.35);backdrop-filter:blur(3px)}
+  .dlg{position:absolute;left:16px;right:16px;top:222px;border-radius:12px;background:var(--glass);border:1px solid var(--edge);box-shadow:var(--sh);backdrop-filter:blur(18px);overflow:hidden}
+  .p .dlg{top:16px}
+  .in{margin:4px 4px 0;height:32px;border-radius:8px;border:1px solid rgb(49 46 129/.15);background:rgb(49 46 129/.05);display:flex;align-items:center;padding:0 10px;gap:8px;color:var(--muted);font-size:14px}
+  .grp{padding:6px 4px 0;font:500 12px var(--sans);color:var(--muted)}
+  .grp span{display:block;padding:6px 8px 4px}
+  .it{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;font:600 14px var(--mono);color:var(--ink)}
+  .it .sm{width:22px;height:22px;border-radius:7px;flex:none}
+  .it .sp{margin-left:auto;font:400 12px var(--mono);color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cur .it.wrap{font-size:14px}.cur .it.wrap .sl{white-space:normal;width:60px;line-height:1.2}
+  .p .it .sp{display:none}
+  .p .it .sl{white-space:nowrap}
+  .list{max-height:288px;overflow:hidden}
+  .p .list{max-height:400px}
+  .kb{position:absolute;left:0;right:0;bottom:0;height:260px;background:repeating-linear-gradient(0deg,#d1d5e0 0 1px,#dfe2ec 1px 44px);border-top:1px solid #9aa0b4;display:flex;align-items:flex-end;justify-content:center;padding-bottom:12px;font:11px var(--mono);color:#555}
+</style>
+</head>
+<body>
+<h1>apps/documents — 375 px</h1>
+<p class="note">Trái: hiện trạng đo trên bản build (trang Component 8 984 px; hero chi tiết 750 px với swatch 120 px xếp trên h1; palette neo ở 1/3 màn, bàn phím ảo che gần hết kết quả, slug vỡ dòng). Phải: đề xuất §3.3 / §3.5 / §3.4 của brief — tile là một hàng 64 px dưới <code>sm</code>, swatch 64 px đứng cạnh h1, action 2 cột, palette neo đỉnh và bỏ subpath. Cùng một DOM, chỉ đổi class theo breakpoint. Bàn phím vẽ tượng trưng 260 px (iOS).</p>
+
+<p class="row-title">1 · /components — danh sách</p>
+<div class="frames">
+<div class="frame cur"><h2>Hiện trạng</h2><div class="screen">
+<div class="measure">63 × 122 px = 8 984 px</div>
+<div class="pill"><div class="brand"><i></i>@fe-monorepo</div><div class="rc ml"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div></div>
+<div class="page">
+  <h1 class="h1">Component</h1>
+  <p class="lead">Mỗi tile là một subpath của @fe-monorepo/ui. Mở tile để đọc export và xem demo trên Storybook.</p>
+  <div class="filter">⌕ Lọc theo tên…</div>
+  <p class="count">63 component</p>
+  <ul>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#818cf8,#c084fc)"></span><span class="slug">accordion</span><span class="prev">Accordion, AccordionContent, AccordionItem, +1</span><span class="n">4</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#4ade80,#67e8f9)"></span><span class="slug">alert</span><span class="prev">Alert, AlertAction, AlertDescription, +1</span><span class="n">4</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#f472b6,#fb923c)"></span><span class="slug">alert-dialog</span><span class="prev">AlertDialog, AlertDialogAction, +10</span><span class="n">12</span></li>
+  </ul>
+</div>
+</div></div>
+
+<div class="frame p"><h2>Đề xuất — row tile dưới sm</h2><div class="screen">
+<div class="measure">63 × 64 px ≈ 5 200 px</div>
+<div class="pill"><div class="brand"><i></i>@fe-monorepo</div><div class="rc ml"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div></div>
+<div class="page">
+  <h1 class="h1">Component</h1>
+  <p class="lead">Mỗi tile là một subpath của @fe-monorepo/ui. Mở tile để đọc export và xem demo trên Storybook.</p>
+  <div class="filter">⌕ Lọc theo tên…</div>
+  <p class="count">63 component</p>
+  <ul>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#818cf8,#c084fc)"></span><span class="txt"><span class="slug">accordion</span><span class="prev">Accordion, AccordionContent, +2</span></span><span class="n">4</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#4ade80,#67e8f9)"></span><span class="txt"><span class="slug">alert</span><span class="prev">Alert, AlertAction, AlertDescription, +1</span></span><span class="n">4</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#f472b6,#fb923c)"></span><span class="txt"><span class="slug">alert-dialog</span><span class="prev">AlertDialog, AlertDialogAction, +10</span></span><span class="n">12</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#fbbf24,#f472b6)"></span><span class="txt"><span class="slug">aspect-ratio</span><span class="prev">AspectRatio</span></span><span class="n">1</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#67e8f9,#818cf8)"></span><span class="txt"><span class="slug">attachment</span><span class="prev">Attachment, AttachmentList, +3</span></span><span class="n">5</span></li>
+    <li class="tile"><span class="sw" style="background:linear-gradient(135deg,#a3e635,#4ade80)"></span><span class="txt"><span class="slug">avatar</span><span class="prev">Avatar, AvatarFallback, AvatarImage</span></span><span class="n">3</span></li>
+  </ul>
+</div>
+</div></div>
+</div>
+
+<p class="row-title">2 · /components/dialog — hero chi tiết</p>
+<div class="frames">
+<div class="frame cur"><h2>Hiện trạng</h2><div class="screen">
+<div class="measure">hero 750 px / viewport 667</div>
+<div class="pill"><div class="brand"><i></i>@fe-monorepo</div><div class="rc ml"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div></div>
+<div class="page" style="padding-top:88px">
+  <div class="tool"><span class="chip">Component / <b>dialog</b></span><span class="nb"><span class="chip">← date-picker</span><span class="chip">direction →</span></span></div>
+  <div class="hero">
+    <span class="swl"></span>
+    <div><h1>dialog</h1><p class="meta"><b>@fe-monorepo/ui</b>/components/dialog · 10 export</p></div>
+    <div class="acts"><span class="btn s">↗ Mở trên Storybook</span><span class="btn g">↗ npm</span></div>
+  </div>
+  <div class="panel"><p class="kick">Ví dụ</p></div>
+</div>
+</div></div>
+
+<div class="frame p"><h2>Đề xuất — swatch cạnh h1, action 2 cột</h2><div class="screen">
+<div class="measure">hero ≈ 330 px</div>
+<div class="pill"><div class="brand"><i></i>@fe-monorepo</div><div class="rc ml"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><div class="rc"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div></div>
+<div class="page" style="padding-top:88px">
+  <div class="tool"><span class="chip">Component / <b>dialog</b></span><span class="nb"><span class="chip">← date-picker</span><span class="chip">direction →</span></span></div>
+  <div class="hero">
+    <span class="swl"></span>
+    <div><h1>dialog</h1><p class="meta"><b>@fe-monorepo/ui</b>/components/dialog · 10 export</p></div>
+    <div class="acts"><span class="btn s">↗ Storybook</span><span class="btn g">↗ npm</span></div>
+  </div>
+  <div class="panel"><p class="kick">Ví dụ</p><div style="height:120px;border-radius:12px;background:#fff;border:1px solid rgb(49 46 129/.1)"></div></div>
+  <div class="panel"><p class="kick">Import</p><div class="code">import {
+  Dialog,
+  DialogClose,</div></div>
+</div>
+</div></div>
+</div>
+
+<p class="row-title">3 · Palette ⌘K trên phone, bàn phím ảo đang mở</p>
+<div class="frames">
+<div class="frame cur"><h2>Hiện trạng</h2><div class="screen">
+<div class="measure">top 222 px · list 288 px</div>
+<div class="dim"></div>
+<div class="dlg">
+  <div class="in">⌕ Gõ tên component hoặc hook…</div>
+  <div class="list">
+    <div class="grp"><span>Component</span>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#818cf8,#c084fc)"></i>accordion<span class="sp">components/accordion</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#4ade80,#67e8f9)"></i>alert<span class="sp">components/alert</span></div>
+      <div class="it wrap"><i class="sm" style="background:linear-gradient(135deg,#f472b6,#fb923c)"></i><span class="sl">alert-<br>dialog</span><span class="sp">components/alert-dia…</span></div>
+      <div class="it wrap"><i class="sm" style="background:linear-gradient(135deg,#fbbf24,#f472b6)"></i><span class="sl">aspect-<br>ratio</span><span class="sp">components/aspect-ra…</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#67e8f9,#818cf8)"></i>attachment<span class="sp">components/attachment</span></div>
+    </div>
+  </div>
+</div>
+<div class="kb">bàn phím ảo ~260 px</div>
+</div></div>
+
+<div class="frame p"><h2>Đề xuất — neo đỉnh, bỏ subpath</h2><div class="screen">
+<div class="measure">top 16 px · list 60dvh</div>
+<div class="dim"></div>
+<div class="dlg">
+  <div class="in">⌕ Gõ tên component hoặc hook…</div>
+  <div class="list">
+    <div class="grp"><span>Component</span>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#818cf8,#c084fc)"></i><span class="sl">accordion</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#4ade80,#67e8f9)"></i><span class="sl">alert</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#f472b6,#fb923c)"></i><span class="sl">alert-dialog</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#fbbf24,#f472b6)"></i><span class="sl">aspect-ratio</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#67e8f9,#818cf8)"></i><span class="sl">attachment</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#a3e635,#4ade80)"></i><span class="sl">avatar</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#f472b6,#a78bfa)"></i><span class="sl">badge</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#fb923c,#fbbf24)"></i><span class="sl">breadcrumb</span></div>
+      <div class="it"><i class="sm" style="background:linear-gradient(135deg,#67e8f9,#4ade80)"></i><span class="sl">button</span></div>
+    </div>
+  </div>
+</div>
+<div class="kb">bàn phím ảo ~260 px</div>
+</div></div>
+</div>
+</body>
+</html>

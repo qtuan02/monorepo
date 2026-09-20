@@ -8,7 +8,6 @@
 export type TaskType =
   | "invoice_overdue"
   | "contract_expiring"
-  | "maintenance"
   | "utility_anomaly"
   | "residence_notification"
   | "residence_registration_expiring"

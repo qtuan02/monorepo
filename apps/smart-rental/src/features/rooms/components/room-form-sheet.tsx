@@ -1,6 +1,4 @@
-import { useEffect } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { Controller } from "react-hook-form";
 
 import {
   Field,
@@ -15,12 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@monorepo/ui/components/select";
-import { toast } from "@monorepo/ui/components/toast";
 
-import type {
-  RoomFormInput,
-  RoomFormValues,
-} from "~/features/rooms/types/room-form";
+import type { RoomFormInput } from "~/features/rooms/types/room-form";
 import type { Room } from "~/types/room";
 import { CurrencyField } from "~/components/form/currency-field";
 import { TextField } from "~/components/form/text-field";
@@ -29,6 +23,7 @@ import { FormSheet } from "~/components/sheet/form-sheet";
 import { roomStatusConfig, roomTypeConfig } from "~/constants/status";
 import { roomFormSchema } from "~/features/rooms/types/room-form";
 import { useCreateRoom, useUpdateRoom } from "~/hooks/api/room";
+import { useEntityFormSheet } from "~/hooks/use-entity-form-sheet";
 
 interface RoomFormSheetProps {
   open: boolean;
@@ -38,8 +33,6 @@ interface RoomFormSheetProps {
   /** The Building scope already picked — prefills the Combobox on create. */
   defaultBuildingId?: string | null;
 }
-
-const FORM_ID = "room-form";
 
 function toDefaultValues(
   room: Room | undefined,
@@ -71,63 +64,24 @@ export default function RoomFormSheet({
   const updateRoom = useUpdateRoom();
   const isEdit = !!room;
 
-  const form = useForm<RoomFormInput, unknown, RoomFormValues>({
-    resolver: zodResolver(roomFormSchema),
-    defaultValues: toDefaultValues(room, defaultBuildingId),
-  });
-
-  // `open` flips from a plain parent setState ("Thêm phòng" / "Chỉnh sửa"),
-  // never through FormSheet's own onOpenChange — so resetting inside that
-  // callback's `next === true` branch would never run. Reset here instead, or
-  // cancelling a dirty create/edit (confirmed via "Đóng biểu mẫu") leaves the
-  // sheet showing the discarded input on the next open.
-  useEffect(() => {
-    if (open) form.reset(toDefaultValues(room, defaultBuildingId));
-  }, [open, room, defaultBuildingId, form]);
-
-  const onSubmit = form.handleSubmit((values) => {
-    if (room) {
-      updateRoom.mutate(
-        // `tenant` is untouched by this form — carried over as-is.
-        { roomId: room.id, ...values, tenant: room.tenant },
-        {
-          onSuccess: (updated) => {
-            toast.add({
-              title: `Đã cập nhật ${updated.name}`,
-              type: "success",
-            });
-            onOpenChange(false);
-          },
-        },
-      );
-      return;
-    }
-
-    createRoom.mutate(
-      { ...values, tenant: null },
-      {
-        onSuccess: (created) => {
-          toast.add({
-            title: `Đã thêm phòng ${created.name}`,
-            type: "success",
-          });
-          form.reset(toDefaultValues(undefined, defaultBuildingId));
-          onOpenChange(false);
-        },
-      },
-    );
+  const { form, sheetProps } = useEntityFormSheet({
+    open,
+    onOpenChange,
+    schema: roomFormSchema,
+    entity: room,
+    toDefaultValues: (entity) => toDefaultValues(entity, defaultBuildingId),
+    mutations: { create: createRoom, update: updateRoom },
+    toPayload: (values, entity) =>
+      entity ? { roomId: entity.id, ...values } : values,
+    successMessage: (result, entity) =>
+      entity ? `Đã cập nhật ${result.name}` : `Đã thêm phòng ${result.name}`,
   });
 
   return (
     <FormSheet
-      open={open}
-      onOpenChange={onOpenChange}
+      {...sheetProps}
       title={isEdit ? `Chỉnh sửa ${room.name}` : "Thêm phòng mới"}
       description={isEdit ? undefined : "Tạo phòng mới trong một toà nhà."}
-      formId={FORM_ID}
-      onSubmit={onSubmit}
-      isDirty={form.formState.isDirty}
-      isPending={isEdit ? updateRoom.isPending : createRoom.isPending}
     >
       <FieldGroup>
         <Controller

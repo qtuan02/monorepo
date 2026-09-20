@@ -30,7 +30,7 @@ export type InvoicePaymentMethod = "BANK_TRANSFER" | "CASH" | "VIETQR";
 export interface InvoicePayment {
   amount: number;
   method: InvoicePaymentMethod;
-  /** ISO date. */
+  /** ISO `YYYY-MM-DD`. */
   paidAt: string;
 }
 
@@ -45,8 +45,9 @@ export interface InvoiceReminder {
  * The prototype's `Invoice`, extended per contract (ADR-0012): `contractId`
  * is the real reference, `lineItems` + `payments` are new, `paidAmount` is
  * derived from `payments` (see `~/utils/invoice-payments`). `amount` /
- * `month` / `dueDate` / `tenant` / `room` / `floor` stay — old screens keep
- * reading them unchanged.
+ * `dueDate` / `tenant` / `room` / `floor` stay — old screens keep reading
+ * them unchanged. There is no pre-rendered `month` string any more — every
+ * screen derives it with `formatMonth(billingMonth)`.
  */
 export interface Invoice {
   id: string;
@@ -66,12 +67,12 @@ export interface Invoice {
   reminders: InvoiceReminder[];
   /** `YYYY-MM`. */
   billingMonth: string;
-  /** Already display-formatted (`MM/YYYY`). */
-  month: string;
-  /** Already display-formatted (`DD/MM/YYYY`). */
+  /** ISO `YYYY-MM-DD`. */
   dueDate: string;
   status: InvoiceStatus;
+  /** ISO `YYYY-MM-DD`. */
   paymentDate: string | null;
+  /** ISO `YYYY-MM-DD`. */
   lastUpdated: string;
 }
 

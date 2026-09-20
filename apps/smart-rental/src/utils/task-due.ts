@@ -3,13 +3,19 @@ import dayjs from "@monorepo/dayjs";
 import type { Task } from "~/types/task";
 import { ROUTES } from "~/constants/routes";
 
-/** The one screen a task points at — the builder in `ROUTES` for its related entity. */
+/**
+ * The one screen a task points at — the builder in `ROUTES` for its related
+ * entity, read identically by Hôm nay's `TaskQueue` and the header's bell
+ * (ticket #230). "contract" is only ever a `contract_expiring` Việc, whose
+ * hành động IS "Gia hạn" — so it lands on the renew wizard, not the
+ * read-only contract detail.
+ */
 export function taskRelatedPath(task: Task): string {
   switch (task.relatedEntity) {
     case "invoice":
       return ROUTES.invoiceDetailPath(task.relatedId);
     case "contract":
-      return ROUTES.contractDetailPath(task.relatedId);
+      return ROUTES.contractRenewPath(task.relatedId);
     case "room":
       return ROUTES.roomDetailPath(task.relatedId);
     // Both "tenant" task sources (residence_notification,

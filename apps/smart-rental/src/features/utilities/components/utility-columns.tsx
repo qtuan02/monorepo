@@ -1,7 +1,3 @@
-import { ArrowUpRight, Eye, History } from "lucide-react";
-import { Link } from "react-router";
-
-import { buttonVariants } from "@monorepo/ui/components/button";
 import {
   createDataTableColumnHelper,
   DataTableColumnHeader,
@@ -10,10 +6,10 @@ import {
 import type { Utility } from "~/types/utility";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
-import { ROUTES } from "~/constants/routes";
 import { utilityStatusConfig, utilityTypeConfig } from "~/constants/status";
 import { utilityUnit } from "~/features/utilities/utils/meter-reading";
 import { formatDateTime, formatMonth } from "~/utils/date";
+import UtilityRowActions from "./utility-row-actions";
 
 const helper = createDataTableColumnHelper<Utility>();
 
@@ -35,10 +31,7 @@ export const utilityColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Kỳ hoá đơn" />
     ),
     cell: ({ getValue }) => (
-      <span className="flex items-center gap-2 font-medium">
-        <History className="text-muted-foreground size-3.5" />
-        {formatMonth(getValue())}
-      </span>
+      <span className="font-medium">{formatMonth(getValue())}</span>
     ),
     filterFn: facetFilterFn,
   }),
@@ -74,7 +67,6 @@ export const utilityColumns = helper.columns([
         <span className="text-muted-foreground text-xs uppercase">
           {utilityUnit[row.original.type]}
         </span>
-        <ArrowUpRight className="size-3 text-success" />
       </span>
     ),
   }),
@@ -99,14 +91,6 @@ export const utilityColumns = helper.columns([
   }),
   helper.display({
     id: "actions",
-    cell: ({ row }) => (
-      <Link
-        to={ROUTES.utilityDetailPath(row.original.id)}
-        aria-label={`Xem chi tiết ${row.original.roomName}`}
-        className={buttonVariants({ variant: "outline", size: "icon-sm" })}
-      >
-        <Eye />
-      </Link>
-    ),
+    cell: ({ row }) => <UtilityRowActions utility={row.original} />,
   }),
 ]);

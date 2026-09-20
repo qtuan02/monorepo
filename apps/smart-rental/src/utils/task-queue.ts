@@ -1,5 +1,4 @@
 import dayjs from "@monorepo/dayjs";
-import { DATE_FORMAT } from "@monorepo/dayjs/formats";
 
 import type { Building } from "~/types/building";
 import type { Invoice } from "~/types/invoice";
@@ -12,7 +11,7 @@ export interface OverdueQueueInvoice {
   tenant: string;
   /** `amount - paidAmount`. */
   outstanding: number;
-  /** Display-formatted (`DD/MM/YYYY`), as `Invoice.dueDate` already is. */
+  /** ISO `YYYY-MM-DD`, as `Invoice.dueDate` already is. */
   dueDate: string;
 }
 
@@ -40,7 +39,7 @@ export interface TaskQueueSingle {
 export type TaskQueueEntry = OverdueQueueGroup | TaskQueueSingle;
 
 function invoiceDueAt(dueDate: string): number {
-  return dayjs(dueDate, DATE_FORMAT).valueOf();
+  return dayjs(dueDate).valueOf();
 }
 
 /** `Task.dueDate` is ISO (`YYYY-MM-DD`) — dayjs parses it with no format hint. */

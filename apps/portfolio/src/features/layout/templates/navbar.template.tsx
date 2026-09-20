@@ -96,7 +96,7 @@ export default function NavbarTemplate() {
   const t = useTranslations();
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 mb-4 flex justify-center print:hidden">
+    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center print:hidden sm:mb-4">
       <TooltipProvider>
         <Dock className="pointer-events-auto">
           {NAVBAR_ITEMS.map((item) => {

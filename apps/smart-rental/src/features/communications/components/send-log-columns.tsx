@@ -7,6 +7,7 @@ import type { SendLog } from "~/types/communication";
 import { StatusBadge } from "~/components/badge/status-badge";
 import { facetFilterFn } from "~/components/data-table/data-table";
 import { channelConfig, sendLogStatusConfig } from "~/constants/status";
+import { formatDate } from "~/utils/date";
 
 const helper = createDataTableColumnHelper<SendLog>();
 
@@ -53,7 +54,7 @@ export const sendLogColumns = helper.columns([
       <DataTableColumnHeader column={column} title="Thời gian" />
     ),
     cell: ({ getValue }) => (
-      <span className="text-muted-foreground">{getValue()}</span>
+      <span className="text-muted-foreground">{formatDate(getValue())}</span>
     ),
   }),
 ]);

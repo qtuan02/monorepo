@@ -19,7 +19,10 @@ import {
   bottomNavItems,
   moreNavSections,
 } from "~/features/layout/constants/navigation";
-import { isNavigationItemActive } from "~/features/layout/utils/navigation";
+import {
+  isNavigationItemActive,
+  resolveNavigationItemTo,
+} from "~/features/layout/utils/navigation";
 import { useAuthStore } from "~/stores/use-auth-store";
 
 /**
@@ -51,8 +54,8 @@ export default function BottomNav() {
         const active = isNavigationItemActive(item, pathname);
         return (
           <Link
-            key={item.path}
-            to={item.to ?? item.path}
+            key={item.match}
+            to={resolveNavigationItemTo(item)}
             data-active={active || undefined}
             className={cn(
               "text-muted-foreground flex flex-1 flex-col items-center justify-center gap-0.5 text-xs font-medium",
@@ -103,8 +106,8 @@ export default function BottomNav() {
                 <div className="grid grid-cols-3 gap-3">
                   {section.items.map((item) => (
                     <Link
-                      key={item.path}
-                      to={item.to ?? item.path}
+                      key={item.match}
+                      to={resolveNavigationItemTo(item)}
                       className="border-border flex flex-col items-center gap-1.5 rounded-lg border p-3 text-center text-xs font-medium"
                     >
                       <item.icon className="text-muted-foreground size-5" />

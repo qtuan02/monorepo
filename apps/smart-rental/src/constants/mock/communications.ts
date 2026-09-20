@@ -35,7 +35,7 @@ export const mockSendLogs: SendLog[] = [
     template: "Thông báo thanh toán",
     channel: "sms",
     status: "sent",
-    sentDate: "22/04/2026",
+    sentDate: "2026-04-22",
     recipient: "0912345678",
   },
   {
@@ -44,7 +44,7 @@ export const mockSendLogs: SendLog[] = [
     template: "Thông báo bảo trì",
     channel: "email",
     status: "sent",
-    sentDate: "21/04/2026",
+    sentDate: "2026-04-21",
     recipient: "binh@email.com",
   },
   {
@@ -53,7 +53,7 @@ export const mockSendLogs: SendLog[] = [
     template: "Thông báo gia hạn hợp đồng",
     channel: "zalo",
     status: "failed",
-    sentDate: "20/04/2026",
+    sentDate: "2026-04-20",
     recipient: "0987654321",
   },
 ];

@@ -62,6 +62,16 @@ export default function BuildingListTemplate() {
             Thêm toà nhà
           </Button>
         }
+        mobileAction={
+          <Button
+            type="button"
+            size="icon-sm"
+            aria-label="Tạo toà nhà"
+            onClick={() => setIsFormOpen(true)}
+          >
+            <Plus />
+          </Button>
+        }
       />
 
       {isLoading ? (
