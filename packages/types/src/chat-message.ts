@@ -30,7 +30,7 @@ export interface ChatMessageListPayload {
 
 export type ChatMessageListResponse = ChatBaseResponse<ChatMessageListPayload>;
 
-type SendableMessageType =
+export type SendableMessageType =
   | ChatMessageType.TEXT
   | ChatMessageType.IMAGE
   | ChatMessageType.FILE;

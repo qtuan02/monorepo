@@ -1,10 +1,27 @@
+import type { TFunction } from "i18next";
+
 import type { ChatConversationRecord } from "@monorepo/types/chat-conversation";
+import type { ChatMessageRecord } from "@monorepo/types/chat-message";
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
+import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import type {
   Conversation,
   ConversationMember,
 } from "~/features/conversation/types/conversation";
+
+/** A text-less IMAGE/FILE last message previews as an emoji + word (T2,
+ * spec #253) — never the raw content, which is empty for those. */
+function previewText(message: ChatMessageRecord, t: TFunction): string {
+  if (message.content) return message.content;
+  if (message.type === ChatMessageType.IMAGE) {
+    return t("chat.attachment.previewImage");
+  }
+  if (message.type === ChatMessageType.FILE) {
+    return t("chat.attachment.previewFile");
+  }
+  return message.content;
+}
 
 function toDisplayName(participant: {
   firstName: string;
@@ -21,6 +38,7 @@ function toDisplayName(participant: {
 export function mapConversationToUiModel(
   record: ChatConversationRecord,
   currentUserId: string,
+  t: TFunction,
 ): Conversation {
   // A malformed record from the backend can omit `participants` outright even
   // though the type says otherwise — treat it as empty rather than throwing
@@ -56,7 +74,7 @@ export function mapConversationToUiModel(
       ? record.groupName || "Group conversation"
       : otherMember?.displayName || "Direct message",
     lastMessage: lastMessage
-      ? `${lastMessageSenderName}: ${lastMessage.content}`
+      ? `${lastMessageSenderName}: ${previewText(lastMessage, t)}`
       : "No messages yet.",
     lastMessageAt: record.lastMessageAt,
     unreadCount: record.unreadCount,

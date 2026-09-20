@@ -414,6 +414,15 @@
       "loading": "Loading...",
       "morePeople": "More people"
     },
+    "attachment": {
+      "attachButton": "Attach a file",
+      "removeAttachment": "Remove attachment",
+      "tooLarge": "File is larger than 10MB.",
+      "imageAlt": "Image attachment",
+      "fileLabel": "File .{extension}",
+      "previewImage": "📷 Photo",
+      "previewFile": "📎 File"
+    },
     "convPane": {
       "header": {
         "fallbackTitle": "Conversation",

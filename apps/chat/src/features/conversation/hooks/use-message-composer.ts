@@ -1,13 +1,24 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
+import { ChatMessageType } from "@monorepo/types/chat-message";
+import { toast } from "@monorepo/ui/components/toast";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import { useSendMessage } from "~/features/conversation/hooks/use-send-message";
+import { useUploadAttachmentMutation } from "~/hooks/api/message";
+import { MAX_ATTACHMENT_SIZE_BYTES } from "~/utils/attachment";
 
 interface EmojiSelection {
   native?: string;
 }
+
+/** One tệp mỗi tin (T2, spec #253) — "uploading" carries only the name the
+ * uploading card shows; "ready" is what `handleSubmit` reads `url`/`contentType` from. */
+export type ComposerAttachment =
+  | { status: "uploading"; fileName: string }
+  | { status: "ready"; fileName: string; url: string; contentType: string };
 
 /**
  * `MessageComposer` remounts under `key={conversation.id}` (see
@@ -23,28 +34,97 @@ export function useMessageComposer(
   conversation: Conversation,
   onSent?: (message: ChatMessageRecord) => void,
 ) {
+  const { t } = useTranslation();
   const [content, setContent] = React.useState("");
+  const [attachment, setAttachment] = React.useState<ComposerAttachment | null>(
+    null,
+  );
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const { sendMessage, isPending } = useSendMessage(conversation);
+  const uploadAttachment = useUploadAttachmentMutation();
 
   React.useEffect(() => {
     textareaRef.current?.focus();
   }, []);
 
+  const isUploadingAttachment = attachment?.status === "uploading";
+  const isSendDisabled =
+    isPending || isUploadingAttachment || (!content.trim() && !attachment);
+
+  const handleFileSelected = React.useCallback(
+    (file: File) => {
+      if (file.size > MAX_ATTACHMENT_SIZE_BYTES) {
+        toast.add({ title: t("chat.attachment.tooLarge"), type: "error" });
+        return;
+      }
+
+      setAttachment({ status: "uploading", fileName: file.name });
+      uploadAttachment.mutate(file, {
+        onSuccess: (uploaded) => {
+          setAttachment({
+            status: "ready",
+            fileName: file.name,
+            url: uploaded.url,
+            contentType: uploaded.contentType,
+          });
+        },
+        // The global MutationCache.onError already toasted the failure —
+        // just drop the stuck "uploading" card so Send isn't disabled forever.
+        onError: () => setAttachment(null),
+      });
+    },
+    [t, uploadAttachment],
+  );
+
+  const handleAttachClick = React.useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileInputChange = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      // Reset so choosing the same file again still fires this handler.
+      event.target.value = "";
+      if (file) handleFileSelected(file);
+    },
+    [handleFileSelected],
+  );
+
+  const handleRemoveAttachment = React.useCallback(() => {
+    setAttachment(null);
+  }, []);
+
   const handleSubmit = React.useCallback(async () => {
     const trimmed = content.trim();
-    if (!trimmed || isPending) return;
+    if (isSendDisabled) return;
 
+    const attachmentUrl =
+      attachment?.status === "ready" ? attachment.url : null;
+    const type =
+      attachment?.status === "ready"
+        ? attachment.contentType.startsWith("image/")
+          ? ChatMessageType.IMAGE
+          : ChatMessageType.FILE
+        : ChatMessageType.TEXT;
+
+    const previousAttachment = attachment;
     setContent("");
+    setAttachment(null);
     try {
-      const message = await sendMessage(trimmed);
+      const message = await sendMessage({
+        content: trimmed,
+        type,
+        attachmentUrl,
+      });
       if (message) onSent?.(message);
     } catch {
       // No toast here — the global MutationCache.onError already surfaced
       // the failure once. Only the composer's own content needs restoring.
       setContent(trimmed);
+      setAttachment(previousAttachment);
     }
-  }, [content, isPending, onSent, sendMessage]);
+  }, [attachment, content, isSendDisabled, onSent, sendMessage]);
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -81,8 +161,14 @@ export function useMessageComposer(
     setContent,
     textareaRef,
     isPending,
+    isSendDisabled,
     handleKeyDown,
     handleSubmit,
     insertEmoji,
+    attachment,
+    fileInputRef,
+    handleAttachClick,
+    handleFileInputChange,
+    handleRemoveAttachment,
   };
 }

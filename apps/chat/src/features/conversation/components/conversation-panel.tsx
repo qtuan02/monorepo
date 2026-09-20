@@ -105,7 +105,7 @@ export default function ConversationPanel({
   );
   const fetchedConversation =
     currentUserId && getConversationQuery.data
-      ? mapConversationToUiModel(getConversationQuery.data, currentUserId)
+      ? mapConversationToUiModel(getConversationQuery.data, currentUserId, t)
       : undefined;
   const isConversationNotFound =
     isMissingFromList &&

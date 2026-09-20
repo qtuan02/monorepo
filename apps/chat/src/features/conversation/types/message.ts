@@ -7,6 +7,7 @@ export interface Message {
   senderId: string;
   senderName: string;
   content: string;
+  attachmentUrl: string | null;
   type: ChatMessageType;
   createdAt: string;
 }

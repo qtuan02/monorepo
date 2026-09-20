@@ -1,8 +1,10 @@
 import type * as React from "react";
-import { CheckCheck } from "lucide-react";
+import { useState } from "react";
+import { CheckCheck, File as FileIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { defaultLanguage } from "@monorepo/i18n/languages";
+import { ChatMessageType } from "@monorepo/types/chat-message";
 import {
   Avatar,
   AvatarFallback,
@@ -21,11 +23,53 @@ import {
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { ConversationMember } from "~/features/conversation/types/conversation";
+import type { Message as ChatMessage } from "~/features/conversation/types/message";
 import type { MessagePosition } from "~/features/conversation/utils/group-messages";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
+import { getFileExtensionFromUrl } from "~/utils/attachment";
 import { formatMessageDateLabel, formatMessageTime } from "~/utils/date";
 import { getInitials } from "~/utils/display";
+
+/**
+ * `IMAGE` renders inline, never as a link — the backend answers
+ * `GET /api/files/{name}` with `Content-Disposition: attachment`, so opening
+ * the URL anywhere but an `<img>` downloads it instead of showing it (T2,
+ * spec #253, contract §5c). A broken image falls back to the same file card
+ * `FILE` renders — the point isn't to render an image, it's to not lose the
+ * file behind a dead `<img>`.
+ */
+function MessageAttachment({ message }: { message: ChatMessage }) {
+  const { t } = useTranslation();
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (!message.attachmentUrl) return null;
+
+  if (message.type === ChatMessageType.IMAGE && !imageFailed) {
+    return (
+      <img
+        src={message.attachmentUrl}
+        alt={t("chat.attachment.imageAlt")}
+        onError={() => setImageFailed(true)}
+        className="block max-h-80 max-w-full rounded-lg object-cover"
+      />
+    );
+  }
+
+  const extension = getFileExtensionFromUrl(message.attachmentUrl);
+  return (
+    <a
+      href={message.attachmentUrl}
+      download
+      className="bg-black/10 hover:bg-black/15 dark:bg-white/10 dark:hover:bg-white/15 flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium"
+    >
+      <FileIcon className="size-5 shrink-0" />
+      <span className="truncate">
+        {t("chat.attachment.fileLabel", { extension })}
+      </span>
+    </a>
+  );
+}
 
 const MAX_VISIBLE_READERS = 3;
 
@@ -55,7 +99,7 @@ function bubbleShapeClassName(
   isLastInGroup: boolean,
 ): string {
   return cn(
-    "rounded-2xl px-3.5 py-2",
+    "flex flex-col gap-1.5 rounded-2xl px-3.5 py-2",
     isOwn
       ? [!isFirstInGroup && "rounded-tr-md", !isLastInGroup && "rounded-br-md"]
       : [!isFirstInGroup && "rounded-tl-md", !isLastInGroup && "rounded-bl-md"],
@@ -138,12 +182,17 @@ export default function MessageRow({
                   isOwn && OWN_BUBBLE_CLASSNAME,
                 )}
               >
+                {message.attachmentUrl && (
+                  <MessageAttachment message={message} />
+                )}
                 {/* `wrap-anywhere`, not `break-words`: only the former counts
                     toward min-content, so a pasted token with no spaces (a
                     JWT, a curl line) wraps instead of widening the bubble. */}
-                <p className="wrap-anywhere whitespace-pre-wrap">
-                  {message.content}
-                </p>
+                {message.content && (
+                  <p className="wrap-anywhere whitespace-pre-wrap">
+                    {message.content}
+                  </p>
+                )}
               </BubbleContent>
             </Bubble>
             {isLastInGroup && (

@@ -10,6 +10,7 @@ const RECORD: ChatMessageRecord = {
   conversationId: "c1",
   senderId: "u2",
   content: "Hello there",
+  attachmentUrl: null,
   type: ChatMessageType.TEXT,
   createdAt: "2026-09-16T08:00:00.000Z",
   updatedAt: "2026-09-16T08:00:00.000Z",
@@ -34,5 +35,22 @@ describe("mapMessageToUiModel", () => {
     const message = mapMessageToUiModel(RECORD, new Map());
 
     expect(message.senderName).toBe("Unknown user");
+  });
+
+  it("carries the attachment URL through unchanged", () => {
+    const message = mapMessageToUiModel(
+      { ...RECORD, attachmentUrl: "http://localhost:8089/api/files/abc.png" },
+      new Map(),
+    );
+
+    expect(message.attachmentUrl).toBe(
+      "http://localhost:8089/api/files/abc.png",
+    );
+  });
+
+  it("reads a missing attachment URL as null", () => {
+    const message = mapMessageToUiModel(RECORD, new Map());
+
+    expect(message.attachmentUrl).toBeNull();
   });
 });

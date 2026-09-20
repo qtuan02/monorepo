@@ -15,6 +15,7 @@ import type {
   DirectMessageRequest,
   GroupMessageRequest,
 } from "@monorepo/types/chat-message";
+import type { ChatUploadedFile } from "@monorepo/types/chat-upload";
 
 import type {
   UseInfiniteQueryOptionsWrapper,
@@ -200,6 +201,16 @@ export function useSendGroupMessageMutation(
     mutationFn: (params: GroupMessageRequest) =>
       chatMessageService.sendGroup(params),
     onSuccess: (message) => applySentMessage(queryClient, message),
+    ...options,
+  });
+}
+
+/** T2 (spec #253) — uploads before a send; no cache write, nothing else reads it. */
+export function useUploadAttachmentMutation(
+  options?: UseMutationOptionsWrapper<File, ChatUploadedFile>,
+) {
+  return useMutation({
+    mutationFn: (file: File) => chatMessageService.upload(file),
     ...options,
   });
 }
