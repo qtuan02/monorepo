@@ -82,16 +82,18 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
 tốt, chỉ là một dòng warning lúc `bun install`. `Picker` được `lazy(() => import(...))` từ composer nên
 không nằm trong bundle ban đầu.
 
-`PATCH /v1/message/{id}` (BE `chat-socket`) trả `updatedAt` **cũ** — bằng `createdAt` — ngay trong response
-của chính lệnh sửa, và `message.updated` phát qua socket mang y hệt object đó nên cũng cũ theo. Đã kiểm
-bằng `curl` thật (BE 8089 local + Postgres/Redis infra) và đọc `MessageServiceImpl.updateMessage`: entity
-được map sang DTO ngay sau `save()`, trước khi `@Transactional` flush ở commit — lúc đó Hibernate mới
-thực sự ghi `@UpdateTimestamp`. Một `GET` sau đó (refetch) trả đúng giá trị đã cập nhật. Hệ quả: dấu
-"(đã sửa)" không hiện ngay sau khi sửa ở tab của chính người sửa lẫn tab người nhận — chỉ hiện sau một
-lần refetch (ví dụ reload trang). Nội dung tin thì cập nhật đúng và ngay lập tức ở cả hai tab — chỉ riêng
-badge bị trễ. Cố ý **không** vá bằng cách đoán `updatedAt` ở FE (đúng tinh thần "không hack tolerance"
-của ticket #257) — cần sửa ở `chat-socket` (`saveAndFlush` trước khi map DTO, hoặc đọc lại entity sau
-commit) khi có người phụ trách repo đó.
+`PATCH /v1/message/{id}` (BE `chat-socket`) có thể trả `updatedAt` **cũ** — bằng `createdAt` — ngay trong
+response của chính lệnh sửa, và `message.updated` phát qua socket mang y hệt object đó nên cũng cũ theo.
+Đọc `MessageServiceImpl.updateMessage`: entity được map sang DTO ngay sau `save()`, trước khi
+`@Transactional` flush ở commit — lúc đó Hibernate mới thực sự ghi `@UpdateTimestamp`, nên giá trị map
+được phụ thuộc thời điểm flush thực tế. Kiểm bằng `curl` thật (BE 8089 local, không qua UI) thấy cũ **ổn
+định** cả ở response lẫn một `GET` gần như ngay sau đó (chỉ đúng sau vài giây, hoặc sau một refetch xa
+hơn); kiểm lại bằng Playwright 2 tab qua UI thật thì thấy **không ổn định** — có lần dấu "(đã sửa)" hiện
+ngay ở cả hai tab, có lần không hiện ở tab nào tới khi reload — tuỳ thời điểm flush của request đó. Nội
+dung tin thì luôn cập nhật đúng và ngay lập tức ở cả hai tab bất kể trường hợp nào — chỉ riêng badge có
+thể trễ. Cố ý **không** vá bằng cách đoán `updatedAt` ở FE (đúng tinh thần "không hack tolerance" của
+ticket #257) — cần sửa ở `chat-socket` (`saveAndFlush` trước khi map DTO, hoặc đọc lại entity sau commit)
+khi có người phụ trách repo đó.
 
 ## Precondition backend
 
