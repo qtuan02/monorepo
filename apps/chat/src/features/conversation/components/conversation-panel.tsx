@@ -215,7 +215,7 @@ export default function ConversationPanel({
                     <MessageCircle />
                   </EmptyMedia>
                   <EmptyTitle>{t("chat.convPane.draft.emptyTitle")}</EmptyTitle>
-                  <EmptyDescription className="max-md:hidden">
+                  <EmptyDescription>
                     {t("chat.convPane.draft.sayHiTo", { title })}
                   </EmptyDescription>
                 </EmptyHeader>
@@ -277,7 +277,7 @@ function NoConversationSelected() {
             <MessageCircle className="size-7" />
           </EmptyMedia>
           <EmptyTitle>{t("chat.convPane.empty.pickTitle")}</EmptyTitle>
-          <EmptyDescription className="max-md:hidden">
+          <EmptyDescription>
             {t("chat.convPane.empty.pickDescription")}
           </EmptyDescription>
         </EmptyHeader>

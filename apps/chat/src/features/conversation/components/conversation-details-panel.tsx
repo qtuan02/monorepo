@@ -211,7 +211,7 @@ export function ConversationDetailsPanel({
           if (!next) onClose();
         }}
       >
-        <SheetContent side="right" className="overflow-y-auto p-3">
+        <SheetContent side="right" className="overflow-y-auto p-4">
           <SheetHeader className="p-0">
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
