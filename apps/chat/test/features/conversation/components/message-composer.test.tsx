@@ -369,9 +369,7 @@ describe("MessageComposer", () => {
 
       // The parent (ConversationPanel) clears its own editingMessage state.
       rerenderWith({ onCancelEdit });
-      expect(screen.getByLabelText("Message composer")).toHaveValue(
-        "My draft",
-      );
+      expect(screen.getByLabelText("Message composer")).toHaveValue("My draft");
     });
 
     it("Escape exits edit mode without saving", async () => {
@@ -386,6 +384,34 @@ describe("MessageComposer", () => {
 
       expect(onCancelEdit).toHaveBeenCalled();
       expect(chatMessageUpdate).not.toHaveBeenCalled();
+    });
+
+    it("switching straight from editing one message to another keeps the ORIGINAL draft, not the half-edited text", async () => {
+      const user = userEvent.setup();
+      const onCancelEdit = vi.fn();
+      const otherMessage: Message = {
+        ...EDITING_MESSAGE,
+        id: "m2",
+        content: "Another message",
+      };
+      const { rerenderWith } = renderComposer(DIRECT_CONVERSATION, {
+        onCancelEdit,
+      });
+
+      await user.type(screen.getByLabelText("Message composer"), "My draft");
+
+      rerenderWith({ editingMessage: EDITING_MESSAGE, onCancelEdit });
+      await user.clear(screen.getByLabelText("Message composer"));
+      await user.type(screen.getByLabelText("Message composer"), "half-edited");
+
+      // Switch the edit target without exiting edit mode first.
+      rerenderWith({ editingMessage: otherMessage, onCancelEdit });
+      expect(screen.getByLabelText("Message composer")).toHaveValue(
+        "Another message",
+      );
+
+      rerenderWith({ onCancelEdit });
+      expect(screen.getByLabelText("Message composer")).toHaveValue("My draft");
     });
   });
 });

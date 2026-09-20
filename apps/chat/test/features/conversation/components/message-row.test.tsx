@@ -210,7 +210,9 @@ describe("MessageRow", () => {
   });
 
   describe("edit / delete actions (T3, spec #253)", () => {
-    function ownTextPosition(overrides: Partial<Message> = {}): MessagePosition {
+    function ownTextPosition(
+      overrides: Partial<Message> = {},
+    ): MessagePosition {
       const [position] = groupMessages(
         [message({ id: "m1", senderId: CURRENT_USER_ID, ...overrides })],
         CURRENT_USER_ID,
@@ -242,9 +244,12 @@ describe("MessageRow", () => {
     it("offers 'Edit' for a TEXT message and calls onEdit with it", async () => {
       const user = userEvent.setup();
       const onEdit = vi.fn();
-      const row = renderPosition(ownTextPosition({ type: ChatMessageType.TEXT }), {
-        onEdit,
-      });
+      const row = renderPosition(
+        ownTextPosition({ type: ChatMessageType.TEXT }),
+        {
+          onEdit,
+        },
+      );
 
       await user.click(row.getByRole("button", { name: "Message actions" }));
       fireEvent.click(await screen.findByRole("menuitem", { name: "Edit" }));
@@ -254,19 +259,22 @@ describe("MessageRow", () => {
       );
     });
 
-    it("hides 'Edit' for a non-TEXT message, and still offers 'Delete'", async () => {
-      const user = userEvent.setup();
-      const row = renderPosition(ownTextPosition({ type: ChatMessageType.IMAGE }));
+    it.each([ChatMessageType.IMAGE, ChatMessageType.FILE])(
+      "hides 'Edit' for a %s message, and still offers 'Delete'",
+      async (type) => {
+        const user = userEvent.setup();
+        const row = renderPosition(ownTextPosition({ type }));
 
-      await user.click(row.getByRole("button", { name: "Message actions" }));
+        await user.click(row.getByRole("button", { name: "Message actions" }));
 
-      expect(
-        await screen.findByRole("menuitem", { name: "Delete" }),
-      ).toBeInTheDocument();
-      expect(
-        screen.queryByRole("menuitem", { name: "Edit" }),
-      ).not.toBeInTheDocument();
-    });
+        expect(
+          await screen.findByRole("menuitem", { name: "Delete" }),
+        ).toBeInTheDocument();
+        expect(
+          screen.queryByRole("menuitem", { name: "Edit" }),
+        ).not.toBeInTheDocument();
+      },
+    );
 
     it("asks for confirmation before deleting, and only deletes on confirm", async () => {
       const user = userEvent.setup();
@@ -289,9 +297,7 @@ describe("MessageRow", () => {
         }),
       );
 
-      await waitFor(() =>
-        expect(chatMessageDelete).toHaveBeenCalledWith("m1"),
-      );
+      await waitFor(() => expect(chatMessageDelete).toHaveBeenCalledWith("m1"));
     });
 
     it("shows '(edited)' once updatedAt differs from createdAt", () => {

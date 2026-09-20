@@ -48,11 +48,16 @@ export function useMessageComposer(
   // Adjusting state during render (not an effect — see
   // .agents/rules/react-effects-sync-only.md) whenever the edit target
   // itself changes: swap the textarea to the message's text, remembering
-  // what was there so it comes back once edit mode ends.
+  // what was there so it comes back once edit mode ends. The snapshot is
+  // taken only when ENTERING edit mode (`syncedEditId` — the previous
+  // value — was null): switching straight from editing one message to
+  // editing another must not overwrite the original draft with the first
+  // message's half-finished edit.
   if (editingId !== syncedEditId) {
+    const wasEditing = syncedEditId !== null;
     setSyncedEditId(editingId);
     if (editingMessage) {
-      setDraftBeforeEdit(content);
+      if (!wasEditing) setDraftBeforeEdit(content);
       setContent(editingMessage.content);
     } else {
       setContent(draftBeforeEdit);
