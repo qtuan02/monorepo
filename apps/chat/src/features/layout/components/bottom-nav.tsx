@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { cn } from "@monorepo/ui/utils/cn";
@@ -16,13 +17,14 @@ import { NAV_ITEMS } from "~/features/layout/nav-items";
  * bottom of the screen there.
  */
 export default function BottomNav() {
+  const { t } = useTranslation();
   const active = useNavActiveSection();
   const badges = useNavBadges();
 
   return (
     <Island
       role="navigation"
-      aria-label="Primary"
+      aria-label={t("chat.nav.primary")}
       className="flex items-center justify-around px-2 py-1.5"
     >
       {NAV_ITEMS.map((item) => (
@@ -36,7 +38,7 @@ export default function BottomNav() {
           )}
         >
           <item.icon className="size-5" aria-hidden="true" />
-          {item.bottomLabel}
+          {t(item.bottomLabel)}
           <NavBadge
             count={badges[item.key]}
             className="absolute top-0 right-[28%] size-4"

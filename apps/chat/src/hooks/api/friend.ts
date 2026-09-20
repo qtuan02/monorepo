@@ -27,6 +27,7 @@ import type {
 } from "~/libs/query-key-factory";
 import { userQueryKeys } from "~/hooks/api/user";
 import { chatFriendService } from "~/libs/http-client";
+import i18n from "~/libs/i18n";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 const FRIEND_LIST_LIMIT = 50;
@@ -109,7 +110,10 @@ export function useSendFriendRequestMutation(
       chatFriendService.send(payload),
     onSuccess: () => {
       invalidateFriendData(queryClient);
-      toast.add({ title: "Friend request sent.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.friends.toast.requestSent"),
+        type: "success",
+      });
     },
     ...options,
   });
@@ -128,7 +132,10 @@ export function useAcceptFriendRequestMutation(
       chatFriendService.accept(payload),
     onSuccess: () => {
       invalidateFriendData(queryClient);
-      toast.add({ title: "Friend request accepted.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.friends.toast.requestAccepted"),
+        type: "success",
+      });
     },
     ...options,
   });
@@ -144,7 +151,10 @@ export function useDeclineFriendRequestMutation(
       chatFriendService.decline(payload),
     onSuccess: () => {
       invalidateFriendData(queryClient);
-      toast.add({ title: "Friend request declined.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.friends.toast.requestDeclined"),
+        type: "success",
+      });
     },
     ...options,
   });
@@ -160,7 +170,10 @@ export function useCancelFriendRequestMutation(
       chatFriendService.cancel(payload),
     onSuccess: () => {
       invalidateFriendData(queryClient);
-      toast.add({ title: "Friend request cancelled.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.friends.toast.requestCancelled"),
+        type: "success",
+      });
     },
     ...options,
   });
@@ -175,7 +188,10 @@ export function useRemoveFriendMutation(
     mutationFn: (friendId: string) => chatFriendService.remove(friendId),
     onSuccess: () => {
       invalidateFriendData(queryClient);
-      toast.add({ title: "Friend removed.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.friends.toast.friendRemoved"),
+        type: "success",
+      });
     },
     ...options,
   });

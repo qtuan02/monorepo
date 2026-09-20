@@ -1,4 +1,5 @@
 import { Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
 import {
@@ -24,6 +25,7 @@ export default function MessageComposer({
   conversation,
   onSent,
 }: MessageComposerProps) {
+  const { t } = useTranslation();
   const {
     content,
     setContent,
@@ -35,37 +37,47 @@ export default function MessageComposer({
   } = useMessageComposer(conversation, onSent);
 
   return (
-    <div className="border-border border-t p-3">
+    <div className="px-3 pt-2 pb-3 md:px-4">
       <form
         onSubmit={(event) => {
           event.preventDefault();
           void handleSubmit();
         }}
       >
-        <InputGroup className="items-end rounded-3xl">
-          <InputGroupAddon align="inline-start" className="self-end pb-2">
-            <MessageComposerEmojiPicker onSelect={insertEmoji} />
-          </InputGroupAddon>
+        <InputGroup className="bg-background items-end rounded-3xl border-transparent shadow-sm focus-within:shadow-md">
           <InputGroupTextarea
             ref={textareaRef}
             value={content}
             onChange={(event) => setContent(event.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}
-            aria-label="Message composer"
-            placeholder={`Message ${conversation.title}…`}
-            className="max-h-32 min-h-9 py-2"
+            aria-label={t("chat.convPane.composer.ariaLabel")}
+            placeholder={t("chat.convPane.composer.placeholder", {
+              title: conversation.title,
+            })}
+            className="max-h-32 min-h-10 py-2.5 pl-4"
           />
-          <InputGroupAddon align="inline-end" className="self-end pb-1.5">
+          {/* Emoji and Send share one addon so they sit on the same line,
+              centred on a one-line message and pinned to the bottom of a
+              taller one — never one high and one low. */}
+          <InputGroupAddon
+            align="inline-end"
+            className="gap-1 self-end pb-1 pr-2"
+          >
+            <MessageComposerEmojiPicker onSelect={insertEmoji} />
             <InputGroupButton
               type="submit"
               variant="default"
               size="icon-sm"
               disabled={isPending || !content.trim()}
-              aria-label={isPending ? "Sending..." : "Send"}
+              aria-label={
+                isPending
+                  ? t("chat.convPane.composer.sending")
+                  : t("chat.convPane.composer.send")
+              }
               className={cn(
                 PRIMARY_GRADIENT_CLASSNAME,
-                "text-primary-foreground shadow-md shadow-primary/25",
+                "text-primary-foreground shadow-primary/25 rounded-full shadow-md transition-opacity disabled:opacity-40",
               )}
             >
               {isPending ? (
@@ -77,8 +89,9 @@ export default function MessageComposer({
           </InputGroupAddon>
         </InputGroup>
       </form>
-      <p className="text-muted-foreground mt-1.5 hidden text-[11px] md:block">
-        <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for a new line
+      <p className="text-muted-foreground mt-1.5 hidden px-2 text-[11px] md:block">
+        <kbd>Enter</kbd> {t("chat.convPane.composer.toSend")} ·{" "}
+        <kbd>Shift+Enter</kbd> {t("chat.convPane.composer.newLine")}
       </p>
     </div>
   );

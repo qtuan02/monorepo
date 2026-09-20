@@ -9,6 +9,8 @@ import type {
 import { ChatMessageType } from "@monorepo/types/chat-message";
 import { ChatSocketEventType } from "@monorepo/types/chat-socket";
 
+import { isRecord } from "~/utils/is-record";
+
 /**
  * Pure STOMP wiring: type guards over `unknown` wire payloads, plus
  * `subscribeTo*` functions that take an already-connected `Client`. No React,
@@ -32,10 +34,6 @@ function parseJsonMessage<T>(body: string): T | null {
   } catch {
     return null;
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object";
 }
 
 const MESSAGE_TYPES = new Set<string>(Object.values(ChatMessageType));

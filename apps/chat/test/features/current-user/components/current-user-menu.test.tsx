@@ -1,11 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 
+import { ROUTES } from "~/constants/routes";
 import { CurrentUserMenu } from "~/features/current-user/components/current-user-menu";
 import { useAuthStore } from "~/stores/use-auth-store";
 
@@ -26,11 +27,19 @@ const CURRENT_USER: ChatUserProfile = {
   lastName: "Huynh",
 };
 
+function LocationProbe() {
+  const location = useLocation();
+  return <output>{`${location.pathname}${location.search}`}</output>;
+}
+
 function renderMenu() {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <MemoryRouter>
-        <CurrentUserMenu />
+        <Routes>
+          <Route path="/" element={<CurrentUserMenu />} />
+          <Route path={ROUTES.PROFILE} element={<LocationProbe />} />
+        </Routes>
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -43,7 +52,10 @@ describe("CurrentUserMenu", () => {
     chatAuthSignOut.mockReset().mockResolvedValue(undefined);
   });
 
-  it("opens the profile-edit dialog from a menu item without the menu swallowing the click", async () => {
+  it.each([
+    ["View profile", ROUTES.PROFILE],
+    ["Edit profile", `${ROUTES.PROFILE}?edit=1`],
+  ])("%s navigates to %s", async (item, expected) => {
     const user = userEvent.setup();
     renderMenu();
 
@@ -51,12 +63,8 @@ describe("CurrentUserMenu", () => {
     // Base UI's Menu.Item relies on a pointerdown/pointerup sequence
     // userEvent.click doesn't fully reproduce under jsdom — a plain click
     // event is what actually reaches its onClick handler here.
-    fireEvent.click(
-      await screen.findByRole("menuitem", { name: "Edit profile" }),
-    );
+    fireEvent.click(await screen.findByRole("menuitem", { name: item }));
 
-    expect(
-      await screen.findByRole("textbox", { name: "First name" }),
-    ).toHaveValue("Tuan");
+    expect(await screen.findByRole("status")).toHaveTextContent(expected);
   });
 });

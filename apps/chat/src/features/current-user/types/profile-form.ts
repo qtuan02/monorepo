@@ -1,27 +1,36 @@
+import type { TFunction } from "i18next";
 import * as z from "zod";
 
 // Field limits mirror `chat-socket`'s `UpdateUserRequest` validation.
-export const profileFormSchema = z.object({
-  username: z
-    .string({ error: "Username is required." })
-    .trim()
-    .min(1, { error: "Username is required." })
-    .max(50, { error: "Username is too long." }),
-  email: z
-    .email({ error: "Enter a valid email." })
-    .max(255, { error: "Email is too long." }),
-  firstName: z
-    .string({ error: "First name is required." })
-    .trim()
-    .min(1, { error: "First name is required." })
-    .max(70, { error: "First name is too long." }),
-  lastName: z
-    .string({ error: "Last name is required." })
-    .trim()
-    .min(1, { error: "Last name is required." })
-    .max(30, { error: "Last name is too long." }),
-  phone: z.string().trim().max(20, { error: "Phone number is too long." }),
-  bio: z.string().trim(),
-});
+// A factory, not a module-level schema — see sign-in-form.ts for why.
+export function createProfileFormSchema(t: TFunction) {
+  return z.object({
+    username: z
+      .string({ error: t("chat.profile.validation.usernameRequired") })
+      .trim()
+      .min(1, { error: t("chat.profile.validation.usernameRequired") })
+      .max(50, { error: t("chat.profile.validation.usernameTooLong") }),
+    email: z
+      .email({ error: t("chat.profile.validation.emailInvalid") })
+      .max(255, { error: t("chat.profile.validation.emailTooLong") }),
+    firstName: z
+      .string({ error: t("chat.profile.validation.firstNameRequired") })
+      .trim()
+      .min(1, { error: t("chat.profile.validation.firstNameRequired") })
+      .max(70, { error: t("chat.profile.validation.firstNameTooLong") }),
+    lastName: z
+      .string({ error: t("chat.profile.validation.lastNameRequired") })
+      .trim()
+      .min(1, { error: t("chat.profile.validation.lastNameRequired") })
+      .max(30, { error: t("chat.profile.validation.lastNameTooLong") }),
+    phone: z
+      .string()
+      .trim()
+      .max(20, { error: t("chat.profile.validation.phoneTooLong") }),
+    bio: z.string().trim(),
+  });
+}
 
-export type ProfileFormValues = z.infer<typeof profileFormSchema>;
+export type ProfileFormValues = z.infer<
+  ReturnType<typeof createProfileFormSchema>
+>;

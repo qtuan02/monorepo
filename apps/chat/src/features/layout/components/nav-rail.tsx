@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import {
@@ -11,6 +12,7 @@ import { cn } from "@monorepo/ui/utils/cn";
 import { BrandMark } from "~/components/brand/brand-mark";
 import { Island } from "~/components/island/island";
 import { CurrentUserMenu } from "~/features/current-user/components/current-user-menu";
+import LanguageToggleButton from "~/features/layout/components/language-toggle-button";
 import { NavBadge } from "~/features/layout/components/nav-badge";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
 import { useNavActiveSection } from "~/features/layout/hooks/use-nav-active-section";
@@ -24,6 +26,7 @@ import { NAV_ITEMS } from "~/features/layout/nav-items";
  * (see layout.template.tsx).
  */
 export default function NavRail() {
+  const { t } = useTranslation();
   const active = useNavActiveSection();
   const badges = useNavBadges();
 
@@ -32,7 +35,7 @@ export default function NavRail() {
       <BrandMark />
       <TooltipProvider delay={200}>
         <nav
-          aria-label="Primary"
+          aria-label={t("chat.nav.primary")}
           className="flex flex-1 flex-col items-center gap-1"
         >
           {NAV_ITEMS.map((item) => (
@@ -45,12 +48,12 @@ export default function NavRail() {
                     className={cn(
                       "hover:bg-accent hover:text-accent-foreground relative grid size-11 place-items-center rounded-xl transition-colors",
                       active[item.key]
-                        ? "text-foreground bg-accent"
+                        ? "bg-foreground text-background hover:bg-foreground hover:text-background"
                         : "text-muted-foreground",
                     )}
                   >
                     <item.icon className="size-5" aria-hidden="true" />
-                    <span className="sr-only">{item.railLabel}</span>
+                    <span className="sr-only">{t(item.railLabel)}</span>
                     <NavBadge
                       count={badges[item.key]}
                       className="absolute -top-1 -right-1 size-4.5"
@@ -58,11 +61,12 @@ export default function NavRail() {
                   </Link>
                 }
               />
-              <TooltipContent side="right">{item.railLabel}</TooltipContent>
+              <TooltipContent side="right">{t(item.railLabel)}</TooltipContent>
             </Tooltip>
           ))}
         </nav>
       </TooltipProvider>
+      <LanguageToggleButton />
       <ThemeToggleButton />
       <CurrentUserMenu compact />
     </Island>

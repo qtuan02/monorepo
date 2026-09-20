@@ -8,6 +8,14 @@ import axios from "axios";
 /** The retry flag lives on the config object itself, so it survives the round trip through `error.config`. */
 type RetryableRequestConfig = InternalAxiosRequestConfig & {
   _retried?: boolean;
+  /**
+   * Set by the refresh call itself (e.g. `ChatAuthService.refresh()`). Without
+   * it, that request's own 401/403 re-enters this same branch and awaits the
+   * shared `refreshing` promise — which is the very `onAuthError` call this
+   * request's failure is needed to resolve. Both sides wait on each other
+   * forever: no retry, no `onUnauthorized`, no logout, no error surfaced.
+   */
+  skipAuthRetry?: boolean;
 };
 
 export interface HttpClientOptions {
@@ -161,6 +169,7 @@ export function createHttpClient(options: HttpClientOptions): HttpClient {
       options.onAuthError &&
       config &&
       !config._retried &&
+      !config.skipAuthRetry &&
       (httpError.isUnauthorized() || httpError.isForbidden())
     ) {
       let token: string | null;

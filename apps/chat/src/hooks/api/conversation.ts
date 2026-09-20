@@ -3,17 +3,16 @@ import type {
   QueryClient,
   UseInfiniteQueryResult,
 } from "@tanstack/react-query";
-import { useCallback } from "react";
 import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
 
 import type { ChatConversationPage } from "@monorepo/api/chat/conversation-service";
 import type {
   ChatConversationRecord,
+  ChatConversationType,
   ChatCreateGroupParams,
   ChatGroupMembersParams,
   ChatUpdateGroupParams,
@@ -22,16 +21,14 @@ import type {
   ChatConversationSeenEvent,
   ChatConversationUpdatedEvent,
 } from "@monorepo/types/chat-socket";
-import { ChatConversationType } from "@monorepo/types/chat-conversation";
 import { toast } from "@monorepo/ui/components/toast";
 
 import type {
   UseInfiniteQueryOptionsWrapper,
   UseMutationOptionsWrapper,
 } from "~/libs/query-key-factory";
-import type { DirectMessageUser } from "~/types/direct-message-user";
-import { ROUTES } from "~/constants/routes";
 import { chatConversationService } from "~/libs/http-client";
+import i18n from "~/libs/i18n";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 
 const CONVERSATIONS_PAGE_LIMIT = 20;
@@ -189,40 +186,6 @@ export function useConversationsInfiniteQuery(
   });
 }
 
-/**
- * The "message this person" jump: if a DIRECT conversation with them already
- * exists, go straight there; otherwise land on Home with the person in
- * router state, which `useDirectMessageDraft` (conversation feature) reads
- * to open a Draft conversation (see apps/chat/CONTEXT.md). Lives here, not
- * inside the `conversation` feature, so `friends` — a sibling feature — can
- * call it without reaching into another slice's internals (see
- * .agents/rules/architecture-feature-boundaries.md).
- */
-export function useOpenDirectConversation() {
-  const navigate = useNavigate();
-  const conversationsQuery = useConversationsInfiniteQuery();
-
-  return useCallback(
-    (user: DirectMessageUser) => {
-      const existing = (conversationsQuery.data ?? []).find(
-        (conversation) =>
-          conversation.type === ChatConversationType.DIRECT &&
-          conversation.participants.some(
-            (participant) => participant.userId === user.id,
-          ),
-      );
-
-      if (existing) {
-        navigate(ROUTES.conversationByIdPath(existing.id));
-        return;
-      }
-
-      navigate(ROUTES.HOME, { state: { directMessageDraftUser: user } });
-    },
-    [conversationsQuery.data, navigate],
-  );
-}
-
 // The four group writes below all invalidate the whole conversation list
 // rather than patching one record in place — unlike the socket-driven
 // helpers above, each already holds the full updated record from its own
@@ -243,7 +206,7 @@ export function useCreateGroupMutation(
       chatConversationService.createGroup(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-      toast.add({ title: "Group created.", type: "success" });
+      toast.add({ title: i18n.t("chat.group.toast.created"), type: "success" });
     },
     ...options,
   });
@@ -267,7 +230,7 @@ export function useUpdateGroupMutation(
     }) => chatConversationService.updateGroup(conversationId, params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-      toast.add({ title: "Group name updated.", type: "success" });
+      toast.add({ title: i18n.t("chat.group.toast.renamed"), type: "success" });
     },
     ...options,
   });
@@ -291,7 +254,10 @@ export function useAddGroupMembersMutation(
     }) => chatConversationService.addMembers(conversationId, params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-      toast.add({ title: "Members added.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.group.toast.membersAdded"),
+        type: "success",
+      });
     },
     ...options,
   });
@@ -315,7 +281,10 @@ export function useRemoveGroupMemberMutation(
     }) => chatConversationService.removeMember(conversationId, memberId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-      toast.add({ title: "Member removed.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.group.toast.memberRemoved"),
+        type: "success",
+      });
     },
     ...options,
   });
@@ -331,7 +300,7 @@ export function useLeaveGroupMutation(
       chatConversationService.leave(conversationId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-      toast.add({ title: "You left the group.", type: "success" });
+      toast.add({ title: i18n.t("chat.group.toast.left"), type: "success" });
     },
     ...options,
   });

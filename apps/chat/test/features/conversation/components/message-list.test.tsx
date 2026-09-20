@@ -280,6 +280,6 @@ describe("MessageList — 'Seen' placement", () => {
     await screen.findByText("m3");
     // Only m3 (the visitor's actual last message) gets it — not m1, whose
     // own group also has isLastInGroup=true.
-    expect(screen.getAllByText("Seen")).toHaveLength(1);
+    expect(screen.getAllByRole("img", { name: "Seen" })).toHaveLength(1);
   });
 });

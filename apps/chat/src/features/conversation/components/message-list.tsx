@@ -1,14 +1,19 @@
 import type { VirtuosoHandle } from "react-virtuoso";
 import { useMemo, useRef, useState } from "react";
 import { ArrowDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Virtuoso } from "react-virtuoso";
 
+import { defaultLanguage } from "@monorepo/i18n/languages";
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
 import { Button } from "@monorepo/ui/components/button";
+import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Message } from "~/features/conversation/types/message";
 import { MessageListSkeleton } from "~/features/conversation/components/message-list.skeleton";
-import MessageRow from "~/features/conversation/components/message-row";
+import MessageRow, {
+  DateBadge,
+} from "~/features/conversation/components/message-row";
 import { useConversationMessages } from "~/features/conversation/hooks/use-conversation-messages";
 import { useNewMessageIndicator } from "~/features/conversation/hooks/use-new-message-indicator";
 import { groupMessages } from "~/features/conversation/utils/group-messages";
@@ -17,12 +22,14 @@ import {
   readersOf,
 } from "~/features/conversation/utils/readers-of";
 import { useCurrentUserQuery } from "~/hooks/api/user";
+import { formatMessageDateLabel } from "~/utils/date";
 
 interface MessageListProps {
   conversationId: string;
 }
 
 export default function MessageList({ conversationId }: MessageListProps) {
+  const { t, i18n } = useTranslation();
   const currentUserQuery = useCurrentUserQuery();
   const {
     messages,
@@ -42,6 +49,11 @@ export default function MessageList({ conversationId }: MessageListProps) {
 
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
+  // The floating day badge (Telegram's shape): the day of the topmost visible
+  // message, shown only while the list is actually moving.
+  const [isScrolling, setIsScrolling] = useState(false);
+  const [topVisibleIndex, setTopVisibleIndex] = useState(0);
+  const topVisibleMessage = messages[topVisibleIndex];
   const { count: newMessageCount, reset: resetNewMessageCount } =
     useNewMessageIndicator(messages, isAtBottom);
 
@@ -84,9 +96,11 @@ export default function MessageList({ conversationId }: MessageListProps) {
   if (isError) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-3 p-6">
-        <p className="text-muted-foreground text-sm">Couldn't load messages.</p>
+        <p className="text-muted-foreground text-sm">
+          {t("chat.convPane.list.couldNotLoad")}
+        </p>
         <Button variant="outline" size="sm" onClick={() => refetch()}>
-          Retry
+          {t("chat.convPane.list.retry")}
         </Button>
       </div>
     );
@@ -95,16 +109,21 @@ export default function MessageList({ conversationId }: MessageListProps) {
   if (messages.length === 0) {
     return (
       <div className="flex h-full items-center justify-center p-6">
-        <p className="text-muted-foreground text-sm">No messages yet.</p>
+        <p className="text-muted-foreground text-sm">
+          {t("chat.convPane.empty.noMessagesYet")}
+        </p>
       </div>
     );
   }
 
   return (
     <div className="relative h-full">
+      {/* Symmetric scrollbar gutters keep the rows centred on the same axis
+          as the floating day badge below, which is centred over the whole
+          scroller — without them the two sit half a scrollbar apart. */}
       <Virtuoso<Message>
         ref={virtuosoRef}
-        key={conversationId}
+        className="[scrollbar-gutter:stable_both-edges]"
         alignToBottom
         followOutput="auto"
         initialTopMostItemIndex={{ index: "LAST", align: "end" }}
@@ -112,6 +131,10 @@ export default function MessageList({ conversationId }: MessageListProps) {
         firstItemIndex={firstItemIndex}
         computeItemKey={(_, message) => message.id}
         atBottomStateChange={setIsAtBottom}
+        isScrolling={setIsScrolling}
+        rangeChanged={({ startIndex }) =>
+          setTopVisibleIndex(startIndex - firstItemIndex)
+        }
         startReached={() => {
           if (hasNextPage && !isFetchingNextPage) fetchNextPage();
         }}
@@ -127,7 +150,12 @@ export default function MessageList({ conversationId }: MessageListProps) {
               )}
               readers={
                 isGroup && currentUserId
-                  ? readersOf(position.message, members, currentUserId)
+                  ? readersOf(
+                      position.message,
+                      positions[arrayIndex + 1]?.message,
+                      members,
+                      currentUserId,
+                    )
                   : undefined
               }
               seenByOther={
@@ -139,6 +167,22 @@ export default function MessageList({ conversationId }: MessageListProps) {
           );
         }}
       />
+      {topVisibleMessage && (
+        <div
+          aria-hidden="true"
+          className={cn(
+            "pointer-events-none absolute inset-x-0 top-2 flex justify-center transition-opacity duration-200",
+            isScrolling ? "opacity-100" : "opacity-0",
+          )}
+        >
+          <DateBadge>
+            {formatMessageDateLabel(
+              topVisibleMessage.createdAt,
+              i18n.resolvedLanguage ?? defaultLanguage,
+            )}
+          </DateBadge>
+        </div>
+      )}
       <div
         aria-live="polite"
         className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center"
@@ -147,10 +191,12 @@ export default function MessageList({ conversationId }: MessageListProps) {
           <Button
             type="button"
             size="sm"
-            className="pointer-events-auto gap-1.5 rounded-full shadow-lg"
+            className="bg-foreground text-background hover:bg-foreground/90 pointer-events-auto gap-1.5 rounded-full shadow-lg"
             onClick={scrollToBottom}
           >
-            {newMessageCount} new message{newMessageCount === 1 ? "" : "s"}
+            {t("chat.convPane.list.newMessagesButton", {
+              count: newMessageCount,
+            })}
             <ArrowDown className="size-3.5" />
           </Button>
         )}

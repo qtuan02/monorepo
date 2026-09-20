@@ -24,6 +24,7 @@ import type {
   UseQueryOptionsWrapper,
 } from "~/libs/query-key-factory";
 import { chatUserService } from "~/libs/http-client";
+import i18n from "~/libs/i18n";
 import { queryKeysFactory } from "~/libs/query-key-factory";
 import { useAuthStore } from "~/stores/use-auth-store";
 
@@ -117,7 +118,10 @@ export function useUpdateProfileMutation(
       chatUserService.updateMe(payload),
     onSuccess: (profile) => {
       queryClient.setQueryData(userQueryKeys.current(), profile);
-      toast.add({ title: "Profile updated.", type: "success" });
+      toast.add({
+        title: i18n.t("chat.profile.toast.updated"),
+        type: "success",
+      });
     },
     ...options,
   });

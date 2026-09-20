@@ -2,6 +2,7 @@ import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, PencilLine, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
 import {
@@ -25,7 +26,7 @@ import { AddGroupMembersDialog } from "~/features/group/components/add-group-mem
 import { GroupActions } from "~/features/group/components/group-actions";
 import { GroupMembersSection } from "~/features/group/components/group-members-section";
 import { useGroupActions } from "~/features/group/hooks/use-group-actions";
-import { renameGroupFormSchema } from "~/features/group/types/rename-group-form";
+import { createRenameGroupFormSchema } from "~/features/group/types/rename-group-form";
 import { useSocketStore } from "~/stores/use-socket-store";
 
 interface GroupHeaderProps {
@@ -44,9 +45,12 @@ function GroupHeaderTitle({
   isSubmitting,
   onRename,
 }: GroupHeaderProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = React.useState(false);
+  // Rebuilt on every language switch — see createRenameGroupFormSchema.
+  const schema = React.useMemo(() => createRenameGroupFormSchema(t), [t]);
   const form = useForm<RenameGroupFormValues>({
-    resolver: zodResolver(renameGroupFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { name },
   });
 
@@ -66,8 +70,8 @@ function GroupHeaderTitle({
         <Button
           type="button"
           size="icon-sm"
-          variant="ghost"
-          aria-label="Rename group"
+          variant="outline"
+          aria-label={t("chat.group.header.renameAria")}
           onClick={() => {
             form.reset({ name });
             setIsEditing(true);
@@ -96,7 +100,7 @@ function GroupHeaderTitle({
               id={field.name}
               autoFocus
               disabled={isSubmitting}
-              aria-label="Group name"
+              aria-label={t("chat.group.header.nameAria")}
               aria-invalid={fieldState.invalid}
               className="h-8"
               onKeyDown={(event) => {
@@ -106,8 +110,8 @@ function GroupHeaderTitle({
             <Button
               type="submit"
               size="icon-sm"
-              variant="ghost"
-              aria-label="Save group name"
+              variant="outline"
+              aria-label={t("chat.group.header.saveAria")}
               disabled={isSubmitting}
             >
               <Check className="size-3.5" />
@@ -115,8 +119,8 @@ function GroupHeaderTitle({
             <Button
               type="button"
               size="icon-sm"
-              variant="ghost"
-              aria-label="Cancel rename"
+              variant="outline"
+              aria-label={t("chat.group.header.cancelAria")}
               onClick={cancel}
             >
               <X className="size-3.5" />
@@ -140,6 +144,7 @@ export default function GroupPanelTemplate({
   conversation,
   onLeft,
 }: GroupPanelTemplateProps) {
+  const { t } = useTranslation();
   const [isAddMembersOpen, setIsAddMembersOpen] = React.useState(false);
   const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = React.useState(false);
   const onlineUsers = useSocketStore((state) => state.onlineUsers);
@@ -183,7 +188,10 @@ export default function GroupPanelTemplate({
             onRename={onRenameGroup}
           />
           <p className="text-muted-foreground text-xs">
-            {conversation.members.length} members · {onlineCount} online
+            {t("chat.group.header.memberSummary", {
+              count: conversation.members.length,
+              online: onlineCount,
+            })}
           </p>
         </div>
       </div>
@@ -220,14 +228,17 @@ export default function GroupPanelTemplate({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Leave this group?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("chat.group.leaveConfirm.title")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              You will stop receiving its messages. You can only rejoin if
-              someone adds you back.
+              {t("chat.group.leaveConfirm.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t("chat.group.leaveConfirm.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => {
@@ -235,7 +246,7 @@ export default function GroupPanelTemplate({
                 onLeaveGroup();
               }}
             >
-              Leave
+              {t("chat.group.leaveConfirm.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

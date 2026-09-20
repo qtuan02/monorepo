@@ -1,4 +1,5 @@
 import { ArrowLeft, Info, MessageCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 
 import {
@@ -8,7 +9,6 @@ import {
 import { Button, buttonVariants } from "@monorepo/ui/components/button";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -19,14 +19,15 @@ import { cn } from "@monorepo/ui/utils/cn";
 import type { Conversation } from "~/features/conversation/types/conversation";
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import { Island } from "~/components/island/island";
 import { ROUTES } from "~/constants/routes";
 import { ConversationDetailsPanel } from "~/features/conversation/components/conversation-details-panel";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
-import { createDraftConversationId } from "~/features/conversation/utils/direct-message-draft";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 import { useSocketStore } from "~/stores/use-socket-store";
+import { createDraftConversationId } from "~/utils/direct-message-draft";
 import { getDisplayName } from "~/utils/display";
 
 interface ConversationPanelProps {
@@ -42,12 +43,13 @@ interface ConversationPanelProps {
 function buildDraftConversation(
   draftUser: DirectMessageUser,
   currentUserId: string,
+  noMessagesYet: string,
 ): Conversation {
   return {
     id: createDraftConversationId(draftUser.id),
     type: ChatConversationType.DIRECT,
     title: getDisplayName(draftUser),
-    lastMessage: "No messages yet.",
+    lastMessage: noMessagesYet,
     lastMessageAt: null,
     unreadCount: 0,
     avatarUrl: draftUser.avatarUrl ?? undefined,
@@ -76,6 +78,7 @@ export default function ConversationPanel({
   detailsOpen,
   onDetailsOpenChange,
 }: ConversationPanelProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { conversations } = useConversationList();
   const currentUserQuery = useCurrentUserQuery();
@@ -85,7 +88,11 @@ export default function ConversationPanel({
   const currentUserId = currentUserQuery.data?.id;
   const draftConversation =
     draftUser && currentUserId
-      ? buildDraftConversation(draftUser, currentUserId)
+      ? buildDraftConversation(
+          draftUser,
+          currentUserId,
+          t("chat.convPane.empty.noMessagesYet"),
+        )
       : undefined;
   const activeConversation = conversation ?? draftConversation;
 
@@ -103,28 +110,10 @@ export default function ConversationPanel({
     ).length;
   });
 
-  if (!conversationId && !draftUser) {
-    return (
-      <Empty className="h-full flex-1">
-        <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <MessageCircle />
-          </EmptyMedia>
-          <EmptyTitle>Pick a conversation</EmptyTitle>
-        </EmptyHeader>
-        <EmptyContent>
-          <Link
-            to={ROUTES.FRIENDS}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            New message
-          </Link>
-        </EmptyContent>
-      </Empty>
-    );
-  }
+  if (!conversationId && !draftUser) return <NoConversationSelected />;
 
-  const title = activeConversation?.title ?? "Conversation";
+  const title =
+    activeConversation?.title ?? t("chat.convPane.header.fallbackTitle");
   const isGroup = activeConversation?.type === ChatConversationType.GROUP;
   const memberCount = activeConversation?.members.length ?? 0;
   // Presence is only meaningful while the socket is actually connected — a
@@ -133,36 +122,45 @@ export default function ConversationPanel({
   const subtitle = !isConnected
     ? undefined
     : isGroup
-      ? `${memberCount} members · ${onlineMemberCount} online`
+      ? t("chat.convPane.header.groupSubtitle", {
+          memberCount,
+          onlineMemberCount,
+        })
       : isOtherMemberOnline
-        ? "Active now"
+        ? t("chat.convPane.header.activeNow")
         : undefined;
 
   return (
-    <div className="flex h-full min-h-0 flex-1">
-      <div className="flex h-full min-h-0 flex-1 flex-col">
-        <header className="border-border flex h-[68px] shrink-0 items-center gap-2 border-b px-3">
+    <>
+      <Island className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+        <header className="border-border/60 flex h-16 shrink-0 items-center gap-3 border-b px-3 md:px-4">
           {showBackButton && (
             // A control that navigates is a styled Link, never a Button
             // rendering one — see .agents/rules/architecture-ui-primitives.md.
             <Link
               to={ROUTES.HOME}
-              aria-label="Back to conversations"
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+              aria-label={t("chat.convPane.header.backToConversations")}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "icon" }),
+                "-ml-1 rounded-full",
+              )}
             >
-              <ArrowLeft className="size-4" />
+              <ArrowLeft className="size-5" />
             </Link>
           )}
           <ConversationAvatar
             title={title}
             avatarUrl={activeConversation?.avatarUrl}
             online={isConnected && !isGroup && isOtherMemberOnline}
+            className="size-10"
           />
           <div className="min-w-0 flex-1">
-            <h1 className="truncate text-[15px] font-semibold">{title}</h1>
+            <h1 className="truncate text-[15px] leading-tight font-semibold">
+              {title}
+            </h1>
             {!isConnected ? (
-              <span className="bg-muted text-muted-foreground inline-block rounded-full px-2 py-0.5 text-xs">
-                Reconnecting…
+              <span className="bg-muted text-muted-foreground mt-0.5 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium">
+                {t("chat.convPane.header.reconnecting")}
               </span>
             ) : (
               subtitle && (
@@ -176,13 +174,20 @@ export default function ConversationPanel({
             )}
           </div>
           {activeConversation && (
+            // Ink, not teal, once open — it says where you are (brief §10
+            // row 2), and pressing it again closes what it opened.
             <Button
               type="button"
               size="icon"
-              variant="ghost"
-              className="size-11 md:size-9"
-              onClick={() => onDetailsOpenChange(true)}
-              aria-label="Conversation details"
+              variant="outline"
+              aria-pressed={detailsOpen}
+              className={cn(
+                "size-11 rounded-full md:size-9",
+                detailsOpen &&
+                  "border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background",
+              )}
+              onClick={() => onDetailsOpenChange(!detailsOpen)}
+              aria-label={t("chat.convPane.header.detailsButton")}
             >
               <Info className="size-4" />
             </Button>
@@ -195,8 +200,10 @@ export default function ConversationPanel({
                 <EmptyMedia variant="icon">
                   <MessageCircle />
                 </EmptyMedia>
-                <EmptyTitle>No messages yet</EmptyTitle>
-                <EmptyDescription>Say hi to {title}</EmptyDescription>
+                <EmptyTitle>{t("chat.convPane.draft.emptyTitle")}</EmptyTitle>
+                <EmptyDescription>
+                  {t("chat.convPane.draft.sayHiTo", { title })}
+                </EmptyDescription>
               </EmptyHeader>
             </Empty>
           ) : (
@@ -223,7 +230,7 @@ export default function ConversationPanel({
             }
           />
         )}
-      </div>
+      </Island>
 
       {activeConversation && (
         <ConversationDetailsPanel
@@ -236,6 +243,30 @@ export default function ConversationPanel({
           }}
         />
       )}
-    </div>
+    </>
+  );
+}
+
+/** The pane's empty state. Starting a chat is the list's search box — it
+ * finds people too — so this points there instead of opening a second flow. */
+function NoConversationSelected() {
+  const { t } = useTranslation();
+  return (
+    <Island className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <Empty className="h-full flex-1">
+        <EmptyHeader>
+          <EmptyMedia
+            variant="icon"
+            className="from-primary/15 to-primary/5 text-primary size-14 rounded-2xl bg-gradient-to-br"
+          >
+            <MessageCircle className="size-7" />
+          </EmptyMedia>
+          <EmptyTitle>{t("chat.convPane.empty.pickTitle")}</EmptyTitle>
+          <EmptyDescription>
+            {t("chat.convPane.empty.pickDescription")}
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    </Island>
   );
 }

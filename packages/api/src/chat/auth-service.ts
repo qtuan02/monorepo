@@ -1,3 +1,5 @@
+import type { AxiosRequestConfig } from "axios";
+
 import type {
   ChatSignInPayload,
   ChatSignInResponse,
@@ -35,8 +37,14 @@ export class ChatAuthService {
 
   /** Exchanges the `HttpOnly` refresh cookie for a new access token. */
   async refresh(): Promise<string> {
-    const response =
-      await this.client.post<ChatSignInResponse>("/v1/auth/refresh");
+    const response = await this.client.post<ChatSignInResponse>(
+      "/v1/auth/refresh",
+      undefined,
+      // Called from inside `onAuthError` itself — a 401 here must reject
+      // immediately rather than re-entering the retry branch and awaiting
+      // the very `onAuthError` call this failure is needed to resolve.
+      { skipAuthRetry: true } as AxiosRequestConfig,
+    );
 
     return response.data.accessToken;
   }

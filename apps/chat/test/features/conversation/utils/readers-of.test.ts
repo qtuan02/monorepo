@@ -32,6 +32,7 @@ describe("readersOf", () => {
   it("returns a participant whose lastReadMessageId names exactly this message", () => {
     const readers = readersOf(
       message("m2"),
+      undefined,
       [
         member({ userId: CURRENT_USER_ID, lastReadMessageId: "m2" }),
         member({ userId: "u2", displayName: "Lan", lastReadMessageId: "m2" }),
@@ -46,6 +47,7 @@ describe("readersOf", () => {
   it("never counts the signed-in visitor themselves", () => {
     const readers = readersOf(
       message("m2"),
+      undefined,
       [member({ userId: CURRENT_USER_ID, lastReadMessageId: "m2" })],
       CURRENT_USER_ID,
     );
@@ -59,10 +61,10 @@ describe("readersOf", () => {
     ];
 
     expect(
-      readersOf(message("m1"), participants, CURRENT_USER_ID),
+      readersOf(message("m1"), undefined, participants, CURRENT_USER_ID),
     ).toHaveLength(1);
     expect(
-      readersOf(message("m2"), participants, CURRENT_USER_ID),
+      readersOf(message("m2"), undefined, participants, CURRENT_USER_ID),
     ).toHaveLength(0);
 
     participants[0] = member({
@@ -72,11 +74,28 @@ describe("readersOf", () => {
     });
 
     expect(
-      readersOf(message("m1"), participants, CURRENT_USER_ID),
+      readersOf(message("m1"), undefined, participants, CURRENT_USER_ID),
     ).toHaveLength(0);
     expect(
-      readersOf(message("m2"), participants, CURRENT_USER_ID),
+      readersOf(message("m2"), undefined, participants, CURRENT_USER_ID),
     ).toHaveLength(1);
+  });
+
+  it("places a reader by lastReadAt when their lastReadMessageId is outside the loaded page", () => {
+    const participants = [
+      member({
+        userId: "u2",
+        lastReadMessageId: "m-not-loaded",
+        lastReadAt: "2026-09-19T08:30:00.000Z",
+      }),
+    ];
+    const m1 = message("m1", "2026-09-19T08:00:00.000Z");
+    const m2 = message("m2", "2026-09-19T09:00:00.000Z");
+
+    expect(readersOf(m1, m2, participants, CURRENT_USER_ID)).toHaveLength(1);
+    expect(
+      readersOf(m2, undefined, participants, CURRENT_USER_ID),
+    ).toHaveLength(0);
   });
 
   it("caps the visible stack at 3, leaving the rest for the caller's '+n'", () => {
@@ -84,7 +103,12 @@ describe("readersOf", () => {
       member({ userId, lastReadMessageId: "m1" }),
     );
 
-    const readers = readersOf(message("m1"), participants, CURRENT_USER_ID);
+    const readers = readersOf(
+      message("m1"),
+      undefined,
+      participants,
+      CURRENT_USER_ID,
+    );
 
     // readersOf itself returns every reader — capping to <=3 + "+n" is the
     // caller's rendering job (message-row.tsx), asserted in its own test.

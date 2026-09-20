@@ -47,10 +47,10 @@ bun run dev:chat     # http://localhost:3007
 | Guard | `src/features/auth/provider/` | `ProtectedRoute` / `GuestRoute`, cả hai chạy `useSessionCheck` (`~/features/auth/hooks/use-session-check.ts`) — gọi `/auth/refresh` bằng cookie trước khi quyết, hiện `RouteGuardLoading` ("Checking session...") lúc chờ. Catch-all `*` → `NotFound` vẫn là **sibling** của `ProtectedRoute`, không cần Session. |
 | Session | `src/stores/use-auth-store.ts` | Access token chỉ sống trong store — **không** `persist`. Nửa còn lại của Session là refresh cookie `HttpOnly` do backend giữ; `useSessionCheck` là cầu nối giữa hai nửa lúc boot/reload. |
 | Data layer | `packages/api/src/chat/*.ts` | Sáu service class — `ChatAuthService`, `ChatHealthService`, `ChatUserService`, `ChatFriendService`, `ChatConversationService`, `ChatMessageService` — unwrap `ChatBaseResponse.data` (`@monorepo/types/chat-base`), singleton ở `~/libs/http-client.ts` (`withCredentials`, `onAuthError` → refresh + cất token, `onUnauthorized` → xoá cache + đăng xuất — ADR-0014). |
-| Shell | `src/features/layout/templates/layout.template.tsx` | `NavRail` (`≥md`) hoặc `BottomNav` (`<md`, ẩn trong màn chat) quanh một `Island` bọc `<Outlet/>` — xem § Hình dạng Islands. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown Edit profile/View profile/Sign out. |
+| Shell | `src/features/layout/templates/layout.template.tsx` | `NavRail` (`≥md`) hoặc `BottomNav` (`<md`, ẩn trong màn chat) quanh một `Island` bọc `<Outlet/>` — xem § Hình dạng Islands. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown View profile/Edit profile (`/profile?edit=1`)/Sign out. |
 | Conversation | `src/features/conversation/` | Sidebar danh sách (direct + group, cuộn vô hạn, Presence) qua `react-virtuoso`; màn chat cuộn ngược vô hạn, composer + emoji picker lazy-load, Draft conversation từ Friends. |
 | Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`), patch cache tại chỗ khi tin đến, Presence online/offline, `seen`. |
-| Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ. |
+| Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ tại chỗ — một `ProfileForm` với hai trạng thái view/edit trên `?edit=`, không có dialog. |
 | Palette | `src/globals.css` | Teal của nguồn, override ở tầng app (xem § Token/accent) — cùng hình dạng ADR-0008/0009/0011. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Như `apps/smart-rental`: build/install từ root qua `npx --yes bun@1.4.0`, SPA rewrite `/(.*)` → `/index.html`. Dockerfile/nginx của Template giữ nguyên cho job `docker`. |
 
@@ -59,9 +59,12 @@ bun run dev:chat     # http://localhost:3007
 Ghi ở đây để không ai đọc nhầm thành thiếu sót cần "hoàn thiện" ngay — mỗi thứ có ticket riêng, không
 phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khác:
 
-1. **Không i18n.** Gỡ `~/libs/i18n.ts`, `select-language`, `@monorepo/i18n` + `react-i18next` khỏi
-   deps. Copy hardcode tiếng Anh (nguồn `chat-socket-fe` vốn tiếng Anh, kể cả thông báo lỗi form);
-   `@monorepo/dayjs` set locale `en` một lần ở `src/index.tsx`.
+1. **i18n — có, từ 2026-09-20, đang chuyển dần.** i18next Flavor như `_template_vite` (`~/libs/i18n.ts`,
+   cookie `chat_lang`, bridge `~/libs/dayjs.ts`), copy dưới namespace `chat.*` của catalogue chung, switcher là
+   `LanguageToggleButton` cạnh `ThemeToggleButton` trên Rail. Đã dịch: Rail / Bottom nav / hai toggle; phần
+   còn lại (auth, conversation, friends, group, profile, nhãn ngày "Today"/"Yesterday" trong `~/utils/date.ts`)
+   vẫn hardcode tiếng Anh, chờ sweep. **Giờ:** `chat-socket` trả UTC, FE render local — mọi chuỗi giờ từ BE đi
+   qua `~/utils/date.ts` (`toLocal`), không gọi `dayjs(value)` thẳng; gửi lên BE dùng `toApiTimestamp` (UTC ISO).
 2. **Không `~/services/`.** Không có, và sẽ không có: mọi gọi backend đi qua service class trong
    `@monorepo/api` (`packages/api/src/chat/`) — quy ước chung của cả monorepo, không phải riêng app này.
 3. **Không optimistic send, không typing indicator, không render `IMAGE`/`FILE`, không tìm hội thoại
@@ -89,7 +92,7 @@ Spec #232 (brief [`docs/design/chat-redesign.md`](../../docs/design/chat-redesig
 chuyển app sang hình dạng **Islands**: mọi vùng — Rail, danh sách hội thoại, khung tin nhắn, chi tiết,
 Bottom nav — là một `Island` (`~/components/island/island.tsx`, `bg-card/75`, bo 22px, không
 `backdrop-filter`) nổi trên một nền gradient tĩnh ba màu (teal · tím · cam, nhạt hơn ở light, tối hơn ở
-`.dark`) app vẽ ở `body`. Hai vai màu: teal (`--primary`) nói *làm gì* (nút New, Send, tin của mình
+`.dark`) app vẽ ở `body`. Hai vai màu: teal (`--primary`) nói *làm gì* (nút New group, Send, tin của mình
 gradient teal có bóng màu); mực gần đen (`--foreground`) nói *đang ở đâu* (mục Rail active, chip đang
 chọn, nút "N new messages"). Không thêm token cho hai vai này.
 
@@ -106,15 +109,20 @@ không phải một palette dở dang: ship cùng lúc với ticket cuối spec 
 **Danh sách/pane/Friends/Details:** giữ đúng cấu trúc §3 của brief — `Item` cho mọi hàng (hội thoại,
 bạn bè, thành viên), chip `All · Unread · Groups` trên URL `?filter=`, nhóm tin theo người gửi (< 5
 phút) qua `MessageGroup`/`Bubble`, read receipt ("Seen" / chồng avatar), nút "N new messages", pill
-`Reconnecting…`/`SYSTEM`, `Tabs` Friends · Requests · Find people trên URL `?tab=`. Đọc `~/features/
+`Reconnecting…`/`SYSTEM`, `Tabs` Friends · Requests · Find people trên URL `?tab=`; Friends và Profile chiếm trọn Island (header cố định, thân tự cuộn, hàng người là **một** card `~/components/user-item.tsx` cho cả bốn danh sách — Friends, Received, Sent, kết quả tìm — lưới `lg:2`/`2xl:3` cột, một hàng gọn — avatar 40 + tên/@username là nút mở detail, action `size="sm"` bên phải, tối đa một nút primary + một `outline`, không ghost; tabs là pill có icon, tab active mang `--foreground` như chip `All·Unread·Groups`). Đọc `~/features/
 conversation`, `~/features/friends` để biết chi tiết từng component — bảng phía trên là điểm vào.
 
-**Điều đã biết còn thiếu, cố ý chưa đóng ở #232:** decision hàng 19 của brief (`md`–`lg`: Rail + list
-Island 280 + pane Island riêng, Details là Sheet; từ `lg`: thêm Island Details 292) chưa lên code —
-`layout.template.tsx` vẫn bọc list + pane trong **một** Island dùng chung (`conversation-shell.template.tsx`
-chia cột bằng `border-r` thay vì một Island riêng mỗi cột). Ticket T1 (#233) đã tự ghi nhận việc này là
-"mỗi màn tự quyết ở ticket của nó", nhưng không ticket nào của #232 nhận lại — xem comment tổng kết trên
-#232 để biết trạng thái ticket theo dõi.
+**Ba Island từ `md` (đóng decision hàng 19 của brief, 2026-09-20):** `layout.template.tsx` chỉ bọc Friends/Profile trong một Island; màn hội thoại (`/` và `/conversation/:id`) nhận cột trần và `conversation-shell.template.tsx` tự xếp list Island 320 · pane Island · Details Island 320 (khi mở; ở `md`–`lg` Details chiếm chỗ list bằng `max-lg:hidden` thay vì ép pane). Nút `+` là **New group** thẳng (tooltip, không dropdown); ô search của list tìm **cả chat lẫn người** — `people-search-results.tsx` gọi `useUserSearchInfiniteQuery`, bạn hay không đều hiện (icon `UserPlus` = chưa là bạn), chọn → Draft conversation qua `useOpenDirectConversation`; `NewMessageDialog` bỏ. Bong bóng bo góc theo vị trí trong run (Messenger), tin người khác nền `muted`, avatar đặt ở tin cuối run; mọi nút đứng một mình dùng `outline`, không `ghost` (chỉ hai nút nằm trong ô nhập — emoji, X xoá search — giữ ghost).
+
+Khoảng trống còn lại, ghi ở lần code review 2026-09-19, chờ backend: `chat-socket` không có
+`GET /conversations/{id}`, nên `conversation-panel.tsx` chỉ tra hội thoại đang mở trong các trang
+list **đã tải** — deep-link tới một hội thoại ngoài 20 dòng đầu (hoặc một group chỉ nạp qua chip
+Groups) không render composer và người gửi đọc là "Unknown user". "View profile" trong Details (story
+45), avatar/tên trên mỗi hàng `/friends` và mỗi thành viên trong Group info đều mở
+`~/components/user-detail-dialog.tsx` — cái vỏ fetch `useUserInfoQuery` khi mở quanh
+`~/components/user-info.tsx`, khối trình bày thuần (avatar, tên, quan hệ, rồi **mọi** field
+`GET /v1/user/info` trả — Username · Email · Phone · Bio · Joined, field trống hiện "—") để một frame
+khác (sheet, trang) dùng lại không cần dialog; action quan hệ vẫn ở hàng.
 
 ## Token/accent
 

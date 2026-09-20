@@ -22,6 +22,12 @@ function refreshSessionOnce(): Promise<string> {
  * carries but the store does not. Both guards call this before they decide,
  * so a page reload with a still-good cookie never bounces to sign-in, and
  * `/sign-in` itself bounces away once the cookie proves a session exists.
+ *
+ * Deliberately an effect, not a `useQuery` (the one exception to
+ * .agents/rules/react-effects-sync-only.md here): a rejected refresh runs
+ * `~/libs/http-client`'s `onUnauthorized`, which calls `queryClient.clear()`
+ * — that would drop the in-flight refresh query itself and leave the guard
+ * refetching forever instead of settling on "signed out".
  */
 export function useSessionCheck() {
   const token = useAuthStore((state) => state.token);

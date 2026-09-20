@@ -60,6 +60,7 @@ export interface ChatUserInfo {
   avatarUrl?: string | null;
   bio?: string | null;
   phone?: string | null;
+  joinedAt: string;
   statusFriend: FriendStatus;
 }
 

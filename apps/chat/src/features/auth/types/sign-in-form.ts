@@ -1,14 +1,26 @@
+import type { TFunction } from "i18next";
 import * as z from "zod";
 
-// The source app's own copy, verbatim — this app ships no i18n (README).
-export const signInFormSchema = z.object({
-  username: z
-    .string({ error: "Username is required." })
-    .trim()
-    .min(1, { error: "Username is required." }),
-  password: z
-    .string({ error: "Password is required." })
-    .min(6, { error: "Password must be at least 6 characters." }),
-});
+/**
+ * A factory rather than a module-level schema: this app is bilingual, and a
+ * Zod validator built once at import time would freeze its `error` strings
+ * in whatever language was active on first load. The caller rebuilds it
+ * from `useTranslation()`'s `t`, whose reference changes on a language
+ * switch — see .agents/rules/forms-schema-driven.md, adapted here because
+ * that rule assumes a single-language app.
+ */
+export function createSignInFormSchema(t: TFunction) {
+  return z.object({
+    username: z
+      .string({ error: t("chat.auth.validation.usernameRequired") })
+      .trim()
+      .min(1, { error: t("chat.auth.validation.usernameRequired") }),
+    password: z
+      .string({ error: t("chat.auth.validation.passwordRequired") })
+      .min(6, { error: t("chat.auth.validation.passwordMinLength") }),
+  });
+}
 
-export type SignInFormValues = z.infer<typeof signInFormSchema>;
+export type SignInFormValues = z.infer<
+  ReturnType<typeof createSignInFormSchema>
+>;

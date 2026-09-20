@@ -127,9 +127,17 @@ export function useMessagesInfiniteQuery(
 }
 
 // No `onError` toast in either hook — the global `MutationCache.onError` in
-// ~/libs/query-client.ts already surfaces every failed mutation once, and
-// there's no socket to patch the cache directly yet, so a sent message
-// shows up through invalidation alone (spec #195, ticket #200).
+// ~/libs/query-client.ts already surfaces every failed mutation once. The
+// sent message is patched in from the response (idempotent with the socket
+// echo — `appendConversationMessageToCache` dedupes by id); only the list
+// preview is refetched, since a Draft conversation has no row to patch yet.
+function applySentMessage(
+  queryClient: QueryClient,
+  message: ChatMessageRecord,
+) {
+  appendConversationMessageToCache(queryClient, message);
+  queryClient.invalidateQueries({ queryKey: conversationQueryKeys.lists() });
+}
 
 export function useSendDirectMessageMutation(
   options?: UseMutationOptionsWrapper<
@@ -142,12 +150,7 @@ export function useSendDirectMessageMutation(
   return useMutation({
     mutationFn: (params: ChatSendDirectMessageParams) =>
       chatMessageService.sendDirect(params),
-    onSuccess: (message) => {
-      queryClient.invalidateQueries({
-        queryKey: messageQueryKeys.byConversation(message.conversationId),
-      });
-      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-    },
+    onSuccess: (message) => applySentMessage(queryClient, message),
     ...options,
   });
 }
@@ -163,12 +166,7 @@ export function useSendGroupMessageMutation(
   return useMutation({
     mutationFn: (params: ChatSendGroupMessageParams) =>
       chatMessageService.sendGroup(params),
-    onSuccess: (message) => {
-      queryClient.invalidateQueries({
-        queryKey: messageQueryKeys.byConversation(message.conversationId),
-      });
-      queryClient.invalidateQueries({ queryKey: conversationQueryKeys.all });
-    },
+    onSuccess: (message) => applySentMessage(queryClient, message),
     ...options,
   });
 }

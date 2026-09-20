@@ -136,3 +136,51 @@
 @theme inline {
   --color-online: var(--online);
 }
+
+/**
+ * A slim, rounded scrollbar for every scroller in the app — the browser
+ * default is a 15–17px grey bar that reads as a hole in an Island. Chromium
+ * and WebKit take the pseudo-elements; Firefox has none, so it gets the
+ * standard `scrollbar-width: thin` inside `@supports not` — declaring
+ * `scrollbar-width`/`scrollbar-color` unconditionally would make Chromium
+ * ≥121 ignore the pseudo-elements below.
+ */
+@layer base {
+  :root {
+    --scrollbar-thumb: color-mix(
+      in oklab,
+      var(--muted-foreground) 35%,
+      transparent
+    );
+    --scrollbar-thumb-hover: color-mix(
+      in oklab,
+      var(--muted-foreground) 60%,
+      transparent
+    );
+  }
+
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) transparent;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+}

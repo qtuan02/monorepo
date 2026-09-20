@@ -5,19 +5,19 @@ import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 
 import { Island } from "~/components/island/island";
 import { ROUTES } from "~/constants/routes";
-import { useDirectMessageDraft } from "~/features/conversation/hooks/use-direct-message-draft";
 import BottomNav from "~/features/layout/components/bottom-nav";
 import NavRail from "~/features/layout/components/nav-rail";
+import { useDirectMessageDraft } from "~/hooks/use-direct-message-draft";
 import { useAuthStore } from "~/stores/use-auth-store";
 import { useSocketStore } from "~/stores/use-socket-store";
 
 /**
  * The public surface of the `layout` slice, and the element every in-app
  * page nests under — the Islands shell (CONTEXT.md, ADR-0016): `NavRail`
- * from `md`, `BottomNav` below it, and everything the route tree renders
- * inside one Island. Splitting today's single wrapping Island into the
- * list/pane pair `≥md` needs is each screen's own ticket (design brief §3.1
- * decision #23) — this frame does not commit to that shape yet.
+ * from `md`, `BottomNav` below it. Friends and Profile fill one Island this
+ * frame provides; the conversation shell (Home + Conversation) brings its own
+ * — list, pane and Details are each an Island `≥md` (brief §10 row 19), so
+ * that screen is handed the bare column and lays its Islands out itself.
  *
  * Also where the socket connects: subscribed to `token` (not read once via
  * `getState()`) so a refreshed token reconnects with a fresh `Authorization`
@@ -43,15 +43,26 @@ export default function LayoutTemplate() {
   // `ConversationShellTemplate` does (CONTEXT.md — Draft conversation).
   const isInConversationScreen =
     !!conversationMatch || (location.pathname === ROUTES.HOME && !!draftUser);
+  const isConversationShell =
+    !!conversationMatch || location.pathname === ROUTES.HOME;
 
+  // `h-dvh` (not `min-h-`) on every breakpoint: a definite height is what lets
+  // each Island scroll inside itself — and what gives Virtuoso a measurable
+  // container, so the list renders rows below `md` at all.
   return (
-    <div className="flex min-h-dvh flex-col gap-2 p-2 md:h-dvh md:flex-row md:gap-3 md:p-3">
+    <div className="flex h-dvh flex-col gap-2 p-2 md:flex-row md:gap-3 md:p-3">
       {!isMobile && <NavRail />}
-      <Island className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <main className="flex min-h-0 flex-1 flex-col">
+      {isConversationShell ? (
+        <main className="flex min-h-0 flex-1 flex-col md:flex-row md:gap-3">
           <Outlet />
         </main>
-      </Island>
+      ) : (
+        <Island className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <main className="flex min-h-0 flex-1 flex-col">
+            <Outlet />
+          </main>
+        </Island>
+      )}
       {isMobile && !isInConversationScreen && <BottomNav />}
     </div>
   );

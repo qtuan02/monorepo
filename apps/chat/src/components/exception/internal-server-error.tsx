@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import { Button } from "@monorepo/ui/components/button";
 
 /**
@@ -7,16 +9,18 @@ import { Button } from "@monorepo/ui/components/button";
  * back.
  */
 export default function InternalServerError() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-4 p-4">
       <h1 className="text-foreground text-3xl font-bold">
-        Something went wrong
+        {t("chat.common.errorTitle")}
       </h1>
       <p className="text-muted-foreground max-w-lg text-center">
-        The app hit an unexpected error. Please reload the page.
+        {t("chat.common.errorDescription")}
       </p>
       <Button className="mt-2" onClick={() => window.location.reload()}>
-        Reload page
+        {t("chat.common.reloadPage")}
       </Button>
     </div>
   );

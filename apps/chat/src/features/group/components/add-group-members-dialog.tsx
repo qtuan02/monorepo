@@ -1,5 +1,7 @@
+import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@monorepo/ui/components/button";
 import {
@@ -14,7 +16,7 @@ import { FieldGroup } from "@monorepo/ui/components/field";
 
 import type { AddMembersFormValues } from "~/features/group/types/add-members-form";
 import { GroupMemberPicker } from "~/features/group/components/group-member-picker";
-import { addMembersFormSchema } from "~/features/group/types/add-members-form";
+import { createAddMembersFormSchema } from "~/features/group/types/add-members-form";
 
 interface AddGroupMembersDialogProps {
   open: boolean;
@@ -31,8 +33,11 @@ export function AddGroupMembersDialog({
   isSubmitting,
   onAddMembers,
 }: AddGroupMembersDialogProps) {
+  const { t } = useTranslation();
+  // Rebuilt on every language switch — see createAddMembersFormSchema.
+  const schema = React.useMemo(() => createAddMembersFormSchema(t), [t]);
   const form = useForm<AddMembersFormValues>({
-    resolver: zodResolver(addMembersFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { memberIds: [] },
     mode: "onChange",
   });
@@ -52,9 +57,9 @@ export function AddGroupMembersDialog({
     >
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Add members</DialogTitle>
+          <DialogTitle>{t("chat.group.addMembers.title")}</DialogTitle>
           <DialogDescription>
-            Pick friends who aren't already in this group.
+            {t("chat.group.addMembers.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -78,18 +83,20 @@ export function AddGroupMembersDialog({
         <DialogFooter>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isSubmitting}
           >
-            Cancel
+            {t("chat.group.addMembers.cancel")}
           </Button>
           <Button
             type="submit"
             form="add-group-members-form"
             disabled={isSubmitting || !form.formState.isValid}
           >
-            {isSubmitting ? "Adding..." : "Add"}
+            {isSubmitting
+              ? t("chat.group.addMembers.submitting")
+              : t("chat.group.addMembers.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

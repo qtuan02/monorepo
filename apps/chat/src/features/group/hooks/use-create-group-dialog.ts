@@ -1,9 +1,10 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import type { CreateGroupFormValues } from "~/features/group/types/create-group-form";
-import { createGroupFormSchema } from "~/features/group/types/create-group-form";
+import { createCreateGroupFormSchema } from "~/features/group/types/create-group-form";
 
 interface UseCreateGroupDialogParams {
   isOpen: boolean;
@@ -15,8 +16,11 @@ interface UseCreateGroupDialogParams {
  * Compiler bail out of memoizing it (see .agents/rules/forms-use-watch.md).
  */
 export function useCreateGroupDialog({ isOpen }: UseCreateGroupDialogParams) {
+  const { t } = useTranslation();
+  // Rebuilt on every language switch — see createCreateGroupFormSchema.
+  const schema = React.useMemo(() => createCreateGroupFormSchema(t), [t]);
   const form = useForm<CreateGroupFormValues>({
-    resolver: zodResolver(createGroupFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { name: "", memberIds: [] },
     mode: "onChange",
   });

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Loader2, UserMinus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
 import {
@@ -14,17 +15,11 @@ import {
 } from "@monorepo/ui/components/alert-dialog";
 import { Badge } from "@monorepo/ui/components/badge";
 import { Button } from "@monorepo/ui/components/button";
-import {
-  Item,
-  ItemActions,
-  ItemContent,
-  ItemGroup,
-  ItemMedia,
-  ItemTitle,
-} from "@monorepo/ui/components/item";
+import { Item, ItemActions, ItemGroup } from "@monorepo/ui/components/item";
 
 import type { ConversationMember } from "~/features/conversation/types/conversation";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import { UserDetailDialog } from "~/components/user-detail-dialog";
 
 interface GroupMembersSectionProps {
   members: ConversationMember[];
@@ -34,9 +29,10 @@ interface GroupMembersSectionProps {
   onRemoveMember?: (memberId: string) => void;
 }
 
-/** Same `Item` anatomy as `UserItem`/`FriendRequestRow` (story 54); only the
- * group's owner carries a `Badge` — a member wears no label at all (brief
- * §10 row 12: "Owner" is the only tag the mockup ever shows). */
+/** Same `Item` anatomy as `UserItem` (story 54) — avatar + name open the
+ * member's `UserDetailDialog`, one dialog for the whole list keyed by who was
+ * tapped. Only the group's owner carries a `Badge` — a member wears no label
+ * at all (brief §10 row 12: "Owner" is the only tag the mockup ever shows). */
 export function GroupMembersSection({
   members,
   currentUserId,
@@ -44,9 +40,13 @@ export function GroupMembersSection({
   removingMemberId,
   onRemoveMember,
 }: GroupMembersSectionProps) {
+  const { t } = useTranslation();
   const [confirmingMemberId, setConfirmingMemberId] = React.useState<
     string | null
   >(null);
+  const [viewingMemberId, setViewingMemberId] = React.useState<string | null>(
+    null,
+  );
   const confirmingMember = members.find(
     (member) => member.userId === confirmingMemberId,
   );
@@ -54,7 +54,7 @@ export function GroupMembersSection({
   return (
     <div className="grid gap-2">
       <p className="text-muted-foreground px-1 text-xs font-semibold uppercase tracking-wide">
-        Members · {members.length}
+        {t("chat.group.membersSection.title", { count: members.length })}
       </p>
       <ItemGroup>
         {members.map((member) => {
@@ -65,33 +65,41 @@ export function GroupMembersSection({
 
           return (
             <Item key={member.userId} size="sm">
-              <ItemMedia>
+              <button
+                type="button"
+                className="focus-visible:ring-ring/50 -m-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-md p-1 text-left outline-none focus-visible:ring-[3px]"
+                onClick={() => setViewingMemberId(member.userId)}
+              >
                 <ConversationAvatar
                   title={member.displayName}
                   avatarUrl={member.avatarUrl}
                 />
-              </ItemMedia>
-              <ItemContent>
-                <ItemTitle>
-                  {member.displayName}
+                <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
+                  <span className="truncate">{member.displayName}</span>
                   {isSelf && (
                     <span className="text-muted-foreground font-normal">
-                      (You)
+                      {t("chat.group.membersSection.you")}
                     </span>
                   )}
-                  {isOwner && <Badge variant="secondary">Owner</Badge>}
-                </ItemTitle>
-              </ItemContent>
+                  {isOwner && (
+                    <Badge variant="secondary">
+                      {t("chat.group.membersSection.owner")}
+                    </Badge>
+                  )}
+                </span>
+              </button>
               {isRemovable && (
                 <ItemActions>
                   <Button
                     type="button"
                     size="icon-sm"
-                    variant="ghost"
+                    variant="outline"
                     className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full"
                     onClick={() => setConfirmingMemberId(member.userId)}
                     disabled={isRemoving}
-                    aria-label={`Remove ${member.displayName} from group`}
+                    aria-label={t("chat.group.membersSection.removeAria", {
+                      name: member.displayName,
+                    })}
                   >
                     {isRemoving ? (
                       <Loader2 className="size-4 animate-spin" />
@@ -106,6 +114,16 @@ export function GroupMembersSection({
         })}
       </ItemGroup>
 
+      {viewingMemberId && (
+        <UserDetailDialog
+          userId={viewingMemberId}
+          open
+          onOpenChange={(open) => {
+            if (!open) setViewingMemberId(null);
+          }}
+        />
+      )}
+
       <AlertDialog
         open={!!confirmingMember}
         onOpenChange={(open) => {
@@ -115,14 +133,18 @@ export function GroupMembersSection({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove {confirmingMember?.displayName}?
+              {t("chat.group.membersSection.confirmTitle", {
+                name: confirmingMember?.displayName ?? "",
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              They will no longer see this group's messages.
+              {t("chat.group.membersSection.confirmDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>
+              {t("chat.group.membersSection.cancel")}
+            </AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => {
@@ -130,7 +152,7 @@ export function GroupMembersSection({
                 setConfirmingMemberId(null);
               }}
             >
-              Remove
+              {t("chat.group.membersSection.remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

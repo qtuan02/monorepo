@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { matchPath, Outlet, useLocation } from "react-router";
 
@@ -49,12 +49,23 @@ export function ChatSocketProvider({
   const { mutate: markConversationAsSeen } =
     useMarkConversationAsSeenMutation();
 
+  // Read through a ref inside the handler so the user-wide subscription
+  // below survives a conversation switch: re-subscribing on every change
+  // opens a gap the broker does not buffer across, and an event landing in
+  // it is simply lost.
+  const screenRef = useRef({ activeConversationId, currentUserId });
+  useEffect(() => {
+    screenRef.current = { activeConversationId, currentUserId };
+  }, [activeConversationId, currentUserId]);
+
   useEffect(() => {
     if (!client || !isConnected) return;
 
     return subscribeToConversationUpdates(client, (event) => {
+      const screen = screenRef.current;
+
       if (event.eventType === ChatSocketEventType.CONVERSATION_SEEN) {
-        applyConversationSeenToCache(queryClient, event, currentUserId);
+        applyConversationSeenToCache(queryClient, event, screen.currentUserId);
         return;
       }
 
@@ -64,13 +75,16 @@ export function ChatSocketProvider({
 
       applyConversationUpdateToCache(queryClient, event, {
         unreadCount:
-          event.conversationId === activeConversationId &&
-          isFromOtherUser(event.lastMessage?.senderId ?? "", currentUserId)
+          event.conversationId === screen.activeConversationId &&
+          isFromOtherUser(
+            event.lastMessage?.senderId ?? "",
+            screen.currentUserId,
+          )
             ? 0
             : undefined,
       });
     });
-  }, [activeConversationId, client, currentUserId, isConnected, queryClient]);
+  }, [client, isConnected, queryClient]);
 
   useEffect(() => {
     if (!client || !isConnected || !activeConversationId) return;

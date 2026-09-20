@@ -1,10 +1,12 @@
 import * as React from "react";
 
 import { useIsMobile } from "@monorepo/hook/use-is-mobile";
+import { cn } from "@monorepo/ui/utils/cn";
 
+import { Island } from "~/components/island/island";
 import ConversationList from "~/features/conversation/components/conversation-list";
 import ConversationPanel from "~/features/conversation/components/conversation-panel";
-import { useDirectMessageDraft } from "~/features/conversation/hooks/use-direct-message-draft";
+import { useDirectMessageDraft } from "~/hooks/use-direct-message-draft";
 
 interface ConversationShellTemplateProps {
   conversationId?: string;
@@ -14,7 +16,9 @@ interface ConversationShellTemplateProps {
  * The public surface both `HomePage` (`/`) and `ConversationPage`
  * (`/conversation/:conversationId`) render. Below `md` it shows the list OR
  * the panel — never both — so a phone gets the source's list-then-chat flow
- * with no duplicate list mounted off-screen.
+ * with no duplicate list mounted off-screen. From `md` the list is its own
+ * Island beside the pane's, and Details a third one when open (brief §10 row
+ * 19) — `LayoutTemplate` hands this screen the bare column for that reason.
  *
  * A Draft conversation (CONTEXT.md) only ever shows on Home — a real
  * `conversationId` always wins, so it never overrides an actual screen.
@@ -32,48 +36,44 @@ export default function ConversationShellTemplate({
   const showDraft = !conversationId && draftUser;
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(false);
 
+  const panel = showDraft ? (
+    <ConversationPanel
+      draftUser={showDraft}
+      showBackButton={isMobile}
+      detailsOpen={isDetailsOpen}
+      onDetailsOpenChange={setIsDetailsOpen}
+    />
+  ) : (
+    <ConversationPanel
+      conversationId={conversationId}
+      showBackButton={isMobile}
+      detailsOpen={isDetailsOpen}
+      onDetailsOpenChange={setIsDetailsOpen}
+    />
+  );
+
   if (isMobile) {
-    if (conversationId) {
-      return (
-        <ConversationPanel
-          conversationId={conversationId}
-          showBackButton
-          detailsOpen={isDetailsOpen}
-          onDetailsOpenChange={setIsDetailsOpen}
-        />
-      );
-    }
-    if (showDraft) {
-      return (
-        <ConversationPanel
-          draftUser={showDraft}
-          showBackButton
-          detailsOpen={isDetailsOpen}
-          onDetailsOpenChange={setIsDetailsOpen}
-        />
-      );
-    }
-    return <ConversationList activeConversationId={conversationId} />;
+    if (conversationId || showDraft) return panel;
+    return (
+      <Island className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <ConversationList activeConversationId={conversationId} />
+      </Island>
+    );
   }
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <div className="border-border flex w-80 shrink-0 flex-col border-r">
+    <>
+      {/* Between `md` and `lg` three Islands do not fit — the open Details
+          takes the list's column rather than squeezing the pane. */}
+      <Island
+        className={cn(
+          "flex w-80 shrink-0 flex-col overflow-hidden",
+          isDetailsOpen && (conversationId || showDraft) && "max-lg:hidden",
+        )}
+      >
         <ConversationList activeConversationId={conversationId} />
-      </div>
-      {showDraft ? (
-        <ConversationPanel
-          draftUser={showDraft}
-          detailsOpen={isDetailsOpen}
-          onDetailsOpenChange={setIsDetailsOpen}
-        />
-      ) : (
-        <ConversationPanel
-          conversationId={conversationId}
-          detailsOpen={isDetailsOpen}
-          onDetailsOpenChange={setIsDetailsOpen}
-        />
-      )}
-    </div>
+      </Island>
+      {panel}
+    </>
   );
 }

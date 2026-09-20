@@ -65,7 +65,12 @@ describe("ChatAuthService", () => {
     const service = new ChatAuthService(clientWith(post));
 
     await expect(service.refresh()).resolves.toBe("refreshed-token");
-    expect(post).toHaveBeenCalledWith("/v1/auth/refresh");
+    // `skipAuthRetry` so a 401 here rejects immediately instead of awaiting
+    // the very `onAuthError` call this request's failure would be needed to
+    // resolve — see client.test.ts's "does not deadlock" case.
+    expect(post).toHaveBeenCalledWith("/v1/auth/refresh", undefined, {
+      skipAuthRetry: true,
+    });
   });
 
   it("lets a failure through rather than translating it", async () => {

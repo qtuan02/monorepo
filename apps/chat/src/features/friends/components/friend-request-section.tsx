@@ -1,10 +1,13 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
+import { FriendStatus } from "@monorepo/types/chat-friend";
 import { Button } from "@monorepo/ui/components/button";
 import { ItemGroup } from "@monorepo/ui/components/item";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
-import { FriendRequestRow } from "~/features/friends/components/friend-request-row";
+import { UserItem } from "~/components/user-item";
+import { PEOPLE_GRID_CLASS_NAME } from "~/features/friends/constants/people-grid";
 import {
   useAcceptFriendRequestMutation,
   useCancelFriendRequestMutation,
@@ -14,15 +17,44 @@ import {
 
 function RequestListSkeleton() {
   return (
-    <div className="grid gap-2">
-      <Skeleton className="h-16 rounded-xl" />
-      <Skeleton className="h-16 rounded-xl" />
+    <div className={PEOPLE_GRID_CLASS_NAME}>
+      <Skeleton className="h-15 rounded-md" />
+      <Skeleton className="h-15 rounded-md" />
     </div>
+  );
+}
+
+function RequestGroup({
+  title,
+  count,
+  emptyText,
+  children,
+}: {
+  title: string;
+  count: number;
+  emptyText: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="grid gap-3">
+      <h2 className="text-muted-foreground flex items-center gap-2 text-xs font-medium tracking-wide uppercase">
+        {title}
+        <span className="bg-muted text-foreground rounded-full px-1.5 py-px text-[11px] tabular-nums">
+          {count}
+        </span>
+      </h2>
+      {count === 0 ? (
+        <p className="text-muted-foreground text-sm">{emptyText}</p>
+      ) : (
+        <ItemGroup className={PEOPLE_GRID_CLASS_NAME}>{children}</ItemGroup>
+      )}
+    </section>
   );
 }
 
 /** The `Requests` tab body — see friends.template.tsx. */
 export function FriendRequestSection() {
+  const { t } = useTranslation();
   const [processingRequestId, setProcessingRequestId] = React.useState<
     string | null
   >(null);
@@ -80,7 +112,7 @@ export function FriendRequestSection() {
     return (
       <div className="flex flex-col items-start gap-2">
         <p className="text-destructive text-sm">
-          Couldn't load friend requests.
+          {t("chat.friends.requests.error")}
         </p>
         <Button
           type="button"
@@ -88,58 +120,48 @@ export function FriendRequestSection() {
           variant="outline"
           onClick={() => requestsQuery.refetch()}
         >
-          Retry
+          {t("chat.friends.retry")}
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-5">
-      <div className="grid gap-2">
-        <p className="text-muted-foreground px-1 text-xs font-medium tracking-wide uppercase">
-          Received
-        </p>
-        {receivedRequests.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No received requests.</p>
-        ) : (
-          <ItemGroup>
-            {receivedRequests.map((request) => (
-              <FriendRequestRow
-                key={request.id}
-                requestId={request.id}
-                requestUser={request.fromUser}
-                variant="received"
-                isProcessing={processingRequestId === request.id}
-                onAccept={handleAccept}
-                onDecline={handleDecline}
-              />
-            ))}
-          </ItemGroup>
-        )}
-      </div>
+    <div className="grid gap-6">
+      <RequestGroup
+        title={t("chat.friends.requests.received")}
+        count={receivedRequests.length}
+        emptyText={t("chat.friends.requests.noReceived")}
+      >
+        {receivedRequests.map((request) => (
+          <UserItem
+            key={request.id}
+            user={request.fromUser}
+            friendStatus={FriendStatus.RECEIVED}
+            requestId={request.id}
+            isActionPending={processingRequestId === request.id}
+            onAccept={handleAccept}
+            onDecline={handleDecline}
+          />
+        ))}
+      </RequestGroup>
 
-      <div className="grid gap-2">
-        <p className="text-muted-foreground px-1 text-xs font-medium tracking-wide uppercase">
-          Sent
-        </p>
-        {sentRequests.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No sent requests.</p>
-        ) : (
-          <ItemGroup>
-            {sentRequests.map((request) => (
-              <FriendRequestRow
-                key={request.id}
-                requestId={request.id}
-                requestUser={request.toUser}
-                variant="sent"
-                isProcessing={processingRequestId === request.id}
-                onCancel={handleCancel}
-              />
-            ))}
-          </ItemGroup>
-        )}
-      </div>
+      <RequestGroup
+        title={t("chat.friends.requests.sent")}
+        count={sentRequests.length}
+        emptyText={t("chat.friends.requests.noSent")}
+      >
+        {sentRequests.map((request) => (
+          <UserItem
+            key={request.id}
+            user={request.toUser}
+            friendStatus={FriendStatus.SENT}
+            requestId={request.id}
+            isActionPending={processingRequestId === request.id}
+            onCancelRequest={handleCancel}
+          />
+        ))}
+      </RequestGroup>
     </div>
   );
 }

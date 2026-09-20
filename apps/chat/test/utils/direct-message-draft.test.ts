@@ -4,7 +4,7 @@ import {
   createDraftConversationId,
   getDraftUserFromLocationState,
   isDraftConversationId,
-} from "~/features/conversation/utils/direct-message-draft";
+} from "~/utils/direct-message-draft";
 
 const USER = {
   id: "u2",

@@ -27,7 +27,7 @@ export function useGroupActions({
   const removeMember = useRemoveGroupMemberMutation({
     onSettled: () => setRemovingMemberId(null),
   });
-  const leaveGroup = useLeaveGroupMutation({ onSuccess: onLeft });
+  const leaveGroup = useLeaveGroupMutation();
 
   const handleRenameGroup = (name: string) => {
     renameGroup.mutate({ conversationId, params: { name } });
@@ -43,7 +43,7 @@ export function useGroupActions({
   };
 
   const handleLeaveGroup = () => {
-    leaveGroup.mutate(conversationId);
+    leaveGroup.mutate(conversationId, { onSuccess: onLeft });
   };
 
   return {

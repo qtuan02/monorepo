@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { buttonVariants } from "@monorepo/ui/components/button";
@@ -13,12 +14,14 @@ import { ROUTES } from "~/constants/routes";
  * its content, not a second Island.
  */
 export default function NotFound() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
       <BrandMark />
-      <h1 className="text-2xl font-bold">404 Not Found</h1>
+      <h1 className="text-2xl font-bold">{t("chat.common.notFoundTitle")}</h1>
       <p className="text-muted-foreground max-w-sm text-sm">
-        The page you are looking for does not exist or has been moved.
+        {t("chat.common.notFoundDescription")}
       </p>
       {/* A navigation link styled as a button — never `Button` itself, which
           assumes a native <button> (see .agents/rules/architecture-ui-
@@ -27,7 +30,7 @@ export default function NotFound() {
         to={ROUTES.HOME}
         className={cn(buttonVariants(), "mt-2 h-11 gap-1.5")}
       >
-        Back to Chats
+        {t("chat.common.backToChats")}
         <ArrowRight className="size-4" aria-hidden="true" />
       </Link>
     </div>

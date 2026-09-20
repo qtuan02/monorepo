@@ -1,5 +1,6 @@
 import type {
   AxiosAdapter,
+  AxiosRequestConfig,
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
@@ -412,6 +413,43 @@ describe("createHttpClient — onAuthError (401/403 refresh + retry)", () => {
       id: "1",
     });
     expect(calls[1]?.headers.get("Authorization")).toBe("Bearer new-token");
+  });
+
+  it("does not deadlock when the refresh call itself fails, marked skipAuthRetry", async () => {
+    // Mirrors ChatAuthService.refresh(): onAuthError makes a real call
+    // through the SAME client, and that call also 401s. Without
+    // `skipAuthRetry` its failure re-enters this branch and awaits the very
+    // `refreshing` promise it is needed to resolve — a deadlock that never
+    // calls onUnauthorized and never rejects, which is what this test would
+    // time out on if the fix regressed.
+    const { adapter } = stubAdapter(() => ({ status: 401, data: {} }));
+    const onUnauthorized = vi.fn();
+    // Referenced before its own declaration below — safe because the
+    // closure only runs later, once `client` has settled (same shape as
+    // `apps/chat/src/libs/http-client.ts`'s `chatAuthService` reference).
+    const client: ReturnType<typeof createHttpClient> = createHttpClient({
+      baseURL: BASE_URL,
+      onUnauthorized,
+      onAuthError: async () => {
+        try {
+          await client.post("/auth/refresh", undefined, {
+            adapter,
+            skipAuthRetry: true,
+          } as AxiosRequestConfig);
+          return "new-token";
+        } catch {
+          return null;
+        }
+      },
+    });
+
+    const error = await rejection(client.get("/templates", { adapter }));
+
+    expect(error.statusCode).toBe(401);
+    // Once for the refresh call's own 401, once for the original request's —
+    // both fire (the app's `clearSession` is idempotent either way), but the
+    // point of this test is that BOTH settle at all instead of hanging.
+    expect(onUnauthorized).toHaveBeenCalledTimes(2);
   });
 
   it("passes withCredentials through to axios", async () => {

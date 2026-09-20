@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
 import { toast } from "@monorepo/ui/components/toast";
@@ -11,6 +12,7 @@ import { useAuthStore } from "~/stores/use-auth-store";
  * both end a mutation with the same access token and the same landing.
  */
 export function useSignInSuccess() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const setToken = useAuthStore((state) => state.setToken);
 
@@ -19,7 +21,7 @@ export function useSignInSuccess() {
     // in, the same reason ~/libs/http-client's onUnauthorized clears it.
     queryClient.clear();
     setToken(accessToken);
-    toast.add({ title: "Signed in successfully.", type: "success" });
+    toast.add({ title: t("chat.auth.toast.signedIn"), type: "success" });
     navigate(ROUTES.HOME, { replace: true });
   };
 }

@@ -1,5 +1,7 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
+import { defaultLanguage } from "@monorepo/i18n/languages";
 import {
   Item,
   ItemActions,
@@ -31,6 +33,7 @@ export default function ConversationListItem({
   conversation,
   active,
 }: ConversationListItemProps) {
+  const { i18n } = useTranslation();
   const hasUnread = conversation.unreadCount > 0;
   const isOtherMemberOnline = useSocketStore((state) =>
     conversation.otherMemberId
@@ -43,8 +46,12 @@ export default function ConversationListItem({
       size="sm"
       render={<Link to={ROUTES.conversationByIdPath(conversation.id)} />}
       className={cn(
-        "mx-2 my-0.5",
-        active ? "bg-card shadow-sm" : "hover:bg-accent",
+        // `w-auto`: Item is `w-full`, and 100% + the side margins is exactly
+        // the 16px that used to make the Virtuoso scroller scroll sideways.
+        "mx-2 my-0.5 w-auto rounded-xl transition-colors",
+        active
+          ? "bg-background ring-border/60 shadow-sm ring-1"
+          : "hover:bg-accent",
       )}
     >
       <ItemMedia>
@@ -52,9 +59,13 @@ export default function ConversationListItem({
           title={conversation.title}
           avatarUrl={conversation.avatarUrl}
           online={isOtherMemberOnline}
+          className="size-10"
         />
       </ItemMedia>
-      <ItemContent>
+      {/* `min-w-0`: ItemContent is `flex-1` with the default min-width:auto,
+          so one long unbroken preview token would widen the row past the
+          list and put a horizontal scrollbar on it. */}
+      <ItemContent className="min-w-0">
         <ItemTitle className="w-full min-w-0 justify-between">
           <span
             className={cn(
@@ -66,13 +77,16 @@ export default function ConversationListItem({
           </span>
           {conversation.lastMessageAt && (
             <span className="text-muted-foreground shrink-0 text-xs font-normal tabular-nums">
-              {formatConversationTimestamp(conversation.lastMessageAt)}
+              {formatConversationTimestamp(
+                conversation.lastMessageAt,
+                i18n.resolvedLanguage ?? defaultLanguage,
+              )}
             </span>
           )}
         </ItemTitle>
         <ItemDescription
           className={cn(
-            "line-clamp-1",
+            "line-clamp-1 wrap-anywhere",
             hasUnread && "text-foreground font-medium",
           )}
         >
@@ -81,7 +95,7 @@ export default function ConversationListItem({
       </ItemContent>
       {hasUnread && (
         <ItemActions>
-          <span className="bg-primary text-primary-foreground flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-xs font-medium">
+          <span className="bg-primary text-primary-foreground flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-semibold tabular-nums">
             {conversation.unreadCount > 99 ? "99+" : conversation.unreadCount}
           </span>
         </ItemActions>

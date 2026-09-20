@@ -1,4 +1,5 @@
 import { Controller } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import type { ChatCreateGroupParams } from "@monorepo/types/chat-conversation";
 import { Button } from "@monorepo/ui/components/button";
@@ -33,13 +34,9 @@ export function CreateGroupDialog({
   onOpenChange,
   onCreated,
 }: CreateGroupDialogProps) {
+  const { t } = useTranslation();
   const { form, selectedMemberIds } = useCreateGroupDialog({ isOpen: open });
-  const createGroup = useCreateGroupMutation({
-    onSuccess: (conversation) => {
-      onOpenChange(false);
-      onCreated(conversation.id);
-    },
-  });
+  const createGroup = useCreateGroupMutation();
 
   const onSubmit = form.handleSubmit((values) => {
     const payload: ChatCreateGroupParams = {
@@ -47,16 +44,21 @@ export function CreateGroupDialog({
       name: values.name,
       memberIds: [...new Set(values.memberIds)],
     };
-    createGroup.mutate(payload);
+    createGroup.mutate(payload, {
+      onSuccess: (conversation) => {
+        onOpenChange(false);
+        onCreated(conversation.id);
+      },
+    });
   });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Create group conversation</DialogTitle>
+          <DialogTitle>{t("chat.group.create.title")}</DialogTitle>
           <DialogDescription>
-            Pick a group name and at least one friend to start a new group chat.
+            {t("chat.group.create.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -72,11 +74,13 @@ export function CreateGroupDialog({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor={field.name}>Group name</FieldLabel>
+                  <FieldLabel htmlFor={field.name}>
+                    {t("chat.group.create.nameLabel")}
+                  </FieldLabel>
                   <Input
                     {...field}
                     id={field.name}
-                    placeholder="Team Alpha"
+                    placeholder={t("chat.group.create.namePlaceholder")}
                     disabled={createGroup.isPending}
                     aria-invalid={fieldState.invalid}
                   />
@@ -104,11 +108,11 @@ export function CreateGroupDialog({
         <DialogFooter>
           <Button
             type="button"
-            variant="ghost"
+            variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={createGroup.isPending}
           >
-            Cancel
+            {t("chat.group.create.cancel")}
           </Button>
           <Button
             type="submit"
@@ -120,8 +124,12 @@ export function CreateGroupDialog({
             }
           >
             {createGroup.isPending
-              ? "Creating..."
-              : `Create${selectedMemberIds.length > 0 ? ` (${selectedMemberIds.length})` : ""}`}
+              ? t("chat.group.create.submitting")
+              : selectedMemberIds.length === 0
+                ? t("chat.group.create.submit")
+                : t("chat.group.create.submitWithCount", {
+                    count: selectedMemberIds.length,
+                  })}
           </Button>
         </DialogFooter>
       </DialogContent>

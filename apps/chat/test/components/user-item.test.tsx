@@ -46,12 +46,53 @@ describe("UserItem", () => {
     expect(onCancelRequest).toHaveBeenCalledWith("r1");
   });
 
-  it("shows a disabled Request received button for FriendStatus.RECEIVED", () => {
+  it("shows a disabled Request received button for FriendStatus.RECEIVED with no request to act on", () => {
     render(<UserItem user={USER} friendStatus={FriendStatus.RECEIVED} />);
 
     expect(
       screen.getByRole("button", { name: "Request received" }),
     ).toBeDisabled();
+  });
+
+  it("shows Accept + Decline for a RECEIVED request, calling back with the requestId", async () => {
+    const user = userEvent.setup();
+    const onAccept = vi.fn();
+    const onDecline = vi.fn();
+    render(
+      <UserItem
+        user={USER}
+        friendStatus={FriendStatus.RECEIVED}
+        requestId="r1"
+        onAccept={onAccept}
+        onDecline={onDecline}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Accept" }));
+    expect(onAccept).toHaveBeenCalledWith("r1");
+
+    // Story 52 — Decline is an outline button, never destructive: declining
+    // isn't the irreversible action Unfriend keeps its red confirm dialog for.
+    const decline = screen.getByRole("button", { name: "Decline" });
+    await user.click(decline);
+    expect(onDecline).toHaveBeenCalledWith("r1");
+    expect(decline).not.toHaveClass("bg-destructive/10");
+  });
+
+  it("never renders a ghost action — the secondary button is outline", () => {
+    render(
+      <UserItem
+        user={USER}
+        friendStatus={FriendStatus.FRIEND}
+        onMessage={vi.fn()}
+        onUnfriend={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Unfriend" })).toHaveAttribute(
+      "data-variant",
+      "outline",
+    );
   });
 
   it("shows Message and Unfriend for FriendStatus.FRIEND", () => {
@@ -93,8 +134,8 @@ describe("UserItem", () => {
     expect(onUnfriend).toHaveBeenCalledWith("u2");
   });
 
-  describe("on a mobile viewport (story 51)", () => {
-    it("keeps every action at a 44px touch target, back to the primitive default from md", () => {
+  describe("on a mobile viewport (story 51, brief §1.7)", () => {
+    it("keeps every action at a 36px touch target, down to the compact 32px from md", () => {
       render(
         <UserItem
           user={USER}
@@ -105,12 +146,12 @@ describe("UserItem", () => {
       );
 
       expect(screen.getByRole("button", { name: "Message" })).toHaveClass(
-        "h-11",
-        "md:h-9",
+        "h-9",
+        "md:h-8",
       );
       expect(screen.getByRole("button", { name: "Unfriend" })).toHaveClass(
-        "h-11",
-        "md:h-9",
+        "h-9",
+        "md:h-8",
       );
     });
   });

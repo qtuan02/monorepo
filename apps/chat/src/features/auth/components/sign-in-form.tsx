@@ -1,5 +1,7 @@
+import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 import { Button } from "@monorepo/ui/components/button";
@@ -14,15 +16,19 @@ import { Input } from "@monorepo/ui/components/input";
 import type { SignInFormValues } from "~/features/auth/types/sign-in-form";
 import { ROUTES } from "~/constants/routes";
 import { useSignInSuccess } from "~/features/auth/hooks/use-sign-in-success";
-import { signInFormSchema } from "~/features/auth/types/sign-in-form";
+import { createSignInFormSchema } from "~/features/auth/types/sign-in-form";
 import { useSignInMutation } from "~/hooks/api/auth";
 
 export default function SignInForm() {
+  const { t } = useTranslation();
   const handleSuccess = useSignInSuccess();
   const signIn = useSignInMutation({ onSuccess: handleSuccess });
 
+  // Rebuilt on every language switch — see createSignInFormSchema.
+  const schema = React.useMemo(() => createSignInFormSchema(t), [t]);
+
   const form = useForm<SignInFormValues>({
-    resolver: zodResolver(signInFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: { username: "", password: "" },
   });
 
@@ -35,25 +41,27 @@ export default function SignInForm() {
       onSubmit={onSubmit}
     >
       <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-2xl font-bold">Welcome back</h1>
+        <h1 className="text-2xl font-bold">{t("chat.auth.signIn.title")}</h1>
         <p className="text-muted-foreground text-sm">
-          Login to your Chat application
+          {t("chat.auth.signIn.subtitle")}
         </p>
       </div>
 
-      <FieldGroup>
+      <FieldGroup className="gap-4">
         <Controller
           name="username"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Username</FieldLabel>
+            <Field className="gap-1.5" data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>
+                {t("chat.auth.field.username")}
+              </FieldLabel>
               <Input
                 {...field}
                 id={field.name}
                 type="text"
                 autoComplete="username"
-                placeholder="your-username"
+                placeholder={t("chat.auth.field.usernamePlaceholder")}
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -65,14 +73,16 @@ export default function SignInForm() {
           name="password"
           control={form.control}
           render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+            <Field className="gap-1.5" data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor={field.name}>
+                {t("chat.auth.field.password")}
+              </FieldLabel>
               <Input
                 {...field}
                 id={field.name}
                 type="password"
                 autoComplete="current-password"
-                placeholder="Enter your password"
+                placeholder={t("chat.auth.field.passwordPlaceholder")}
                 aria-invalid={fieldState.invalid}
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -85,17 +95,19 @@ export default function SignInForm() {
           disabled={signIn.isPending}
           className="h-11 w-full"
         >
-          {signIn.isPending ? "Signing in..." : "Sign in"}
+          {signIn.isPending
+            ? t("chat.auth.signIn.submitting")
+            : t("chat.auth.signIn.submit")}
         </Button>
       </FieldGroup>
 
       <p className="text-muted-foreground text-center text-sm">
-        Don&apos;t have an account?{" "}
+        {t("chat.auth.signIn.noAccount")}{" "}
         <Link
           to={ROUTES.SIGN_UP}
           className="text-primary font-medium hover:underline"
         >
-          Sign up
+          {t("chat.auth.signIn.signUpLink")}
         </Link>
       </p>
     </form>

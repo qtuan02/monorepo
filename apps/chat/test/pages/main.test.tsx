@@ -1,5 +1,12 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -11,6 +18,7 @@ import {
   ChatConversationType,
   ChatParticipantRole,
 } from "@monorepo/types/chat-conversation";
+import { FriendStatus } from "@monorepo/types/chat-friend";
 import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import { ROUTES } from "~/constants/routes";
@@ -263,12 +271,16 @@ describe("the route tree", () => {
       screen.queryByText("Still connecting — the server may be waking up"),
     ).not.toBeInTheDocument();
 
-    await act(() => vi.advanceTimersByTimeAsync(9_999));
+    // Two 5s steps rather than a 9_999/+1 split: `shouldAdvanceTime` also
+    // ticks the mock clock by whatever real wall-time the render itself
+    // took, so a boundary with no margin flakes on any extra render cost
+    // (e.g. BootIsland's own useTranslation() subscription).
+    await act(() => vi.advanceTimersByTimeAsync(5_000));
     expect(
       screen.queryByText("Still connecting — the server may be waking up"),
     ).not.toBeInTheDocument();
 
-    await act(() => vi.advanceTimersByTimeAsync(1));
+    await act(() => vi.advanceTimersByTimeAsync(5_000));
     expect(
       screen.getByText("Still connecting — the server may be waking up"),
     ).toBeInTheDocument();
@@ -436,10 +448,13 @@ describe("the route tree", () => {
         expect(chats).not.toHaveAttribute("aria-current");
         expect(profile).not.toHaveAttribute("aria-current");
 
-        // Chats badge: conversations with unread > 0 (2), not the total (6).
-        expect(await within(chats).findByText("2")).toBeInTheDocument();
-        // Friends badge: pending received requests (1).
+        // Friends badge: pending received requests (1) — this screen owns
+        // that query, so the badge reads it off the cache.
         expect(await within(friends).findByText("1")).toBeInTheDocument();
+        // The nav is not the reason /friends loads conversations: the badge
+        // only reads the cache, and nothing on this screen fetched the list.
+        expect(chatConversationGetConversations).not.toHaveBeenCalled();
+        expect(within(chats).queryByText("2")).not.toBeInTheDocument();
 
         expect(screen.queryAllByRole("navigation")).toHaveLength(1);
       });
@@ -486,9 +501,13 @@ describe("the route tree", () => {
 
           const chats = within(nav).getByRole("link", { name: /Chats/ });
           const me = within(nav).getByRole("link", { name: /Me/ });
+          // Chats badge: conversations with unread > 0 (2), not the total (6).
           expect(await within(chats).findByText("2")).toBeInTheDocument();
           expect(chats).toHaveAttribute("aria-current", "page");
           expect(me).not.toHaveAttribute("aria-current");
+          // And the mirror: the conversation list does not load the request
+          // queue on its way in.
+          expect(chatFriendRequests).not.toHaveBeenCalled();
         });
 
         it("hides the Bottom nav once a real conversation is open", async () => {
@@ -746,8 +765,21 @@ describe("the route tree", () => {
         expect(screen.getByText("Lan Nguyen")).toBeInTheDocument();
       });
 
-      it("offers Find people when a search matches no conversation", async () => {
+      it("searches people alongside chats — friend or not — and opens a Draft conversation from a result", async () => {
         const user = userEvent.setup();
+        chatUserSearch.mockResolvedValue({
+          items: [
+            {
+              id: "u3",
+              username: "an.pham",
+              firstName: "An",
+              lastName: "Pham",
+              joinedAt: "2026-09-01T00:00:00.000Z",
+              statusFriend: FriendStatus.NONE,
+            },
+          ],
+          nextOffset: null,
+        });
         chatConversationGetConversations.mockResolvedValue({
           items: [
             {
@@ -779,59 +811,51 @@ describe("the route tree", () => {
         renderAt(ROUTES.HOME);
 
         await screen.findByText("Lan Nguyen");
-        await user.type(screen.getByPlaceholderText("Search"), "zzz");
-
-        expect(
-          await screen.findByText("No results for 'zzz'"),
-        ).toBeInTheDocument();
-        const findPeopleLink = screen.getByRole("link", {
-          name: "Search people instead →",
-        });
-        expect(findPeopleLink).toHaveAttribute("href", "/friends?tab=find");
-      });
-
-      it("opens a Draft conversation with a friend picked from New message", async () => {
-        const user = userEvent.setup();
-        chatConversationGetConversations.mockResolvedValue({
-          items: [],
-          nextCursor: null,
-        });
-        chatFriendList.mockResolvedValue({
-          items: [
-            {
-              id: "u3",
-              username: "an.pham",
-              firstName: "An",
-              lastName: "Pham",
-              joinedAt: "2026-09-01T00:00:00.000Z",
-            },
-          ],
-          nextOffset: null,
-        });
-
-        renderAt(ROUTES.HOME);
-
-        await screen.findByRole("button", { name: "New message" });
-        await user.click(screen.getByRole("button", { name: "New" }));
-        await user.click(
-          await screen.findByRole("menuitem", { name: "New message" }),
+        await user.type(
+          screen.getByPlaceholderText("Search chats and people"),
+          "pham",
         );
-        await user.click(await screen.findByText("An Pham"));
+
+        // No loaded chat matches "pham", so only the People section shows —
+        // and a stranger (statusFriend NONE) is still a result.
+        expect(await screen.findByText("An Pham")).toBeInTheDocument();
+        expect(screen.queryByText("Lan Nguyen")).not.toBeInTheDocument();
+        expect(chatUserSearch).toHaveBeenCalledWith(
+          expect.objectContaining({ search: "pham" }),
+        );
+
+        await user.click(screen.getByText("An Pham"));
 
         expect(
           await screen.findByRole("heading", { name: "An Pham" }),
         ).toBeInTheDocument();
       });
 
-      it("shows the empty state with a New message action when there are no conversations", async () => {
+      it("opens Create group straight from the + button, with no menu in between", async () => {
+        const user = userEvent.setup();
+        renderAt(ROUTES.HOME);
+
+        await user.click(
+          await screen.findByRole("button", { name: "New group" }),
+        );
+
+        expect(
+          await screen.findByRole("heading", {
+            name: "Create group conversation",
+          }),
+        ).toBeInTheDocument();
+      });
+
+      it("shows the empty state pointing at search when there are no conversations", async () => {
         renderAt(ROUTES.HOME);
 
         expect(
           await screen.findByText("No conversations yet"),
         ).toBeInTheDocument();
+        // Starting a chat is the search box's job now — no second entry.
         expect(
-          screen.getByRole("button", { name: "New message" }),
-        ).toBeInTheDocument();
+          screen.queryByRole("button", { name: "New message" }),
+        ).not.toBeInTheDocument();
       });
 
       it("renders a conversation's message history and the other person's name at /conversation/:id", async () => {
@@ -1073,14 +1097,14 @@ describe("the route tree", () => {
 
         expect(await screen.findByText("Minh Tran")).toBeInTheDocument();
         expect(
-          screen.getByRole("button", { name: "Accept friend request" }),
+          screen.getByRole("button", { name: "Accept" }),
         ).toBeInTheDocument();
         expect(
-          screen.getByRole("button", { name: "Decline friend request" }),
+          screen.getByRole("button", { name: "Decline" }),
         ).toBeInTheDocument();
         expect(screen.getByText("Hoa Pham")).toBeInTheDocument();
         expect(
-          screen.getByRole("button", { name: "Cancel friend request" }),
+          screen.getByRole("button", { name: "Cancel request" }),
         ).toBeInTheDocument();
 
         // Switching to Friends leaves Requests' content unmounted.
@@ -1133,6 +1157,63 @@ describe("the route tree", () => {
         // username line is the page's own, unambiguous evidence.
         expect(await screen.findByText("@tuanhq02")).toBeInTheDocument();
         expect(screen.getAllByText("Tuan Huynh").length).toBeGreaterThan(0);
+      });
+
+      it("edits in place — Edit profile swaps the fields for inputs, Save writes and returns to view", async () => {
+        const user = userEvent.setup();
+        chatUserUpdateMe.mockImplementation(async (payload) => ({
+          ...CURRENT_USER,
+          ...payload,
+        }));
+
+        renderAt(ROUTES.PROFILE);
+
+        await screen.findByText("@tuanhq02");
+        // View mode: values are text, no inputs and no Save.
+        expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+
+        await user.click(screen.getByRole("button", { name: "Edit profile" }));
+
+        const firstName = await screen.findByRole("textbox", {
+          name: "First name",
+        });
+        expect(firstName).toHaveValue("Tuan");
+        await user.clear(firstName);
+        await user.type(firstName, "Anh");
+        await user.type(
+          screen.getByRole("textbox", { name: "Email" }),
+          "tuan@example.com",
+        );
+        await user.click(screen.getByRole("button", { name: "Save" }));
+
+        expect(chatUserUpdateMe).toHaveBeenCalledWith(
+          expect.objectContaining({ firstName: "Anh", username: "tuanhq02" }),
+        );
+        // Back in view mode, showing the saved profile.
+        expect(
+          await screen.findByRole("button", { name: "Edit profile" }),
+        ).toBeInTheDocument();
+        expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+        expect(screen.getAllByText("Anh Huynh").length).toBeGreaterThan(0);
+      });
+
+      it("opens straight into edit mode from the Rail menu's Edit profile", async () => {
+        const user = userEvent.setup();
+        renderAt(ROUTES.HOME);
+
+        await user.click(
+          await screen.findByRole("button", { name: "Tuan Huynh" }),
+        );
+        fireEvent.click(
+          await screen.findByRole("menuitem", { name: "Edit profile" }),
+        );
+
+        expect(
+          await screen.findByRole("textbox", { name: "First name" }),
+        ).toHaveValue("Tuan");
+        expect(
+          screen.getByRole("button", { name: "Save" }),
+        ).toBeInTheDocument();
       });
     });
 
@@ -1324,9 +1405,11 @@ describe("the route tree", () => {
 
         expect(panel.getByText("Lan Nguyen")).toBeInTheDocument();
         expect(panel.getByText("@lan")).toBeInTheDocument();
+        // "View profile" opens the shared read-only detail dialog — its own
+        // content is covered in test/components/user-detail-dialog.test.tsx.
         expect(
           panel.getByRole("button", { name: "View profile" }),
-        ).toBeDisabled();
+        ).toBeEnabled();
 
         await user.click(panel.getByRole("button", { name: "Unfriend" }));
         await user.click(await screen.findByRole("button", { name: "Remove" }));

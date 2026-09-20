@@ -1,7 +1,16 @@
 import "@testing-library/jest-dom/vitest";
 
 import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
+import { afterEach, beforeAll } from "vitest";
+
+import i18n from "~/libs/i18n";
+
+// Wires the real catalogue so `t("chat.…")` resolves to the string a user
+// reads. Pinned to `en` — the copy the tests assert — because the detector
+// would otherwise pick up jsdom's `navigator.language` per machine.
+beforeAll(async () => {
+  await i18n.changeLanguage("en");
+});
 
 // jsdom has no `ResizeObserver` — react-virtuoso (the conversation/message
 // lists) observes its scroller to size itself, and would throw on mount.

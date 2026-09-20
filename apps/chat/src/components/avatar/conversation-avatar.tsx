@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 import {
   Avatar,
   AvatarBadge,
@@ -5,14 +7,7 @@ import {
   AvatarImage,
 } from "@monorepo/ui/components/avatar";
 
-export function getInitials(title: string): string {
-  const words = title.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "?";
-
-  const first = words[0]?.[0] ?? "";
-  const last = words.length > 1 ? (words[words.length - 1]?.[0] ?? "") : "";
-  return `${first}${last}`.toUpperCase();
-}
+import { getInitials } from "~/utils/display";
 
 interface ConversationAvatarProps {
   title: string;
@@ -30,11 +25,18 @@ export function ConversationAvatar({
   online,
   className,
 }: ConversationAvatarProps) {
+  const { t } = useTranslation();
+
   return (
     <Avatar className={className}>
       {avatarUrl && <AvatarImage src={avatarUrl} alt="" />}
       <AvatarFallback>{getInitials(title)}</AvatarFallback>
-      {online && <AvatarBadge aria-label="Online" className="bg-online" />}
+      {online && (
+        <AvatarBadge
+          aria-label={t("chat.common.onlineLabel")}
+          className="bg-online"
+        />
+      )}
     </Avatar>
   );
 }

@@ -13,6 +13,7 @@ import { ChatMessageType } from "@monorepo/types/chat-message";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposer from "~/features/conversation/components/message-composer";
+import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import { useAuthStore } from "~/stores/use-auth-store";
 
 const CURRENT_USER: ChatUserProfile = {
@@ -80,7 +81,9 @@ function renderComposer(
   });
   render(
     <QueryClientProvider client={queryClient}>
-      <MessageComposer conversation={conversation} onSent={onSent} />
+      <ThemeProvider>
+        <MessageComposer conversation={conversation} onSent={onSent} />
+      </ThemeProvider>
     </QueryClientProvider>,
   );
 }

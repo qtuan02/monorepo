@@ -9,7 +9,7 @@ interface NavItemDef {
   key: NavItemKey;
   to: string;
   icon: LucideIcon;
-  /** The Rail's own label (brief §3.1). */
+  /** The Rail's own label (brief §3.1) — a `chat.nav.*` message key. */
   railLabel: string;
   /** The Bottom nav's — "Me" rather than "Profile" (decision #10). */
   bottomLabel: string;
@@ -21,21 +21,21 @@ export const NAV_ITEMS: NavItemDef[] = [
     key: "chats",
     to: ROUTES.HOME,
     icon: MessageCircle,
-    railLabel: "Chats",
-    bottomLabel: "Chats",
+    railLabel: "chat.nav.chats",
+    bottomLabel: "chat.nav.chats",
   },
   {
     key: "friends",
     to: ROUTES.FRIENDS,
     icon: Users,
-    railLabel: "Friends",
-    bottomLabel: "Friends",
+    railLabel: "chat.nav.friends",
+    bottomLabel: "chat.nav.friends",
   },
   {
     key: "profile",
     to: ROUTES.PROFILE,
     icon: UserRound,
-    railLabel: "Profile",
-    bottomLabel: "Me",
+    railLabel: "chat.nav.profile",
+    bottomLabel: "chat.nav.me",
   },
 ];

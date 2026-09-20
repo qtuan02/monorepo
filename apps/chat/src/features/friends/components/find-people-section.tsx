@@ -1,10 +1,12 @@
 import * as React from "react";
 import { Search, UserSearch } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useDebounce } from "@monorepo/hook/use-debounce";
 import { Button } from "@monorepo/ui/components/button";
 import {
   Empty,
+  EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
@@ -14,17 +16,19 @@ import { ItemGroup } from "@monorepo/ui/components/item";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
 import { UserItem } from "~/components/user-item";
-import { useOpenDirectConversation } from "~/hooks/api/conversation";
+import { PEOPLE_GRID_CLASS_NAME } from "~/features/friends/constants/people-grid";
 import {
   useCancelFriendRequestMutation,
   useSendFriendRequestMutation,
 } from "~/hooks/api/friend";
 import { useUserSearchInfiniteQuery } from "~/hooks/api/user";
+import { useOpenDirectConversation } from "~/hooks/use-open-direct-conversation";
 
 const SEARCH_DEBOUNCE_MS = 500;
 
 /** The `Find people` tab body — see friends.template.tsx. */
 export function FindPeopleSection() {
+  const { t } = useTranslation();
   const searchInputId = React.useId();
   const [search, setSearch] = React.useState("");
   const [processingUserId, setProcessingUserId] = React.useState<string | null>(
@@ -79,38 +83,48 @@ export function FindPeopleSection() {
         className="text-muted-foreground relative block"
         htmlFor={searchInputId}
       >
-        <span className="sr-only">Search users</span>
+        <span className="sr-only">{t("chat.friends.find.searchSrLabel")}</span>
         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
         <Input
           id={searchInputId}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by name or username"
+          placeholder={t("chat.friends.find.searchPlaceholder")}
           type="search"
           className="h-10 pl-9"
         />
       </label>
 
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         {trimmedSearch.length === 0 ? (
-          <p className="text-muted-foreground text-sm">
-            Type a name or username to search.
-          </p>
+          <Empty className="h-full">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <Search />
+              </EmptyMedia>
+              <EmptyTitle>{t("chat.friends.find.emptyTitle")}</EmptyTitle>
+              <EmptyDescription>
+                {t("chat.friends.find.emptyDescription")}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
         ) : isLoading ? (
-          <div className="grid gap-2">
-            <Skeleton className="h-16 rounded-xl" />
-            <Skeleton className="h-16 rounded-xl" />
+          <div className={PEOPLE_GRID_CLASS_NAME}>
+            <Skeleton className="h-15 rounded-md" />
+            <Skeleton className="h-15 rounded-md" />
           </div>
         ) : searchQuery.isError ? (
           <div className="flex flex-col items-start gap-2">
-            <p className="text-destructive text-sm">Couldn't search users.</p>
+            <p className="text-destructive text-sm">
+              {t("chat.friends.find.error")}
+            </p>
             <Button
               type="button"
               size="sm"
               variant="outline"
               onClick={() => searchQuery.refetch()}
             >
-              Retry
+              {t("chat.friends.retry")}
             </Button>
           </div>
         ) : results.length === 0 ? (
@@ -119,11 +133,11 @@ export function FindPeopleSection() {
               <EmptyMedia variant="icon">
                 <UserSearch />
               </EmptyMedia>
-              <EmptyTitle>No one found</EmptyTitle>
+              <EmptyTitle>{t("chat.friends.find.noResults")}</EmptyTitle>
             </EmptyHeader>
           </Empty>
         ) : (
-          <ItemGroup>
+          <ItemGroup className={PEOPLE_GRID_CLASS_NAME}>
             {results.map((result) => (
               <UserItem
                 key={result.id}
@@ -147,7 +161,8 @@ export function FindPeopleSection() {
           <Button
             type="button"
             size="sm"
-            variant="ghost"
+            variant="outline"
+            className="justify-self-center"
             disabled={searchQuery.isFetchingNextPage}
             onClick={() => {
               if (searchQuery.hasNextPage && !searchQuery.isFetchingNextPage) {
@@ -155,7 +170,9 @@ export function FindPeopleSection() {
               }
             }}
           >
-            {searchQuery.isFetchingNextPage ? "Loading..." : "Load more"}
+            {searchQuery.isFetchingNextPage
+              ? t("chat.friends.loadingMore")
+              : t("chat.friends.loadMore")}
           </Button>
         )}
       </div>

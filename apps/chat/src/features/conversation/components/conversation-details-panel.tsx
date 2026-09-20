@@ -1,5 +1,6 @@
 import * as React from "react";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
@@ -23,6 +24,8 @@ import {
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import { Island } from "~/components/island/island";
+import { UserDetailDialog } from "~/components/user-detail-dialog";
 import GroupPanelTemplate from "~/features/group/templates/group-panel.template";
 import { useRemoveFriendMutation } from "~/hooks/api/friend";
 import { useUserInfoQuery } from "~/hooks/api/user";
@@ -46,7 +49,9 @@ function DirectProfileSection({
   conversation: Conversation;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
   const otherMember = conversation.members.find(
     (member) => member.userId !== conversation.currentUserId,
   );
@@ -54,9 +59,7 @@ function DirectProfileSection({
   const isOnline = useSocketStore((state) =>
     otherMember ? state.onlineUsers.includes(otherMember.userId) : false,
   );
-  const removeFriendMutation = useRemoveFriendMutation({
-    onSuccess: onClose,
-  });
+  const removeFriendMutation = useRemoveFriendMutation();
 
   if (!otherMember) return null;
 
@@ -78,7 +81,7 @@ function DirectProfileSection({
           {isOnline && (
             <p className="text-muted-foreground mt-0.5 flex items-center justify-center gap-1.5 text-xs">
               <span className="bg-online inline-block size-1.5 rounded-full" />
-              Active now
+              {t("chat.convList.activeNow")}
             </p>
           )}
         </div>
@@ -91,10 +94,13 @@ function DirectProfileSection({
       )}
 
       <div className="flex items-center justify-center gap-2">
-        {/* No other-user profile screen exists in this app yet — everything
-            it would show (avatar, name, username, bio) is already above. */}
-        <Button type="button" variant="outline" size="sm" disabled>
-          View profile
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setIsDetailOpen(true)}
+        >
+          {t("chat.convList.viewProfile")}
         </Button>
         <Button
           type="button"
@@ -102,32 +108,45 @@ function DirectProfileSection({
           size="sm"
           onClick={() => setIsConfirmOpen(true)}
         >
-          Unfriend
+          {t("chat.convList.unfriend")}
         </Button>
       </div>
+
+      <UserDetailDialog
+        userId={otherMember.userId}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+      />
 
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Remove {otherMember.displayName}?
+              {t("chat.convList.removeFriendTitle", {
+                name: otherMember.displayName,
+              })}
             </AlertDialogTitle>
             <AlertDialogDescription>
-              {otherMember.displayName} will be removed from your friends list.
-              You can send a new friend request later.
+              {t("chat.convList.removeFriendDescription", {
+                name: otherMember.displayName,
+              })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("chat.convList.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               disabled={removeFriendMutation.isPending}
               onClick={() => {
                 setIsConfirmOpen(false);
-                removeFriendMutation.mutate(otherMember.userId);
+                removeFriendMutation.mutate(otherMember.userId, {
+                  onSuccess: onClose,
+                });
               }}
             >
-              {removeFriendMutation.isPending ? "Removing..." : "Remove"}
+              {removeFriendMutation.isPending
+                ? t("chat.convList.removing")
+                : t("chat.convList.remove")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -153,7 +172,7 @@ function ConversationDetailsContent({
 }
 
 /**
- * Desktop renders a persistent third column beside the conversation panel;
+ * Desktop renders a third Island beside the pane's (brief §10 row 19);
  * mobile renders the same content in a Sheet, so neither surface duplicates
  * the group/direct branching in `ConversationDetailsContent`. Open/close
  * state is the caller's — `ConversationShellTemplate` owns it so it survives
@@ -166,9 +185,12 @@ export function ConversationDetailsPanel({
   onClose,
   onLeftGroup,
 }: ConversationDetailsPanelProps) {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const title =
-    conversation.type === ChatConversationType.GROUP ? "Group info" : "Profile";
+    conversation.type === ChatConversationType.GROUP
+      ? t("chat.convList.groupInfo")
+      : t("chat.convList.profile");
 
   if (isMobile) {
     return (
@@ -195,15 +217,15 @@ export function ConversationDetailsPanel({
   if (!open) return null;
 
   return (
-    <div className="border-border flex h-full w-80 shrink-0 flex-col gap-4 overflow-y-auto border-l p-4">
+    <Island className="flex h-full w-80 shrink-0 flex-col gap-4 overflow-y-auto p-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">{title}</h2>
+        <h2 className="text-base font-semibold tracking-tight">{title}</h2>
         <Button
           type="button"
           size="icon-sm"
-          variant="ghost"
+          variant="outline"
           onClick={onClose}
-          aria-label="Close details"
+          aria-label={t("chat.convList.closeDetails")}
         >
           <X className="size-4" />
         </Button>
@@ -213,6 +235,6 @@ export function ConversationDetailsPanel({
         onClose={onClose}
         onLeftGroup={onLeftGroup}
       />
-    </div>
+    </Island>
   );
 }

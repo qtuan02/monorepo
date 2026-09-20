@@ -1,6 +1,6 @@
 import { useLocation } from "react-router";
 
-import { getDraftUserFromLocationState } from "~/features/conversation/utils/direct-message-draft";
+import { getDraftUserFromLocationState } from "~/utils/direct-message-draft";
 
 /**
  * The Draft conversation's whole state — nothing else backs it (CONTEXT.md).

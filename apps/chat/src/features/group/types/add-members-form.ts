@@ -1,9 +1,16 @@
+import type { TFunction } from "i18next";
 import * as z from "zod";
 
-export const addMembersFormSchema = z.object({
-  memberIds: z
-    .array(z.string())
-    .min(1, { error: "Select at least one member to add." }),
-});
+// Factory, not a module-level schema — this app is bilingual, see
+// ~/features/auth/types/sign-in-form.ts for why.
+export function createAddMembersFormSchema(t: TFunction) {
+  return z.object({
+    memberIds: z
+      .array(z.string())
+      .min(1, { error: t("chat.group.validation.selectMemberToAdd") }),
+  });
+}
 
-export type AddMembersFormValues = z.infer<typeof addMembersFormSchema>;
+export type AddMembersFormValues = z.infer<
+  ReturnType<typeof createAddMembersFormSchema>
+>;

@@ -1,4 +1,5 @@
 import type { DirectMessageUser } from "~/types/direct-message-user";
+import { isRecord } from "~/utils/is-record";
 
 const DRAFT_CONVERSATION_ID_PREFIX = "draft-";
 
@@ -9,10 +10,6 @@ export function createDraftConversationId(userId: string): string {
 
 export function isDraftConversationId(conversationId: string): boolean {
   return conversationId.startsWith(DRAFT_CONVERSATION_ID_PREFIX);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === "object";
 }
 
 function isDirectMessageUser(value: unknown): value is DirectMessageUser {
@@ -33,7 +30,7 @@ function isDirectMessageUser(value: unknown): value is DirectMessageUser {
 }
 
 /**
- * `useOpenDirectConversation` (~/hooks/api/conversation) writes this shape
+ * `useOpenDirectConversation` (~/hooks/use-open-direct-conversation) writes this shape
  * into `navigate(..., { state })` — the whole channel a Draft conversation
  * travels over, so reading it back is the other half of that contract.
  */

@@ -140,7 +140,7 @@ describe("MessageRow", () => {
         seenByOther: true,
       });
 
-      expect(row.getByText("Seen")).toBeInTheDocument();
+      expect(row.getByRole("img", { name: "Seen" })).toBeInTheDocument();
     });
 
     it("shows no 'Seen' text while the other hasn't read it yet", () => {
@@ -148,7 +148,7 @@ describe("MessageRow", () => {
         seenByOther: false,
       });
 
-      expect(row.queryByText("Seen")).not.toBeInTheDocument();
+      expect(row.queryByRole("img", { name: "Seen" })).not.toBeInTheDocument();
     });
 
     it("renders a reader's avatar under the message their read receipt names", () => {

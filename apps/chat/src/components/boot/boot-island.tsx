@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import { BrandMark } from "~/components/brand/brand-mark";
 import { Island } from "~/components/island/island";
@@ -22,6 +23,7 @@ interface BootIslandProps {
  * inheriting whatever the previous phase's clock had already used up.
  */
 export function BootIsland({ message }: BootIslandProps) {
+  const { t } = useTranslation();
   const [isSlow, setIsSlow] = React.useState(false);
 
   React.useEffect(() => {
@@ -42,7 +44,7 @@ export function BootIsland({ message }: BootIslandProps) {
         </div>
         {isSlow && (
           <p className="text-muted-foreground text-xs">
-            Still connecting — the server may be waking up
+            {t("chat.common.stillConnecting")}
           </p>
         )}
       </Island>

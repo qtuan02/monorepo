@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Loader2, Plus, Search, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import type { ChatFriendRecord } from "@monorepo/types/chat-friend";
 import { useDebounce } from "@monorepo/hook/use-debounce";
@@ -34,6 +35,7 @@ export function GroupMemberPicker({
   onChange,
   error,
 }: GroupMemberPickerProps) {
+  const { t } = useTranslation();
   const searchInputId = React.useId();
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search.trim(), SEARCH_DEBOUNCE_MS);
@@ -52,23 +54,11 @@ export function GroupMemberPicker({
     [selectedFriendIds],
   );
 
-  React.useEffect(() => {
-    setSelectedById((current) => {
-      const next = new Map(current);
-      for (const friend of friends) {
-        if (selectedIdSet.has(friend.id)) next.set(friend.id, friend);
-      }
-      for (const id of current.keys()) {
-        if (!selectedIdSet.has(id)) next.delete(id);
-      }
-      return next;
-    });
-  }, [friends, selectedIdSet]);
-
   const handleToggle = (friend: ChatFriendRecord) => {
     const next = new Set(selectedFriendIds);
     if (next.has(friend.id)) next.delete(friend.id);
     else next.add(friend.id);
+    setSelectedById((current) => new Map(current).set(friend.id, friend));
     onChange(Array.from(next));
   };
 
@@ -79,14 +69,16 @@ export function GroupMemberPicker({
   return (
     <div className="grid gap-3">
       <label className="grid gap-1" htmlFor={searchInputId}>
-        <span className="text-sm font-medium">Search friends</span>
+        <span className="text-sm font-medium">
+          {t("chat.group.picker.searchLabel")}
+        </span>
         <div className="relative text-muted-foreground">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
           <Input
             id={searchInputId}
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by name or username"
+            placeholder={t("chat.group.picker.searchPlaceholder")}
             type="search"
             className="h-10 pl-9"
           />
@@ -97,10 +89,12 @@ export function GroupMemberPicker({
 
       <div className="grid gap-2">
         <p className="text-muted-foreground text-xs font-medium">
-          Selected members
+          {t("chat.group.picker.selectedLabel")}
         </p>
         {selectedFriendIds.length === 0 ? (
-          <p className="text-muted-foreground text-sm">No members selected.</p>
+          <p className="text-muted-foreground text-sm">
+            {t("chat.group.picker.noneSelected")}
+          </p>
         ) : (
           <div className="flex flex-wrap gap-2">
             {selectedFriendIds.map((friendId) => {
@@ -114,10 +108,14 @@ export function GroupMemberPicker({
                   <Button
                     type="button"
                     size="icon-xs"
-                    variant="ghost"
+                    variant="outline"
                     className="ml-1 size-5 rounded-full p-0.5"
                     onClick={() => handleRemove(friendId)}
-                    aria-label={`Remove ${friend ? getDisplayName(friend) : "member"}`}
+                    aria-label={t("chat.group.picker.removeAria", {
+                      name: friend
+                        ? getDisplayName(friend)
+                        : t("chat.group.picker.member"),
+                    })}
                   >
                     <X className="size-3" />
                   </Button>
@@ -136,21 +134,23 @@ export function GroupMemberPicker({
           </>
         ) : friendsQuery.isError ? (
           <div className="flex flex-col items-start gap-2">
-            <p className="text-destructive text-sm">Unable to load friends.</p>
+            <p className="text-destructive text-sm">
+              {t("chat.group.picker.loadError")}
+            </p>
             <Button
               type="button"
               size="sm"
-              variant="ghost"
+              variant="outline"
               onClick={() => friendsQuery.refetch()}
             >
-              Retry
+              {t("chat.group.picker.retry")}
             </Button>
           </div>
         ) : friends.length === 0 ? (
           <p className="text-muted-foreground bg-muted/40 rounded-xl px-3 py-2.5 text-sm">
             {debouncedSearch
-              ? "No friends match this search."
-              : "No friends found."}
+              ? t("chat.group.picker.noMatch")
+              : t("chat.group.picker.noFriends")}
           </p>
         ) : (
           <ul className="grid gap-2">
@@ -189,8 +189,12 @@ export function GroupMemberPicker({
                       disabled={isDisabled}
                       aria-label={
                         isSelected
-                          ? `Remove ${displayName}`
-                          : `Add ${displayName}`
+                          ? t("chat.group.picker.removeAria", {
+                              name: displayName,
+                            })
+                          : t("chat.group.picker.addAria", {
+                              name: displayName,
+                            })
                       }
                     >
                       {isSelected ? (
@@ -210,7 +214,7 @@ export function GroupMemberPicker({
           <Button
             type="button"
             size="sm"
-            variant="ghost"
+            variant="outline"
             disabled={friendsQuery.isFetchingNextPage}
             onClick={() => {
               if (
@@ -224,7 +228,7 @@ export function GroupMemberPicker({
             {friendsQuery.isFetchingNextPage ? (
               <Loader2 className="size-4 animate-spin" />
             ) : (
-              "Load more"
+              t("chat.group.picker.loadMore")
             )}
           </Button>
         )}
