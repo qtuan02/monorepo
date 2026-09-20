@@ -6,14 +6,6 @@ import type { ChatMessageRecord } from "./chat-message";
  * value outside this set (e.g. the backend's retired `group.deleted`) is
  * simply not one of these — the type guards in `~/libs/socket.ts` treat it
  * like any other unrecognized payload and ignore it.
- *
- * `CONVERSATION_UPDATED`'s own payload shape is changing too (it will carry
- * the whole `conversation` record instead of four loose fields — contract
- * §5), but that rewrite lands together with the `~/libs/socket.ts` guard and
- * the `~/hooks/api/conversation.ts` cache upsert that read it, in T1b
- * (#255) — changing the shape here alone, with nothing left to consume it,
- * would just break that guard's compile for no reason before its own
- * ticket touches it.
  */
 export const ChatSocketEventType = {
   CONVERSATION_UPDATED: "conversation.updated",
@@ -25,17 +17,10 @@ export const ChatSocketEventType = {
   TYPING: "typing",
 } as const;
 
+/** Carries the whole record — `~/hooks/api/conversation.ts`'s
+ * `applyConversationUpdateToCache` upserts it into the list by `id` rather
+ * than patching loose fields (contract §5). */
 export interface ChatConversationUpdatedEvent {
-  eventType: typeof ChatSocketEventType.CONVERSATION_UPDATED;
-  conversationId: string;
-  lastMessage: ChatMessageRecord | null;
-  lastMessageAt: string;
-  unreadCount: number;
-}
-
-/** The new shape T1b's guard rewrite switches `CONVERSATION_UPDATED` to —
- * exported ahead of that ticket so it has a type ready to consume. */
-export interface ChatConversationRecordUpdatedEvent {
   eventType: typeof ChatSocketEventType.CONVERSATION_UPDATED;
   conversation: ChatConversationRecord;
 }
@@ -55,6 +40,7 @@ export interface ChatConversationSeenEvent {
 
 export type ChatConversationSocketEvent =
   | ChatConversationUpdatedEvent
+  | ChatConversationRemovedEvent
   | ChatConversationSeenEvent;
 
 /** `/topic/conversations/{id}/messages` — one shape for all three eventTypes. */

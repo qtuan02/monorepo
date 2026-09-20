@@ -448,6 +448,9 @@
       },
       "row": {
         "seen": "Seen"
+      },
+      "toast": {
+        "removedFromConversation": "You're no longer in this conversation."
       }
     },
     "profile": {

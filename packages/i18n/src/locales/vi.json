@@ -448,6 +448,9 @@
       },
       "row": {
         "seen": "Đã xem"
+      },
+      "toast": {
+        "removedFromConversation": "Bạn không còn ở trong hội thoại này."
       }
     },
     "profile": {

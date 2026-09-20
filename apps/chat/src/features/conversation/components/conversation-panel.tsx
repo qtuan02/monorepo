@@ -2,6 +2,7 @@ import { ArrowLeft, Info, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 
+import { HttpError } from "@monorepo/api/client";
 import {
   ChatConversationType,
   ChatParticipantRole,
@@ -20,13 +21,18 @@ import type { Conversation } from "~/features/conversation/types/conversation";
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import IslandBoundary from "~/components/exception/island-boundary";
+import NotFound from "~/components/exception/not-found";
 import { Island } from "~/components/island/island";
 import { ROUTES } from "~/constants/routes";
 import { ConversationDetailsPanel } from "~/features/conversation/components/conversation-details-panel";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
-import { conversationQueryKeys } from "~/hooks/api/conversation";
+import { mapConversationToUiModel } from "~/features/conversation/utils/map-conversation-to-ui-model";
+import {
+  conversationQueryKeys,
+  useGetConversation,
+} from "~/hooks/api/conversation";
 import { messageQueryKeys } from "~/hooks/api/message";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 import { useSocketStore } from "~/stores/use-socket-store";
@@ -89,6 +95,24 @@ export default function ConversationPanel({
     ? conversations.find((item) => item.id === conversationId)
     : undefined;
   const currentUserId = currentUserQuery.data?.id;
+
+  // Deep-link/reload fallback: the list hasn't loaded this conversation (a
+  // fresh `/conversations/:id`, or a mobile session with no sidebar ever
+  // mounted) — fetch it on its own, once, rather than block on the list.
+  const isMissingFromList = !!conversationId && !conversation;
+  const getConversationQuery = useGetConversation(
+    isMissingFromList ? conversationId : undefined,
+  );
+  const fetchedConversation =
+    currentUserId && getConversationQuery.data
+      ? mapConversationToUiModel(getConversationQuery.data, currentUserId)
+      : undefined;
+  const isConversationNotFound =
+    isMissingFromList &&
+    getConversationQuery.error instanceof HttpError &&
+    (getConversationQuery.error.statusCode === 404 ||
+      getConversationQuery.error.statusCode === 403);
+
   const draftConversation =
     draftUser && currentUserId
       ? buildDraftConversation(
@@ -97,11 +121,12 @@ export default function ConversationPanel({
           t("chat.convPane.empty.noMessagesYet"),
         )
       : undefined;
-  const activeConversation = conversation ?? draftConversation;
+  const activeConversation =
+    conversation ?? fetchedConversation ?? draftConversation;
 
   const isConnected = useSocketStore((state) => state.isConnected);
   const isOtherMemberOnline = useSocketStore((state) => {
-    const otherMemberId = conversation?.otherMemberId ?? draftUser?.id;
+    const otherMemberId = activeConversation?.otherMemberId ?? draftUser?.id;
     return otherMemberId ? state.onlineUsers.includes(otherMemberId) : false;
   });
   const onlineMemberCount = useSocketStore((state) => {
@@ -114,6 +139,14 @@ export default function ConversationPanel({
   });
 
   if (!conversationId && !draftUser) return <NoConversationSelected />;
+
+  if (isConversationNotFound) {
+    return (
+      <Island className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+        <NotFound />
+      </Island>
+    );
+  }
 
   const title =
     activeConversation?.title ?? t("chat.convPane.header.fallbackTitle");
