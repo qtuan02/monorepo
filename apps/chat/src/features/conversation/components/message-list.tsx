@@ -26,9 +26,14 @@ import { formatMessageDateLabel } from "~/utils/date";
 
 interface MessageListProps {
   conversationId: string;
+  /** T3 (spec #253) — opens the composer's edit mode on a visitor's own message. */
+  onEditMessage?: (message: Message) => void;
 }
 
-export default function MessageList({ conversationId }: MessageListProps) {
+export default function MessageList({
+  conversationId,
+  onEditMessage,
+}: MessageListProps) {
   const { t, i18n } = useTranslation();
   const currentUserQuery = useCurrentUserQuery();
   const {
@@ -163,6 +168,7 @@ export default function MessageList({ conversationId }: MessageListProps) {
                 position.message.id === lastOwnMessageId &&
                 isSeenByOther(position.message, otherMember)
               }
+              onEdit={onEditMessage}
             />
           );
         }}

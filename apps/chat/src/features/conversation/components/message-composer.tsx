@@ -1,7 +1,8 @@
-import { Paperclip, Send } from "lucide-react";
+import { Paperclip, Send, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
+import { Button } from "@monorepo/ui/components/button";
 import {
   InputGroup,
   InputGroupAddon,
@@ -12,6 +13,7 @@ import { Spinner } from "@monorepo/ui/components/spinner";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import type { Message } from "~/features/conversation/types/message";
 import MessageComposerAttachment from "~/features/conversation/components/message-composer-attachment";
 import MessageComposerEmojiPicker from "~/features/conversation/components/message-composer-emoji-picker";
 import { useMessageComposer } from "~/features/conversation/hooks/use-message-composer";
@@ -19,6 +21,9 @@ import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradie
 
 interface MessageComposerProps {
   conversation: Conversation;
+  /** T3 (spec #253) — the message being edited, or `null` outside edit mode. */
+  editingMessage?: Message | null;
+  onCancelEdit?: () => void;
   onSent?: (message: ChatMessageRecord) => void;
   /** From `ConversationPanel`'s `useTypingIndicator(conversationId, …)` — kept
    * up there so it starts on the same trigger as the message subscription
@@ -28,6 +33,8 @@ interface MessageComposerProps {
 
 export default function MessageComposer({
   conversation,
+  editingMessage = null,
+  onCancelEdit = () => {},
   onSent,
   typingUserIds,
 }: MessageComposerProps) {
@@ -46,7 +53,7 @@ export default function MessageComposer({
     handleAttachClick,
     handleFileInputChange,
     handleRemoveAttachment,
-  } = useMessageComposer(conversation, onSent);
+  } = useMessageComposer(conversation, editingMessage, onCancelEdit, onSent);
   const typingNames = typingUserIds
     .map(
       (userId) =>
@@ -68,11 +75,27 @@ export default function MessageComposer({
           })}
         </p>
       )}
-      {attachment && (
+      {attachment && !editingMessage && (
         <MessageComposerAttachment
           attachment={attachment}
           onRemove={handleRemoveAttachment}
         />
+      )}
+      {editingMessage && (
+        <div className="bg-muted/60 mb-1.5 flex items-center justify-between rounded-lg px-3 py-1.5">
+          <span className="text-muted-foreground text-xs font-medium">
+            {t("chat.convPane.composer.editingBanner")}
+          </span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            onClick={onCancelEdit}
+          >
+            <X className="size-3.5" />
+            {t("chat.convPane.composer.cancelEdit")}
+          </Button>
+        </div>
       )}
       <form
         onSubmit={(event) => {
@@ -94,6 +117,9 @@ export default function MessageComposer({
               type="button"
               size="icon-sm"
               onClick={handleAttachClick}
+              // Only a TEXT message can be edited (T3), so an attachment has no
+              // place in edit mode.
+              disabled={editingMessage !== null}
               aria-label={t("chat.attachment.attachButton")}
             >
               <Paperclip className="size-4" />

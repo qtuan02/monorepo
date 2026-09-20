@@ -15,5 +15,6 @@ export function mapMessageToUiModel(
     attachmentUrl: record.attachmentUrl ?? null,
     type: record.type,
     createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
   };
 }

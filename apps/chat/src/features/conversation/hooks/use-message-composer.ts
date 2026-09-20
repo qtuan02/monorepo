@@ -6,8 +6,12 @@ import { ChatMessageType } from "@monorepo/types/chat-message";
 import { toast } from "@monorepo/ui/components/toast";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import type { Message } from "~/features/conversation/types/message";
 import { useSendMessage } from "~/features/conversation/hooks/use-send-message";
-import { useUploadAttachmentMutation } from "~/hooks/api/message";
+import {
+  useUpdateMessageMutation,
+  useUploadAttachmentMutation,
+} from "~/hooks/api/message";
 import { sendTyping } from "~/libs/socket";
 import { useSocketStore } from "~/stores/use-socket-store";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "~/utils/attachment";
@@ -29,16 +33,24 @@ export type ComposerAttachment =
 
 /**
  * `MessageComposer` remounts under `key={conversation.id}` (see
- * conversation-panel.tsx), so this focus effect only ever runs once per
- * mount and needs no `conversation.id` dependency — the rewrite the ticket
- * asks for in place of the source's `useEffect(…, [conversation.id, …])`,
- * which Biome flagged as an unnecessary dependency.
+ * conversation-panel.tsx), so the mount-focus branch below only ever runs
+ * once per conversation and needs no `conversation.id` dependency — the
+ * rewrite the ticket asks for in place of the source's
+ * `useEffect(…, [conversation.id, …])`, which Biome flagged as an
+ * unnecessary dependency.
  *
  * `onSent` is optional — only a Draft conversation's composer needs it, to
  * navigate off the response's real `conversationId` (see conversation-panel.tsx).
+ *
+ * `editingMessage` (T3, spec #253) is `null` outside edit mode, or the
+ * message the "Sửa" menu item picked — see message-row.tsx. `onExitEdit`
+ * fires both on a successful `PATCH` and on Esc/"Huỷ", so the caller has one
+ * place to clear its own `editingMessage` state (conversation-panel.tsx).
  */
 export function useMessageComposer(
   conversation: Conversation,
+  editingMessage: Message | null,
+  onExitEdit: () => void,
   onSent?: (message: ChatMessageRecord) => void,
 ) {
   const { t } = useTranslation();
@@ -46,6 +58,10 @@ export function useMessageComposer(
   const [attachment, setAttachment] = React.useState<ComposerAttachment | null>(
     null,
   );
+  // The draft the visitor was composing before they opened edit mode — swapped
+  // back in on exit, so "Huỷ" never loses what they were mid-typing.
+  const [draftBeforeEdit, setDraftBeforeEdit] = React.useState("");
+  const [syncedEditId, setSyncedEditId] = React.useState<string | null>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   // The file this hook is currently uploading/holding — an in-flight upload
@@ -53,18 +69,46 @@ export function useMessageComposer(
   // by Remove) is stale and must not resurrect its own attachment state.
   const currentFileRef = React.useRef<File | null>(null);
   const lastTypingSentAtRef = React.useRef(0);
-  const { sendMessage, isPending } = useSendMessage(conversation);
+  const { sendMessage, isPending: isSendPending } =
+    useSendMessage(conversation);
   const uploadAttachment = useUploadAttachmentMutation();
+  const updateMessage = useUpdateMessageMutation();
+  const isPending = isSendPending || updateMessage.isPending;
   const client = useSocketStore((state) => state.client);
   const isConnected = useSocketStore((state) => state.isConnected);
 
+  const editingId = editingMessage?.id ?? null;
+  // Adjusting state during render (not an effect — see
+  // .agents/rules/react-effects-sync-only.md) whenever the edit target
+  // itself changes: swap the textarea to the message's text, remembering
+  // what was there so it comes back once edit mode ends. The snapshot is
+  // taken only when ENTERING edit mode (`syncedEditId` — the previous
+  // value — was null): switching straight from editing one message to
+  // editing another must not overwrite the original draft with the first
+  // message's half-finished edit.
+  if (editingId !== syncedEditId) {
+    const wasEditing = syncedEditId !== null;
+    setSyncedEditId(editingId);
+    if (editingMessage) {
+      if (!wasEditing) setDraftBeforeEdit(content);
+      setContent(editingMessage.content);
+    } else {
+      setContent(draftBeforeEdit);
+    }
+  }
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `editingId` is not read here — it's the trigger that refocuses on mount AND on every entry/exit of edit mode, not a value the effect body needs.
   React.useEffect(() => {
     textareaRef.current?.focus();
-  }, []);
+  }, [editingId]);
 
   const isUploadingAttachment = attachment?.status === "uploading";
-  const isSendDisabled =
-    isPending || isUploadingAttachment || (!content.trim() && !attachment);
+  // Edit mode (T3) only rewrites a TEXT message's content, so an attachment
+  // sitting in the composer neither enables Send nor rides along with the PATCH.
+  const hasBody = editingMessage
+    ? content.trim() !== ""
+    : content.trim() !== "" || attachment !== null;
+  const isSendDisabled = isPending || isUploadingAttachment || !hasBody;
 
   const handleContentChange = React.useCallback(
     (value: string) => {
@@ -141,6 +185,20 @@ export function useMessageComposer(
     const trimmed = content.trim();
     if (isSendDisabled) return;
 
+    if (editingMessage) {
+      try {
+        await updateMessage.mutateAsync({
+          messageId: editingMessage.id,
+          params: { content: trimmed },
+        });
+        onExitEdit();
+      } catch {
+        // Kept in the textarea — the global MutationCache.onError already
+        // surfaced the failure once, and the visitor can just retry Enter.
+      }
+      return;
+    }
+
     const attachmentUrl =
       attachment?.status === "ready" ? attachment.url : null;
     const type =
@@ -166,16 +224,30 @@ export function useMessageComposer(
       setContent(trimmed);
       setAttachment(previousAttachment);
     }
-  }, [attachment, content, isSendDisabled, onSent, sendMessage]);
+  }, [
+    attachment,
+    content,
+    editingMessage,
+    isSendDisabled,
+    onExitEdit,
+    onSent,
+    sendMessage,
+    updateMessage,
+  ]);
 
   const handleKeyDown = React.useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === "Escape" && editingMessage) {
+        event.preventDefault();
+        onExitEdit();
+        return;
+      }
       if (event.key !== "Enter" || event.shiftKey) return;
 
       event.preventDefault();
       void handleSubmit();
     },
-    [handleSubmit],
+    [editingMessage, handleSubmit, onExitEdit],
   );
 
   const insertEmoji = React.useCallback((emoji: EmojiSelection) => {

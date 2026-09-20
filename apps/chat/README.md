@@ -67,12 +67,12 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
    qua `~/utils/date.ts` (`toLocal`), không gọi `dayjs(value)` thẳng; gửi lên BE dùng `toApiTimestamp` (UTC ISO).
 2. **Không `~/services/`.** Không có, và sẽ không có: mọi gọi backend đi qua service class trong
    `@monorepo/api` (`packages/api/src/chat/`) — quy ước chung của cả monorepo, không phải riêng app này.
-3. **Attachment, Sửa/Xoá tin, Typing UI, đổi mật khẩu — chưa có UI.** Backend (`chat-socket` contract
-   2026-09-20) và socket lib đã sẵn sàng cho cả bốn từ T1b (#255); UI của mỗi cái là ticket riêng độc
-   lập trong cùng spec #253: Attachment ở T2, Sửa/Xoá tin ở T3, "đang gõ…" ở T4, đổi mật khẩu ở T5.
-   Không phải drift — đọc comment tổng kết trên spec #253 để biết trạng thái từng ticket.
-   Optimistic send, "Failed · Retry" tại chỗ, và tìm hội thoại phía server vẫn cố ý ngoài scope, như
-   từ spec #232.
+3. **Attachment, Typing UI, đổi mật khẩu — chưa có UI.** Backend (`chat-socket` contract 2026-09-20)
+   và socket lib đã sẵn sàng cho cả ba từ T1b (#255); UI của mỗi cái là ticket riêng độc lập trong
+   cùng spec #253: Attachment ở T2, "đang gõ…" ở T4, đổi mật khẩu ở T5. Sửa/Xoá tin (T3, #257) đã có
+   UI — menu ⋯ trên bubble của mình, composer edit mode, confirm dialog. Không phải drift — đọc
+   comment tổng kết trên spec #253 để biết trạng thái từng ticket. Optimistic send, "Failed · Retry"
+   tại chỗ, và tìm hội thoại phía server vẫn cố ý ngoài scope, như từ spec #232.
 4. **Không CI job E2E, không throttle callback riêng.** `useThrottle` của nguồn bỏ hẳn — double-submit
    chặn bằng `isPending` của mutation; `use-debounce` của nguồn đổi sang `@monorepo/hook/use-debounce`.
 
@@ -81,6 +81,19 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
 `@emoji-mart/react` chưa khai `peerDependencies` cho React 19 (peer báo React 16–18) — cài và chạy vẫn
 tốt, chỉ là một dòng warning lúc `bun install`. `Picker` được `lazy(() => import(...))` từ composer nên
 không nằm trong bundle ban đầu.
+
+`PATCH /v1/message/{id}` (BE `chat-socket`) có thể trả `updatedAt` **cũ** — bằng `createdAt` — ngay trong
+response của chính lệnh sửa, và `message.updated` phát qua socket mang y hệt object đó nên cũng cũ theo.
+Đọc `MessageServiceImpl.updateMessage`: entity được map sang DTO ngay sau `save()`, trước khi
+`@Transactional` flush ở commit — lúc đó Hibernate mới thực sự ghi `@UpdateTimestamp`, nên giá trị map
+được phụ thuộc thời điểm flush thực tế. Kiểm bằng `curl` thật (BE 8089 local, không qua UI) thấy cũ **ổn
+định** cả ở response lẫn một `GET` gần như ngay sau đó (chỉ đúng sau vài giây, hoặc sau một refetch xa
+hơn); kiểm lại bằng Playwright 2 tab qua UI thật thì thấy **không ổn định** — có lần dấu "(đã sửa)" hiện
+ngay ở cả hai tab, có lần không hiện ở tab nào tới khi reload — tuỳ thời điểm flush của request đó. Nội
+dung tin thì luôn cập nhật đúng và ngay lập tức ở cả hai tab bất kể trường hợp nào — chỉ riêng badge có
+thể trễ. Cố ý **không** vá bằng cách đoán `updatedAt` ở FE (đúng tinh thần "không hack tolerance" của
+ticket #257) — cần sửa ở `chat-socket` (`saveAndFlush` trước khi map DTO, hoặc đọc lại entity sau commit)
+khi có người phụ trách repo đó.
 
 ## Precondition backend
 
