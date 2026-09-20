@@ -8,7 +8,14 @@ import { toast } from "@monorepo/ui/components/toast";
 import type { Conversation } from "~/features/conversation/types/conversation";
 import { useSendMessage } from "~/features/conversation/hooks/use-send-message";
 import { useUploadAttachmentMutation } from "~/hooks/api/message";
+import { sendTyping } from "~/libs/socket";
+import { useSocketStore } from "~/stores/use-socket-store";
 import { MAX_ATTACHMENT_SIZE_BYTES } from "~/utils/attachment";
+import { isDraftConversationId } from "~/utils/direct-message-draft";
+
+/** Never gọi `sendTyping` more than once every ~2s (T4, spec #253) — a plain
+ * timestamp ref, not the shared `useThrottle` (dropped at #195). */
+const TYPING_SEND_THROTTLE_MS = 2000;
 
 interface EmojiSelection {
   native?: string;
@@ -45,8 +52,10 @@ export function useMessageComposer(
   // whose file no longer matches this ref (superseded by a later select, or
   // by Remove) is stale and must not resurrect its own attachment state.
   const currentFileRef = React.useRef<File | null>(null);
+  const lastTypingSentAtRef = React.useRef(0);
   const { sendMessage, isPending } = useSendMessage(conversation);
   const uploadAttachment = useUploadAttachmentMutation();
+  const client = useSocketStore((state) => state.client);
 
   React.useEffect(() => {
     textareaRef.current?.focus();
@@ -55,6 +64,23 @@ export function useMessageComposer(
   const isUploadingAttachment = attachment?.status === "uploading";
   const isSendDisabled =
     isPending || isUploadingAttachment || (!content.trim() && !attachment);
+
+  const handleContentChange = React.useCallback(
+    (value: string) => {
+      setContent(value);
+
+      if (!client || !value.trim() || isDraftConversationId(conversation.id)) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastTypingSentAtRef.current < TYPING_SEND_THROTTLE_MS) return;
+
+      lastTypingSentAtRef.current = now;
+      sendTyping(client, conversation.id);
+    },
+    [client, conversation.id],
+  );
 
   const handleFileSelected = React.useCallback(
     (file: File) => {
@@ -168,7 +194,7 @@ export function useMessageComposer(
 
   return {
     content,
-    setContent,
+    handleContentChange,
     textareaRef,
     isPending,
     isSendDisabled,

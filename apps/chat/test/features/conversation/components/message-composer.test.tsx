@@ -1,20 +1,30 @@
+import type { Client } from "@stomp/stompjs";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { act, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
+import type { ChatTypingEvent } from "@monorepo/types/chat-socket";
 import type { ChatUserProfile } from "@monorepo/types/chat-user";
 import {
   ChatConversationType,
   ChatParticipantRole,
 } from "@monorepo/types/chat-conversation";
 import { ChatMessageType } from "@monorepo/types/chat-message";
+import { ChatSocketEventType } from "@monorepo/types/chat-socket";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import { ThemeProvider } from "~/features/layout/provider/theme-provider";
 import { useAuthStore } from "~/stores/use-auth-store";
+import { useSocketStore } from "~/stores/use-socket-store";
 
 const CURRENT_USER: ChatUserProfile = {
   id: "u1",
@@ -29,12 +39,22 @@ const {
   chatMessageSendGroup,
   chatMessageUpload,
   toastAdd,
+  sendTyping,
+  subscribeToTyping,
 } = vi.hoisted(() => ({
   chatUserMe: vi.fn(),
   chatMessageSendDirect: vi.fn(),
   chatMessageSendGroup: vi.fn(),
   chatMessageUpload: vi.fn(),
   toastAdd: vi.fn(),
+  sendTyping: vi.fn(),
+  subscribeToTyping: vi.fn(
+    (
+      _client: Client,
+      _conversationId: string,
+      _onTyping: (event: ChatTypingEvent) => void,
+    ) => vi.fn(),
+  ),
 }));
 
 vi.mock("~/libs/http-client", () => ({
@@ -54,6 +74,12 @@ vi.mock("~/libs/http-client", () => ({
 vi.mock("@monorepo/ui/components/toast", () => ({
   toast: { add: toastAdd },
 }));
+
+// Real subscribeToConversationMessages/Updates are never reached here (the
+// composer alone never mounts ChatSocketProvider) — only sendTyping and
+// subscribeToTyping, which useMessageComposer/useTypingIndicator call
+// directly, need stubbing.
+vi.mock("~/libs/socket", () => ({ sendTyping, subscribeToTyping }));
 
 const DIRECT_CONVERSATION: Conversation = {
   id: "c1",
@@ -107,6 +133,10 @@ describe("MessageComposer", () => {
     chatMessageSendGroup.mockReset();
     chatMessageUpload.mockReset();
     toastAdd.mockClear();
+  });
+
+  afterEach(() => {
+    useSocketStore.setState({ client: null, isConnected: false });
   });
 
   it("sends a direct message to the other member on Enter, and clears the textarea", async () => {
@@ -477,6 +507,71 @@ describe("MessageComposer", () => {
       });
       expect(screen.getByText("b.pdf")).toBeInTheDocument();
       expect(screen.queryByText("a.png")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("typing", () => {
+    beforeEach(() => {
+      useSocketStore.setState({ client: {} as Client, isConnected: true });
+    });
+
+    it("throttles sendTyping to ~once every 2s while typing continuously", () => {
+      vi.useFakeTimers();
+      try {
+        renderComposer(DIRECT_CONVERSATION);
+        const textarea = screen.getByLabelText("Message composer");
+
+        for (const value of ["H", "Hi", "Hi ", "Hi t", "Hi th", "Hi the"]) {
+          fireEvent.change(textarea, { target: { value } });
+          vi.advanceTimersByTime(1000);
+        }
+
+        expect(sendTyping).toHaveBeenCalledTimes(3);
+        expect(sendTyping).toHaveBeenCalledWith({}, "c1");
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+
+    it("does not send typing once the textarea is cleared back to empty", () => {
+      renderComposer(DIRECT_CONVERSATION);
+      const textarea = screen.getByLabelText("Message composer");
+
+      fireEvent.change(textarea, { target: { value: "Hi" } });
+      expect(sendTyping).toHaveBeenCalledTimes(1);
+
+      fireEvent.change(textarea, { target: { value: "" } });
+      expect(sendTyping).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows "X is typing…" once the pane hears someone else typing', () => {
+      renderComposer(DIRECT_CONVERSATION);
+
+      const onTyping = subscribeToTyping.mock.calls.at(-1)?.[2];
+      act(() =>
+        onTyping?.({
+          eventType: ChatSocketEventType.TYPING,
+          conversationId: "c1",
+          userId: "u2",
+        }),
+      );
+
+      expect(screen.getByText("Lan Nguyen is typing…")).toBeInTheDocument();
+    });
+
+    it("ignores its own userId and never renders a typing line for it", () => {
+      renderComposer(DIRECT_CONVERSATION);
+
+      const onTyping = subscribeToTyping.mock.calls.at(-1)?.[2];
+      act(() =>
+        onTyping?.({
+          eventType: ChatSocketEventType.TYPING,
+          conversationId: "c1",
+          userId: "u1",
+        }),
+      );
+
+      expect(screen.queryByText(/is typing…/)).not.toBeInTheDocument();
     });
   });
 });

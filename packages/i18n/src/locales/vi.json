@@ -450,6 +450,9 @@
         "toSend": "để gửi",
         "newLine": "để xuống dòng"
       },
+      "typing": {
+        "line": "{names} {count, plural, other {đang gõ…}}"
+      },
       "list": {
         "couldNotLoad": "Không thể tải tin nhắn.",
         "retry": "Thử lại",

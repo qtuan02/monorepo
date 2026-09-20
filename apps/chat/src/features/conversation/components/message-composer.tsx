@@ -15,6 +15,7 @@ import type { Conversation } from "~/features/conversation/types/conversation";
 import MessageComposerAttachment from "~/features/conversation/components/message-composer-attachment";
 import MessageComposerEmojiPicker from "~/features/conversation/components/message-composer-emoji-picker";
 import { useMessageComposer } from "~/features/conversation/hooks/use-message-composer";
+import { useTypingIndicator } from "~/features/conversation/hooks/use-typing-indicator";
 import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
 
 interface MessageComposerProps {
@@ -29,7 +30,7 @@ export default function MessageComposer({
   const { t } = useTranslation();
   const {
     content,
-    setContent,
+    handleContentChange,
     textareaRef,
     isPending,
     isSendDisabled,
@@ -42,9 +43,31 @@ export default function MessageComposer({
     handleFileInputChange,
     handleRemoveAttachment,
   } = useMessageComposer(conversation, onSent);
+  const typingUserIds = useTypingIndicator(
+    conversation.id,
+    conversation.currentUserId,
+  );
+  const typingNames = typingUserIds
+    .map(
+      (userId) =>
+        conversation.members.find((member) => member.userId === userId)
+          ?.displayName,
+    )
+    .filter((name): name is string => !!name);
 
   return (
     <div className="px-3 pt-2 pb-3 md:px-4">
+      {typingNames.length > 0 && (
+        <p
+          aria-live="polite"
+          className="text-muted-foreground truncate px-2 pb-1 text-xs italic"
+        >
+          {t("chat.convPane.typing.line", {
+            count: typingNames.length,
+            names: typingNames.join(", "),
+          })}
+        </p>
+      )}
       {attachment && (
         <MessageComposerAttachment
           attachment={attachment}
@@ -79,7 +102,7 @@ export default function MessageComposer({
           <InputGroupTextarea
             ref={textareaRef}
             value={content}
-            onChange={(event) => setContent(event.target.value)}
+            onChange={(event) => handleContentChange(event.target.value)}
             onKeyDown={handleKeyDown}
             rows={1}
             aria-label={t("chat.convPane.composer.ariaLabel")}
