@@ -22,7 +22,11 @@ export function mapConversationToUiModel(
   record: ChatConversationRecord,
   currentUserId: string,
 ): Conversation {
-  const members: ConversationMember[] = record.participants.map(
+  // A malformed record from the backend can omit `participants` outright even
+  // though the type says otherwise — treat it as empty rather than throwing
+  // out of `.map` (spec #251/#252).
+  // biome-ignore lint/suspicious/noUnnecessaryConditions: defends against a real backend record violating the type, not a type-level impossibility.
+  const members: ConversationMember[] = (record.participants ?? []).map(
     (participant) => ({
       userId: participant.userId,
       displayName: toDisplayName(participant),

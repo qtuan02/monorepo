@@ -3,9 +3,11 @@ import * as React from "react";
 import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 import { cn } from "@monorepo/ui/utils/cn";
 
+import IslandBoundary from "~/components/exception/island-boundary";
 import { Island } from "~/components/island/island";
 import ConversationList from "~/features/conversation/components/conversation-list";
 import ConversationPanel from "~/features/conversation/components/conversation-panel";
+import { conversationQueryKeys } from "~/hooks/api/conversation";
 import { useDirectMessageDraft } from "~/hooks/use-direct-message-draft";
 
 interface ConversationShellTemplateProps {
@@ -56,7 +58,9 @@ export default function ConversationShellTemplate({
     if (conversationId || showDraft) return panel;
     return (
       <Island className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <ConversationList activeConversationId={conversationId} />
+        <IslandBoundary queryKey={conversationQueryKeys.all}>
+          <ConversationList activeConversationId={conversationId} />
+        </IslandBoundary>
       </Island>
     );
   }
@@ -71,7 +75,9 @@ export default function ConversationShellTemplate({
           isDetailsOpen && (conversationId || showDraft) && "max-lg:hidden",
         )}
       >
-        <ConversationList activeConversationId={conversationId} />
+        <IslandBoundary queryKey={conversationQueryKeys.all}>
+          <ConversationList activeConversationId={conversationId} />
+        </IslandBoundary>
       </Island>
       {panel}
     </>

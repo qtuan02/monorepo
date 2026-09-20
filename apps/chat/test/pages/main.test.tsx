@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   act,
@@ -139,6 +140,50 @@ vi.mock("~/stores/use-socket-store", async () => {
     })),
   };
 });
+
+// Spec #251's own seam: a conversation carrying this id makes the row/pane
+// component that renders it throw during render — a TypeError, not a query
+// error — so the Island fallback tests below prove a real render throw is
+// caught, without needing a genuinely malformed backend record.
+const THROWING_CONVERSATION_ID = "throwing-conversation";
+
+vi.mock(
+  "~/features/conversation/components/conversation-list-item",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("~/features/conversation/components/conversation-list-item")
+      >();
+    return {
+      ...actual,
+      default: (props: ComponentProps<typeof actual.default>) => {
+        if (props.conversation.id === THROWING_CONVERSATION_ID) {
+          throw new Error("Boom: a conversation row that cannot render");
+        }
+        return <actual.default {...props} />;
+      },
+    };
+  },
+);
+
+vi.mock(
+  "~/features/conversation/components/message-list",
+  async (importOriginal) => {
+    const actual =
+      await importOriginal<
+        typeof import("~/features/conversation/components/message-list")
+      >();
+    return {
+      ...actual,
+      default: (props: ComponentProps<typeof actual.default>) => {
+        if (props.conversationId === THROWING_CONVERSATION_ID) {
+          throw new Error("Boom: a message pane that cannot render");
+        }
+        return <actual.default {...props} />;
+      },
+    };
+  },
+);
 
 /**
  * A data router with one splat route around `<AppRoutes />`, rather than a
@@ -1022,6 +1067,115 @@ describe("the route tree", () => {
       // "renders a conversation's message history" test above) — that
       // behaviour is instead covered directly: readers-of.test.ts (the pure
       // derivation) and message-row.test.tsx (the rendered row).
+    });
+
+    describe("Island fallback (#252)", () => {
+      beforeEach(() => {
+        useAuthStore.setState({ token: "a-token" });
+      });
+
+      function directConversation(id: string, otherName: string) {
+        return {
+          id,
+          type: ChatConversationType.DIRECT,
+          groupName: null,
+          lastMessage: null,
+          lastMessageAt: null,
+          unreadCount: 0,
+          participants: [
+            {
+              userId: "u1",
+              firstName: "Tuan",
+              lastName: "Huynh",
+              role: ChatParticipantRole.MEMBER,
+            },
+            {
+              userId: `member-of-${id}`,
+              firstName: otherName,
+              lastName: "",
+              role: ChatParticipantRole.MEMBER,
+            },
+          ],
+        };
+      }
+
+      it("shows the list Island's own fallback when a row throws, keeping the pane and the Rail alive", async () => {
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        chatConversationGetConversations.mockResolvedValue({
+          items: [directConversation(THROWING_CONVERSATION_ID, "Lan")],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.HOME);
+
+        expect(
+          await screen.findByText("This section couldn't load."),
+        ).toBeInTheDocument();
+        // Two separate Islands on the same screen — the pane's own empty
+        // state and the Rail — are untouched by the list Island's throw.
+        expect(screen.getByText("Pick a conversation")).toBeInTheDocument();
+        expect(
+          screen.getByRole("navigation", { name: "Primary" }),
+        ).toBeInTheDocument();
+
+        vi.mocked(console.error).mockRestore();
+      });
+
+      it('shows "couldn\'t load" with Retry on a rejected list query, never the empty state', async () => {
+        chatConversationGetConversations.mockRejectedValue(
+          new Error("network down"),
+        );
+
+        renderAt(
+          ROUTES.HOME,
+          undefined,
+          new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+        );
+
+        expect(
+          await screen.findByText("Couldn't load your conversations."),
+        ).toBeInTheDocument();
+        expect(
+          screen.getByRole("button", { name: "Retry" }),
+        ).toBeInTheDocument();
+        expect(screen.queryByText("No chats yet")).not.toBeInTheDocument();
+      });
+
+      it("clears the pane's fallback with no click once the conversationId it is keyed on changes", async () => {
+        const user = userEvent.setup();
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        chatConversationGetConversations.mockResolvedValue({
+          items: [directConversation("safe-id", "Lan")],
+          nextCursor: null,
+        });
+        chatMessageGetMessages.mockResolvedValue({
+          items: [],
+          nextCursor: null,
+        });
+
+        renderAt(ROUTES.conversationByIdPath(THROWING_CONVERSATION_ID));
+
+        expect(
+          await screen.findByText("This section couldn't load."),
+        ).toBeInTheDocument();
+
+        // The sidebar is a separate Island — the throwing conversationId in
+        // the URL isn't even in its loaded list, so it renders normally.
+        await user.click(await screen.findByRole("link", { name: /Lan/ }));
+
+        expect(
+          screen.queryByText("This section couldn't load."),
+        ).not.toBeInTheDocument();
+        // The pane's own empty state — scoped, since "No messages yet." also
+        // names the freshly-opened conversation's preview text in the sidebar.
+        await waitFor(() =>
+          expect(
+            screen.getAllByText("No messages yet.").length,
+          ).toBeGreaterThan(0),
+        );
+
+        vi.mocked(console.error).mockRestore();
+      });
     });
 
     describe("the /friends screen", () => {

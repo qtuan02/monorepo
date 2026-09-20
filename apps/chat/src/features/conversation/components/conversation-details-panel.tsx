@@ -24,11 +24,13 @@ import {
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import IslandBoundary from "~/components/exception/island-boundary";
 import { Island } from "~/components/island/island";
 import { UserDetailDialog } from "~/components/user-detail-dialog";
 import GroupPanelTemplate from "~/features/group/templates/group-panel.template";
+import { conversationQueryKeys } from "~/hooks/api/conversation";
 import { useRemoveFriendMutation } from "~/hooks/api/friend";
-import { useUserInfoQuery } from "~/hooks/api/user";
+import { userQueryKeys, useUserInfoQuery } from "~/hooks/api/user";
 import { useSocketStore } from "~/stores/use-socket-store";
 
 interface ConversationDetailsPanelProps {
@@ -191,6 +193,15 @@ export function ConversationDetailsPanel({
     conversation.type === ChatConversationType.GROUP
       ? t("chat.convList.groupInfo")
       : t("chat.convList.profile");
+  // The direct half reads the other member's user info; the group half
+  // reads only the conversation's own members/role data — resetting both
+  // keys covers either branch with one boundary.
+  const detailsQueryKey = conversation.otherMemberId
+    ? [
+        userQueryKeys.info(conversation.otherMemberId),
+        conversationQueryKeys.all,
+      ]
+    : conversationQueryKeys.all;
 
   if (isMobile) {
     return (
@@ -200,15 +211,20 @@ export function ConversationDetailsPanel({
           if (!next) onClose();
         }}
       >
-        <SheetContent side="right" className="overflow-y-auto p-4">
+        <SheetContent side="right" className="overflow-y-auto p-3">
           <SheetHeader className="p-0">
             <SheetTitle>{title}</SheetTitle>
           </SheetHeader>
-          <ConversationDetailsContent
-            conversation={conversation}
-            onClose={onClose}
-            onLeftGroup={onLeftGroup}
-          />
+          <IslandBoundary
+            queryKey={detailsQueryKey}
+            resetKeys={[conversation.id]}
+          >
+            <ConversationDetailsContent
+              conversation={conversation}
+              onClose={onClose}
+              onLeftGroup={onLeftGroup}
+            />
+          </IslandBoundary>
         </SheetContent>
       </Sheet>
     );
@@ -230,11 +246,13 @@ export function ConversationDetailsPanel({
           <X className="size-4" />
         </Button>
       </div>
-      <ConversationDetailsContent
-        conversation={conversation}
-        onClose={onClose}
-        onLeftGroup={onLeftGroup}
-      />
+      <IslandBoundary queryKey={detailsQueryKey} resetKeys={[conversation.id]}>
+        <ConversationDetailsContent
+          conversation={conversation}
+          onClose={onClose}
+          onLeftGroup={onLeftGroup}
+        />
+      </IslandBoundary>
     </Island>
   );
 }

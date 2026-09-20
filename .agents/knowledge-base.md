@@ -203,6 +203,21 @@ paginating, mutating, polling. What a crawler has to read comes from a cached se
 app (`next-data-fetching.md`) and from a route module's `loader` in a React Router one
 (`reactrouter-loader-vs-query.md`). One value never lives in both.
 
+## Error boundaries (`react-error-boundary`)
+
+A failure inside a `queryFn` or a query's own `select` **never reaches an error boundary** — with the
+default `throwOnError: false` (unchanged anywhere in this repo), TanStack Query turns it into
+`status: "error"` / `isError: true` on the query result instead. Only a `TypeError` thrown during
+render (or inside a `useMemo`, after `data` is already defined) is a boundary's job — that is why
+`apps/chat`'s per-Island `react-error-boundary` boundaries (spec #251/#252,
+`~/components/exception/island-boundary.tsx`) need no `QueryErrorResetBoundary`: a rejected query and
+a render throw are different failures with different UI (an `isError` branch with its own Retry vs. an
+Island-wide fallback).
+
+`react-error-boundary`'s `withErrorBoundary` HOC is built on `React.forwardRef`, so it trips
+`react-no-forwardref.md` the moment it is used — compose with the `<ErrorBoundary>` JSX component
+instead, never the HOC.
+
 ## UI primitives (`@monorepo/ui`)
 
 - shadcn, style `base-vega`, on **Base UI** (`@base-ui/react`) — not Radix. Composition is the

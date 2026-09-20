@@ -89,6 +89,18 @@ describe("mapConversationToUiModel", () => {
     expect(conversation.title).toBe("Unknown user");
   });
 
+  it("treats a missing participants array as empty rather than throwing", () => {
+    const record = {
+      ...directConversation(),
+      participants: undefined,
+    } as unknown as ChatConversationRecord;
+
+    const conversation = mapConversationToUiModel(record, CURRENT_USER_ID);
+
+    expect(conversation.members).toEqual([]);
+    expect(conversation.title).toBe("Direct message");
+  });
+
   it("reads 'No messages yet.' when the conversation has no last message", () => {
     const conversation = mapConversationToUiModel(
       directConversation(),

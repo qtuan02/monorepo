@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { Virtuoso } from "react-virtuoso";
 
 import { useDebounce } from "@monorepo/hook/use-debounce";
+import { Button } from "@monorepo/ui/components/button";
 import {
   Empty,
   EmptyDescription,
@@ -95,9 +96,11 @@ export default function ConversationList({
   const {
     conversations,
     isLoading,
+    isError,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
+    refetch,
   } = useConversationList(filter);
 
   // Snapshots which rows counted as unread the moment the visitor enters the
@@ -133,6 +136,20 @@ export default function ConversationList({
     body = (
       <div className="min-h-0 flex-1 overflow-hidden">
         <ConversationListSkeleton />
+      </div>
+    );
+  } else if (isError) {
+    // A rejected query, not a render throw — the list's own IslandBoundary
+    // (conversation-shell.template.tsx) is for the latter; this is what
+    // "không tải được" means for a query that answered but with an error.
+    body = (
+      <div className="flex h-full flex-col items-center justify-center gap-3 p-6">
+        <p className="text-muted-foreground text-sm">
+          {t("chat.convList.couldNotLoad")}
+        </p>
+        <Button variant="outline" size="sm" onClick={() => refetch()}>
+          {t("chat.convList.retry")}
+        </Button>
       </div>
     );
   } else if (debouncedSearch) {

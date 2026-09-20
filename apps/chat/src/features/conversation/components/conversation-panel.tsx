@@ -19,12 +19,15 @@ import { cn } from "@monorepo/ui/utils/cn";
 import type { Conversation } from "~/features/conversation/types/conversation";
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
+import IslandBoundary from "~/components/exception/island-boundary";
 import { Island } from "~/components/island/island";
 import { ROUTES } from "~/constants/routes";
 import { ConversationDetailsPanel } from "~/features/conversation/components/conversation-details-panel";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
+import { conversationQueryKeys } from "~/hooks/api/conversation";
+import { messageQueryKeys } from "~/hooks/api/message";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 import { useSocketStore } from "~/stores/use-socket-store";
 import { createDraftConversationId } from "~/utils/direct-message-draft";
@@ -194,26 +197,38 @@ export default function ConversationPanel({
           )}
         </header>
         <div className="min-h-0 flex-1">
-          {draftUser ? (
-            <Empty className="h-full">
-              <EmptyHeader>
-                <EmptyMedia variant="icon">
-                  <MessageCircle />
-                </EmptyMedia>
-                <EmptyTitle>{t("chat.convPane.draft.emptyTitle")}</EmptyTitle>
-                <EmptyDescription>
-                  {t("chat.convPane.draft.sayHiTo", { title })}
-                </EmptyDescription>
-              </EmptyHeader>
-            </Empty>
-          ) : (
-            conversationId && (
-              <MessageList
-                key={conversationId}
-                conversationId={conversationId}
-              />
-            )
-          )}
+          <IslandBoundary
+            queryKey={
+              conversationId
+                ? [
+                    messageQueryKeys.byConversation(conversationId),
+                    conversationQueryKeys.all,
+                  ]
+                : conversationQueryKeys.all
+            }
+            resetKeys={[conversationId]}
+          >
+            {draftUser ? (
+              <Empty className="h-full">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <MessageCircle />
+                  </EmptyMedia>
+                  <EmptyTitle>{t("chat.convPane.draft.emptyTitle")}</EmptyTitle>
+                  <EmptyDescription className="max-md:hidden">
+                    {t("chat.convPane.draft.sayHiTo", { title })}
+                  </EmptyDescription>
+                </EmptyHeader>
+              </Empty>
+            ) : (
+              conversationId && (
+                <MessageList
+                  key={conversationId}
+                  conversationId={conversationId}
+                />
+              )
+            )}
+          </IslandBoundary>
         </div>
         {activeConversation && (
           <MessageComposer
@@ -262,7 +277,7 @@ function NoConversationSelected() {
             <MessageCircle className="size-7" />
           </EmptyMedia>
           <EmptyTitle>{t("chat.convPane.empty.pickTitle")}</EmptyTitle>
-          <EmptyDescription>
+          <EmptyDescription className="max-md:hidden">
             {t("chat.convPane.empty.pickDescription")}
           </EmptyDescription>
         </EmptyHeader>

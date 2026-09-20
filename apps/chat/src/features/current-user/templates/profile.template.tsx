@@ -5,15 +5,24 @@ import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 import { Button } from "@monorepo/ui/components/button";
 import { Skeleton } from "@monorepo/ui/components/skeleton";
 
+import IslandBoundary from "~/components/exception/island-boundary";
 import { ProfileForm } from "~/features/current-user/components/profile-form";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
-import { useCurrentUserQuery } from "~/hooks/api/user";
+import { useCurrentUserQuery, userQueryKeys } from "~/hooks/api/user";
 import { useSignOut } from "~/hooks/use-sign-out";
 
 // Named rows rather than an index key — see conversation-list.skeleton.tsx.
 const SKELETON_FIELDS = ["first", "last", "username", "email", "phone"];
 
 export default function ProfileTemplate() {
+  return (
+    <IslandBoundary queryKey={userQueryKeys.all}>
+      <ProfileTemplateContent />
+    </IslandBoundary>
+  );
+}
+
+function ProfileTemplateContent() {
   const { t } = useTranslation();
   const currentUserQuery = useCurrentUserQuery();
   const isMobile = useIsMobile();

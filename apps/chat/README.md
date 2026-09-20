@@ -114,6 +114,22 @@ conversation`, `~/features/friends` để biết chi tiết từng component —
 
 **Ba Island từ `md` (đóng decision hàng 19 của brief, 2026-09-20):** `layout.template.tsx` chỉ bọc Friends/Profile trong một Island; màn hội thoại (`/` và `/conversation/:id`) nhận cột trần và `conversation-shell.template.tsx` tự xếp list Island 320 · pane Island · Details Island 320 (khi mở; ở `md`–`lg` Details chiếm chỗ list bằng `max-lg:hidden` thay vì ép pane). Nút `+` là **New group** thẳng (tooltip, không dropdown); ô search của list tìm **cả chat lẫn người** — `people-search-results.tsx` gọi `useUserSearchInfiniteQuery`, bạn hay không đều hiện (icon `UserPlus` = chưa là bạn), chọn → Draft conversation qua `useOpenDirectConversation`; `NewMessageDialog` bỏ. Bong bóng bo góc theo vị trí trong run (Messenger), tin người khác nền `muted`, avatar đặt ở tin cuối run; mọi nút đứng một mình dùng `outline`, không `ghost` (chỉ hai nút nằm trong ô nhập — emoji, X xoá search — giữ ghost).
 
+**Island fallback (spec #251/#252, 2026-09-20):** mỗi Island có truy vấn riêng đứng sau một
+`~/components/exception/island-boundary.tsx` của riêng nó (`react-error-boundary`'s `ErrorBoundary`,
+`FallbackComponent` là `island-fallback.tsx` — text + nút Retry gọi `resetErrorBoundary`, cùng footprint
+với nhánh "không tải được" của `MessageList`). Bọc đúng 5 chỗ, bên trong `<Island>`: list (reset
+`conversation.all`), pane (reset message keys của `conversationId` + `conversation.all`, `resetKeys`
+theo `conversationId`), Details direct/group (reset user info của đối phương + `conversation.all`,
+`resetKeys` theo `conversationId`), Friends template (`friend.all`), Profile template (`user.all`) — Rail,
+Bottom nav, Health gate và auth không bọc. Retry = `resetQueries` đúng key của Island rồi remount, không
+reload cả trang; đổi `conversationId` tự xoá fallback của pane/Details qua `resetKeys`, không cần bấm.
+Mọi lỗi boundary bắt được — Island hay boundary gốc — log một chỗ ở `createRoot(rootEl, {
+onCaughtError, onUncaughtError })` trong `src/index.tsx`; boundary gốc (`~/pages/main.tsx`) giữ
+`InternalServerError` + reload cho lỗi ngoài shell, không còn `onError` riêng. Vá kèm tại nguồn: mapper
+Conversation coi `participants` thiếu là `[]`, `~/utils/display.ts`'s `getDisplayName`/`getInitials`
+không throw với user không tên; `ConversationList` có nhánh `isError` + Retry (`refetch`) riêng, không
+còn hiện empty state khi backend từ chối.
+
 Khoảng trống còn lại, ghi ở lần code review 2026-09-19, chờ backend: `chat-socket` không có
 `GET /conversations/{id}`, nên `conversation-panel.tsx` chỉ tra hội thoại đang mở trong các trang
 list **đã tải** — deep-link tới một hội thoại ngoài 20 dòng đầu (hoặc một group chỉ nạp qua chip

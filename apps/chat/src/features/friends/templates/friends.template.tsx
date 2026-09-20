@@ -10,10 +10,11 @@ import {
   TabsTrigger,
 } from "@monorepo/ui/components/tabs";
 
+import IslandBoundary from "~/components/exception/island-boundary";
 import { FindPeopleSection } from "~/features/friends/components/find-people-section";
 import { FriendRequestSection } from "~/features/friends/components/friend-request-section";
 import { FriendsListSection } from "~/features/friends/components/friends-list-section";
-import { useFriendRequestsQuery } from "~/hooks/api/friend";
+import { friendQueryKeys, useFriendRequestsQuery } from "~/hooks/api/friend";
 
 type FriendsTab = "friends" | "requests" | "find";
 const DEFAULT_TAB: FriendsTab = "friends";
@@ -49,48 +50,50 @@ export default function FriendsTemplate() {
   const receivedCount = requestsQuery.data?.receivedRequests.length ?? 0;
 
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={(value) => {
-        if (!isFriendsTab(value)) return;
-        setSearchParams(value === DEFAULT_TAB ? {} : { [TAB_PARAM]: value }, {
-          replace: true,
-        });
-      }}
-      className="min-h-0 flex-1 gap-0"
-    >
-      <header className="border-border flex flex-col gap-3 border-b px-4 pt-4 pb-3 md:flex-row md:items-center md:justify-between md:px-6">
-        <h1 className="text-xl font-semibold">{t("chat.friends.title")}</h1>
-        <TabsList className="group-data-horizontal/tabs:h-10 w-full rounded-full p-1 md:w-fit">
-          <TabsTrigger value="friends" className={TAB_TRIGGER_CLASS_NAME}>
-            <Users />
-            {t("chat.friends.tabs.friends")}
-          </TabsTrigger>
-          <TabsTrigger value="requests" className={TAB_TRIGGER_CLASS_NAME}>
-            <Inbox />
-            {t("chat.friends.tabs.requests")}
-            {receivedCount > 0 && (
-              <Badge className="bg-primary text-primary-foreground min-w-5 px-1.5">
-                {receivedCount}
-              </Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="find" className={TAB_TRIGGER_CLASS_NAME}>
-            <Search />
-            {t("chat.friends.tabs.find")}
-          </TabsTrigger>
-        </TabsList>
-      </header>
+    <IslandBoundary queryKey={friendQueryKeys.all}>
+      <Tabs
+        value={activeTab}
+        onValueChange={(value) => {
+          if (!isFriendsTab(value)) return;
+          setSearchParams(value === DEFAULT_TAB ? {} : { [TAB_PARAM]: value }, {
+            replace: true,
+          });
+        }}
+        className="min-h-0 flex-1 gap-0"
+      >
+        <header className="border-border flex flex-col gap-3 border-b px-4 pt-4 pb-3 md:flex-row md:items-center md:justify-between md:px-6">
+          <h1 className="text-xl font-semibold">{t("chat.friends.title")}</h1>
+          <TabsList className="group-data-horizontal/tabs:h-10 w-full rounded-full p-1 md:w-fit">
+            <TabsTrigger value="friends" className={TAB_TRIGGER_CLASS_NAME}>
+              <Users />
+              {t("chat.friends.tabs.friends")}
+            </TabsTrigger>
+            <TabsTrigger value="requests" className={TAB_TRIGGER_CLASS_NAME}>
+              <Inbox />
+              {t("chat.friends.tabs.requests")}
+              {receivedCount > 0 && (
+                <Badge className="bg-primary text-primary-foreground min-w-5 px-1.5">
+                  {receivedCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="find" className={TAB_TRIGGER_CLASS_NAME}>
+              <Search />
+              {t("chat.friends.tabs.find")}
+            </TabsTrigger>
+          </TabsList>
+        </header>
 
-      <TabsContent value="friends" className={TAB_CONTENT_CLASS_NAME}>
-        <FriendsListSection />
-      </TabsContent>
-      <TabsContent value="requests" className={TAB_CONTENT_CLASS_NAME}>
-        <FriendRequestSection />
-      </TabsContent>
-      <TabsContent value="find" className={TAB_CONTENT_CLASS_NAME}>
-        <FindPeopleSection />
-      </TabsContent>
-    </Tabs>
+        <TabsContent value="friends" className={TAB_CONTENT_CLASS_NAME}>
+          <FriendsListSection />
+        </TabsContent>
+        <TabsContent value="requests" className={TAB_CONTENT_CLASS_NAME}>
+          <FriendRequestSection />
+        </TabsContent>
+        <TabsContent value="find" className={TAB_CONTENT_CLASS_NAME}>
+          <FindPeopleSection />
+        </TabsContent>
+      </Tabs>
+    </IslandBoundary>
   );
 }

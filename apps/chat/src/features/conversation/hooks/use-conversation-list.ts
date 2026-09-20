@@ -48,5 +48,6 @@ export function useConversationList(filter: ConversationListFilter = "all") {
     hasNextPage: conversationsQuery.hasNextPage,
     isFetchingNextPage: conversationsQuery.isFetchingNextPage,
     fetchNextPage: conversationsQuery.fetchNextPage,
+    refetch: conversationsQuery.refetch,
   };
 }

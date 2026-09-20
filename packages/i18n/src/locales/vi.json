@@ -379,6 +379,10 @@
       "remove": "Xoá",
       "removing": "Đang xoá..."
     },
+    "islandFallback": {
+      "title": "Phần này không tải được.",
+      "retry": "Thử lại"
+    },
     "convList": {
       "activeNow": "Đang hoạt động",
       "viewProfile": "Xem hồ sơ",
@@ -403,6 +407,7 @@
       "emptyDescription": "Tìm ai đó ở trên để chào hỏi, hoặc tạo nhóm mới bằng nút +.",
       "emptyFilterTitle": "Không có cuộc trò chuyện nào khớp với bộ lọc này",
       "searchPeopleError": "Không thể tìm kiếm mọi người.",
+      "couldNotLoad": "Không tải được cuộc trò chuyện.",
       "retry": "Thử lại",
       "noPeopleFound": "Không tìm thấy ai.",
       "notFriendsYet": "Chưa phải bạn bè",

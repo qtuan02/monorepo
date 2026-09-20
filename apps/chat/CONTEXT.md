@@ -61,3 +61,7 @@ _Avoid_: sidebar (là primitive của `@monorepo/ui`, không dùng ở đây), m
 **Bottom nav**:
 Island điều hướng nằm ngang ở đáy màn mobile với ba đích Chats · Friends · Me; ẩn khi đang trong một Conversation vì composer chiếm đáy. Là bản mobile của Rail, không phải một menu.
 _Avoid_: tab bar, menu dưới, footer
+
+**Island fallback** (chốt ở vòng grill 2026-09-20):
+Nội dung tạm của một Island khi phần bên trong nó không vẽ lên được (lỗi lúc render, không phải backend trả lỗi): Island vẫn đứng nguyên chỗ, các Island khác trên màn không đổi, và có đúng một nút thử lại làm Island đó tải lại dữ liệu của riêng nó. Khác **Health gate** (chặn toàn app trước khi có Island nào) và khác nhánh "không tải được" của một truy vấn (backend từ chối, Island vẫn vẽ bình thường và tự nói điều đó).
+_Avoid_: error state (gộp với nhánh truy vấn lỗi), crash screen, 500, error boundary (tên cơ chế, không phải tên trạng thái)

@@ -83,14 +83,7 @@ const MainApp = () => {
   }, []);
 
   return (
-    <ErrorBoundary
-      fallback={<InternalServerError />}
-      // Logged rather than swallowed: the fallback tells the user something
-      // broke, this is what tells a developer what did.
-      onError={(error, info) => {
-        console.error("Uncaught render error:", error, info.componentStack);
-      }}
-    >
+    <ErrorBoundary fallback={<InternalServerError />}>
       <Toaster />
       <QueryClientProvider client={queryClient}>
         {showDevtools && (

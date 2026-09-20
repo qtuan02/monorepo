@@ -379,6 +379,10 @@
       "remove": "Remove",
       "removing": "Removing..."
     },
+    "islandFallback": {
+      "title": "This section couldn't load.",
+      "retry": "Retry"
+    },
     "convList": {
       "activeNow": "Active now",
       "viewProfile": "View profile",
@@ -403,6 +407,7 @@
       "emptyDescription": "Search for someone above to say hi, or start a group with +.",
       "emptyFilterTitle": "No conversations match this filter",
       "searchPeopleError": "Couldn't search people.",
+      "couldNotLoad": "Couldn't load your conversations.",
       "retry": "Retry",
       "noPeopleFound": "No one found.",
       "notFriendsYet": "Not friends yet",
