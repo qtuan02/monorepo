@@ -11,6 +11,7 @@ import {
 
 import type { ChatUserSearchPage } from "@monorepo/api/chat/user-service";
 import type {
+  ChatChangePasswordParams,
   ChatUpdateUserParams,
   ChatUserInfo,
   ChatUserProfile,
@@ -120,6 +121,24 @@ export function useUpdateProfileMutation(
       queryClient.setQueryData(userQueryKeys.current(), profile);
       toast.add({
         title: i18n.t("chat.profile.toast.updated"),
+        type: "success",
+      });
+    },
+    ...options,
+  });
+}
+
+// No cache write and no sign-out — a password change doesn't touch the
+// stored session token, so nothing else needs to react to it.
+export function useChangePasswordMutation(
+  options?: UseMutationOptionsWrapper<ChatChangePasswordParams, void>,
+) {
+  return useMutation({
+    mutationFn: (payload: ChatChangePasswordParams) =>
+      chatUserService.changePassword(payload),
+    onSuccess: () => {
+      toast.add({
+        title: i18n.t("chat.profile.changePassword.toast.success"),
         type: "success",
       });
     },
