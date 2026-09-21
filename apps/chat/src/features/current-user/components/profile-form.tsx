@@ -24,6 +24,7 @@ import { Textarea } from "@monorepo/ui/components/textarea";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { ProfileFormValues } from "~/features/current-user/types/profile-form";
+import { ChangePasswordDialog } from "~/features/current-user/components/change-password-dialog";
 import { createProfileFormSchema } from "~/features/current-user/types/profile-form";
 import { useUpdateProfileMutation } from "~/hooks/api/user";
 import { getDisplayName, getInitials } from "~/utils/display";
@@ -214,10 +215,13 @@ export function ProfileForm({ profile }: { profile: ChatUserProfile }) {
                 </Button>
               </>
             ) : (
-              <Button type="button" variant="outline" onClick={startEditing}>
-                <PencilLine className="size-4" />
-                {t("chat.profile.editProfile")}
-              </Button>
+              <>
+                <ChangePasswordDialog />
+                <Button type="button" variant="outline" onClick={startEditing}>
+                  <PencilLine className="size-4" />
+                  {t("chat.profile.editProfile")}
+                </Button>
+              </>
             )}
           </div>
         </header>

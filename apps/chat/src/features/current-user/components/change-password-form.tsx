@@ -10,8 +10,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldLegend,
-  FieldSet,
 } from "@monorepo/ui/components/field";
 import { Input } from "@monorepo/ui/components/input";
 
@@ -65,10 +63,12 @@ function PasswordField({
 }
 
 /**
- * A second, independent form beside `ProfileForm` — a password change has no
+ * A second, independent form from `ProfileForm` — a password change has no
  * view/edit toggle of its own and never prefills from the current profile.
+ * Rendered inside `ChangePasswordDialog`'s `DialogContent`, so it owns no
+ * heading of its own; `onSuccess` is how the dialog closes itself.
  */
-export function ChangePasswordForm() {
+export function ChangePasswordForm({ onSuccess }: { onSuccess: () => void }) {
   const { t } = useTranslation();
   const changePassword = useChangePasswordMutation();
 
@@ -87,48 +87,50 @@ export function ChangePasswordForm() {
   const onSubmit = form.handleSubmit(({ currentPassword, newPassword }) => {
     changePassword.mutate(
       { currentPassword, newPassword },
-      { onSuccess: () => form.reset(DEFAULT_VALUES) },
+      {
+        onSuccess: () => {
+          form.reset(DEFAULT_VALUES);
+          onSuccess();
+        },
+      },
     );
   });
 
   return (
-    <FieldSet className="border-border gap-4 border-t px-4 pt-6 pb-6 md:px-8">
-      <FieldLegend>{t("chat.profile.changePassword.title")}</FieldLegend>
-      <form
-        id="change-password-form"
-        noValidate
-        onSubmit={onSubmit}
-        className="flex max-w-sm flex-col gap-4"
-      >
-        <FieldGroup>
-          <PasswordField
-            control={form.control}
-            name="currentPassword"
-            label={t("chat.profile.changePassword.field.currentPassword")}
-            autoComplete="current-password"
-            disabled={pending}
-          />
-          <PasswordField
-            control={form.control}
-            name="newPassword"
-            label={t("chat.profile.changePassword.field.newPassword")}
-            autoComplete="new-password"
-            disabled={pending}
-          />
-          <PasswordField
-            control={form.control}
-            name="confirmPassword"
-            label={t("chat.profile.changePassword.field.confirmPassword")}
-            autoComplete="new-password"
-            disabled={pending}
-          />
-        </FieldGroup>
-        <Button type="submit" disabled={pending} className="self-start">
-          {pending
-            ? t("chat.profile.changePassword.saving")
-            : t("chat.profile.changePassword.save")}
-        </Button>
-      </form>
-    </FieldSet>
+    <form
+      id="change-password-form"
+      noValidate
+      onSubmit={onSubmit}
+      className="flex flex-col gap-4"
+    >
+      <FieldGroup>
+        <PasswordField
+          control={form.control}
+          name="currentPassword"
+          label={t("chat.profile.changePassword.field.currentPassword")}
+          autoComplete="current-password"
+          disabled={pending}
+        />
+        <PasswordField
+          control={form.control}
+          name="newPassword"
+          label={t("chat.profile.changePassword.field.newPassword")}
+          autoComplete="new-password"
+          disabled={pending}
+        />
+        <PasswordField
+          control={form.control}
+          name="confirmPassword"
+          label={t("chat.profile.changePassword.field.confirmPassword")}
+          autoComplete="new-password"
+          disabled={pending}
+        />
+      </FieldGroup>
+      <Button type="submit" disabled={pending} className="self-end">
+        {pending
+          ? t("chat.profile.changePassword.saving")
+          : t("chat.profile.changePassword.save")}
+      </Button>
+    </form>
   );
 }

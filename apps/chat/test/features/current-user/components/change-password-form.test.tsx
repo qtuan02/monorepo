@@ -13,10 +13,10 @@ vi.mock("~/libs/http-client", () => ({
   chatUserService: { changePassword },
 }));
 
-function renderForm() {
+function renderForm(onSuccess: () => void = () => {}) {
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <ChangePasswordForm />
+      <ChangePasswordForm onSuccess={onSuccess} />
     </QueryClientProvider>,
   );
 }
