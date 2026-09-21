@@ -17,9 +17,9 @@ import {
  * Language: one radio item per registry entry — the same dropdown shape as
  * `ThemeToggleButton`, so the Rail's two settings read as a pair. The
  * Templates' `SelectLanguage` (flag + Select) is the wrong width for a
- * 16-wide Rail of icon buttons.
+ * 16-wide Rail of icon buttons or a header row beside a title.
  */
-export default function LanguageToggleButton() {
+export function LanguageToggleButton() {
   const { t, i18n } = useTranslation();
   // `resolvedLanguage`, not `language`: the detector keeps "vi-VN" verbatim,
   // which no radio item is keyed by.

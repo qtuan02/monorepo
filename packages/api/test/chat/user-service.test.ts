@@ -48,7 +48,7 @@ describe("ChatUserService.me", () => {
 });
 
 describe("ChatUserService.search", () => {
-  it("GETs with the offset params and unwraps `messages` into `items`", async () => {
+  it("GETs with the offset params and unwraps `items`", async () => {
     const record = {
       id: "u2",
       username: "lan",
@@ -58,7 +58,7 @@ describe("ChatUserService.search", () => {
       statusFriend: FriendStatus.NONE,
     };
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [record], nextOffset: null },
+      data: { items: [record], nextOffset: null },
       message: null,
       status: 200,
     });
@@ -74,7 +74,7 @@ describe("ChatUserService.search", () => {
 });
 
 describe("ChatUserService.info", () => {
-  it("GETs with the userId query param and unwraps the envelope", async () => {
+  it("GETs the user's own path and unwraps the envelope", async () => {
     const info = {
       id: "u2",
       username: "lan",
@@ -88,9 +88,7 @@ describe("ChatUserService.info", () => {
     const service = new ChatUserService(clientWith({ get }));
 
     await expect(service.info("u2")).resolves.toBe(info);
-    expect(get).toHaveBeenCalledWith("/v1/user/info", {
-      params: { userId: "u2" },
-    });
+    expect(get).toHaveBeenCalledWith("/v1/user/u2");
   });
 });
 
@@ -114,5 +112,25 @@ describe("ChatUserService.updateMe", () => {
     const service = new ChatUserService(clientWith({ patch }));
 
     await expect(service.updateMe({ bio: "x" })).rejects.toBe(failure);
+  });
+});
+
+describe("ChatUserService.changePassword", () => {
+  it("PATCHes the password subpath with the two passwords", async () => {
+    const patch = vi
+      .fn()
+      .mockResolvedValue({ data: null, message: null, status: 204 });
+    const service = new ChatUserService(clientWith({ patch }));
+
+    await expect(
+      service.changePassword({
+        currentPassword: "old-pass",
+        newPassword: "new-pass",
+      }),
+    ).resolves.toBeUndefined();
+    expect(patch).toHaveBeenCalledWith("/v1/user/me/password", {
+      currentPassword: "old-pass",
+      newPassword: "new-pass",
+    });
   });
 });

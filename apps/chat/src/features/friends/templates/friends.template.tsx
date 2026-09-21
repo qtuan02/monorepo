@@ -29,7 +29,7 @@ const TAB_CONTENT_CLASS_NAME = "min-h-0 flex-1 overflow-y-auto p-4 md:p-6";
  * conversation list's All·Unread·Groups chips and the Rail use (Islands,
  * ADR-0016) — a pill, not an underline. */
 const TAB_TRIGGER_CLASS_NAME =
-  "h-8 gap-1.5 rounded-full px-3 data-active:bg-foreground data-active:text-background data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-foreground";
+  "h-8 gap-1.5 rounded-full px-3 data-active:bg-foreground data-active:text-background data-active:shadow-none dark:data-active:border-transparent dark:data-active:bg-foreground dark:data-active:text-background";
 
 /**
  * `Tabs` — Friends · Requests (badge) · Find people — with the active tab on

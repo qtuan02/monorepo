@@ -221,7 +221,11 @@ describe("the route tree", () => {
     // `true` replaces rather than merges, so a token set by one test cannot
     // survive into the next.
     useAuthStore.setState(initialAuthState, true);
-    useSocketStore.setState({ onlineUsers: [] });
+    useSocketStore.setState({
+      client: null,
+      isConnected: false,
+      onlineUsers: [],
+    });
     chatHealthCheck.mockReset();
     chatAuthRefresh.mockReset();
     chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
@@ -469,12 +473,13 @@ describe("the route tree", () => {
           receivedRequests: [
             {
               id: "r1",
-              fromUser: {
+              user: {
                 id: "u5",
                 username: "hoa",
                 firstName: "Hoa",
                 lastName: "Pham",
               },
+              message: null,
               createdAt: "2026-09-19T00:00:00.000Z",
             },
           ],
@@ -593,6 +598,30 @@ describe("the route tree", () => {
           ).toBeInTheDocument();
         });
       });
+
+      // The broker buffers nothing: a `conversation.updated` fired while the
+      // visitor sits on /friends or /profile is lost unless the user-wide
+      // subscription is mounted there too — which is how a friend's first
+      // message went missing until their second one (2026-09-21).
+      it.each([ROUTES.FRIENDS, ROUTES.PROFILE])(
+        "keeps the conversation-updates subscription mounted on %s",
+        async (path) => {
+          const subscribe = vi.fn(() => ({ unsubscribe: vi.fn() }));
+          useSocketStore.setState({
+            client: { subscribe } as never,
+            isConnected: true,
+          });
+
+          renderAt(path);
+
+          await waitFor(() =>
+            expect(subscribe).toHaveBeenCalledWith(
+              "/user/queue/conversations",
+              expect.any(Function),
+            ),
+          );
+        },
+      );
     });
 
     describe("the conversation screens", () => {
@@ -1217,24 +1246,26 @@ describe("the route tree", () => {
           sentRequests: [
             {
               id: "r2",
-              toUser: {
+              user: {
                 id: "u4",
                 username: "hoa",
                 firstName: "Hoa",
                 lastName: "Pham",
               },
+              message: null,
               createdAt: "2026-09-19T00:00:00.000Z",
             },
           ],
           receivedRequests: [
             {
               id: "r1",
-              fromUser: {
+              user: {
                 id: "u3",
                 username: "minh",
                 firstName: "Minh",
                 lastName: "Tran",
               },
+              message: null,
               createdAt: "2026-09-19T00:00:00.000Z",
             },
           ],
@@ -1280,6 +1311,35 @@ describe("the route tree", () => {
           );
 
         expect(await screen.findByText("No one found")).toBeInTheDocument();
+      });
+
+      // The backend echoes the searcher back as `SELF`; every result list
+      // reads the hook's filtered output, so a search for one's own name is
+      // an empty search (2026-09-21).
+      it("never lists the signed-in visitor among Find people results", async () => {
+        chatUserSearch.mockResolvedValue({
+          items: [
+            {
+              ...CURRENT_USER,
+              joinedAt: "2026-09-01T00:00:00.000Z",
+              statusFriend: FriendStatus.SELF,
+            },
+          ],
+          nextOffset: null,
+        });
+
+        renderAt(`${ROUTES.FRIENDS}?tab=find`);
+
+        await screen.findByRole("tab", { name: "Find people", selected: true });
+        await userEvent
+          .setup()
+          .type(
+            screen.getByPlaceholderText("Search by name or username"),
+            "tuan",
+          );
+
+        expect(await screen.findByText("No one found")).toBeInTheDocument();
+        expect(screen.queryByText("Tuan Huynh")).not.toBeInTheDocument();
       });
 
       it("shows the empty states when there are no friends or requests", async () => {

@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { ArrowLeft, Info, MessageCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
 
+import { HttpError } from "@monorepo/api/client";
 import {
   ChatConversationType,
   ChatParticipantRole,
@@ -17,16 +19,24 @@ import {
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
+import type { Message } from "~/features/conversation/types/message";
 import type { DirectMessageUser } from "~/types/direct-message-user";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import IslandBoundary from "~/components/exception/island-boundary";
+import NotFound from "~/components/exception/not-found";
 import { Island } from "~/components/island/island";
 import { ROUTES } from "~/constants/routes";
 import { ConversationDetailsPanel } from "~/features/conversation/components/conversation-details-panel";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
+import { useConversationAutoSeen } from "~/features/conversation/hooks/use-conversation-auto-seen";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
-import { conversationQueryKeys } from "~/hooks/api/conversation";
+import { useTypingIndicator } from "~/features/conversation/hooks/use-typing-indicator";
+import { mapConversationToUiModel } from "~/features/conversation/utils/map-conversation-to-ui-model";
+import {
+  conversationQueryKeys,
+  useGetConversation,
+} from "~/hooks/api/conversation";
 import { messageQueryKeys } from "~/hooks/api/message";
 import { useCurrentUserQuery } from "~/hooks/api/user";
 import { useSocketStore } from "~/stores/use-socket-store";
@@ -89,6 +99,30 @@ export default function ConversationPanel({
     ? conversations.find((item) => item.id === conversationId)
     : undefined;
   const currentUserId = currentUserQuery.data?.id;
+
+  // T3 (spec #253) — scoped to the open conversation so switching away from
+  // a half-edited message doesn't carry its edit banner into the next one.
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const activeEditingMessage =
+    editingMessage?.conversationId === conversationId ? editingMessage : null;
+
+  // Deep-link/reload fallback: the list hasn't loaded this conversation (a
+  // fresh `/conversations/:id`, or a mobile session with no sidebar ever
+  // mounted) — fetch it on its own, once, rather than block on the list.
+  const isMissingFromList = !!conversationId && !conversation;
+  const getConversationQuery = useGetConversation(
+    isMissingFromList ? conversationId : undefined,
+  );
+  const fetchedConversation =
+    currentUserId && getConversationQuery.data
+      ? mapConversationToUiModel(getConversationQuery.data, currentUserId, t)
+      : undefined;
+  const isConversationNotFound =
+    isMissingFromList &&
+    getConversationQuery.error instanceof HttpError &&
+    (getConversationQuery.error.statusCode === 404 ||
+      getConversationQuery.error.statusCode === 403);
+
   const draftConversation =
     draftUser && currentUserId
       ? buildDraftConversation(
@@ -97,11 +131,12 @@ export default function ConversationPanel({
           t("chat.convPane.empty.noMessagesYet"),
         )
       : undefined;
-  const activeConversation = conversation ?? draftConversation;
+  const activeConversation =
+    conversation ?? fetchedConversation ?? draftConversation;
 
   const isConnected = useSocketStore((state) => state.isConnected);
   const isOtherMemberOnline = useSocketStore((state) => {
-    const otherMemberId = conversation?.otherMemberId ?? draftUser?.id;
+    const otherMemberId = activeConversation?.otherMemberId ?? draftUser?.id;
     return otherMemberId ? state.onlineUsers.includes(otherMemberId) : false;
   });
   const onlineMemberCount = useSocketStore((state) => {
@@ -113,7 +148,29 @@ export default function ConversationPanel({
     ).length;
   });
 
+  // Keyed on the route's `conversationId`, same as `ChatSocketProvider`'s
+  // message subscription — not on `activeConversation`, which a deep-linked
+  // reload may still be fetching, so a typing event lands the moment the
+  // pane opens instead of only once the entity has resolved.
+  const typingUserIds = useTypingIndicator(conversationId, currentUserId);
+
+  // A Draft has no backend id, so `conversation ?? fetchedConversation` is
+  // the right subject here, not `activeConversation`.
+  const openConversation = conversation ?? fetchedConversation;
+  useConversationAutoSeen(
+    openConversation?.id,
+    openConversation?.unreadCount ?? 0,
+  );
+
   if (!conversationId && !draftUser) return <NoConversationSelected />;
+
+  if (isConversationNotFound) {
+    return (
+      <Island className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+        <NotFound />
+      </Island>
+    );
+  }
 
   const title =
     activeConversation?.title ?? t("chat.convPane.header.fallbackTitle");
@@ -225,6 +282,7 @@ export default function ConversationPanel({
                 <MessageList
                   key={conversationId}
                   conversationId={conversationId}
+                  onEditMessage={setEditingMessage}
                 />
               )
             )}
@@ -234,6 +292,9 @@ export default function ConversationPanel({
           <MessageComposer
             key={activeConversation.id}
             conversation={activeConversation}
+            typingUserIds={typingUserIds}
+            editingMessage={activeEditingMessage}
+            onCancelEdit={() => setEditingMessage(null)}
             onSent={
               draftUser
                 ? (message) =>

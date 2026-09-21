@@ -24,26 +24,35 @@ export interface ChatMessageListParams {
 }
 
 export interface ChatMessageListPayload {
-  // `chat-socket` names this field `messages` on every list endpoint,
-  // including this one — see chat-conversation.ts.
-  messages: ChatMessageRecord[];
+  items: ChatMessageRecord[];
   nextCursor: string | null;
 }
 
 export type ChatMessageListResponse = ChatBaseResponse<ChatMessageListPayload>;
 
-export interface ChatSendDirectMessageParams {
+export type SendableMessageType =
+  | ChatMessageType.TEXT
+  | ChatMessageType.IMAGE
+  | ChatMessageType.FILE;
+
+/** Named after the backend DTO, same as `GroupMessageRequest` and
+ * `UserSummaryDto` — a wire request shape, not a `Chat*` domain record. */
+export interface DirectMessageRequest {
   recipientId: string;
   content: string;
-  type: ChatMessageType.TEXT;
-  attachmentUrl: null;
+  type: SendableMessageType;
+  attachmentUrl: string | null;
 }
 
-export interface ChatSendGroupMessageParams {
+export interface GroupMessageRequest {
   conversationId: string;
   content: string;
-  type: ChatMessageType.TEXT;
-  attachmentUrl: null;
+  type: SendableMessageType;
+  attachmentUrl: string | null;
 }
 
 export type ChatMessageResponse = ChatBaseResponse<ChatMessageRecord>;
+
+export interface ChatUpdateMessageParams {
+  content: string;
+}

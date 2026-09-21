@@ -12,7 +12,9 @@ export function mapMessageToUiModel(
     senderId: record.senderId,
     senderName: senderNameById.get(record.senderId) ?? "Unknown user",
     content: record.content,
+    attachmentUrl: record.attachmentUrl ?? null,
     type: record.type,
     createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
   };
 }

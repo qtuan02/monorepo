@@ -318,7 +318,7 @@
       },
       "field": {
         "username": "Username",
-        "usernamePlaceholder": "your-username",
+        "usernamePlaceholder": "Enter your username",
         "password": "Password",
         "passwordPlaceholder": "Enter your password",
         "email": "Email",
@@ -414,6 +414,12 @@
       "loading": "Loading...",
       "morePeople": "More people"
     },
+    "attachment": {
+      "imageAlt": "Image attachment",
+      "fileLabel": "File .{extension}",
+      "previewImage": "📷 Photo",
+      "previewFile": "📎 File"
+    },
     "convPane": {
       "header": {
         "fallbackTitle": "Conversation",
@@ -439,7 +445,26 @@
         "send": "Send",
         "sending": "Sending...",
         "toSend": "to send",
-        "newLine": "for a new line"
+        "newLine": "for a new line",
+        "editingBanner": "Editing message",
+        "cancelEdit": "Cancel"
+      },
+      "emoji": {
+        "searchPlaceholder": "Search emoji",
+        "noResults": "No emoji found.",
+        "groups": {
+          "smileys-emotion": "Smileys & emotion",
+          "people-body": "People & body",
+          "animals-nature": "Animals & nature",
+          "food-drink": "Food & drink",
+          "travel-places": "Travel & places",
+          "activities": "Activities",
+          "objects": "Objects",
+          "symbols": "Symbols"
+        }
+      },
+      "typing": {
+        "line": "{names} {count, plural, one {is typing…} other {are typing…}}"
       },
       "list": {
         "couldNotLoad": "Couldn't load messages.",
@@ -447,7 +472,20 @@
         "newMessagesButton": "{count, plural, one {# new message} other {# new messages}}"
       },
       "row": {
-        "seen": "Seen"
+        "seen": "Seen",
+        "edited": "(edited)",
+        "actions": {
+          "menuLabel": "Message actions",
+          "edit": "Edit",
+          "delete": "Delete",
+          "deleting": "Deleting...",
+          "cancel": "Cancel",
+          "deleteConfirmTitle": "Delete this message?",
+          "deleteConfirmDescription": "This can't be undone."
+        }
+      },
+      "toast": {
+        "removedFromConversation": "You're no longer in this conversation."
       }
     },
     "profile": {
@@ -486,6 +524,26 @@
       },
       "toast": {
         "updated": "Profile updated."
+      },
+      "changePassword": {
+        "title": "Change password",
+        "field": {
+          "currentPassword": "Current password",
+          "newPassword": "New password",
+          "confirmPassword": "Confirm new password"
+        },
+        "save": "Change password",
+        "saving": "Changing...",
+        "validation": {
+          "currentPasswordRequired": "Current password is required.",
+          "newPasswordRequired": "New password is required.",
+          "newPasswordLength": "New password must be 8–72 characters.",
+          "confirmPasswordRequired": "Please confirm your new password.",
+          "confirmPasswordMismatch": "Passwords do not match."
+        },
+        "toast": {
+          "success": "Password changed."
+        }
       }
     },
     "friends": {

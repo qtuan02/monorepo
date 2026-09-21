@@ -21,7 +21,9 @@ export interface ChatFriendRecord {
   joinedAt: string;
 }
 
-export interface ChatFriendRequestUser {
+/** Named after the backend DTO — a wire shape rather than one of this
+ * package's own `Chat*` domain records, same as `DirectMessageRequest`. */
+export interface UserSummaryDto {
   id: string;
   username: string;
   firstName: string;
@@ -29,21 +31,21 @@ export interface ChatFriendRequestUser {
   avatarUrl?: string | null;
 }
 
-export interface ChatSentFriendRequest {
+/**
+ * One request, one shape: `user` is the person on the other end — the
+ * recipient on a sent request, the sender on a received one. Replaces the
+ * old `ChatSentFriendRequest`/`ChatReceivedFriendRequest` pair.
+ */
+export interface ChatFriendRequest {
   id: string;
-  toUser: ChatFriendRequestUser;
-  createdAt: string;
-}
-
-export interface ChatReceivedFriendRequest {
-  id: string;
-  fromUser: ChatFriendRequestUser;
+  user: UserSummaryDto;
+  message: string | null;
   createdAt: string;
 }
 
 export interface ChatFriendRequestsPayload {
-  sentRequests: ChatSentFriendRequest[];
-  receivedRequests: ChatReceivedFriendRequest[];
+  sentRequests: ChatFriendRequest[];
+  receivedRequests: ChatFriendRequest[];
 }
 
 export interface ChatFriendListParams {
@@ -53,9 +55,7 @@ export interface ChatFriendListParams {
 }
 
 export interface ChatFriendListPayload {
-  // `chat-socket` names this field `messages` on every list endpoint — see
-  // chat-conversation.ts.
-  messages: ChatFriendRecord[];
+  items: ChatFriendRecord[];
   nextOffset: number | null;
 }
 
@@ -68,10 +68,6 @@ export interface ChatFriendSendRequestPayload {
   message?: string;
 }
 
-export interface ChatFriendActionPayload {
-  requestId: string;
-}
-
 export type ChatFriendActionResponse = ChatBaseResponse<string | null>;
-export type ChatFriendAcceptResponse = ChatBaseResponse<ChatFriendRequestUser>;
+export type ChatFriendAcceptResponse = ChatBaseResponse<UserSummaryDto>;
 export type ChatFriendRemoveResponse = ChatBaseResponse<string | null>;

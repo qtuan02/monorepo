@@ -171,7 +171,6 @@
         "@stomp/stompjs": "catalog:",
         "@tanstack/react-query": "catalog:tanstack-query5",
         "@tanstack/react-query-devtools": "catalog:tanstack-query5",
-        "frimousse": "catalog:",
         "i18next": "catalog:",
         "lucide-react": "catalog:",
         "react": "catalog:react19",
@@ -391,7 +390,7 @@
     },
     "apps/storybook": {
       "name": "@monorepo/storybook",
-      "version": "0.0.0",
+      "version": "1.0.0",
       "dependencies": {
         "@hookform/resolvers": "catalog:",
         "@monorepo/hook": "workspace:*",
@@ -582,7 +581,7 @@
     },
     "packages/ui-public": {
       "name": "@fe-monorepo/ui",
-      "version": "1.0.3",
+      "version": "1.0.4",
       "dependencies": {
         "@base-ui/react": "^1.7.0",
         "@shadcn/react": "^0.3.1",
@@ -646,7 +645,6 @@
     "class-variance-authority": "0.7.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.23",
-    "frimousse": "^0.3.0",
     "i18next": "^26.4.1",
     "i18next-browser-languagedetector": "^8.2.1",
     "i18next-icu": "^2.4.4",
@@ -2028,8 +2026,6 @@
     "framer-motion": ["framer-motion@13.2.0", "", { "dependencies": { "motion-dom": "^13.2.0", "motion-utils": "^13.0.0", "tslib": "^2.4.0" }, "peerDependencies": { "react": "^18.0.0 || ^19.0.0", "react-dom": "^18.0.0 || ^19.0.0" }, "optionalPeers": ["react", "react-dom"] }, "sha512-9E33ebgMaO33w1nN/jEdW8z3/GO483fMi4rqbMG9rt83XgW9QLKRe4NcmJ8s+fQ3O34++UHrIQwlIWGIWTITjA=="],
 
     "fresh": ["fresh@2.0.0", "", {}, "sha512-Rx/WycZ60HOaqLKAi6cHRKKI7zxWbJ31MhntmtwMoaTeF7XFH9hhBp8vITaMidfljRQ6eYWCKkaTK+ykVJHP2A=="],
-
-    "frimousse": ["frimousse@0.3.0", "", { "peerDependencies": { "react": "^18 || ^19", "typescript": ">=5.1.0" }, "optionalPeers": ["typescript"] }, "sha512-kO6LMoKY/cLAYEhXXtqLRaLIE6L/DagpFPrUZaLv3LsUa1/8Iza3HhwZcgN8eZ+weXnhv69eoclNUPohcCa/IQ=="],
 
     "fsevents": ["fsevents@2.3.3", "", { "os": "darwin" }, "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="],
 

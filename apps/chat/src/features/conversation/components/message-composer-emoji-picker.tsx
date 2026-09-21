@@ -1,4 +1,3 @@
-import type { Emoji } from "frimousse";
 import * as React from "react";
 import { Smile } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -22,11 +21,10 @@ interface MessageComposerEmojiPickerProps {
  * One `Picker` for both mobile and desktop (Q12, spec #195) — the
  * `Popover` primitive already gives it a position on desktop and an
  * outside-click/Escape close on either, so there's no separate mobile
- * sheet variant to maintain. `frimousse` (replacing `emoji-mart`, which
- * rendered every emoji up front and janked on first open) virtualizes
- * the grid itself and fetches+caches its own data, so this wrapper only
- * needs to code-split the package out of the entry chunk and mount it
- * on first open — no manual data fetch.
+ * sheet variant to maintain. The panel is lazy so its ~110KB emoji asset
+ * stays out of the entry chunk and loads on first open (it replaced
+ * `emoji-mart`, which rendered every emoji up front, and then `frimousse`,
+ * which fetched its data from a CDN and had no category tabs).
  */
 const EmojiPickerPanel = React.lazy(
   () =>
@@ -60,8 +58,8 @@ export default function MessageComposerEmojiPicker({
         {open && (
           <React.Suspense fallback={null}>
             <EmojiPickerPanel
-              onEmojiSelect={(emoji: Emoji) => {
-                onSelect({ native: emoji.emoji });
+              onEmojiSelect={(emoji) => {
+                onSelect({ native: emoji });
                 setOpen(false);
               }}
             />

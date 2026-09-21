@@ -1,11 +1,22 @@
 import type { Client, IMessage } from "@stomp/stompjs";
 
+import type {
+  ChatConversationParticipant,
+  ChatConversationRecord,
+} from "@monorepo/types/chat-conversation";
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
 import type {
+  ChatConversationRemovedEvent,
   ChatConversationSeenEvent,
   ChatConversationSocketEvent,
   ChatConversationUpdatedEvent,
+  ChatMessageEvent,
+  ChatTypingEvent,
 } from "@monorepo/types/chat-socket";
+import {
+  ChatConversationType,
+  ChatParticipantRole,
+} from "@monorepo/types/chat-conversation";
 import { ChatMessageType } from "@monorepo/types/chat-message";
 import { ChatSocketEventType } from "@monorepo/types/chat-socket";
 
@@ -26,6 +37,10 @@ const SOCKET_DESTINATIONS = {
   conversationUpdates: "/user/queue/conversations",
   conversationMessages: (conversationId: string) =>
     `/topic/conversations/${conversationId}/messages`,
+  conversationTyping: (conversationId: string) =>
+    `/topic/conversations/${conversationId}/typing`,
+  sendTyping: (conversationId: string) =>
+    `/app/conversations/${conversationId}/typing`,
 } as const;
 
 function parseJsonMessage<T>(body: string): T | null {
@@ -61,21 +76,83 @@ export function isChatMessagePayload(
   );
 }
 
-export function isChatConversationUpdatedEvent(
+const CONVERSATION_TYPES = new Set<string>(Object.values(ChatConversationType));
+const PARTICIPANT_ROLES = new Set<string>(Object.values(ChatParticipantRole));
+
+function isChatConversationParticipant(
   value: unknown,
-): value is ChatConversationUpdatedEvent {
+): value is ChatConversationParticipant {
+  if (!isRecord(value)) return false;
+
+  const hasValidAvatarUrl =
+    value.avatarUrl === undefined ||
+    value.avatarUrl === null ||
+    typeof value.avatarUrl === "string";
+  const hasValidLastReadMessageId =
+    value.lastReadMessageId === undefined ||
+    value.lastReadMessageId === null ||
+    typeof value.lastReadMessageId === "string";
+  const hasValidLastReadAt =
+    value.lastReadAt === undefined ||
+    value.lastReadAt === null ||
+    typeof value.lastReadAt === "string";
+
+  return (
+    typeof value.userId === "string" &&
+    typeof value.username === "string" &&
+    typeof value.firstName === "string" &&
+    typeof value.lastName === "string" &&
+    typeof value.role === "string" &&
+    PARTICIPANT_ROLES.has(value.role) &&
+    hasValidAvatarUrl &&
+    hasValidLastReadMessageId &&
+    hasValidLastReadAt
+  );
+}
+
+/** Reused by `isChatConversationUpdatedEvent` — the socket now carries the
+ * whole `ChatConversationRecord` on `conversation.updated` (contract §5). */
+function isChatConversationRecord(
+  value: unknown,
+): value is ChatConversationRecord {
   if (!isRecord(value)) return false;
 
   const hasValidLastMessage =
     value.lastMessage === null || isChatMessagePayload(value.lastMessage);
 
   return (
-    value.eventType === ChatSocketEventType.CONVERSATION_UPDATED &&
-    typeof value.conversationId === "string" &&
-    typeof value.lastMessageAt === "string" &&
+    typeof value.id === "string" &&
+    typeof value.type === "string" &&
+    CONVERSATION_TYPES.has(value.type) &&
+    (value.groupName === null || typeof value.groupName === "string") &&
+    hasValidLastMessage &&
+    (value.lastMessageAt === null || typeof value.lastMessageAt === "string") &&
     typeof value.unreadCount === "number" &&
     Number.isFinite(value.unreadCount) &&
-    hasValidLastMessage
+    Array.isArray(value.participants) &&
+    value.participants.every(isChatConversationParticipant)
+  );
+}
+
+export function isChatConversationUpdatedEvent(
+  value: unknown,
+): value is ChatConversationUpdatedEvent {
+  if (!isRecord(value)) return false;
+
+  return (
+    value.eventType === ChatSocketEventType.CONVERSATION_UPDATED &&
+    isChatConversationRecord(value.conversation)
+  );
+}
+
+export function isChatConversationRemovedEvent(
+  value: unknown,
+): value is ChatConversationRemovedEvent {
+  if (!isRecord(value)) return false;
+
+  return (
+    value.eventType === ChatSocketEventType.CONVERSATION_REMOVED &&
+    typeof value.conversationId === "string"
   );
 }
 
@@ -97,7 +174,35 @@ export function isChatConversationSocketEvent(
   value: unknown,
 ): value is ChatConversationSocketEvent {
   return (
-    isChatConversationUpdatedEvent(value) || isChatConversationSeenEvent(value)
+    isChatConversationUpdatedEvent(value) ||
+    isChatConversationRemovedEvent(value) ||
+    isChatConversationSeenEvent(value)
+  );
+}
+
+const MESSAGE_EVENT_TYPES = new Set<string>([
+  ChatSocketEventType.MESSAGE_CREATED,
+  ChatSocketEventType.MESSAGE_UPDATED,
+  ChatSocketEventType.MESSAGE_DELETED,
+]);
+
+export function isChatMessageEvent(value: unknown): value is ChatMessageEvent {
+  if (!isRecord(value)) return false;
+
+  return (
+    typeof value.eventType === "string" &&
+    MESSAGE_EVENT_TYPES.has(value.eventType) &&
+    isChatMessagePayload(value.message)
+  );
+}
+
+export function isChatTypingEvent(value: unknown): value is ChatTypingEvent {
+  if (!isRecord(value)) return false;
+
+  return (
+    value.eventType === ChatSocketEventType.TYPING &&
+    typeof value.conversationId === "string" &&
+    typeof value.userId === "string"
   );
 }
 
@@ -166,17 +271,49 @@ export function subscribeToConversationUpdates(
 export function subscribeToConversationMessages(
   client: Client,
   conversationId: string,
-  onMessage: (message: ChatMessageRecord) => void,
+  onEvent: (event: ChatMessageEvent) => void,
 ): Unsubscribe {
   const subscription = client.subscribe(
     SOCKET_DESTINATIONS.conversationMessages(conversationId),
     (message: IMessage) => {
       const payload = parseJsonMessage<unknown>(message.body);
-      if (!isChatMessagePayload(payload)) return;
-      if (payload.conversationId !== conversationId) return;
-      onMessage(payload);
+      if (!isChatMessageEvent(payload)) return;
+      if (payload.message.conversationId !== conversationId) return;
+      onEvent(payload);
     },
   );
 
   return () => subscription.unsubscribe();
+}
+
+/**
+ * `/topic/conversations/{id}/typing` — active-participant-only, same as
+ * `/messages` (contract §5). One event per keystroke from every OTHER
+ * typing participant; the caller (T4) debounces it into a ~3s "still
+ * typing" window per userId.
+ */
+export function subscribeToTyping(
+  client: Client,
+  conversationId: string,
+  onTyping: (event: ChatTypingEvent) => void,
+): Unsubscribe {
+  const subscription = client.subscribe(
+    SOCKET_DESTINATIONS.conversationTyping(conversationId),
+    (message: IMessage) => {
+      const payload = parseJsonMessage<unknown>(message.body);
+      if (!isChatTypingEvent(payload)) return;
+      if (payload.conversationId !== conversationId) return;
+      onTyping(payload);
+    },
+  );
+
+  return () => subscription.unsubscribe();
+}
+
+/** `SEND /app/conversations/{id}/typing` — no body, so there is nothing to
+ * guard on the way out. Throttling the calls is the caller's job (T4). */
+export function sendTyping(client: Client, conversationId: string): void {
+  client.publish({
+    destination: SOCKET_DESTINATIONS.sendTyping(conversationId),
+  });
 }

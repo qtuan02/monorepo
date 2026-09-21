@@ -33,6 +33,7 @@ const CONVERSATION: ChatConversationRecord = {
   participants: [
     {
       userId: "u1",
+      username: "tuanhq02",
       firstName: "Tuan",
       lastName: "Huynh",
       role: ChatParticipantRole.MEMBER,
@@ -41,9 +42,9 @@ const CONVERSATION: ChatConversationRecord = {
 };
 
 describe("ChatConversationService.getConversations", () => {
-  it("GETs with the cursor params and unwraps the `messages` field into `items`", async () => {
+  it("GETs with the cursor params and unwraps `items`", async () => {
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [CONVERSATION], nextCursor: "cursor-2" },
+      data: { items: [CONVERSATION], nextCursor: "cursor-2" },
       message: null,
       status: 200,
     });
@@ -59,7 +60,7 @@ describe("ChatConversationService.getConversations", () => {
 
   it("resolves a null nextCursor as the last page", async () => {
     const get = vi.fn().mockResolvedValue({
-      data: { messages: [], nextCursor: null },
+      data: { items: [], nextCursor: null },
       message: null,
       status: 200,
     });
@@ -80,6 +81,26 @@ describe("ChatConversationService.getConversations", () => {
   });
 });
 
+describe("ChatConversationService.getConversation", () => {
+  it("GETs the conversation's own path and unwraps the record", async () => {
+    const get = vi
+      .fn()
+      .mockResolvedValue({ data: CONVERSATION, message: null, status: 200 });
+    const service = new ChatConversationService(clientWith({ get }));
+
+    await expect(service.getConversation("c1")).resolves.toBe(CONVERSATION);
+    expect(get).toHaveBeenCalledWith("/v1/conversation/c1");
+  });
+
+  it("lets a failure through rather than translating it", async () => {
+    const failure = new Error("boom");
+    const get = vi.fn().mockRejectedValue(failure);
+    const service = new ChatConversationService(clientWith({ get }));
+
+    await expect(service.getConversation("c1")).rejects.toBe(failure);
+  });
+});
+
 const GROUP: ChatConversationRecord = {
   id: "c2",
   type: ChatConversationType.GROUP,
@@ -90,12 +111,14 @@ const GROUP: ChatConversationRecord = {
   participants: [
     {
       userId: "u1",
+      username: "tuanhq02",
       firstName: "Tuan",
       lastName: "Huynh",
       role: ChatParticipantRole.ADMIN,
     },
     {
       userId: "u2",
+      username: "lan",
       firstName: "Lan",
       lastName: "Nguyen",
       role: ChatParticipantRole.MEMBER,
@@ -126,7 +149,7 @@ describe("ChatConversationService.createGroup", () => {
 });
 
 describe("ChatConversationService.updateGroup", () => {
-  it("PATCHes the group subpath with the new name", async () => {
+  it("PATCHes the conversation's own path with the new name", async () => {
     const patch = vi
       .fn()
       .mockResolvedValue({ data: GROUP, message: null, status: 200 });
@@ -135,7 +158,7 @@ describe("ChatConversationService.updateGroup", () => {
     await expect(
       service.updateGroup("c2", { name: "Team Alpha" }),
     ).resolves.toBe(GROUP);
-    expect(patch).toHaveBeenCalledWith("/v1/conversation/c2/group", {
+    expect(patch).toHaveBeenCalledWith("/v1/conversation/c2", {
       name: "Team Alpha",
     });
   });

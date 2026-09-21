@@ -11,11 +11,13 @@ import {
 
 import type { ChatUserSearchPage } from "@monorepo/api/chat/user-service";
 import type {
+  ChatChangePasswordParams,
   ChatUpdateUserParams,
   ChatUserInfo,
   ChatUserProfile,
   ChatUserSearchRecord,
 } from "@monorepo/types/chat-user";
+import { FriendStatus } from "@monorepo/types/chat-friend";
 import { toast } from "@monorepo/ui/components/toast";
 
 import type {
@@ -89,7 +91,13 @@ export function useUserSearchInfiniteQuery(
     initialPageParam: undefined,
     enabled: search.trim().length > 0,
     // Flattened here, not by the caller — see .agents/rules/tanstack-consume-infinite.md.
-    select: (data) => data.pages.flatMap((page) => page.items),
+    // The backend still returns the searcher (`statusFriend: SELF`) — dropped
+    // once here rather than in each list that renders a result, so no screen
+    // offers "message yourself". Server-side exclusion would be the real fix.
+    select: (data) =>
+      data.pages
+        .flatMap((page) => page.items)
+        .filter((person) => person.statusFriend !== FriendStatus.SELF),
     ...options,
   });
 }
@@ -120,6 +128,24 @@ export function useUpdateProfileMutation(
       queryClient.setQueryData(userQueryKeys.current(), profile);
       toast.add({
         title: i18n.t("chat.profile.toast.updated"),
+        type: "success",
+      });
+    },
+    ...options,
+  });
+}
+
+// No cache write and no sign-out — a password change doesn't touch the
+// stored session token, so nothing else needs to react to it.
+export function useChangePasswordMutation(
+  options?: UseMutationOptionsWrapper<ChatChangePasswordParams, void>,
+) {
+  return useMutation({
+    mutationFn: (payload: ChatChangePasswordParams) =>
+      chatUserService.changePassword(payload),
+    onSuccess: () => {
+      toast.add({
+        title: i18n.t("chat.profile.changePassword.toast.success"),
         type: "success",
       });
     },

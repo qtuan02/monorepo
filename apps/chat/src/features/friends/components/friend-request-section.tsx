@@ -75,32 +75,23 @@ export function FriendRequestSection() {
     declineMutation.isPending ||
     cancelMutation.isPending;
 
-  function act(
-    requestId: string,
-    mutate: (payload: { requestId: string }) => void,
-  ) {
+  function act(requestId: string, mutate: (requestId: string) => void) {
     if (isBusy) return;
     setProcessingRequestId(requestId);
-    mutate({ requestId });
+    mutate(requestId);
   }
 
   const handleAccept = (requestId: string) =>
-    act(requestId, (payload) =>
-      acceptMutation.mutate(payload, {
-        onSettled: () => clearProcessing(requestId),
-      }),
+    act(requestId, (id) =>
+      acceptMutation.mutate(id, { onSettled: () => clearProcessing(id) }),
     );
   const handleDecline = (requestId: string) =>
-    act(requestId, (payload) =>
-      declineMutation.mutate(payload, {
-        onSettled: () => clearProcessing(requestId),
-      }),
+    act(requestId, (id) =>
+      declineMutation.mutate(id, { onSettled: () => clearProcessing(id) }),
     );
   const handleCancel = (requestId: string) =>
-    act(requestId, (payload) =>
-      cancelMutation.mutate(payload, {
-        onSettled: () => clearProcessing(requestId),
-      }),
+    act(requestId, (id) =>
+      cancelMutation.mutate(id, { onSettled: () => clearProcessing(id) }),
     );
 
   const receivedRequests = requestsQuery.data?.receivedRequests ?? [];
@@ -136,7 +127,7 @@ export function FriendRequestSection() {
         {receivedRequests.map((request) => (
           <UserItem
             key={request.id}
-            user={request.fromUser}
+            user={request.user}
             friendStatus={FriendStatus.RECEIVED}
             requestId={request.id}
             isActionPending={processingRequestId === request.id}
@@ -154,7 +145,7 @@ export function FriendRequestSection() {
         {sentRequests.map((request) => (
           <UserItem
             key={request.id}
-            user={request.toUser}
+            user={request.user}
             friendStatus={FriendStatus.SENT}
             requestId={request.id}
             isActionPending={processingRequestId === request.id}

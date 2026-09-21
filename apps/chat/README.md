@@ -49,8 +49,9 @@ bun run dev:chat     # http://localhost:3007
 | Data layer | `packages/api/src/chat/*.ts` | Sáu service class — `ChatAuthService`, `ChatHealthService`, `ChatUserService`, `ChatFriendService`, `ChatConversationService`, `ChatMessageService` — unwrap `ChatBaseResponse.data` (`@monorepo/types/chat-base`), singleton ở `~/libs/http-client.ts` (`withCredentials`, `onAuthError` → refresh + cất token, `onUnauthorized` → xoá cache + đăng xuất — ADR-0014). |
 | Shell | `src/features/layout/templates/layout.template.tsx` | `NavRail` (`≥md`) hoặc `BottomNav` (`<md`, ẩn trong màn chat) quanh một `Island` bọc `<Outlet/>` — xem § Hình dạng Islands. `~/features/current-user/components/current-user-menu.tsx` mang avatar/tên + dropdown View profile/Edit profile (`/profile?edit=1`)/Sign out. |
 | Conversation | `src/features/conversation/` | Sidebar danh sách (direct + group, cuộn vô hạn, Presence) qua `react-virtuoso`; màn chat cuộn ngược vô hạn, composer + emoji picker lazy-load, Draft conversation từ Friends. |
-| Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`), patch cache tại chỗ khi tin đến, Presence online/offline, `seen`. |
-| Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ tại chỗ — một `ProfileForm` với hai trạng thái view/edit trên `?edit=`, không có dialog. |
+| Socket | `src/libs/socket.ts` + `src/stores/use-socket-store.ts` + `src/features/chat/provider/` | STOMP thuần (`@stomp/stompjs`); type guard cho 6 payload (`conversation.updated{conversation}`, `.removed`, `.seen`, `message.created\|updated\|deleted{message}`, `typing`) — payload lạ/`group.deleted` bị bỏ qua. `conversation.updated` **upsert** nguyên record vào list theo `id` (hội thoại mới tự hiện); `conversation.removed` xoá khỏi list, và nếu đang mở đúng id thì đưa về Home kèm toast. Message cache upsert theo `id`, `message.deleted` xoá. `subscribeToTyping`/`sendTyping` dùng trong `use-typing-indicator.ts` — dòng "đang gõ…" trên composer (T4, #258). Presence online/offline như cũ. `ChatSocketRouteBoundary` (subscription `/user/queue/conversations`) bọc **mọi** route sau đăng nhập — kể cả `/friends`, `/profile` — vì broker không buffer: khi nó chỉ bọc màn hội thoại, tin đầu tiên của một người bạn gửi lúc mình đang ở `/friends` bị mất hẳn, list cache còn fresh nên quay về Chats vẫn không thấy (sửa 2026-09-21, `test/pages/main.test.tsx` khoá). |
+| Friends / Group / Profile | `src/features/friends/`, `src/features/group/`, `src/features/current-user/` | `/friends` (Friend request lifecycle, tìm user debounce), tạo/đổi tên/thêm-xoá-thành-viên/rời group theo role, `/profile` xem/sửa hồ sơ tại chỗ — một `ProfileForm` với hai trạng thái view/edit trên `?edit=`, không có dialog. Section đổi mật khẩu (T5, #259) đứng riêng dưới `ProfileForm`, `PATCH /user/me/password`, không sign-out sau khi đổi. |
+| Attachment / Sửa-Xoá tin / Typing / Emoji | `message-composer*.tsx`, `message-row.tsx`, `use-typing-indicator.ts` | Spec #253 (chốt 2026-09-20): `IMAGE` render `<img>` trong bubble, `FILE` là thẻ tải về (T2, #256) — **chỉ còn chiều nhận**: nút kẹp giấy + upload phía gửi đã gỡ 2026-09-21 vì BE chưa phục vụ upload (lấy lại từ git khi BE sẵn sàng; composer luôn gửi `TEXT`). Emoji picker tự viết kiểu Messenger — 8 tab theo nhóm, mỗi lần chỉ render nhóm đang chọn, tìm theo label+tags, dữ liệu là asset commit `src/assets/emoji/emoji-data.json` (sinh bằng `scripts/build-emoji-data.ts` từ `emojibase-data`, không fetch CDN, không cờ/skin tone). Menu ⋯ trên bubble của mình — Sửa (chỉ tin `TEXT`, đưa vào composer chế độ edit) · Xoá (confirm, không hoàn tác) — dấu "(đã sửa)" khi `updatedAt !== createdAt` (T3, #257 — xem § Gotcha về độ trễ timestamp). "X đang gõ…" trên composer, subscribe/send throttle ~2s (T4, #258). |
 | Palette | `src/globals.css` | Teal của nguồn, override ở tầng app (xem § Token/accent) — cùng hình dạng ADR-0008/0009/0011. |
 | Deploy | `vercel.json` · `Dockerfile` · `nginx.conf` | Như `apps/smart-rental`: build/install từ root qua `npx --yes bun@1.4.0`, SPA rewrite `/(.*)` → `/index.html`. Dockerfile/nginx của Template giữ nguyên cho job `docker`. |
 
@@ -67,18 +68,38 @@ phải drift cần đồng bộ ngược từ `_template_vite` hay từ app khá
    qua `~/utils/date.ts` (`toLocal`), không gọi `dayjs(value)` thẳng; gửi lên BE dùng `toApiTimestamp` (UTC ISO).
 2. **Không `~/services/`.** Không có, và sẽ không có: mọi gọi backend đi qua service class trong
    `@monorepo/api` (`packages/api/src/chat/`) — quy ước chung của cả monorepo, không phải riêng app này.
-3. **Không optimistic send, không typing indicator, không render `IMAGE`/`FILE`, không tìm hội thoại
-   phía server.** Cố ý ngoài scope spec #232 (đủ cả bốn ở "Out of Scope" của spec) — gửi lỗi khôi phục
-   chữ vào composer nhưng không có "Failed · Retry" tại chỗ; backend không phát event typing; client chỉ
-   gửi `TEXT`; tìm hội thoại lọc client trên trang đã tải, không gọi server.
+3. **Contract 2026-09-20 (spec #253) — xong.** Cắt data layer sang contract mới (T1, #254/#255),
+   Attachment (T2, #256), Sửa/Xoá tin (T3, #257), Typing (T4, #258), đổi mật khẩu (T5, #259) — cả
+   năm ticket đã merge, xem § bảng ở trên và comment tổng kết trên spec #253. Cố ý **vẫn** ngoài
+   scope: tombstone "tin đã bị thu hồi", lightbox ảnh, nhiều tệp một tin, optimistic send,
+   "Failed · Retry" tại chỗ, typing ở danh sách hội thoại, và tìm hội thoại phía server (như từ
+   spec #232).
 4. **Không CI job E2E, không throttle callback riêng.** `useThrottle` của nguồn bỏ hẳn — double-submit
    chặn bằng `isPending` của mutation; `use-debounce` của nguồn đổi sang `@monorepo/hook/use-debounce`.
 
 ## Gotcha
 
-`@emoji-mart/react` chưa khai `peerDependencies` cho React 19 (peer báo React 16–18) — cài và chạy vẫn
-tốt, chỉ là một dòng warning lúc `bun install`. `Picker` được `lazy(() => import(...))` từ composer nên
-không nằm trong bundle ban đầu.
+`ChatMessageType.SYSTEM` ở trong enum + nhánh render riêng (`group-messages.ts`, `message-row.tsx`) từ
+T1 (spec #253) vì backend có sẵn trong contract — nhưng `chat-socket` **chưa phát** giá trị này ở bất
+kỳ đường nào (đã kiểm source lúc T1 — xem comment tổng kết trên spec #253 cho kết luận cuối của T6).
+Chỉ là chỗ đứng sẵn, không phải tính năng đang chạy; app không tự tạo message `SYSTEM` nào.
+
+Emoji picker: `emoji-mart` (render hết, giật) rồi `frimousse` (fetch CDN, "Đang tải…" ~2s, không có tab
+nhóm) đều đã bỏ; panel hiện tại là `message-composer-emoji-picker-panel.tsx`, vẫn `lazy(() => import(...))`
+để asset ~110KB không nằm trong bundle ban đầu.
+
+`PATCH /v1/message/{id}` (BE `chat-socket`) có thể trả `updatedAt` **cũ** — bằng `createdAt` — ngay trong
+response của chính lệnh sửa, và `message.updated` phát qua socket mang y hệt object đó nên cũng cũ theo.
+Đọc `MessageServiceImpl.updateMessage`: entity được map sang DTO ngay sau `save()`, trước khi
+`@Transactional` flush ở commit — lúc đó Hibernate mới thực sự ghi `@UpdateTimestamp`, nên giá trị map
+được phụ thuộc thời điểm flush thực tế. Kiểm bằng `curl` thật (BE 8089 local, không qua UI) thấy cũ **ổn
+định** cả ở response lẫn một `GET` gần như ngay sau đó (chỉ đúng sau vài giây, hoặc sau một refetch xa
+hơn); kiểm lại bằng Playwright 2 tab qua UI thật thì thấy **không ổn định** — có lần dấu "(đã sửa)" hiện
+ngay ở cả hai tab, có lần không hiện ở tab nào tới khi reload — tuỳ thời điểm flush của request đó. Nội
+dung tin thì luôn cập nhật đúng và ngay lập tức ở cả hai tab bất kể trường hợp nào — chỉ riêng badge có
+thể trễ. Cố ý **không** vá bằng cách đoán `updatedAt` ở FE (đúng tinh thần "không hack tolerance" của
+ticket #257) — cần sửa ở `chat-socket` (`saveAndFlush` trước khi map DTO, hoặc đọc lại entity sau commit)
+khi có người phụ trách repo đó.
 
 ## Precondition backend
 
@@ -130,11 +151,11 @@ Conversation coi `participants` thiếu là `[]`, `~/utils/display.ts`'s `getDis
 không throw với user không tên; `ConversationList` có nhánh `isError` + Retry (`refetch`) riêng, không
 còn hiện empty state khi backend từ chối.
 
-Khoảng trống còn lại, ghi ở lần code review 2026-09-19, chờ backend: `chat-socket` không có
-`GET /conversations/{id}`, nên `conversation-panel.tsx` chỉ tra hội thoại đang mở trong các trang
-list **đã tải** — deep-link tới một hội thoại ngoài 20 dòng đầu (hoặc một group chỉ nạp qua chip
-Groups) không render composer và người gửi đọc là "Unknown user". "View profile" trong Details (story
-45), avatar/tên trên mỗi hàng `/friends` và mỗi thành viên trong Group info đều mở
+Khoảng trống ghi ở lần code review 2026-09-19 — `chat-socket` không có `GET /conversation/{id}` nên
+deep-link ngoài 20 dòng đầu không render — đã đóng ở T1 (spec #253, #255): route mới `getConversation`
++ `useGetConversation` tra riêng khi hội thoại chưa có trong list cache, 404/403 render `NotFound`
+ngay trong pane Island (xem `conversation-panel.tsx`'s `isMissingFromList`). "View profile" trong
+Details (story 45), avatar/tên trên mỗi hàng `/friends` và mỗi thành viên trong Group info đều mở
 `~/components/user-detail-dialog.tsx` — cái vỏ fetch `useUserInfoQuery` khi mở quanh
 `~/components/user-info.tsx`, khối trình bày thuần (avatar, tên, quan hệ, rồi **mọi** field
 `GET /v1/user/info` trả — Username · Email · Phone · Bio · Joined, field trống hiện "—") để một frame

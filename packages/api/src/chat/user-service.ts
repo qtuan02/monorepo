@@ -1,4 +1,6 @@
+import type { ChatBaseResponse } from "@monorepo/types/chat-base";
 import type {
+  ChatChangePasswordParams,
   ChatUpdateUserParams,
   ChatUserInfo,
   ChatUserInfoResponse,
@@ -32,15 +34,14 @@ export class ChatUserService {
     });
 
     return {
-      items: response.data.messages,
+      items: response.data.items,
       nextOffset: response.data.nextOffset,
     };
   }
 
   async info(userId: string): Promise<ChatUserInfo> {
     const response = await this.client.get<ChatUserInfoResponse>(
-      "/v1/user/info",
-      { params: { userId } },
+      `/v1/user/${userId}`,
     );
 
     return response.data;
@@ -53,5 +54,12 @@ export class ChatUserService {
     );
 
     return response.data;
+  }
+
+  async changePassword(params: ChatChangePasswordParams): Promise<void> {
+    await this.client.patch<ChatBaseResponse<null>>(
+      "/v1/user/me/password",
+      params,
+    );
   }
 }

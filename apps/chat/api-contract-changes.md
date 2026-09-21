@@ -1,5 +1,8 @@
 # API contract changes — hướng dẫn cho FE (`monorepo/apps/chat`)
 
+> **Đã áp dụng** (spec #253, T6 #260, 2026-09-21) — mọi mục dưới đây đã cắt sang trong T1–T5. Giữ file
+> làm bản ghi contract tại thời điểm cắt, không còn là hướng dẫn "cần làm".
+
 Ngày: 2026-09-20. Backend: `chat-socket` branch `refactor/cleanup`. Mọi mục đều **breaking**.
 
 ## 1. Thời gian

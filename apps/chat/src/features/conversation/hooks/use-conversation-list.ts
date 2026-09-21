@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
 
@@ -28,6 +29,7 @@ function byLatestActivity(
  * `filter-conversations.ts`'s job, over the full set this hook returns.
  */
 export function useConversationList(filter: ConversationListFilter = "all") {
+  const { t } = useTranslation();
   const currentUserQuery = useCurrentUserQuery();
   const conversationsQuery = useConversationsInfiniteQuery(
     filter === "groups" ? ChatConversationType.GROUP : undefined,
@@ -37,9 +39,9 @@ export function useConversationList(filter: ConversationListFilter = "all") {
   const conversations = useMemo(() => {
     if (!currentUserId) return [];
     return (conversationsQuery.data ?? [])
-      .map((record) => mapConversationToUiModel(record, currentUserId))
+      .map((record) => mapConversationToUiModel(record, currentUserId, t))
       .sort(byLatestActivity);
-  }, [conversationsQuery.data, currentUserId]);
+  }, [conversationsQuery.data, currentUserId, t]);
 
   return {
     conversations,

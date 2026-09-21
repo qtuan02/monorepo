@@ -29,9 +29,20 @@ export class ChatConversationService {
     );
 
     return {
-      items: response.data.messages,
+      items: response.data.items,
       nextCursor: response.data.nextCursor,
     };
+  }
+
+  /** Deep-link/reload — unread count for the caller alone, not the cached list. */
+  async getConversation(
+    conversationId: string,
+  ): Promise<ChatConversationRecord> {
+    const response = await this.client.get<ChatConversationResponse>(
+      `/v1/conversation/${conversationId}`,
+    );
+
+    return response.data;
   }
 
   async markAsSeen(conversationId: string): Promise<void> {
@@ -56,7 +67,7 @@ export class ChatConversationService {
     params: ChatUpdateGroupParams,
   ): Promise<ChatConversationRecord> {
     const response = await this.client.patch<ChatConversationResponse>(
-      `/v1/conversation/${conversationId}/group`,
+      `/v1/conversation/${conversationId}`,
       params,
     );
 

@@ -34,9 +34,7 @@ export default function PeopleSearchResults({
   const { t } = useTranslation();
   const peopleQuery = useUserSearchInfiniteQuery(search);
   const openDirectConversation = useOpenDirectConversation();
-  const people = (peopleQuery.data ?? []).filter(
-    (person) => person.statusFriend !== FriendStatus.SELF,
-  );
+  const people = peopleQuery.data ?? [];
 
   if (peopleQuery.isLoading) {
     return (

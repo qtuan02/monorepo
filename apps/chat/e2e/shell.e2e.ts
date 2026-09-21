@@ -35,7 +35,7 @@ async function mockConversations(page: Page) {
       contentType: "application/json",
       body: JSON.stringify({
         data: {
-          messages: [
+          items: [
             {
               id: "c1",
               type: "DIRECT",
@@ -46,12 +46,14 @@ async function mockConversations(page: Page) {
               participants: [
                 {
                   userId: "u1",
+                  username: "tuanhq02",
                   firstName: "Tuan",
                   lastName: "Huynh",
                   role: "MEMBER",
                 },
                 {
                   userId: "u2",
+                  username: "lannguyen",
                   firstName: "Lan",
                   lastName: "Nguyen",
                   role: "MEMBER",
