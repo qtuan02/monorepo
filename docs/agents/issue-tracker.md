@@ -42,7 +42,7 @@ This repo tracked work as markdown under `.agents/plans/` until the switch. Thos
 - **Apply / remove labels**: `gh issue edit <number> --add-label "..."` / `--remove-label "..."`
 - **Close**: `gh issue close <number> --comment "..."`
 
-Issue bodies are written in **Vietnamese**, like every other workflow artifact (`CLAUDE.md` §7a);
+Issue bodies are written in **Vietnamese**, like every other workflow artifact (`.agents/workflow.md` §2, tóm tắt ở `CLAUDE.md` §4);
 technical terms stay English (Runtime, Flavor, Gate, seam, …).
 
 ## Spec and tickets — one tracking issue, N children

@@ -2,10 +2,10 @@
 
 > Tài liệu cho **người**: cách làm việc với Claude Code trong repo này, quy trình chuẩn một feature đi qua,
 > toàn bộ skill hiện có (nguồn gốc và việc từng cái làm), và 52 rule mà AI phải tuân theo. Nguồn thật là
-> chính các file được dẫn — `CLAUDE.md` (§7, §7a, §7b, §8), `.agents/README.md`, từng `SKILL.md`, từng rule —
+> chính các file được dẫn — `CLAUDE.md` §4 và `.agents/workflow.md`, `.agents/README.md`, từng `SKILL.md`, từng rule —
 > tài liệu này chỉ xếp chúng theo thứ tự đọc. Nếu hai bên lệch nhau, **file gốc thắng** và tài liệu này cần sửa.
 >
-> Ngày viết: 2026-09-06, nhánh `dev`. Tiếng Việt, thuật ngữ kỹ thuật giữ English theo `CLAUDE.md` §7a.
+> Ngày viết: 2026-09-06, nhánh `dev`. Tiếng Việt, thuật ngữ kỹ thuật giữ English theo `.agents/workflow.md` §2 (tóm tắt ở `CLAUDE.md` §4).
 
 ## Mục lục
 
@@ -25,7 +25,7 @@
 ba Runtime, quy ước, và mọi override của repo. Claude đọc `.agents/rules/` khi cần và thấy skill ở
 `.claude/skills/` (symlink tới `.agents/skills/`).
 
-**Trao đổi bằng tiếng Việt.** Claude đã được dặn trong `CLAUDE.md` §7a: hỏi, báo cáo, giải thích đều tiếng
+**Trao đổi bằng tiếng Việt.** Claude đã được dặn trong `.agents/workflow.md` §2 (tóm tắt ở `CLAUDE.md` §4): hỏi, báo cáo, giải thích đều tiếng
 Việt; thuật ngữ kỹ thuật (Runtime, Flavor, seam, query key…) giữ English; code, commit message, rule giữ
 tiếng Anh.
 
@@ -169,7 +169,7 @@ hiện có cần ADR trước vì ảnh hưởng mọi app.
 | Không biết nên dùng skill nào | `/ask-matt` | |
 | Việc quá lớn cho một phiên | `/wayfinder` | Map ticket + child ticket trên tracker |
 | Xếp issue mới vào nhãn | `/triage` | Nhãn trong `docs/agents/triage-labels.md` |
-| Viết skill / rule mới, sửa `CLAUDE.md` | `/writing-for-agents` | Theo `CLAUDE.md` §8 |
+| Viết skill / rule mới, sửa `CLAUDE.md` | `/writing-for-agents` | Theo `.agents/workflow.md` §4 |
 
 ---
 
@@ -275,7 +275,7 @@ Ba việc dọn đã làm ngay sau khi cài:
 1. `biome.json` `files.includes`: loại cả bảy thư mục — không thì `bun run check` format lại ≈ 1,4 MB JSON
    và mấy file `.cjs` của skill.
 2. `.gitignore`: `__pycache__/` — phòng ngày nào đó có Python và `search.py` đẻ `.pyc` vào thư mục vendored.
-3. Override vào `CLAUDE.md` §7a mục "Bước design" (không sửa SKILL.md vendored).
+3. Override vào `.agents/workflow.md` §2 (tóm tắt ở `CLAUDE.md` §4) mục "Bước design" (không sửa SKILL.md vendored).
 
 ### 5.2 Dùng không Python — grep-fallback
 
@@ -305,7 +305,7 @@ có `theme.css`, và sáu sub-skill (cần API key hoặc `pip`, không sinh gì
    **Đã chốt** ở hai vòng portfolio: `docs/design/<app>-<chủ đề>.md`, mẫu là chính hai brief
    `portfolio-rebuild.md` (v1) và `portfolio-redesign-v2.md` (v2) — header ghi ngày, bước, đầu vào,
    đầu ra, cách đọc trích dẫn CSV; khi spec đã implement, thêm blockquote "Đã implement, spec #N"
-   trỏ về README của app, CLAUDE.md §1 và ADR (nếu có). Brief là bản ghi *tại thời điểm quyết*,
+   trỏ về README của app, `.agents/project-structure.md` và ADR (nếu có). Brief là bản ghi *tại thời điểm quyết*,
    không sửa lại cho khớp app hiện tại.
 2. Có giữ sáu sub-skill trong repo không (xoá tay thì `update` ghi lại).
 3. Muốn gõ `/design` cho bước design thì đặt tên khác (ví dụ `/design-brief`) để không va với thư mục
@@ -445,12 +445,12 @@ Trong app server-rendered, cluster này chỉ quản **sau paint**; ranh giới 
 
 - **Ngôn ngữ**: trao đổi và artefact workflow (spec, ticket, `CONTEXT.md`, ADR, tài liệu design, note research)
   bằng **tiếng Việt**, thuật ngữ English giữ nguyên. Code, tên biến, commit message, `.agents/rules/*` bằng
-  **tiếng Anh**. Skill của repo (nếu viết) bằng tiếng Việt, `description` song ngữ (`CLAUDE.md` §8).
+  **tiếng Anh**. Skill của repo (nếu viết) bằng tiếng Việt, `description` song ngữ (`.agents/workflow.md` §4).
 - **Local-only**: không publish gì lên web/app ngoài GitHub Issues; artefact là file commit trong repo.
 - **Không thêm phụ thuộc runtime**: không Python; skill nào cần thì dùng ở chế độ đọc dữ liệu tĩnh.
 - **Không sửa skill vendored**: `npx skills@latest update <name>` cho 25 skill trong lock,
   `npx ui-ux-pro-max-cli update` cho bảy skill UI UX Pro Max, `npx gitnexus analyze` cho sáu `gitnexus-*`;
-  muốn khác thì viết override vào `CLAUDE.md` §7a hoặc fork dưới tên mới.
+  muốn khác thì viết override vào `.agents/workflow.md` §2 (tóm tắt ở `CLAUDE.md` §4) hoặc fork dưới tên mới.
 - **Docs kiến trúc vào `docs/`**, không vào issue: ADR ở `docs/adr/`, research ở `docs/research/`, hướng dẫn ở
   `docs/guides/`; term vào `CONTEXT.md` / `CONTEXT-MAP.md`.
 - **Gate** = `check` · `typecheck` · `test` · `build`, chạy local y hệt CI. E2E, docker, changeset-status,

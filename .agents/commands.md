@@ -1,331 +1,237 @@
-# Build & Development Commands
+# Commands — the full reference
 
-This monorepo uses **Bun** (`bun@1.4.0`) as the package manager and **Turborepo** as the task
-runner. Root scripts delegate to `turbo run <task>`; **Biome is the exception** — it runs once from
-the root with no Turbo fan-out. Run everything from the repo root unless noted.
+Run everything from the repo root unless a line says otherwise. **Bun** (`bun@1.4.0`) is the package
+manager, **Turborepo** the task runner. Every root script is `turbo run <task>` except Biome, which runs
+once from the root with no Turbo fan-out.
 
-`CLAUDE.md` §6 is the short version of this file. Where the two disagree, the `package.json`
-scripts win and both files are wrong.
+`CLAUDE.md` §6 is the short form of this file. If the two disagree with `package.json`, the scripts win
+and both files need a fix.
 
 ## Setup
 
-- `bun install` — install every workspace dependency (reads `bun.lock`, `bunfig.toml`)
-- Node **24 LTS** — `.nvmrc` pins `24.20.0`, `engines.node` reads `>=24.14.0`, and `@types/node`
-  tracks the same 24.x line. The build runs on Bun; Node is a *runtime* dependency for the two
-  **server** Runtimes, whose Docker runners are both `node:24-alpine` — the Next one runs
-  `node server.js`, the React Router one
-  `node node_modules/@react-router/serve/bin.cjs ./build/server/index.js`. The Vite
-  Runtime's runner is plain nginx and has no Node at all.
-- Bun — `engines.bun` reads `>=1.2.0`, but `packageManager` pins `bun@1.4.0`, which is the version
-  to develop and run CI against.
-- Copy `.env.example` to `.env` at the repo root before the first `dev` or `build`. There is one
-  `.env` for the whole workspace; all three Runtimes read it (ADR-0003, ADR-0006).
+- `bun install` — install every workspace (reads `bun.lock`, `bunfig.toml`).
+- Copy `.env.example` to `.env` at the repo root before the first `dev` or `build`. One `.env` serves the
+  whole workspace; all three Runtimes read it (ADR-0003, ADR-0006).
+- Pins: Node **24** (`.nvmrc` = `24.20.0`, `engines.node >= 24.14.0`), Bun **1.4.0** (`packageManager`;
+  `engines.bun >= 1.2.0` is only the floor). Node is a runtime dependency only for the two server
+  Runtimes — their Docker runners are `node:24-alpine`. The Vite Runtime ships on nginx with no Node.
 
 ## Development
 
-- `bun run dev:template-vite` — the Vite Template app, `http://localhost:3000`
-- `bun run dev:template-next` — the Next Template app, `http://localhost:3001`
-- `bun run dev:template-reactrouter` — the React Router Template app, `http://localhost:3005`
-- `bun run dev:storybook` — Storybook, `http://localhost:6006`
+- `bun run dev:<app>` — `template-vite` 3000 · `template-next` 3001 · `portfolio` 3002 · `documents` 3003 ·
+  `mcp` 3004 · `template-reactrouter` 3005 · `smart-rental` 3006 · `chat` 3007 · `storybook` 6006.
+- Each is `turbo watch dev -F @monorepo/<app>...`, so the app's workspace dependencies rebuild as you edit
+  them. Per app: `cd apps/<app> && bun run dev`.
+- `bun run preview` (Vite Runtime only) serves the production build on the app's **E2E** port, so dev and
+  preview can run side by side. The two server Runtimes have `bun run start` instead (`next start`,
+  `react-router-serve`) — their builds carry a server bundle that `vite preview` cannot serve.
 
-Each is `turbo watch dev -F @monorepo/<app>...`, so the app's workspace dependencies rebuild as you
-edit them. Per-app: `cd apps/_template_vite && bun run dev`, or `bun run preview` to serve that
-app's production build — `preview` is a Vite-Runtime script and binds the app's **E2E** port, not
-its dev port, so both can be up at once. Neither server Runtime has a `preview` at all, and that is
-deliberate rather than an omission: `vite preview` serves static files and both of those builds
-carry a server bundle. Serve them with `bun run start` instead — `next start` and
-`react-router-serve` each take `PORT` from that app's `ports.env`, which is the **dev** port, and it
-is Playwright's `webServer.env.PORT` that moves them onto the E2E one.
+### Ports
 
-Neither number is written in a script or a config (the literals left are `ENV PORT=3000` /
-`EXPOSE 3000` in the two server Templates' Dockerfiles, `apps/_template_next/Dockerfile` and
-`apps/_template_reactrouter/Dockerfile` — the port *inside* the container, which has its
-own network namespace and is deliberately unrelated to this pair; the comment in each says so). Each
-app states both of its ports in `apps/<app>/ports.env` — `PORT` and `E2E_PORT`, one pair per app,
-dev `3000 + n` and e2e `3100 + n` — and everything else reads that file: `apps/<app>/ports.ts` for
-the TypeScript configs (a Vite-bundler app's `vite.config.ts` takes `server.port` from it, plus
-`preview.port` in the Vite Runtime, the only one with a preview server; every `playwright.config.ts`
-takes `E2E_PORT`), and dotenv-cli for the scripts of the two Runtimes with no config-level port —
-the Next app's `dev` and `start`, and the React Router app's `start`. `apps/storybook` sits outside both bands
-on Storybook's own 6006, has no E2E server, and declares no `ports.env`. Moving a port is one edit in
-that file; `bun run gen:app` assigns a new app the lowest free pair the same way.
+- Every app states its two ports in `apps/<app>/ports.env` — `PORT` (dev, `3000 + n`) and `E2E_PORT`
+  (`3100 + n`). That file is the only place the numbers are written; its own comments explain the design.
+  `apps/<app>/ports.ts` reads it for `vite.config.ts` and `playwright.config.ts`; the Next `dev`/`start`
+  scripts and the React Router `start` script hand it to dotenv-cli because those CLIs read `PORT` only.
+- Storybook sits outside both bands on 6006 and has no `ports.env`.
+- `bun run gen:app` assigns a new app the lowest free pair. Confirm it by starting the new app beside its
+  Template, not with `bun run e2e` — Playwright reuses a server already on the port, so a collision reads
+  as a pass.
+- The `ENV PORT=3000` / `EXPOSE 3000` literals in the two server Dockerfiles are the port *inside* the
+  container and unrelated to this pair.
 
-Both server Runtimes' scripts go through **`dotenv-cli`**, for the same two reasons. The Next app
-runs `dev` and `start` as `dotenv -e ./ports.env -e ../../.env -- next …` and `build` with the root
-file only (`next build` takes no port); the React Router app runs `start` as
-`dotenv -e ./ports.env -e ../../.env -- react-router-serve ./build/server/index.js`, and its `dev`,
-`prebuild` and `build` with the root file only — `react-router dev` is a Vite dev server, so it
-takes its port from `vite.config.ts` like the Vite Template rather than from `PORT`. Neither
-framework auto-loads a `.env` outside its own app directory, and this repo deliberately keeps one at
-the root instead — dropping the `dotenv` prefix silently starts the app with no env at all, which
-surfaces as a validation throw rather than as a missing file. (`react-router build` does not
-evaluate `src/env.ts` at all, which is why that app carries a `prebuild` importing it under the same
-root file: a missing key fails there, by name, before `build` runs — ADR-0006.) The
-`-e ./ports.env` comes **first** because dotenv-cli does not override a key already set: that is
-what lets Playwright's `webServer.env` put `PORT` in the environment and land the E2E server on the
-E2E port while `start` still defaults to the dev one. It matters most for `react-router-serve`, an
-Express process whose only port channel is `PORT` and which, with `PORT` unset, picks the first free
-port rather than failing.
+### dotenv-cli in the two server Runtimes
+
+Neither `next` nor `react-router-serve` loads a `.env` outside its own directory, and the repo keeps one
+at the root — so those scripts name it:
+
+| App | Script | Prefix |
+|---|---|---|
+| Next | `dev`, `start` | `dotenv -e ./ports.env -e ../../.env --` |
+| Next | `build` | `dotenv -e ../../.env --` (a build binds no port) |
+| React Router | `start` | `dotenv -e ./ports.env -e ../../.env --` |
+| React Router | `dev`, `prebuild`, `build` | `dotenv -e ../../.env --` (`react-router dev` is a Vite server; it takes its port from `vite.config.ts`) |
+
+- `ports.env` comes **first** because dotenv-cli never overrides a key already set. That is how
+  Playwright's `webServer.env.PORT` moves the E2E server onto the E2E port while `start` still defaults to
+  dev. It matters most for `react-router-serve`: with `PORT` unset it picks the first free port instead of
+  failing.
+- Dropping the prefix starts the app with an empty `process.env`. The symptom is a validation throw from
+  `env.ts`, not a missing-file error.
+- `react-router build` never evaluates `src/env.ts`, so that app has a `prebuild` that imports it under the
+  same `.env` — a missing key fails there, by name (ADR-0006).
+- A Vite app needs none of this: `vite.config.ts` sets `envDir: "../../"`.
 
 ## Build
 
-- `bun run build` — build every package and app (Turbo)
-- `bun run build:template-vite` / `build:template-next` / `build:template-reactrouter` — one app
-  plus its dependencies
-- `bun run clean` — `git clean -xdf node_modules`
-- `bun run clean:workspaces` — each workspace's own `clean` task
+- `bun run build` — every app plus `@monorepo/ui` and `@monorepo/hook` (Turbo).
+- `bun run build:<app>` — one app plus its dependencies.
+- `bun run clean` — `git clean -xdf node_modules`; `bun run clean:workspaces` — each workspace's own `clean`.
 
-Most packages are **source-only**: `private: true`, `exports` pointing straight at `src/`, no build
-step and no `dist/`. That still describes six of the ten — `api`, `dayjs`, `env`, `i18n`, `sentry`,
-`types` — plus both `tooling/*` workspaces, and each of those appears in the graph for ordering, not
-for output.
+What `build` produces:
 
-The two exceptions are `@monorepo/ui` and `@monorepo/hook`. Both are still `private: true` and both
-still hand every app in this repo their `src/`, but each now carries a `build` task that compiles that
-same source into the matching **Publish shell** — `packages/ui-public/dist` and
-`packages/hook-public/dist`, the only two workspaces npm ever sees (ADR-0004). The task is rslib in
-**bundleless** mode, so one source file becomes one `.js` plus one `.d.ts` and the shells' subpath
-`exports` resolve file-for-file. `@monorepo/hook` runs `rslib build` directly; `@monorepo/ui` goes
-through `bun scripts/build.ts`, because two jobs bracket the compile — empty the shell's `dist/`
-first, then generate its `dist/globals.css` from `@monorepo/tailwind-config` and assert every relative
-import in the output resolves to a file that exists.
-
-So `bun run build` is every app plus those two packages, not the apps alone. Each of those two
-packages overrides `build.outputs` in its own `turbo.json` to a path **outside** itself
-(`"../ui-public/dist/**"`), which Turbo caches and restores correctly — a wiped shell `dist/` comes
-back whole on a `FULL TURBO` hit, which is why neither shell needs a `build` task of its own.
-`typecheck` and `test` both declare `dependsOn: ["^topo", "^build"]`, so those two builds are pulled
-into both of those graphs as well.
+- Six packages (`api`, `dayjs`, `env`, `i18n`, `sentry`, `types`) and both `tooling/*` workspaces are
+  source-only: `private: true`, `exports` into `src/`, no `dist/`. They appear in the graph for ordering only.
+- `@monorepo/ui` and `@monorepo/hook` are also source-only for the apps here, but each has a `build` task
+  (rslib, **bundleless** — one `.js` + one `.d.ts` per source file) whose output lands in its **Publish
+  shell**: `packages/ui-public/dist`, `packages/hook-public/dist` (ADR-0004). `hook` runs `rslib build`;
+  `ui` runs `bun scripts/build.ts`, which empties the shell's `dist/`, compiles, writes `dist/globals.css`
+  from `@monorepo/tailwind-config`, and asserts every relative import in the output resolves.
+- Those two override `build.outputs` in their own `turbo.json` to the shell path (`../ui-public/dist/**`),
+  so a `FULL TURBO` hit restores a wiped shell `dist/`. The shells need no `build` task.
+- `typecheck` and `test` declare `dependsOn: ["^topo", "^build"]`, so those two builds run in both graphs.
+- Every Next app's `build` is `"cache": false` — see `knowledge-base.md` § Build & tooling for why.
 
 ## Lint, format & typecheck
 
-- `bun run check` — Biome: formatter + linter + import sorting, one pass over the whole repo
-- `bun run check:fix` — the same with `--write` (safe fixes only; unsafe ones need `--unsafe`)
-- `bun run check:changed` — Biome over the changed files only
-- `bun run typecheck` — `tsc --noEmit` across the monorepo, from `@monorepo/tsconfig`
-- `bun run format` / `format:fix` — the formatter alone; `check` is what CI runs
+- `bun run check` — Biome: formatter + linter + import sorting, one pass, whole repo. This is what CI runs.
+- `bun run check:fix` — the same with `--write` (safe fixes; unsafe ones need `--unsafe`).
+- `bun run check:changed` — changed files only.
+- `bun run format` / `format:fix` — the formatter alone.
+- `bun run typecheck` — `tsc --noEmit` per workspace, from `@monorepo/tsconfig`.
 
-Biome runs from the root because its `types` domain does whole-project inference — a per-workspace
-fan-out would mean one project scan per workspace. Scope it by path instead:
+Biome runs from the root because its `types` domain does whole-project inference. Scope it by path:
 `bunx biome check apps/_template_next`.
 
-## Tests
+## Tests (Vitest)
 
-- `bun run test` — Vitest 5 across every workspace that declares a `test` script
-- `bun run test:coverage` — the same plus a v8 report; **no threshold, nothing gates on it**
-- `bun run --filter @monorepo/_template_vite test:watch` — watch one app; the `/tdd` loop
-- `bun run --filter @monorepo/i18n test test/locales/icu-parity.test.tsx` — one file
+- `bun run test` — every workspace with a `test` script.
+- `bun run test:coverage` — plus a v8 report. No threshold; nothing gates on it.
+- `bun run --filter @monorepo/<workspace> test:watch` — one workspace; the `/tdd` loop.
+- `bun run --filter @monorepo/i18n test test/locales/icu-parity.test.tsx` — one file.
 
-Never prefix any of these with `TZ=UTC`. The pin lives inside each `vitest.config.ts` — twice, in
-fact: `process.env.TZ` at module scope **and** `env: { TZ: "UTC" }`, because Vitest 5's
-`test.env.TZ` does not take effect under the `threads` pool. The shell-prefix form is also invalid
-in PowerShell, which is the dev shell here.
+Rules that hold for every test run:
 
-Tests live in `<workspace>/test/`, mirroring the `src/` path of the file under test. Playwright
-specs sit beside that tree in `<app>/e2e/*.e2e.ts` — the suffix is what keeps the two runners from
-collecting each other's files.
+- Never prefix a command with `TZ=UTC`. The pin lives in each `vitest.config.ts` — twice: `process.env.TZ`
+  at module scope **and** `env: { TZ: "UTC" }`, because Vitest 5's `test.env.TZ` is ignored under the
+  `threads` pool. The shell-prefix form is also invalid in PowerShell.
+- Tests live in `<workspace>/test/`, mirroring the `src/` path of the file under test. Playwright specs
+  live in `<app>/e2e/*.e2e.ts`; the suffix keeps the two runners from collecting each other's files.
+- **Vitest 5, not 4** (the Reference monorepo is on 4.x). Two breaking changes bite when copying a config or
+  a test from elsewhere: `clearMocks` now defaults to `true` (every config here states it explicitly), and
+  Vitest 5 no longer searches parent directories for a config (every workspace that runs tests has its own
+  `vitest.config.ts`).
 
-**Vitest 5, not 4** — a deliberate choice to run ahead of the reference monorepo, which is still on
-4.x. Two of its breaking changes bite when copying a config or a test
-in from elsewhere: `clearMocks` now defaults to **`true`** (so every config here states it
-explicitly, since an omitted value now means the opposite of what it used to), and Vitest 5 no
-longer searches parent directories for a config — every workspace that runs tests needs its own
-`vitest.config.ts`.
+## E2E (Playwright) — local only
 
-## E2E (Playwright)
+E2E does **not** run in CI (dropped 2026-09-19). It is a local check for anything touching a route, a
+guard, `proxy.ts`, `src/routes.ts`, a `loader`/`action`/middleware, `entry.server.tsx`, or the boot path.
 
-- `bun run e2e` — every app with an `e2e` task, headless: all three Template apps plus `portfolio`,
-  `documents` and `mcp`. Each `webServer` builds and serves the app itself, so never start a
-  `dev` server first
-- `bun run e2e:headed:template-vite` / `:template-next` / `:template-reactrouter` — the same specs
-  in one real browser window (the `watch` project, which reuses a single context for the whole run)
-- `bunx playwright test e2e/home.e2e.ts` from inside the app directory — one spec
+- `bun run e2e` — every app with a `playwright.config.ts`, headless. Each config's `webServer` builds and
+  serves the app itself; never start a `dev` server first.
+- `bun run e2e:headed:template-vite` / `:template-next` / `:template-reactrouter` — the same specs in one
+  browser window (the `watch` project).
+- `bunx playwright test e2e/home.e2e.ts` from inside the app directory — one spec.
 
-Two projects share one spec tree. `chromium` is what CI and `bun run e2e` use: a fresh browser
-context per test, which is the isolation Playwright actually guarantees. `watch` trades that away
-for one window you can watch, so a spec that passes only there is leaning on state a `chromium` run
-wipes — never treat a `watch` pass as evidence.
+Two projects share one spec tree. `chromium` gives a fresh browser context per test — the isolation
+Playwright guarantees. `watch` reuses one context so you can watch it; a spec that passes only there leans
+on state `chromium` wipes, so a `watch` pass is not evidence.
 
-**On Windows, run Playwright through `bunx playwright test` with the app directory as cwd**, not
-through a `bun run` script: launching Chromium from a `bun run` script hangs on this machine.
+**On Windows, run Playwright as `bunx playwright test` with the app directory as cwd.** Launching Chromium
+from a `bun run` script hangs on this machine.
 
 ## UI primitives (`@monorepo/ui`)
 
-- `bun run --filter @monorepo/ui ui-add` — add a shadcn primitive into `packages/ui/src/components/`
+- `bun run --filter @monorepo/ui ui-add` — add a shadcn primitive into `packages/ui/src/components/`.
 
-It runs `bunx shadcn@4.20.1 add`, then Biome, then `scripts/guard-no-local-hooks.ts`. The CLI
-version is pinned, not `@latest`, and deliberately: the `#hooks` arrangement below is built around
-how 4.20.x resolves aliases, so an unpinned CLI could change that behaviour under the guard without
-anything failing loudly. That guard is
-meant to fire: `components.json` points the CLI's `hooks` alias at `#hooks`, a directory that
-deliberately does not exist, because the CLI 4.20.x cannot be pointed at `@monorepo/hook` directly
-(it validates every alias against the target package's `exports`, and a subpath-only package
-produces an alias it can never match). So a primitive that wants a hook lands one in
-`packages/ui/src/hooks/`, the guard fails the run, and the fix is to move it to `@monorepo/hook` and
-re-point the import — the path `sidebar.tsx` already took to reach
-`@monorepo/hook/use-is-mobile`.
+It runs `bunx shadcn@4.20.1 add`, then Biome, then `scripts/guard-no-local-hooks.ts`:
 
-`data-table` and `date-picker` are **not** registry items — shadcn publishes them as guides, and
-`/r/styles/base-vega/{data-table,date-picker}.json` 404s. Both files here are hand-composed; a
-`ui-add` run will not regenerate them.
+- The CLI version is pinned because the `#hooks` arrangement below depends on how 4.20.x resolves aliases.
+- `components.json` points the CLI's `hooks` alias at `#hooks`, a directory that does not exist. The CLI
+  validates every alias against the target package's `exports`, and `@monorepo/hook` is subpath-only, so it
+  cannot be the alias target. When a primitive needs a hook, the CLI writes it to `packages/ui/src/hooks/`,
+  the guard fails the run, and you move the hook to `@monorepo/hook` and re-point the import — the path
+  `sidebar.tsx` took to reach `@monorepo/hook/use-is-mobile`.
+- `data-table` and `date-picker` are not registry items (shadcn publishes them as guides; the JSON 404s).
+  Both files here are hand-composed and `ui-add` will not regenerate them.
 
 ## Generators
 
-- `bun run gen:app` — scaffold a new app: prompts for the Runtime (`next` | `vite` | `reactrouter`), clones that
-  Template app, rewrites its name, Dockerfile ARGs and root scripts, **assigns it the next free
-  dev/E2E port pair in `apps/<app>/ports.env`**, then installs and formats. The pair is the lowest
-  slot whose *both* ports are free across every `apps/*/ports.env`, so deleting a generated app
-  returns its slot to the pool. The run's last line names the pair it took; confirm it by starting
-  the new app beside its Template, not with `bun run e2e` — Playwright reuses a server already on
-  the port, so a collision reads as a pass
-- `bun run gen:package` — a new `packages/*` workspace
-- `bun run gen:tooling` — a new `tooling/*` workspace
+- `bun run gen:app` — prompts for the Runtime (`next` | `vite` | `reactrouter`), clones that Template app,
+  rewrites its name, Dockerfile ARGs and root scripts, assigns the next free port pair into `ports.env`,
+  then installs and formats. The last line of the run names the pair.
+- `bun run gen:package` — a new `packages/*` workspace.
+- `bun run gen:tooling` — a new `tooling/*` workspace.
 
-These call the `gen` binary directly rather than `bunx turbo gen`, which truncates its JSON argument
-on Windows.
+These call the `gen` binary directly; `bunx turbo gen` truncates its JSON argument on Windows.
 
 ## Publish (npm)
 
-- `bun run changeset` — write a release note for one or both Publish shells
-- `bun run publish:smoke` — pack both shells and install them into a throwaway consumer project
-- `bun run release` — **CI only**: fill both shells, then `changeset publish`
-
-`changeset` opens the Changesets prompt, and only `@fe-monorepo/ui` and `@fe-monorepo/hook` are ever
-offered: every other workspace is `private: true` and `.changeset/config.json` sets
-`privatePackages.version: false`, so a release plan cannot name an app, a `tooling/*` workspace, or a
-`@monorepo/*` package. Write one when the diff changes what someone **outside** the repo receives — a
-primitive under `packages/ui/src/components/`, a hook under `packages/hook/src/`, a shell's
-`exports` / `dependencies` / `peerDependencies`, the CSS entry (so anything in `tooling/tailwind/`),
-or the way the build fills `dist/` — and commit the generated `.changeset/<name>.md` alongside the
-change itself. [`.changeset/README.md`](../.changeset/README.md) is the long form, including why a
-change touching both packages needs **two** entries rather than one: `@fe-monorepo/ui` does not depend
-on `@fe-monorepo/hook`, it inlines the single hook it uses. Note also that
-`bun run changeset status --since=origin/main` — what the CI job runs — reads committed files only, so
-a new changeset has to be staged before its verdict means anything locally.
-
-`publish:smoke` is `bun scripts/publish-smoke.ts`, and it is the one seam that tests the *tarball*
-rather than the source. It builds both shells, `npm pack`s each of them (the same tool
-`changeset publish` shells out to), scaffolds a throwaway Vite + React 19 + Tailwind v4 project
-**outside** the workspace, installs the two tarballs the way a consumer would, then runs
-`tsc --noEmit` and `vite build` over it. Along the way it asserts exactly what only fails once
-published: no `catalog:` or `workspace:` range left in an installed manifest, no `@monorepo/` or
-`#components` / `#utils` / `#hooks` specifier left in a `dist/`, and — read back out of the CSS Vite
-emitted, not out of the shipped file — that the stylesheet actually reached the consumer's Tailwind.
-Pass `--keep` to leave the project on disk and print its path.
-
-Two things about running it here. It creates that project under the **operating system's** temp
-directory (`os.tmpdir()`), never `/tmp`, so it works unchanged on the Windows dev box; and it quotes
-every argument it spawns, because `bun`, `bunx` and `npm` are `.cmd` shims that only resolve through a
-shell, and a shell re-splits a tarball path sitting under `C:\Users\First Last\…`. It also installs
-from the network and builds a real project, so it takes minutes rather than seconds — which is why its
-CI job carries `continue-on-error: true` while it proves it is not flaky.
-
-`release` is `bun run build:publishable && changeset publish`, and **it is not a command to run by
-hand**. `.github/workflows/release.yml` invokes it as `changesets/action`'s `publish-script`, and
-there is no `NPM_TOKEN` anywhere in this repo: publishing authenticates through npm **trusted
-publishing**, where that job's `id-token: write` permission mints a short-lived OIDC token npm
-exchanges for publish rights — which turns on provenance attestation at the same time. Locally there
-is no token to mint, so the publish dies at npm having already rebuilt both shells. The same holds for
-`bun run version-packages` (`changeset version`): the action runs it as its `version-script` on a push
-to `main` that still carries a changeset, which is what opens the "Version Packages" PR, and merging
-that PR is what triggers the publish pass. `bun run build:publishable` is nothing but
-`turbo run build --filter @monorepo/ui --filter @monorepo/hook`, pulled out so that filter pair is
-written once — the `publish-smoke` CI job calls the same script.
+- `bun run changeset` — write a release note for `@fe-monorepo/ui` and/or `@fe-monorepo/hook`. Only those
+  two are offered: every other workspace is `private: true` and `.changeset/config.json` sets
+  `privatePackages.version: false`. Write one when the diff changes what an npm consumer receives — a
+  primitive, a hook, a shell's `exports`/`dependencies`/`peerDependencies`, anything in `tooling/tailwind/`,
+  or the build that fills `dist/` — and commit the generated `.changeset/<name>.md` with the change. A
+  change touching both packages needs **two** entries (`ui` does not depend on `hook`); see
+  `.changeset/README.md`.
+- `bun run publish:smoke` — `scripts/publish-smoke.ts`: build both shells, `npm pack` each, scaffold a
+  throwaway Vite + React 19 + Tailwind v4 project under `os.tmpdir()`, install the two tarballs like a
+  consumer, run `tsc --noEmit` and `vite build`. It asserts what only fails once published: no `catalog:` or
+  `workspace:` range in an installed manifest, no `@monorepo/` or `#…` specifier in a `dist/`, and — read
+  from the CSS Vite emitted — that the stylesheet reached the consumer's Tailwind. `--keep` leaves the
+  project on disk. Takes minutes (network install).
+- `bun run release` — **CI only** (`build:publishable && changeset publish`). There is no `NPM_TOKEN`
+  anywhere; `release.yml` publishes through npm trusted publishing (OIDC), so a local run rebuilds both
+  shells and then dies at npm. `bun run version-packages` is likewise the action's `version-script`. Details
+  in `knowledge-base.md` § Publishing.
+- `bun run build:publishable` — `turbo run build --filter @monorepo/ui --filter @monorepo/hook`, the one
+  place that filter pair is written.
+- `bun run changeset status --since=origin/main` (what CI runs) reads committed files only, so stage a new
+  changeset before trusting its verdict locally.
 
 ## CI (GitHub Actions)
 
-`.github/workflows/ci.yml` runs on a **push to any branch** plus `workflow_dispatch`. There is
-deliberately no `pull_request` trigger: a check attaches to the head commit, so a push-triggered run
-is what a required check on a PR resolves against — the second trigger would only run everything
-twice.
+`.github/workflows/ci.yml` runs on a **push to any branch** plus `workflow_dispatch`. There is no
+`pull_request` trigger on purpose: a check attaches to the head commit, so a push-triggered run is what a
+required check resolves against; a second trigger would run everything twice.
 
-| Job         | Runs                | Catches                                             |
-| ----------- | ------------------- | --------------------------------------------------- |
-| `check`     | `bun run check`     | format, lint, import sorting                        |
-| `typecheck` | `bun run typecheck` | type errors across the monorepo                     |
-| `test`      | `bun run test`      | behaviour regressions (Vitest, jsdom, pinned to UTC) |
-| `build`     | `bun run build`     | breakage the first three miss — a bundler or Next config change |
+| Job | Runs | Catches |
+|---|---|---|
+| `check` | `bun run check` | format, lint, import sorting |
+| `typecheck` | `bun run typecheck` | type errors |
+| `test` | `bun run test` | behaviour regressions (Vitest, jsdom, UTC) |
+| `build` | `bun run build` | what the first three miss — a bundler or Next config change |
 
-Those four are **the Gate**, and `bun run check && bun run typecheck && bun run test && bun run build`
-reproduces it exactly. Four more jobs sit outside the Gate, each carrying `continue-on-error: true`
-— they report without blocking, and deleting that one line makes any of them a gate. Two of them,
-`e2e` and `docker`, run when a `changes` job sees the diff touch `apps/`, `packages/`, `tooling/`,
-`bun.lock` or the workflow; the other two, `changeset-status` and `publish-smoke`, run on a second
-output of that same job — `packages/{ui,hook,ui-public,hook-public}/`, `tooling/tailwind/`, `scripts/`,
-`.changeset/`, `bun.lock` and either workflow file. That is the published surface rather than an app,
-which is why `apps/` is deliberately absent from it (an app-only diff cannot change a tarball) and
-`.changeset/` just as deliberately absent from the first (a release note cannot change a screen).
-`e2e` drives Playwright over every app that ships a
-`playwright.config.ts`, globbed rather than listed — the same trick `docker` plays with `Dockerfile`,
-and for the same reason: the two Template apps were hard-coded until `portfolio` and `documents`
-landed and silently were not run, while the job still reported green. `set +e` plus a failure tally
-around the loop is load-bearing too — without them the first red app ends the step and every later
-app goes unreported. `docker` builds one image per app that ships a Dockerfile (`push: false`,
-`load: false`, GitHub Actions cache scoped per app), with the matrix derived by
-`find apps -mindepth 2 -maxdepth 2 -name Dockerfile` rather than listed — a migrate ticket adds no
-name anywhere.
+Those four are **the Gate**; `bun run check && bun run typecheck && bun run test && bun run build`
+reproduces it exactly. Three more jobs report without blocking (`continue-on-error: true` — delete that
+line to make one a gate). A `changes` job decides which run:
 
-Three constraints on the `e2e` job, each of which has broken it before:
+| Job | Runs when the diff touches | Does |
+|---|---|---|
+| `docker` | `apps/`, `packages/`, `tooling/`, `bun.lock`, `ci.yml` | one `docker build` per app that ships a Dockerfile (matrix from `find apps -mindepth 2 -maxdepth 2 -name Dockerfile`), `push: false`, cache per app |
+| `changeset-status` | `packages/{ui,hook,ui-public,hook-public}/`, `tooling/tailwind/`, `scripts/`, `.changeset/`, `bun.lock`, either workflow | `changeset status --since=origin/main` |
+| `publish-smoke` | same as above | `build:publishable` then `publish:smoke` |
 
-- The container tag must match `@playwright/test` in the `testing` catalog **exactly** (1.62.1) —
-  the image bakes in the browser revision that version expects, which is why the catalog pins it
-  without a caret. Bump both together.
-- `PLAYWRIGHT_BROWSERS_PATH` has to survive into the test process. Turbo filters the environment in
-  strict mode, and swallowing that variable surfaces as `Executable doesn't exist` for browsers
-  sitting right there on disk. It is guarded twice: `turbo.json` declares it in the `e2e` task's
-  `passThroughEnv`, and the CI job additionally calls each app's own script
-  (`bun run --filter @monorepo/_template_vite e2e`) rather than `turbo run e2e`. Keep the
-  `passThroughEnv` entry if you touch that task — `bun run e2e` locally *does* go through Turbo, and
-  it is the only thing making that path work.
-- The report is uploaded `if: always()`, because `continue-on-error` makes the job report green
-  either way — the artifact is the only place a failure is visible.
+A brand-new branch or a `workflow_dispatch` has no base commit and counts as "everything touched".
 
-Two constraints on the `docker` job:
+Constraints each job depends on:
 
-- The build context is the **repo root**, never the app directory. Every pruner stage opens with
-  `COPY . .` + `bunx turbo prune`, and the Vite runner reads `apps/<app>/nginx.conf` out of that
-  context rather than out of a stage. `.dockerignore` is what keeps it small, and it deliberately
-  does not ignore `.env.example`, `apps/*/nginx.conf` or the lockfile.
-- It passes **no** `--build-arg`. Env does not reach these images through an ARG at all — the builder
-  does `COPY .env.${BUILD_ENV} .env` with `BUILD_ENV` already defaulting to `example`, and `gen:app`
-  has written each Dockerfile's `APP_DIRNAME`/`PROJECT` per app. Passing `BUILD_ENV` anyway would
-  warn on the Storybook image, which declares no such ARG.
+- `docker`: build context is the **repo root** (every pruner stage does `COPY . .` + `turbo prune`; the
+  Vite runner reads `apps/<app>/nginx.conf` from the context). `.dockerignore` keeps `.env.example`,
+  `apps/*/nginx.conf` and the lockfile. No `--build-arg`: the builder does `COPY .env.${BUILD_ENV} .env`
+  with `BUILD_ENV` defaulting to `example`, and `gen:app` wrote each Dockerfile's `APP_DIRNAME`/`PROJECT`.
+  Not routed through Turbo (no `docker` task; strict-mode env filtering would sit between the job and
+  buildx). It builds images and never runs a container, so `docker build` is all it proves.
+- `changeset-status`: skipped on `main` (there `origin/main` is the commit under test, so `--since` would
+  compare it to itself). It first runs `git fetch --no-tags origin main:refs/remotes/origin/main`, because
+  `actions/checkout` fetches only the pushed ref.
+- `publish-smoke`: runs `build:publishable` first — both shells' `dist/` are gitignored and empty on a
+  fresh checkout.
 
-It builds images and never starts a container, so `docker build` is all it proves; a runtime check
-(the Vite image answering 404 for a missing file, the Next image serving an SSR page) needs
-`load: true` and a `docker run`, which this job does not do. And as with `e2e`, the job always
-reports green — with no artifact uploaded, the build log is the only place a failure shows.
-
-One constraint each on the publish pair:
-
-- `changeset-status` is additionally skipped on `main` itself, where `origin/main` **is** the commit
-  under test: `--since` would compare it against itself, find no changed package, and report green
-  without having asserted anything. It also has to `git fetch --no-tags origin main:refs/remotes/origin/main`
-  first — `actions/checkout` fetches the pushed ref and nothing else, so the command would otherwise
-  die on an unknown revision rather than on a missing changeset.
-- `publish-smoke` runs `bun run build:publishable` before the script, because the script packs `dist/`
-  and both shells' `dist/` are gitignored — empty on a fresh checkout. Only the two source packages
-  are built there; no app can change a tarball.
-
-Publishing itself is a **second workflow**, `.github/workflows/release.yml`, which runs only on `main`
-and is described under **Publish** above.
+Publishing is a second workflow, `release.yml`, on `main` only — see **Publish** above.
 
 ## Notes
 
-- `turbo.json` defines `topo` (ordering only), `build`, `dev`, `typecheck`, `test`, `test:coverage`,
-  `e2e`, `clean` and `ui-add`. Lint and format are **not** Turbo tasks.
-- Per-app `turbo.json` files `extends: ["//"]` and flip `dev.persistent: true` — that is why `dev:*`
-  holds the terminal. Each server Runtime additionally names its typegen output in
-  `typecheck.outputs` — `.next/types/**` for the Next app, `.react-router/**` for the React Router
-  one, whose `react-router typegen` runs as the first half of that task, so a cache hit would
-  otherwise restore the tsbuildinfo without the `+types` files it was built from.
-- Versions are pinned with Bun **catalogs** in the root `package.json`: the default `catalog:` plus
-  the named `next16`, `react19`, `react-router8`, `storybook10`, `tailwind4`, `tanstack-query5`,
-  `tanstack-table9` and `testing`. Reference a catalog from a workspace `package.json`; never
-  hardcode a version there.
-- Moving a package **between** catalogs needs `bun.lock` edited by hand as well: `bun install` keeps
-  reading the old spec from the lock and fails with `failed to resolve`, and `--force` does not
-  help. Never delete `bun.lock` to work around it — that re-resolves every `^` range and drifts
-  unrelated packages.
-- Markdown is not formatted by any tool here (Biome does not format it), so this file, the rules and
-  `CLAUDE.md` are hand-maintained.
+- `turbo.json` tasks: `topo` (ordering only), `build`, `dev`, `typecheck`, `test`, `test:coverage`, `e2e`
+  (`passThroughEnv: ["PLAYWRIGHT_BROWSERS_PATH"]`), `clean`, `ui-add`. Lint and format are not Turbo tasks.
+- Per-app `turbo.json` files `extends: ["//"]` and set `dev.persistent: true`, which is why `dev:*` holds
+  the terminal. Each server Runtime lists its typegen output in `typecheck.outputs` — `.next/types/**` for
+  Next, `.react-router/**` for React Router (`react-router typegen` runs as the first half of that task; a
+  cache hit would otherwise restore the tsbuildinfo without the `+types` it was built from).
+- Dependency versions come from Bun **catalogs** in the root `package.json` — the default `catalog:` plus
+  `next16`, `react19`, `react-router8`, `storybook10`, `tailwind4`, `tanstack-query5`, `tanstack-table9`,
+  `testing`. A workspace `package.json` references a catalog, never a literal version.
+- Moving a package **between** catalogs also needs `bun.lock` edited by hand: `bun install` keeps reading
+  the old spec and fails with `failed to resolve`; `--force` does not help. Never delete `bun.lock` to get
+  around it — that re-resolves every `^` range.
+- No tool formats Markdown here (Biome does not), so this file, the rules and `CLAUDE.md` are
+  hand-maintained.
