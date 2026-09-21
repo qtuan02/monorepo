@@ -48,17 +48,22 @@ export function AppRoutes() {
 
           <Route path={ROUTES.HOME} element={<LayoutTemplate />}>
             <Route element={<ProtectedRoute />}>
-              {/* Presence comes from the layout-level socket connection, not
-                  this boundary — only the conversation screens need its
-                  message/seen cache patching (see chat-socket-provider.tsx). */}
-              <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
-              <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
+              {/* Presence comes from the layout-level socket connection; this
+                  boundary is the `/user/queue/conversations` subscription that
+                  patches the list cache. It wraps EVERY signed-in screen: the
+                  broker buffers nothing, so a subscription that only lived
+                  under the conversation screens lost every `conversation.updated`
+                  (a friend's first message, the nav badge) fired while the
+                  visitor sat on /friends or /profile — and the list cache,
+                  still fresh, then hid it on the way back. */}
               <Route element={<ChatSocketRouteBoundary />}>
                 <Route index element={<HomePage />} />
                 <Route
                   path={ROUTES.CONVERSATION_BY_ID}
                   element={<ConversationPage />}
                 />
+                <Route path={ROUTES.FRIENDS} element={<FriendsPage />} />
+                <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
               </Route>
             </Route>
 

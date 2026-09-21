@@ -318,7 +318,7 @@
       },
       "field": {
         "username": "Username",
-        "usernamePlaceholder": "your-username",
+        "usernamePlaceholder": "Enter your username",
         "password": "Password",
         "passwordPlaceholder": "Enter your password",
         "email": "Email",
@@ -415,9 +415,6 @@
       "morePeople": "More people"
     },
     "attachment": {
-      "attachButton": "Attach a file",
-      "removeAttachment": "Remove attachment",
-      "tooLarge": "File is larger than 10MB.",
       "imageAlt": "Image attachment",
       "fileLabel": "File .{extension}",
       "previewImage": "📷 Photo",
@@ -451,6 +448,20 @@
         "newLine": "for a new line",
         "editingBanner": "Editing message",
         "cancelEdit": "Cancel"
+      },
+      "emoji": {
+        "searchPlaceholder": "Search emoji",
+        "noResults": "No emoji found.",
+        "groups": {
+          "smileys-emotion": "Smileys & emotion",
+          "people-body": "People & body",
+          "animals-nature": "Animals & nature",
+          "food-drink": "Food & drink",
+          "travel-places": "Travel & places",
+          "activities": "Activities",
+          "objects": "Objects",
+          "symbols": "Symbols"
+        }
       },
       "typing": {
         "line": "{names} {count, plural, one {is typing…} other {are typing…}}"

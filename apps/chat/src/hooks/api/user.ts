@@ -17,6 +17,7 @@ import type {
   ChatUserProfile,
   ChatUserSearchRecord,
 } from "@monorepo/types/chat-user";
+import { FriendStatus } from "@monorepo/types/chat-friend";
 import { toast } from "@monorepo/ui/components/toast";
 
 import type {
@@ -90,7 +91,13 @@ export function useUserSearchInfiniteQuery(
     initialPageParam: undefined,
     enabled: search.trim().length > 0,
     // Flattened here, not by the caller — see .agents/rules/tanstack-consume-infinite.md.
-    select: (data) => data.pages.flatMap((page) => page.items),
+    // The backend still returns the searcher (`statusFriend: SELF`) — dropped
+    // once here rather than in each list that renders a result, so no screen
+    // offers "message yourself". Server-side exclusion would be the real fix.
+    select: (data) =>
+      data.pages
+        .flatMap((page) => page.items)
+        .filter((person) => person.statusFriend !== FriendStatus.SELF),
     ...options,
   });
 }

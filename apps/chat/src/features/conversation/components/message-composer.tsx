@@ -1,4 +1,4 @@
-import { Paperclip, Send, X } from "lucide-react";
+import { Send, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { ChatMessageRecord } from "@monorepo/types/chat-message";
@@ -14,7 +14,6 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
 import type { Message } from "~/features/conversation/types/message";
-import MessageComposerAttachment from "~/features/conversation/components/message-composer-attachment";
 import MessageComposerEmojiPicker from "~/features/conversation/components/message-composer-emoji-picker";
 import { useMessageComposer } from "~/features/conversation/hooks/use-message-composer";
 import { PRIMARY_GRADIENT_CLASSNAME } from "~/features/conversation/utils/gradient-classnames";
@@ -48,11 +47,6 @@ export default function MessageComposer({
     handleKeyDown,
     handleSubmit,
     insertEmoji,
-    attachment,
-    fileInputRef,
-    handleAttachClick,
-    handleFileInputChange,
-    handleRemoveAttachment,
   } = useMessageComposer(conversation, editingMessage, onCancelEdit, onSent);
   const typingNames = typingUserIds
     .map(
@@ -74,12 +68,6 @@ export default function MessageComposer({
             names: typingNames.join(", "),
           })}
         </p>
-      )}
-      {attachment && !editingMessage && (
-        <MessageComposerAttachment
-          attachment={attachment}
-          onRemove={handleRemoveAttachment}
-        />
       )}
       {editingMessage && (
         <div className="bg-muted/60 mb-1.5 flex items-center justify-between rounded-lg px-3 py-1.5">
@@ -103,28 +91,7 @@ export default function MessageComposer({
           void handleSubmit();
         }}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          onChange={handleFileInputChange}
-          aria-label={t("chat.attachment.attachButton")}
-          className="sr-only"
-          tabIndex={-1}
-        />
         <InputGroup className="bg-background items-end rounded-3xl border-transparent shadow-sm focus-within:shadow-md">
-          <InputGroupAddon align="inline-start" className="self-end pb-1 pl-1">
-            <InputGroupButton
-              type="button"
-              size="icon-sm"
-              onClick={handleAttachClick}
-              // Only a TEXT message can be edited (T3), so an attachment has no
-              // place in edit mode.
-              disabled={editingMessage !== null}
-              aria-label={t("chat.attachment.attachButton")}
-            >
-              <Paperclip className="size-4" />
-            </InputGroupButton>
-          </InputGroupAddon>
           <InputGroupTextarea
             ref={textareaRef}
             value={content}
@@ -135,7 +102,7 @@ export default function MessageComposer({
             placeholder={t("chat.convPane.composer.placeholder", {
               title: conversation.title,
             })}
-            className="max-h-32 min-h-10 py-2.5 pl-1"
+            className="max-h-32 min-h-10 py-2.5 pl-4"
           />
           {/* Emoji and Send share one addon so they sit on the same line,
               centred on a one-line message and pinned to the bottom of a

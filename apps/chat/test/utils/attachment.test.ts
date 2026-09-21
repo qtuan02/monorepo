@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  getFileExtensionFromUrl,
-  MAX_ATTACHMENT_SIZE_BYTES,
-} from "~/utils/attachment";
+import { getFileExtensionFromUrl } from "~/utils/attachment";
 
 describe("getFileExtensionFromUrl", () => {
   it("reads the extension off the URL's last path segment", () => {
@@ -24,11 +21,5 @@ describe("getFileExtensionFromUrl", () => {
     expect(getFileExtensionFromUrl("http://localhost:8089/api/files/abc")).toBe(
       "",
     );
-  });
-});
-
-describe("MAX_ATTACHMENT_SIZE_BYTES", () => {
-  it("is 10MB, matching the backend's own 413 limit", () => {
-    expect(MAX_ATTACHMENT_SIZE_BYTES).toBe(10 * 1024 * 1024);
   });
 });
