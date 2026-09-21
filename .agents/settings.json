@@ -3,8 +3,5 @@
   "enabledPlugins": {
     "ponytail@ponytail": true
   },
-  "enabledMcpjsonServers": [
-    "context7",
-    "gitnexus"
-  ]
+  "enabledMcpjsonServers": ["context7", "gitnexus"]
 }

@@ -11,8 +11,8 @@ import { cn } from "@monorepo/ui/utils/cn";
 
 import { BrandMark } from "~/components/brand/brand-mark";
 import { Island } from "~/components/island/island";
+import { LanguageToggleButton } from "~/components/select/language-toggle-button";
 import { CurrentUserMenu } from "~/features/current-user/components/current-user-menu";
-import LanguageToggleButton from "~/features/layout/components/language-toggle-button";
 import { NavBadge } from "~/features/layout/components/nav-badge";
 import ThemeToggleButton from "~/features/layout/components/theme-toggle-button";
 import { useNavActiveSection } from "~/features/layout/hooks/use-nav-active-section";

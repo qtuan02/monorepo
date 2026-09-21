@@ -14,6 +14,7 @@ import {
 import { Input } from "@monorepo/ui/components/input";
 
 import type { SignInFormValues } from "~/features/auth/types/sign-in-form";
+import { LanguageToggleButton } from "~/components/select/language-toggle-button";
 import { ROUTES } from "~/constants/routes";
 import { useSignInSuccess } from "~/features/auth/hooks/use-sign-in-success";
 import { createSignInFormSchema } from "~/features/auth/types/sign-in-form";
@@ -40,11 +41,14 @@ export default function SignInForm() {
       className="flex w-full max-w-sm flex-col gap-4"
       onSubmit={onSubmit}
     >
-      <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-2xl font-bold">{t("chat.auth.signIn.title")}</h1>
-        <p className="text-muted-foreground text-sm">
-          {t("chat.auth.signIn.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold">{t("chat.auth.signIn.title")}</h1>
+          <p className="text-muted-foreground text-sm">
+            {t("chat.auth.signIn.subtitle")}
+          </p>
+        </div>
+        <LanguageToggleButton />
       </div>
 
       <FieldGroup className="gap-4">

@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it } from "vitest";
 
-import LanguageToggleButton from "~/features/layout/components/language-toggle-button";
+import { LanguageToggleButton } from "~/components/select/language-toggle-button";
 import i18n from "~/libs/i18n";
 
 describe("LanguageToggleButton", () => {

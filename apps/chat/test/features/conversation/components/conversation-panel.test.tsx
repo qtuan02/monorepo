@@ -29,11 +29,13 @@ const {
   chatUserMe,
   chatConversationGetConversations,
   chatConversationGetConversation,
+  chatConversationMarkAsSeen,
   subscribeToTyping,
 } = vi.hoisted(() => ({
   chatUserMe: vi.fn(),
   chatConversationGetConversations: vi.fn(),
   chatConversationGetConversation: vi.fn(),
+  chatConversationMarkAsSeen: vi.fn(),
   subscribeToTyping: vi.fn(
     (
       _client: Client,
@@ -48,7 +50,7 @@ vi.mock("~/libs/http-client", () => ({
   chatConversationService: {
     getConversations: chatConversationGetConversations,
     getConversation: chatConversationGetConversation,
-    markAsSeen: vi.fn().mockResolvedValue(undefined),
+    markAsSeen: chatConversationMarkAsSeen,
   },
 }));
 
@@ -116,9 +118,47 @@ function renderPanel(conversationId: string) {
   );
 }
 
+describe("ConversationPanel — marks an opened conversation seen", () => {
+  beforeEach(() => {
+    useAuthStore.setState({ token: "a-token" });
+    chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+    chatConversationGetConversation.mockReset();
+    chatConversationMarkAsSeen.mockReset().mockResolvedValue(undefined);
+  });
+
+  it("calls markAsSeen once when the opened conversation has unread messages", async () => {
+    chatConversationGetConversations.mockReset().mockResolvedValue({
+      items: [{ ...conversationRecord(), unreadCount: 3 }],
+      nextCursor: null,
+    });
+
+    renderPanel("c9");
+
+    await waitFor(() =>
+      expect(chatConversationMarkAsSeen).toHaveBeenCalledWith("c9"),
+    );
+    // onSuccess zeroes the cached count, so the effect must not re-fire.
+    await screen.findByLabelText("Message composer");
+    expect(chatConversationMarkAsSeen).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not call markAsSeen when there is nothing unread", async () => {
+    chatConversationGetConversations.mockReset().mockResolvedValue({
+      items: [conversationRecord()],
+      nextCursor: null,
+    });
+
+    renderPanel("c9");
+
+    await screen.findByLabelText("Message composer");
+    expect(chatConversationMarkAsSeen).not.toHaveBeenCalled();
+  });
+});
+
 describe("ConversationPanel — deep-link fallback", () => {
   beforeEach(() => {
     chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+    chatConversationMarkAsSeen.mockReset().mockResolvedValue(undefined);
     chatConversationGetConversations
       .mockReset()
       .mockResolvedValue({ items: [], nextCursor: null });

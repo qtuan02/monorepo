@@ -29,6 +29,7 @@ import { ROUTES } from "~/constants/routes";
 import { ConversationDetailsPanel } from "~/features/conversation/components/conversation-details-panel";
 import MessageComposer from "~/features/conversation/components/message-composer";
 import MessageList from "~/features/conversation/components/message-list";
+import { useConversationAutoSeen } from "~/features/conversation/hooks/use-conversation-auto-seen";
 import { useConversationList } from "~/features/conversation/hooks/use-conversation-list";
 import { useTypingIndicator } from "~/features/conversation/hooks/use-typing-indicator";
 import { mapConversationToUiModel } from "~/features/conversation/utils/map-conversation-to-ui-model";
@@ -152,6 +153,14 @@ export default function ConversationPanel({
   // reload may still be fetching, so a typing event lands the moment the
   // pane opens instead of only once the entity has resolved.
   const typingUserIds = useTypingIndicator(conversationId, currentUserId);
+
+  // A Draft has no backend id, so `conversation ?? fetchedConversation` is
+  // the right subject here, not `activeConversation`.
+  const openConversation = conversation ?? fetchedConversation;
+  useConversationAutoSeen(
+    openConversation?.id,
+    openConversation?.unreadCount ?? 0,
+  );
 
   if (!conversationId && !draftUser) return <NoConversationSelected />;
 

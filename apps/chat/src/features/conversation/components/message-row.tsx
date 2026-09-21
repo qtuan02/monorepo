@@ -275,10 +275,14 @@ export default function MessageRow({
             {!isOwn && isFirstInGroup && (
               <MessageHeader>{message.senderName}</MessageHeader>
             )}
+            {/* Full-width row, never `self-start`/`self-end`: a shrink-to-fit
+                row makes the bubble's percentage max-width resolve against
+                its own natural width, so every message wraps at 80% of
+                itself instead of 80% of the pane. */}
             <div
               className={cn(
-                "group/row flex min-w-0 items-center gap-1",
-                isOwn ? "flex-row-reverse self-end" : "flex-row self-start",
+                "group/row flex w-full min-w-0 items-center gap-1",
+                isOwn ? "flex-row-reverse" : "flex-row",
               )}
             >
               <Bubble

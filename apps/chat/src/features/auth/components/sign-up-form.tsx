@@ -15,6 +15,7 @@ import { Input } from "@monorepo/ui/components/input";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { SignUpFormValues } from "~/features/auth/types/sign-up-form";
+import { LanguageToggleButton } from "~/components/select/language-toggle-button";
 import { ROUTES } from "~/constants/routes";
 import { useSignInSuccess } from "~/features/auth/hooks/use-sign-in-success";
 import { createSignUpFormSchema } from "~/features/auth/types/sign-up-form";
@@ -93,11 +94,14 @@ export default function SignUpForm() {
       className="flex w-full max-w-sm flex-col gap-4"
       onSubmit={onSubmit}
     >
-      <div className="flex flex-col items-center gap-1 text-center">
-        <h1 className="text-2xl font-bold">{t("chat.auth.signUp.title")}</h1>
-        <p className="text-muted-foreground text-sm">
-          {t("chat.auth.signUp.subtitle")}
-        </p>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold">{t("chat.auth.signUp.title")}</h1>
+          <p className="text-muted-foreground text-sm">
+            {t("chat.auth.signUp.subtitle")}
+          </p>
+        </div>
+        <LanguageToggleButton />
       </div>
 
       <FieldGroup className="gap-4">

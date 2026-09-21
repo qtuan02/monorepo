@@ -225,6 +225,13 @@ export function useMarkConversationAsSeenMutation(
             unreadCount: 0,
           })),
       );
+      // The deep-link entry (`useGetConversation`) is not a list page, so
+      // the loop above never reaches it.
+      queryClient.setQueryData<ChatConversationRecord>(
+        conversationQueryKeys.detail(conversationId),
+        (conversation) =>
+          conversation ? { ...conversation, unreadCount: 0 } : conversation,
+      );
     },
     ...options,
   });
