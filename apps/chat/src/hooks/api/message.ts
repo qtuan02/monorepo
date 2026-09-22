@@ -37,12 +37,15 @@ export const messageQueryKeys = {
 };
 
 /**
- * A page arrives newest-first (the cursor walks backward in time); Virtuoso
- * renders top-to-bottom. This is the one place that ordering is untangled —
- * see .agents/rules/tanstack-consume-infinite.md, "data is already the flat
- * item array" — so a consumer reads plain oldest-to-newest messages, plus
- * how many of them came from an "older" (not the first-fetched) page, which
- * is what a reverse-infinite-scroll `firstItemIndex` is built from.
+ * A page arrives oldest-first already (`ConversationServiceImpl.getMessages`
+ * queries `ORDER BY createdAt DESC` for the cursor walk, then reverses the
+ * page before serializing it — see `PaginationUtils.toCursorResponse`'s
+ * `reverseItems` argument); Virtuoso renders top-to-bottom. This is the one
+ * place that ordering is untangled — see
+ * .agents/rules/tanstack-consume-infinite.md, "data is already the flat item
+ * array" — so a consumer reads plain oldest-to-newest messages, plus how many
+ * of them came from an "older" (not the first-fetched) page, which is what a
+ * reverse-infinite-scroll `firstItemIndex` is built from.
  */
 export interface MessagesReadModel {
   messages: ChatMessageRecord[];
@@ -54,12 +57,13 @@ type MessageInfiniteData = InfiniteData<ChatMessagePage, string | undefined>;
 /**
  * Upserts a live message by `id`: replaces it in place where it already
  * sits (a `message.updated` echo, or the socket racing a mutation's own
- * response), or prepends it onto the newest-fetched page (`pages[0]`) when
- * it's new. `pages[0].items` is itself newest-first (see the `select`
- * above), so putting a new message at `items[0]` is what makes it land last
- * once `useMessagesInfiniteQuery` re-orders it to chronological. Prepending
- * there also leaves `olderMessageCount` (computed from `pages.slice(1)`)
- * unaffected, so `firstItemIndex` doesn't shift under Virtuoso mid-scroll.
+ * response), or appends it onto the newest-fetched page (`pages[0]`) when
+ * it's new. `pages[0].items` is itself oldest-first (see the `select`
+ * above), so putting a new message at the END of `items` is what makes it
+ * land last once `useMessagesInfiniteQuery` re-orders it to chronological.
+ * Appending there also leaves `olderMessageCount` (computed from
+ * `pages.slice(1)`) unaffected, so `firstItemIndex` doesn't shift under
+ * Virtuoso mid-scroll.
  */
 export function appendConversationMessageToCache(
   queryClient: QueryClient,
@@ -92,7 +96,7 @@ export function appendConversationMessageToCache(
       return {
         ...data,
         pages: [
-          { ...firstPage, items: [message, ...firstPage.items] },
+          { ...firstPage, items: [...firstPage.items, message] },
           ...restPages,
         ],
       };
@@ -158,9 +162,7 @@ export function useMessagesInfiniteQuery(
     select: (data) => {
       const oldestFetchedPageFirst = [...data.pages].reverse();
       return {
-        messages: oldestFetchedPageFirst.flatMap((page) =>
-          [...page.items].reverse(),
-        ),
+        messages: oldestFetchedPageFirst.flatMap((page) => page.items),
         olderMessageCount: data.pages
           .slice(1)
           .reduce((count, page) => count + page.items.length, 0),

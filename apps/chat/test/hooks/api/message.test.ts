@@ -51,23 +51,23 @@ function itemsOf(queryClient: QueryClient, conversationId: string) {
 }
 
 describe("appendConversationMessageToCache", () => {
-  it("prepends a brand-new message onto the newest page", () => {
+  it("appends a brand-new message onto the end of the newest page", () => {
     const queryClient = new QueryClient();
     seedMessages(queryClient, "c1", [message({ id: "m1" })]);
 
     appendConversationMessageToCache(queryClient, message({ id: "m2" }));
 
     expect(itemsOf(queryClient, "c1")?.map((item) => item.id)).toEqual([
-      "m2",
       "m1",
+      "m2",
     ]);
   });
 
   it("upserts by id — replaces the message where it already sits instead of duplicating it", () => {
     const queryClient = new QueryClient();
     seedMessages(queryClient, "c1", [
-      message({ id: "m2", content: "second" }),
       message({ id: "m1", content: "first" }),
+      message({ id: "m2", content: "second" }),
     ]);
 
     appendConversationMessageToCache(
@@ -77,8 +77,8 @@ describe("appendConversationMessageToCache", () => {
 
     const items = itemsOf(queryClient, "c1");
     expect(items).toHaveLength(2);
-    expect(items?.map((item) => item.id)).toEqual(["m2", "m1"]);
-    expect(items?.[1]?.content).toBe("edited");
+    expect(items?.map((item) => item.id)).toEqual(["m1", "m2"]);
+    expect(items?.[0]?.content).toBe("edited");
   });
 
   it("is a no-op when the conversation's messages were never fetched", () => {

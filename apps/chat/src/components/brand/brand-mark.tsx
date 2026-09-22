@@ -1,9 +1,10 @@
-import { TreePalm } from "lucide-react";
+import { MessagesSquare } from "lucide-react";
 
 import { cn } from "@monorepo/ui/utils/cn";
 
-/** The one brand mark: the Rail and the boot Island both open with it. A palm
- * for the Islands shape — not `MessageCircle`, which is already the Chats nav icon. */
+/** The one brand mark: the Rail, the boot Island, 404 and auth all open with
+ * it. Two overlapping bubbles read as "chat" on sight — distinct from
+ * `MessageCircle`, which is already the Chats nav icon. */
 export function BrandMark({ className }: { className?: string }) {
   return (
     <span
@@ -13,7 +14,7 @@ export function BrandMark({ className }: { className?: string }) {
         className,
       )}
     >
-      <TreePalm className="size-5" />
+      <MessagesSquare className="size-5" />
     </span>
   );
 }

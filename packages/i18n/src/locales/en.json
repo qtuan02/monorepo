@@ -373,10 +373,10 @@
       "decline": "Decline",
       "accept": "Accept",
       "unfriend": "Unfriend",
-      "removeConfirmTitle": "Remove {name}?",
+      "removeConfirmTitle": "Unfriend {name}?",
       "removeConfirmDescription": "{name} will be removed from your friends list. You can send a new friend request later.",
       "cancel": "Cancel",
-      "remove": "Remove",
+      "remove": "Confirm",
       "removing": "Removing..."
     },
     "islandFallback": {
@@ -387,11 +387,11 @@
       "activeNow": "Active now",
       "viewProfile": "View profile",
       "unfriend": "Unfriend",
-      "removeFriendTitle": "Remove {name}?",
+      "removeFriendTitle": "Unfriend {name}?",
       "removeFriendDescription": "{name} will be removed from your friends list. You can send a new friend request later.",
       "cancel": "Cancel",
       "removing": "Removing...",
-      "remove": "Remove",
+      "remove": "Confirm",
       "groupInfo": "Group info",
       "profile": "Profile",
       "closeDetails": "Close details",
@@ -473,6 +473,7 @@
       },
       "row": {
         "seen": "Seen",
+        "seenAt": "{name} · Seen at {time}",
         "edited": "(edited)",
         "actions": {
           "menuLabel": "Message actions",
@@ -481,7 +482,8 @@
           "deleting": "Deleting...",
           "cancel": "Cancel",
           "deleteConfirmTitle": "Delete this message?",
-          "deleteConfirmDescription": "This can't be undone."
+          "deleteConfirmDescription": "This can't be undone.",
+          "deleteConfirmAction": "Confirm"
         }
       },
       "toast": {
@@ -534,6 +536,8 @@
         },
         "save": "Change password",
         "saving": "Changing...",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
         "validation": {
           "currentPasswordRequired": "Current password is required.",
           "newPasswordRequired": "New password is required.",
@@ -603,8 +607,12 @@
         "submitWithCount": "Create ({count})"
       },
       "actions": {
+        "rename": "Rename group",
+        "renameShort": "Edit",
         "addMembers": "Add members",
+        "addMembersShort": "Add",
         "leaveGroup": "Leave group",
+        "leaveGroupShort": "Leave",
         "leaving": "Leaving..."
       },
       "picker": {
@@ -626,23 +634,26 @@
         "you": "(You)",
         "owner": "Owner",
         "removeAria": "Remove {name} from group",
-        "confirmTitle": "Remove {name}?",
-        "confirmDescription": "They will no longer see this group's messages.",
+        "confirmTitle": "Remove {name} from the group?",
+        "confirmDescription": "{name} will no longer see this group's messages.",
         "cancel": "Cancel",
-        "remove": "Remove"
+        "remove": "Confirm"
       },
       "header": {
-        "renameAria": "Rename group",
-        "nameAria": "Group name",
-        "saveAria": "Save group name",
-        "cancelAria": "Cancel rename",
         "memberSummary": "{count} members · {online} online"
+      },
+      "rename": {
+        "title": "Rename group",
+        "nameLabel": "Group name",
+        "cancel": "Cancel",
+        "submit": "Save",
+        "submitting": "Saving..."
       },
       "leaveConfirm": {
         "title": "Leave this group?",
         "description": "You will stop receiving its messages. You can only rejoin if someone adds you back.",
         "cancel": "Cancel",
-        "confirm": "Leave"
+        "confirm": "Confirm"
       },
       "validation": {
         "selectMemberToAdd": "Select at least one member to add.",

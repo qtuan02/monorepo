@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Loader2, UserMinus } from "lucide-react";
+import { Crown, Loader2, UserMinus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
@@ -64,7 +64,7 @@ export function GroupMembersSection({
           const isRemoving = removingMemberId === member.userId;
 
           return (
-            <Item key={member.userId} size="sm">
+            <Item key={member.userId} variant="outline" size="sm">
               <button
                 type="button"
                 className="focus-visible:ring-ring/50 -m-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-md p-1 text-left outline-none focus-visible:ring-[3px]"
@@ -75,14 +75,17 @@ export function GroupMembersSection({
                   avatarUrl={member.avatarUrl}
                 />
                 <span className="flex min-w-0 flex-1 items-center gap-2 text-sm font-medium">
-                  <span className="truncate">{member.displayName}</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    {member.displayName}
+                  </span>
                   {isSelf && (
-                    <span className="text-muted-foreground font-normal">
+                    <span className="text-muted-foreground shrink-0 font-normal">
                       {t("chat.group.membersSection.you")}
                     </span>
                   )}
                   {isOwner && (
-                    <Badge variant="secondary">
+                    <Badge className="bg-warning text-warning-foreground shrink-0">
+                      <Crown data-icon="inline-start" />
                       {t("chat.group.membersSection.owner")}
                     </Badge>
                   )}
@@ -93,8 +96,8 @@ export function GroupMembersSection({
                   <Button
                     type="button"
                     size="icon-sm"
-                    variant="outline"
-                    className="text-destructive hover:bg-destructive/10 hover:text-destructive rounded-full"
+                    variant="ghost"
+                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive rounded-full"
                     onClick={() => setConfirmingMemberId(member.userId)}
                     disabled={isRemoving}
                     aria-label={t("chat.group.membersSection.removeAria", {

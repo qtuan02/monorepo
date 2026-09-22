@@ -373,10 +373,10 @@
       "decline": "Từ chối",
       "accept": "Chấp nhận",
       "unfriend": "Huỷ kết bạn",
-      "removeConfirmTitle": "Xoá {name}?",
-      "removeConfirmDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lời mời kết bạn mới sau.",
+      "removeConfirmTitle": "Huỷ kết bạn với {name}?",
+      "removeConfirmDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
       "cancel": "Huỷ",
-      "remove": "Xoá",
+      "remove": "Xác nhận",
       "removing": "Đang xoá..."
     },
     "islandFallback": {
@@ -386,12 +386,12 @@
     "convList": {
       "activeNow": "Đang hoạt động",
       "viewProfile": "Xem hồ sơ",
-      "unfriend": "Hủy kết bạn",
-      "removeFriendTitle": "Hủy kết bạn với {name}?",
-      "removeFriendDescription": "{name} sẽ bị xóa khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
-      "cancel": "Hủy",
-      "removing": "Đang xóa...",
-      "remove": "Xóa",
+      "unfriend": "Huỷ kết bạn",
+      "removeFriendTitle": "Huỷ kết bạn với {name}?",
+      "removeFriendDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
+      "cancel": "Huỷ",
+      "removing": "Đang xoá...",
+      "remove": "Xác nhận",
       "groupInfo": "Thông tin nhóm",
       "profile": "Hồ sơ",
       "closeDetails": "Đóng bảng thông tin",
@@ -473,6 +473,7 @@
       },
       "row": {
         "seen": "Đã xem",
+        "seenAt": "{name} · Đã xem lúc {time}",
         "edited": "(đã sửa)",
         "actions": {
           "menuLabel": "Thao tác với tin nhắn",
@@ -481,7 +482,8 @@
           "deleting": "Đang xoá...",
           "cancel": "Huỷ",
           "deleteConfirmTitle": "Xoá tin nhắn này?",
-          "deleteConfirmDescription": "Không thể hoàn tác sau khi xoá."
+          "deleteConfirmDescription": "Không thể hoàn tác sau khi xoá.",
+          "deleteConfirmAction": "Xác nhận"
         }
       },
       "toast": {
@@ -534,6 +536,8 @@
         },
         "save": "Đổi mật khẩu",
         "saving": "Đang đổi...",
+        "showPassword": "Hiện mật khẩu",
+        "hidePassword": "Ẩn mật khẩu",
         "validation": {
           "currentPasswordRequired": "Vui lòng nhập mật khẩu hiện tại.",
           "newPasswordRequired": "Vui lòng nhập mật khẩu mới.",
@@ -603,8 +607,12 @@
         "submitWithCount": "Tạo ({count})"
       },
       "actions": {
+        "rename": "Đổi tên nhóm",
+        "renameShort": "Sửa",
         "addMembers": "Thêm thành viên",
+        "addMembersShort": "Thêm",
         "leaveGroup": "Rời nhóm",
+        "leaveGroupShort": "Rời",
         "leaving": "Đang rời..."
       },
       "picker": {
@@ -626,23 +634,26 @@
         "you": "(Bạn)",
         "owner": "Chủ nhóm",
         "removeAria": "Xoá {name} khỏi nhóm",
-        "confirmTitle": "Xoá {name}?",
-        "confirmDescription": "Người này sẽ không còn thấy tin nhắn của nhóm.",
+        "confirmTitle": "Xoá {name} khỏi nhóm?",
+        "confirmDescription": "{name} sẽ không còn thấy tin nhắn của nhóm này.",
         "cancel": "Huỷ",
-        "remove": "Xoá"
+        "remove": "Xác nhận"
       },
       "header": {
-        "renameAria": "Đổi tên nhóm",
-        "nameAria": "Tên nhóm",
-        "saveAria": "Lưu tên nhóm",
-        "cancelAria": "Huỷ đổi tên",
         "memberSummary": "{count} thành viên · {online} đang online"
+      },
+      "rename": {
+        "title": "Đổi tên nhóm",
+        "nameLabel": "Tên nhóm",
+        "cancel": "Huỷ",
+        "submit": "Lưu",
+        "submitting": "Đang lưu..."
       },
       "leaveConfirm": {
         "title": "Rời nhóm này?",
         "description": "Bạn sẽ không nhận tin nhắn của nhóm nữa. Bạn chỉ có thể tham gia lại nếu ai đó thêm bạn vào lại.",
         "cancel": "Huỷ",
-        "confirm": "Rời nhóm"
+        "confirm": "Xác nhận"
       },
       "validation": {
         "selectMemberToAdd": "Chọn ít nhất một thành viên để thêm.",

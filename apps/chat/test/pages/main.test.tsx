@@ -1,13 +1,6 @@
 import type { ComponentProps } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { act, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -52,6 +45,7 @@ const {
   chatAuthSignUp,
   chatUserMe,
   chatUserSearch,
+  chatUserInfo,
   chatUserUpdateMe,
   chatConversationGetConversations,
   chatConversationCreateGroup,
@@ -73,6 +67,7 @@ const {
   chatAuthSignUp: vi.fn(),
   chatUserMe: vi.fn(),
   chatUserSearch: vi.fn(),
+  chatUserInfo: vi.fn(),
   chatUserUpdateMe: vi.fn(),
   chatConversationGetConversations: vi.fn(),
   chatConversationCreateGroup: vi.fn(),
@@ -101,7 +96,7 @@ vi.mock("~/libs/http-client", () => ({
     me: chatUserMe,
     search: chatUserSearch,
     updateMe: chatUserUpdateMe,
-    info: vi.fn().mockResolvedValue(null),
+    info: chatUserInfo,
   },
   chatConversationService: {
     getConversations: chatConversationGetConversations,
@@ -229,6 +224,7 @@ describe("the route tree", () => {
     chatHealthCheck.mockReset();
     chatAuthRefresh.mockReset();
     chatUserMe.mockReset().mockResolvedValue(CURRENT_USER);
+    chatUserInfo.mockReset().mockResolvedValue(null);
     chatUserSearch
       .mockReset()
       .mockResolvedValue({ items: [], nextOffset: null });
@@ -1411,23 +1407,20 @@ describe("the route tree", () => {
         expect(screen.getAllByText("Anh Huynh").length).toBeGreaterThan(0);
       });
 
-      it("opens straight into edit mode from the Rail menu's Edit profile", async () => {
+      it("has no Edit profile item in the Rail menu — View profile is the only entry besides Sign out", async () => {
         const user = userEvent.setup();
         renderAt(ROUTES.HOME);
 
         await user.click(
           await screen.findByRole("button", { name: "Tuan Huynh" }),
         );
-        fireEvent.click(
-          await screen.findByRole("menuitem", { name: "Edit profile" }),
-        );
 
         expect(
-          await screen.findByRole("textbox", { name: "First name" }),
-        ).toHaveValue("Tuan");
-        expect(
-          screen.getByRole("button", { name: "Save" }),
+          await screen.findByRole("menuitem", { name: "View profile" }),
         ).toBeInTheDocument();
+        expect(
+          screen.queryByRole("menuitem", { name: "Edit profile" }),
+        ).not.toBeInTheDocument();
       });
     });
 
@@ -1603,6 +1596,9 @@ describe("the route tree", () => {
         chatConversationGetConversations.mockResolvedValue(
           TWO_DIRECT_CONVERSATIONS,
         );
+        // The Unfriend action only shows once the fetched profile confirms
+        // FRIEND — see conversation-details-panel.tsx.
+        chatUserInfo.mockResolvedValue({ statusFriend: FriendStatus.FRIEND });
 
         renderAt(ROUTES.conversationByIdPath("c1"));
 
@@ -1625,10 +1621,40 @@ describe("the route tree", () => {
           panel.getByRole("button", { name: "View profile" }),
         ).toBeEnabled();
 
-        await user.click(panel.getByRole("button", { name: "Unfriend" }));
-        await user.click(await screen.findByRole("button", { name: "Remove" }));
+        await user.click(
+          await panel.findByRole("button", { name: "Unfriend" }),
+        );
+        await user.click(await screen.findByRole("button", { name: "Confirm" }));
 
         expect(chatFriendRemove).toHaveBeenCalledWith("u2");
+      });
+
+      it("hides Unfriend for a direct conversation with someone who isn't a friend", async () => {
+        const user = userEvent.setup();
+        chatConversationGetConversations.mockResolvedValue(
+          TWO_DIRECT_CONVERSATIONS,
+        );
+        chatUserInfo.mockResolvedValue({ statusFriend: FriendStatus.NONE });
+
+        renderAt(ROUTES.conversationByIdPath("c1"));
+
+        await user.click(
+          await screen.findByRole("button", { name: "Conversation details" }),
+        );
+
+        const panelHeading = await screen.findByRole("heading", {
+          name: "Profile",
+        });
+        const panel = within(
+          panelHeading.parentElement?.parentElement as HTMLElement,
+        );
+
+        expect(
+          await panel.findByRole("button", { name: "View profile" }),
+        ).toBeEnabled();
+        expect(
+          panel.queryByRole("button", { name: "Unfriend" }),
+        ).not.toBeInTheDocument();
       });
 
       it("keeps Details open when navigating from one conversation to another in the same session", async () => {

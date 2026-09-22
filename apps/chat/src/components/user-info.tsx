@@ -102,8 +102,7 @@ export function UserInfo({
           <p className="text-muted-foreground flex items-center gap-2 text-sm">
             <span className="truncate">@{user.username}</span>
             {online && (
-              <span className="flex shrink-0 items-center gap-1.5 text-xs">
-                <span className="bg-online inline-block size-1.5 rounded-full" />
+              <span className="shrink-0 text-xs">
                 {t("chat.common.activeNow")}
               </span>
             )}

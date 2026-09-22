@@ -1,6 +1,7 @@
 import type { Control, FieldPath } from "react-hook-form";
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -32,7 +33,8 @@ interface PasswordFieldProps {
 }
 
 /** The three fields differ only in name/label/autoComplete — see `ProfileField`
- * in profile-form.tsx for the sibling this mirrors. */
+ * in profile-form.tsx for the sibling this mirrors. All three are required,
+ * so the label always carries the asterisk. */
 function PasswordField({
   control,
   name,
@@ -40,21 +42,50 @@ function PasswordField({
   autoComplete,
   disabled,
 }: PasswordFieldProps) {
+  const { t } = useTranslation();
+  const [visible, setVisible] = React.useState(false);
+
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <Field data-invalid={fieldState.invalid}>
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-          <Input
-            {...field}
-            id={field.name}
-            type="password"
-            autoComplete={autoComplete}
-            disabled={disabled}
-            aria-invalid={fieldState.invalid}
-          />
+        <Field className="gap-1.5" data-invalid={fieldState.invalid}>
+          <FieldLabel htmlFor={field.name}>
+            {label}
+            <span aria-hidden="true" className="text-destructive">
+              *
+            </span>
+          </FieldLabel>
+          <div className="relative">
+            <Input
+              {...field}
+              id={field.name}
+              type={visible ? "text" : "password"}
+              autoComplete={autoComplete}
+              disabled={disabled}
+              aria-invalid={fieldState.invalid}
+              className="pr-9"
+            />
+            <button
+              type="button"
+              tabIndex={-1}
+              disabled={disabled}
+              onClick={() => setVisible((prev) => !prev)}
+              aria-label={
+                visible
+                  ? t("chat.profile.changePassword.hidePassword")
+                  : t("chat.profile.changePassword.showPassword")
+              }
+              className="text-muted-foreground hover:text-foreground absolute inset-y-0 right-0 flex items-center px-2.5 disabled:pointer-events-none disabled:opacity-50"
+            >
+              {visible ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
+          </div>
           {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
         </Field>
       )}

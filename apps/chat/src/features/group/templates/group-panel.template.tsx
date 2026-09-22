@@ -1,7 +1,4 @@
 import * as React from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, PencilLine, X } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { ChatParticipantRole } from "@monorepo/types/chat-conversation";
@@ -15,123 +12,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@monorepo/ui/components/alert-dialog";
-import { Button } from "@monorepo/ui/components/button";
-import { Field, FieldError } from "@monorepo/ui/components/field";
-import { Input } from "@monorepo/ui/components/input";
 
 import type { Conversation } from "~/features/conversation/types/conversation";
-import type { RenameGroupFormValues } from "~/features/group/types/rename-group-form";
 import { ConversationAvatar } from "~/components/avatar/conversation-avatar";
 import { AddGroupMembersDialog } from "~/features/group/components/add-group-members-dialog";
 import { GroupActions } from "~/features/group/components/group-actions";
 import { GroupMembersSection } from "~/features/group/components/group-members-section";
+import { RenameGroupDialog } from "~/features/group/components/rename-group-dialog";
 import { useGroupActions } from "~/features/group/hooks/use-group-actions";
-import { createRenameGroupFormSchema } from "~/features/group/types/rename-group-form";
 import { useSocketStore } from "~/stores/use-socket-store";
-
-interface GroupHeaderProps {
-  name: string;
-  canRename: boolean;
-  isSubmitting: boolean;
-  onRename: (name: string) => void;
-}
-
-/** The group's name, editable inline for the owner only (story 46) — no
- * dialog, just a pencil that turns the heading into a field until Enter/blur
- * commits it or Escape cancels. */
-function GroupHeaderTitle({
-  name,
-  canRename,
-  isSubmitting,
-  onRename,
-}: GroupHeaderProps) {
-  const { t } = useTranslation();
-  const [isEditing, setIsEditing] = React.useState(false);
-  // Rebuilt on every language switch — see createRenameGroupFormSchema.
-  const schema = React.useMemo(() => createRenameGroupFormSchema(t), [t]);
-  const form = useForm<RenameGroupFormValues>({
-    resolver: zodResolver(schema),
-    defaultValues: { name },
-  });
-
-  if (!canRename) {
-    return <p className="text-base font-semibold">{name}</p>;
-  }
-
-  const cancel = () => {
-    setIsEditing(false);
-    form.reset({ name });
-  };
-
-  if (!isEditing) {
-    return (
-      <div className="flex items-center gap-1">
-        <p className="text-base font-semibold">{name}</p>
-        <Button
-          type="button"
-          size="icon-sm"
-          variant="outline"
-          aria-label={t("chat.group.header.renameAria")}
-          onClick={() => {
-            form.reset({ name });
-            setIsEditing(true);
-          }}
-        >
-          <PencilLine className="size-3.5" />
-        </Button>
-      </div>
-    );
-  }
-
-  const onSubmit = form.handleSubmit((values) => {
-    setIsEditing(false);
-    if (values.name !== name) onRename(values.name);
-  });
-
-  return (
-    <form onSubmit={onSubmit}>
-      <Controller
-        name="name"
-        control={form.control}
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid} orientation="horizontal">
-            <Input
-              {...field}
-              id={field.name}
-              autoFocus
-              disabled={isSubmitting}
-              aria-label={t("chat.group.header.nameAria")}
-              aria-invalid={fieldState.invalid}
-              className="h-8"
-              onKeyDown={(event) => {
-                if (event.key === "Escape") cancel();
-              }}
-            />
-            <Button
-              type="submit"
-              size="icon-sm"
-              variant="outline"
-              aria-label={t("chat.group.header.saveAria")}
-              disabled={isSubmitting}
-            >
-              <Check className="size-3.5" />
-            </Button>
-            <Button
-              type="button"
-              size="icon-sm"
-              variant="outline"
-              aria-label={t("chat.group.header.cancelAria")}
-              onClick={cancel}
-            >
-              <X className="size-3.5" />
-            </Button>
-            {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-          </Field>
-        )}
-      />
-    </form>
-  );
-}
 
 interface GroupPanelTemplateProps {
   conversation: Conversation;
@@ -145,6 +34,7 @@ export default function GroupPanelTemplate({
   onLeft,
 }: GroupPanelTemplateProps) {
   const { t } = useTranslation();
+  const [isRenameOpen, setIsRenameOpen] = React.useState(false);
   const [isAddMembersOpen, setIsAddMembersOpen] = React.useState(false);
   const [isLeaveConfirmOpen, setIsLeaveConfirmOpen] = React.useState(false);
   const onlineUsers = useSocketStore((state) => state.onlineUsers);
@@ -180,13 +70,10 @@ export default function GroupPanelTemplate({
           avatarUrl={conversation.avatarUrl}
           className="ring-primary/20 ring-offset-background size-22 ring-4 ring-offset-2"
         />
-        <div>
-          <GroupHeaderTitle
-            name={conversation.title}
-            canRename={isCurrentUserAdmin}
-            isSubmitting={isRenameGroupSubmitting}
-            onRename={onRenameGroup}
-          />
+        <div className="w-full min-w-0">
+          <p className="w-full truncate text-base font-semibold">
+            {conversation.title}
+          </p>
           <p className="text-muted-foreground text-xs">
             {t("chat.group.header.memberSummary", {
               count: conversation.members.length,
@@ -198,7 +85,9 @@ export default function GroupPanelTemplate({
 
       <GroupActions
         isCurrentUserAdmin={isCurrentUserAdmin}
+        isRenameGroupSubmitting={isRenameGroupSubmitting}
         isLeaveGroupSubmitting={isLeaveGroupSubmitting}
+        onRenameClick={() => setIsRenameOpen(true)}
         onAddMembersClick={() => setIsAddMembersOpen(true)}
         onLeaveGroupClick={() => setIsLeaveConfirmOpen(true)}
       />
@@ -209,6 +98,14 @@ export default function GroupPanelTemplate({
         isCurrentUserAdmin={isCurrentUserAdmin}
         removingMemberId={removingMemberId}
         onRemoveMember={onRemoveMember}
+      />
+
+      <RenameGroupDialog
+        open={isRenameOpen}
+        onOpenChange={setIsRenameOpen}
+        currentName={conversation.title}
+        isSubmitting={isRenameGroupSubmitting}
+        onRename={onRenameGroup}
       />
 
       <AddGroupMembersDialog

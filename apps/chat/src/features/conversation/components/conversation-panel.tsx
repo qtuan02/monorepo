@@ -224,10 +224,7 @@ export default function ConversationPanel({
               </span>
             ) : (
               subtitle && (
-                <p className="text-muted-foreground flex items-center gap-1.5 truncate text-xs">
-                  {!isGroup && (
-                    <span className="bg-online inline-block size-1.5 shrink-0 rounded-full" />
-                  )}
+                <p className="text-muted-foreground truncate text-xs">
                   {subtitle}
                 </p>
               )

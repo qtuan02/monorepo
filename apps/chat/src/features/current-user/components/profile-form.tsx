@@ -55,6 +55,7 @@ interface ProfileFieldProps {
   autoComplete?: string;
   multiline?: boolean;
   disabled?: boolean;
+  required?: boolean;
   className?: string;
 }
 
@@ -73,6 +74,7 @@ function ProfileField({
   autoComplete,
   multiline = false,
   disabled = false,
+  required = false,
   className,
 }: ProfileFieldProps) {
   const { t } = useTranslation();
@@ -108,7 +110,14 @@ function ProfileField({
           className={cn("gap-1.5", className)}
           data-invalid={fieldState.invalid}
         >
-          <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+          <FieldLabel htmlFor={field.name}>
+            {label}
+            {required && (
+              <span aria-hidden="true" className="text-destructive">
+                *
+              </span>
+            )}
+          </FieldLabel>
           {multiline ? (
             <Textarea
               {...field}
@@ -235,6 +244,7 @@ export function ProfileForm({ profile }: { profile: ChatUserProfile }) {
             value={profile.firstName}
             autoComplete="given-name"
             disabled={pending}
+            required
           />
           <ProfileField
             control={form.control}
@@ -244,6 +254,7 @@ export function ProfileForm({ profile }: { profile: ChatUserProfile }) {
             value={profile.lastName}
             autoComplete="family-name"
             disabled={pending}
+            required
           />
           <ProfileField
             control={form.control}
@@ -253,6 +264,7 @@ export function ProfileForm({ profile }: { profile: ChatUserProfile }) {
             value={profile.username}
             autoComplete="username"
             disabled={pending}
+            required
           />
           <ProfileField
             control={form.control}
@@ -263,6 +275,7 @@ export function ProfileForm({ profile }: { profile: ChatUserProfile }) {
             type="email"
             autoComplete="email"
             disabled={pending}
+            required
           />
           <ProfileField
             control={form.control}
