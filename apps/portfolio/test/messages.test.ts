@@ -84,6 +84,7 @@ function derivedKeys(): string[] {
     ...WORK_ITEMS.flatMap((item) => [
       `portfolio.work.items.${item.id}.role`,
       `portfolio.work.items.${item.id}.period`,
+      ...(item.summary ? [`portfolio.work.items.${item.id}.summary`] : []),
       ...item.bulletKeys.map(
         (key) => `portfolio.work.items.${item.id}.bullets.${key}`,
       ),

@@ -141,8 +141,10 @@
         "medviet": {
           "role": "Kỹ sư phần mềm",
           "period": "03/2026 – Hiện tại",
+          "summary": "Sản phẩm EMR/HIS cho bệnh viện",
           "bullets": {
-            "monorepo": "Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó: đăng nhập người bệnh qua IAM kèm captcha, phiếu khám sinh từ form-server, lưu và ký theo từng nhóm chỉ tiêu.",
+            "monorepo": "Dựng monorepo frontend dùng chung của MedViet (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) — khuôn mà các app sau clone từ đó.",
+            "healthExam": "Xây phân hệ Khám sức khoẻ trên EMR: ba chuyên trang — Đăng ký (nhân viên tiếp nhận), Trả kết quả (bác sĩ) và Web người bệnh tự phục vụ (không mật khẩu, xác thực bằng captcha); hồ sơ người bệnh nhiều phiên bản; biểu mẫu động dựng từ cấu hình HIS; chỉ định cận lâm sàng; kết luận kèm ký số và chữ ký điện tử; nhập hồ sơ hàng loạt từ Excel; triển khai trên sub-path cùng origin với EMR.",
             "mobile": "Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR, hồ sơ trình ký và chữ ký; tách app thành monorepo với một lớp SDK service, và hết ANR sau khi làm phẳng danh sách nhóm theo ngày thành row stream.",
             "legacy": "Bảo trì web EMR legacy (Next.js 14 + Redux): màn đơn thuốc và gói dịch vụ, biểu đồ chuyển dạ, phân quyền và web-config.",
             "dotnet": "Viết command/query handler .NET 8 (EF Core, MediatR) phía HIS server cho danh mục dịch vụ y tế và đơn thuốc mẫu."
@@ -151,6 +153,7 @@
         "arobid": {
           "role": "Lập trình viên Frontend",
           "period": "03/2025 – 02/2026",
+          "summary": "Sàn thương mại B2B và triển lãm số",
           "awards": {
             "vda2025": {
               "label": "VDA 2025",
@@ -170,6 +173,7 @@
         "dcorp": {
           "role": "Lập trình viên Frontend",
           "period": "06/2023 – 02/2025",
+          "summary": "Phần mềm POS cho chuỗi F&B",
           "bullets": {
             "omnichannel": "Omnichannel Order và Inventory — Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
             "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái; tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",

@@ -43,6 +43,11 @@ test.describe("server rendering", () => {
     // that actually matters: a heading could come from the layout, but a bullet
     // is only there if the slice itself rendered on the server.
     expect(html).toContain("app EMR mobile bằng Expo/React Native");
+    // The health-examination bullet split out from the monorepo one, and the
+    // company blurb beside it — both new in this ticket, both have to be in
+    // the bytes or a crawler never sees the biggest thing on the CV.
+    expect(html).toContain("nhập hồ sơ hàng loạt từ Excel");
+    expect(html).toContain("Sản phẩm EMR/HIS cho bệnh viện");
     expect(html).toContain("Kinh nghiệm làm việc");
     // A skill group label and a name that only exists inside it. Tabs would
     // have put four rows in five out of these bytes; this is the assertion
@@ -87,6 +92,8 @@ test.describe("server rendering", () => {
     // in one locale and falls back to a key path in the other is exactly what a
     // missing translation looks like, and only the raw document shows it.
     expect(html).toContain("EMR mobile app with Expo/React Native");
+    expect(html).toContain("bulk patient registration from Excel");
+    expect(html).toContain("EMR/HIS product for hospitals");
     expect(html).toContain(
       "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
     );

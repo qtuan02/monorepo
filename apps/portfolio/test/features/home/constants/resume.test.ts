@@ -57,6 +57,20 @@ describe("resume constants", () => {
     ]);
   });
 
+  it("gives every work row a company blurb, so a reader outside the industry knows what each one does", () => {
+    for (const item of WORK_ITEMS) {
+      expect(item.summary, item.id).toBeTruthy();
+    }
+  });
+
+  it("caps MedViet's tech stack at ten badges, so the line does not run three lines of mono", () => {
+    const medviet = WORK_ITEMS.find((item) => item.id === "medviet");
+
+    expect(medviet).toBeDefined();
+    expect(medviet?.techStack.length).toBeGreaterThanOrEqual(8);
+    expect(medviet?.techStack.length).toBeLessThanOrEqual(10);
+  });
+
   it("carries an award badge on the one role that earned one", () => {
     // A badge is a claim about a real prize, so it is worth pinning which rows
     // make it: a stray `award` copied onto another row would publish a claim

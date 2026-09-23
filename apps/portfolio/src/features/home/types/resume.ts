@@ -30,6 +30,13 @@ export interface WorkItem {
    * say which.
    */
   award?: string;
+  /**
+   * Marks that the row carries a one-line company blurb — the message-key
+   * segment `portfolio.work.items.<id>.summary` — naming what industry the
+   * company is in. Optional in the type so a row missing one still compiles;
+   * `resume.test.ts` pins that every row has one as a data invariant instead.
+   */
+  summary?: string;
 }
 
 /**

@@ -41,6 +41,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     id: "medviet",
     company: "MedViet",
     logo: medvietLogo,
+    summary: "summary",
     techStack: [
       "Bun",
       "Turborepo",
@@ -48,20 +49,17 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "Vite",
       "Expo",
       "React Native",
-      "NativeWind",
       "TanStack Query",
       "Zustand",
-      "Next.js",
-      "Redux",
       ".NET 8",
-      "EF Core",
     ],
-    bulletKeys: ["monorepo", "mobile", "legacy", "dotnet"],
+    bulletKeys: ["monorepo", "healthExam", "mobile", "legacy", "dotnet"],
   },
   {
     id: "arobid",
     company: "AROBID",
     logo: arobidLogo,
+    summary: "summary",
     techStack: [
       "Monorepo",
       "React.js",
@@ -89,6 +87,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     id: "dcorp",
     company: "DCORP R-KEEPER",
     logo: dcorpLogo,
+    summary: "summary",
     techStack: [
       "React.js",
       "Next.js",

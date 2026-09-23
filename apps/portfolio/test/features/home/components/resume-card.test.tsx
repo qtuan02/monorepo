@@ -136,6 +136,25 @@ describe("ResumeCard", () => {
     ).toHaveAccessibleDescription("Vietnam Digital Awards 2025");
   });
 
+  it("renders the company blurb muted, under the role", () => {
+    render(
+      <ResumeCard
+        logo={logo}
+        altText="MedViet"
+        title="MedViet"
+        subtitle="Kỹ sư phần mềm"
+        summary="Sản phẩm EMR/HIS cho bệnh viện"
+        period="03/2026 – Hiện tại"
+        bullets={bullets}
+        toggleLabel="Xem chi tiết công việc"
+      />,
+    );
+
+    const summary = screen.getByText("Sản phẩm EMR/HIS cho bệnh viện");
+
+    expect(summary).toHaveClass("text-muted-foreground");
+  });
+
   it("renders no badge for a row with no award", () => {
     render(
       <ResumeCard

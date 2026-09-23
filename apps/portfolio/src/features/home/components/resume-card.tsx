@@ -41,6 +41,8 @@ interface ResumeCardProps {
   altText: string;
   title: string;
   subtitle?: string;
+  /** A one-line blurb naming what industry the company is in, muted. */
+  summary?: string;
   /** A label such as "Feb 2025 – Feb 2026", already localized. */
   period: string;
   /** Shown beside the period, for the rare row that won something. */
@@ -94,6 +96,7 @@ export default function ResumeCard({
   altText,
   title,
   subtitle,
+  summary,
   period,
   award,
   href,
@@ -162,6 +165,11 @@ export default function ResumeCard({
       </span>
       {subtitle && (
         <span className="text-sm font-normal text-foreground">{subtitle}</span>
+      )}
+      {summary && (
+        <span className="text-sm font-normal text-muted-foreground">
+          {summary}
+        </span>
       )}
     </>
   );

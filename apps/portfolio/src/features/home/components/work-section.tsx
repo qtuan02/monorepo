@@ -30,6 +30,11 @@ export default function WorkSection() {
               altText={item.company}
               title={item.company}
               subtitle={t(`portfolio.work.items.${item.id}.role`)}
+              summary={
+                item.summary
+                  ? t(`portfolio.work.items.${item.id}.summary`)
+                  : undefined
+              }
               period={t(`portfolio.work.items.${item.id}.period`)}
               award={
                 item.award

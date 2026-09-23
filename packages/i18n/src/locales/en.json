@@ -141,8 +141,10 @@
         "medviet": {
           "role": "Software Engineer",
           "period": "Mar 2026 – Present",
+          "summary": "EMR/HIS product for hospitals",
           "bullets": {
-            "monorepo": "Bootstrapped the shared frontend monorepo (Bun + Turborepo, React 19 + Vite, Vitest and Playwright in CI) and built the health-examination module on it: patient sign-in through IAM with captcha, exam sheets generated from a form server, and per-group saving and e-signature.",
+            "monorepo": "Bootstrapped MedViet's shared frontend monorepo (Bun + Turborepo, React 19 + Vite, Vitest and Playwright in CI) — the mold every later app was cloned from.",
+            "healthExam": "Built the periodic health-examination module on the EMR: three screens — registration (front-desk staff), results (doctors), and a passwordless, captcha-verified self-service patient portal; versioned patient profiles; dynamic exam forms rendered from HIS configuration; lab and imaging orders; conclusions with digital signatures and e-signatures; bulk patient registration from Excel; deployed on a sub-path sharing the EMR's origin.",
             "mobile": "Built the EMR mobile app with Expo/React Native (NativeWind, TanStack Query, Zustand): in-department patient list, medical records, lab results, QR scanning, sign-off dossiers and e-signature; restructured the app into a monorepo with an SDK service layer, and cleared an ANR by flattening date-grouped lists into a row stream.",
             "legacy": "Maintained the legacy EMR web app (Next.js 14 + Redux): prescription and service-package screens, the labor chart, permissions and web configuration.",
             "dotnet": "Implemented .NET 8 command and query handlers (EF Core, MediatR) on the HIS server for the medical service catalogue and prescription templates."
@@ -151,6 +153,7 @@
         "arobid": {
           "role": "Frontend Developer",
           "period": "Mar 2025 – Feb 2026",
+          "summary": "B2B marketplace and digital exhibition platform",
           "awards": {
             "vda2025": {
               "label": "VDA 2025",
@@ -170,6 +173,7 @@
         "dcorp": {
           "role": "Frontend Developer",
           "period": "Jun 2023 – Feb 2025",
+          "summary": "POS software for F&B chains",
           "bullets": {
             "omnichannel": "Omnichannel Order and Inventory — Highlands Coffee: order flows integrating Shopee, Grab, in-store POS, and internal systems; operational dashboards, goods receipt and issue, and inventory tracking.",
             "dataset": "Handled large datasets and complex multi-state order workflows; contributed to business configuration screens for real-time retail operations.",
