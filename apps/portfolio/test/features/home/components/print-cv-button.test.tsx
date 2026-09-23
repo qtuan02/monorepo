@@ -24,7 +24,7 @@ describe("PrintCvButton", () => {
 
     render(<PrintCvButton />);
 
-    await user.click(screen.getByRole("button", { name: "In CV" }));
+    await user.click(screen.getByRole("button", { name: "Print CV" }));
 
     expect(print).toHaveBeenCalledOnce();
   });
@@ -34,7 +34,7 @@ describe("PrintCvButton", () => {
 
     // Printing is an action on the current page, not a destination. A link
     // would announce as one and offer a meaningless "open in new tab".
-    expect(screen.getByRole("button", { name: "In CV" })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: "Print CV" })).toHaveAttribute(
       "type",
       "button",
     );

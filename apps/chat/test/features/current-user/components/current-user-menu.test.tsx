@@ -52,10 +52,7 @@ describe("CurrentUserMenu", () => {
     chatAuthSignOut.mockReset().mockResolvedValue(undefined);
   });
 
-  it.each([
-    ["View profile", ROUTES.PROFILE],
-    ["Edit profile", `${ROUTES.PROFILE}?edit=1`],
-  ])("%s navigates to %s", async (item, expected) => {
+  it("View profile navigates to the profile screen", async () => {
     const user = userEvent.setup();
     renderMenu();
 
@@ -63,8 +60,21 @@ describe("CurrentUserMenu", () => {
     // Base UI's Menu.Item relies on a pointerdown/pointerup sequence
     // userEvent.click doesn't fully reproduce under jsdom — a plain click
     // event is what actually reaches its onClick handler here.
-    fireEvent.click(await screen.findByRole("menuitem", { name: item }));
+    fireEvent.click(
+      await screen.findByRole("menuitem", { name: "View profile" }),
+    );
 
-    expect(await screen.findByRole("status")).toHaveTextContent(expected);
+    expect(await screen.findByRole("status")).toHaveTextContent(ROUTES.PROFILE);
+  });
+
+  it("has no Edit profile item — editing lives on the profile screen itself", async () => {
+    const user = userEvent.setup();
+    renderMenu();
+
+    await user.click(await screen.findByRole("button", { name: /Tuan Huynh/ }));
+
+    expect(
+      screen.queryByRole("menuitem", { name: "Edit profile" }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -359,7 +359,7 @@ describe("MessageRow", () => {
       fireEvent.click(await screen.findByRole("menuitem", { name: "Delete" }));
       await user.click(
         within(screen.getByRole("alertdialog")).getByRole("button", {
-          name: "Delete",
+          name: "Confirm",
         }),
       );
 

@@ -37,6 +37,12 @@ import {
   MessageFooter,
   MessageHeader,
 } from "@monorepo/ui/components/message";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@monorepo/ui/components/tooltip";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { ConversationMember } from "~/features/conversation/types/conversation";
@@ -117,7 +123,7 @@ function bubbleShapeClassName(
   isLastInGroup: boolean,
 ): string {
   return cn(
-    "flex flex-col gap-1.5 rounded-2xl px-3.5 py-2",
+    "flex flex-col gap-1.5 rounded-xl px-3 py-1.5",
     isOwn
       ? [!isFirstInGroup && "rounded-tr-md", !isLastInGroup && "rounded-br-md"]
       : [!isFirstInGroup && "rounded-tl-md", !isLastInGroup && "rounded-bl-md"],
@@ -198,7 +204,7 @@ function MessageActionsMenu({
             >
               {deleteMessageMutation.isPending
                 ? t("chat.convPane.row.actions.deleting")
-                : t("chat.convPane.row.actions.delete")}
+                : t("chat.convPane.row.actions.deleteConfirmAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -241,7 +247,7 @@ export default function MessageRow({
   return (
     <div
       className={cn(
-        "flex flex-col gap-0.5 px-3 md:px-5",
+        "flex flex-col gap-0.5 px-2 md:px-3",
         isFirstInGroup ? "pt-3" : "pt-0.5",
       )}
     >
@@ -314,7 +320,7 @@ export default function MessageRow({
               )}
             </div>
             {isLastInGroup && (
-              <MessageFooter className="gap-1.5 px-2 text-[11px] font-normal">
+              <MessageFooter className="-mt-0.5 gap-1.5 px-2 text-[10px] font-normal">
                 <span>{formatMessageTime(message.createdAt)}</span>
                 {message.updatedAt !== message.createdAt && (
                   <span>{t("chat.convPane.row.edited")}</span>
@@ -329,26 +335,40 @@ export default function MessageRow({
               </MessageFooter>
             )}
             {visibleReaders.length > 0 && (
-              <div
-                className={cn("flex", isOwn ? "justify-end" : "justify-start")}
-              >
-                <AvatarGroup>
-                  {visibleReaders.map((reader) => (
-                    <Avatar key={reader.userId} size="sm">
-                      {reader.avatarUrl && (
-                        <AvatarImage src={reader.avatarUrl} alt="" />
-                      )}
-                      <AvatarFallback>
-                        {getInitials(reader.displayName)}
-                      </AvatarFallback>
-                    </Avatar>
-                  ))}
-                  {hiddenReaderCount > 0 && (
-                    <AvatarGroupCount className="size-6 text-[10px]">
-                      +{hiddenReaderCount}
-                    </AvatarGroupCount>
-                  )}
-                </AvatarGroup>
+              <div className="flex justify-end">
+                <TooltipProvider delay={200}>
+                  <AvatarGroup className="-space-x-1.5">
+                    {visibleReaders.map((reader) => (
+                      <Tooltip key={reader.userId}>
+                        <TooltipTrigger
+                          render={
+                            <Avatar className="size-4">
+                              {reader.avatarUrl && (
+                                <AvatarImage src={reader.avatarUrl} alt="" />
+                              )}
+                              <AvatarFallback className="text-[8px]">
+                                {getInitials(reader.displayName)}
+                              </AvatarFallback>
+                            </Avatar>
+                          }
+                        />
+                        <TooltipContent>
+                          {reader.lastReadAt
+                            ? t("chat.convPane.row.seenAt", {
+                                name: reader.displayName,
+                                time: formatMessageTime(reader.lastReadAt),
+                              })
+                            : reader.displayName}
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                    {hiddenReaderCount > 0 && (
+                      <AvatarGroupCount className="size-4 text-[8px]">
+                        +{hiddenReaderCount}
+                      </AvatarGroupCount>
+                    )}
+                  </AvatarGroup>
+                </TooltipProvider>
               </div>
             )}
           </MessageContent>

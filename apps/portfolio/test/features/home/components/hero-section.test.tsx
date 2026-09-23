@@ -18,12 +18,14 @@ describe("HeroSection", () => {
     render(<HeroSection />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      "Huỳnh Quốc Tuấn",
+      "Huynh Quoc Tuan",
     );
-    expect(
-      screen.getByText(/Frontend-led full-stack engineer/),
-    ).toBeInTheDocument();
-    expect(screen.getByText(/MedViet/)).toBeInTheDocument();
+    expect(screen.getByText("Software Engineer")).toBeInTheDocument();
+    expect(screen.getByText(/Driven by new technology/)).toBeInTheDocument();
+    // The current employer belongs to the work history, not to the hero
+    // (#274) — a line here would spend the page's most-read row on something
+    // the reader gets two blocks down anyway.
+    expect(screen.queryByText(/MedViet/)).not.toBeInTheDocument();
   });
 
   it("keeps the command lines and the window chrome out of the accessibility tree", () => {
@@ -32,7 +34,7 @@ describe("HeroSection", () => {
     // A sighted reader gets `$ whoami` before the name; a screen reader must
     // not get "dollar whoami". Every prompt, every command and the title bar
     // are decoration, so each sits under an `aria-hidden` ancestor.
-    for (const command of ["whoami", "cat role.txt", "current --job"]) {
+    for (const command of ["whoami", "cat role.txt", "cat motto.txt"]) {
       expect(
         screen.getByText(command).closest('[aria-hidden="true"]'),
         command,
@@ -50,7 +52,7 @@ describe("HeroSection", () => {
     // And the heading itself carries none of it: what is announced for the
     // page's h1 is the name and nothing else.
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /^Huỳnh Quốc Tuấn$/,
+      /^Huynh Quoc Tuan$/,
     );
 
     // The name reaches a screen reader before the positioning — the order the
@@ -59,8 +61,8 @@ describe("HeroSection", () => {
       (node) => node.closest('[aria-hidden="true"]') === null,
     );
 
-    expect(spoken[0]).toHaveTextContent("Huỳnh Quốc Tuấn");
-    expect(spoken[1]).toHaveTextContent(/Frontend-led full-stack engineer/);
+    expect(spoken[0]).toHaveTextContent("Huynh Quoc Tuan");
+    expect(spoken[1]).toHaveTextContent("Software Engineer");
   });
 
   it("no longer waves", () => {
@@ -68,18 +70,19 @@ describe("HeroSection", () => {
 
     // The greeting and its emoji went with the redesign: the h1 is the name.
     expect(screen.queryByText("👋")).not.toBeInTheDocument();
-    expect(screen.queryByText(/Xin chào/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Hello/)).not.toBeInTheDocument();
   });
 
-  it("offers exactly four quick actions, the print one last", () => {
+  it("offers exactly three quick actions, all of them links", () => {
     render(<HeroSection />);
 
-    // Every control in the block, in DOM order: the three links plus the one
-    // real button, which prints rather than navigates. Two role queries put
-    // back into document order, since a role query cannot ask for both.
+    // Every control in the block, in DOM order. "In CV" was a fourth, and the
+    // one real `<button>` among them; it is parked until it can hand over a
+    // PDF (see the TODO in `hero-section.tsx`), so a `<button>` reappearing
+    // here is that control coming back by accident rather than on purpose.
     const actions = [
       ...screen.getAllByRole("link"),
-      ...screen.getAllByRole("button"),
+      ...screen.queryAllByRole("button"),
     ].sort((a, b) =>
       a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1,
     );
@@ -88,9 +91,7 @@ describe("HeroSection", () => {
       "Email",
       "GitHub",
       "LinkedIn",
-      "In CV",
     ]);
-    expect(actions[3]?.tagName).toBe("BUTTON");
   });
 
   it("opens a page in a new tab but hands a mailto off to the mail client", () => {

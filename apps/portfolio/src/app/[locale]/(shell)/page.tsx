@@ -1,3 +1,4 @@
+import PersonJsonLd from "~/features/home/components/person-json-ld";
 import HomeTemplate from "~/features/home/templates/home.template";
 
 /**
@@ -8,7 +9,16 @@ import HomeTemplate from "~/features/home/templates/home.template";
  * page-level `generateMetadata` either — the title and description on the root
  * layout already describe this exact page, and a second copy of them would only
  * be one more place for them to drift.
+ *
+ * The `Person` structured data sits beside the template rather than inside it:
+ * it renders no pixels, it describes *this URL* rather than the CV's layout,
+ * and a template that emitted a `<script>` could not be reused anywhere else.
  */
 export default function HomePage() {
-  return <HomeTemplate />;
+  return (
+    <>
+      <PersonJsonLd />
+      <HomeTemplate />
+    </>
+  );
 }

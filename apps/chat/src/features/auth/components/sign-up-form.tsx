@@ -15,7 +15,7 @@ import { Input } from "@monorepo/ui/components/input";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import type { SignUpFormValues } from "~/features/auth/types/sign-up-form";
-import { LanguageToggleButton } from "~/components/select/language-toggle-button";
+import { SelectLanguage } from "~/components/select/select-language";
 import { ROUTES } from "~/constants/routes";
 import { useSignInSuccess } from "~/features/auth/hooks/use-sign-in-success";
 import { createSignUpFormSchema } from "~/features/auth/types/sign-up-form";
@@ -101,7 +101,7 @@ export default function SignUpForm() {
             {t("chat.auth.signUp.subtitle")}
           </p>
         </div>
-        <LanguageToggleButton />
+        <SelectLanguage compact triggerClassName="w-9 shrink-0 px-0" />
       </div>
 
       <FieldGroup className="gap-4">

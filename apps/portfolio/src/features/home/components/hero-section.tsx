@@ -10,7 +10,6 @@ import { buttonVariants } from "@monorepo/ui/components/button";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import avatar from "~/assets/avatar.jpg";
-import PrintCvButton from "~/features/home/components/print-cv-button";
 import StandardBlock from "~/features/home/components/standard-block";
 import { HERO_ACTIONS } from "~/features/home/constants/resume";
 import { isExternalPage } from "~/features/home/utils/is-external-page";
@@ -58,10 +57,17 @@ function CommandLine({ children }: CommandLineProps) {
 /**
  * The opening block, dressed as the page's one terminal window: a title bar,
  * then the three things a reader needs in the order a shell would print them
- * — `whoami` and the name, `cat role.txt` and the positioning, the current job
- * — then the four quick actions, with the portrait cut square at the right
- * edge of the body. No other section wears a title bar; the metaphor is a
- * signature, made once.
+ * — `whoami` and the name, `cat role.txt` and the job title, `cat motto.txt`
+ * and what drives the work — then the four quick actions, with the portrait
+ * cut square at the right edge of the body. No other section wears a title
+ * bar; the metaphor is a signature, made once.
+ *
+ * The current employer is deliberately **not** here (#274): it is the first
+ * row of the work history two blocks down, so a hero that names it spends the
+ * page's most-read line on something the reader is about to get anyway. What
+ * the hero says instead is the one line a recruiter scans for — the title —
+ * set as the page's one yellow slab, the treatment the share card gives the
+ * name.
  *
  * A Server Component. Two children need the browser — the print button, and
  * `Avatar`, which is a client primitive that mounts its `<img>` after its own
@@ -147,22 +153,30 @@ export default function HeroSection() {
 
           <div className="col-span-2 min-w-0 space-y-1 sm:col-span-1">
             <CommandLine>{t("portfolio.hero.commands.role")}</CommandLine>
-            <p className="text-base leading-relaxed md:text-lg">
-              {t("portfolio.hero.positioning")}
+            {/* Set, not filled (#275): the title carries its weight from the
+                type — mono, bold, one step under the name — rather than from a
+                yellow slab behind it. The yellow now lives in the press, where
+                it is motion rather than decoration (see `globals.css`). */}
+            <p className="font-mono text-xl font-bold tracking-tight [overflow-wrap:anywhere] sm:text-2xl md:text-3xl">
+              {t("portfolio.hero.role")}
             </p>
           </div>
 
           <div className="col-span-2 min-w-0 space-y-1 sm:col-span-1">
-            <CommandLine>{t("portfolio.hero.commands.current")}</CommandLine>
-            <p className="text-body leading-relaxed text-muted-foreground md:text-base">
-              {t("portfolio.hero.current")}
+            <CommandLine>{t("portfolio.hero.commands.motto")}</CommandLine>
+            <p className="text-base leading-relaxed text-muted-foreground md:text-lg">
+              {t("portfolio.hero.tagline")}
             </p>
           </div>
 
-          {/* 2×2 below `sm`, each action stretched to its grid cell instead
-              of wrapping a flex row into a lopsided third line; from `sm`
-              back to one wrapping row, unchanged. */}
-          <div className="col-span-2 grid grid-cols-2 gap-2 pt-1 sm:col-span-1 sm:flex sm:flex-wrap sm:items-center">
+          {/* One wrapping row at every width. It was a 2×2 grid below `sm`
+              while there were four actions; with three (#275) a grid leaves
+              the last one stretched across half the block on its own, which
+              reads as a mistake. Wrapping puts Email and GitHub on the first
+              line and LinkedIn under them, each at its own width. `h-10`
+              below `sm` in `ACTION_CLASS_NAME` is what keeps the touch
+              target, now that the grid cell no longer gives it one. */}
+          <div className="col-span-2 flex flex-wrap items-center gap-2 pt-1 sm:col-span-1">
             {HERO_ACTIONS.map((action) => {
               const Icon = action.icon;
 
@@ -173,16 +187,14 @@ export default function HeroSection() {
                   {...(isExternalPage(action.href)
                     ? { target: "_blank", rel: "noreferrer" }
                     : {})}
+                  // Four actions dressed alike (#275). Email used to carry a
+                  // yellow fill, and with it a focus ring spelled in the
+                  // highlight pair — no yellow clears 3:1 against `--ring` in
+                  // the dark theme. Dropping the fill drops that exception too:
+                  // every action now takes the primitive's own ring.
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" }),
                     ACTION_CLASS_NAME,
-                    // The one yellow control on the page. The primitive's
-                    // ring is `--ring`, which in the dark theme no yellow can
-                    // clear at 3:1 — so a yellow fill draws its focus ring in
-                    // the pair's own text colour, inset, in both themes.
-                    // `test/globals.test.ts` pins the ratio that forces this.
-                    action.id === "email" &&
-                      "bg-highlight text-highlight-foreground hover:bg-highlight hover:text-highlight-foreground focus-visible:border-highlight-foreground focus-visible:ring-2 focus-visible:ring-highlight-foreground focus-visible:ring-inset dark:bg-highlight dark:hover:bg-highlight",
                   )}
                 >
                   <Icon aria-hidden="true" className="size-4" />
@@ -190,7 +202,14 @@ export default function HeroSection() {
                 </a>
               );
             })}
-            <PrintCvButton className={ACTION_CLASS_NAME} />
+            {/* TODO(#275): `PrintCvButton` is parked, not deleted. The owner
+                wants this control to hand over a real PDF rather than open the
+                browser's print dialog, and the PDF does not exist yet — so the
+                button is out of the hero until it does. The component, its
+                test, the `portfolio.hero.actions.print` message and the whole
+                `@media print` half of `globals.css` all stay: re-rendering one
+                line here is what brings it back, and the print stylesheet is
+                what any PDF of this page will be generated from anyway. */}
           </div>
         </div>
       </StandardBlock>

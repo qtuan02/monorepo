@@ -1,4 +1,4 @@
-import { ChevronsUpDown, LogOut, PencilLine, UserRound } from "lucide-react";
+import { ChevronsUpDown, LogOut, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
@@ -24,9 +24,9 @@ import { getDisplayName, getInitials } from "~/utils/display";
 /**
  * The sidebar current-user area — a `DropdownMenuTrigger render=` around the
  * trigger button, and every item `onClick` rather than Radix's `onSelect`
- * (Base UI's Menu.Item has no `onSelect`). Both profile items navigate to
- * the profile screen — "Edit profile" lands on it already in edit mode
- * (`?edit=1`, see profile-form.tsx); there is no dialog.
+ * (Base UI's Menu.Item has no `onSelect`). "View profile" navigates to the
+ * profile screen, which has its own "Edit profile" button (see
+ * profile-form.tsx) — no separate edit entry here.
  *
  * `compact` is the Rail's own trigger (brief §3.1 — "avatar (mở
  * CurrentUserMenu hiện có)"): the same dropdown, opened from a bare avatar
@@ -91,10 +91,6 @@ export function CurrentUserMenu({ compact = false }: CurrentUserMenuProps) {
         <DropdownMenuItem onClick={() => navigate(ROUTES.PROFILE)}>
           <UserRound className="mr-2 size-4" />
           {t("chat.profile.menu.viewProfile")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => navigate(`${ROUTES.PROFILE}?edit=1`)}>
-          <PencilLine className="mr-2 size-4" />
-          {t("chat.profile.editProfile")}
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"

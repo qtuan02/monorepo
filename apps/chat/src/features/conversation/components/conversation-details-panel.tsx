@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { useIsMobile } from "@monorepo/hook/use-is-mobile";
 import { ChatConversationType } from "@monorepo/types/chat-conversation";
+import { FriendStatus } from "@monorepo/types/chat-friend";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -81,8 +82,7 @@ function DirectProfileSection({
             </p>
           )}
           {isOnline && (
-            <p className="text-muted-foreground mt-0.5 flex items-center justify-center gap-1.5 text-xs">
-              <span className="bg-online inline-block size-1.5 rounded-full" />
+            <p className="text-muted-foreground mt-0.5 text-xs">
               {t("chat.convList.activeNow")}
             </p>
           )}
@@ -104,14 +104,16 @@ function DirectProfileSection({
         >
           {t("chat.convList.viewProfile")}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setIsConfirmOpen(true)}
-        >
-          {t("chat.convList.unfriend")}
-        </Button>
+        {userInfoQuery.data?.statusFriend === FriendStatus.FRIEND && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsConfirmOpen(true)}
+          >
+            {t("chat.convList.unfriend")}
+          </Button>
+        )}
       </div>
 
       <UserDetailDialog

@@ -30,10 +30,10 @@ describe("ChangePasswordForm", () => {
     const user = userEvent.setup();
     renderForm();
 
-    await user.type(screen.getByLabelText("Current password"), "old-password");
-    await user.type(screen.getByLabelText("New password"), "new-password1");
+    await user.type(screen.getByLabelText(/^Current password/), "old-password");
+    await user.type(screen.getByLabelText(/^New password/), "new-password1");
     await user.type(
-      screen.getByLabelText("Confirm new password"),
+      screen.getByLabelText(/^Confirm new password/),
       "new-password2",
     );
     await user.click(screen.getByRole("button", { name: "Change password" }));
@@ -48,8 +48,8 @@ describe("ChangePasswordForm", () => {
     const user = userEvent.setup();
     renderForm();
 
-    await user.type(screen.getByLabelText("Current password"), "old-password");
-    await user.type(screen.getByLabelText("New password"), "new-password1");
+    await user.type(screen.getByLabelText(/^Current password/), "old-password");
+    await user.type(screen.getByLabelText(/^New password/), "new-password1");
     await user.click(screen.getByRole("button", { name: "Change password" }));
 
     expect(
@@ -62,9 +62,9 @@ describe("ChangePasswordForm", () => {
     const user = userEvent.setup();
     renderForm();
 
-    await user.type(screen.getByLabelText("Current password"), "old-password");
-    await user.type(screen.getByLabelText("New password"), "short12");
-    await user.type(screen.getByLabelText("Confirm new password"), "short12");
+    await user.type(screen.getByLabelText(/^Current password/), "old-password");
+    await user.type(screen.getByLabelText(/^New password/), "short12");
+    await user.type(screen.getByLabelText(/^Confirm new password/), "short12");
     await user.click(screen.getByRole("button", { name: "Change password" }));
 
     expect(
@@ -78,10 +78,10 @@ describe("ChangePasswordForm", () => {
     changePassword.mockResolvedValue(undefined);
     renderForm();
 
-    await user.type(screen.getByLabelText("Current password"), "old-password");
-    await user.type(screen.getByLabelText("New password"), "new-password1");
+    await user.type(screen.getByLabelText(/^Current password/), "old-password");
+    await user.type(screen.getByLabelText(/^New password/), "new-password1");
     await user.type(
-      screen.getByLabelText("Confirm new password"),
+      screen.getByLabelText(/^Confirm new password/),
       "new-password1",
     );
     await user.click(screen.getByRole("button", { name: "Change password" }));
@@ -93,9 +93,9 @@ describe("ChangePasswordForm", () => {
       }),
     );
     await waitFor(() =>
-      expect(screen.getByLabelText("Current password")).toHaveValue(""),
+      expect(screen.getByLabelText(/^Current password/)).toHaveValue(""),
     );
-    expect(screen.getByLabelText("New password")).toHaveValue("");
-    expect(screen.getByLabelText("Confirm new password")).toHaveValue("");
+    expect(screen.getByLabelText(/^New password/)).toHaveValue("");
+    expect(screen.getByLabelText(/^Confirm new password/)).toHaveValue("");
   }, 10_000);
 });

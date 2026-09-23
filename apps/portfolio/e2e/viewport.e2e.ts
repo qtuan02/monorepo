@@ -52,7 +52,7 @@ async function openHomeAt(page: Page, width: number, height: number) {
   await page.goto(ROUTES.HOME);
 
   await expect(
-    page.getByRole("heading", { level: 2, name: "Sở thích" }),
+    page.getByRole("heading", { level: 2, name: "Hobbies" }),
   ).toBeAttached();
 }
 
@@ -91,11 +91,11 @@ test.describe("viewport", () => {
     expect(heroBox.width).toBeGreaterThan(aboutBox.width + skillsBox.width);
     expect(heroBox.width).toBeLessThanOrEqual(mainBox.width);
 
-    // The projects are one block in the column, as wide as About: three
-    // rows, not three cards (#125).
+    // The projects are two blocks in the column, each as wide as About: one
+    // per project (#269), not the three shared rows #125 first drew.
     const projects = page.locator('#projects [data-slot="standard-block"]');
-    await expect(projects).toHaveCount(1);
-    const projectsBox = await projects.boundingBox();
+    await expect(projects).toHaveCount(2);
+    const projectsBox = await projects.first().boundingBox();
     if (!projectsBox) throw new Error("the projects block has no box");
     expect(Math.abs(projectsBox.width - aboutBox.width)).toBeLessThan(2);
 
@@ -128,7 +128,7 @@ test.describe("viewport", () => {
     expect(aboutBox.width / asideBox.width).toBeLessThan(2.2);
   });
 
-  test("splits the tablet into a 3/2 column pair, with a sticky rail, at 768", async ({
+  test("splits the tablet into a 3/2 column pair, with a rail that scrolls with the page, at 768", async ({
     page,
   }) => {
     await openHomeAt(page, TABLET_WIDTH, 900);
@@ -147,12 +147,23 @@ test.describe("viewport", () => {
     expect(asideBox.width).toBeGreaterThanOrEqual(240);
     expect(asideBox.width).toBeLessThanOrEqual(290);
 
-    // The rail keeps up with the scroll instead of scrolling off with the
-    // column — `md:sticky`, not just `md:grid-cols-[...]`.
-    await page.mouse.wheel(0, 800);
-    const asideAfterScroll = await aside.boundingBox();
+    // The rail is no longer `md:sticky` (#270) — it is taller than a laptop
+    // viewport, so pinning it kept Contact/Hobbies off-screen until the read
+    // column had scrolled past. It now moves with the scroll by exactly the
+    // scrolled distance, the same as any other in-flow element.
+    const scrollYBefore = await page.evaluate(() => window.scrollY);
+    // `scrollBy` rather than a simulated wheel: a wheel event routes through
+    // whatever element is under the (unmoved) mouse cursor, which is flaky
+    // under load — this only needs the page to actually scroll.
+    await page.evaluate(() => window.scrollBy(0, 800));
+    const [scrollYAfter, asideAfterScroll] = await Promise.all([
+      page.evaluate(() => window.scrollY),
+      aside.boundingBox(),
+    ]);
     if (!asideAfterScroll) throw new Error("the rail lost its box");
-    expect(asideAfterScroll.y).toBeGreaterThanOrEqual(0);
+    const scrolled = scrollYAfter - scrollYBefore;
+    expect(scrolled).toBeGreaterThan(200);
+    expect(asideBox.y - asideAfterScroll.y).toBeCloseTo(scrolled, 0);
   });
 
   test("stacks Skills' label over its list, and Hobbies under Contact, at 768", async ({
@@ -207,7 +218,7 @@ test.describe("viewport", () => {
     await page.setViewportSize({ width: 667, height: 375 });
     await page.goto(ROUTES.HOME);
     await expect(
-      page.getByRole("heading", { level: 2, name: "Sở thích" }),
+      page.getByRole("heading", { level: 2, name: "Hobbies" }),
     ).toBeAttached();
 
     const landscapePaddingTop = await page
@@ -241,6 +252,47 @@ test.describe("viewport", () => {
     // `~/globals.css`'s comment on `scroll-padding-bottom`).
     expect(box.y + box.height).toBeLessThanOrEqual(812 - 68);
   });
+
+  // #270: the label used to sit in a fixed `sm:w-24` gutter, which left the
+  // 36-character LinkedIn value nowhere to go but its own row — one row was
+  // roughly twice the height of the other five, at every desktop width. The
+  // label is `sr-only` now, so every row is just an icon and a value.
+  for (const width of [1024, 1440]) {
+    test(`keeps every Contact row to one line of text at ${width}`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 900);
+
+      const rows = page.locator('#contact [data-slot="standard-block"] > div');
+      const rowCount = await rows.count();
+      expect(rowCount).toBeGreaterThan(0);
+
+      const boxes = await Promise.all(
+        Array.from({ length: rowCount }, (_, index) =>
+          rows.nth(index).boundingBox(),
+        ),
+      );
+      const heights = boxes.map((box) => {
+        if (!box) throw new Error("a contact row has no box");
+        return box.height;
+      });
+
+      // The row's value carries `text-sm`'s line-height — a genuine
+      // single-line row can never exceed it by more than a few px of
+      // rounding. Anchored to the CSS line-height itself, not to the other
+      // rows' heights, so a translation change that happened to wrap every
+      // row the same amount couldn't slip past this the way a row-to-row
+      // comparison could.
+      const lineHeight = await rows
+        .first()
+        .locator("> :last-child")
+        .evaluate((el) => Number.parseFloat(getComputedStyle(el).lineHeight));
+
+      for (const height of heights) {
+        expect(height).toBeLessThanOrEqual(lineHeight + 4);
+      }
+    });
+  }
 
   // 320 and 414 join the set from the 320 px commitment (#210 §8 Q6) — 320 is
   // the narrowest phone anyone reads this on, 414 the widest common one.
@@ -318,23 +370,13 @@ test.describe("viewport", () => {
       .locator('[data-slot="resume-card-body"]')
       .getByRole("listitem")
       .first();
-    // The block's first paragraph is the note; a row's first is its pitch.
+    // Each project is its own block now (#269); a block's first paragraph is
+    // its description — there is no separate bullet to check, since a project
+    // card has never had one (#125).
     const projectDescription = page
-      .locator('#projects [data-slot="standard-block"] li')
+      .locator('#projects [data-slot="standard-block"]')
       .first()
       .getByRole("paragraph")
-      .first();
-
-    // The bullets and the tech-stack chips are both `li` inside the card, and
-    // the chips are the ones carrying a badge. Excluding them is a decision,
-    // not a convenience: a chip is a one-word token, not copy. `ux#67` spells
-    // its meta floor out as "(period, contact)", so chips are outside the rule
-    // by name. (Skills used to carry the same 12 px chips; since #118 it is
-    // text, and the meta test below holds it to 14 px.)
-    const projectBullet = page
-      .locator("#projects")
-      .getByRole("listitem")
-      .filter({ hasNot: page.locator('[data-slot="badge"]') })
       .first();
 
     expect(await fontSizeOf(about), "About prose").toBeGreaterThanOrEqual(
@@ -346,10 +388,6 @@ test.describe("viewport", () => {
     expect(
       await fontSizeOf(projectDescription),
       "Project description",
-    ).toBeGreaterThanOrEqual(BODY_MIN_PX);
-    expect(
-      await fontSizeOf(projectBullet),
-      "Project bullet",
     ).toBeGreaterThanOrEqual(BODY_MIN_PX);
   });
 
@@ -365,7 +403,7 @@ test.describe("viewport", () => {
 
     const foldedRow = page
       .locator("#work")
-      .getByRole("button", { name: "Xem chi tiết công việc" })
+      .getByRole("button", { name: "Toggle role details" })
       .nth(1);
 
     await expect(foldedRow).toHaveAttribute("aria-expanded", "false");
@@ -479,60 +517,58 @@ test.describe("viewport", () => {
     expect(headingBox.width).toBeLessThan(positioningBox.width);
   });
 
-  test("lays the hero's four actions out as a 2×2 grid on a phone, and one row from sm", async ({
+  test("wraps the hero's three actions on a phone, and keeps one row from sm", async ({
     page,
   }) => {
     await openHomeAt(page, PHONE_WIDTH, 900);
 
-    // The three `<a>` actions (email, GitHub, LinkedIn) plus the print
-    // `<button>` — nothing else under `#hero` carries either role.
+    // The three `<a>` actions — email, GitHub, LinkedIn. The print
+    // `<button>` was a fourth until #275 parked it (see the TODO in
+    // `hero-section.tsx`), and with it went the 2×2 grid: three cells in a
+    // two-column grid leave the last one stretched across half the block on
+    // its own. They wrap instead, each at its natural width.
     const actions = page
       .locator("#hero")
       .getByRole("link")
       .or(page.locator("#hero").getByRole("button"));
-    await expect(actions).toHaveCount(4);
-    const email = actions.nth(0);
-    const github = actions.nth(1);
-    const linkedin = actions.nth(2);
-    const print = actions.nth(3);
+    await expect(actions).toHaveCount(3);
 
-    const [emailBox, githubBox, linkedinBox, printBox] = await Promise.all([
-      email.boundingBox(),
-      github.boundingBox(),
-      linkedin.boundingBox(),
-      print.boundingBox(),
-    ]);
-    if (!emailBox || !githubBox || !linkedinBox || !printBox) {
+    const boxes = await Promise.all(
+      [0, 1, 2].map((index) => actions.nth(index).boundingBox()),
+    );
+    const [emailBox, githubBox, linkedinBox] = boxes;
+
+    if (!emailBox || !githubBox || !linkedinBox) {
       throw new Error("a hero action has no box");
     }
 
-    const phoneBoxes = [emailBox, githubBox, linkedinBox, printBox];
-    for (const box of phoneBoxes) {
+    for (const box of [emailBox, githubBox, linkedinBox]) {
+      // The touch target below `sm`, now carried by `h-10` rather than by a
+      // grid cell.
       expect(box.height).toBeGreaterThanOrEqual(40);
+      // And nothing runs past the viewport, which is the failure a wrapped
+      // row can have and a grid cannot.
+      expect(box.x + box.width).toBeLessThanOrEqual(PHONE_WIDTH);
     }
-    // Two rows of two: the first pair shares a `y`, the second a lower one.
+
+    // Two of them share the first line and the third sits under them.
     expect(Math.abs(emailBox.y - githubBox.y)).toBeLessThan(2);
-    expect(Math.abs(linkedinBox.y - printBox.y)).toBeLessThan(2);
     expect(linkedinBox.y).toBeGreaterThan(emailBox.y);
-    // All four share the same two equal-width grid columns.
-    const widths = phoneBoxes.map((box) => box.width);
-    expect(Math.max(...widths) - Math.min(...widths)).toBeLessThanOrEqual(2);
 
     await openHomeAt(page, TABLET_WIDTH, 900);
-    const [tabletEmailBox, , , tabletPrintBox] = await Promise.all([
-      email.boundingBox(),
-      github.boundingBox(),
-      linkedin.boundingBox(),
-      print.boundingBox(),
-    ]);
-    if (!tabletEmailBox || !tabletPrintBox) {
+    const tabletBoxes = await Promise.all(
+      [0, 2].map((index) => actions.nth(index).boundingBox()),
+    );
+    const [tabletEmailBox, tabletLinkedinBox] = tabletBoxes;
+
+    if (!tabletEmailBox || !tabletLinkedinBox) {
       throw new Error("a hero action has no box");
     }
 
     expect(tabletEmailBox.height).toBeCloseTo(32, 0);
-    expect(tabletPrintBox.height).toBeCloseTo(32, 0);
+    expect(tabletLinkedinBox.height).toBeCloseTo(32, 0);
     // One row: the first and the last action share a `y`.
-    expect(Math.abs(tabletPrintBox.y - tabletEmailBox.y)).toBeLessThan(2);
+    expect(Math.abs(tabletLinkedinBox.y - tabletEmailBox.y)).toBeLessThan(2);
   });
 
   test("runs the MedViet row's body under its logo on a phone, and beside it from sm", async ({
@@ -599,9 +635,11 @@ test.describe("viewport", () => {
     await openHomeAt(page, PHONE_WIDTH, 900);
 
     // "Real-time Chat" carries three links (two repos + a live demo) — the
-    // row most likely to wrap its link line on a 375 px phone.
+    // block most likely to wrap its link line on a 375 px phone.
     const links = page
-      .locator("#projects li", { hasText: "Real-time Chat" })
+      .locator('#projects [data-slot="standard-block"]', {
+        hasText: "Real-time Chat",
+      })
       .getByRole("link");
     const count = await links.count();
     const boxes = await Promise.all(
@@ -625,4 +663,53 @@ test.describe("viewport", () => {
       expect(current - previous).toBeGreaterThanOrEqual(8);
     }
   });
+
+  // #272: the links used to share the name's row via `justify-between`, so
+  // the row wrapped onto its own line unpredictably — differently per name
+  // length and per breakpoint. The name is now always its own row and the
+  // links are the block's last row, under the description and the tech
+  // stack, at every width — checked at a phone, tablet and desktop width.
+  for (const width of [PHONE_WIDTH, TABLET_WIDTH, DESKTOP_WIDTH]) {
+    test(`keeps each project's link row below its name and description at ${width}`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 900);
+
+      const blocks = page.locator('#projects [data-slot="standard-block"]');
+      const blockCount = await blocks.count();
+      expect(blockCount).toBeGreaterThan(0);
+
+      for (let i = 0; i < blockCount; i++) {
+        const block = blocks.nth(i);
+        const name = block.getByRole("heading", { level: 3 });
+        // The description and (when it exists) the tech-stack line are both
+        // <p>s — `.last()` reaches the tech stack when there is one, and
+        // falls back to the description itself when there isn't, so this
+        // checks the AC's "below the description AND the tech stack" as one
+        // box rather than trusting DOM order to imply it.
+        const lastTextRow = block.getByRole("paragraph").last();
+        // StandardBlock itself renders one <div> (the block's own root); the
+        // links wrapper is the only OTHER direct-child <div> a project block
+        // ever renders, so `> div` reaches straight past the name/description/
+        // stack rows (an <h3> and <p>s) to the link row.
+        const linkRow = block.locator("> div");
+
+        const [nameBox, lastTextBox, linkBox] = await Promise.all([
+          name.boundingBox(),
+          lastTextRow.boundingBox(),
+          linkRow.boundingBox(),
+        ]);
+        if (!nameBox || !lastTextBox || !linkBox) {
+          throw new Error("a project row has no box");
+        }
+
+        // Never on the name's row any more — the row this ticket splits apart.
+        expect(linkBox.y).toBeGreaterThan(nameBox.y + nameBox.height - 1);
+        // Below the description and the tech stack (whichever is last).
+        expect(linkBox.y).toBeGreaterThanOrEqual(
+          lastTextBox.y + lastTextBox.height - 1,
+        );
+      }
+    });
+  }
 });

@@ -107,18 +107,18 @@
   },
   "portfolio": {
     "meta": {
-      "title": "Huỳnh Quốc Tuấn",
-      "description": "Frontend Developer 2+ năm kinh nghiệm với React.js và Next.js, đã ship app Expo/React Native và backend .NET, quen monorepo, CI và design system chung."
+      "title": "Huỳnh Quốc Tuấn — Software Engineer",
+      "description": "Software Engineer 3+ năm với React.js, Next.js, Expo/React Native và .NET — đã xây sản phẩm EMR/HIS, sàn thương mại B2B và POS trong monorepo có CI và design system dùng chung."
     },
     "hero": {
       "commands": {
         "whoami": "whoami",
         "role": "cat role.txt",
-        "current": "current --job"
+        "motto": "cat motto.txt"
       },
       "name": "Huỳnh Quốc Tuấn",
-      "positioning": "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
-      "current": "Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.",
+      "role": "Software Engineer",
+      "tagline": "Đam mê công nghệ mới, học mỗi ngày, và biến ý tưởng thành sản phẩm chạy thật.",
       "actions": {
         "email": "Email",
         "github": "GitHub",
@@ -129,8 +129,9 @@
     },
     "about": {
       "title": "Giới thiệu",
-      "experience": "Frontend Developer với 2+ năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Frontend là gốc, và khi dự án cần thì đã ship cả app di động Expo/React Native lẫn backend .NET 8, Spring Boot, PayloadCMS. Quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state để cải thiện hiệu năng và trải nghiệm người dùng.",
-      "mindset": "Làm việc nhóm và giao tiếp tốt. Học nhanh, tinh thần thích nghi cao. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng. Có thể làm cả frontend lẫn backend khi dự án cần."
+      "experience": "Software Engineer với 3+ năm kinh nghiệm xây dựng sản phẩm web cho y tế, thương mại điện tử B2B và bán lẻ F&B — gốc frontend, làm việc hằng ngày với React.js, Next.js và TypeScript.",
+      "stack": "Đã phát triển app mobile bằng Expo/React Native, xây API .NET 8 và Spring Boot cho hệ thống nghiệp vụ, dựng CMS trên PayloadCMS, và làm việc trong monorepo Turborepo với CI, design system cùng thư viện UI dùng chung.",
+      "delivery": "Chuyển thiết kế Figma thành giao diện responsive và sạch, tối ưu hiệu năng bằng SSR, ISR và quản lý state, phủ test bằng Vitest và Playwright, tài liệu hoá UI dùng chung trên Storybook."
     },
     "work": {
       "title": "Kinh nghiệm làm việc",
@@ -140,63 +141,57 @@
         "medviet": {
           "role": "Kỹ sư phần mềm",
           "period": "03/2026 – Hiện tại",
+          "summary": "Sản phẩm EMR/HIS cho bệnh viện",
           "bullets": {
-            "monorepo": "Dựng monorepo frontend dùng chung (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) và xây module Khám sức khoẻ trên nền đó: đăng nhập người bệnh qua IAM kèm captcha, phiếu khám sinh từ form-server, lưu và ký theo từng nhóm chỉ tiêu.",
-            "mobile": "Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR, hồ sơ trình ký và chữ ký; tách app thành monorepo với một lớp SDK service, và hết ANR sau khi làm phẳng danh sách nhóm theo ngày thành row stream.",
-            "legacy": "Bảo trì web EMR legacy (Next.js 14 + Redux): màn đơn thuốc và gói dịch vụ, biểu đồ chuyển dạ, phân quyền và web-config.",
-            "dotnet": "Viết command/query handler .NET 8 (EF Core, MediatR) phía HIS server cho danh mục dịch vụ y tế và đơn thuốc mẫu."
+            "monorepo": "Dựng monorepo frontend dùng chung của MedViet (Bun, Turborepo, React 19, Vite, Vitest và Playwright trong CI) — khuôn cho mọi app dựng sau đó.",
+            "healthExam": "Xây phân hệ Khám sức khoẻ trên EMR: trang đăng ký cho nhân viên tiếp nhận, trang trả kết quả cho bác sĩ và cổng tự phục vụ không mật khẩu cho người bệnh, với biểu mẫu động dựng từ cấu hình HIS, chỉ định cận lâm sàng và kết luận có ký số.",
+            "mobile": "Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR và hồ sơ trình ký.",
+            "legacy": "Bảo trì web EMR legacy (Next.js 14, Redux): màn đơn thuốc và gói dịch vụ, biểu đồ chuyển dạ, phân quyền và web-config.",
+            "dotnet": "Phát triển API .NET 8 (EF Core, MediatR) phía HIS server cho danh mục dịch vụ y tế và đơn thuốc mẫu."
           }
         },
         "arobid": {
           "role": "Lập trình viên Frontend",
           "period": "03/2025 – 02/2026",
-          "awards": {
-            "vda2025": {
-              "label": "VDA 2025",
-              "tooltip": "Sản phẩm, dịch vụ, giải pháp công nghệ số xuất sắc — Vietnam Digital Awards 2025"
-            }
-          },
+          "summary": "Sàn thương mại B2B và triển lãm số",
           "bullets": {
-            "tradexpo": "TradeXpo — nền tảng triển lãm số: dựng các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
-            "immersive": "Tích hợp hệ thống 3D/VR bằng Shapespark qua iframe và postMessage; phát triển gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
-            "tracking": "Tích hợp CleverTap để đo hành vi người dùng; tối ưu trải nghiệm cho trang nhiều media và nội dung động; bám sát Figma và luồng sản phẩm.",
-            "mobile": "Mobile App (React Native): bảo trì và sửa lỗi app trong monorepo Expo, đưa các component dùng chung theo chuẩn Shadcn sang bản mobile.",
-            "award": "TradeXpo góp phần giúp nền tảng đạt giải Giải pháp công nghệ số xuất sắc tại Vietnam Digital Awards 2025.",
-            "cms": "CMS Platform — Tin tức, FAQ, Tuyển dụng: dựng CMS dùng chung cho nhiều loại nội dung, kèm các trang quản trị bài viết, danh mục và nội dung có cấu trúc.",
-            "rendering": "Áp dụng SSR và ISR cho SEO, tốc độ tải trang và khả năng hiển thị trên công cụ tìm kiếm; giữ luồng dữ liệu ổn định giữa frontend và backend."
+            "tradexpo": "Dựng TradeXpo — nền tảng triển lãm số: các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
+            "immersive": "Tích hợp trải nghiệm 3D/VR bằng Shapespark qua iframe và postMessage: gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
+            "tracking": "Tích hợp CleverTap để đo hành vi người dùng: tối ưu trải nghiệm cho trang nhiều media và nội dung động, bám sát Figma và luồng sản phẩm.",
+            "mobile": "Bảo trì Mobile App bằng React Native trong monorepo Expo: sửa lỗi và đưa các component dùng chung theo chuẩn Shadcn sang bản mobile.",
+            "award": "Góp phần giúp TradeXpo đạt giải Giải pháp công nghệ số xuất sắc tại Vietnam Digital Awards 2025.",
+            "cms": "Dựng CMS Platform dùng chung cho Tin tức, FAQ và Tuyển dụng: trang quản trị bài viết, danh mục và nội dung có cấu trúc.",
+            "rendering": "Áp dụng SSR và ISR: cải thiện SEO, tốc độ tải trang và khả năng hiển thị trên công cụ tìm kiếm, giữ luồng dữ liệu ổn định giữa frontend và backend."
           }
         },
         "dcorp": {
           "role": "Lập trình viên Frontend",
-          "period": "03/2024 – 02/2025",
+          "period": "06/2023 – 02/2025",
+          "summary": "Phần mềm POS cho chuỗi F&B",
           "bullets": {
-            "omnichannel": "Omnichannel Order và Inventory — Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
-            "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái; tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",
-            "emenu": "Digital e-Menu: thực đơn, chi tiết món, giỏ hàng, lịch sử đơn; hoá đơn tạm để ước tính chi tiêu tức thời; tối ưu logic giỏ hàng cho tần suất cập nhật cao.",
-            "internal": "Nền tảng quản trị nội bộ: bảng dữ liệu lớn, đa bộ lọc, tìm kiếm, phân trang; báo cáo hoạt động cuộc gọi, nhật ký công việc và quy trình thuế; tích hợp Omicall, ClickUp và GDT.",
-            "uiSystem": "Hệ thống UI nội bộ: component dùng chung giữa các dự án, chuẩn hoá cách dùng, tài liệu bằng Storybook, sửa layout và kiểm thử giao diện thủ công."
+            "omnichannel": "Dựng Omnichannel Order và Inventory cho Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
+            "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái: tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",
+            "emenu": "Dựng Digital e-Menu: thực đơn, chi tiết món, giỏ hàng, lịch sử đơn; hoá đơn tạm để ước tính chi tiêu tức thời, tối ưu logic giỏ hàng cho tần suất cập nhật cao.",
+            "internal": "Dựng nền tảng quản trị nội bộ: bảng dữ liệu lớn, đa bộ lọc, tìm kiếm, phân trang; báo cáo hoạt động cuộc gọi, nhật ký công việc và quy trình thuế, tích hợp Omicall, ClickUp và GDT.",
+            "uiSystem": "Dựng hệ thống UI nội bộ dùng chung giữa các dự án: chuẩn hoá cách dùng, tài liệu bằng Storybook, sửa layout và kiểm thử giao diện thủ công."
           }
         }
       }
     },
     "projects": {
-      "title": "Dự án học và demo",
-      "note": "Làm để học và thử công nghệ, mỗi cái có repo công khai và demo sống — không phải sản phẩm production.",
+      "title": "Dự án cá nhân",
       "links": {
         "source": "Mã nguồn",
         "sourceFrontend": "Mã nguồn (FE)",
         "sourceBackend": "Mã nguồn (BE)",
-        "demo": "Xem demo"
+        "demo": "Website"
       },
       "items": {
-        "monorepo": {
-          "description": "Workspace Bun + Turborepo với ba Runtime app sinh từ Template, dùng chung tám package source-only. Chính là site portfolio đang xem."
-        },
         "chat-socket": {
-          "description": "Ứng dụng chat thời gian thực full-stack: React 19 + Rsbuild ở client, Spring Boot ở server, nhắn tin qua STOMP trên WebSocket."
+          "description": "Ứng dụng chat thời gian thực với giao diện kiểu Messenger: nhắn tin, tạo nhóm, đổi tên nhóm, và tự động đánh dấu đã xem khi mở cuộc trò chuyện. Frontend là một app Vite ngay trong monorepo này, dùng TanStack Query và Zustand; backend là một repo Spring Boot riêng, nhắn tin realtime qua STOMP trên WebSocket."
         },
         "documents": {
-          "description": "Site tài liệu cho hai gói npm @fe-monorepo/ui và @fe-monorepo/hook: nội dung sinh tự động từ mã nguồn bằng oxc-parser, mỗi primitive có link sang Storybook."
+          "description": "Trang tài liệu cho bộ thư viện UI dùng chung của tôi — 63 component và 18 React hook đã publish lên npm (@fe-monorepo/ui, @fe-monorepo/hook). Người dùng tra cứu thứ mình cần, xem ngay demo sống, copy câu lệnh import và bảng props rồi gắn thẳng vào dự án, thay vì phải đọc source để đoán API."
         }
       }
     },
@@ -212,6 +207,7 @@
     "skills": {
       "title": "Kỹ năng",
       "groups": {
+        "languages": "Ngôn ngữ lập trình",
         "frontend": "Frontend",
         "mobile": "Mobile",
         "backend": "Backend",
@@ -373,10 +369,10 @@
       "decline": "Từ chối",
       "accept": "Chấp nhận",
       "unfriend": "Huỷ kết bạn",
-      "removeConfirmTitle": "Xoá {name}?",
-      "removeConfirmDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lời mời kết bạn mới sau.",
+      "removeConfirmTitle": "Huỷ kết bạn với {name}?",
+      "removeConfirmDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
       "cancel": "Huỷ",
-      "remove": "Xoá",
+      "remove": "Xác nhận",
       "removing": "Đang xoá..."
     },
     "islandFallback": {
@@ -386,12 +382,12 @@
     "convList": {
       "activeNow": "Đang hoạt động",
       "viewProfile": "Xem hồ sơ",
-      "unfriend": "Hủy kết bạn",
-      "removeFriendTitle": "Hủy kết bạn với {name}?",
-      "removeFriendDescription": "{name} sẽ bị xóa khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
-      "cancel": "Hủy",
-      "removing": "Đang xóa...",
-      "remove": "Xóa",
+      "unfriend": "Huỷ kết bạn",
+      "removeFriendTitle": "Huỷ kết bạn với {name}?",
+      "removeFriendDescription": "{name} sẽ bị xoá khỏi danh sách bạn bè của bạn. Bạn có thể gửi lại lời mời kết bạn sau.",
+      "cancel": "Huỷ",
+      "removing": "Đang xoá...",
+      "remove": "Xác nhận",
       "groupInfo": "Thông tin nhóm",
       "profile": "Hồ sơ",
       "closeDetails": "Đóng bảng thông tin",
@@ -473,6 +469,7 @@
       },
       "row": {
         "seen": "Đã xem",
+        "seenAt": "{name} · Đã xem lúc {time}",
         "edited": "(đã sửa)",
         "actions": {
           "menuLabel": "Thao tác với tin nhắn",
@@ -481,7 +478,8 @@
           "deleting": "Đang xoá...",
           "cancel": "Huỷ",
           "deleteConfirmTitle": "Xoá tin nhắn này?",
-          "deleteConfirmDescription": "Không thể hoàn tác sau khi xoá."
+          "deleteConfirmDescription": "Không thể hoàn tác sau khi xoá.",
+          "deleteConfirmAction": "Xác nhận"
         }
       },
       "toast": {
@@ -534,6 +532,8 @@
         },
         "save": "Đổi mật khẩu",
         "saving": "Đang đổi...",
+        "showPassword": "Hiện mật khẩu",
+        "hidePassword": "Ẩn mật khẩu",
         "validation": {
           "currentPasswordRequired": "Vui lòng nhập mật khẩu hiện tại.",
           "newPasswordRequired": "Vui lòng nhập mật khẩu mới.",
@@ -603,8 +603,12 @@
         "submitWithCount": "Tạo ({count})"
       },
       "actions": {
+        "rename": "Đổi tên nhóm",
+        "renameShort": "Sửa",
         "addMembers": "Thêm thành viên",
+        "addMembersShort": "Thêm",
         "leaveGroup": "Rời nhóm",
+        "leaveGroupShort": "Rời",
         "leaving": "Đang rời..."
       },
       "picker": {
@@ -626,23 +630,26 @@
         "you": "(Bạn)",
         "owner": "Chủ nhóm",
         "removeAria": "Xoá {name} khỏi nhóm",
-        "confirmTitle": "Xoá {name}?",
-        "confirmDescription": "Người này sẽ không còn thấy tin nhắn của nhóm.",
+        "confirmTitle": "Xoá {name} khỏi nhóm?",
+        "confirmDescription": "{name} sẽ không còn thấy tin nhắn của nhóm này.",
         "cancel": "Huỷ",
-        "remove": "Xoá"
+        "remove": "Xác nhận"
       },
       "header": {
-        "renameAria": "Đổi tên nhóm",
-        "nameAria": "Tên nhóm",
-        "saveAria": "Lưu tên nhóm",
-        "cancelAria": "Huỷ đổi tên",
         "memberSummary": "{count} thành viên · {online} đang online"
+      },
+      "rename": {
+        "title": "Đổi tên nhóm",
+        "nameLabel": "Tên nhóm",
+        "cancel": "Huỷ",
+        "submit": "Lưu",
+        "submitting": "Đang lưu..."
       },
       "leaveConfirm": {
         "title": "Rời nhóm này?",
         "description": "Bạn sẽ không nhận tin nhắn của nhóm nữa. Bạn chỉ có thể tham gia lại nếu ai đó thêm bạn vào lại.",
         "cancel": "Huỷ",
-        "confirm": "Rời nhóm"
+        "confirm": "Xác nhận"
       },
       "validation": {
         "selectMemberToAdd": "Chọn ít nhất một thành viên để thêm.",

@@ -2,6 +2,8 @@ import { locale } from "next/root-params";
 
 import { createRequestConfig } from "@monorepo/i18n/next-intl/create-request-config";
 
+import { routing } from "~/i18n/routing";
+
 /**
  * The module next-intl's plugin loads for every request (wired in
  * `next.config.ts`). It is a single default export because the whole callback
@@ -17,4 +19,7 @@ export default createRequestConfig({
   // timestamp would render differently on a laptop and in Docker.
   timeZone: "Asia/Ho_Chi_Minh",
   resolveLocale: locale,
+  // This app's default is `en`, not the registry's `vi` (see `routing.ts`);
+  // read off the same object so the two cannot drift.
+  fallbackLocale: routing.defaultLocale,
 });

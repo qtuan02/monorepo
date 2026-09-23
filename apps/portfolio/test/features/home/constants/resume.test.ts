@@ -57,13 +57,18 @@ describe("resume constants", () => {
     ]);
   });
 
-  it("carries an award badge on the one role that earned one", () => {
-    // A badge is a claim about a real prize, so it is worth pinning which rows
-    // make it: a stray `award` copied onto another row would publish a claim
-    // nobody would notice in review.
-    const withAward = WORK_ITEMS.filter((item) => item.award);
+  it("gives every work row a company blurb, so a reader outside the industry knows what each one does", () => {
+    for (const item of WORK_ITEMS) {
+      expect(item.summary, item.id).toBeTruthy();
+    }
+  });
 
-    expect(withAward.map((item) => item.id)).toEqual(["arobid"]);
+  it("caps MedViet's tech stack at ten badges, so the line does not run three lines of mono", () => {
+    const medviet = WORK_ITEMS.find((item) => item.id === "medviet");
+
+    expect(medviet).toBeDefined();
+    expect(medviet?.techStack.length).toBeGreaterThanOrEqual(8);
+    expect(medviet?.techStack.length).toBeLessThanOrEqual(10);
   });
 
   it("caps a project's tech stack at six badges", () => {
@@ -72,6 +77,23 @@ describe("resume constants", () => {
     // — so the cap is enforced where the data lives.
     for (const item of PROJECT_ITEMS) {
       expect(item.techStack.length, item.id).toBeLessThanOrEqual(6);
+    }
+  });
+
+  it("ships exactly the two projects worth a link, monorepo excluded", () => {
+    // The monorepo is named once in the section's own note instead of being a
+    // third card (#269) — a row coming back would republish a dead demo link.
+    expect(PROJECT_ITEMS.map((item) => item.id)).toEqual([
+      "chat-socket",
+      "documents",
+    ]);
+  });
+
+  it("gives every project a live demo, not just a repo", () => {
+    // A repo with no demo is exactly the gap #265 found on the documents card
+    // — a recruiter had to trust the description instead of checking it live.
+    for (const item of PROJECT_ITEMS) {
+      expect(item.demo, item.id).toBeTruthy();
     }
   });
 

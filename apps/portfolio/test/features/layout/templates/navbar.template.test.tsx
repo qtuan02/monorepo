@@ -54,11 +54,11 @@ describe("NavbarTemplate", () => {
     );
 
     expect(names).toEqual([
-      "Trang chủ",
+      "Home",
       "LinkedIn",
       "GitHub",
-      "Đổi giao diện sáng tối",
-      "Chọn ngôn ngữ",
+      "Toggle theme",
+      "Select a language",
     ]);
   });
 
@@ -75,7 +75,7 @@ describe("NavbarTemplate", () => {
     }
 
     expect(
-      within(dock).getByRole("link", { name: "Trang chủ" }),
+      within(dock).getByRole("link", { name: "Home" }),
     ).not.toHaveAttribute("target");
   });
 });

@@ -6,19 +6,29 @@ import { CONTACT_ITEMS } from "~/features/home/constants/resume";
 import { isExternalPage } from "~/features/home/utils/is-external-page";
 
 /**
- * The contact lines, in one standard block. Each is an icon, a label and a
- * value; the value is a link only when there is somewhere to go — a birthday
- * and a city are facts, and the legacy `href="#"` on both made them look
- * actionable while doing nothing.
+ * The contact lines, in one standard block. Each is an icon and a value; the
+ * value is a link only when there is somewhere to go — a birthday and a city
+ * are facts, and the legacy `href="#"` on both made them look actionable
+ * while doing nothing.
  *
- * The label is new in v2 and is what the monospace half of the typography is
- * for here (`docs/design/portfolio-redesign-v2.md` §7, decision 2): "Email",
- * "GitHub" are field names, the address after each is the value and stays in
- * sans. From `sm` the label sits in a fixed gutter so the values line up down
- * the block; on a 375 px phone the gutter would cost the value a third of the
- * row, so the label goes back to its own width and the row wraps rather than
- * truncates — an email address that does not fit beside its label moves under
- * it whole.
+ * There is no visible label column any more (#270): a fixed gutter wide
+ * enough for "LinkedIn" left too little room for the 36-character value
+ * beside it, so that one row wrapped at every desktop width the rail is ever
+ * rendered at. The label still exists — `sr-only`, so a screen reader still
+ * hears "GitHub github.com/qtuan02" rather than a bare address — it has just
+ * left the visible flow a sighted reader scans. The visible text stays
+ * exactly the value string; it is never truncated, because the print
+ * stylesheet's `#contact a` exemption (`~/globals.css`) reads the URL off
+ * that same string.
+ *
+ * The icon is `size-3.5` here (not the `size-4` Hobbies uses) and the gap is
+ * `gap-x-1`, both a notch tighter than elsewhere in the rail — not a style
+ * preference, a requirement: at the `lg` breakpoint's narrowest rail (1024
+ * px) the label column alone was NOT the whole shortfall. Removing it frees
+ * ~104px, but the 36-character LinkedIn value still comes up ~3px short of
+ * fitting `size-4` + `gap-x-2`'s remaining width on one line — this trim is
+ * what closes that last gap. `e2e/viewport.e2e.ts`'s "one line of text" spec
+ * is the regression guard if a translation grows past this margin again.
  */
 export default function ContactSection() {
   const t = useTranslations();
@@ -34,14 +44,9 @@ export default function ContactSection() {
             const value = t(`portfolio.contact.items.${item.id}`);
 
             return (
-              <div
-                key={item.id}
-                className="flex flex-wrap items-center gap-x-2 gap-y-0.5"
-              >
-                <Icon aria-hidden="true" className="size-4 shrink-0" />
-                <span className="font-mono text-sm text-muted-foreground sm:w-24">
-                  {label}
-                </span>
+              <div key={item.id} className="flex items-center gap-x-1">
+                <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+                <span className="sr-only">{label}</span>
                 {item.href ? (
                   <a
                     href={item.href}

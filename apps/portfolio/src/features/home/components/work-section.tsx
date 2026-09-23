@@ -30,19 +30,12 @@ export default function WorkSection() {
               altText={item.company}
               title={item.company}
               subtitle={t(`portfolio.work.items.${item.id}.role`)}
-              period={t(`portfolio.work.items.${item.id}.period`)}
-              award={
-                item.award
-                  ? {
-                      label: t(
-                        `portfolio.work.items.${item.id}.awards.${item.award}.label`,
-                      ),
-                      tooltip: t(
-                        `portfolio.work.items.${item.id}.awards.${item.award}.tooltip`,
-                      ),
-                    }
+              summary={
+                item.summary
+                  ? t(`portfolio.work.items.${item.id}.summary`)
                   : undefined
               }
+              period={t(`portfolio.work.items.${item.id}.period`)}
               bullets={item.bulletKeys.map((key) => ({
                 id: key,
                 text: t(`portfolio.work.items.${item.id}.bullets.${key}`),

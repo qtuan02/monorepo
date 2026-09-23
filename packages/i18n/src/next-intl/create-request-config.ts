@@ -1,5 +1,6 @@
 import { getRequestConfig } from "next-intl/server";
 
+import type { LanguageCode } from "../languages";
 import { defaultLanguage, isLanguageCode, messages } from "../languages";
 
 export interface CreateRequestConfigOptions {
@@ -15,6 +16,13 @@ export interface CreateRequestConfigOptions {
    * which opts the whole render out of `cacheComponents`.
    */
   resolveLocale: () => Promise<string | undefined>;
+  /**
+   * What an unrecognised locale falls back to. Defaults to the registry's
+   * `defaultLanguage`; pass the app's own `routing.defaultLocale` wherever the
+   * two differ, or a request the router sent to the bare path would resolve its
+   * messages in the other language.
+   */
+  fallbackLocale?: LanguageCode;
 }
 
 /**
@@ -32,13 +40,14 @@ export interface CreateRequestConfigOptions {
 export function createRequestConfig({
   timeZone,
   resolveLocale,
+  fallbackLocale = defaultLanguage,
 }: CreateRequestConfigOptions) {
   return getRequestConfig(async ({ locale }) => {
     // `locale` is set only when a caller overrides it — `getTranslations({
     // locale })` from a Server Action or a Route Handler, the two places
     // `next/root-params` cannot be read yet.
     const requested = locale ?? (await resolveLocale());
-    const resolved = isLanguageCode(requested) ? requested : defaultLanguage;
+    const resolved = isLanguageCode(requested) ? requested : fallbackLocale;
 
     return {
       locale: resolved,

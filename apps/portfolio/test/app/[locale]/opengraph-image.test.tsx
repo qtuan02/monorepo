@@ -3,7 +3,7 @@
 // The node environment is required twice over: `ImageResponse` renders
 // through wasm it reads from disk, and `~/env`'s server half throws by name
 // under jsdom.
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import type { ImageResponse } from "next/og";
 import { createTranslator } from "next-intl";
@@ -17,6 +17,7 @@ import OpenGraphImage, {
   contentType,
   size,
 } from "~/app/[locale]/opengraph-image";
+import { routing } from "~/i18n/routing";
 
 /**
  * `getTranslations` is next-intl's server entry, and outside a Next render it
@@ -74,9 +75,10 @@ describe("opengraph-image", () => {
   it("declares the 1200×630 PNG card every unfurler expects", () => {
     expect(size).toEqual({ width: 1200, height: 630 });
     expect(contentType).toBe("image/png");
-    // The alt text is the candidate's name, read from the catalogue rather
-    // than spelled a second time here.
-    expect(alt).toBe(messages.vi.portfolio.meta.title);
+    // The alt text is read from the app's own default locale's catalogue —
+    // `en` here, not the registry's `vi` (see `~/i18n/routing.ts`) — rather
+    // than spelled a second time.
+    expect(alt).toBe(messages[routing.defaultLocale].portfolio.meta.title);
   });
 
   it("renders a real PNG for every registered locale, from that locale's catalogue", async () => {
@@ -117,12 +119,18 @@ describe("opengraph-image", () => {
 
     // Both places a font for Satori could be committed to: an import under
     // `src/`, or a fixed URL under `public/`.
-    const fontFiles = ["src", "public"].flatMap((dir) =>
-      readdirSync(resolve(process.cwd(), dir), {
-        recursive: true,
-        encoding: "utf8",
-      }).filter((entry) => /\.(woff2?|ttf|otf|eot)$/i.test(entry)),
-    );
+    // The app has no `public/` since #274 — its one file, the legacy favicon,
+    // was replaced by the `src/app/icon.svg` convention — so the directory is
+    // read only if it comes back, rather than the assertion being narrowed to
+    // `src/` and quietly stopping to cover the other half.
+    const fontFiles = ["src", "public"]
+      .map((dir) => resolve(process.cwd(), dir))
+      .filter((dir) => existsSync(dir))
+      .flatMap((dir) =>
+        readdirSync(dir, { recursive: true, encoding: "utf8" }).filter(
+          (entry) => /\.(woff2?|ttf|otf|eot)$/i.test(entry),
+        ),
+      );
 
     expect(fontFiles).toEqual([]);
   });

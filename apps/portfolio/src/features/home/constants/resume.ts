@@ -41,6 +41,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     id: "medviet",
     company: "MedViet",
     logo: medvietLogo,
+    summary: true,
     techStack: [
       "Bun",
       "Turborepo",
@@ -48,20 +49,17 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "Vite",
       "Expo",
       "React Native",
-      "NativeWind",
       "TanStack Query",
       "Zustand",
-      "Next.js",
-      "Redux",
       ".NET 8",
-      "EF Core",
     ],
-    bulletKeys: ["monorepo", "mobile", "legacy", "dotnet"],
+    bulletKeys: ["monorepo", "healthExam", "mobile", "legacy", "dotnet"],
   },
   {
     id: "arobid",
     company: "AROBID",
     logo: arobidLogo,
+    summary: true,
     techStack: [
       "Monorepo",
       "React.js",
@@ -83,12 +81,12 @@ export const WORK_ITEMS: readonly WorkItem[] = [
       "cms",
       "rendering",
     ],
-    award: "vda2025",
   },
   {
     id: "dcorp",
     company: "DCORP R-KEEPER",
     logo: dcorpLogo,
+    summary: true,
     techStack: [
       "React.js",
       "Next.js",
@@ -107,43 +105,33 @@ export const WORK_ITEMS: readonly WorkItem[] = [
 ];
 
 /**
- * The three learning and demo projects a recruiter can open and check: each
- * has a public repository and a live deployment, and none is a production
- * product — which is why an item carries a one-line description and its
- * stack, and no bullets (#125). Order is by how much of the story each tells —
- * the monorepo is the site being read, so it goes first.
+ * The two personal projects worth a link: each has a public repository and a
+ * live deployment, and neither is a production product — which is why an
+ * item carries a two-to-three-sentence description and its stack, and no
+ * bullets (#125). The personal monorepo that hosts both of them — and this
+ * very site — is not a third card; it is named once in the section's own
+ * note instead (#269).
  */
 export const PROJECT_ITEMS: readonly ProjectItem[] = [
-  {
-    id: "monorepo",
-    name: "Personal Monorepo",
-    techStack: [
-      "Bun",
-      "Turborepo",
-      "Next.js",
-      "React Router",
-      "Vite",
-      "GitHub Actions",
-    ],
-    source: [{ id: "repo", href: "https://github.com/qtuan02/monorepo" }],
-    demo: "https://portfolio-ui-2025.vercel.app",
-  },
   {
     id: "chat-socket",
     name: "Real-time Chat",
     techStack: [
       "React",
-      "Rsbuild",
+      "Vite",
       "TanStack Query",
       "Spring Boot",
       "WebSocket",
       "Redis",
     ],
     source: [
-      { id: "frontend", href: "https://github.com/qtuan02/chat-socket-fe" },
+      {
+        id: "frontend",
+        href: "https://github.com/qtuan02/monorepo/tree/main/apps/chat",
+      },
       { id: "backend", href: "https://github.com/qtuan02/chat-socket-be" },
     ],
-    demo: "https://chat-socket-fe.vercel.app",
+    demo: "https://chat-socket-ui.vercel.app",
   },
   {
     id: "documents",
@@ -155,6 +143,7 @@ export const PROJECT_ITEMS: readonly ProjectItem[] = [
         href: "https://github.com/qtuan02/monorepo/tree/main/apps/documents",
       },
     ],
+    demo: "https://documents-ui.vercel.app",
   },
 ];
 
@@ -182,22 +171,27 @@ export const EDUCATION_ITEMS: readonly EducationItem[] = [
 ];
 
 /**
- * The skill map, in five labelled rows rather than one flat strip.
+ * The skill map, in six labelled rows rather than one flat strip.
  *
- * The order is the order it is read in, and it is an argument: frontend first
- * because that is the depth being claimed, mobile and backend next because
- * those are what "full-stack when the project needs it" has to be backed by,
- * then the two rows about how the work is shipped. Names are product names and
- * are not translated; the row labels are, and live under
- * `portfolio.skills.groups.<id>`.
+ * The order is the order it is read in, and it is an argument: languages
+ * first — the base everything else is written in — then frontend, since that
+ * is the depth being claimed, mobile and backend next because those are what
+ * "full-stack when the project needs it" has to be backed by, then the two
+ * rows about how the work is shipped. Names are product names and are not
+ * translated; the row labels are, and live under `portfolio.skills.groups.<id>`.
+ * A name lives in exactly one group — `resume.test.ts` pins it — so
+ * TypeScript sits in `languages` and not also in `frontend`.
  */
 export const SKILL_GROUPS: readonly SkillGroup[] = [
+  {
+    id: "languages",
+    skills: ["TypeScript", "JavaScript", "Java", "C#"],
+  },
   {
     id: "frontend",
     skills: [
       "React",
       "Next.js",
-      "TypeScript",
       "Tailwind CSS",
       "shadcn/ui",
       "TanStack Query",
@@ -205,6 +199,8 @@ export const SKILL_GROUPS: readonly SkillGroup[] = [
       "React Hook Form + Zod",
       "Storybook",
       "i18n",
+      "Redux",
+      "Ant Design",
     ],
   },
   {
@@ -220,6 +216,7 @@ export const SKILL_GROUPS: readonly SkillGroup[] = [
       "PostgreSQL",
       "MongoDB",
       "Redis",
+      "Node.js",
     ],
   },
   {

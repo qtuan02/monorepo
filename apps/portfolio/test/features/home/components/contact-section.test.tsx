@@ -5,9 +5,10 @@ import { messages } from "@monorepo/i18n/languages";
 
 import ContactSection from "~/features/home/components/contact-section";
 import { CONTACT_ITEMS } from "~/features/home/constants/resume";
+import { routing } from "~/i18n/routing";
 import { render } from "../../../support/render";
 
-const { labels, items } = messages.vi.portfolio.contact;
+const { labels, items } = messages[routing.defaultLocale].portfolio.contact;
 
 /**
  * A contact line is now a label and a value, and the decision in the
@@ -17,13 +18,18 @@ const { labels, items } = messages.vi.portfolio.contact;
  * reader gets — the markup around them is the block's business.
  */
 describe("ContactSection", () => {
-  it("pairs every contact line with its label and its value", () => {
+  it("pairs every contact line with its (sr-only) label and its value", () => {
     render(<ContactSection />);
 
     for (const item of CONTACT_ITEMS) {
       const id = item.id as keyof typeof labels;
 
-      expect(screen.getByText(labels[id]), `${item.id} label`).toBeVisible();
+      // #270: the label left the visible flow — `sr-only`, not gone — so it
+      // is still in the DOM for a screen reader to announce, just clipped to
+      // nothing for a sighted reader.
+      expect(screen.getByText(labels[id]), `${item.id} label`).toHaveClass(
+        "sr-only",
+      );
       expect(screen.getByText(items[id]), `${item.id} value`).toBeVisible();
     }
   });

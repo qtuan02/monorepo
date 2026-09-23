@@ -48,11 +48,13 @@
  * - the two **neutrals** the redesign takes over — `--foreground` and
  *   `--border` — pushed to the poles. `--muted-foreground` stays the theme's:
  *   it already reads AA, and the second grey is what lets meta text step back;
- * - the **highlight** pair, on one yellow hue (91–92) — the primary button's
- *   fill and the award badge, and nothing else. Text on it is near-black in
- *   both themes, and so is the focus ring a yellow control draws: in the dark
- *   theme no yellow can clear 3:1 against the lifted indigo `--ring`, so the
- *   ring on a yellow fill is `--highlight-foreground`, inset;
+ * - the **highlight** pair, on one yellow hue (91–92). Since #275 the page
+ *   itself paints nothing with it — the hero's title, the email action and the
+ *   award badge all dropped their yellow — and its one live reading is the
+ *   share card's name slab, which spells the same colour as a literal because
+ *   Satori cannot read a custom property. The pair stays declared, and its
+ *   ratios stay pinned, because that literal is held to this token by
+ *   `test/features/home/components/open-graph-card.test.tsx`;
  * - `--hard-shadow`, the colour of the solid 4px offset shadow every block
  *   casts, so light and dark flip it together with the border;
  * - `--radius: 0px`. `theme.css` derives every `rounded-*` size from it, so
@@ -174,7 +176,10 @@
   --shadow-hard: 4px 4px 0 0 var(--hard-shadow);
   /* The pressed half: a pressable block sinks 2px toward its shadow and the
      shadow shortens by the same 2px, so the block reads as pushed into the
-     page. Declared beside its sibling so the two offsets add up in one place. */
+     page. Declared beside its sibling so the two offsets add up in one place.
+     Same `--hard-shadow` as the resting half: the press is a movement, not a
+     colour change — a yellow pressed shadow was tried in #275 and read as a
+     glow rather than a shadow. */
   --shadow-hard-pressed: 2px 2px 0 0 var(--hard-shadow);
   /* The body floor on a phone (`ux#67`): 15px, one step above the 14px meta
      floor and below `text-base`. One `text-body` utility, so the five prose

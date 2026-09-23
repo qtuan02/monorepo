@@ -48,7 +48,7 @@ export default function ConversationListItem({
       className={cn(
         // `w-auto`: Item is `w-full`, and 100% + the side margins is exactly
         // the 16px that used to make the Virtuoso scroller scroll sideways.
-        "mx-2 my-0.5 w-auto rounded-xl transition-colors",
+        "mx-2 my-1 w-auto rounded-xl transition-colors",
         active
           ? "bg-background ring-border/60 shadow-sm ring-1"
           : "hover:bg-accent",

@@ -110,11 +110,11 @@ describe("ProjectRow", () => {
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
   });
 
-  it("draws no block of its own — the section's block holds the rows", () => {
+  it("draws its own standard block, one per project (#269)", () => {
     const { container } = render(<ProjectRow {...baseProps} />);
 
     expect(
       container.querySelectorAll('[data-slot="standard-block"]'),
-    ).toHaveLength(0);
+    ).toHaveLength(1);
   });
 });

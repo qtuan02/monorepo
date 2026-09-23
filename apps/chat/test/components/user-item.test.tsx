@@ -127,10 +127,10 @@ describe("UserItem", () => {
     // The confirm dialog is up; onUnfriend has not fired yet.
     expect(onUnfriend).not.toHaveBeenCalled();
     expect(
-      await screen.findByRole("heading", { name: "Remove Lan Nguyen?" }),
+      await screen.findByRole("heading", { name: "Unfriend Lan Nguyen?" }),
     ).toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "Remove" }));
+    await user.click(screen.getByRole("button", { name: "Confirm" }));
     expect(onUnfriend).toHaveBeenCalledWith("u2");
   });
 

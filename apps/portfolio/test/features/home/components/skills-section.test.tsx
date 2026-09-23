@@ -6,7 +6,7 @@ import { SKILL_GROUPS } from "~/features/home/constants/resume";
 import { render } from "../../../support/render";
 
 /**
- * The section's whole job is that a reader takes in five labelled rows in one
+ * The section's whole job is that a reader takes in six labelled rows in one
  * pass. Two things can silently undo that and neither shows up in a snapshot:
  * a heading level that skips (so the outline stops naming the groups), and a
  * group rendered without its label.
@@ -16,18 +16,19 @@ describe("SkillsSection", () => {
     render(<SkillsSection />);
 
     expect(
-      screen.getByRole("heading", { level: 2, name: "Kỹ năng" }),
+      screen.getByRole("heading", { level: 2, name: "Skills" }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(
       SKILL_GROUPS.length,
     );
 
     for (const label of [
+      "Programming Languages",
       "Frontend",
       "Mobile",
       "Backend",
       "DevOps & CI",
-      "Công cụ",
+      "Tooling",
     ]) {
       expect(
         screen.getByRole("heading", { level: 3, name: label }),
@@ -78,8 +79,8 @@ describe("SkillsSection", () => {
     const { container } = render(<SkillsSection />);
 
     // A skill is a label: a button or a link here would promise a filter that
-    // does not exist. And the whole section is one standard block — five rows
-    // in one box, not five boxes — which is the count, not the markup, that a
+    // does not exist. And the whole section is one standard block — six rows
+    // in one box, not six boxes — which is the count, not the markup, that a
     // rendered page could get wrong.
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
     expect(screen.queryByRole("link")).not.toBeInTheDocument();

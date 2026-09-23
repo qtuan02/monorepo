@@ -20,16 +20,14 @@ export interface WorkItem {
   /** Message-key segments under `portfolio.work.items.<id>.bullets`. */
   bulletKeys: readonly string[];
   /**
-   * The prize this role's row wears a badge for, named by the message-key
-   * segment under `portfolio.work.items.<id>.awards` — which holds the badge's
-   * short `label` and the `tooltip` spelling the award out in full. Absent on
-   * every row that has not won one, which is most of them.
-   *
-   * Naming the award rather than flagging it with a boolean is what keeps the
-   * field worth reading: `arobid` earned one prize in 2025, and the constants
-   * say which.
+   * Marks that the row carries a one-line company blurb — the fixed
+   * message-key segment `portfolio.work.items.<id>.summary`, naming what
+   * industry the company is in. A `true` flag rather than a key segment
+   * because there is nothing to name: every row needs exactly one, at the
+   * same key. Optional in the type so a row missing one still compiles;
+   * `resume.test.ts` pins that every row has one as a data invariant instead.
    */
-  award?: string;
+  summary?: true;
 }
 
 /**
