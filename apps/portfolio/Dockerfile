@@ -71,12 +71,15 @@ ENV HOSTNAME=0.0.0.0
 WORKDIR /app
 
 # `standalone` mirrors the workspace layout below `outputFileTracingRoot`, so it
-# unpacks to /app/apps/<app>/server.js plus a hoisted /app/node_modules. The two
-# folders Next deliberately leaves out — it assumes a CDN serves them — are
-# copied back in beside it, which is what makes `server.js` serve them itself.
+# unpacks to /app/apps/<app>/server.js plus a hoisted /app/node_modules. Next
+# deliberately leaves `.next/static` out of it — it assumes a CDN serves that —
+# so it is copied back in beside it, which is what makes `server.js` serve it
+# itself. There is no `public/` COPY: this app has nothing in it — the
+# favicon, robots.txt, the manifest and the sitemap are all file-convention
+# routes under `src/app/` now. Add the line back the day a real static asset
+# (an `ads.txt`, a site-verification file) lands in `apps/portfolio/public/`.
 COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/.next/standalone ./
 COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/.next/static ./apps/${APP_DIRNAME}/.next/static
-COPY --from=builder --chown=node:node /app/apps/${APP_DIRNAME}/public ./apps/${APP_DIRNAME}/public
 
 # The environment file the builder was given, beside `server.js`. Next's
 # standalone server calls `loadEnvConfig` on its own cwd at boot, so this is
