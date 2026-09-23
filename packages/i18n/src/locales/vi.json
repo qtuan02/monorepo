@@ -161,13 +161,13 @@
             }
           },
           "bullets": {
-            "tradexpo": "TradeXpo — nền tảng triển lãm số: dựng các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
-            "immersive": "Tích hợp hệ thống 3D/VR bằng Shapespark qua iframe và postMessage; phát triển gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
-            "tracking": "Tích hợp CleverTap để đo hành vi người dùng; tối ưu trải nghiệm cho trang nhiều media và nội dung động; bám sát Figma và luồng sản phẩm.",
-            "mobile": "Mobile App (React Native): bảo trì và sửa lỗi app trong monorepo Expo, đưa các component dùng chung theo chuẩn Shadcn sang bản mobile.",
-            "award": "TradeXpo góp phần giúp nền tảng đạt giải Giải pháp công nghệ số xuất sắc tại Vietnam Digital Awards 2025.",
-            "cms": "CMS Platform — Tin tức, FAQ, Tuyển dụng: dựng CMS dùng chung cho nhiều loại nội dung, kèm các trang quản trị bài viết, danh mục và nội dung có cấu trúc.",
-            "rendering": "Áp dụng SSR và ISR cho SEO, tốc độ tải trang và khả năng hiển thị trên công cụ tìm kiếm; giữ luồng dữ liệu ổn định giữa frontend và backend."
+            "tradexpo": "Dựng TradeXpo — nền tảng triển lãm số: các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
+            "immersive": "Tích hợp trải nghiệm 3D/VR bằng Shapespark qua iframe và postMessage: gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
+            "tracking": "Tích hợp CleverTap để đo hành vi người dùng: tối ưu trải nghiệm cho trang nhiều media và nội dung động, bám sát Figma và luồng sản phẩm.",
+            "mobile": "Bảo trì Mobile App bằng React Native trong monorepo Expo: sửa lỗi và đưa các component dùng chung theo chuẩn Shadcn sang bản mobile.",
+            "award": "Góp phần giúp TradeXpo đạt giải Giải pháp công nghệ số xuất sắc tại Vietnam Digital Awards 2025.",
+            "cms": "Dựng CMS Platform dùng chung cho Tin tức, FAQ và Tuyển dụng: trang quản trị bài viết, danh mục và nội dung có cấu trúc.",
+            "rendering": "Áp dụng SSR và ISR: cải thiện SEO, tốc độ tải trang và khả năng hiển thị trên công cụ tìm kiếm, giữ luồng dữ liệu ổn định giữa frontend và backend."
           }
         },
         "dcorp": {
@@ -175,11 +175,11 @@
           "period": "06/2023 – 02/2025",
           "summary": "Phần mềm POS cho chuỗi F&B",
           "bullets": {
-            "omnichannel": "Omnichannel Order và Inventory — Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
-            "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái; tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",
-            "emenu": "Digital e-Menu: thực đơn, chi tiết món, giỏ hàng, lịch sử đơn; hoá đơn tạm để ước tính chi tiêu tức thời; tối ưu logic giỏ hàng cho tần suất cập nhật cao.",
-            "internal": "Nền tảng quản trị nội bộ: bảng dữ liệu lớn, đa bộ lọc, tìm kiếm, phân trang; báo cáo hoạt động cuộc gọi, nhật ký công việc và quy trình thuế; tích hợp Omicall, ClickUp và GDT.",
-            "uiSystem": "Hệ thống UI nội bộ: component dùng chung giữa các dự án, chuẩn hoá cách dùng, tài liệu bằng Storybook, sửa layout và kiểm thử giao diện thủ công."
+            "omnichannel": "Dựng Omnichannel Order và Inventory cho Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
+            "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái: tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",
+            "emenu": "Dựng Digital e-Menu: thực đơn, chi tiết món, giỏ hàng, lịch sử đơn; hoá đơn tạm để ước tính chi tiêu tức thời, tối ưu logic giỏ hàng cho tần suất cập nhật cao.",
+            "internal": "Dựng nền tảng quản trị nội bộ: bảng dữ liệu lớn, đa bộ lọc, tìm kiếm, phân trang; báo cáo hoạt động cuộc gọi, nhật ký công việc và quy trình thuế, tích hợp Omicall, ClickUp và GDT.",
+            "uiSystem": "Dựng hệ thống UI nội bộ dùng chung giữa các dự án: chuẩn hoá cách dùng, tài liệu bằng Storybook, sửa layout và kiểm thử giao diện thủ công."
           }
         }
       }
