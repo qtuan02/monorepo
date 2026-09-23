@@ -52,11 +52,13 @@ của light chứ không phải bản làm mờ. Hệ quả: mọi tỉ lệ tư
 _Avoid_: dark mode "dịu", dimmed.
 
 **Rail**:
-Cột bên phải từ `md` — 2/5 ở tablet dọc, 1/3 từ `lg` — dính khi cuộn ở cả hai, chứa phần tham
-chiếu — kỹ năng, học vấn, liên hệ, sở thích (section 5–8). Bên trái là **cột đọc** — 3/5 rồi 2/3 —
-giới thiệu, quá trình làm việc, dự án (section 2–4). Ngưỡng `md` chốt ở vòng responsive
-2026-09-18: một cột 720 px cho ~100 ký tự/dòng. Hero trải cả hai. Hai nhóm đúng là thứ tự DOM cắt làm đôi, nên không có gì được sắp lại
-về mặt đọc. (#123)
+Cột bên phải từ `md` — 2/5 ở tablet dọc, 1/3 từ `lg` — chứa phần tham chiếu — kỹ năng, học vấn,
+liên hệ, sở thích (section 5–8). Bên trái là **cột đọc** — 3/5 rồi 2/3 — giới thiệu, quá trình làm
+việc, dự án (section 2–4). Ngưỡng `md` chốt ở vòng responsive 2026-09-18: một cột 720 px cho ~100
+ký tự/dòng. Hero trải cả hai. Hai nhóm đúng là thứ tự DOM cắt làm đôi, nên không có gì được sắp lại
+về mặt đọc. (#123) Không dính khi cuộn: cột cao hơn khung nhìn của một laptop, nên dính đẩy Liên hệ
+và Sở thích ra ngoài màn hình cho tới khi cột đọc cuộn hết — ngược với mục đích "luôn thấy được".
+(#270)
 _Avoid_: sidebar (gợi điều hướng), cột phụ.
 
 **Lún** (press):

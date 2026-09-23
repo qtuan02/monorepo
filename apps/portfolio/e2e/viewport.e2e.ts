@@ -128,7 +128,7 @@ test.describe("viewport", () => {
     expect(aboutBox.width / asideBox.width).toBeLessThan(2.2);
   });
 
-  test("splits the tablet into a 3/2 column pair, with a sticky rail, at 768", async ({
+  test("splits the tablet into a 3/2 column pair, with a rail that scrolls with the page, at 768", async ({
     page,
   }) => {
     await openHomeAt(page, TABLET_WIDTH, 900);
@@ -147,12 +147,23 @@ test.describe("viewport", () => {
     expect(asideBox.width).toBeGreaterThanOrEqual(240);
     expect(asideBox.width).toBeLessThanOrEqual(290);
 
-    // The rail keeps up with the scroll instead of scrolling off with the
-    // column — `md:sticky`, not just `md:grid-cols-[...]`.
-    await page.mouse.wheel(0, 800);
-    const asideAfterScroll = await aside.boundingBox();
+    // The rail is no longer `md:sticky` (#270) — it is taller than a laptop
+    // viewport, so pinning it kept Contact/Hobbies off-screen until the read
+    // column had scrolled past. It now moves with the scroll by exactly the
+    // scrolled distance, the same as any other in-flow element.
+    const scrollYBefore = await page.evaluate(() => window.scrollY);
+    // `scrollBy` rather than a simulated wheel: a wheel event routes through
+    // whatever element is under the (unmoved) mouse cursor, which is flaky
+    // under load — this only needs the page to actually scroll.
+    await page.evaluate(() => window.scrollBy(0, 800));
+    const [scrollYAfter, asideAfterScroll] = await Promise.all([
+      page.evaluate(() => window.scrollY),
+      aside.boundingBox(),
+    ]);
     if (!asideAfterScroll) throw new Error("the rail lost its box");
-    expect(asideAfterScroll.y).toBeGreaterThanOrEqual(0);
+    const scrolled = scrollYAfter - scrollYBefore;
+    expect(scrolled).toBeGreaterThan(200);
+    expect(asideBox.y - asideAfterScroll.y).toBeCloseTo(scrolled, 0);
   });
 
   test("stacks Skills' label over its list, and Hobbies under Contact, at 768", async ({
@@ -241,6 +252,47 @@ test.describe("viewport", () => {
     // `~/globals.css`'s comment on `scroll-padding-bottom`).
     expect(box.y + box.height).toBeLessThanOrEqual(812 - 68);
   });
+
+  // #270: the label used to sit in a fixed `sm:w-24` gutter, which left the
+  // 36-character LinkedIn value nowhere to go but its own row — one row was
+  // roughly twice the height of the other five, at every desktop width. The
+  // label is `sr-only` now, so every row is just an icon and a value.
+  for (const width of [1024, 1440]) {
+    test(`keeps every Contact row to one line of text at ${width}`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 900);
+
+      const rows = page.locator('#contact [data-slot="standard-block"] > div');
+      const rowCount = await rows.count();
+      expect(rowCount).toBeGreaterThan(0);
+
+      const boxes = await Promise.all(
+        Array.from({ length: rowCount }, (_, index) =>
+          rows.nth(index).boundingBox(),
+        ),
+      );
+      const heights = boxes.map((box) => {
+        if (!box) throw new Error("a contact row has no box");
+        return box.height;
+      });
+
+      // The row's value carries `text-sm`'s line-height — a genuine
+      // single-line row can never exceed it by more than a few px of
+      // rounding. Anchored to the CSS line-height itself, not to the other
+      // rows' heights, so a translation change that happened to wrap every
+      // row the same amount couldn't slip past this the way a row-to-row
+      // comparison could.
+      const lineHeight = await rows
+        .first()
+        .locator("> :last-child")
+        .evaluate((el) => Number.parseFloat(getComputedStyle(el).lineHeight));
+
+      for (const height of heights) {
+        expect(height).toBeLessThanOrEqual(lineHeight + 4);
+      }
+    });
+  }
 
   // 320 and 414 join the set from the 320 px commitment (#210 §8 Q6) — 320 is
   // the narrowest phone anyone reads this on, 414 the widest common one.

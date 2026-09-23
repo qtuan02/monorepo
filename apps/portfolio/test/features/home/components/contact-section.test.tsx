@@ -17,13 +17,18 @@ const { labels, items } = messages.vi.portfolio.contact;
  * reader gets — the markup around them is the block's business.
  */
 describe("ContactSection", () => {
-  it("pairs every contact line with its label and its value", () => {
+  it("pairs every contact line with its (sr-only) label and its value", () => {
     render(<ContactSection />);
 
     for (const item of CONTACT_ITEMS) {
       const id = item.id as keyof typeof labels;
 
-      expect(screen.getByText(labels[id]), `${item.id} label`).toBeVisible();
+      // #270: the label left the visible flow — `sr-only`, not gone — so it
+      // is still in the DOM for a screen reader to announce, just clipped to
+      // nothing for a sighted reader.
+      expect(screen.getByText(labels[id]), `${item.id} label`).toHaveClass(
+        "sr-only",
+      );
       expect(screen.getByText(items[id]), `${item.id} value`).toBeVisible();
     }
   });

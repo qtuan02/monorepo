@@ -21,17 +21,22 @@ import WorkSection from "~/features/home/components/work-section";
  * Two columns from `md`, one below it, and the DOM is the same in both: the
  * hero across the top, then everything a reader scans first — About, the work
  * history, the projects — in the read column, with the reference material —
- * skills, degree, contact, hobbies — in a rail that stays in view while the
- * long column scrolls. The ratio itself changes once more, at `lg`: 3/2 on a
- * tablet (a 768 px well gives a ~424 px read column, still readable, where a
- * single column ran prose ~100 characters wide) and 2/1 from there, unchanged
- * from v2. That is also exactly the section order
+ * skills, degree, contact, hobbies — in a rail beside it. The ratio itself
+ * changes once more, at `lg`: 3/2 on a tablet (a 768 px well gives a ~424 px
+ * read column, still readable, where a single column ran prose ~100
+ * characters wide) and 2/1 from there, unchanged from v2. That is also
+ * exactly the section order
  * `test/features/home/templates/home.template.test.tsx` pins: the left group
  * *is* sections two to four and the rail *is* five to eight, so nothing is
  * visually reordered and a screen reader, a keyboard and a phone all read the
- * page in the order it is written. The rail is `self-start` so it sticks by
- * its own height rather than stretching to the column's, and `min-w-0` on
- * both tracks lets a long token wrap instead of widening a track.
+ * page in the order it is written.
+ *
+ * The rail is no longer `sticky` (#270): it is taller than a laptop's
+ * viewport, so pinning it kept Contact and Hobbies off-screen until the
+ * (longer) read column had scrolled all the way past — the opposite of
+ * "always visible". It now scrolls with the page like the read column does.
+ * `min-w-0` on both tracks still lets a long token wrap instead of widening a
+ * track.
  */
 export default function HomeTemplate() {
   return (
@@ -51,7 +56,7 @@ export default function HomeTemplate() {
           The two arrived from two tickets running in parallel and landed the
           other way round — `test/features/home/templates/home.template.test.tsx`
           is what stops that happening again. */}
-      <aside className="flex min-w-0 flex-col space-y-6 md:space-y-10 md:sticky md:top-6 md:self-start">
+      <aside className="flex min-w-0 flex-col space-y-6 md:space-y-10 md:self-start">
         <SkillsSection />
         <EducationSection />
         {/* Stacked on a phone, two columns from `sm` with contact given the
