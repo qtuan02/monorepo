@@ -203,6 +203,7 @@
     },
     "education": {
       "title": "Education",
+      "language": "English — reading technical documentation, basic communication",
       "items": {
         "stu": {
           "degree": "Bachelor of Engineering in Information Technology",
@@ -213,6 +214,7 @@
     "skills": {
       "title": "Skills",
       "groups": {
+        "languages": "Programming Languages",
         "frontend": "Frontend",
         "mobile": "Mobile",
         "backend": "Backend",

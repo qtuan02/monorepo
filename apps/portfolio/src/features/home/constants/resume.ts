@@ -182,22 +182,27 @@ export const EDUCATION_ITEMS: readonly EducationItem[] = [
 ];
 
 /**
- * The skill map, in five labelled rows rather than one flat strip.
+ * The skill map, in six labelled rows rather than one flat strip.
  *
- * The order is the order it is read in, and it is an argument: frontend first
- * because that is the depth being claimed, mobile and backend next because
- * those are what "full-stack when the project needs it" has to be backed by,
- * then the two rows about how the work is shipped. Names are product names and
- * are not translated; the row labels are, and live under
- * `portfolio.skills.groups.<id>`.
+ * The order is the order it is read in, and it is an argument: languages
+ * first — the base everything else is written in — then frontend, since that
+ * is the depth being claimed, mobile and backend next because those are what
+ * "full-stack when the project needs it" has to be backed by, then the two
+ * rows about how the work is shipped. Names are product names and are not
+ * translated; the row labels are, and live under `portfolio.skills.groups.<id>`.
+ * A name lives in exactly one group — `resume.test.ts` pins it — so
+ * TypeScript sits in `languages` and not also in `frontend`.
  */
 export const SKILL_GROUPS: readonly SkillGroup[] = [
+  {
+    id: "languages",
+    skills: ["TypeScript", "JavaScript", "Java", "C#"],
+  },
   {
     id: "frontend",
     skills: [
       "React",
       "Next.js",
-      "TypeScript",
       "Tailwind CSS",
       "shadcn/ui",
       "TanStack Query",
@@ -205,6 +210,8 @@ export const SKILL_GROUPS: readonly SkillGroup[] = [
       "React Hook Form + Zod",
       "Storybook",
       "i18n",
+      "Redux",
+      "Ant Design",
     ],
   },
   {
@@ -220,6 +227,7 @@ export const SKILL_GROUPS: readonly SkillGroup[] = [
       "PostgreSQL",
       "MongoDB",
       "Redis",
+      "Node.js",
     ],
   },
   {

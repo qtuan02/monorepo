@@ -203,6 +203,7 @@
     },
     "education": {
       "title": "Học vấn",
+      "language": "Tiếng Anh — đọc hiểu tài liệu kỹ thuật, giao tiếp cơ bản",
       "items": {
         "stu": {
           "degree": "Kỹ sư Công nghệ thông tin",
@@ -213,6 +214,7 @@
     "skills": {
       "title": "Kỹ năng",
       "groups": {
+        "languages": "Ngôn ngữ lập trình",
         "frontend": "Frontend",
         "mobile": "Mobile",
         "backend": "Backend",

@@ -5,10 +5,10 @@ import StandardBlock from "~/features/home/components/standard-block";
 import { SKILL_GROUPS } from "~/features/home/constants/resume";
 
 /**
- * Five labelled rows in one standard block, all of them visible at once — a
+ * Six labelled rows in one standard block, all of them visible at once — a
  * directory listing: `frontend/` down the left, what is in it to the right.
  *
- * Not tabs, which would hide four rows in five from the first read and from a
+ * Not tabs, which would hide five rows in six from the first read and from a
  * crawler entirely — a CV is read in one pass. The group label is the only
  * translated string here; the names on the right are product names and read
  * the same in both locales.
