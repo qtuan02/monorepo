@@ -1624,7 +1624,9 @@ describe("the route tree", () => {
         await user.click(
           await panel.findByRole("button", { name: "Unfriend" }),
         );
-        await user.click(await screen.findByRole("button", { name: "Confirm" }));
+        await user.click(
+          await screen.findByRole("button", { name: "Confirm" }),
+        );
 
         expect(chatFriendRemove).toHaveBeenCalledWith("u2");
       });

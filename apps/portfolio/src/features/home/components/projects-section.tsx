@@ -42,9 +42,7 @@ export default function ProjectsSection() {
             <ProjectRow
               key={item.id}
               name={item.name}
-              description={t(
-                `portfolio.projects.items.${item.id}.description`,
-              )}
+              description={t(`portfolio.projects.items.${item.id}.description`)}
               techStack={item.techStack}
               source={item.source}
               demo={item.demo}

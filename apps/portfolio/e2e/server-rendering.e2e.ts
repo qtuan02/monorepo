@@ -228,9 +228,7 @@ test.describe("server rendering", () => {
     expect(viHtml).toContain(
       'href="https://github.com/qtuan02/monorepo/tree/main/apps/chat"',
     );
-    expect(viHtml).toContain(
-      'href="https://chat-socket-ui.vercel.app"',
-    );
+    expect(viHtml).toContain('href="https://chat-socket-ui.vercel.app"');
     expect(viHtml).toContain('href="https://documents-ui.vercel.app"');
 
     // The literal path is the assertion — the English document lives at its
