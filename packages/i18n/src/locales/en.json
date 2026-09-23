@@ -185,8 +185,8 @@
       }
     },
     "projects": {
-      "title": "Learning and demo projects",
-      "note": "Built to learn and try things out, each with a public repo and a live demo — not production products.",
+      "title": "Personal Projects",
+      "note": "Both projects below live in a personal monorepo at github.com/qtuan02/monorepo — the very place this CV site is built from. Each one has a public source repo and a live, running demo.",
       "links": {
         "source": "Source code",
         "sourceFrontend": "Source (FE)",
@@ -194,14 +194,11 @@
         "demo": "Live demo"
       },
       "items": {
-        "monorepo": {
-          "description": "A Bun + Turborepo workspace with three app Runtimes cloned from Template apps, sharing eight source-only packages. It is the portfolio you are reading."
-        },
         "chat-socket": {
-          "description": "A full-stack real-time chat app: React 19 + Rsbuild on the client, Spring Boot on the server, messaging over STOMP on WebSocket."
+          "description": "A real-time chat app with a Messenger-style interface: messaging, group creation and renaming, and messages auto-marked as seen on open. The frontend is a Vite app inside this very monorepo, built with TanStack Query and Zustand; the backend is a separate Spring Boot repo, messaging in real time over STOMP on WebSocket."
         },
         "documents": {
-          "description": "The docs site for the two npm packages @fe-monorepo/ui and @fe-monorepo/hook: content generated from the source with oxc-parser, every primitive linking to its Storybook story."
+          "description": "The docs site for the two npm packages @fe-monorepo/ui and @fe-monorepo/hook, built on the Vite Runtime. Its content is generated straight from the source with oxc-parser, so it can never drift from the real API, and every primitive links out to its own Storybook story."
         }
       }
     },

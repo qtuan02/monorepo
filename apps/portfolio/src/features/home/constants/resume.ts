@@ -106,43 +106,33 @@ export const WORK_ITEMS: readonly WorkItem[] = [
 ];
 
 /**
- * The three learning and demo projects a recruiter can open and check: each
- * has a public repository and a live deployment, and none is a production
- * product — which is why an item carries a one-line description and its
- * stack, and no bullets (#125). Order is by how much of the story each tells —
- * the monorepo is the site being read, so it goes first.
+ * The two personal projects worth a link: each has a public repository and a
+ * live deployment, and neither is a production product — which is why an
+ * item carries a two-to-three-sentence description and its stack, and no
+ * bullets (#125). The personal monorepo that hosts both of them — and this
+ * very site — is not a third card; it is named once in the section's own
+ * note instead (#269).
  */
 export const PROJECT_ITEMS: readonly ProjectItem[] = [
-  {
-    id: "monorepo",
-    name: "Personal Monorepo",
-    techStack: [
-      "Bun",
-      "Turborepo",
-      "Next.js",
-      "React Router",
-      "Vite",
-      "GitHub Actions",
-    ],
-    source: [{ id: "repo", href: "https://github.com/qtuan02/monorepo" }],
-    demo: "https://portfolio-ui-2025.vercel.app",
-  },
   {
     id: "chat-socket",
     name: "Real-time Chat",
     techStack: [
       "React",
-      "Rsbuild",
+      "Vite",
       "TanStack Query",
       "Spring Boot",
       "WebSocket",
       "Redis",
     ],
     source: [
-      { id: "frontend", href: "https://github.com/qtuan02/chat-socket-fe" },
+      {
+        id: "frontend",
+        href: "https://github.com/qtuan02/monorepo/tree/main/apps/chat",
+      },
       { id: "backend", href: "https://github.com/qtuan02/chat-socket-be" },
     ],
-    demo: "https://chat-socket-fe.vercel.app",
+    demo: "https://chat-socket-ui.vercel.app",
   },
   {
     id: "documents",
@@ -154,6 +144,7 @@ export const PROJECT_ITEMS: readonly ProjectItem[] = [
         href: "https://github.com/qtuan02/monorepo/tree/main/apps/documents",
       },
     ],
+    demo: "https://documents-ui.vercel.app",
   },
 ];
 

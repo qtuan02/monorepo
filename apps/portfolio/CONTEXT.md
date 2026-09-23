@@ -10,7 +10,7 @@ từ vựng riêng của app, chốt lần đầu ở vòng grill 2026-09-06.
 Chính app này: một trang, đọc theo thứ tự một bản CV — hero → giới thiệu → quá trình làm việc →
 dự án → kỹ năng → học vấn → liên hệ. Một cột trên điện thoại; từ tablet dọc (`md`) là **cột đọc** + **rail**
 (xem dưới), thứ tự DOM không đổi. Quá trình làm việc là phần chính; dự án là
-phần phụ **học và demo**, đáng một link chứ không đáng một pitch (#125). Người đọc là nhà tuyển dụng và crawler.
+phần phụ **demo**, đáng một link chứ không đáng một pitch (#125). Người đọc là nhà tuyển dụng và crawler.
 _Avoid_: portfolio (gợi ý dự án đứng trước công việc), landing page, trang cá nhân
 
 Từ redesign v2 (spec #113, 2026-09-16, [ADR-0008](../../docs/adr/0008-portfolio-neubrutalist-neutral-override.md))
@@ -19,7 +19,8 @@ trang có thêm một tầng từ vựng về **hình dạng**; cấu trúc CV �
 **Khối tiêu chuẩn** (`StandardBlock`):
 Hình khối duy nhất mọi section sau hero vẽ lên — viền 2px, bóng đặc, góc vuông, nền card — và là
 một component (`src/features/home/components/standard-block.tsx`), không phải hằng className.
-Mang cả nửa `print:` của mình. Mười khối trên trang từ #125; E2E đếm đúng số đó.
+Mang cả nửa `print:` của mình. Mười một khối trên trang (mười từ #125, dự án tách thành hai khối
+riêng từ #269); E2E đếm đúng số đó.
 _Avoid_: card (gợi primitive `Card` bo tròn của `@monorepo/ui`, đã bỏ), box.
 
 **Cửa sổ terminal**:

@@ -297,12 +297,14 @@ test.describe("the standard block", () => {
 
   /**
    * #118 lays the same block under everything after the hero: About is one,
-   * each project card is one, Skills is one box holding five rows, Education
-   * is the work row's shape, and Contact and Hobbies are one each. The count
-   * per section is the claim — Skills as five boxes, or About left bare, would
-   * both still "have a standard block" — and every block found is measured
-   * the same way a work row is above, so a section that re-spelled the shape
-   * with a 1 px edge or no shadow fails here rather than in a screenshot.
+   * each project card is its own (two since #269 dropped the section to a
+   * chat and a documents card), Skills is one box holding five rows,
+   * Education is the work row's shape, and Contact and Hobbies are one each.
+   * The count per section is the claim — Skills as five boxes, or About left
+   * bare, would both still "have a standard block" — and every block found is
+   * measured the same way a work row is above, so a section that re-spelled
+   * the shape with a 1 px edge or no shadow fails here rather than in a
+   * screenshot.
    */
   test("lays every section after the hero on the same block", async ({
     page,
@@ -311,7 +313,7 @@ test.describe("the standard block", () => {
 
     for (const [section, count] of [
       ["about", 1],
-      ["projects", 1],
+      ["projects", 2],
       ["skills", 1],
       ["education", 1],
       ["contact", 1],
@@ -345,7 +347,11 @@ test.describe("the standard block", () => {
     }) => {
       await openHomeIn(page, theme);
 
-      const card = page.locator('#projects [data-slot="standard-block"]');
+      // Two project blocks since #269 — pin the hover to the first so a
+      // strict-mode locator doesn't match both.
+      const card = page
+        .locator('#projects [data-slot="standard-block"]')
+        .first();
       const neighbour = page
         .locator('#work [data-slot="standard-block"]')
         .last();

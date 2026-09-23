@@ -185,8 +185,8 @@
       }
     },
     "projects": {
-      "title": "Dự án học và demo",
-      "note": "Làm để học và thử công nghệ, mỗi cái có repo công khai và demo sống — không phải sản phẩm production.",
+      "title": "Dự án cá nhân",
+      "note": "Hai dự án dưới đây đều sống trong monorepo cá nhân tại github.com/qtuan02/monorepo — chính là nơi trang CV này được build. Mỗi dự án có mã nguồn công khai và một bản demo đang chạy thật.",
       "links": {
         "source": "Mã nguồn",
         "sourceFrontend": "Mã nguồn (FE)",
@@ -194,14 +194,11 @@
         "demo": "Xem demo"
       },
       "items": {
-        "monorepo": {
-          "description": "Workspace Bun + Turborepo với ba Runtime app sinh từ Template, dùng chung tám package source-only. Chính là site portfolio đang xem."
-        },
         "chat-socket": {
-          "description": "Ứng dụng chat thời gian thực full-stack: React 19 + Rsbuild ở client, Spring Boot ở server, nhắn tin qua STOMP trên WebSocket."
+          "description": "Ứng dụng chat thời gian thực với giao diện kiểu Messenger: nhắn tin, tạo nhóm, đổi tên nhóm, và tự động đánh dấu đã xem khi mở cuộc trò chuyện. Frontend là một app Vite ngay trong monorepo này, dùng TanStack Query và Zustand; backend là một repo Spring Boot riêng, nhắn tin realtime qua STOMP trên WebSocket."
         },
         "documents": {
-          "description": "Site tài liệu cho hai gói npm @fe-monorepo/ui và @fe-monorepo/hook: nội dung sinh tự động từ mã nguồn bằng oxc-parser, mỗi primitive có link sang Storybook."
+          "description": "Site tài liệu cho hai gói npm @fe-monorepo/ui và @fe-monorepo/hook, chạy trên Runtime Vite. Nội dung sinh tự động từ mã nguồn bằng oxc-parser nên không bao giờ lệch API thật, và mỗi primitive có link sang story Storybook của nó."
         }
       }
     },

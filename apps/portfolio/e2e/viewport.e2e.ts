@@ -91,11 +91,11 @@ test.describe("viewport", () => {
     expect(heroBox.width).toBeGreaterThan(aboutBox.width + skillsBox.width);
     expect(heroBox.width).toBeLessThanOrEqual(mainBox.width);
 
-    // The projects are one block in the column, as wide as About: three
-    // rows, not three cards (#125).
+    // The projects are two blocks in the column, each as wide as About: one
+    // per project (#269), not the three shared rows #125 first drew.
     const projects = page.locator('#projects [data-slot="standard-block"]');
-    await expect(projects).toHaveCount(1);
-    const projectsBox = await projects.boundingBox();
+    await expect(projects).toHaveCount(2);
+    const projectsBox = await projects.first().boundingBox();
     if (!projectsBox) throw new Error("the projects block has no box");
     expect(Math.abs(projectsBox.width - aboutBox.width)).toBeLessThan(2);
 
@@ -318,23 +318,13 @@ test.describe("viewport", () => {
       .locator('[data-slot="resume-card-body"]')
       .getByRole("listitem")
       .first();
-    // The block's first paragraph is the note; a row's first is its pitch.
+    // Each project is its own block now (#269); a block's first paragraph is
+    // its description — there is no separate bullet to check, since a project
+    // card has never had one (#125).
     const projectDescription = page
-      .locator('#projects [data-slot="standard-block"] li')
+      .locator('#projects [data-slot="standard-block"]')
       .first()
       .getByRole("paragraph")
-      .first();
-
-    // The bullets and the tech-stack chips are both `li` inside the card, and
-    // the chips are the ones carrying a badge. Excluding them is a decision,
-    // not a convenience: a chip is a one-word token, not copy. `ux#67` spells
-    // its meta floor out as "(period, contact)", so chips are outside the rule
-    // by name. (Skills used to carry the same 12 px chips; since #118 it is
-    // text, and the meta test below holds it to 14 px.)
-    const projectBullet = page
-      .locator("#projects")
-      .getByRole("listitem")
-      .filter({ hasNot: page.locator('[data-slot="badge"]') })
       .first();
 
     expect(await fontSizeOf(about), "About prose").toBeGreaterThanOrEqual(
@@ -346,10 +336,6 @@ test.describe("viewport", () => {
     expect(
       await fontSizeOf(projectDescription),
       "Project description",
-    ).toBeGreaterThanOrEqual(BODY_MIN_PX);
-    expect(
-      await fontSizeOf(projectBullet),
-      "Project bullet",
     ).toBeGreaterThanOrEqual(BODY_MIN_PX);
   });
 
@@ -599,9 +585,11 @@ test.describe("viewport", () => {
     await openHomeAt(page, PHONE_WIDTH, 900);
 
     // "Real-time Chat" carries three links (two repos + a live demo) — the
-    // row most likely to wrap its link line on a 375 px phone.
+    // block most likely to wrap its link line on a 375 px phone.
     const links = page
-      .locator("#projects li", { hasText: "Real-time Chat" })
+      .locator('#projects [data-slot="standard-block"]', {
+        hasText: "Real-time Chat",
+      })
       .getByRole("link");
     const count = await links.count();
     const boxes = await Promise.all(

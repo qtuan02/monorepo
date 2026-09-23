@@ -89,6 +89,23 @@ describe("resume constants", () => {
     }
   });
 
+  it("ships exactly the two projects worth a link, monorepo excluded", () => {
+    // The monorepo is named once in the section's own note instead of being a
+    // third card (#269) — a row coming back would republish a dead demo link.
+    expect(PROJECT_ITEMS.map((item) => item.id)).toEqual([
+      "chat-socket",
+      "documents",
+    ]);
+  });
+
+  it("gives every project a live demo, not just a repo", () => {
+    // A repo with no demo is exactly the gap #265 found on the documents card
+    // — a recruiter had to trust the description instead of checking it live.
+    for (const item of PROJECT_ITEMS) {
+      expect(item.demo, item.id).toBeTruthy();
+    }
+  });
+
   it("links every project out over https, and never to the same place twice", () => {
     const hrefs = PROJECT_ITEMS.flatMap((item) => [
       ...(item.source ?? []).map((source) => source.href),

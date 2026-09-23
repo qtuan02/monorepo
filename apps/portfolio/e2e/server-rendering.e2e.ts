@@ -220,9 +220,18 @@ test.describe("server rendering", () => {
 
     const viHtml = await vi.text();
 
-    expect(viHtml).toContain("Dự án học và demo");
-    expect(viHtml).toContain("Personal Monorepo");
-    expect(viHtml).toContain('href="https://github.com/qtuan02/monorepo"');
+    expect(viHtml).toContain("Dự án cá nhân");
+    // The monorepo is named in the section's own note, not a third card
+    // (#269) — its address has to be in the bytes even with no card for it.
+    expect(viHtml).toContain("github.com/qtuan02/monorepo");
+    expect(viHtml).toContain("Real-time Chat");
+    expect(viHtml).toContain(
+      'href="https://github.com/qtuan02/monorepo/tree/main/apps/chat"',
+    );
+    expect(viHtml).toContain(
+      'href="https://chat-socket-ui.vercel.app"',
+    );
+    expect(viHtml).toContain('href="https://documents-ui.vercel.app"');
 
     // The literal path is the assertion — the English document lives at its
     // own prefix, which `~/constants/routes` deliberately cannot express.
@@ -231,6 +240,6 @@ test.describe("server rendering", () => {
     });
 
     expect(en.status()).toBe(200);
-    expect(await en.text()).toContain("Learning and demo projects");
+    expect(await en.text()).toContain("Personal Projects");
   });
 });
