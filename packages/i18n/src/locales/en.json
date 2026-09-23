@@ -108,7 +108,7 @@
   "portfolio": {
     "meta": {
       "title": "Huynh Quoc Tuan",
-      "description": "Frontend developer with 2+ years of React.js and Next.js, shipping Expo/React Native apps and .NET backends, at home in monorepos, CI and design systems."
+      "description": "Software Engineer with 3+ years of React.js and Next.js, shipping Expo/React Native apps and .NET backends, at home in monorepos, CI and design systems."
     },
     "hero": {
       "commands": {
@@ -118,7 +118,7 @@
       },
       "name": "Huynh Quoc Tuan",
       "positioning": "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
-      "current": "Currently building EMR/HIS products at MedViet — web and mobile for hospitals.",
+      "current": "Currently building the Health Exam module in EMR/HIS at MedViet — web and mobile for hospitals.",
       "actions": {
         "email": "Email",
         "github": "GitHub",
@@ -129,8 +129,9 @@
     },
     "about": {
       "title": "About",
-      "experience": "Frontend Developer with 2+ years of experience building and maintaining scalable web applications using React.js and Next.js. Frontend is home ground, and when a project has needed it I have shipped Expo/React Native apps as well as .NET 8, Spring Boot and PayloadCMS backends. Used to working in a monorepo with shared CI and a shared design system, turning Figma designs into clean, responsive interfaces, and comfortable with SSR, ISR and state management to improve performance and user experience.",
-      "mindset": "Good teamwork and communication. Fast learner with a strong adaptation mindset. Interested in performance optimization, source structure, and user experience. Able to work across frontend and backend when the project requires it."
+      "experience": "Software Engineer with 3+ years of experience, frontend at the core: building and maintaining scalable web applications with React.js and Next.js.",
+      "stack": "When a project needs it, that scope extends to mobile (Expo/React Native) and backend (.NET 8, Spring Boot, PayloadCMS); used to working in a monorepo with shared CI and a shared design system, turning Figma designs into clean, responsive interfaces, and comfortable with SSR, ISR and state management to improve performance and user experience.",
+      "mindset": "Good teamwork and communication, a fast learner with a strong adaptation mindset. Interested in performance optimization, source structure, and user experience."
     },
     "work": {
       "title": "Work Experience",
@@ -168,7 +169,7 @@
         },
         "dcorp": {
           "role": "Frontend Developer",
-          "period": "Mar 2024 – Feb 2025",
+          "period": "Jun 2023 – Feb 2025",
           "bullets": {
             "omnichannel": "Omnichannel Order and Inventory — Highlands Coffee: order flows integrating Shopee, Grab, in-store POS, and internal systems; operational dashboards, goods receipt and issue, and inventory tracking.",
             "dataset": "Handled large datasets and complex multi-state order workflows; contributed to business configuration screens for real-time retail operations.",

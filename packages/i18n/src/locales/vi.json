@@ -108,7 +108,7 @@
   "portfolio": {
     "meta": {
       "title": "Huỳnh Quốc Tuấn",
-      "description": "Frontend Developer 2+ năm kinh nghiệm với React.js và Next.js, đã ship app Expo/React Native và backend .NET, quen monorepo, CI và design system chung."
+      "description": "Software Engineer 3+ năm kinh nghiệm với React.js và Next.js, đã ship app Expo/React Native và backend .NET, quen monorepo, CI và design system chung."
     },
     "hero": {
       "commands": {
@@ -118,7 +118,7 @@
       },
       "name": "Huỳnh Quốc Tuấn",
       "positioning": "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
-      "current": "Hiện mình làm sản phẩm EMR/HIS tại MedViet — web và app cho bệnh viện.",
+      "current": "Hiện mình làm phân hệ Khám sức khoẻ trong EMR/HIS tại MedViet — web và app cho bệnh viện.",
       "actions": {
         "email": "Email",
         "github": "GitHub",
@@ -129,8 +129,9 @@
     },
     "about": {
       "title": "Giới thiệu",
-      "experience": "Frontend Developer với 2+ năm kinh nghiệm xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js. Frontend là gốc, và khi dự án cần thì đã ship cả app di động Expo/React Native lẫn backend .NET 8, Spring Boot, PayloadCMS. Quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state để cải thiện hiệu năng và trải nghiệm người dùng.",
-      "mindset": "Làm việc nhóm và giao tiếp tốt. Học nhanh, tinh thần thích nghi cao. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng. Có thể làm cả frontend lẫn backend khi dự án cần."
+      "experience": "Software Engineer với 3+ năm kinh nghiệm, gốc frontend: xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js.",
+      "stack": "Khi dự án cần, mở rộng sang mobile (Expo/React Native) và backend (.NET 8, Spring Boot, PayloadCMS); quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state để cải thiện hiệu năng và trải nghiệm người dùng.",
+      "mindset": "Làm việc nhóm và giao tiếp tốt, học nhanh và thích nghi tốt. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng."
     },
     "work": {
       "title": "Kinh nghiệm làm việc",
@@ -168,7 +169,7 @@
         },
         "dcorp": {
           "role": "Lập trình viên Frontend",
-          "period": "03/2024 – 02/2025",
+          "period": "06/2023 – 02/2025",
           "bullets": {
             "omnichannel": "Omnichannel Order và Inventory — Highlands Coffee: luồng đặt hàng tích hợp Shopee, Grab, POS tại quầy và hệ thống nội bộ; bảng điều khiển vận hành, nhập xuất hàng và theo dõi tồn kho.",
             "dataset": "Xử lý tập dữ liệu lớn và luồng đơn hàng nhiều trạng thái; tham gia các màn cấu hình nghiệp vụ cho vận hành bán lẻ thời gian thực.",

@@ -22,7 +22,9 @@ test.describe("locale switching", () => {
     expect(html).toContain('lang="vi"');
     // A line from the hero's body rather than the name: the name is also the
     // document title, so it would be in these bytes with no hero at all.
-    expect(html).toContain("Hiện mình làm sản phẩm EMR/HIS tại MedViet");
+    expect(html).toContain(
+      "Hiện mình làm phân hệ Khám sức khoẻ trong EMR/HIS tại MedViet",
+    );
   });
 
   test("serves English at its own prefix", async ({ request }) => {
@@ -38,7 +40,9 @@ test.describe("locale switching", () => {
     const html = await response.text();
 
     expect(html).toContain('lang="en"');
-    expect(html).toContain("Currently building EMR/HIS products at MedViet");
+    expect(html).toContain(
+      "Currently building the Health Exam module in EMR/HIS at MedViet",
+    );
     expect(html).toContain("Work Experience");
   });
 

@@ -4,8 +4,9 @@ import SectionHeading from "~/features/home/components/section-heading";
 import StandardBlock from "~/features/home/components/standard-block";
 
 /**
- * Two paragraphs of prose in one standard block, each its own message key
- * rather than an array.
+ * Three paragraphs of prose in one standard block, each its own message key
+ * rather than an array: who and how many years in what area, then stack and
+ * scope, then how they work.
  *
  * Sans, at the body floor, in the block's own ink: this is the one section
  * that is nothing but prose, and prose is what the sans half of the two
@@ -23,6 +24,7 @@ export default function AboutSection() {
         <SectionHeading>{t("portfolio.about.title")}</SectionHeading>
         <StandardBlock className="space-y-2 text-body leading-relaxed">
           <p>{t("portfolio.about.experience")}</p>
+          <p>{t("portfolio.about.stack")}</p>
           <p>{t("portfolio.about.mindset")}</p>
         </StandardBlock>
       </div>

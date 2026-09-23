@@ -35,6 +35,10 @@ test.describe("server rendering", () => {
     expect(html).toContain(
       "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
     );
+    // The about section's opening line — the "3+ years, Software Engineer"
+    // claim has to be in the bytes, not hydrated in, or a crawler indexes the
+    // stale "2+ years, Frontend Developer" title this ticket retired.
+    expect(html).toContain("Software Engineer với 3+ năm kinh nghiệm");
     // …and one bullet from inside the current work row, which is the assertion
     // that actually matters: a heading could come from the layout, but a bullet
     // is only there if the slice itself rendered on the server.
@@ -86,6 +90,7 @@ test.describe("server rendering", () => {
     expect(html).toContain(
       "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
     );
+    expect(html).toContain("Software Engineer with 3+ years of experience");
   });
 
   test("the social card is an absolute URL to a generated image, per locale", async ({
