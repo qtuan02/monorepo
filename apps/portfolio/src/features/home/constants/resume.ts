@@ -41,7 +41,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     id: "medviet",
     company: "MedViet",
     logo: medvietLogo,
-    summary: "summary",
+    summary: true,
     techStack: [
       "Bun",
       "Turborepo",
@@ -59,7 +59,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     id: "arobid",
     company: "AROBID",
     logo: arobidLogo,
-    summary: "summary",
+    summary: true,
     techStack: [
       "Monorepo",
       "React.js",
@@ -87,7 +87,7 @@ export const WORK_ITEMS: readonly WorkItem[] = [
     id: "dcorp",
     company: "DCORP R-KEEPER",
     logo: dcorpLogo,
-    summary: "summary",
+    summary: true,
     techStack: [
       "React.js",
       "Next.js",
