@@ -36,18 +36,6 @@ export default function WorkSection() {
                   : undefined
               }
               period={t(`portfolio.work.items.${item.id}.period`)}
-              award={
-                item.award
-                  ? {
-                      label: t(
-                        `portfolio.work.items.${item.id}.awards.${item.award}.label`,
-                      ),
-                      tooltip: t(
-                        `portfolio.work.items.${item.id}.awards.${item.award}.tooltip`,
-                      ),
-                    }
-                  : undefined
-              }
               bullets={item.bulletKeys.map((key) => ({
                 id: key,
                 text: t(`portfolio.work.items.${item.id}.bullets.${key}`),

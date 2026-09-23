@@ -16,8 +16,12 @@ import {
  * One standard block per project, same shape as a work role (#269) — not the
  * v2.1 section's single shared block, which read fine at three short rows but
  * ran two longer descriptions into each other the moment the monorepo card
- * dropped to two. The monorepo itself is named once in the note below rather
- * than rendered as a third card (#125): these are worth a link, not a pitch.
+ * dropped to two.
+ *
+ * No framing note above the blocks (#274): it said the two projects live in a
+ * personal monorepo, which every "Mã nguồn" link below already spells out in
+ * its own href — a paragraph a reader has to get past to reach the projects,
+ * to learn what the projects themselves tell them.
  */
 export default function ProjectsSection() {
   const t = useTranslations();
@@ -32,11 +36,6 @@ export default function ProjectsSection() {
     <section id="projects">
       <div className="flex min-h-0 flex-col gap-y-3">
         <SectionHeading>{t("portfolio.projects.title")}</SectionHeading>
-        {/* 15 px like every line of prose on the page; muted because it
-            frames the list rather than belonging to any project in it. */}
-        <p className="text-body leading-relaxed text-muted-foreground">
-          {t("portfolio.projects.note")}
-        </p>
         <div className="flex flex-col gap-y-5">
           {PROJECT_ITEMS.map((item) => (
             <ProjectRow

@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 import { hasLocale } from "next-intl";
 import { getTranslations } from "next-intl/server";
 
-import { defaultLanguage, messages } from "@monorepo/i18n/languages";
+import { messages } from "@monorepo/i18n/languages";
 
 import { env } from "~/env";
 import OpenGraphCard from "~/features/home/components/open-graph-card";
@@ -16,10 +16,10 @@ interface OpenGraphImageProps {
 /**
  * The `alt` export is one string for every locale — the convention has no
  * per-params variant short of `generateImageMetadata`, which also changes the
- * image URL. The candidate's name is the same in both languages, so the
- * default catalogue's title is read rather than spelled a second time here.
+ * image URL. So it is read from the app's own default locale's catalogue rather
+ * than spelled a second time here.
  */
-export const alt = messages[defaultLanguage].portfolio.meta.title;
+export const alt = messages[routing.defaultLocale].portfolio.meta.title;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -65,8 +65,11 @@ export default async function OpenGraphImage({ params }: OpenGraphImageProps) {
 
   return new ImageResponse(
     <OpenGraphCard
-      title={t("portfolio.meta.title")}
-      positioning={t("portfolio.hero.positioning")}
+      title={t("portfolio.hero.name")}
+      // The card's slab holds the name, so the line beneath it has to carry
+      // both halves of what the hero splits over two rows — the title a
+      // recruiter scans for, then what drives the work.
+      positioning={`${t("portfolio.hero.role")} — ${t("portfolio.hero.tagline")}`}
       host={host}
     />,
     size,

@@ -1,4 +1,3 @@
-import { LanguagesIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import ResumeCard from "~/features/home/components/resume-card";
@@ -8,8 +7,9 @@ import { EDUCATION_ITEMS } from "~/features/home/constants/resume";
 /**
  * Same row shape as the work history, without a body to expand.
  *
- * The language line sits inside this same section rather than as a section of
- * its own — it is one fact about the degree, not a new block on the page.
+ * One row, and nothing under it: the "English — reads technical documentation"
+ * line went with #275. A CV written in two languages, one of them English, has
+ * already made that claim in a way a reader can check.
  */
 export default function EducationSection() {
   const t = useTranslations();
@@ -30,10 +30,6 @@ export default function EducationSection() {
               period={t(`portfolio.education.items.${item.id}.period`)}
             />
           ))}
-        </div>
-        <div className="flex items-center gap-x-2 text-sm text-muted-foreground">
-          <LanguagesIcon aria-hidden="true" className="size-4 shrink-0" />
-          <span>{t("portfolio.education.language")}</span>
         </div>
       </div>
     </section>

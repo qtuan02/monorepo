@@ -107,18 +107,18 @@
   },
   "portfolio": {
     "meta": {
-      "title": "Huỳnh Quốc Tuấn",
-      "description": "Software Engineer 3+ năm kinh nghiệm với React.js và Next.js, đã ship app Expo/React Native và backend .NET, quen monorepo, CI và design system chung."
+      "title": "Huỳnh Quốc Tuấn — Software Engineer",
+      "description": "Software Engineer 3+ năm với React.js, Next.js, Expo/React Native và .NET — đã xây sản phẩm EMR/HIS, sàn thương mại B2B và POS trong monorepo có CI và design system dùng chung."
     },
     "hero": {
       "commands": {
         "whoami": "whoami",
         "role": "cat role.txt",
-        "current": "current --job"
+        "motto": "cat motto.txt"
       },
       "name": "Huỳnh Quốc Tuấn",
-      "positioning": "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
-      "current": "Hiện mình làm phân hệ Khám sức khoẻ trong EMR/HIS tại MedViet — web và app cho bệnh viện.",
+      "role": "Software Engineer",
+      "tagline": "Đam mê công nghệ mới, học mỗi ngày, và biến ý tưởng thành sản phẩm chạy thật.",
       "actions": {
         "email": "Email",
         "github": "GitHub",
@@ -129,9 +129,9 @@
     },
     "about": {
       "title": "Giới thiệu",
-      "experience": "Software Engineer với 3+ năm kinh nghiệm, gốc frontend: xây dựng và bảo trì các ứng dụng web mở rộng được bằng React.js và Next.js.",
-      "stack": "Khi dự án cần, mở rộng sang mobile (Expo/React Native) và backend (.NET 8, Spring Boot, PayloadCMS); quen làm việc trong monorepo với CI và design system dùng chung, chuyển thiết kế Figma thành giao diện sạch, responsive, và thoải mái với SSR, ISR cùng quản lý state để cải thiện hiệu năng và trải nghiệm người dùng.",
-      "mindset": "Làm việc nhóm và giao tiếp tốt, học nhanh và thích nghi tốt. Quan tâm tới tối ưu hiệu năng, cấu trúc source và trải nghiệm người dùng."
+      "experience": "Software Engineer với 3+ năm kinh nghiệm xây dựng sản phẩm web cho y tế, thương mại điện tử B2B và bán lẻ F&B — gốc frontend, làm việc hằng ngày với React.js, Next.js và TypeScript.",
+      "stack": "Đã phát triển app mobile bằng Expo/React Native, xây API .NET 8 và Spring Boot cho hệ thống nghiệp vụ, dựng CMS trên PayloadCMS, và làm việc trong monorepo Turborepo với CI, design system cùng thư viện UI dùng chung.",
+      "delivery": "Chuyển thiết kế Figma thành giao diện responsive và sạch, tối ưu hiệu năng bằng SSR, ISR và quản lý state, phủ test bằng Vitest và Playwright, tài liệu hoá UI dùng chung trên Storybook."
     },
     "work": {
       "title": "Kinh nghiệm làm việc",
@@ -143,23 +143,17 @@
           "period": "03/2026 – Hiện tại",
           "summary": "Sản phẩm EMR/HIS cho bệnh viện",
           "bullets": {
-            "monorepo": "Dựng monorepo frontend dùng chung của MedViet (Bun + Turborepo, React 19 + Vite, Vitest và Playwright trong CI) — khuôn mà các app sau clone từ đó.",
-            "healthExam": "Xây phân hệ Khám sức khoẻ trên EMR: ba chuyên trang — Đăng ký (nhân viên tiếp nhận), Trả kết quả (bác sĩ) và Web người bệnh tự phục vụ (không mật khẩu, xác thực bằng captcha); hồ sơ người bệnh nhiều phiên bản; biểu mẫu động dựng từ cấu hình HIS; chỉ định cận lâm sàng; kết luận kèm ký số và chữ ký điện tử; nhập hồ sơ hàng loạt từ Excel; triển khai trên sub-path cùng origin với EMR.",
-            "mobile": "Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR, hồ sơ trình ký và chữ ký; tách app thành monorepo với một lớp SDK service, và hết ANR sau khi làm phẳng danh sách nhóm theo ngày thành row stream.",
-            "legacy": "Bảo trì web EMR legacy (Next.js 14 + Redux): màn đơn thuốc và gói dịch vụ, biểu đồ chuyển dạ, phân quyền và web-config.",
-            "dotnet": "Viết command/query handler .NET 8 (EF Core, MediatR) phía HIS server cho danh mục dịch vụ y tế và đơn thuốc mẫu."
+            "monorepo": "Dựng monorepo frontend dùng chung của MedViet (Bun, Turborepo, React 19, Vite, Vitest và Playwright trong CI) — khuôn cho mọi app dựng sau đó.",
+            "healthExam": "Xây phân hệ Khám sức khoẻ trên EMR: trang đăng ký cho nhân viên tiếp nhận, trang trả kết quả cho bác sĩ và cổng tự phục vụ không mật khẩu cho người bệnh, với biểu mẫu động dựng từ cấu hình HIS, chỉ định cận lâm sàng và kết luận có ký số.",
+            "mobile": "Phát triển app EMR mobile bằng Expo/React Native (NativeWind, TanStack Query, Zustand): danh sách người bệnh tại khoa, bệnh án, kết quả cận lâm sàng, quét QR và hồ sơ trình ký.",
+            "legacy": "Bảo trì web EMR legacy (Next.js 14, Redux): màn đơn thuốc và gói dịch vụ, biểu đồ chuyển dạ, phân quyền và web-config.",
+            "dotnet": "Phát triển API .NET 8 (EF Core, MediatR) phía HIS server cho danh mục dịch vụ y tế và đơn thuốc mẫu."
           }
         },
         "arobid": {
           "role": "Lập trình viên Frontend",
           "period": "03/2025 – 02/2026",
           "summary": "Sàn thương mại B2B và triển lãm số",
-          "awards": {
-            "vda2025": {
-              "label": "VDA 2025",
-              "tooltip": "Sản phẩm, dịch vụ, giải pháp công nghệ số xuất sắc — Vietnam Digital Awards 2025"
-            }
-          },
           "bullets": {
             "tradexpo": "Dựng TradeXpo — nền tảng triển lãm số: các trang lõi (trang chủ, danh sách sự kiện, chi tiết sự kiện, trang con) và trọn hành trình người dùng từ landing tới tương tác sự kiện và gian hàng.",
             "immersive": "Tích hợp trải nghiệm 3D/VR bằng Shapespark qua iframe và postMessage: gamification gồm check-in, tương tác gian hàng, xem sản phẩm và phần thưởng.",
@@ -186,25 +180,23 @@
     },
     "projects": {
       "title": "Dự án cá nhân",
-      "note": "Hai dự án dưới đây đều sống trong monorepo cá nhân tại github.com/qtuan02/monorepo — chính là nơi trang CV này được build. Mỗi dự án có mã nguồn công khai và một bản demo đang chạy thật.",
       "links": {
         "source": "Mã nguồn",
         "sourceFrontend": "Mã nguồn (FE)",
         "sourceBackend": "Mã nguồn (BE)",
-        "demo": "Xem demo"
+        "demo": "Website"
       },
       "items": {
         "chat-socket": {
           "description": "Ứng dụng chat thời gian thực với giao diện kiểu Messenger: nhắn tin, tạo nhóm, đổi tên nhóm, và tự động đánh dấu đã xem khi mở cuộc trò chuyện. Frontend là một app Vite ngay trong monorepo này, dùng TanStack Query và Zustand; backend là một repo Spring Boot riêng, nhắn tin realtime qua STOMP trên WebSocket."
         },
         "documents": {
-          "description": "Site tài liệu cho hai gói npm @fe-monorepo/ui và @fe-monorepo/hook, chạy trên Runtime Vite. Nội dung sinh tự động từ mã nguồn bằng oxc-parser nên không bao giờ lệch API thật, và mỗi primitive có link sang story Storybook của nó."
+          "description": "Trang tài liệu cho bộ thư viện UI dùng chung của tôi — 63 component và 18 React hook đã publish lên npm (@fe-monorepo/ui, @fe-monorepo/hook). Người dùng tra cứu thứ mình cần, xem ngay demo sống, copy câu lệnh import và bảng props rồi gắn thẳng vào dự án, thay vì phải đọc source để đoán API."
         }
       }
     },
     "education": {
       "title": "Học vấn",
-      "language": "Tiếng Anh — đọc hiểu tài liệu kỹ thuật, giao tiếp cơ bản",
       "items": {
         "stu": {
           "degree": "Kỹ sư Công nghệ thông tin",

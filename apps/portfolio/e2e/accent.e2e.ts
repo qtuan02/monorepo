@@ -173,11 +173,19 @@ test.describe("the radius", () => {
   test("squares the shared primitives on the page", async ({ page }) => {
     await openHomeIn(page, "light");
 
-    for (const slot of ["button", "select-trigger"]) {
-      const element = page.locator(`[data-slot="${slot}"]`).first();
+    // The dock's theme toggle is the page's only bare `Button` — by role,
+    // not by `data-slot`, because it is rendered *through* a `TooltipTrigger`
+    // whose own slot wins. (The hero's actions are styled `Link`s, and the
+    // print `Button` that used to carry the slot is parked — see the TODO in
+    // `hero-section.tsx`.)
+    const primitives = [
+      ["button", page.getByRole("navigation").getByRole("button").first()],
+      ["select-trigger", page.locator('[data-slot="select-trigger"]').first()],
+    ] as const;
 
-      await expect(element, slot).toBeAttached();
-      await expect(element, slot).toHaveCSS("border-radius", "0px");
+    for (const [name, element] of primitives) {
+      await expect(element, name).toBeAttached();
+      await expect(element, name).toHaveCSS("border-radius", "0px");
     }
   });
 });
@@ -218,8 +226,7 @@ test.describe("the standard block", () => {
    * component's class list: a 2 px edge in the border token, a solid `4px 4px`
    * shadow in the shadow token, no corner — and, in the dark theme, edge and
    * shadow gone to near-white together, which is the whole reason the shadow
-   * is a token. The award badge is the yellow's second role, read as the fill
-   * a browser actually gives it.
+   * is a token.
    */
   const WORK_ROW = '#work [data-slot="standard-block"]';
 
@@ -266,31 +273,6 @@ test.describe("the standard block", () => {
       expect(
         rgbDistance(shadow, hexToRgb(PALETTE[theme]["--hard-shadow"])),
         `shadow, declared as "${shadowColour}"`,
-      ).toBeLessThan(SAME_COLOUR);
-    });
-
-    test(`fills the award badge with the highlight in the ${theme} theme`, async ({
-      page,
-    }) => {
-      await openHomeIn(page, theme);
-
-      // By its text: the badge is rendered as the tooltip's trigger, and the
-      // trigger's own `data-slot` wins over the badge's, so the slot every
-      // other badge on the page carries is not on this one.
-      const badge = page.locator("#work").getByText("VDA 2025");
-
-      await expect(badge).toBeVisible();
-
-      const fill = await paint(page, await computed(badge, "background-color"));
-      const ink = await paint(page, await computed(badge, "color"));
-
-      expect(
-        rgbDistance(fill, hexToRgb(PALETTE[theme]["--highlight"])),
-        "fill",
-      ).toBeLessThan(SAME_COLOUR);
-      expect(
-        rgbDistance(ink, hexToRgb(PALETTE[theme]["--highlight-foreground"])),
-        "ink",
       ).toBeLessThan(SAME_COLOUR);
     });
   }
@@ -407,77 +389,58 @@ test.describe("the standard block", () => {
 
 test.describe("the hero", () => {
   /**
-   * The yellow has two roles on the page, and the email action is one of them.
-   * `bg-highlight` is a utility this app names itself (`@theme inline` in
-   * `src/globals.css`), so whether it paints at all is a cascade question no
-   * jsdom test can answer — and whether the ring drawn on it can be seen is a
-   * second one. In the dark theme no yellow clears 3:1 against the lifted
-   * indigo `--ring`, which is why the control draws its ring in the pair's own
-   * text colour instead (`test/globals.test.ts` pins the ratio). The ring is
-   * reached by keyboard, since `:focus-visible` does not follow a scripted
-   * `focus()` onto a link.
+   * The four quick actions are dressed alike (#275). Email used to carry the
+   * yellow fill, and with it a focus ring spelled in the highlight pair —
+   * necessary, because in the dark theme no yellow clears 3:1 against the
+   * lifted indigo `--ring`. Both went with the fill, and what is worth pinning
+   * is that nothing grew back: whether a `bg-*` utility paints at all is a
+   * cascade question no jsdom test can answer, so a stray fill would be
+   * invisible to the Gate.
+   *
+   * Measured against a sibling rather than against a token: `--card` belongs to
+   * the shared theme and this app never overrides it, so a literal here would
+   * pin a value the app does not own.
    */
   for (const theme of ["light", "dark"] as const) {
-    test(`fills the email action with the highlight and draws its focus ring in the ink, in the ${theme} theme`, async ({
+    test(`dresses the email action like its neighbours, with no yellow left, in the ${theme} theme`, async ({
       page,
     }) => {
       await openHomeIn(page, theme);
 
-      const email = page.locator("#hero").getByRole("link", { name: "Email" });
+      const hero = page.locator("#hero");
+      const email = hero.getByRole("link", { name: "Email" });
+      const github = hero.getByRole("link", { name: "GitHub" });
 
       await expect(email).toBeVisible();
 
-      const { backgroundColor, color } = await email.evaluate((node) => {
-        const styles = getComputedStyle(node);
-
-        return { backgroundColor: styles.backgroundColor, color: styles.color };
-      });
+      const [emailFill, githubFill, emailInk, githubInk] = await Promise.all([
+        computed(email, "background-color"),
+        computed(github, "background-color"),
+        computed(email, "color"),
+        computed(github, "color"),
+      ]);
 
       expect(
         rgbDistance(
-          await paint(page, backgroundColor),
+          await paint(page, emailFill),
+          await paint(page, githubFill),
+        ),
+        `email fill ${emailFill} vs ${githubFill}`,
+      ).toBeLessThan(SAME_COLOUR);
+      expect(
+        rgbDistance(await paint(page, emailInk), await paint(page, githubInk)),
+        `email ink ${emailInk} vs ${githubInk}`,
+      ).toBeLessThan(SAME_COLOUR);
+
+      // And it is nowhere near the yellow — the half a sibling comparison
+      // alone would miss, if both actions turned yellow together.
+      expect(
+        rgbDistance(
+          await paint(page, emailFill),
           hexToRgb(PALETTE[theme]["--highlight"]),
         ),
-        `fill is ${backgroundColor}`,
-      ).toBeLessThan(SAME_COLOUR);
-      expect(
-        rgbDistance(
-          await paint(page, color),
-          hexToRgb(PALETTE[theme]["--highlight-foreground"]),
-        ),
-        `text is ${color}`,
-      ).toBeLessThan(SAME_COLOUR);
-
-      // Tab onto it from its neighbour, so the browser treats the focus as
-      // keyboard-driven and `:focus-visible` applies.
-      await email.focus();
-      await page.keyboard.press("Shift+Tab");
-      await page.keyboard.press("Tab");
-      await expect(email).toBeFocused();
-
-      const boxShadow = await email.evaluate(
-        (node) => getComputedStyle(node).boxShadow,
-      );
-
-      // The computed value is Tailwind's whole shadow stack — the outline
-      // variant's `shadow-xs`, the empty inset/ring slots — with the ring as
-      // the one `inset` entry, serialised colour-first: `<colour> 0px 0px 0px
-      // 2px inset`. The primitive's own ring would be `--ring` at 50%; this
-      // one is the opaque ink of `--highlight-foreground`.
-      const ring = boxShadow
-        .split(/,\s*(?=[a-z]+\()/)
-        .find((shadow) => shadow.includes("inset"));
-      const ringColour = ring?.match(/^(.+?\))\s/)?.[1];
-
-      expect(ring, boxShadow).toBeTruthy();
-      expect(ringColour, boxShadow).toBeTruthy();
-      expect(
-        rgbDistance(
-          await paint(page, ringColour ?? ""),
-          hexToRgb(PALETTE[theme]["--highlight-foreground"]),
-        ),
-        `ring is ${boxShadow}`,
-      ).toBeLessThan(SAME_COLOUR);
+        `email fill ${emailFill} is not the highlight`,
+      ).toBeGreaterThan(SAME_COLOUR);
     });
   }
 

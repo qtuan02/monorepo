@@ -10,19 +10,20 @@ import { render } from "../../../support/render";
  * shared list (#125 first shrank it to a note plus rows). Two things would
  * silently undo that and neither shows in a snapshot: the blocks collapsing
  * back into one, and a project losing its heading (so the outline stops
- * naming the projects).
+ * naming the projects). The framing note above them went with #274 — the
+ * heading is followed by the projects themselves and nothing else.
  */
 describe("ProjectsSection", () => {
-  it("gives every project its own block, under a note naming the monorepo", () => {
+  it("gives every project its own block, with no framing note above them", () => {
     const { container } = render(<ProjectsSection />);
 
     expect(
-      screen.getByRole("heading", { level: 2, name: "Dự án cá nhân" }),
+      screen.getByRole("heading", { level: 2, name: "Personal Projects" }),
     ).toBeInTheDocument();
     expect(
       container.querySelectorAll('[data-slot="standard-block"]'),
     ).toHaveLength(PROJECT_ITEMS.length);
-    expect(screen.getByText(/monorepo cá nhân/)).toBeInTheDocument();
+    expect(screen.queryByText(/personal monorepo/)).not.toBeInTheDocument();
 
     expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(
       PROJECT_ITEMS.length,

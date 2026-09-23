@@ -107,18 +107,18 @@
   },
   "portfolio": {
     "meta": {
-      "title": "Huynh Quoc Tuan",
-      "description": "Software Engineer with 3+ years of React.js and Next.js, shipping Expo/React Native apps and .NET backends, at home in monorepos, CI and design systems."
+      "title": "Huynh Quoc Tuan — Software Engineer",
+      "description": "Software Engineer with 3+ years in React.js, Next.js, Expo/React Native and .NET — shipping EMR/HIS, B2B marketplace and POS products in monorepos with shared CI and design systems."
     },
     "hero": {
       "commands": {
         "whoami": "whoami",
         "role": "cat role.txt",
-        "current": "current --job"
+        "motto": "cat motto.txt"
       },
       "name": "Huynh Quoc Tuan",
-      "positioning": "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
-      "current": "Currently building the Health Exam module in EMR/HIS at MedViet — web and mobile for hospitals.",
+      "role": "Software Engineer",
+      "tagline": "Driven by new technology, learning every day, and turning ideas into products that ship.",
       "actions": {
         "email": "Email",
         "github": "GitHub",
@@ -129,9 +129,9 @@
     },
     "about": {
       "title": "About",
-      "experience": "Software Engineer with 3+ years of experience, frontend at the core: building and maintaining scalable web applications with React.js and Next.js.",
-      "stack": "When a project needs it, that scope extends to mobile (Expo/React Native) and backend (.NET 8, Spring Boot, PayloadCMS); used to working in a monorepo with shared CI and a shared design system, turning Figma designs into clean, responsive interfaces, and comfortable with SSR, ISR and state management to improve performance and user experience.",
-      "mindset": "Good teamwork and communication, a fast learner with a strong adaptation mindset. Interested in performance optimization, source structure, and user experience."
+      "experience": "Software Engineer with 3+ years of experience building web products for healthcare, B2B commerce and F&B retail — frontend at the core, working daily in React.js, Next.js and TypeScript.",
+      "stack": "Shipped mobile apps with Expo/React Native, built .NET 8 and Spring Boot APIs for business systems, built CMS platforms on PayloadCMS, and works in Turborepo monorepos with shared CI, design systems and UI libraries.",
+      "delivery": "Turns Figma designs into clean, responsive interfaces, tunes performance with SSR, ISR and deliberate state management, covers the work with Vitest and Playwright, and documents shared UI in Storybook."
     },
     "work": {
       "title": "Work Experience",
@@ -143,23 +143,17 @@
           "period": "Mar 2026 – Present",
           "summary": "EMR/HIS product for hospitals",
           "bullets": {
-            "monorepo": "Bootstrapped MedViet's shared frontend monorepo (Bun + Turborepo, React 19 + Vite, Vitest and Playwright in CI) — the mold every later app was cloned from.",
-            "healthExam": "Built the periodic health-examination module on the EMR: three screens — registration (front-desk staff), results (doctors), and a passwordless, captcha-verified self-service patient portal; versioned patient profiles; dynamic exam forms rendered from HIS configuration; lab and imaging orders; conclusions with digital signatures and e-signatures; bulk patient registration from Excel; deployed on a sub-path sharing the EMR's origin.",
-            "mobile": "Built the EMR mobile app with Expo/React Native (NativeWind, TanStack Query, Zustand): in-department patient list, medical records, lab results, QR scanning, sign-off dossiers and e-signature; restructured the app into a monorepo with an SDK service layer, and cleared an ANR by flattening date-grouped lists into a row stream.",
-            "legacy": "Maintained the legacy EMR web app (Next.js 14 + Redux): prescription and service-package screens, the labor chart, permissions and web configuration.",
-            "dotnet": "Implemented .NET 8 command and query handlers (EF Core, MediatR) on the HIS server for the medical service catalogue and prescription templates."
+            "monorepo": "Bootstrapped MedViet's shared frontend monorepo (Bun, Turborepo, React 19, Vite, Vitest and Playwright in CI) — the mold every later app was cloned from.",
+            "healthExam": "Built the periodic health-examination module on the EMR: a registration screen for front-desk staff, a results screen for doctors and a passwordless self-service patient portal, with dynamic forms rendered from HIS configuration, lab and imaging orders, and digitally signed conclusions.",
+            "mobile": "Built the EMR mobile app with Expo/React Native (NativeWind, TanStack Query, Zustand): in-department patient lists, medical records, lab results, QR scanning and sign-off dossiers.",
+            "legacy": "Maintained the legacy EMR web app (Next.js 14, Redux): prescription and service-package screens, the labor chart, permissions and web configuration.",
+            "dotnet": "Built .NET 8 APIs (EF Core, MediatR) on the HIS server for the medical service catalogue and prescription templates."
           }
         },
         "arobid": {
           "role": "Frontend Developer",
           "period": "Mar 2025 – Feb 2026",
           "summary": "B2B marketplace and digital exhibition platform",
-          "awards": {
-            "vda2025": {
-              "label": "VDA 2025",
-              "tooltip": "Excellent Digital Technology Product, Service and Solution — Vietnam Digital Awards 2025"
-            }
-          },
           "bullets": {
             "tradexpo": "Built TradeXpo — a digital exhibition platform: core pages (home, event list, event detail, inner pages) and the full user journey from landing to event and booth interactions.",
             "immersive": "Integrated a 3D/VR experience using Shapespark through iframe and postMessage: gamification including check-in, booth interaction, product viewing, and rewards.",
@@ -186,25 +180,23 @@
     },
     "projects": {
       "title": "Personal Projects",
-      "note": "Both projects below live in a personal monorepo at github.com/qtuan02/monorepo — the very place this CV site is built from. Each one has a public source repo and a live, running demo.",
       "links": {
         "source": "Source code",
         "sourceFrontend": "Source (FE)",
         "sourceBackend": "Source (BE)",
-        "demo": "Live demo"
+        "demo": "Website"
       },
       "items": {
         "chat-socket": {
           "description": "A real-time chat app with a Messenger-style interface: messaging, group creation and renaming, and messages auto-marked as seen on open. The frontend is a Vite app inside this very monorepo, built with TanStack Query and Zustand; the backend is a separate Spring Boot repo, messaging in real time over STOMP on WebSocket."
         },
         "documents": {
-          "description": "The docs site for the two npm packages @fe-monorepo/ui and @fe-monorepo/hook, built on the Vite Runtime. Its content is generated straight from the source with oxc-parser, so it can never drift from the real API, and every primitive links out to its own Storybook story."
+          "description": "The docs site for my shared UI libraries — 63 components and 18 React hooks published to npm (@fe-monorepo/ui, @fe-monorepo/hook). A reader looks up what they need, sees it running, copies the import line and the props table, and drops it straight into their project instead of reading the source to guess the API."
         }
       }
     },
     "education": {
       "title": "Education",
-      "language": "English — reading technical documentation, basic communication",
       "items": {
         "stu": {
           "degree": "Bachelor of Engineering in Information Technology",

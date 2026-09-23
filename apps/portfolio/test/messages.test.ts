@@ -88,15 +88,6 @@ function derivedKeys(): string[] {
       ...item.bulletKeys.map(
         (key) => `portfolio.work.items.${item.id}.bullets.${key}`,
       ),
-      // A badge is a claim about a real prize, so both halves of it — the short
-      // label on the row and the tooltip spelling the award out — have to be
-      // there in every language before the row can wear one.
-      ...(item.award
-        ? [
-            `portfolio.work.items.${item.id}.awards.${item.award}.label`,
-            `portfolio.work.items.${item.id}.awards.${item.award}.tooltip`,
-          ]
-        : []),
     ]),
     ...PROJECT_ITEMS.flatMap((item) => [
       `portfolio.projects.items.${item.id}.description`,

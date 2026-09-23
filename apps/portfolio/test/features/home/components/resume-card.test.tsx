@@ -1,5 +1,5 @@
 import type { StaticImageData } from "next/image";
-import { screen, waitFor } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 
@@ -113,29 +113,6 @@ describe("ResumeCard", () => {
     expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 
-  it("renders the award badge beside the period when the row carries one", () => {
-    render(
-      <ResumeCard
-        logo={logo}
-        altText="AROBID"
-        title="AROBID"
-        period="03/2025 – 02/2026"
-        award={{ label: "VDA 2025", tooltip: "Vietnam Digital Awards 2025" }}
-        bullets={bullets}
-        toggleLabel="Xem chi tiết công việc"
-      />,
-    );
-
-    expect(screen.getByText("VDA 2025")).toBeInTheDocument();
-    // The badge takes no tab stop — it sits inside the toggle — and its full
-    // name is a tooltip, so the tooltip alone would leave the award readable by
-    // mouse only. The description is what carries it to a screen reader and to
-    // a phone.
-    expect(
-      screen.getByRole("button", { name: /Xem chi tiết công việc/ }),
-    ).toHaveAccessibleDescription("Vietnam Digital Awards 2025");
-  });
-
   it("renders the company blurb muted, under the role", () => {
     render(
       <ResumeCard
@@ -153,21 +130,6 @@ describe("ResumeCard", () => {
     const summary = screen.getByText("Sản phẩm EMR/HIS cho bệnh viện");
 
     expect(summary).toHaveClass("text-muted-foreground");
-  });
-
-  it("renders no badge for a row with no award", () => {
-    render(
-      <ResumeCard
-        logo={logo}
-        altText="MedViet"
-        title="MedViet"
-        period="03/2026 – Hiện tại"
-        bullets={bullets}
-        toggleLabel="Xem chi tiết công việc"
-      />,
-    );
-
-    expect(screen.queryByText("VDA 2025")).not.toBeInTheDocument();
   });
 
   it("takes a folded body out of the accessibility tree, but not out of the markup", async () => {
@@ -200,43 +162,6 @@ describe("ResumeCard", () => {
     await user.click(toggle);
 
     expect(container.querySelector(bodySelector)).not.toHaveAttribute("inert");
-  });
-
-  it("opens the award's full name in a tooltip when a pointer rests on the badge", async () => {
-    // The badge's text is the short form ("VDA 2025"); the full name is what a
-    // recruiter hovering it wants. The description above carries it to
-    // everyone else — this is the pointer's half of the same promise. A
-    // `className` would say nothing here: whether a tooltip opens is a runtime
-    // decision of the trigger, and jsdom is enough to watch it.
-    const user = userEvent.setup();
-
-    const { baseElement } = render(
-      <ResumeCard
-        logo={logo}
-        altText="AROBID"
-        title="AROBID"
-        period="03/2025 – 02/2026"
-        award={{ label: "VDA 2025", tooltip: "Vietnam Digital Awards 2025" }}
-        bullets={bullets}
-        toggleLabel="Xem chi tiết công việc"
-      />,
-    );
-
-    await user.hover(screen.getByText("VDA 2025"));
-
-    // Base UI's popup carries no `role="tooltip"` — the trigger is described
-    // by it instead — and the full name is already in the markup as the
-    // sr-only description, so `findByText` would match twice. The popup is
-    // found by the `data-slot` every primitive stamps on its root, exactly as
-    // `e2e/accent.e2e.ts` finds a badge and a card. The wait covers the
-    // trigger's 600 ms hover delay.
-    await waitFor(
-      () =>
-        expect(
-          baseElement.querySelector('[data-slot="tooltip-content"]'),
-        ).toHaveTextContent("Vietnam Digital Awards 2025"),
-      { timeout: 2000 },
-    );
   });
 
   it("keeps the tech stack behind the same body as the bullets", () => {

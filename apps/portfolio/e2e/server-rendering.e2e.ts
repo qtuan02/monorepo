@@ -15,9 +15,13 @@ test.describe("server rendering", () => {
   test("the CV is in the first HTML, with its metadata", async ({
     request,
   }) => {
-    // The header is sent explicitly: the `request` fixture does not inherit the
-    // project's `locale`, and next-intl negotiates from Accept-Language.
-    const response = await request.get(ROUTES.HOME, {
+    // The literal `/vi` rather than `ROUTES.HOME`: English is this app's
+    // default and sits at the bare path (see `~/i18n/routing.ts`), so the
+    // Vietnamese document is the prefixed one — and asking for it directly is
+    // what keeps this a test of the rendering rather than of a redirect. The
+    // header is still sent: the `request` fixture does not inherit the
+    // project's `locale`.
+    const response = await request.get("/vi", {
       headers: { "Accept-Language": "vi" },
     });
 
@@ -32,9 +36,8 @@ test.describe("server rendering", () => {
     // …and the line that says what the candidate actually does. This one is
     // the page's whole job in an unfurl preview and in the first five seconds
     // of a scroll, so it has to be in the bytes rather than hydrated in.
-    expect(html).toContain(
-      "Frontend-led full-stack engineer — web, mobile và backend khi dự án cần.",
-    );
+    expect(html).toContain("Software Engineer");
+    expect(html).toContain("Đam mê công nghệ mới");
     // The about section's opening line — the "3+ years, Software Engineer"
     // claim has to be in the bytes, not hydrated in, or a crawler indexes the
     // stale "2+ years, Frontend Developer" title this ticket retired.
@@ -46,7 +49,7 @@ test.describe("server rendering", () => {
     // The health-examination bullet split out from the monorepo one, and the
     // company blurb beside it — both new in this ticket, both have to be in
     // the bytes or a crawler never sees the biggest thing on the CV.
-    expect(html).toContain("nhập hồ sơ hàng loạt từ Excel");
+    expect(html).toContain("cổng tự phục vụ không mật khẩu cho người bệnh");
     expect(html).toContain("Sản phẩm EMR/HIS cho bệnh viện");
     expect(html).toContain("Kinh nghiệm làm việc");
     // A skill group label and a name that only exists inside it. Tabs would
@@ -60,10 +63,6 @@ test.describe("server rendering", () => {
     // safe to add here. Assert it on the oldest row, the one furthest from
     // `defaultExpanded`.
     expect(html).toContain("Highlands Coffee");
-    // The award badge itself. Its tooltip is not asserted here and could not
-    // be: Base UI portals the popup and only mounts it once open, so the full
-    // award name reaches a crawler through the row's own bullet instead.
-    expect(html).toContain("VDA 2025");
     // That three roles ship and no more is pinned in the Gate rather than here:
     // `test/features/home/constants/resume.test.ts` fixes the whole id list, and
     // the orphan check in the same file fails any catalogue key no component
@@ -71,16 +70,46 @@ test.describe("server rendering", () => {
     // strings back into the repo — the one thing the rebuild set out to remove —
     // and would only have caught the three already thought of.
 
-    // The metadata built from the same catalogue.
-    expect(html).toContain("<title>Huỳnh Quốc Tuấn</title>");
+    // The metadata built from the same catalogue. The title carries the role,
+    // not the bare name: a tab, a bookmark and a search result all render this
+    // one string, and a name alone tells a stranger nothing.
+    expect(html).toContain(
+      "<title>Huỳnh Quốc Tuấn — Software Engineer</title>",
+    );
     expect(html).toContain('name="description"');
     expect(html).toContain('lang="vi"');
+
+    // The two languages serve the same content at two URLs, so a crawler is
+    // free to call them duplicates and pick a winner unless the canonical and
+    // the hreflang map say otherwise. Only the raw document shows these — they
+    // are `<link>` tags Next writes from `alternates`, not anything a rendered
+    // page displays.
+    expect(html).toContain('rel="canonical"');
+    // Matched case-insensitively: React emits the JSX prop name `hrefLang`
+    // verbatim, and an HTML attribute name is case-insensitive — so a literal
+    // would pin React's spelling rather than the tag the crawler reads.
+    for (const hreflang of ["vi", "en", "x-default"]) {
+      expect(html, hreflang).toMatch(new RegExp(`hreflang="${hreflang}"`, "i"));
+    }
+
+    // The `Person` structured data: the half of SEO no `<meta>` expresses, and
+    // invisible in a browser whether it is right, wrong or unparseable.
+    const jsonLd = html.match(
+      /<script type="application\/ld\+json"[^>]*>(.*?)<\/script>/s,
+    );
+
+    expect(jsonLd?.[1]).toBeTruthy();
+    expect(JSON.parse(jsonLd?.[1] ?? "")).toMatchObject({
+      "@type": "Person",
+      name: "Huỳnh Quốc Tuấn",
+      jobTitle: "Software Engineer",
+    });
   });
 
-  test("…and in English at its own prefix, with the same row gone", async ({
+  test("…and in English at the bare path, with the same row gone", async ({
     request,
   }) => {
-    const response = await request.get("/en", {
+    const response = await request.get(ROUTES.HOME, {
       headers: { "Accept-Language": "en" },
     });
 
@@ -92,10 +121,10 @@ test.describe("server rendering", () => {
     // in one locale and falls back to a key path in the other is exactly what a
     // missing translation looks like, and only the raw document shows it.
     expect(html).toContain("EMR mobile app with Expo/React Native");
-    expect(html).toContain("bulk patient registration from Excel");
+    expect(html).toContain("passwordless self-service patient portal");
     expect(html).toContain("EMR/HIS product for hospitals");
     expect(html).toContain(
-      "Frontend-led full-stack engineer — web, mobile, and backend when the project needs it.",
+      "Driven by new technology, learning every day, and turning ideas into products that ship.",
     );
     expect(html).toContain("Software Engineer with 3+ years of experience");
   });
@@ -110,8 +139,8 @@ test.describe("server rendering", () => {
       /<meta property="og:image" content="(https?:\/\/[^"]+\/opengraph-image[^"]*)"/;
 
     for (const [path, lang] of [
-      [ROUTES.HOME, "vi"],
-      ["/en", "en"],
+      ["/vi", "vi"],
+      [ROUTES.HOME, "en"],
     ] as const) {
       const html = await (
         await request.get(path, { headers: { "Accept-Language": lang } })
@@ -122,8 +151,9 @@ test.describe("server rendering", () => {
         throw new Error(`no absolute og:image in the document at ${path}`);
       }
       // The card is generated under the locale segment, so the URL says which
-      // language it renders in — that is what makes the `/en` share card
-      // English without a second static file.
+      // language it renders in — that is what makes the `/vi` share card
+      // Vietnamese without a second static file. Note the segment is there even
+      // for the default locale, whose *page* has no prefix.
       expect(imageUrl).toContain(`/${lang}/opengraph-image`);
       // The card serves Twitter/X too; there is no separate twitter-image.
       expect(html).toContain('name="twitter:image"');
@@ -161,14 +191,16 @@ test.describe("server rendering", () => {
     // other one prefixed — stated to a crawler through the alternates map.
     expect(xml).toContain('hreflang="vi"');
     expect(xml).toContain('hreflang="en"');
-    expect(xml).toMatch(/<xhtml:link[^>]+href="https?:\/\/[^"]+\/en"/);
+    expect(xml).toMatch(/<xhtml:link[^>]+href="https?:\/\/[^"]+\/vi"/);
   });
 
   test("the web app manifest is served", async ({ request }) => {
     const response = await request.get("/manifest.webmanifest");
 
     expect(response.status()).toBe(200);
-    expect(await response.text()).toContain("Huỳnh Quốc Tuấn");
+    // The app's default locale, which is English here — the manifest names
+    // the app once, in the language the bare path serves.
+    expect(await response.text()).toContain("Huynh Quoc Tuan");
   });
 
   /**
@@ -189,7 +221,10 @@ test.describe("server rendering", () => {
   test("an unknown URL answers with a real 404 status, not a 200 that says 404", async ({
     request,
   }) => {
-    const response = await request.get("/khong-ton-tai", {
+    // The prefixed path, not the bare one: English is the default here, so
+    // `/khong-ton-tai` with a Vietnamese `Accept-Language` is a 307 to `/vi`
+    // before it is anything else, and the status under test would be lost.
+    const response = await request.get("/vi/khong-ton-tai", {
       headers: { "Accept-Language": "vi" },
       // The status is the assertion; following a redirect would lose it.
       maxRedirects: 0,
@@ -203,7 +238,10 @@ test.describe("server rendering", () => {
 
     // The status holds for a real navigation too, not just a bare fetch.
     expect(response?.status()).toBe(404);
-    await expect(page.getByText("404 Không tìm thấy")).toBeVisible();
+    // The bare path is English (`localeDetection: false`, see
+    // `~/i18n/routing.ts`), so this is the copy a reader gets — "localized"
+    // still means *from the catalogue*, which is what the assertion is for.
+    await expect(page.getByText("404 Not Found")).toBeVisible();
   });
 
   test("the projects are in the first HTML, in both languages", async ({
@@ -212,7 +250,7 @@ test.describe("server rendering", () => {
     // A project row is the piece a recruiter's crawler is most likely to
     // index — the repo names and demo URLs — so it must be in the bytes the
     // server sends, not something that arrives once the client has run.
-    const vi = await request.get(ROUTES.HOME, {
+    const vi = await request.get("/vi", {
       headers: { "Accept-Language": "vi" },
     });
 
@@ -221,8 +259,9 @@ test.describe("server rendering", () => {
     const viHtml = await vi.text();
 
     expect(viHtml).toContain("Dự án cá nhân");
-    // The monorepo is named in the section's own note, not a third card
-    // (#269) — its address has to be in the bytes even with no card for it.
+    // The monorepo has no card of its own (#269) and, since #274, no framing
+    // note either — its address reaches the bytes through each project's own
+    // "Mã nguồn" href, which is the only place it was ever verifiable.
     expect(viHtml).toContain("github.com/qtuan02/monorepo");
     expect(viHtml).toContain("Real-time Chat");
     expect(viHtml).toContain(
@@ -231,9 +270,9 @@ test.describe("server rendering", () => {
     expect(viHtml).toContain('href="https://chat-socket-ui.vercel.app"');
     expect(viHtml).toContain('href="https://documents-ui.vercel.app"');
 
-    // The literal path is the assertion — the English document lives at its
-    // own prefix, which `~/constants/routes` deliberately cannot express.
-    const en = await request.get("/en", {
+    // English is the default, so its document is the unprefixed one — the
+    // path `~/constants/routes` holds.
+    const en = await request.get(ROUTES.HOME, {
       headers: { "Accept-Language": "en" },
     });
 

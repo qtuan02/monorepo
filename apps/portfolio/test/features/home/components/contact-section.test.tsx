@@ -5,9 +5,10 @@ import { messages } from "@monorepo/i18n/languages";
 
 import ContactSection from "~/features/home/components/contact-section";
 import { CONTACT_ITEMS } from "~/features/home/constants/resume";
+import { routing } from "~/i18n/routing";
 import { render } from "../../../support/render";
 
-const { labels, items } = messages.vi.portfolio.contact;
+const { labels, items } = messages[routing.defaultLocale].portfolio.contact;
 
 /**
  * A contact line is now a label and a value, and the decision in the

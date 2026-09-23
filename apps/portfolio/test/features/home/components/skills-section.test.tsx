@@ -16,19 +16,19 @@ describe("SkillsSection", () => {
     render(<SkillsSection />);
 
     expect(
-      screen.getByRole("heading", { level: 2, name: "Kỹ năng" }),
+      screen.getByRole("heading", { level: 2, name: "Skills" }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole("heading", { level: 3 })).toHaveLength(
       SKILL_GROUPS.length,
     );
 
     for (const label of [
-      "Ngôn ngữ lập trình",
+      "Programming Languages",
       "Frontend",
       "Mobile",
       "Backend",
       "DevOps & CI",
-      "Công cụ",
+      "Tooling",
     ]) {
       expect(
         screen.getByRole("heading", { level: 3, name: label }),

@@ -1,21 +1,8 @@
 import type { MetadataRoute } from "next";
 
 import { ROUTES } from "~/constants/routes";
-import { env } from "~/env";
-import { getPathname } from "~/i18n/navigation";
 import { routing } from "~/i18n/routing";
-
-/**
- * Builds the absolute URL a locale serves a given app path at — `/` for the
- * default language, `/en` for the rest, exactly as `localePrefix: "as-needed"`
- * decides. `getPathname` is the same helper `Link` uses, so a prefix rule can
- * never be right in the navigation and wrong in the sitemap.
- */
-function absoluteUrl(locale: string, href: string): string {
-  const pathname = getPathname({ locale, href });
-
-  return new URL(pathname, env.NEXT_PUBLIC_PORTFOLIO_BASE_DOMAIN).toString();
-}
+import { absoluteUrl } from "~/utils/absolute-url";
 
 /**
  * `/sitemap.xml`, listing every route this site actually has, each with the

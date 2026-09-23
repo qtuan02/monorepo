@@ -3,36 +3,28 @@ import { expect, test } from "@playwright/test";
 import { ROUTES } from "../src/constants/routes";
 
 /**
- * `localePrefix: "as-needed"`: the default language (`vi`) is served at the bare
- * path and every other one carries its prefix. Both halves are asserted on the
- * raw document first — that prefix rule is a **server** decision, made by
- * `proxy.ts` before anything renders — and then through the switcher, which is
- * the only way a visitor ever exercises it.
+ * `localePrefix: "as-needed"` plus `localeDetection: false`: the URL alone
+ * decides the language. This app's default is **English**, not the registry's
+ * `vi` (see `~/i18n/routing.ts`), so `/` is English and Vietnamese lives at
+ * `/vi` — the mirror of every other app in the workspace, which is exactly the
+ * kind of inversion a shared default hides.
+ *
+ * Both halves are asserted on the raw document first, with an `Accept-Language`
+ * that asks for the *other* language: that is the assertion, not decoration.
+ * With detection left on, next-intl reads the header before the default
+ * applies, and `/` answers differently for every visitor — which is the bug
+ * this file exists to catch. Then through the switcher, the only way a visitor
+ * ever changes it.
  */
 test.describe("locale switching", () => {
-  test("serves the default language at the bare path", async ({ request }) => {
+  test("serves English at the bare path, whatever the browser asks for", async ({
+    request,
+  }) => {
     const response = await request.get(ROUTES.HOME, {
+      // Asking for Vietnamese: the default has to win anyway…
       headers: { "Accept-Language": "vi" },
-    });
-
-    expect(response.status()).toBe(200);
-
-    const html = await response.text();
-
-    expect(html).toContain('lang="vi"');
-    // A line from the hero's body rather than the name: the name is also the
-    // document title, so it would be in these bytes with no hero at all.
-    expect(html).toContain(
-      "Hiện mình làm phân hệ Khám sức khoẻ trong EMR/HIS tại MedViet",
-    );
-  });
-
-  test("serves English at its own prefix", async ({ request }) => {
-    // The literal path is the assertion here — this test is about the URL a
-    // visitor lands on, which is exactly the case `~/constants/routes` cannot
-    // express, since it holds unprefixed paths by design.
-    const response = await request.get("/en", {
-      headers: { "Accept-Language": "en" },
+      // …and win here, not after a detour. A 307 is the old behaviour.
+      maxRedirects: 0,
     });
 
     expect(response.status()).toBe(200);
@@ -40,14 +32,39 @@ test.describe("locale switching", () => {
     const html = await response.text();
 
     expect(html).toContain('lang="en"');
+    // A line from the hero's body rather than the name: the name is also the
+    // document title, so it would be in these bytes with no hero at all.
     expect(html).toContain(
-      "Currently building the Health Exam module in EMR/HIS at MedViet",
+      "Driven by new technology, learning every day, and turning ideas into products that ship.",
     );
     expect(html).toContain("Work Experience");
   });
 
+  test("serves Vietnamese at its own prefix, whatever the browser asks for", async ({
+    request,
+  }) => {
+    // The literal path is the assertion here — this test is about the URL a
+    // visitor lands on, which is exactly the case `~/constants/routes` cannot
+    // express, since it holds unprefixed paths by design.
+    const response = await request.get("/vi", {
+      headers: { "Accept-Language": "en" },
+      maxRedirects: 0,
+    });
+
+    expect(response.status()).toBe(200);
+
+    const html = await response.text();
+
+    expect(html).toContain('lang="vi"');
+    expect(html).toContain(
+      "Đam mê công nghệ mới, học mỗi ngày, và biến ý tưởng thành sản phẩm chạy thật.",
+    );
+  });
+
   test("the switcher keeps the visitor on the same page", async ({ page }) => {
-    await page.goto(ROUTES.HOME);
+    // The prefixed path: the project's `locale: "vi-VN"` no longer buys a
+    // Vietnamese document, because nothing but the URL decides one.
+    await page.goto("/vi");
 
     await expect(
       page.getByRole("heading", { level: 1, name: "Huỳnh Quốc Tuấn" }),
@@ -56,9 +73,10 @@ test.describe("locale switching", () => {
     await page.getByRole("combobox").click();
     await page.getByRole("option", { name: "Tiếng Anh" }).click();
 
-    // The URL gains the prefix and the page stays the page — that is what
-    // `router.replace(pathname, { locale })` buys over a link to "/en".
-    await expect(page).toHaveURL(/\/en$/);
+    // The URL *loses* its prefix — English is the default now — and the page
+    // stays the page, which is what `router.replace(pathname, { locale })`
+    // buys over a link to a literal path.
+    await expect(page).not.toHaveURL(/\/vi$/);
     // The h1, not `getByText`: Next's route announcer mirrors the page heading
     // into an `aria-live` region on every client navigation, so a bare text
     // match resolves to two elements after the switch.
@@ -72,7 +90,7 @@ test.describe("locale switching", () => {
     await page.addInitScript(() => {
       window.localStorage.setItem("theme", "dark");
     });
-    await page.goto(ROUTES.HOME);
+    await page.goto("/vi");
     await expect(page.locator("html")).toHaveClass(/\bdark\b/);
 
     await page.getByRole("combobox").click();

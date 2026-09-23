@@ -17,7 +17,7 @@ describe("WorkSection", () => {
     render(<WorkSection />);
 
     const toggles = screen.getAllByRole("button", {
-      name: /Xem chi tiết công việc/,
+      name: /Toggle role details/,
     });
 
     expect(toggles).toHaveLength(WORK_ITEMS.length);
@@ -37,9 +37,12 @@ describe("WorkSection", () => {
     expect(screen.getByText(/Highlands Coffee/)).toBeInTheDocument();
   });
 
-  it("badges the one role that carries an award", () => {
+  it("wears no award badge on any row", () => {
     render(<WorkSection />);
 
-    expect(screen.getByText("VDA 2025")).toBeInTheDocument();
+    // The AROBID row carried one until #275. The contribution behind it is
+    // still a bullet inside that row's body — a claim in prose, where the rest
+    // of the CV's claims live — but nothing on the page is a badge any more.
+    expect(screen.queryByText("VDA 2025")).not.toBeInTheDocument();
   });
 });

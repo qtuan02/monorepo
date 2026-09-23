@@ -71,15 +71,6 @@ describe("resume constants", () => {
     expect(medviet?.techStack.length).toBeLessThanOrEqual(10);
   });
 
-  it("carries an award badge on the one role that earned one", () => {
-    // A badge is a claim about a real prize, so it is worth pinning which rows
-    // make it: a stray `award` copied onto another row would publish a claim
-    // nobody would notice in review.
-    const withAward = WORK_ITEMS.filter((item) => item.award);
-
-    expect(withAward.map((item) => item.id)).toEqual(["arobid"]);
-  });
-
   it("caps a project's tech stack at six badges", () => {
     // The stack is one line of monospace under a row (#125); above six names
     // it wraps, and the design cuts at the data rather than clipping at render

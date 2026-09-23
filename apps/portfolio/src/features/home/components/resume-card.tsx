@@ -6,12 +6,6 @@ import { ChevronRightIcon } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 
-import { Badge } from "@monorepo/ui/components/badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@monorepo/ui/components/tooltip";
 import { cn } from "@monorepo/ui/utils/cn";
 
 import StandardBlock from "~/features/home/components/standard-block";
@@ -20,19 +14,6 @@ import StandardBlock from "~/features/home/components/standard-block";
 export interface ResumeBullet {
   id: string;
   text: string;
-}
-
-/** A prize the row wears next to its period, both halves already localized. */
-export interface ResumeAward {
-  /** The badge's own text — short enough to sit beside a date range. */
-  label: string;
-  /**
-   * The award's full name. A pointing device reads it in the tooltip; everyone
-   * else reads it because the row's toggle is `aria-describedby` it, since the
-   * badge itself takes no tab stop — it sits inside the toggle, and a second
-   * focusable control nested in a button would be invalid markup.
-   */
-  tooltip: string;
 }
 
 interface ResumeCardProps {
@@ -45,8 +26,6 @@ interface ResumeCardProps {
   summary?: string;
   /** A label such as "Feb 2025 – Feb 2026", already localized. */
   period: string;
-  /** Shown beside the period, for the rare row that won something. */
-  award?: ResumeAward;
   /** Where the row leads when it has no body of its own to expand. */
   href?: string;
   /** Already-localized body lines, each with the message key it came from. */
@@ -77,10 +56,17 @@ interface ResumeCardProps {
  * slice's own block is what the block is for.
  *
  * Two typefaces, split by what the text is (`docs/design/portfolio-redesign-v2.md`
- * §7, decision 2): the organisation's name, the period, the award and the tech
- * stack are labels and set in monospace; the role and the bullets are prose and
- * stay in sans, so a Vietnamese sentence that runs to three lines is not read in
- * a code font.
+ * §7, decision 2): the organisation's name, the period and the tech stack are
+ * labels and set in monospace; the role and the bullets are prose and stay in
+ * sans, so a Vietnamese sentence that runs to three lines is not read in a code
+ * font.
+ *
+ * No award badge (#275): the one row that wore one carried a `Badge` inside a
+ * `Tooltip`, whose full name then had to be repeated in an `sr-only` span
+ * because a tooltip opens on hover and a phone has none — three moving parts,
+ * and the owner judged the prize itself not worth the line. The contribution
+ * behind it is still a bullet in that row's body, which is where a claim on a
+ * CV belongs.
  *
  * The header wraps rather than shrinks. On a 375 px phone a monospace period
  * beside a monospace name does not fit on one line, and the alternative — the
@@ -98,7 +84,6 @@ export default function ResumeCard({
   subtitle,
   summary,
   period,
-  award,
   href,
   bullets,
   techStack,
@@ -109,7 +94,6 @@ export default function ResumeCard({
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const reducedMotion = useReducedMotion();
   const bodyId = useId();
-  const awardDescriptionId = useId();
 
   const hasBody = Boolean(bullets?.length || techStack?.length);
 
@@ -132,35 +116,8 @@ export default function ResumeCard({
             />
           )}
         </span>
-        <span className="flex items-center gap-x-2">
-          {award && (
-            <Tooltip>
-              {/* `render`, not `asChild`: Base UI dropped Radix's Slot, and the
-                  trigger's own default element is a `<button>` — which cannot
-                  be nested inside the accordion header's button. Rendering it
-                  as the `Badge` keeps the markup a single control. */}
-              <TooltipTrigger
-                render={
-                  // The yellow's second and last role — the award, on the
-                  // highlight pair, with the 1 px border a shared control
-                  // keeps (`docs/design/portfolio-redesign-v2.md` §7,
-                  // decision 3). `outline` is the variant whose own colours
-                  // are the two being replaced, so nothing of the primitive's
-                  // fill is left underneath.
-                  <Badge
-                    variant="outline"
-                    className="border-border bg-highlight font-mono text-highlight-foreground"
-                  >
-                    {award.label}
-                  </Badge>
-                }
-              />
-              <TooltipContent>{award.tooltip}</TooltipContent>
-            </Tooltip>
-          )}
-          <span className="font-mono text-sm whitespace-nowrap text-muted-foreground">
-            {period}
-          </span>
+        <span className="font-mono text-sm whitespace-nowrap text-muted-foreground">
+          {period}
         </span>
       </span>
       {subtitle && (
@@ -207,7 +164,6 @@ export default function ResumeCard({
             <button
               type="button"
               aria-controls={bodyId}
-              aria-describedby={award ? awardDescriptionId : undefined}
               aria-expanded={isExpanded}
               onClick={() => setIsExpanded(!isExpanded)}
               className="flex w-full cursor-pointer flex-col gap-0.5 text-left"
@@ -226,16 +182,6 @@ export default function ResumeCard({
             </a>
           )}
         </h3>
-
-        {award && (
-          // The badge's label is in the toggle's name, but its full name is a
-          // tooltip, which opens on hover — and a phone has none. A description
-          // is read *in addition* to the name, so this is where the award's
-          // full name reaches everyone else.
-          <span className="sr-only" id={awardDescriptionId}>
-            {award.tooltip}
-          </span>
-        )}
 
         {hasBody && (
           <motion.div
