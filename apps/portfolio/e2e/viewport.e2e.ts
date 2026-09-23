@@ -665,4 +665,53 @@ test.describe("viewport", () => {
       expect(current - previous).toBeGreaterThanOrEqual(8);
     }
   });
+
+  // #272: the links used to share the name's row via `justify-between`, so
+  // the row wrapped onto its own line unpredictably — differently per name
+  // length and per breakpoint. The name is now always its own row and the
+  // links are the block's last row, under the description and the tech
+  // stack, at every width — checked at a phone, tablet and desktop width.
+  for (const width of [PHONE_WIDTH, TABLET_WIDTH, DESKTOP_WIDTH]) {
+    test(`keeps each project's link row below its name and description at ${width}`, async ({
+      page,
+    }) => {
+      await openHomeAt(page, width, 900);
+
+      const blocks = page.locator('#projects [data-slot="standard-block"]');
+      const blockCount = await blocks.count();
+      expect(blockCount).toBeGreaterThan(0);
+
+      for (let i = 0; i < blockCount; i++) {
+        const block = blocks.nth(i);
+        const name = block.getByRole("heading", { level: 3 });
+        // The description and (when it exists) the tech-stack line are both
+        // <p>s — `.last()` reaches the tech stack when there is one, and
+        // falls back to the description itself when there isn't, so this
+        // checks the AC's "below the description AND the tech stack" as one
+        // box rather than trusting DOM order to imply it.
+        const lastTextRow = block.getByRole("paragraph").last();
+        // StandardBlock itself renders one <div> (the block's own root); the
+        // links wrapper is the only OTHER direct-child <div> a project block
+        // ever renders, so `> div` reaches straight past the name/description/
+        // stack rows (an <h3> and <p>s) to the link row.
+        const linkRow = block.locator("> div");
+
+        const [nameBox, lastTextBox, linkBox] = await Promise.all([
+          name.boundingBox(),
+          lastTextRow.boundingBox(),
+          linkRow.boundingBox(),
+        ]);
+        if (!nameBox || !lastTextBox || !linkBox) {
+          throw new Error("a project row has no box");
+        }
+
+        // Never on the name's row any more — the row this ticket splits apart.
+        expect(linkBox.y).toBeGreaterThan(nameBox.y + nameBox.height - 1);
+        // Below the description and the tech stack (whichever is last).
+        expect(linkBox.y).toBeGreaterThanOrEqual(
+          lastTextBox.y + lastTextBox.height - 1,
+        );
+      }
+    });
+  }
 });
